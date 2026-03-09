@@ -18,10 +18,10 @@ import jakarta.ws.rs.core.Response
 import nl.info.zac.app.admin.model.RestFormioFormulier
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
-import nl.info.zac.formio.FormioService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
+import org.apache.commons.lang3.NotImplementedException
 
 @Singleton
 @Path("formio-formulieren")
@@ -29,7 +29,6 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @NoArgConstructor
 class FormioFormulierenRestService @Inject constructor(
-    private val formioService: FormioService,
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
     private val policyService: PolicyService
 ) {
@@ -37,21 +36,21 @@ class FormioFormulierenRestService @Inject constructor(
     fun listFormulieren(): List<RestFormioFormulier> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return bpmnProcessDefinitionTaskFormService.listForms()
-            .map { RestFormioFormulier(it.id, it.bpmnProcessDefinition, it.name, it.title) }
+            .map { RestFormioFormulier(it.id, it.bpmnProcessDefinitionKey, it.name, it.title) }
     }
 
     @POST
+    @Suppress("UnusedParameter")
     fun createFormulier(restFormioFormulierContent: RestFormioFormulierContent): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        formioService.addFormulier(restFormioFormulierContent.filename, restFormioFormulierContent.content)
-        return Response.created(null).build()
+        throw NotImplementedException("Creating formio form moved to new endpoint")
     }
 
     @DELETE
     @Path("{id}")
+    @Suppress("UnusedParameter")
     fun deleteFormulier(@PathParam("id") id: Long): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        formioService.deleteFormulier(id)
-        return Response.noContent().build()
+        throw NotImplementedException("Deleting formio form moved to new endpoint")
     }
 }

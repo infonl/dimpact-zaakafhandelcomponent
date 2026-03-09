@@ -6,25 +6,17 @@ package nl.info.zac.app.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.verify
-import nl.info.zac.app.admin.model.createRestFormioFormulierContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
-import nl.info.zac.formio.FormioService
 import nl.info.zac.formio.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
-import org.apache.http.HttpStatus
 
 class FormioFormulierenRestServiceTest : BehaviorSpec({
-    val formioService = mockk<FormioService>()
     val policyService = mockk<PolicyService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val formioFormulierenRestService = FormioFormulierenRestService(
-        formioService,
         bpmnProcessDefinitionTaskFormService,
         policyService
     )
@@ -60,38 +52,6 @@ class FormioFormulierenRestServiceTest : BehaviorSpec({
                     id shouldBe 5678L
                     name shouldBe "name2"
                 }
-            }
-        }
-    }
-    Given("Formio form data") {
-        every { policyService.readOverigeRechten().beheren } returns true
-        every { formioService.addFormulier(any(), any()) } just Runs
-        val formioFormulierContent = createRestFormioFormulierContent()
-
-        When("a new formio is created") {
-            val response = formioFormulierenRestService.createFormulier(formioFormulierContent)
-
-            Then("it should add the FormioFormulier and return a created response") {
-                verify(exactly = 1) {
-                    formioService.addFormulier(formioFormulierContent.filename, formioFormulierContent.content)
-                }
-                response.status shouldBe HttpStatus.SC_CREATED
-            }
-        }
-    }
-    Given("A formio form") {
-        val id = 1L
-        every { policyService.readOverigeRechten().beheren } returns true
-        every { formioService.deleteFormulier(any()) } just Runs
-
-        When("the form is deleted") {
-            val response = formioFormulierenRestService.deleteFormulier(id)
-
-            Then("it should delete the form") {
-                verify(exactly = 1) {
-                    formioService.deleteFormulier(id)
-                }
-                response.status shouldBe HttpStatus.SC_NO_CONTENT
             }
         }
     }

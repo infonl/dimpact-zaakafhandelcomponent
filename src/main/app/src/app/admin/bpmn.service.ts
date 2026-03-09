@@ -26,4 +26,25 @@ export class BpmnService {
       path: { key },
     });
   }
+
+  uploadProcessDefinitionForm(
+    key: string,
+    version: number,
+    body: PostBody<"/rest/bpmn-process-definitions">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/bpmn-process-definitions/{key}/forms",
+      body,
+      { path: { key } },
+    );
+  }
+
+  deleteProcessDefinitionForm(key: string, name: string) {
+    return this.zacHttpClient.DELETE(
+      "/rest/bpmn-process-definitions/{key}/forms/{name}",
+      {
+        path: { key, name },
+      },
+    );
+  }
 }

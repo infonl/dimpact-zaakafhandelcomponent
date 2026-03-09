@@ -10,22 +10,26 @@ import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionId
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
+import org.flowable.engine.RepositoryService
+import org.flowable.engine.repository.ProcessDefinition
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS)
 @NoArgConstructor
 @AllOpen
 class BpmnProcessDefinitionTaskFormService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val repositoryService: RepositoryService
 ) {
-    fun readForm(bpmnProcessDefinitionId: BpmnProcessDefinitionId, name: String): JsonObject {
-        return findForm(bpmnProcessDefinitionId, name)?.content?.toJsonObject()
-            ?: throw NoSuchElementException("No BpmnProcessDefinitionTaskForm found with name: '$name'")
+    fun readForm(processDefinitionId: String, name: String): JsonObject {
+        readProcessDefinitionByProcessDefinitionId(processDefinitionId).let {
+            return findForm(it.key, it.version, name)?.content?.toJsonObject()
+                ?: throw NoSuchElementException("No BpmnProcessDefinitionTaskForm found with name: '$name'")
+        }
     }
 
     fun listForms(): List<BpmnProcessDefinitionTaskForm> =
@@ -33,7 +37,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
             criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java).let { query ->
                 query.from(BpmnProcessDefinitionTaskForm::class.java).let {
                     query.orderBy(
-                        criteriaBuilder.asc(it.get<String>("bpmnProcessDefinition")),
+                        criteriaBuilder.asc(it.get<String>("bpmnProcessDefinitionKey")),
                         criteriaBuilder.asc(it.get<String>("bpmnProcessDefinitionVersion")),
                         criteriaBuilder.asc(it.get<String>("name"))
                     )
@@ -43,28 +47,33 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
         }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun addForm(bpmnProcessDefinitionId: BpmnProcessDefinitionId, filename: String, content: String) {
-        val form = content.toJsonObject()
-        BpmnProcessDefinitionTaskForm().apply {
-            this.bpmnProcessDefinition = bpmnProcessDefinitionId.name
-            this.bpmnProcessDefinitionVersion = bpmnProcessDefinitionId.version
-            this.filename = filename
-            this.content = content
-            name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
-            title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
-            findForm(bpmnProcessDefinitionId, name)?.let {
-                id = it.id
-            }
-        }.let { entityManager.merge(it) }
+    fun addForm(processDefinitionKey: String, filename: String, content: String) {
+        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let {
+            val form = content.toJsonObject()
+            BpmnProcessDefinitionTaskForm().apply {
+                this.bpmnProcessDefinitionKey = it.key
+                this.bpmnProcessDefinitionVersion = it.version
+                this.filename = filename
+                this.content = content
+                name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
+                title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
+                findForm(it.key, it.version, name)?.let {
+                    id = it.id
+                }
+            }.let { entityManager.merge(it) }
+        }
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    fun deleteForm(id: Long) {
-        entityManager.find(BpmnProcessDefinitionTaskForm::class.java, id)?.let { entityManager.remove(it) }
+    fun deleteForm(processDefinitionKey: String, name: String) {
+        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let { pd ->
+            findForm(pd.key, pd.version, name)?.let { entityManager.remove(it) }
+        }
     }
 
     private fun findForm(
-        bpmnProcessDefinitionId: BpmnProcessDefinitionId,
+        key: String,
+        version: Int,
         name: String
     ): BpmnProcessDefinitionTaskForm? =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
@@ -73,11 +82,11 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                     query.where(
                         criteriaBuilder.equal(
                             it.get<String>("bpmnProcessDefinition"),
-                            bpmnProcessDefinitionId.name
+                            key
                         ),
                         criteriaBuilder.equal(
                             it.get<String>("bpmnProcessDefinitionVersion"),
-                            bpmnProcessDefinitionId.version
+                            version
                         ),
                         criteriaBuilder.equal(it.get<String>("name"), name)
                     )
@@ -87,4 +96,16 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
         }
 
     private fun String.toJsonObject(): JsonObject = Json.createReader(this.reader()).readObject()
+
+    private fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
+        repositoryService.createProcessDefinitionQuery()
+            .processDefinitionKey(processDefinitionKey)
+            .active()
+            .latestVersion()
+            .singleResult()
+
+    private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String): ProcessDefinition =
+        repositoryService.createProcessDefinitionQuery()
+            .processDefinitionId(processDefinitionId)
+            .singleResult()
 }
