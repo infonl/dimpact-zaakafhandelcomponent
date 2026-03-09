@@ -12,8 +12,8 @@ import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
-import nl.info.zac.app.klant.model.contactdetails.getStandaardAdres
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
+import nl.info.zac.app.klant.model.contactdetails.getStandaardAdres
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres

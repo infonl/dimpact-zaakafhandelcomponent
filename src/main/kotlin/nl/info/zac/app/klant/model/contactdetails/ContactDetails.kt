@@ -27,4 +27,3 @@ fun List<DigitaalAdres>.toContactDetails(): ContactDetails {
  */
 fun List<DigitaalAdres>.getStandaardAdres(): DigitaalAdres? =
     firstOrNull { it.isStandaardAdres == true } ?: firstOrNull()
-
