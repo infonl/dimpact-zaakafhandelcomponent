@@ -151,6 +151,61 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     );
   });
 
+  it("VERGRENDELD documentZoekObject zonder vergrendeldDoor: translateService aangeroepen zonder gebruiker", () => {
+    component.ngOnChanges({
+      documentZoekObject: new SimpleChange(
+        undefined,
+        {
+          ...mockZoekObject,
+          vergrendeldDoor: undefined as unknown as string,
+          indicaties: ["VERGRENDELD"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
+      gebruiker: undefined,
+    });
+  });
+
+  it("VERGRENDELD document zonder gelockedDoor: translateService aangeroepen zonder gebruiker", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          indicaties: ["VERGRENDELD"],
+        } as GeneratedType<"RestEnkelvoudigInformatieobject">,
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
+      gebruiker: undefined,
+    });
+  });
+
+  it("VERGRENDELD document met gelockedDoor zonder naam: translateService aangeroepen zonder gebruiker", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          ...mockDocument,
+          gelockedDoor: { id: "user1", naam: undefined as unknown as string },
+          indicaties: ["VERGRENDELD"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
+      gebruiker: undefined,
+    });
+  });
+
   it("ONDERTEKEND document: toelichting bevat soort en geformatteerde datum", () => {
     component.ngOnChanges({
       document: new SimpleChange(
@@ -177,6 +232,94 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     expect(component.indicaties[0].toelichting).toBe(
       `Analoog-${datumPipe.transform("2024-03-10")}`,
     );
+  });
+
+  it("ONDERTEKEND documentZoekObject zonder ondertekeningSoort: toelichting toont 'undefined' als soort", () => {
+    component.ngOnChanges({
+      documentZoekObject: new SimpleChange(
+        undefined,
+        {
+          ...mockZoekObject,
+          ondertekeningSoort: undefined as unknown as string,
+          indicaties: ["ONDERTEKEND"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe(
+      `undefined-${datumPipe.transform("2024-03-10")}`,
+    );
+  });
+
+  it("ONDERTEKEND documentZoekObject zonder ondertekeningDatum: toelichting toont 'undefined' als datum", () => {
+    component.ngOnChanges({
+      documentZoekObject: new SimpleChange(
+        undefined,
+        {
+          ...mockZoekObject,
+          ondertekeningDatum: undefined as unknown as string,
+          indicaties: ["ONDERTEKEND"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("Analoog-undefined");
+  });
+
+  it("ONDERTEKEND document zonder ondertekening object: toelichting toont 'undefined' voor beide velden", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          indicaties: ["ONDERTEKEND"],
+        } as GeneratedType<"RestEnkelvoudigInformatieobject">,
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("undefined-undefined");
+  });
+
+  it("ONDERTEKEND document zonder ondertekening soort: toelichting toont 'undefined' als soort", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          ...mockDocument,
+          ondertekening: {
+            soort: undefined as unknown as string,
+            datum: "2024-01-15",
+          },
+          indicaties: ["ONDERTEKEND"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe(
+      `undefined-${datumPipe.transform("2024-01-15")}`,
+    );
+  });
+
+  it("ONDERTEKEND document zonder ondertekening datum: toelichting toont 'undefined' als datum", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          ...mockDocument,
+          ondertekening: {
+            soort: "Digitaal",
+            datum: undefined as unknown as string,
+          },
+          indicaties: ["ONDERTEKEND"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("Digitaal-undefined");
   });
 
   it("BESLUIT document: toelichting via translateService", () => {
@@ -229,6 +372,36 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     expect(component.indicaties[0].toelichting).toBe(
       datumPipe.transform("2024-03-15"),
     );
+  });
+
+  it("VERZONDEN documentZoekObject zonder verzenddatum: toelichting is leeg", () => {
+    component.ngOnChanges({
+      documentZoekObject: new SimpleChange(
+        undefined,
+        {
+          ...mockZoekObject,
+          verzenddatum: undefined as unknown as string,
+          indicaties: ["VERZONDEN"],
+        },
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("");
+  });
+
+  it("VERZONDEN document zonder verzenddatum: toelichting is leeg", () => {
+    component.ngOnChanges({
+      document: new SimpleChange(
+        undefined,
+        {
+          indicaties: ["VERZONDEN"],
+        } as GeneratedType<"RestEnkelvoudigInformatieobject">,
+        true,
+      ),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("");
   });
 
   it("meerdere indicaties worden allemaal toegevoegd", () => {
