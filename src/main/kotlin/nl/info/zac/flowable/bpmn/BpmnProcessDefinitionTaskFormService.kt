@@ -38,7 +38,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                 query.from(BpmnProcessDefinitionTaskForm::class.java).let {
                     query.orderBy(
                         criteriaBuilder.asc(it.get<String>("bpmnProcessDefinitionKey")),
-                        criteriaBuilder.asc(it.get<String>("bpmnProcessDefinitionVersion")),
+                        criteriaBuilder.asc(it.get<Int>("bpmnProcessDefinitionVersion")),
                         criteriaBuilder.asc(it.get<String>("name"))
                     )
                 }
@@ -85,7 +85,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                             key
                         ),
                         criteriaBuilder.equal(
-                            it.get<String>("bpmnProcessDefinitionVersion"),
+                            it.get<Int>("bpmnProcessDefinitionVersion"),
                             version
                         ),
                         criteriaBuilder.equal(it.get<String>("name"), name)
