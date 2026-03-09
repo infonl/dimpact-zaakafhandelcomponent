@@ -165,6 +165,20 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     );
   });
 
+  it("ONDERTEKEND document zonder ondertekening: toelichting is leeg", () => {
+    const documentWithoutOndertekening = {
+      ...mockDocument,
+      ondertekening: undefined,
+      indicaties: ["ONDERTEKEND"],
+    } as unknown as GeneratedType<"RestEnkelvoudigInformatieobject">;
+
+    component.ngOnChanges({
+      document: new SimpleChange(undefined, documentWithoutOndertekening, true),
+    });
+
+    expect(component.indicaties[0].toelichting).toBe("");
+  });
+
   it("ONDERTEKEND documentZoekObject: toelichting bevat soort en geformatteerde datum", () => {
     component.ngOnChanges({
       documentZoekObject: new SimpleChange(
