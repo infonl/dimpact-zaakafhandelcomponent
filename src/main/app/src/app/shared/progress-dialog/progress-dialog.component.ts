@@ -10,6 +10,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
   selector: "app-progress-dialog",
   templateUrl: "./progress-dialog.component.html",
   styleUrls: ["./progress-dialog.component.less"],
+  standalone: true,
   imports: [MatProgressBarModule],
 })
 export class ProgressDialogComponent {
