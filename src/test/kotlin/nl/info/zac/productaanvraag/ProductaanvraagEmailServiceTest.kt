@@ -91,7 +91,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
                 with(mailGegevens.captured) {
                     from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-                    to.email shouldBe receiverEmail // Should use the address with isStandaardAdres == true
+                    to.email shouldBe receiverEmail
                     replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
@@ -215,7 +215,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
                 with(mailGegevens.captured) {
                     from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-                    to.email shouldBe receiverEmail // Should use the address with isStandaardAdres == true
+                    to.email shouldBe receiverEmail
                     replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
