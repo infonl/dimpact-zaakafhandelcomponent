@@ -164,7 +164,9 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(component.indicaties[0].toelichting).toBe(
+      "msg.document.vergrendeld",
+    );
     expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
       gebruiker: undefined,
     });
@@ -181,7 +183,9 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(component.indicaties[0].toelichting).toBe(
+      "msg.document.vergrendeld",
+    );
     expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
       gebruiker: undefined,
     });
@@ -200,7 +204,9 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe("msg.document.vergrendeld");
+    expect(component.indicaties[0].toelichting).toBe(
+      "msg.document.vergrendeld",
+    );
     expect(translateInstant).toHaveBeenCalledWith("msg.document.vergrendeld", {
       gebruiker: undefined,
     });
@@ -317,7 +323,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
     );
   });
 
-  it("ONDERTEKEND document zonder ondertekening datum: toelichting toont 'undefined' als datum", () => {
+  it("ONDERTEKEND document zonder ondertekening xxdatum: toelichting toont 'undefined' als datum", () => {
     component.ngOnChanges({
       document: new SimpleChange(
         undefined,
