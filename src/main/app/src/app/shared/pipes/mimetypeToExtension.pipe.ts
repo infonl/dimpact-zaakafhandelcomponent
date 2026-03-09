@@ -11,6 +11,7 @@ import {
 
 @Pipe({
   name: "mimetypeToExtension",
+  standalone: true,
 })
 export class MimetypeToExtensionPipe implements PipeTransform {
   fileFormatExtesions = FileFormatExtensionMapping;
