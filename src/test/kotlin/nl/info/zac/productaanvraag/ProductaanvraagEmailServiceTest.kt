@@ -173,7 +173,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
     Given("zaak with bedrijf as an initiator is created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
-        val betrokkene = createBetrokkene()
+        val betrokkene = createBetrokkene(inBsn = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val receiverEmail = "receiver@server.com"
         val otherEmail = "other@server.com"
@@ -194,7 +194,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val bronnen = slot<Bronnen>()
 
         every {
-            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
+            klantClientService.findDigitalAddressesForVestiging(betrokkene.vestigingsNummer, betrokkene.kvkNummer)
         } returns digitalAddresses
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
@@ -318,6 +318,52 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             )
 
             Then("no mail is sent") {}
+        }
+    }
+    Given("zaak created from productaanvraag and no email address is marked as standaard adres") {
+        val zaak = createZaak()
+        val betrokkene = createBetrokkene()
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val firstEmail = "first@server.com"
+        val secondEmail = "second@server.com"
+        val digitalAddresses = listOf(
+            createDigitalAddress(
+                address = firstEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            ),
+            createDigitalAddress(
+                address = secondEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = null
+            )
+        )
+        val mailTemplate = createMailTemplate()
+        val mailGegevens = slot<MailGegevens>()
+        val bronnen = slot<Bronnen>()
+
+        every {
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
+        } returns digitalAddresses
+        every {
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
+        } returns mailTemplate
+        every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
+        every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
+
+        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration
+            )
+
+            Then("email is sent to the first address as fallback") {
+                verify(exactly = 1) {
+                    mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
+                }
+                mailGegevens.captured.to.email shouldBe firstEmail
+            }
         }
     }
 })
