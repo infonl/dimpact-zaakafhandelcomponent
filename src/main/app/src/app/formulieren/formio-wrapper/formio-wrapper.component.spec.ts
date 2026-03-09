@@ -240,9 +240,7 @@ describe(FormioWrapperComponent.name, () => {
     it("should not throw when formio is null", () => {
       const nullFormio = { formio: null };
 
-      expect(() =>
-        component.onFormioReady(nullFormio as never),
-      ).not.toThrow();
+      expect(() => component.onFormioReady(nullFormio as never)).not.toThrow();
     });
   });
 
