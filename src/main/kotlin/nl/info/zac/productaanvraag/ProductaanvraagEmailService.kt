@@ -67,10 +67,15 @@ class ProductaanvraagEmailService @Inject constructor(
             onNoIdentity = { null }
         )
 
-    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
-        klantClientService.findDigitalAddressesForNaturalPerson(identity)
-            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? {
+        return klantClientService.findDigitalAddressesForNaturalPerson(identity)
+            .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            .let { emailAddresses ->
+                emailAddresses.firstOrNull { it.isStandaardAdres == true } ?: emailAddresses.firstOrNull()
+            }
             ?.adres
+        }
+
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
         val digitalAddresses = if (vestigingsNummer != null) {
@@ -80,7 +85,10 @@ class ProductaanvraagEmailService @Inject constructor(
             klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
         }
         return digitalAddresses
-            .firstOrNull { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
+            .let { emailAddresses ->
+                emailAddresses.firstOrNull { it.isStandaardAdres == true } ?: emailAddresses.firstOrNull()
+            }
             ?.adres
     }
 

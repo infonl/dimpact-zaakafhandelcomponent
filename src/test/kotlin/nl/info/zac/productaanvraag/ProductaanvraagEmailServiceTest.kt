@@ -52,9 +52,18 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val receiverEmail = "receiver@server.com"
-        val digitalAddress = createDigitalAddress(
-            address = receiverEmail,
-            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
+        val otherEmail = "other@server.com"
+        val digitalAddresses = listOf(
+            createDigitalAddress(
+                address = otherEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            ),
+            createDigitalAddress(
+                address = receiverEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = true
+            )
         )
         val mailTemplate = createMailTemplate()
         val mailGegevens = slot<MailGegevens>()
@@ -62,7 +71,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         every {
             klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
-        } returns listOf(digitalAddress)
+        } returns digitalAddresses
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
@@ -76,13 +85,13 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent") {
+            Then("email is sent to the correct address") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 with(mailGegevens.captured) {
                     from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-                    to.email shouldBe receiverEmail
+                    to.email shouldBe receiverEmail // Should use the address with isStandaardAdres == true
                     replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
@@ -167,9 +176,18 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val receiverEmail = "receiver@server.com"
-        val digitalAddress = createDigitalAddress(
-            address = receiverEmail,
-            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
+        val otherEmail = "other@server.com"
+        val digitalAddresses = listOf(
+            createDigitalAddress(
+                address = otherEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            ),
+            createDigitalAddress(
+                address = receiverEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = true
+            )
         )
         val mailTemplate = createMailTemplate()
         val mailGegevens = slot<MailGegevens>()
@@ -177,7 +195,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
 
         every {
             klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
-        } returns listOf(digitalAddress)
+        } returns digitalAddresses
         every {
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns mailTemplate
@@ -191,13 +209,13 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent") {
+            Then("email is sent to the correct address") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
                 with(mailGegevens.captured) {
                     from.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailSender
-                    to.email shouldBe receiverEmail
+                    to.email shouldBe receiverEmail // Should use the address with isStandaardAdres == true
                     replyTo!!.email shouldBe zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.emailReply
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
@@ -300,6 +318,104 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             )
 
             Then("no mail is sent") {}
+        }
+    }
+
+    Given("natuurlijk persoon with multiple emails but none marked as isStandaardAdres") {
+        val zaak = createZaak()
+        val betrokkene = createBetrokkene()
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val firstEmail = "first@server.com"
+        val secondEmail = "second@server.com"
+        val digitalAddresses = listOf(
+            createDigitalAddress(
+                address = firstEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            ),
+            createDigitalAddress(
+                address = secondEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            )
+        )
+        val mailTemplate = createMailTemplate()
+        val mailGegevens = slot<MailGegevens>()
+        val bronnen = slot<Bronnen>()
+
+        every {
+            klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
+        } returns digitalAddresses
+        every {
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
+        } returns mailTemplate
+        every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
+        every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
+
+        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration
+            )
+
+            Then("email is sent to the first available email address") {
+                verify(exactly = 1) {
+                    mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
+                }
+                with(mailGegevens.captured) {
+                    to.email shouldBe firstEmail
+                }
+            }
+        }
+    }
+
+    Given("bedrijf initiator with multiple emails but none marked as isStandaardAdres") {
+        val zaak = createZaak()
+        val betrokkene = createBetrokkene(inBsn = null)
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val firstEmail = "bedrijf-first@server.com"
+        val secondEmail = "bedrijf-second@server.com"
+        val digitalAddresses = listOf(
+            createDigitalAddress(
+                address = firstEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            ),
+            createDigitalAddress(
+                address = secondEmail,
+                soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                isStandaardAdres = false
+            )
+        )
+        val mailTemplate = createMailTemplate()
+        val mailGegevens = slot<MailGegevens>()
+        val bronnen = slot<Bronnen>()
+
+        every {
+            klantClientService.findDigitalAddressesForVestiging(betrokkene.vestigingsNummer, betrokkene.kvkNummer)
+        } returns digitalAddresses
+        every {
+            mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
+        } returns mailTemplate
+        every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
+        every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
+
+        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak,
+                betrokkene,
+                zaaktypeCmmnConfiguration
+            )
+
+            Then("email is sent to the first available email address") {
+                verify(exactly = 1) {
+                    mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
+                }
+                with(mailGegevens.captured) {
+                    to.email shouldBe firstEmail
+                }
+            }
         }
     }
 })
