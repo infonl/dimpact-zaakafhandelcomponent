@@ -12,6 +12,7 @@ import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
+import nl.info.zac.app.klant.model.contactdetails.getStandaardAdres
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
@@ -67,15 +68,11 @@ class ProductaanvraagEmailService @Inject constructor(
             onNoIdentity = { null }
         )
 
-    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? {
-        return klantClientService.findDigitalAddressesForNaturalPerson(identity)
+    private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
+        klantClientService.findDigitalAddressesForNaturalPerson(identity)
             .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
-            .let { emailAddresses ->
-                emailAddresses.firstOrNull { it.isStandaardAdres == true } ?: emailAddresses.firstOrNull()
-            }
+            .getStandaardAdres()
             ?.adres
-        }
-
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
         val digitalAddresses = if (vestigingsNummer != null) {
@@ -86,9 +83,7 @@ class ProductaanvraagEmailService @Inject constructor(
         }
         return digitalAddresses
             .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
-            .let { emailAddresses ->
-                emailAddresses.firstOrNull { it.isStandaardAdres == true } ?: emailAddresses.firstOrNull()
-            }
+            .getStandaardAdres()
             ?.adres
     }
 
