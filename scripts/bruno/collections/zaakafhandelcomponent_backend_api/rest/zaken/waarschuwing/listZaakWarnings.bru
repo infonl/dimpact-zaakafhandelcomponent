@@ -1,0 +1,11 @@
+meta {
+  name: listZaakWarnings
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/rest/zaken/waarschuwing
+  body: none
+  auth: inherit
+}

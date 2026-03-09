@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import net.atos.client.or.`object`.ObjectsClientService
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
@@ -29,6 +28,7 @@ import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
+import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -722,13 +722,20 @@ class ProductaanvraagService @Inject constructor(
             )
         }
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        val initiator = addInitiatorAndBetrokkenenToZaak(
+        addInitiatorAndBetrokkenenToZaak(
             productaanvraag = productaanvraagDimpact,
             zaak = zaak,
             brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
-        )
-        productaanvraagEmailService.sendEmailForZaakFromProductaanvraag(zaak, initiator, zaaktypeCmmnConfiguration)
+        )?.run {
+            productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                zaak = zaak,
+                betrokkene = this,
+                zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
+            )
+        } ?: LOG.fine {
+            "No initiator provided for zaak with identification: '${zaak.identificatie}'. Skipping automatic email confirmation."
+        }
     }
 
     private fun createZaak(

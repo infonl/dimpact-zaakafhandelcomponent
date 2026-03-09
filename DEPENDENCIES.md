@@ -4,12 +4,12 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Core Dependencies
 
-- **postgres**: 17.8
+- **postgres**: 17.9
 - **keycloak**: 26.5.4
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.13.2-static
+- **openpolicyagent/opa**: 1.14.0-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.2
 - **otel/opentelemetry-collector-contrib**: 0.145.0

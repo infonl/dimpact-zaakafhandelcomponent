@@ -48,6 +48,7 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     creatiedatum = convertToLocalDate(this@toRestTaakZoekObject.creatiedatum),
     toekenningsdatum = convertToLocalDate(this@toRestTaakZoekObject.toekenningsdatum),
     fataledatum = convertToLocalDate(this@toRestTaakZoekObject.fataledatum),
+    groepID = this@toRestTaakZoekObject.groepID,
     groepNaam = this@toRestTaakZoekObject.groepNaam,
     behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam,
     behandelaarGebruikersnaam = this@toRestTaakZoekObject.behandelaarGebruikersnaam,
