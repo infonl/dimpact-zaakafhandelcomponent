@@ -37,7 +37,7 @@ FROM (
                      'g'
               ))[1] AS form_key
          FROM flowable.act_ge_bytearray
-         WHERE name_ LIKE '%.bpmn%'
+         WHERE name_ LIKE '%.bpmn'
            AND CONVERT_FROM(bytes_, 'UTF8') LIKE '%formKey%'
      ) as bpmn_form_keys
      ON bpmn_definitions.deployment_id_ = bpmn_form_keys.deployment_id_;
