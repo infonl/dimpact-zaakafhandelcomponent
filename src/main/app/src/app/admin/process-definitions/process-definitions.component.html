@@ -63,7 +63,10 @@
               <td mat-cell *matCellDef="let row">
                 <button
                   mat-icon-button
-                  title="{{ 'actie.toevoegen' | translate }}"
+                  title="{{
+                    'Toevoegen FormIO bestand aan deze BPMN procesdefinitie'
+                      | translate
+                  }}"
                   [disabled]="row.inUse"
                   (click)="selectFormioFile(row.key)"
                 >
