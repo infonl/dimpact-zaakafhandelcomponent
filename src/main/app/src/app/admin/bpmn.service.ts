@@ -29,7 +29,6 @@ export class BpmnService {
 
   uploadProcessDefinitionForm(
     key: string,
-    version: number,
     body: PostBody<"/rest/bpmn-process-definitions">,
   ) {
     return this.zacHttpClient.POST(
