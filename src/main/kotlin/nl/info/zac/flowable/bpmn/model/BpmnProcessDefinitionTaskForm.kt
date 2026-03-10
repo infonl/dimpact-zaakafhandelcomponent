@@ -36,7 +36,6 @@ class BpmnProcessDefinitionTaskForm {
     @Column(name = "bpmn_procesdefinitie")
     lateinit var bpmnProcessDefinitionKey: String
 
-    @NotBlank
     @Column(name = "bpmn_procesdefinitie_versie")
     var bpmnProcessDefinitionVersion: Int = 0
 
