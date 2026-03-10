@@ -46,22 +46,7 @@
             </ng-container>
 
             <ng-container matColumnDef="id" stickyEnd>
-              <th mat-header-cell *matHeaderCellDef>
-                <button
-                  mat-icon-button
-                  id="upload"
-                  title="{{ 'actie.toevoegen' | translate }}"
-                  (click)="selectFile()"
-                >
-                  <mat-icon>add_circle</mat-icon>
-                </button>
-                <input
-                  type="file"
-                  #fileInput
-                  (change)="fileSelected($event)"
-                  style="display: none"
-                />
-              </th>
+              <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
                 <button
                   mat-icon-button

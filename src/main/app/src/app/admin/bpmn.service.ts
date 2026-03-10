@@ -27,6 +27,10 @@ export class BpmnService {
     });
   }
 
+  listFormioFormulieren() {
+    return this.zacHttpClient.GET("/rest/formio-formulieren");
+  }
+
   uploadProcessDefinitionForm(
     key: string,
     body: PostBody<"/rest/bpmn-process-definitions/{key}/forms">,
