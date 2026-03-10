@@ -124,8 +124,12 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   }
 
   onFormioReady(formioBaseComponent: FormioBaseComponent) {
-    const isDutch = navigator.language?.toLowerCase().startsWith("nl") ?? false;
-    formioBaseComponent.formio?.addLanguage(
+    const isDutch = navigator.language.toLowerCase().startsWith("nl") ?? false;
+    if (formioBaseComponent.formio) {
+        console.error("Cannot load NL translations: formio instance is not available")
+        return
+    }
+    formioBaseComponent.formio.addLanguage(
       "nl",
       FORMIO_NL_TRANSLATIONS,
       isDutch,
