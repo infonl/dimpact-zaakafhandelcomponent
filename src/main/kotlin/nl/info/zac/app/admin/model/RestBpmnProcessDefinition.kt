@@ -6,13 +6,26 @@ package nl.info.zac.app.admin.model
 
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 
 @AllOpen
 @NoArgConstructor
-class RestBpmnProcessDefinition(
+data class RestBpmnProcessDefinition(
     var id: String,
     var name: String,
     var version: Int,
     var key: String,
-    var inUse: Boolean
+    var inUse: Boolean,
+    var documentation: String? = null,
+    var modificationDate: ZonedDateTime? = null,
+    var forms: List<RestBpmnProcessDefinitionForm> = emptyList(),
+    var orphanedForms: List<RestBpmnProcessDefinitionForm> = emptyList(),
+)
+
+@AllOpen
+@NoArgConstructor
+data class RestBpmnProcessDefinitionForm(
+    var formKey: String,
+    var title: String? = null,
+    var isUploaded: Boolean = false,
 )
