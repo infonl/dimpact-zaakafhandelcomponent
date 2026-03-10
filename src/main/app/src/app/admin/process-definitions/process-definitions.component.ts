@@ -29,13 +29,18 @@ export class ProcessDefinitionsComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("fileInput", { static: false }) fileInput!: ElementRef;
+  @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
+  bpmnProcessDefinitionFileInput!: ElementRef;
+  @ViewChild("formioFileInput", { static: false })
+  formioFileInput!: ElementRef;
 
   isLoadingResults = false;
   columns: string[] = ["name", "version", "key", "id"];
   dataSource = new MatTableDataSource<
     GeneratedType<"RestBpmnProcessDefinition">
   >();
+
+  private currentProcessDefinitionKey = "";
 
   constructor(
     public dialog: MatDialog,
@@ -52,11 +57,11 @@ export class ProcessDefinitionsComponent
     this.loadProcessDefinitions();
   }
 
-  selectFile() {
-    this.fileInput.nativeElement.click();
+  selectBpmnProcessDefinitionFile() {
+    this.bpmnProcessDefinitionFileInput.nativeElement.click();
   }
 
-  fileSelected(event: Event) {
+  bpmnProcessDefinitionFileSelected(event: Event) {
     if (event.target instanceof HTMLInputElement) {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -78,7 +83,9 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  delete(processDefinition: GeneratedType<"RestBpmnProcessDefinition">) {
+  deleteProcessDefinition(
+    processDefinition: GeneratedType<"RestBpmnProcessDefinition">,
+  ) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -98,6 +105,32 @@ export class ProcessDefinitionsComponent
           );
           this.loadProcessDefinitions();
         }
+      });
+  }
+
+  selectFormioFile(bpmnProcessDefinitionKey: string) {
+    this.currentProcessDefinitionKey = bpmnProcessDefinitionKey;
+    this.formioFileInput.nativeElement.click();
+  }
+
+  formioFileSelected(event: Event) {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0];
+    if (!file) return;
+
+    this.readFileContent(file)
+      .then((content) => {
+        this.bpmnService
+          .uploadProcessDefinitionForm(this.currentProcessDefinitionKey, {
+            filename: file.name,
+            content,
+          })
+          .subscribe(() => {
+            this.loadProcessDefinitions();
+          });
+      })
+      .catch((error) => {
+        this.foutAfhandelingService.foutAfhandelen(error);
       });
   }
 
