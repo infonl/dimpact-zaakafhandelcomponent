@@ -37,9 +37,13 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
             criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java).let { query ->
                 query.from(BpmnProcessDefinitionTaskForm::class.java).let {
                     query.orderBy(
-                        criteriaBuilder.asc(it.get<String>("bpmnProcessDefinitionKey")),
-                        criteriaBuilder.asc(it.get<Int>("bpmnProcessDefinitionVersion")),
-                        criteriaBuilder.asc(it.get<String>("name"))
+                        criteriaBuilder.asc(
+                            it.get<String>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionKey.name)
+                        ),
+                        criteriaBuilder.asc(
+                            it.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name)
+                        ),
+                        criteriaBuilder.asc(it.get<String>(BpmnProcessDefinitionTaskForm::name.name))
                     )
                 }
                 entityManager.createQuery(query).resultList
@@ -81,11 +85,11 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                 query.from(BpmnProcessDefinitionTaskForm::class.java).let {
                     query.where(
                         criteriaBuilder.equal(
-                            it.get<String>("bpmnProcessDefinitionKey"),
+                            it.get<String>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionKey.name),
                             key
                         ),
                         criteriaBuilder.equal(
-                            it.get<Int>("bpmnProcessDefinitionVersion"),
+                            it.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name),
                             version
                         ),
                         criteriaBuilder.equal(it.get<String>("name"), name)
