@@ -81,7 +81,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                 query.from(BpmnProcessDefinitionTaskForm::class.java).let {
                     query.where(
                         criteriaBuilder.equal(
-                            it.get<String>("bpmnProcessDefinition"),
+                            it.get<String>("bpmnProcessDefinitionKey"),
                             key
                         ),
                         criteriaBuilder.equal(
