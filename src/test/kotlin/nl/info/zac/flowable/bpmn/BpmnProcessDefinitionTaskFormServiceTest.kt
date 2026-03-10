@@ -72,7 +72,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -112,7 +112,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -202,7 +202,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -258,7 +258,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -304,7 +304,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -347,7 +347,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -392,7 +392,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
@@ -432,7 +432,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinition") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
         every { root.get<String>("name") } returns namePath
         every {
