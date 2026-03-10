@@ -124,8 +124,7 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   }
 
   onFormioReady(formioBaseComponent: FormioBaseComponent) {
-    const browserLang = navigator.language?.toLowerCase();
-    const isDutch = browserLang === "nl" || browserLang?.startsWith("nl-");
+    const isDutch = navigator.language?.toLowerCase().startsWith("nl") ?? false;
     formioBaseComponent.formio?.addLanguage(
       "nl",
       FORMIO_NL_TRANSLATIONS,
