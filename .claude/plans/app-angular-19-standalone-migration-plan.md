@@ -18,7 +18,7 @@ We migrate one component at a time using TDD, in order of complexity (fewest dep
 | **Fix TS errors only in touched files** | Only fix TypeScript errors in files you actually modified in this session. Do not fix pre-existing errors in untouched files. |
 | **Access modifiers in component `.ts`** | All class members (methods, fields, getters, computed signals) must have an explicit access modifier: use `protected` as the default for anything used in the template; use `private` for anything only used internally within the class; use `public` only when required by an interface or called from outside the class. |
 | **No access modifiers in spec files** | Spec files are plain functions — no class members to annotate. But still: no `any`. |
-| **SPDX header** | Every modified file needs the header. Only add `2026 INFO.nl` if `INFO.nl` is **completely absent** from the copyright line. If `INFO.nl` already appears (any year), leave the header unchanged. |
+| **SPDX header** | Every modified file needs the header. For **existing files**: only add `2026 INFO.nl` if `INFO.nl` is completely absent; if it already appears (any year), leave unchanged. For **new spec files we create**: use only `SPDX-License-Identifier: EUPL-1.2+` — no `SPDX-FileCopyrightText` line. |
 
 ### ATOS Form Builder — Excluded Files (do not touch)
 
@@ -179,9 +179,16 @@ bash scripts/lint-changed-files.sh
 
 ### 11. COMMIT on temp branch
 Work is done on `temp/standalone-migration` (branched from `main`).
+
+First, apply Spotless formatting (from repo root):
+```bash
+./gradlew clean spotlessAppApply
+```
+
+Then stage and commit:
 ```bash
 git add <touched files>
-git commit -m "chore: migrate <component-name> to standalone"
+git commit -m "chore(app): NG19 migration to standalone components - <Component name>"
 ```
 
 ### 12. FUNCTIONAL TESTING — by the user
@@ -242,7 +249,7 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 - **Gotcha**: `injectIsMutating()` / `injectIsFetching()` use `notifyManager` async scheduler. Group both under `describe("when TanStack Query is active")` with shared `beforeEach(() => notifyManager.setScheduler((fn) => fn()))` and `afterEach` to restore. Import `notifyManager` from `@tanstack/query-core`.
 - **Gotcha**: In-flight query cancelled by `testQueryClient.clear()` in setupJest's global `afterEach` throws `CancelledError`. Fix: `.catch(() => {})` on `query.fetch()`.
 - **Gotcha**: After migration, spec uses `imports: [LoadingComponent]` (not `declarations`); `MatProgressBarModule` drops from spec as the standalone component brings it.
-- **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided via `let mock: Pick<UtilService, 'loading'>` + `useValue`; `QueryClient` via `provideQueryClient(testQueryClient)`.
+- **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
 ## Next Target
 `src/main/app/src/app/shared/export-button/export-button.component.ts`

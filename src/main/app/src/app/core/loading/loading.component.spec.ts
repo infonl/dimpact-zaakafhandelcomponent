@@ -3,10 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-/*
- * SPDX-License-Identifier: EUPL-1.2+
- */
-
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { NgZone, signal } from "@angular/core";
