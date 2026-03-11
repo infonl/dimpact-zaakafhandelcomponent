@@ -38,12 +38,14 @@
             <input
               type="file"
               #bpmnProcessDefinitionFileInput
+              accept=".bpmn"
               (change)="bpmnProcessDefinitionFileSelected($event)"
               style="display: none"
             />
             <input
               type="file"
               #formioFileInput
+              accept=".json"
               (change)="bpmnFormFileSelected($event)"
               style="display: none"
             />
