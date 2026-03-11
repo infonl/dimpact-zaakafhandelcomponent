@@ -69,8 +69,9 @@ From the template, list every Angular feature used:
 
 ### 4. WRITE SPEC (TDD — before migration)
 - Create `<component>.component.spec.ts` if it does not exist; extend it if it does.
-- Follow the pattern from `loading.component.spec.ts` (canonical reference):
-  - `TestBed.configureTestingModule({ declarations: [Component], imports: [...] })`
+- Follow the same testing style as `loading.component.spec.ts` (canonical reference), but note the TestBed difference:
+  - **Before migration (non-standalone component)**: `TestBed.configureTestingModule({ declarations: [Component], imports: [...] })`
+  - **After migration (standalone component)**: `TestBed.configureTestingModule({ imports: [Component, ...] })` — this is what `loading.component.spec.ts` uses.
   - `NoopAnimationsModule` for Material
   - `TranslateModule.forRoot()` if template uses `translate`
   - Use `MatHarness` classes for Material component interaction
