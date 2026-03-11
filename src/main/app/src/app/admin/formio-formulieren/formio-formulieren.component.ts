@@ -9,7 +9,6 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
