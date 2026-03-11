@@ -1093,5 +1093,6 @@
   "defaultWaarde": "Standaardwaarde",
   "verplicht": "Verplicht",
   "meerkeuzeOpties": "Meerkeuze opties",
-  "volgorde": "Volgorde"
+  "volgorde": "Volgorde",
+  "proces-definitie.sleutel": "Sleutel"
 }

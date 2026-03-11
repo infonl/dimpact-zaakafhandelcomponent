@@ -45,7 +45,7 @@ export class ProcessDefinitionsComponent
   @ViewChild("formioFileInput", { static: false })
   formioFileInput!: ElementRef;
 
-  treeData: ProcessDefinitionGroupNode[] = [];
+  data: ProcessDefinitionGroupNode[] = [];
 
   childrenAccessor = (node: ProcessDefinitionNode) =>
     (node as ProcessDefinitionGroupNode).versions ?? [];
@@ -57,7 +57,7 @@ export class ProcessDefinitionsComponent
     "versions" in node &&
     Boolean((node as ProcessDefinitionGroupNode).versions?.length);
 
-  private currentProcessDefinitionKey = "";
+  private selectedBpmnProcessDefinitionKey = "";
 
   constructor(
     public dialog: MatDialog,
@@ -74,11 +74,11 @@ export class ProcessDefinitionsComponent
     this.loadProcessDefinitions();
   }
 
-  selectBpmnProcessDefinitionFile() {
+  protected selectBpmnProcessDefinitionFile() {
     this.bpmnProcessDefinitionFileInput.nativeElement.click();
   }
 
-  bpmnProcessDefinitionFileSelected(event: Event) {
+  protected bpmnProcessDefinitionFileSelected(event: Event) {
     if (event.target instanceof HTMLInputElement) {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -100,7 +100,10 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  deleteProcessDefinition(processDefinition: { key: string; name: string }) {
+  protected deleteProcessDefinition(processDefinition: {
+    key: string;
+    name: string;
+  }) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -123,12 +126,12 @@ export class ProcessDefinitionsComponent
       });
   }
 
-  selectFormioFile(bpmnProcessDefinitionKey: string) {
-    this.currentProcessDefinitionKey = bpmnProcessDefinitionKey;
+  protected selectBpmnFormFile(bpmnProcessDefinitionKey: string) {
+    this.selectedBpmnProcessDefinitionKey = bpmnProcessDefinitionKey;
     this.formioFileInput.nativeElement.click();
   }
 
-  formioFileSelected(event: Event) {
+  protected bpmnFormFileSelected(event: Event) {
     const target = event.target as HTMLInputElement | null;
     const file = target?.files?.[0];
     if (!file) return;
@@ -136,7 +139,7 @@ export class ProcessDefinitionsComponent
     this.readFileContent(file)
       .then((content) => {
         this.bpmnService
-          .uploadProcessDefinitionForm(this.currentProcessDefinitionKey, {
+          .uploadProcessDefinitionForm(this.selectedBpmnProcessDefinitionKey, {
             filename: file.name,
             content,
           })
@@ -149,7 +152,7 @@ export class ProcessDefinitionsComponent
       });
   }
 
-  asProcessDefinition(
+  protected asProcessDefinition(
     node: ProcessDefinitionNode,
   ): GeneratedType<"RestBpmnProcessDefinition"> {
     return node as GeneratedType<"RestBpmnProcessDefinition">;
@@ -160,7 +163,7 @@ export class ProcessDefinitionsComponent
     this.bpmnService
       .listProcessDefinitions()
       .subscribe((processDefinitions) => {
-        this.treeData = this.buildTreeData(processDefinitions);
+        this.data = this.buildTreeData(processDefinitions);
         this.utilService.setLoading(false);
       });
   }

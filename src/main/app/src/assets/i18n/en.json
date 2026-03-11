@@ -1093,5 +1093,6 @@
   "defaultWaarde": "Default value",
   "verplicht": "Required",
   "meerkeuzeOpties": "Multiple choice options",
-  "volgorde": "Order"
+  "volgorde": "Order",
+  "proces-definitie.sleutel": "Key"
 }

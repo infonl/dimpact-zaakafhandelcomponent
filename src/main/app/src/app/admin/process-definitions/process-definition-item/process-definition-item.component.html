@@ -3,17 +3,34 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<fieldset>
-  <div class="flex-1">{{ "versie" | translate }}: {{ processDefinition.version }}</div>
-  <mat-chip>{{ processDefinition.key }}</mat-chip>
-  <button
-    mat-icon-button
-    title="{{
-      'Toevoegen FormIO bestand aan deze BPMN procesdefinitie' | translate
-    }}"
-    [disabled]="processDefinition.inUse"
-    (click)="onUploadFormio()"
-  >
-    <mat-icon>upload_file</mat-icon>
-  </button>
-</fieldset>
+<div class="process-definition-item">
+  <div class="flex-row justify-content-between gap-20">
+    <div class="flex-row gap-20">
+      <zac-static-text label="versie" [value]="processDefinition.version" />
+      <zac-static-text
+        label="proces-definitie.sleutel"
+        [value]="processDefinition.key"
+      />
+    </div>
+    <button
+      mat-icon-button
+      title="{{ 'actie.verwijderen' | translate }}"
+      [disabled]="processDefinition.inUse"
+      (click)="deleteProcessDefinition()"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+  <div>
+    <button
+      mat-icon-button
+      title="{{
+        'Toevoegen FormIO bestand aan deze BPMN procesdefinitie' | translate
+      }}"
+      [disabled]="processDefinition.inUse"
+      (click)="uploadBpmnForm()"
+    >
+      <mat-icon>upload_file</mat-icon>
+    </button>
+  </div>
+</div>
