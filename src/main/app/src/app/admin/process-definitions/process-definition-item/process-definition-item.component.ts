@@ -11,16 +11,16 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
-import { SharedModule } from "../../../shared/shared.module";
-import { GeneratedType } from "../../../shared/utils/generated-types";
+import { MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
+import { UtilService } from "../../../core/service/util.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
-import { MatDialog } from "@angular/material/dialog";
+import { SharedModule } from "../../../shared/shared.module";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
-import { UtilService } from "../../../core/service/util.service";
 
 @Component({
   selector: "zac-process-definition-item",
