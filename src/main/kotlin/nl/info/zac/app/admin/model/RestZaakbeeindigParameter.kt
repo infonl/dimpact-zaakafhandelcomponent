@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.admin.model
 
-import jakarta.validation.constraints.NotNull
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
@@ -17,11 +16,9 @@ import nl.info.zac.util.NoArgConstructor
 data class RestZaakbeeindigParameter(
     // id is nullable to allow creation of new parameters without specifying an id
     var id: Long? = null,
-
-    @field:NotNull
+    // unfortunately, both zaakbeeindigReden and resultaattype need to nullable currently,
+    // because the frontend only sets one of them at a time
     var zaakbeeindigReden: RestZaakbeeindigReden,
-
-    @field:NotNull
     var resultaattype: RestResultaattype
 )
 
@@ -29,8 +26,10 @@ fun List<RestZaakbeeindigParameter>.toZaaktypeCompletionParametersList() = map {
 
 fun RestZaakbeeindigParameter.toZaaktypeCompletionParameters() = ZaaktypeCompletionParameters().apply {
     id = this@toZaaktypeCompletionParameters.id
-    zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
-        this@toZaaktypeCompletionParameters.zaakbeeindigReden
-    )
-    resultaattype = this@toZaaktypeCompletionParameters.resultaattype.id
+    zaakbeeindigReden = checkNotNull(this@toZaaktypeCompletionParameters.zaakbeeindigReden) {
+        "zaakbeeindigReden cannot be null"
+    }.let(RESTZaakbeeindigRedenConverter::convertRESTZaakbeeindigReden)
+    resultaattype = checkNotNull(this@toZaaktypeCompletionParameters.resultaattype) {
+        "resultaattype cannot be null"
+    }.id
 }

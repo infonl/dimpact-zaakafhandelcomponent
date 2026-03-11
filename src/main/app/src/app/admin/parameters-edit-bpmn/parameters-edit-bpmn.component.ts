@@ -34,12 +34,25 @@ import {
   ZaakProcessDefinition,
   ZaakProcessSelect,
 } from "../model/parameters/zaak-process-definition-type";
-import {
-  toRestZaakbeeindigParameter,
-  ZaakbeeindigParameterFormData,
-} from "../model/parameters/zaakbeeindig-parameter-form-data";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+
+/**
+ * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
+ * are optional. This is needed because:
+ * - The "niet ontvankelijk" row has no zaakbeeindigReden (only a resultaattype)
+ * - Newly added redenen start without a resultaattype (user must pick one)
+ *
+ * In opslaan(), normal parameters are guaranteed to have both fields set by form validation
+ * before being pushed to the backend as GeneratedType<"RestZaakbeeindigParameter">.
+ */
+type RestZaakbeeindigParameterFormData = Omit<
+  GeneratedType<"RestZaakbeeindigParameter">,
+  "zaakbeeindigReden" | "resultaattype"
+> & {
+  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
+  resultaattype?: GeneratedType<"RestResultaattype"> | null;
+};
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -111,11 +124,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: ZaakbeeindigParameterFormData[] = [];
+  protected zaakbeeindigParameters: RestZaakbeeindigParameterFormData[] =
+    [];
 
-  protected zaakbeeindigFormGroup = new FormGroup({});
+    protected zaakbeeindigFormGroup = new FormGroup({});
 
-  protected selection = new SelectionModel<ZaakbeeindigParameterFormData>(true);
+  protected selection = new SelectionModel<
+      RestZaakbeeindigParameterFormData
+  >(true);
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
@@ -155,7 +171,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       if (!data?.parameters?.zaakafhandelParameters) {
         return;
       }
-
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
       this.isSavedZaakafhandelParameters =
@@ -314,14 +329,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected isZaaknietontvankelijkParameter(
-    parameter: ZaakbeeindigParameterFormData,
+    restZaakbeeindigParameter: RestZaakbeeindigParameterFormData,
   ) {
-    return parameter.zaakbeeindigReden === undefined;
+    return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
   }
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: ZaakbeeindigParameterFormData,
+    parameter: RestZaakbeeindigParameterFormData,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -330,7 +345,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected getZaakbeeindigControl(
-    parameter: ZaakbeeindigParameterFormData,
+    parameter: RestZaakbeeindigParameterFormData,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -349,7 +364,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private addZaakbeeindigParameter(
-    parameter: ZaakbeeindigParameterFormData,
+    parameter: RestZaakbeeindigParameterFormData,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -361,8 +376,8 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
-  ): ZaakbeeindigParameterFormData {
-    const parameter: ZaakbeeindigParameterFormData = {
+  ) {
+    const parameter: RestZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -371,10 +386,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
-  ): ZaakbeeindigParameterFormData {
-    let parameter: ZaakbeeindigParameterFormData | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??
-      []) {
+  ) {
+    let parameter: RestZaakbeeindigParameterFormData | null = null;
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -387,7 +401,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     return parameter;
   }
 
-  private updateZaakbeeindigForm(parameter: ZaakbeeindigParameterFormData) {
+  private updateZaakbeeindigForm(
+    parameter: RestZaakbeeindigParameterFormData,
+  ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
@@ -418,7 +434,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.bpmnZaakafhandelParameters.brpDoelbindingen =
       this.brpDoelbindingenFormGroup.value;
 
-    this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??= [];
+    this.bpmnZaakafhandelParameters.zaakbeeindigParameters = [];
     this.selection.selected.forEach((param) => {
       if (this.isZaaknietontvankelijkParameter(param)) {
         this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype =
@@ -428,12 +444,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           param,
           "beeindigResultaat",
         )?.value;
-        const converted = toRestZaakbeeindigParameter(param);
-        if (converted) {
-          this.bpmnZaakafhandelParameters.zaakbeeindigParameters!.push(
-            converted,
-          );
-        }
+        this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(
+          param as GeneratedType<"RestZaakbeeindigParameter">,
+        );
       }
     });
 
