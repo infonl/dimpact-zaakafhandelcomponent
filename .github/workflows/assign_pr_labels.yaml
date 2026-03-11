@@ -38,7 +38,7 @@ jobs:
             ];
               
             const labels = new Set();
-              if (github.event.pull_request.user.login === 'renovate[bot]') {
+            if (context.payload.pull_request.user.login === 'renovate[bot]') {
               labels.add('dependencies');
             }
               
