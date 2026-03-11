@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, ElementRef, OnInit, ViewChild, inject } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -18,6 +24,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
 import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
+import { MatTableDataSource } from "@angular/material/table";
 
 interface ProcessDefinitionGroupNode {
   name: string;
@@ -69,7 +76,8 @@ export class ProcessDefinitionsComponent
 
   ngOnInit() {
     this.setupMenu("title.procesdefinities");
-    this.loadProcessDefinitions();
+    this.loadBpmnProcessDefinitions();
+    this.loadBpmnForms();
   }
 
   protected selectBpmnProcessDefinitionFile() {
@@ -89,7 +97,7 @@ export class ProcessDefinitionsComponent
               filename: file.name,
             })
             .subscribe(() => {
-              this.loadProcessDefinitions();
+              this.loadBpmnProcessDefinitions();
             });
         })
         .catch((error) => {
@@ -119,7 +127,7 @@ export class ProcessDefinitionsComponent
             "msg.procesdefinitie.verwijderen.uitgevoerd",
             { naam: processDefinition.name },
           );
-          this.loadProcessDefinitions();
+          this.loadBpmnProcessDefinitions();
         }
       });
   }
@@ -142,7 +150,7 @@ export class ProcessDefinitionsComponent
             content,
           })
           .subscribe(() => {
-            this.loadProcessDefinitions();
+            this.loadBpmnForms();
           });
       })
       .catch((error) => {
@@ -156,7 +164,14 @@ export class ProcessDefinitionsComponent
     return node as GeneratedType<"RestBpmnProcessDefinition">;
   }
 
-  private loadProcessDefinitions() {
+  protected isGroupInUse(node: ProcessDefinitionNode): boolean {
+    return (
+      (node as ProcessDefinitionGroupNode).versions?.some((v) => v.inUse) ??
+      false
+    );
+  }
+
+  private loadBpmnProcessDefinitions() {
     this.utilService.setLoading(true);
     this.bpmnService
       .listProcessDefinitions()
@@ -187,6 +202,18 @@ export class ProcessDefinitionsComponent
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
       reader.readAsText(file);
+    });
+  }
+
+  /// TEMP
+
+  protected formsDataSource = new MatTableDataSource<
+    GeneratedType<"RestFormioFormulier">
+  >();
+
+  protected loadBpmnForms() {
+    this.bpmnService.listFormioFormulieren().subscribe((formioFormulier) => {
+      this.formsDataSource.data = formioFormulier;
     });
   }
 }

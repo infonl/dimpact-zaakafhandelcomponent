@@ -55,8 +55,9 @@
             <mat-nested-tree-node *matTreeNodeDef="let node" class="item">
               <zac-process-definition-item
                 [processDefinition]="asProcessDefinition(node)"
+                [forms]="formsDataSource.data"
                 (uploadBpmnFormFile)="selectBpmnFormFile($event)"
-                (delete)="deleteProcessDefinition($event)"
+                (bpmnFormListChanged)="loadBpmnForms()"
               ></zac-process-definition-item>
             </mat-nested-tree-node>
             <mat-nested-tree-node
@@ -78,6 +79,16 @@
                   </mat-icon>
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
+                <button
+                  mat-icon-button
+                  title="{{ 'actie.verwijderen' | translate }}"
+                  [disabled]="node.isInUse"
+                  (click)="
+                    $event.stopPropagation(); deleteProcessDefinition(node)
+                  "
+                >
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
               </div>
               <div [hidden]="!treeNode.isExpanded">
                 <ng-container matTreeNodeOutlet></ng-container>
