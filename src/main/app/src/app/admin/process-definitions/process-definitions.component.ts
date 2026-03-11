@@ -30,7 +30,7 @@ interface ProcessDefinitionGroupNode {
   name: string;
   key: string;
   inUse: boolean;
-  versions?: GeneratedType<"RestBpmnProcessDefinition">[];
+  definition: GeneratedType<"RestBpmnProcessDefinition">;
 }
 
 type ProcessDefinitionNode =
@@ -56,14 +56,14 @@ export class ProcessDefinitionsComponent
   data: ProcessDefinitionGroupNode[] = [];
 
   childrenAccessor = (node: ProcessDefinitionNode) =>
-    (node as ProcessDefinitionGroupNode).versions ?? [];
+    "definition" in node
+      ? [(node as ProcessDefinitionGroupNode).definition]
+      : [];
 
   hasChild = (
     _: number,
     node: ProcessDefinitionNode,
-  ): node is ProcessDefinitionGroupNode =>
-    "versions" in node &&
-    Boolean((node as ProcessDefinitionGroupNode).versions?.length);
+  ): node is ProcessDefinitionGroupNode => "definition" in node;
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
@@ -178,23 +178,12 @@ export class ProcessDefinitionsComponent
   private buildTreeData(
     definitions: GeneratedType<"RestBpmnProcessDefinition">[],
   ): ProcessDefinitionGroupNode[] {
-    const groupMap = new Map<string, ProcessDefinitionGroupNode>();
-
-    for (const def of definitions) {
-      if (!groupMap.has(def.key)) {
-        groupMap.set(def.key, {
-          name: def.name,
-          key: def.key,
-          inUse: false,
-          versions: [],
-        });
-      }
-      const group = groupMap.get(def.key)!;
-      group.versions!.push(def);
-      group.inUse = group.inUse || (def.inUse ?? false);
-    }
-
-    return Array.from(groupMap.values());
+    return definitions.map((def) => ({
+      name: def.name,
+      key: def.key,
+      inUse: def.inUse ?? false,
+      definition: def,
+    }));
   }
 
   private readFileContent(file: File) {
