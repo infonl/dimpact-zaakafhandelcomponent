@@ -157,16 +157,16 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             name = "form3"
         )
 
-        val bpmnProcessDefinitionVersionStringPath = mockk<Path<String>>()
+        val bpmnProcessDefinitionVersionIntPath = mockk<Path<Int>>()
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
         every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
         every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<String>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionStringPath
+        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionIntPath
         every { root.get<String>("name") } returns namePath
         every { criteriaBuilder.asc(bpmnProcessDefinitionKeyPath) } returns order
-        every { criteriaBuilder.asc(bpmnProcessDefinitionVersionStringPath) } returns order
+        every { criteriaBuilder.asc(bpmnProcessDefinitionVersionIntPath) } returns order
         every { criteriaBuilder.asc(namePath) } returns order
         every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { typedQuery.resultList } returns listOf(form1, form2, form3)
