@@ -247,7 +247,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
+    image: solr:9.10.1-slim@sha256:9dd498f7bd407e4a9e349f89f914e359c553e9ea56e35bdd03641f9fa9a05a2d
     ports:
       - "8983:8983"
     volumes:
@@ -426,7 +426,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:12.4.0@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20
+    image: grafana/grafana:12.4.1@sha256:e932bd6ed0e026595b08483cd0141e5103e1ab7ff8604839ff899b8dc54cabcb
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -463,7 +463,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.4-alpine@sha256:09fbd90e09ca0f12f0c4c40a069147412f7be25245cad774d9df5684b03a031e
+    image: rabbitmq:4.2.4-alpine@sha256:c8a204d5b0bba833cbff44067b482b40152e8156d811a369e92fa0f1da8cb9c0
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -674,7 +674,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.29.5@sha256:79f2c2c26124360d69d12078d36f9bf129fffe6eabe146ed3689b523fdf39a17
+    image: nginxinc/nginx-unprivileged:1.29.5@sha256:e080d97d1ce51db45c3f843b55b187bd66c2aa43c038ca16353f389139443d23
     ports:
       - "8005:8080"
     volumes:

@@ -44,10 +44,12 @@ fun createDigitalAddress(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("https://example.com/fakeUri"),
     address: String = "dummyAddress",
-    soortDigitaalAdres: SoortDigitaalAdresEnum = SoortDigitaalAdresEnum.TELEFOONNUMMER
+    soortDigitaalAdres: SoortDigitaalAdresEnum = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+    isStandaardAdres: Boolean? = null
 ) = DigitaalAdres(uuid, uri).apply {
     this.soortDigitaalAdres = soortDigitaalAdres
     this.adres = address
+    this.isStandaardAdres = isStandaardAdres
 }
 
 fun createDigitaalAdresForeignKey(
