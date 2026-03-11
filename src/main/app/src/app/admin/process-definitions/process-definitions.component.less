@@ -1,8 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-p {
-  text-align: center;
+.group {
+  .tree-group-row {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-top: 1px solid #d8d8d8;
+
+    &:hover {
+      background: var(--mat-expansion-header-hover-state-layer-color);
+    }
+  }
+
+  &:last-child .tree-group-row {
+    border-bottom: 1px solid #d8d8d8;
+  }
 }

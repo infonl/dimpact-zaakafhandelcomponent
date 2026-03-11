@@ -38,7 +38,6 @@ import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatTableModule } from "@angular/material/table";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxEditorModule } from "ngx-editor";
@@ -164,7 +163,6 @@ import { FormComponent } from "./form/form/form.component";
     FileDragAndDropDirective,
     CommonModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule,
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,

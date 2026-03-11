@@ -24,7 +24,6 @@ import { SmartDocumentsFormComponent } from "./parameters-edit-cmmn/smart-docume
 import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-select-process-definition/parameters-edit-select-process-definition.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
-import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 
@@ -46,7 +45,6 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     TekstvlakEditDialogComponent,
     SmartDocumentsFormComponent,
     SmartDocumentsFormItemComponent,
-    ProcessDefinitionsComponent,
     FormioFormulierenComponent,
   ],
   exports: [],

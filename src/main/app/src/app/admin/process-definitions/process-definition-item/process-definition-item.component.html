@@ -1,0 +1,19 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<fieldset>
+  <div class="flex-1">{{ "versie" | translate }}: {{ processDefinition.version }}</div>
+  <mat-chip>{{ processDefinition.key }}</mat-chip>
+  <button
+    mat-icon-button
+    title="{{
+      'Toevoegen FormIO bestand aan deze BPMN procesdefinitie' | translate
+    }}"
+    [disabled]="processDefinition.inUse"
+    (click)="onUploadFormio()"
+  >
+    <mat-icon>upload_file</mat-icon>
+  </button>
+</fieldset>

@@ -6,7 +6,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -14,14 +13,26 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
+import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
+
+interface ProcessDefinitionGroupNode {
+  name: string;
+  key: string;
+  versions?: GeneratedType<"RestBpmnProcessDefinition">[];
+}
+
+type ProcessDefinitionNode =
+  | ProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
-  standalone: false,
+  imports: [SharedModule, ProcessDefinitionItemComponent],
 })
 export class ProcessDefinitionsComponent
   extends AdminComponent
@@ -34,11 +45,17 @@ export class ProcessDefinitionsComponent
   @ViewChild("formioFileInput", { static: false })
   formioFileInput!: ElementRef;
 
-  isLoadingResults = false;
-  columns: string[] = ["name", "version", "key", "id"];
-  dataSource = new MatTableDataSource<
-    GeneratedType<"RestBpmnProcessDefinition">
-  >();
+  treeData: ProcessDefinitionGroupNode[] = [];
+
+  childrenAccessor = (node: ProcessDefinitionNode) =>
+    (node as ProcessDefinitionGroupNode).versions ?? [];
+
+  hasChild = (
+    _: number,
+    node: ProcessDefinitionNode,
+  ): node is ProcessDefinitionGroupNode =>
+    "versions" in node &&
+    Boolean((node as ProcessDefinitionGroupNode).versions?.length);
 
   private currentProcessDefinitionKey = "";
 
@@ -83,9 +100,7 @@ export class ProcessDefinitionsComponent
     }
   }
 
-  deleteProcessDefinition(
-    processDefinition: GeneratedType<"RestBpmnProcessDefinition">,
-  ) {
+  deleteProcessDefinition(processDefinition: { key: string; name: string }) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -134,16 +149,35 @@ export class ProcessDefinitionsComponent
       });
   }
 
+  asProcessDefinition(
+    node: ProcessDefinitionNode,
+  ): GeneratedType<"RestBpmnProcessDefinition"> {
+    return node as GeneratedType<"RestBpmnProcessDefinition">;
+  }
+
   private loadProcessDefinitions() {
-    this.isLoadingResults = true;
     this.utilService.setLoading(true);
     this.bpmnService
       .listProcessDefinitions()
       .subscribe((processDefinitions) => {
-        this.dataSource.data = processDefinitions;
-        this.isLoadingResults = false;
+        this.treeData = this.buildTreeData(processDefinitions);
         this.utilService.setLoading(false);
       });
+  }
+
+  private buildTreeData(
+    definitions: GeneratedType<"RestBpmnProcessDefinition">[],
+  ): ProcessDefinitionGroupNode[] {
+    const groupMap = new Map<string, ProcessDefinitionGroupNode>();
+
+    for (const def of definitions) {
+      if (!groupMap.has(def.key)) {
+        groupMap.set(def.key, { name: def.name, key: def.key, versions: [] });
+      }
+      groupMap.get(def.key)!.versions!.push(def);
+    }
+
+    return Array.from(groupMap.values());
   }
 
   private readFileContent(file: File) {
