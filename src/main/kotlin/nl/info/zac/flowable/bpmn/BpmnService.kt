@@ -15,6 +15,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
@@ -33,6 +34,7 @@ import java.util.logging.Logger
 class BpmnService @Inject constructor(
     private val repositoryService: RepositoryService,
     private val runtimeService: RuntimeService,
+    private val historyService: HistoryService,
     private val processEngine: ProcessEngine,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
@@ -145,4 +147,47 @@ class BpmnService @Inject constructor(
         findProcessInstance(zaakUUID)?.let {
             runtimeService.deleteProcessInstance(it.id, null)
         }
+
+    /**
+     * Returns a list of unique BPMN process definition keys used in process instances
+     */
+    fun findUniqueBpmnProcessDefinitionKeysFromProcessInstances() =
+        historyService.createHistoricProcessInstanceQuery()
+            .list()
+            .map { it.processDefinitionKey }
+            .toSet()
+
+    /**
+     * Returns a list of unique BPMN process definition keys used in zaaktype BPMN configurations
+     */
+    fun findUniqueBpmnProcessDefinitionKeysFromConfigurations() =
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations().toSet()
+
+    /**
+     * Returns if a process definition has current or historic process instances
+     * linked to it
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun hasProcessInstances(processDefinitionKey: String) =
+        historyService.createHistoricProcessInstanceQuery()
+            .processDefinitionKey(processDefinitionKey)
+            .count() > 0
+
+    /**
+     * Returns if a process definition has zaaktype BPMN configurations linked to it
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey: String) =
+        zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
+            .contains(processDefinitionKey)
+
+    /**
+     * Returns if a process definition is in use
+     *
+     * @param processDefinitionKey Process definition key
+     */
+    fun isProcessDefinitionInUse(processDefinitionKey: String) =
+        hasProcessInstances(processDefinitionKey) || hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 }

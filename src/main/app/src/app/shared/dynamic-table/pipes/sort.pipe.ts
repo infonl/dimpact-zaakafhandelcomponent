@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 @Pipe({
   name: "sort",
   pure: true,
-  standalone: false,
+  standalone: true,
 })
 export class SortPipe implements PipeTransform {
   transform(value: KeyValue<string, string>[], property: "key" | "value") {

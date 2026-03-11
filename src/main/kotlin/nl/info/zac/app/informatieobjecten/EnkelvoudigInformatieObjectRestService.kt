@@ -279,23 +279,22 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("uuid") uuid: UUID,
         @QueryParam("zaak") zaakUUID: UUID,
         @Context uriInfo: UriInfo
-    ): Response {
+    ): URI {
         assertPolicy(
             policyService.readDocumentRechten(
                 drcClientService.readEnkelvoudigInformatieobject(uuid),
                 zrcClientService.readZaak(zaakUUID)
             ).wijzigen
         )
-        return webdavHelper.createRedirectURL(uuid, uriInfo).let(Response::ok).build()
+        return webdavHelper.createRedirectURL(uuid, uriInfo)
     }
 
     @DELETE
     @Path("/informatieobject/{uuid}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun deleteEnkelvoudigInformatieObject(
         @PathParam("uuid") uuid: UUID,
         documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
-    ): Response {
+    ) {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         val zaak = documentVerwijderenGegevens.zaakUuid?.let(zrcClientService::readZaak)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).verwijderen)
@@ -309,7 +308,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         if (documentVerwijderenGegevens.zaakUuid == null) {
             ontkoppeldeDocumentenService.delete(uuid)
         }
-        return Response.noContent().build()
     }
 
     @GET
@@ -348,6 +346,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("/download/zip")
+    @Produces("application/zip")
     fun readFilesAsZip(uuids: List<String?>): Response {
         val informatieobjecten = uuids
             .map(UUID::fromString)
@@ -480,7 +479,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             document,
             enkelvoudigInformatieobjectUUID
         )
-        return Response.ok().build()
+        return Response.noContent().build()
     }
 
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {

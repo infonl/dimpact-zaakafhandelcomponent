@@ -166,6 +166,84 @@ describe(FormioWrapperComponent.name, () => {
     });
   });
 
+  describe(FormioWrapperComponent.prototype.onFormioReady.name, () => {
+    let addLanguageSpy: jest.Mock;
+    let mockFormioBaseComponent: { formio: { addLanguage: jest.Mock } };
+
+    beforeEach(() => {
+      addLanguageSpy = jest.fn();
+      mockFormioBaseComponent = {
+        formio: { addLanguage: addLanguageSpy },
+      };
+    });
+
+    it("should register Dutch translations and activate them when browser language is 'nl'", () => {
+      jest.spyOn(navigator, "language", "get").mockReturnValue("nl");
+
+      component.onFormioReady(mockFormioBaseComponent as never);
+
+      expect(addLanguageSpy).toHaveBeenCalledWith(
+        "nl",
+        expect.any(Object),
+        true,
+      );
+    });
+
+    it("should register Dutch translations and activate them when browser language is 'nl-NL'", () => {
+      jest.spyOn(navigator, "language", "get").mockReturnValue("nl-NL");
+
+      component.onFormioReady(mockFormioBaseComponent as never);
+
+      expect(addLanguageSpy).toHaveBeenCalledWith(
+        "nl",
+        expect.any(Object),
+        true,
+      );
+    });
+
+    it("should register Dutch translations but not activate them when browser language is 'en'", () => {
+      jest.spyOn(navigator, "language", "get").mockReturnValue("en");
+
+      component.onFormioReady(mockFormioBaseComponent as never);
+
+      expect(addLanguageSpy).toHaveBeenCalledWith(
+        "nl",
+        expect.any(Object),
+        false,
+      );
+    });
+
+    it("should pass the actual Dutch translation object with correct translations", () => {
+      jest.spyOn(navigator, "language", "get").mockReturnValue("nl");
+
+      component.onFormioReady(mockFormioBaseComponent as never);
+
+      const translations = addLanguageSpy.mock.calls[0][1];
+      expect(translations.required).toBe("{{field}} is verplicht.");
+      expect(translations.submit).toBe("Indienen");
+      expect(translations.next).toBe("Volgende");
+      expect(translations.previous).toBe("Vorige");
+      expect(translations.cancel).toBe("Annuleren");
+      expect(translations.invalid_email).toBe(
+        "{{field}} moet een geldig e-mailadres zijn.",
+      );
+      expect(translations.minLength).toBe(
+        "{{field}} moet minimaal {{length}} tekens bevatten.",
+      );
+      expect(translations.maxLength).toBe(
+        "{{field}} mag maximaal {{length}} tekens bevatten.",
+      );
+      expect(translations.january).toBe("Januari");
+      expect(translations.december).toBe("December");
+    });
+
+    it("should not throw when formio is null", () => {
+      const nullFormio = { formio: null };
+
+      expect(() => component.onFormioReady(nullFormio as never)).not.toThrow();
+    });
+  });
+
   describe("ngAfterViewInit should patch document.activeElement correctly", () => {
     let originalActiveElement: PropertyDescriptor | undefined;
 

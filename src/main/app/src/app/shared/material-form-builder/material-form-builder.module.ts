@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -110,7 +110,6 @@ import { FormComponent } from "./form/form/form.component";
     HiddenComponent,
     MessageComponent,
     EnhanceMatErrorDirective,
-    CapitalizeFirstLetterPipe,
     ZacAutoComplete,
     ZacDate,
     ZacSelect,
@@ -190,6 +189,7 @@ import { FormComponent } from "./form/form/form.component";
     MatListModule,
     MatExpansionPanelActionRow,
     EmptyPipe,
+    CapitalizeFirstLetterPipe,
   ],
   providers: [
     {

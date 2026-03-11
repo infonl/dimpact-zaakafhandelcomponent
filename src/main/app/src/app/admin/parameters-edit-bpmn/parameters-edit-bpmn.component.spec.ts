@@ -62,12 +62,14 @@ describe(ParametersEditBpmnComponent.name, () => {
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      inUse: true,
     },
     {
       id: "RestBpmnProcessDefinition-2",
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      inUse: true,
     },
   ];
 

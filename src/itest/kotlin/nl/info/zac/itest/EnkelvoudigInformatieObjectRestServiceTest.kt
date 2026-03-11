@@ -42,6 +42,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
 import java.time.LocalDate
@@ -413,13 +414,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
             Then(
                 """
-                    the response should be OK and the informatieobject should be converted from TXT to PDF
+                    the response should be No Content and the informatieobject should be converted from TXT to PDF
                     because a recordmanager is allowed to convert documents even if they have the status 'definitief'
                     """
             ) {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
+                response.code shouldBe HTTP_NO_CONTENT
             }
         }
 

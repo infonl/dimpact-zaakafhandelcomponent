@@ -19,10 +19,12 @@ import {
 } from "@angular/core";
 import {
   ExtendedComponentSchema,
+  FormioBaseComponent,
   FormioComponent,
   FormioHookOptions,
 } from "@formio/angular";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
+import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 
 @Component({
   selector: "zac-formio-wrapper",
@@ -119,6 +121,21 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   onChange(event: object) {
     // Filter out form.io change events that do not contain data
     if ("data" in event && event.data) this.formChange.emit(event);
+  }
+
+  onFormioReady(formioBaseComponent: FormioBaseComponent) {
+    const isDutch = navigator.language.toLowerCase().startsWith("nl") ?? false;
+    if (!formioBaseComponent.formio) {
+      console.error(
+        "Cannot load NL translations: formio instance is not available",
+      );
+      return;
+    }
+    formioBaseComponent.formio.addLanguage(
+      "nl",
+      FORMIO_NL_TRANSLATIONS,
+      isDutch,
+    );
   }
 
   onCustomEvent(event: FormioCustomEvent) {

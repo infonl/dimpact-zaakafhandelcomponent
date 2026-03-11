@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 # 
+@personen
 Feature: Personen
 
   Scenario: Bob wants to view a person

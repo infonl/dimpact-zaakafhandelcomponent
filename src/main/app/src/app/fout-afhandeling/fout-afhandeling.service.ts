@@ -136,11 +136,9 @@ export class FoutAfhandelingService {
     this.foutmelding = err.message;
     if (err.error instanceof ErrorEvent) {
       // client-side error
-      this.foutmelding = this.translateService.instant(
-        "dialoog.error.body.fout",
-      );
+      this.foutmelding = "dialoog.error.body.fout";
       this.bericht = err.error.message;
-      void this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout"]);
       return of();
     }
 
@@ -150,11 +148,9 @@ export class FoutAfhandelingService {
         window.location.reload();
         return throwError(() => "User logged out");
       }
-      this.foutmelding = this.translateService.instant(
-        "dialoog.error.body.loggedout",
-      );
+      this.foutmelding = "dialoog.error.body.loggedout";
       this.bericht = "";
-      void this.router.navigate(["/fout-pagina"]);
+      void this.router.navigate(["/fout"]);
       return of();
     }
 

@@ -10,7 +10,7 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
 class KvkClientHeadersFactory : ClientHeadersFactory {
     companion object {
-        private const val KVK_API_KEY_HEADER_FIELD: String = "apikey"
+        private const val KVK_API_KEY_HEADER_FIELD = "apikey"
 
         private val API_KEY: String = ConfigProvider.getConfig().getValue<String>(
             "kvk.api.key",
