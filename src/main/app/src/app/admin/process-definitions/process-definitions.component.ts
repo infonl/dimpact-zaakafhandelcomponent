@@ -29,6 +29,7 @@ import { ProcessDefinitionItemComponent } from "./process-definition-item/proces
 interface ProcessDefinitionGroupNode {
   name: string;
   key: string;
+  inUse: boolean;
   versions?: GeneratedType<"RestBpmnProcessDefinition">[];
 }
 
@@ -164,13 +165,6 @@ export class ProcessDefinitionsComponent
     return node as GeneratedType<"RestBpmnProcessDefinition">;
   }
 
-  protected isGroupInUse(node: ProcessDefinitionNode): boolean {
-    return (
-      (node as ProcessDefinitionGroupNode).versions?.some((v) => v.inUse) ??
-      false
-    );
-  }
-
   private loadBpmnProcessDefinitions() {
     this.utilService.setLoading(true);
     this.bpmnService
@@ -188,9 +182,16 @@ export class ProcessDefinitionsComponent
 
     for (const def of definitions) {
       if (!groupMap.has(def.key)) {
-        groupMap.set(def.key, { name: def.name, key: def.key, versions: [] });
+        groupMap.set(def.key, {
+          name: def.name,
+          key: def.key,
+          inUse: false,
+          versions: [],
+        });
       }
-      groupMap.get(def.key)!.versions!.push(def);
+      const group = groupMap.get(def.key)!;
+      group.versions!.push(def);
+      group.inUse = group.inUse || (def.inUse ?? false);
     }
 
     return Array.from(groupMap.values());

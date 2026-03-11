@@ -79,10 +79,14 @@
                   </mat-icon>
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
+                <mat-chip [highlighted]="node.inUse">
+                  {{ (node.inUse ? "volledig" : "onvolledig") | translate }}
+                </mat-chip>
+
                 <button
                   mat-icon-button
                   title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="node.isInUse"
+                  [disabled]="node.inUse"
                   (click)="
                     $event.stopPropagation(); deleteProcessDefinition(node)
                   "
