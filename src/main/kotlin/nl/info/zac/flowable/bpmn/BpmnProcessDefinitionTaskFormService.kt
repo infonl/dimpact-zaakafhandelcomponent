@@ -10,6 +10,7 @@ import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -101,15 +102,20 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
 
     private fun String.toJsonObject(): JsonObject = Json.createReader(this.reader()).readObject()
 
-    private fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
-        repositoryService.createProcessDefinitionQuery()
+    private fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition {
+        val processDefinition = repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)
             .active()
             .latestVersion()
             .singleResult()
-
-    private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String): ProcessDefinition =
-        repositoryService.createProcessDefinitionQuery()
+        return processDefinition
+            ?: throw ProcessDefinitionNotFoundException("No process definition found for key '$processDefinitionKey'")
+    }
+    private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String): ProcessDefinition {
+        val processDefinition = repositoryService.createProcessDefinitionQuery()
             .processDefinitionId(processDefinitionId)
             .singleResult()
+        return processDefinition
+            ?: throw ProcessDefinitionNotFoundException("No process definition found for id '$processDefinitionId'")
+    }
 }
