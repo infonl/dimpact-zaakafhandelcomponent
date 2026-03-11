@@ -28,7 +28,6 @@ export class FormioFormulierenComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("fileInput", { static: false }) fileInput!: ElementRef;
 
   isLoadingResults = false;
   columns: string[] = ["name", "title", "bpmnProcessDefinition", "id"];
