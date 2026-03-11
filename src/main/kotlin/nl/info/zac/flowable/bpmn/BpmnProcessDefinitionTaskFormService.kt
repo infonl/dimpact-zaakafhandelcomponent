@@ -27,10 +27,13 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
     private val repositoryService: RepositoryService
 ) {
     fun readForm(processDefinitionId: String, name: String): JsonObject {
-        readProcessDefinitionByProcessDefinitionId(processDefinitionId).let {
-            return findForm(it.key, it.version, name)?.content?.toJsonObject()
-                ?: throw NoSuchElementException("No BpmnProcessDefinitionTaskForm found with name: '$name'")
-        }
+        val processDefinition = readProcessDefinitionByProcessDefinitionId(processDefinitionId)
+        return findForm(processDefinition.key, processDefinition.version, name)?.content?.toJsonObject()
+            ?: throw NoSuchElementException(
+                "No BpmnProcessDefinitionTaskForm found with name: '$name' " +
+                    "for processDefinition key='${processDefinition.key}', " +
+                    "version=${processDefinition.version}, id='${processDefinition.id}'"
+            )
     }
 
     fun listForms(): List<BpmnProcessDefinitionTaskForm> =

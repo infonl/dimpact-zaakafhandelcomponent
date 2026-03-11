@@ -130,7 +130,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
                 val exception = shouldThrow<NoSuchElementException> {
                     service.readForm(processDefinitionId, formName)
                 }
-                exception.message shouldBe "No BpmnProcessDefinitionTaskForm found with name: '$formName'"
+                exception.message shouldBe "No BpmnProcessDefinitionTaskForm found with name: '$formName' " +
+                    "for processDefinition key='$processDefinitionKey', version=$processDefinitionVersion, " +
+                    "id='$processDefinitionId'"
             }
         }
     }
