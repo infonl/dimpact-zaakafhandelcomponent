@@ -43,7 +43,7 @@ FROM (
      ON bpmn_definitions.deployment_id_ = bpmn_form_keys.deployment_id_;
 
 CREATE TABLE ${schema}.bpmn_procesdefinitie_taakformulieren (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     bpmn_procesdefinitie VARCHAR NOT NULL,
     bpmn_procesdefinitie_versie INTEGER NOT NULL,
     naam VARCHAR NOT NULL,
