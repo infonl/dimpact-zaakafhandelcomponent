@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild, inject } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -57,16 +57,14 @@ export class ProcessDefinitionsComponent
     "versions" in node &&
     Boolean((node as ProcessDefinitionGroupNode).versions?.length);
 
+  private readonly dialog = inject(MatDialog);
+  private readonly bpmnService = inject(BpmnService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+
   private selectedBpmnProcessDefinitionKey = "";
 
-  constructor(
-    public dialog: MatDialog,
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private bpmnService: BpmnService,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {
-    super(utilService, configuratieService);
+  constructor() {
+    super(inject(UtilService), inject(ConfiguratieService));
   }
 
   ngOnInit() {
