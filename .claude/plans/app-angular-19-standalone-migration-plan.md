@@ -199,10 +199,14 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 - Multiple components in one branch: separate names with `--` e.g. `chore/PZ-12345--FE--NG19-migration--export-button--static-text`
 - User provides the `PZ-XXXXX` ticket number
 - After rename, offer to push and open a PR
-- PR title format: `chore(app): NG19 migration - <Component name>`
+- PR title format: `chore(app): NG19 migration to standalone components - <Component name>`
 - PR description format:
   ```
-  FE - NG19 migration - <Component name>
+  FE - NG19 migration to standalone components - <ComponentName>
+
+  - <ComponentName> made standalone
+  - spec added/updated
+  - migration plan updated
 
   Solves PZ-XXXXX
   ```
