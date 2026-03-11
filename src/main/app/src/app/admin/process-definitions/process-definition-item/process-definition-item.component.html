@@ -13,6 +13,11 @@
   </div>
   <div class="table-wrapper">
     <table mat-table [dataSource]="formsDataSource">
+      <ng-container matColumnDef="index">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let row; index as i">{{ i + 1 }}</td>
+      </ng-container>
+
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>
           {{ "naam" | translate }}

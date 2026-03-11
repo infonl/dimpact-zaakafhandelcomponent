@@ -54,6 +54,11 @@ export class ProcessDefinitionsComponent
   formioFileInput!: ElementRef;
 
   data: ProcessDefinitionGroupNode[] = [];
+  protected expandedKey: string | null = null;
+
+  protected toggleNode(node: ProcessDefinitionGroupNode) {
+    this.expandedKey = this.expandedKey === node.key ? null : node.key;
+  }
 
   childrenAccessor = (node: ProcessDefinitionNode) =>
     "definition" in node

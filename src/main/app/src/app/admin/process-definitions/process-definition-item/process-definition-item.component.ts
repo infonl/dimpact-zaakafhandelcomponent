@@ -40,7 +40,7 @@ export class ProcessDefinitionItemComponent implements OnChanges {
   protected formsDataSource = new MatTableDataSource<
     GeneratedType<"RestFormioFormulier">
   >();
-  protected columns = ["name", "title", "id"];
+  protected columns = ["index", "name", "title", "id"];
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
