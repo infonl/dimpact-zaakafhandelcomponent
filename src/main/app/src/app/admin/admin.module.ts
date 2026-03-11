@@ -9,7 +9,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
-import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { TekstvlakEditDialogComponent } from "./formulier-definitie-edit/tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
@@ -45,7 +44,6 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     TekstvlakEditDialogComponent,
     SmartDocumentsFormComponent,
     SmartDocumentsFormItemComponent,
-    FormioFormulierenComponent,
   ],
   exports: [],
   imports: [SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule],
