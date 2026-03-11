@@ -26,9 +26,8 @@ import { createCacheBustingTranslateLoader } from "./translate-loader.service";
 registerLocaleData(localeNl, "nl-NL");
 
 @NgModule({
-  declarations: [LoadingComponent],
-  exports: [LoadingComponent],
   imports: [
+    LoadingComponent,
     TranslateModule.forRoot({
       fallbackLang: "nl",
       loader: {
@@ -39,6 +38,7 @@ registerLocaleData(localeNl, "nl-NL");
     }),
     SharedModule,
   ],
+  exports: [LoadingComponent],
   providers: [
     UtilService,
     { provide: LOCALE_ID, useValue: "nl-NL" },
