@@ -13,6 +13,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.engine.HistoryService
@@ -23,6 +24,7 @@ import org.flowable.engine.repository.Deployment
 import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.runtime.ProcessInstance
 import java.io.InputStream
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -198,6 +200,57 @@ class BpmnService @Inject constructor(
      */
     fun isProcessDefinitionInUse(processDefinitionKey: String) =
         hasProcessInstances(processDefinitionKey) || hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
+
+    fun getProcessDefinitionMetadata(processDefinition: ProcessDefinition): BpmnProcessDefinitionMetadata {
+        var documentation: String? = null
+        var modificationDate: ZonedDateTime? = null
+        val formKeys: MutableList<String> = ArrayList()
+        val bpmnModel = repositoryService.getBpmnModel(processDefinition.id)
+        val processes = bpmnModel.processes
+
+        // Get upload date from deployment
+        val uploadDate = getUploadDate(processDefinition.deploymentId)
+
+        var firstProcess = true
+        processes.forEach { process ->
+            // Fill metadata based on the first process
+            val extensionElements = process.extensionElements
+            if (firstProcess) {
+                documentation = process.documentation
+                modificationDate = getModificationDate(extensionElements)
+                firstProcess = false
+            }
+            // Find all user tasks with form keys
+            process.flowElements
+                .filterIsInstance<org.flowable.bpmn.model.UserTask>()
+                .forEach { userTask ->
+                    userTask.formKey?.let { formKey ->
+                        formKeys.add(formKey)
+                    }
+                }
+        }
+        return BpmnProcessDefinitionMetadata(
+            documentation,
+            modificationDate,
+            uploadDate,
+            formKeys,
+        )
+    }
+
+    private fun getModificationDate(extensionElements: Map<String, List<org.flowable.bpmn.model.ExtensionElement>>): ZonedDateTime? {
+        return extensionElements["modificationdate"]
+            ?.firstOrNull()
+            ?.elementText
+            ?.let { ZonedDateTime.parse(it) }
+    }
+
+    private fun getUploadDate(deploymentId: String): ZonedDateTime? {
+        return repositoryService.createDeploymentQuery()
+            .deploymentId(deploymentId)
+            .singleResult()
+            ?.deploymentTime
+            ?.let { ZonedDateTime.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()) }
+    }
 
     fun extractFormsFromProcessDefinition(processDefinition: ProcessDefinition): List<FormReference> {
         val forms = mutableListOf<FormReference>()

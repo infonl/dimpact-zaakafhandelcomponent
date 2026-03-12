@@ -14,7 +14,9 @@ export class BpmnService {
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   listProcessDefinitions() {
-    return this.zacHttpClient.GET("/rest/bpmn-process-definitions");
+    return this.zacHttpClient.GET("/rest/bpmn-process-definitions", {
+      query: { details: true },
+    });
   }
 
   uploadProcessDefinition(body: PostBody<"/rest/bpmn-process-definitions">) {

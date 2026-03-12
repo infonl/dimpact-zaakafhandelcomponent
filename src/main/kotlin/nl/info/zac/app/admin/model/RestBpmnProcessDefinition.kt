@@ -15,7 +15,7 @@ data class RestBpmnProcessDefinition(
     var name: String,
     var version: Int,
     var key: String,
-    var details: RestBpmnProcessDefinitionDetails?,
+    var details: RestBpmnProcessDefinitionDetails? = null,
 )
 
 data class RestBpmnProcessDefinitionDetails(

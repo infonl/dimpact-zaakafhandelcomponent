@@ -8,16 +8,19 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionForm
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
@@ -37,14 +40,29 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     @GET
-    fun listProcessDefinitions(): List<RestBpmnProcessDefinition> {
+    fun listProcessDefinitions(
+        @QueryParam("details") @DefaultValue("false") details: Boolean
+    ): List<RestBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        if (details) {
+            val list = listProcessDefinitionsWithDetails()
+            return list
+        }
+        return bpmnService.listProcessDefinitions()
+            .map {
+                RestBpmnProcessDefinition(it.id, it.name, it.version, it.key)
+            }
+    }
+
+    fun listProcessDefinitionsWithDetails(): List<RestBpmnProcessDefinition> {
         val uniqueBpmnProcessDefinitionKeysFromProcessInstances =
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
         val uniqueBpmnProcessDefinitionKeysFromConfigurations =
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations()
+        val formsMetadata = bpmnProcessDefinitionTaskFormService.getFormsMetadata()
         return bpmnService.listProcessDefinitions()
             .map {
+                val metadata = bpmnService.getProcessDefinitionMetadata(it)
                 RestBpmnProcessDefinition(
                     it.id,
                     it.name,
@@ -52,11 +70,35 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                     it.key,
                     RestBpmnProcessDefinitionDetails(
                         inUse = uniqueBpmnProcessDefinitionKeysFromProcessInstances.contains(it.key) ||
-                            uniqueBpmnProcessDefinitionKeysFromConfigurations.contains(it.key)
+                            uniqueBpmnProcessDefinitionKeysFromConfigurations.contains(it.key),
+                        documentation = metadata.documentation,
+                        modificationDate = metadata.modificationDate,
+                        uploadDate = metadata.uploadDate,
+                        forms = getRestBpmnProcessDefinitionForms(
+                            it.key,
+                            it.version,
+                            metadata.formKeys,
+                            formsMetadata
+                        ),
                     )
                 )
             }
     }
+
+    private fun getRestBpmnProcessDefinitionForms(
+        bpmnProcessDefinitionKey: String,
+        bpmnProcessDefinitionVersion: Int,
+        formKeys: List<String>,
+        formsMetadata: Map<String, String>
+    ) =
+        formKeys.map {
+            val key = "$bpmnProcessDefinitionKey-$bpmnProcessDefinitionVersion-$it"
+            RestBpmnProcessDefinitionForm(
+                it,
+                formsMetadata[key],
+                formsMetadata.containsKey(key)
+            )
+        }
 
     @POST
     fun createProcessDefinition(processDefinitionContent: RestProcessDefinitionContent): Response {

@@ -57,7 +57,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition1, processDefinition2)
 
         When("listProcessDefinitions is called") {
-            val result = restService.listProcessDefinitions()
+            val result = restService.listProcessDefinitions(true)
 
             Then("it should return all process definitions with inUse status") {
                 result.size shouldBe 2
@@ -89,7 +89,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition)
 
         When("listProcessDefinitions is called") {
-            val result = restService.listProcessDefinitions()
+            val result = restService.listProcessDefinitions(true)
 
             Then("it should return the process definition with inUse as false") {
                 result.size shouldBe 1
