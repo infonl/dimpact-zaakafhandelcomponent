@@ -42,7 +42,6 @@
               (change)="bpmnProcessDefinitionFileSelected($event)"
               style="display: none"
             />
-
           </div>
         </div>
 
@@ -75,14 +74,16 @@
                   </mat-icon>
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
-                <mat-chip [highlighted]="node.inUse">
-                  {{ (node.inUse ? "volledig" : "onvolledig") | translate }}
+                <mat-chip [highlighted]="node.definition.details?.inUse">
+                  {{
+                    (node.definition.details?.inUse ? "volledig" : "onvolledig") | translate
+                  }}
                 </mat-chip>
 
                 <button
                   mat-icon-button
                   title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="node.inUse"
+                  [disabled]="node.definition.details?.inUse"
                   (click)="
                     $event.stopPropagation(); deleteProcessDefinition(node)
                   "

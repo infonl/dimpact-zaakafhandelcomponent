@@ -1094,5 +1094,8 @@
   "verplicht": "Verplicht",
   "meerkeuzeOpties": "Meerkeuze opties",
   "volgorde": "Volgorde",
-  "proces-definitie.sleutel": "Sleutel"
+  "bpmn-procesdefinitie.sleutel": "Sleutel",
+  "bpmn-procesdefinitie.uploaded-datum": "Datum geüpload",
+  "bpmn-procesdefinitie.gewijzigd-datum": "Datum gewijzigd",
+  "bpmn-procesdefinitie.documentatie": "Documentatie"
 }

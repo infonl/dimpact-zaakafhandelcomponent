@@ -14,8 +14,20 @@
   <div class="flex-row gap-20">
     <zac-static-text label="versie" [value]="processDefinition.version" />
     <zac-static-text
-      label="proces-definitie.sleutel"
+      label="bpmn-procesdefinitie.sleutel"
       [value]="processDefinition.key"
+    />
+    <zac-static-text
+      label="bpmn-procesdefinitie.uploaded-datum"
+      [value]="processDefinition.details?.uploadDate | date: 'medium'"
+    />
+    <zac-static-text
+      label="bpmn-procesdefinitie.gewijzigd-datum"
+      [value]="processDefinition.details?.modificationDate | date: 'medium'"
+    />
+    <zac-static-text
+      label="bpmn-procesdefinitie.documentatie"
+      [value]="processDefinition.details?.documentation"
     />
   </div>
   <div class="table-wrapper">

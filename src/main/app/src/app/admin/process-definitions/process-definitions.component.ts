@@ -30,7 +30,6 @@ import { ProcessDefinitionItemComponent } from "./process-definition-item/proces
 interface ProcessDefinitionGroupNode {
   name: string;
   key: string;
-  inUse: boolean;
   definition: GeneratedType<"RestBpmnProcessDefinition">;
 }
 
@@ -72,7 +71,6 @@ export class ProcessDefinitionsComponent
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
-
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
@@ -158,7 +156,6 @@ export class ProcessDefinitionsComponent
     return definitions.map((def) => ({
       name: def.name,
       key: def.key,
-      inUse: def.details?.inUse ?? false,
       definition: def,
     }));
   }

@@ -1094,5 +1094,8 @@
   "verplicht": "Required",
   "meerkeuzeOpties": "Multiple choice options",
   "volgorde": "Order",
-  "proces-definitie.sleutel": "Key"
+  "bpmn-procesdefinitie.sleutel": "Key",
+  "bpmn-procesdefinitie.uploaded-datum": "Upload date",
+  "bpmn-procesdefinitie.gewijzigd-datum": "Modified date",
+  "bpmn-procesdefinitie.documentatie": "Documentation"
 }
