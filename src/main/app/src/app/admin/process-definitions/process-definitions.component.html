@@ -76,7 +76,9 @@
                   [attr.aria-label]="'Toggle ' + node.name"
                 >
                   <mat-icon class="mat-icon-rtl-mirror">
-                    {{ expandedKey === node.key ? "expand_more" : "chevron_right" }}
+                    {{
+                      expandedKey === node.key ? "expand_more" : "chevron_right"
+                    }}
                   </mat-icon>
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
