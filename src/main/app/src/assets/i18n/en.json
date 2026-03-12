@@ -1095,6 +1095,8 @@
   "meerkeuzeOpties": "Multiple choice options",
   "volgorde": "Order",
   "bpmn-procesdefinitie.sleutel": "Key",
+  "bpmn-procesdefinitie.chip.volledig": "Complete",
+  "bpmn-procesdefinitie.chip.onvolledig": "Incomplete",
   "bpmn-procesdefinitie.uploaded-datum": "Upload date",
   "bpmn-procesdefinitie.gewijzigd-datum": "Modified date",
   "bpmn-procesdefinitie.documentatie": "Documentation"

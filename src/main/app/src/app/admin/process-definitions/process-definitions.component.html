@@ -76,7 +76,10 @@
                 <div class="flex-1">{{ node.name }}</div>
                 <mat-chip [highlighted]="node.definition.details?.inUse">
                   {{
-                    (node.definition.details?.inUse ? "volledig" : "onvolledig") | translate
+                    (node.definition.details?.inUse
+                      ? "bpmn-procesdefinitie.chip.volledig"
+                      : "bpmn-procesdefinitie.chip.onvolledig"
+                    ) | translate
                   }}
                 </mat-chip>
 

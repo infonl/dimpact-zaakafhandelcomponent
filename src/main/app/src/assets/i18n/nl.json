@@ -1095,6 +1095,8 @@
   "meerkeuzeOpties": "Meerkeuze opties",
   "volgorde": "Volgorde",
   "bpmn-procesdefinitie.sleutel": "Sleutel",
+  "bpmn-procesdefinitie.chip.volledig": "Volledig",
+  "bpmn-procesdefinitie.chip.onvolledig": "Onvolledig",
   "bpmn-procesdefinitie.uploaded-datum": "Datum geüpload",
   "bpmn-procesdefinitie.gewijzigd-datum": "Datum gewijzigd",
   "bpmn-procesdefinitie.documentatie": "Documentatie"
