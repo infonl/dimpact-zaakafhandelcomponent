@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.198](https://img.shields.io/badge/Version-1.0.198-informational?style=flat-square) ![AppVersion: 4.4](https://img.shields.io/badge/AppVersion-4.4-informational?style=flat-square)
+![Version: 1.0.199](https://img.shields.io/badge/Version-1.0.199-informational?style=flat-square) ![AppVersion: 4.4](https://img.shields.io/badge/AppVersion-4.4-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -244,7 +244,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.146.1@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c"` |  |
+| opentelemetry-collector.image.tag | string | `"0.147.0@sha256:e7c92c715f28ff142f3bcaccd4fc5603cf4c71276ef09954a38eb4038500a5a5"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
