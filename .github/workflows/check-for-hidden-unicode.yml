@@ -1,6 +1,7 @@
 #
-# SPDX-FileCopyrightText: 2026 INFO
+# SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
+#
 #
 name: Check for hidden Unicode characters
 
