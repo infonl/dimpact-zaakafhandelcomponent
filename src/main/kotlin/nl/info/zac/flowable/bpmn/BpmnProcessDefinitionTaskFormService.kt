@@ -56,16 +56,16 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun addForm(processDefinitionKey: String, filename: String, content: String) {
-        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let {
+        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let { processDefinition ->
             val form = content.toJsonObject()
             BpmnProcessDefinitionTaskForm().apply {
-                this.bpmnProcessDefinitionKey = it.key
-                this.bpmnProcessDefinitionVersion = it.version
+                this.bpmnProcessDefinitionKey = processDefinition.key
+                this.bpmnProcessDefinitionVersion = processDefinition.version
                 this.filename = filename
                 this.content = content
                 name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
                 title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
-                findForm(it.key, it.version, name)?.let {
+                findForm(processDefinition.key, processDefinition.version, name)?.let {
                     id = it.id
                 }
             }.let { entityManager.merge(it) }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2026 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -87,7 +87,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             restFormioFormulierContent.filename,
             restFormioFormulierContent.content
         )
-        return Response.created(null).build()
+        return Response.status(Status.CREATED).build()
     }
 
     @DELETE
