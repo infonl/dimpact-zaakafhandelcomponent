@@ -44,7 +44,9 @@ export class BpmnService {
     );
   }
 
-  deleteProcessDefinitionForm(key: string, name: string) {
+  deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
+    const key = processDefinitionKey; // just to explain which key is the key
+
     return this.zacHttpClient.DELETE(
       "/rest/bpmn-process-definitions/{key}/forms/{name}",
       {

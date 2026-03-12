@@ -32,13 +32,12 @@ import { readFileContent } from "../file.helper";
   styleUrls: ["./process-definition-item.component.less"],
   imports: [SharedModule],
 })
-export class ProcessDefinitionItemComponent implements OnChanges {
+export class ProcessDefinitionItemComponent {
   @Input({ required: true })
   processDefinition!: GeneratedType<"RestBpmnProcessDefinition">;
-  @Input()
-  forms: GeneratedType<"RestFormioFormulier">[] = [];
 
-  @Output() bpmnFormListChanged = new EventEmitter<void>();
+  @Output()
+  bpmnFormListChanged = new EventEmitter<void>();
 
   @ViewChild("bpmnFormFileInput", { static: false })
   bpmnFormFileInput!: ElementRef;
@@ -46,18 +45,12 @@ export class ProcessDefinitionItemComponent implements OnChanges {
   protected formsDataSource = new MatTableDataSource<
     GeneratedType<"RestFormioFormulier">
   >();
-  protected columns = ["index", "name", "title", "id"];
+  protected columns = ["index", "uploaded", "formKey", "title", "actions"];
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
-
-  ngOnChanges(): void {
-    this.formsDataSource.data = this.forms.filter(
-      (form) => form.bpmnProcessDefinition === this.processDefinition.key,
-    );
-  }
 
   protected uploadBpmnForm() {
     this.bpmnFormFileInput.nativeElement.click();
@@ -88,17 +81,22 @@ export class ProcessDefinitionItemComponent implements OnChanges {
       });
   }
 
-  protected deleteBpmnForm(bpmnForm: GeneratedType<"RestFormioFormulier">) {
+  protected deleteBpmnForm(
+    bpmnProcessDefinitionKey: string,
+    bpmnFormName: string,
+  ) {
+    console.log("deleteBpmnForm", bpmnProcessDefinitionKey, bpmnFormName);
+
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
             key: "msg.formioformulier.verwijderen.bevestigen",
-            args: { naam: bpmnForm.name },
+            args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
-            bpmnForm.bpmnProcessDefinition!,
-            bpmnForm.name!,
+            bpmnProcessDefinitionKey,
+            bpmnFormName,
           ),
         ),
       })
@@ -107,7 +105,7 @@ export class ProcessDefinitionItemComponent implements OnChanges {
         if (result) {
           this.utilService.openSnackbar(
             "msg.formioformulier.verwijderen.uitgevoerd",
-            { naam: bpmnForm.name },
+            { naam: bpmnFormName },
           );
           this.bpmnFormListChanged.emit();
         }

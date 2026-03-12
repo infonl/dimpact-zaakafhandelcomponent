@@ -1099,5 +1099,7 @@
   "bpmn-procesdefinitie.chip.onvolledig": "Onvolledig",
   "bpmn-procesdefinitie.uploaded-datum": "Datum geüpload",
   "bpmn-procesdefinitie.gewijzigd-datum": "Datum gewijzigd",
-  "bpmn-procesdefinitie.documentatie": "Documentatie"
+  "bpmn-procesdefinitie.documentatie": "Documentatie",
+  "bpmn-procesdefinitie.formulier.geupload": "Formulier geüpload",
+  "bpmn-procesdefinitie.formulier.niet-geupload": "Formulier niet geüpload"
 }

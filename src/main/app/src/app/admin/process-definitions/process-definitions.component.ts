@@ -12,7 +12,6 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -79,7 +78,6 @@ export class ProcessDefinitionsComponent
   ngOnInit() {
     this.setupMenu("title.procesdefinities");
     this.loadBpmnProcessDefinitions();
-    this.loadBpmnForms();
   }
 
   protected selectBpmnProcessDefinitionFile() {
@@ -140,7 +138,7 @@ export class ProcessDefinitionsComponent
     return node as GeneratedType<"RestBpmnProcessDefinition">;
   }
 
-  private loadBpmnProcessDefinitions() {
+  protected loadBpmnProcessDefinitions() {
     this.utilService.setLoading(true);
     this.bpmnService
       .listProcessDefinitions()
@@ -148,6 +146,11 @@ export class ProcessDefinitionsComponent
         this.data = this.buildTreeData(processDefinitions);
         this.utilService.setLoading(false);
       });
+  }
+
+  protected hasAllFormsUploaded(node: ProcessDefinitionGroupNode): boolean {
+    const forms = node.definition.details?.forms ?? [];
+    return forms.length > 0 && forms.every((form) => form.uploaded);
   }
 
   private buildTreeData(
@@ -158,17 +161,5 @@ export class ProcessDefinitionsComponent
       key: def.key,
       definition: def,
     }));
-  }
-
-  /// TEMP
-
-  protected formsDataSource = new MatTableDataSource<
-    GeneratedType<"RestFormioFormulier">
-  >();
-
-  protected loadBpmnForms() {
-    this.bpmnService.listFormioFormulieren().subscribe((formioFormulier) => {
-      this.formsDataSource.data = formioFormulier;
-    });
   }
 }
