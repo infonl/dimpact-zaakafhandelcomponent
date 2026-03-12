@@ -33,24 +33,24 @@ class BpmnProcessDefinitionTaskForm {
     var id: Long = 0
 
     @NotBlank
-    @Column(name = "bpmn_procesdefinitie")
+    @Column(name = "bpmn_procesdefinitie", nullable = false)
     lateinit var bpmnProcessDefinitionKey: String
 
     @Column(name = "bpmn_procesdefinitie_versie")
     var bpmnProcessDefinitionVersion: Int = 0
 
     @NotBlank
-    @Column(name = "naam")
+    @Column(name = "naam", nullable = false)
     lateinit var name: String
 
-    @NotNull
-    @Column(name = "titel")
+    @Column(name = "titel", nullable = false)
     lateinit var title: String
 
     @NotBlank
-    @Column(name = "bestandsnaam")
+    @Column(name = "bestandsnaam", nullable = false)
     lateinit var filename: String
 
     @NotBlank
+    @Column(nullable = false)
     lateinit var content: String
 }
