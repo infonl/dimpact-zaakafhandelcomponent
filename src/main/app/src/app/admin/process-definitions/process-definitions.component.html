@@ -42,13 +42,7 @@
               (change)="bpmnProcessDefinitionFileSelected($event)"
               style="display: none"
             />
-            <input
-              type="file"
-              #formioFileInput
-              accept=".json"
-              (change)="bpmnFormFileSelected($event)"
-              style="display: none"
-            />
+
           </div>
         </div>
 
@@ -58,7 +52,6 @@
               <zac-process-definition-item
                 [processDefinition]="asProcessDefinition(node)"
                 [forms]="formsDataSource.data"
-                (uploadBpmnFormFile)="selectBpmnFormFile($event)"
                 (bpmnFormListChanged)="loadBpmnForms()"
               ></zac-process-definition-item>
             </mat-nested-tree-node>

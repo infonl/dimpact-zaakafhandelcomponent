@@ -857,6 +857,7 @@
   "msg.hint.temporary.person.id.unknown": "The registered involved is not found.",
   "msg.email.verstuurd": "E-mail has been sent",
   "msg.extern.advies.vastleggen.behandelen": "An external advice has been requested. The answer can be recorded below.",
+  "msg.formioformulier.uploaden.uitgevoerd": "Form '{{naam}}' has been uploaded",
   "msg.formioformulier.verwijderen.bevestigen": "Delete form '{{naam}}'?",
   "msg.formioformulier.verwijderen.uitgevoerd": "Form '{{naam}}' has been deleted",
   "msg.geen.cards.hint": "Increase the usefulnes of your personal dashboard by adding one or more handy cards",

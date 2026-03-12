@@ -24,6 +24,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
+import { readFileContent } from "./file.helper";
 import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
 
 interface ProcessDefinitionGroupNode {
@@ -50,8 +51,6 @@ export class ProcessDefinitionsComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
-  @ViewChild("formioFileInput", { static: false })
-  formioFileInput!: ElementRef;
 
   data: ProcessDefinitionGroupNode[] = [];
   protected expandedKey: string | null = null;
@@ -74,7 +73,6 @@ export class ProcessDefinitionsComponent
   private readonly bpmnService = inject(BpmnService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
-  private selectedBpmnProcessDefinitionKey = "";
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
@@ -95,7 +93,7 @@ export class ProcessDefinitionsComponent
       const file = event.target.files?.[0];
       if (!file) return;
 
-      this.readFileContent(file)
+      readFileContent(file)
         .then((content) => {
           this.bpmnService
             .uploadProcessDefinition({
@@ -138,32 +136,6 @@ export class ProcessDefinitionsComponent
       });
   }
 
-  protected selectBpmnFormFile(bpmnProcessDefinitionKey: string) {
-    this.selectedBpmnProcessDefinitionKey = bpmnProcessDefinitionKey;
-    this.formioFileInput.nativeElement.click();
-  }
-
-  protected bpmnFormFileSelected(event: Event) {
-    const target = event.target as HTMLInputElement | null;
-    const file = target?.files?.[0];
-    if (!file) return;
-
-    this.readFileContent(file)
-      .then((content) => {
-        this.bpmnService
-          .uploadProcessDefinitionForm(this.selectedBpmnProcessDefinitionKey, {
-            filename: file.name,
-            content,
-          })
-          .subscribe(() => {
-            this.loadBpmnForms();
-          });
-      })
-      .catch((error) => {
-        this.foutAfhandelingService.foutAfhandelen(error);
-      });
-  }
-
   protected asProcessDefinition(
     node: ProcessDefinitionNode,
   ): GeneratedType<"RestBpmnProcessDefinition"> {
@@ -189,15 +161,6 @@ export class ProcessDefinitionsComponent
       inUse: def.details?.inUse ?? false,
       definition: def,
     }));
-  }
-
-  private readFileContent(file: File) {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
   }
 
   /// TEMP

@@ -3,6 +3,13 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
+<input
+  type="file"
+  #bpmnFormFileInput
+  accept=".json"
+  (change)="bpmnFormFileSelected($event)"
+  style="display: none"
+/>
 <div class="process-definition-item">
   <div class="flex-row gap-20">
     <zac-static-text label="versie" [value]="processDefinition.version" />

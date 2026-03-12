@@ -5,15 +5,18 @@
 
 import {
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
   OnChanges,
   Output,
+  ViewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
 import { UtilService } from "../../../core/service/util.service";
+import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -21,6 +24,7 @@ import {
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
+import { readFileContent } from "../file.helper";
 
 @Component({
   selector: "zac-process-definition-item",
@@ -34,8 +38,10 @@ export class ProcessDefinitionItemComponent implements OnChanges {
   @Input()
   forms: GeneratedType<"RestFormioFormulier">[] = [];
 
-  @Output() uploadBpmnFormFile = new EventEmitter<string>();
   @Output() bpmnFormListChanged = new EventEmitter<void>();
+
+  @ViewChild("bpmnFormFileInput", { static: false })
+  bpmnFormFileInput!: ElementRef;
 
   protected formsDataSource = new MatTableDataSource<
     GeneratedType<"RestFormioFormulier">
@@ -45,6 +51,7 @@ export class ProcessDefinitionItemComponent implements OnChanges {
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   ngOnChanges(): void {
     this.formsDataSource.data = this.forms.filter(
@@ -53,8 +60,32 @@ export class ProcessDefinitionItemComponent implements OnChanges {
   }
 
   protected uploadBpmnForm() {
-    this.uploadBpmnFormFile.emit(this.processDefinition.key);
-    this.bpmnFormListChanged.emit();
+    this.bpmnFormFileInput.nativeElement.click();
+  }
+
+  protected bpmnFormFileSelected(event: Event) {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0];
+    if (!file) return;
+
+    readFileContent(file)
+      .then((content) => {
+        this.bpmnService
+          .uploadProcessDefinitionForm(this.processDefinition.key, {
+            filename: file.name,
+            content,
+          })
+          .subscribe(() => {
+            this.utilService.openSnackbar(
+              "msg.formioformulier.uploaden.uitgevoerd",
+              { naam: file.name },
+            );
+            this.bpmnFormListChanged.emit();
+          });
+      })
+      .catch((error) => {
+        this.foutAfhandelingService.foutAfhandelen(error);
+      });
   }
 
   protected deleteBpmnForm(bpmnForm: GeneratedType<"RestFormioFormulier">) {
