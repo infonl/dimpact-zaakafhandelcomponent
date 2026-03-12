@@ -59,7 +59,13 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
         val uniqueBpmnProcessDefinitionKeysFromConfigurations =
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations()
-        val formsMetadata = bpmnProcessDefinitionTaskFormService.getFormsMetadata()
+        val forms = bpmnProcessDefinitionTaskFormService.listForms()
+        val formsMetadata = forms.associateBy(
+            { "${it.bpmnProcessDefinitionKey}-${it.bpmnProcessDefinitionVersion}-${it.name}" },
+        { it.title }
+            )
+            .let { HashMap(it) }
+
         return bpmnService.listProcessDefinitions()
             .map {
                 val metadata = bpmnService.getProcessDefinitionMetadata(it)

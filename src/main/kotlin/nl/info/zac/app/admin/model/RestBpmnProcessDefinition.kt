@@ -32,5 +32,5 @@ data class RestBpmnProcessDefinitionDetails(
 data class RestBpmnProcessDefinitionForm(
     var formKey: String,
     var title: String? = null,
-    var isUploaded: Boolean = false,
+    var uploaded: Boolean = false,
 )

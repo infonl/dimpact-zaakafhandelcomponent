@@ -54,29 +54,6 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
             }
         }
 
-    fun getFormsMetadata(): HashMap<String, String> =
-        entityManager.criteriaBuilder.let { criteriaBuilder ->
-            criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java).let { query ->
-                query.from(BpmnProcessDefinitionTaskForm::class.java).let {
-                    query.orderBy(
-                        criteriaBuilder.asc(
-                            it.get<String>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionKey.name)
-                        ),
-                        criteriaBuilder.asc(
-                            it.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name)
-                        ),
-                        criteriaBuilder.asc(it.get<String>(BpmnProcessDefinitionTaskForm::name.name))
-                    )
-                }
-                entityManager.createQuery(query).resultList
-                    .associateBy(
-                        { "${it.bpmnProcessDefinitionKey}-${it.bpmnProcessDefinitionVersion}-${it.name}" },
-                        { it.title }
-                    )
-                    .let { HashMap(it) }
-            }
-        }
-
     @Transactional(Transactional.TxType.REQUIRED)
     fun addForm(processDefinitionKey: String, filename: String, content: String) {
         readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let { processDefinition ->
