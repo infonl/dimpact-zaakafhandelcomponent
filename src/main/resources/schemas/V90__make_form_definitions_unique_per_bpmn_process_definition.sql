@@ -20,11 +20,6 @@ FROM (
              version_,
              deployment_id_
          FROM flowable.act_re_procdef
-         WHERE version_ = (
-             SELECT MAX(version_)
-             FROM flowable.act_re_procdef AS sub
-             WHERE sub.key_ = act_re_procdef.key_
-         )
      ) as bpmn_definitions
          INNER JOIN
      (
