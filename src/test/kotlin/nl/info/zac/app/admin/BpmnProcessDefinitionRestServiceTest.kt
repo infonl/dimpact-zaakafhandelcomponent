@@ -65,12 +65,12 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 result[0].name shouldBe "Process 1"
                 result[0].version shouldBe 1
                 result[0].key shouldBe "process1"
-                result[0].inUse shouldBe true
+                result[0].details?.inUse shouldBe true
                 result[1].id shouldBe "pd2"
                 result[1].name shouldBe "Process 2"
                 result[1].version shouldBe 2
                 result[1].key shouldBe "process2"
-                result[1].inUse shouldBe true
+                result[1].details?.inUse shouldBe true
             }
         }
     }
@@ -93,7 +93,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
 
             Then("it should return the process definition with inUse as false") {
                 result.size shouldBe 1
-                result[0].inUse shouldBe false
+                result[0].details?.inUse shouldBe false
             }
         }
     }

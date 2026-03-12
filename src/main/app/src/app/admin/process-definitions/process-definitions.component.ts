@@ -186,7 +186,7 @@ export class ProcessDefinitionsComponent
     return definitions.map((def) => ({
       name: def.name,
       key: def.key,
-      inUse: def.inUse ?? false,
+      inUse: def.details?.inUse ?? false,
       definition: def,
     }));
   }
