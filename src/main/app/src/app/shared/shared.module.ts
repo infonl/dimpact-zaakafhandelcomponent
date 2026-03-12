@@ -52,7 +52,6 @@ import { VersionComponent } from "./version/version.component";
     SideNavComponent,
     BackButtonDirective,
     StaticTextComponent,
-    ReadMoreComponent,
     OutsideClickDirective,
     EditInputComponent,
     DateRangeFilterComponent,
@@ -73,6 +72,7 @@ import { VersionComponent } from "./version/version.component";
     ZacNarrowMatCheckboxDirective,
   ],
   imports: [
+    ReadMoreComponent,
     SortPipe,
     FormsModule,
     BrowserAnimationsModule,
