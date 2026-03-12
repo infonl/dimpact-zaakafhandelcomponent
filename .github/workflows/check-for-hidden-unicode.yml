@@ -51,6 +51,7 @@ jobs:
                 line="${line%%#*}"
                 line="${line%"${line##*[![:space:]]}"}"
                 line="${line#"${line%%[![:space:]]*}"}"
+                line="${line%$'\r'}"
                 [[ -z "$line" ]] && continue
                 # shellcheck disable=SC2254
                 if [[ "$file" == ./$line || "$file" == $line ]]; then
