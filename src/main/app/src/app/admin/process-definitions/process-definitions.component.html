@@ -59,6 +59,12 @@
                   (change)="bpmnProcessDefinitionFileSelected($event)"
                   style="display: none"
                 />
+                <input
+                  type="file"
+                  #formioFileInput
+                  (change)="formioFileSelected($event)"
+                  style="display: none"
+                />
               </th>
               <td mat-cell *matCellDef="let row">
                 <button
@@ -71,12 +77,6 @@
                 >
                   <mat-icon>upload_file</mat-icon>
                 </button>
-                <input
-                  type="file"
-                  #formioFileInput
-                  (change)="formioFileSelected($event)"
-                  style="display: none"
-                />
                 <button
                   mat-icon-button
                   id="delete"
