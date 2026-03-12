@@ -133,7 +133,8 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
-        "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
+        "Street\u00A0#\u00A038\u00A0&\u00A0House\u00A0#\u00A010,\u00A0Baghdad," +
+            "\u00A0Park\u00A0Al-Sadoum,\u00A0Hay\u00A0Al-Nidhal\u00A0103,\u00A0Irak"
     const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
