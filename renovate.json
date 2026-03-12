@@ -210,7 +210,7 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*otel/opentelemetry-collector\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*otel/opentelemetry-collector-contrib\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "otel/opentelemetry-collector-contrib",
