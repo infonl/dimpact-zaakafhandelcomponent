@@ -1,0 +1,123 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Check for hidden Unicode characters
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+
+jobs:
+  check-for-hidden-unicode:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: scan for hidden unicode characters
+        run: |
+          # Detect hidden/invisible Unicode characters that could be used for text smuggling
+          # or to confuse tools like LLMs.
+          #
+          # Characters detected:
+          #   U+00A0       non-breaking space
+          #   U+00AD       soft hyphen
+          #   U+034F       combining grapheme joiner
+          #   U+180E       mongolian vowel separator
+          #   U+200B-200F  zero-width space, ZWNJ, ZWJ, LRM, RLM
+          #   U+202A-202E  bidi embedding/override (CVE-2021-42574)
+          #   U+2028-2029  line/paragraph separator
+          #   U+2060-2064  word joiner, invisible operators
+          #   U+2066-2069  bidi isolate
+          #   U+FEFF       byte order mark (only mid-file; BOMs at file start are allowed)
+
+          PATTERN='(*UTF)[\x{00A0}\x{00AD}\x{034F}\x{180E}\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2028}\x{2029}\x{2060}-\x{2064}\x{2066}-\x{2069}\x{FEFF}]'
+          ALLOWLIST='.github/hidden-unicode-allowlist'
+
+          echo "Scanning for hidden Unicode characters..."
+
+          FOUND=0
+          while IFS= read -r -d '' file; do
+            # Check if file matches any allowlist pattern
+            skip=false
+            if [[ -f "$ALLOWLIST" ]]; then
+              while IFS= read -r line; do
+                line="${line%%#*}"
+                line="${line%"${line##*[![:space:]]}"}"
+                line="${line#"${line%%[![:space:]]*}"}"
+                [[ -z "$line" ]] && continue
+                # shellcheck disable=SC2254
+                if [[ "$file" == ./$line || "$file" == $line ]]; then
+                  skip=true
+                  break
+                fi
+              done < "$ALLOWLIST"
+            fi
+            if [[ "$skip" == "true" ]]; then
+              continue
+            fi
+
+            # Skip binary files (-I) and scan for hidden characters
+            if matches=$(grep -nPo -I "$PATTERN" "$file" 2>&1); then
+              while IFS= read -r match; do
+                line_num=$(echo "$match" | cut -d: -f1)
+                raw_char=$(echo "$match" | cut -d: -f2-)
+                hex=$(printf '%s' "$raw_char" | od -An -tx1 | tr -d ' \n')
+
+                # Allow BOM (EF BB BF) at the very start of a file (line 1)
+                if [[ "$hex" == "efbbbf" && "$line_num" == "1" ]]; then
+                  first_bytes=$(head -c3 "$file" | od -An -tx1 | tr -d ' \n')
+                  if [[ "$first_bytes" == "efbbbf" ]]; then
+                    continue
+                  fi
+                fi
+
+                char_name="unknown"
+                case "$hex" in
+                  c2a0)         char_name="U+00A0 NON-BREAKING SPACE" ;;
+                  c2ad)         char_name="U+00AD SOFT HYPHEN" ;;
+                  cd8f)         char_name="U+034F COMBINING GRAPHEME JOINER" ;;
+                  e1a08e)       char_name="U+180E MONGOLIAN VOWEL SEPARATOR" ;;
+                  e2808b)       char_name="U+200B ZERO WIDTH SPACE" ;;
+                  e2808c)       char_name="U+200C ZERO WIDTH NON-JOINER" ;;
+                  e2808d)       char_name="U+200D ZERO WIDTH JOINER" ;;
+                  e2808e)       char_name="U+200E LEFT-TO-RIGHT MARK" ;;
+                  e2808f)       char_name="U+200F RIGHT-TO-LEFT MARK" ;;
+                  e280aa)       char_name="U+202A LEFT-TO-RIGHT EMBEDDING" ;;
+                  e280ab)       char_name="U+202B RIGHT-TO-LEFT EMBEDDING" ;;
+                  e280ac)       char_name="U+202C POP DIRECTIONAL FORMATTING" ;;
+                  e280ad)       char_name="U+202D LEFT-TO-RIGHT OVERRIDE" ;;
+                  e280ae)       char_name="U+202E RIGHT-TO-LEFT OVERRIDE" ;;
+                  e280a8)       char_name="U+2028 LINE SEPARATOR" ;;
+                  e280a9)       char_name="U+2029 PARAGRAPH SEPARATOR" ;;
+                  e281a0)       char_name="U+2060 WORD JOINER" ;;
+                  e281a1)       char_name="U+2061 FUNCTION APPLICATION" ;;
+                  e281a2)       char_name="U+2062 INVISIBLE TIMES" ;;
+                  e281a3)       char_name="U+2063 INVISIBLE SEPARATOR" ;;
+                  e281a4)       char_name="U+2064 INVISIBLE PLUS" ;;
+                  e281a6)       char_name="U+2066 LEFT-TO-RIGHT ISOLATE" ;;
+                  e281a7)       char_name="U+2067 RIGHT-TO-LEFT ISOLATE" ;;
+                  e281a8)       char_name="U+2068 FIRST STRONG ISOLATE" ;;
+                  e281a9)       char_name="U+2069 POP DIRECTIONAL ISOLATE" ;;
+                  efbbbf)       char_name="U+FEFF BYTE ORDER MARK (mid-file)" ;;
+                esac
+
+                echo "::error file=${file#./},line=${line_num}::Found hidden character: ${char_name} in ${file#./}:${line_num}"
+                FOUND=1
+              done <<< "$matches"
+            fi
+          done < <(find . -not -path './.git/*' -type f -print0)
+
+          if [[ "$FOUND" -eq 1 ]]; then
+            echo ""
+            echo "❌ Hidden Unicode characters detected!"
+            echo "These characters are invisible and could be used for text smuggling"
+            echo "or to confuse tools like LLMs."
+            echo ""
+            echo "To allowlist intentional files, add their paths to .github/hidden-unicode-allowlist"
+            echo "  (one path per line, comments with #)"
+            exit 1
+          fi
+
+          echo "✅ No hidden Unicode characters found."
