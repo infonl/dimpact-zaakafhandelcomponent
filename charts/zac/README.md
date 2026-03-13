@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.199](https://img.shields.io/badge/Version-1.0.199-informational?style=flat-square) ![AppVersion: 4.4](https://img.shields.io/badge/AppVersion-4.4-informational?style=flat-square)
+![Version: 1.0.200](https://img.shields.io/badge/Version-1.0.200-informational?style=flat-square) ![AppVersion: 4.4](https://img.shields.io/badge/AppVersion-4.4-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -307,7 +307,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:9dd498f7bd407e4a9e349f89f914e359c553e9ea56e35bdd03641f9fa9a05a2d"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"10.0.0-slim@sha256:fcaa66a56c7011d1278bc5d4a6903cdf6d4d20b0578fb751003d3f504e2057d2"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
