@@ -65,7 +65,7 @@ jobs:
             fi
 
             # Skip binary files (-I) and scan for hidden characters
-            if matches=$(grep -nPo -I "$PATTERN" "$file" 2>&1); then
+            if matches=$(grep -nPo -I "$PATTERN" "$file"); then
               while IFS= read -r match; do
                 line_num=$(echo "$match" | cut -d: -f1)
                 raw_char=$(echo "$match" | cut -d: -f2-)
@@ -112,6 +112,12 @@ jobs:
                 echo "::error file=${file#./},line=${line_num}::Found hidden character: ${char_name} in ${file#./}:${line_num}"
                 FOUND=1
               done <<< "$matches"
+            else
+              grep_status=$?
+              if [[ "$grep_status" -ne 1 ]]; then
+                echo "::error::Failed to scan '$file' for hidden Unicode characters (grep exit code: $grep_status)"
+                exit 1
+              fi
             fi
           done < <(find . -not -path './.git/*' -type f -print0)
 
