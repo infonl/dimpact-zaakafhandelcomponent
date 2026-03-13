@@ -65,7 +65,7 @@ jobs:
             fi
 
             # Skip binary files (-I) and scan for hidden characters
-            if matches=$(grep -nPo -I "$PATTERN" "$file" 2>&1); then
+            if matches=$(grep -nPo -I "$PATTERN" "$file"); then
               while IFS= read -r match; do
                 line_num=$(echo "$match" | cut -d: -f1)
                 raw_char=$(echo "$match" | cut -d: -f2-)
