@@ -12,7 +12,7 @@ import java.util.Date
 fun createProcessDefinition(
     id: String = "fakeId",
     category: String = "fakeCategory",
-    name: String = "fakeName",
+    name: String? = "fakeName",
     key: String = "fakeKey",
     description: String = "fakeDescription",
     version: Int = 1,
@@ -51,7 +51,7 @@ fun createProcessDefinition(
 private class ProcessDefinitionTestImpl(
     private val id: String = "fakeId",
     private val category: String = "fakeCategory",
-    private val name: String = "fakeName",
+    private val name: String? = "fakeName",
     private val key: String = "fakeKey",
     private val description: String = "fakeDescription",
     private val version: Int = 1,

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -25,5 +25,29 @@ export class BpmnService {
     return this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
       path: { key },
     });
+  }
+
+  listFormioFormulieren() {
+    return this.zacHttpClient.GET("/rest/formio-formulieren");
+  }
+
+  uploadProcessDefinitionForm(
+    key: string,
+    body: PostBody<"/rest/bpmn-process-definitions/{key}/forms">,
+  ) {
+    return this.zacHttpClient.POST(
+      "/rest/bpmn-process-definitions/{key}/forms",
+      body,
+      { path: { key } },
+    );
+  }
+
+  deleteProcessDefinitionForm(key: string, name: string) {
+    return this.zacHttpClient.DELETE(
+      "/rest/bpmn-process-definitions/{key}/forms/{name}",
+      {
+        path: { key, name },
+      },
+    );
   }
 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Dimpact
+ * SPDX-FileCopyrightText: 2026 Dimpact
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin
@@ -17,7 +17,9 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
+import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -30,7 +32,8 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 class BpmnProcessDefinitionRestService @Inject constructor(
     private val bpmnService: BpmnService,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     @GET
     fun listProcessDefinitions(): List<RestBpmnProcessDefinition> {
@@ -69,6 +72,32 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                 .build()
         }
         bpmnService.deleteProcessDefinition(key)
+        return Response.noContent().build()
+    }
+
+    @POST
+    @Path("{key}/forms")
+    fun createForm(
+        @PathParam("key") key: String,
+        restFormioFormulierContent: RestFormioFormulierContent
+    ): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        bpmnProcessDefinitionTaskFormService.addForm(
+            key,
+            restFormioFormulierContent.filename,
+            restFormioFormulierContent.content
+        )
+        return Response.status(Status.CREATED).build()
+    }
+
+    @DELETE
+    @Path("{key}/forms/{name}")
+    fun deleteForm(
+        @PathParam("key") key: String,
+        @PathParam("name") name: String
+    ): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        bpmnProcessDefinitionTaskFormService.deleteForm(key, name)
         return Response.noContent().build()
     }
 }

@@ -4,15 +4,20 @@
  */
 package nl.info.zac.formio
 
-import nl.info.zac.formio.model.FormioFormulier
+import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 
-fun createFormioFormulier(
+@Suppress("LongParameterList")
+fun createBpmnProcessDefinitionTaskForm(
     id: Long = 124L,
+    bpmnProcessDefinition: String = "fakeBpmnProcessDefinition",
+    bpmnProcessDefinitionVersion: Int = 1,
     name: String = "testForm",
     title: String = "fakeTitle",
     content: String = """{ "fakeKey": "fakeValue" }"""
-) = FormioFormulier().apply {
+) = BpmnProcessDefinitionTaskForm().apply {
     this.id = id
+    this.bpmnProcessDefinitionKey = bpmnProcessDefinition
+    this.bpmnProcessDefinitionVersion = bpmnProcessDefinitionVersion
     this.name = name
     this.title = title
     this.content = content
