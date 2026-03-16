@@ -57,7 +57,6 @@ import { VersionComponent } from "./version/version.component";
     DateRangeFilterComponent,
     FacetFilterComponent,
     TekstFilterComponent,
-    ToggleFilterComponent,
     ConfirmDialogComponent,
     DialogComponent,
     ColumnPickerComponent,
@@ -73,6 +72,7 @@ import { VersionComponent } from "./version/version.component";
   ],
   imports: [
     ReadMoreComponent,
+    ToggleFilterComponent,
     SortPipe,
     FormsModule,
     BrowserAnimationsModule,
