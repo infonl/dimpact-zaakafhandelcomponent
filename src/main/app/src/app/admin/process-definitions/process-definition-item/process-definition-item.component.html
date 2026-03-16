@@ -21,11 +21,11 @@
         />
         <zac-static-text
           label="bpmn-procesdefinitie.uploaded-datum"
-          [value]="processDefinition.details?.uploadDate | date: 'medium'"
+          [value]="processDefinition.details?.uploadDate | date: 'dd-MM-yyyy HH:mm'"
         />
         <zac-static-text
           label="bpmn-procesdefinitie.gewijzigd-datum"
-          [value]="processDefinition.details?.modificationDate | date: 'medium'"
+          [value]="processDefinition.details?.modificationDate | date: 'dd-MM-yyyy HH:mm'"
         />
         <zac-static-text
           label="bpmn-procesdefinitie.documentatie"
