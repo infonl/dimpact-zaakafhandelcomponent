@@ -46,11 +46,11 @@
         </div>
 
         <div class="table-wrapper">
-          <mat-tree [dataSource]="data" [childrenAccessor]="childrenAccessor">
+          <mat-tree [dataSource]="data()" [childrenAccessor]="childrenAccessor">
             <mat-nested-tree-node *matTreeNodeDef="let node" class="item">
               <zac-process-definition-item
                 [processDefinition]="asProcessDefinition(node)"
-                (bpmnFormListChanged)="loadBpmnProcessDefinitions()"
+                (bpmnFormListChanged)="refreshDefinitions()"
               ></zac-process-definition-item>
             </mat-nested-tree-node>
             <mat-nested-tree-node
@@ -92,7 +92,7 @@
               </div>
             </mat-nested-tree-node>
           </mat-tree>
-          @if (data.length === 0) {
+          @if (data().length === 0) {
             <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
           }
         </div>

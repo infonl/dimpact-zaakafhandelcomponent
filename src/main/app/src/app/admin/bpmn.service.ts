@@ -3,30 +3,35 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
+import { lastValueFrom } from "rxjs";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class BpmnService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listProcessDefinitions() {
-    return this.zacHttpClient.GET("/rest/bpmn-process-definitions", {
-      query: { details: true },
+  listProcessDefinitions(details: boolean = false) {
+    return this.zacQueryClient.GET("/rest/bpmn-process-definitions", {
+      query: { details },
     });
   }
 
-  uploadProcessDefinition(body: PostBody<"/rest/bpmn-process-definitions">) {
-    return this.zacHttpClient.POST("/rest/bpmn-process-definitions", body);
+  uploadProcessDefinition() {
+    return this.zacQueryClient.POST("/rest/bpmn-process-definitions");
   }
 
   deleteProcessDefinition(key: string) {
-    return this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
-      path: { key },
-    });
+    return lastValueFrom(
+      this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
+        path: { key },
+      }),
+    );
   }
 
   uploadProcessDefinitionForm(
@@ -41,7 +46,7 @@ export class BpmnService {
   }
 
   deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
-    const key = processDefinitionKey; // just to explain which key is the key
+    const key = processDefinitionKey;
 
     return this.zacHttpClient.DELETE(
       "/rest/bpmn-process-definitions/{key}/forms/{name}",

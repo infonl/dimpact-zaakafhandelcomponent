@@ -9,6 +9,11 @@ import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideAngularQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -53,8 +58,14 @@ describe(ProcessDefinitionsComponent.name, () => {
   let utilService: jest.Mocked<UtilService>;
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
+  let queryClient: QueryClient;
+  let deleteMutationFn: jest.Mock;
 
   beforeEach(async () => {
+    notifyManager.setScheduler((fn) => fn());
+
+    deleteMutationFn = jest.fn().mockResolvedValue({});
+
     await TestBed.configureTestingModule({
       imports: [
         ProcessDefinitionsComponent,
@@ -64,14 +75,23 @@ describe(ProcessDefinitionsComponent.name, () => {
       ],
       providers: [
         provideRouter([]),
+        provideAngularQuery(
+          new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+        ),
         {
           provide: BpmnService,
           useValue: {
-            listProcessDefinitions: jest
-              .fn()
-              .mockReturnValue(of([baseProcessDefinition])),
-            uploadProcessDefinition: jest.fn().mockReturnValue(of({})),
-            deleteProcessDefinition: jest.fn().mockReturnValue(of({})),
+            listProcessDefinitions: jest.fn().mockReturnValue({
+              queryKey: ["/rest/bpmn-process-definitions"],
+              queryFn: () => Promise.resolve([baseProcessDefinition]),
+              staleTime: 0,
+              retry: false,
+              refetchOnWindowFocus: false,
+            }),
+            uploadProcessDefinition: jest.fn().mockReturnValue({
+              mutationFn: jest.fn().mockResolvedValue({}),
+            }),
+            deleteProcessDefinition: deleteMutationFn,
           },
         },
         {
@@ -98,6 +118,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       })
       .compileComponents();
 
+    queryClient = TestBed.inject(QueryClient);
     bpmnService = TestBed.inject(BpmnService) as jest.Mocked<BpmnService>;
     utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
     foutAfhandelingService = TestBed.inject(
@@ -108,6 +129,7 @@ describe(ProcessDefinitionsComponent.name, () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     const internalDialog = (component as unknown as { dialog: MatDialog })
       .dialog;
@@ -117,6 +139,7 @@ describe(ProcessDefinitionsComponent.name, () => {
   });
 
   afterEach(() => {
+    notifyManager.setScheduler((fn) => setTimeout(fn, 0));
     jest.clearAllMocks();
   });
 
@@ -135,11 +158,9 @@ describe(ProcessDefinitionsComponent.name, () => {
       expect(fixture.nativeElement.textContent).toContain("Process A");
     });
 
-    it("should show empty-state message when there are no definitions", async () => {
-      bpmnService.listProcessDefinitions.mockReturnValue(of([]));
-      component["loadBpmnProcessDefinitions"]();
+    it("should show empty-state message when there are no definitions", () => {
+      queryClient.setQueryData(["/rest/bpmn-process-definitions"], []);
       fixture.detectChanges();
-      await fixture.whenStable();
 
       expect(fixture.nativeElement.textContent).toContain(
         "msg.geen.gegevens.gevonden",
@@ -216,10 +237,10 @@ describe(ProcessDefinitionsComponent.name, () => {
     it("should do nothing when target is not an HTMLInputElement", () => {
       const event = { target: {} } as unknown as Event;
       component["bpmnProcessDefinitionFileSelected"](event);
-      expect(bpmnService.uploadProcessDefinition).not.toHaveBeenCalled();
+      expect(readFileContent).not.toHaveBeenCalled();
     });
 
-    it("should upload file content and reload on success", async () => {
+    it("should upload file content on success", async () => {
       const fileContent = "<bpmn/>";
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
@@ -230,14 +251,30 @@ describe(ProcessDefinitionsComponent.name, () => {
       Object.defineProperty(input, "files", { value: [file] });
       const event = { target: input } as unknown as Event;
 
+      const mutateMock = jest.fn();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any)["uploadMutation"] = { mutate: mutateMock };
+
       component["bpmnProcessDefinitionFileSelected"](event);
       await Promise.resolve();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(bpmnService.uploadProcessDefinition).toHaveBeenCalledWith({
+      expect(mutateMock).toHaveBeenCalledWith({
         filename: "process.bpmn",
         content: fileContent,
       });
+    });
+
+    it("should reset input value after file selection so re-uploading the same file works", () => {
+      const input = document.createElement("input");
+      Object.defineProperty(input, "files", {
+        value: [new File(["<bpmn/>"], "process.bpmn")],
+      });
+      const event = { target: input } as unknown as Event;
+
+      component["bpmnProcessDefinitionFileSelected"](event);
+
+      expect(input.value).toBe("");
     });
 
     it("should call foutAfhandelingService when readFileContent rejects", async () => {
@@ -269,22 +306,17 @@ describe(ProcessDefinitionsComponent.name, () => {
       expect(dialogData._melding.args).toEqual({ naam: "Process A" });
     });
 
-    it("should show snackbar and reload when dialog is confirmed", () => {
+    it("should call delete mutation and show snackbar when dialog is confirmed", async () => {
       dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
-      const loadSpy = jest.spyOn(
-        component as ProcessDefinitionsComponent & {
-          loadBpmnProcessDefinitions: () => void;
-        },
-        "loadBpmnProcessDefinitions",
-      );
 
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
+      await fixture.whenStable();
 
+      expect(deleteMutationFn).toHaveBeenCalledWith("key-a");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.procesdefinitie.verwijderen.uitgevoerd",
         { naam: "Process A" },
       );
-      expect(loadSpy).toHaveBeenCalled();
     });
 
     it("should not show snackbar when dialog is cancelled", () => {

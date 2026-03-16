@@ -5,6 +5,7 @@
 
 import {
   Component,
+  computed,
   ElementRef,
   OnInit,
   ViewChild,
@@ -12,6 +13,10 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -50,7 +55,14 @@ export class ProcessDefinitionsComponent
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
 
-  data: ProcessDefinitionGroupNode[] = [];
+  protected readonly processDefinitionsQuery = injectQuery(() =>
+    this.bpmnService.listProcessDefinitions(true),
+  );
+
+  protected readonly data = computed(() =>
+    this.buildTreeData(this.processDefinitionsQuery.data() ?? []),
+  );
+
   protected expandedKey: string | null = null;
 
   protected toggleNode(node: ProcessDefinitionGroupNode) {
@@ -71,13 +83,21 @@ export class ProcessDefinitionsComponent
   private readonly bpmnService = inject(BpmnService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
+  private readonly uploadMutation = injectMutation(() => ({
+    ...this.bpmnService.uploadProcessDefinition(),
+    onSuccess: () => void this.processDefinitionsQuery.refetch(),
+  }));
+
+  private readonly deleteMutation = injectMutation(() => ({
+    mutationFn: (key: string) => this.bpmnService.deleteProcessDefinition(key),
+  }));
+
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
   }
 
   ngOnInit() {
     this.setupMenu("title.procesdefinities");
-    this.loadBpmnProcessDefinitions();
   }
 
   protected selectBpmnProcessDefinitionFile() {
@@ -89,16 +109,14 @@ export class ProcessDefinitionsComponent
       const file = event.target.files?.[0];
       if (!file) return;
 
+      event.target.value = "";
+
       readFileContent(file)
         .then((content) => {
-          this.bpmnService
-            .uploadProcessDefinition({
-              content,
-              filename: file.name,
-            })
-            .subscribe(() => {
-              this.loadBpmnProcessDefinitions();
-            });
+          this.uploadMutation.mutate({
+            content,
+            filename: file.name,
+          });
         })
         .catch((error) => {
           this.foutAfhandelingService.foutAfhandelen(error);
@@ -112,40 +130,35 @@ export class ProcessDefinitionsComponent
   }) {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.procesdefinitie.verwijderen.bevestigen",
-            args: { naam: processDefinition.name },
-          },
-          this.bpmnService.deleteProcessDefinition(processDefinition.key),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.procesdefinitie.verwijderen.bevestigen",
+          args: { naam: processDefinition.name },
+        }),
       })
       .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.utilService.openSnackbar(
-            "msg.procesdefinitie.verwijderen.uitgevoerd",
-            { naam: processDefinition.name },
-          );
-          this.loadBpmnProcessDefinitions();
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.deleteMutation.mutate(processDefinition.key, {
+            onSuccess: () => {
+              this.utilService.openSnackbar(
+                "msg.procesdefinitie.verwijderen.uitgevoerd",
+                { naam: processDefinition.name },
+              );
+              void this.processDefinitionsQuery.refetch();
+            },
+          });
         }
       });
+  }
+
+  protected refreshDefinitions() {
+    void this.processDefinitionsQuery.refetch();
   }
 
   protected asProcessDefinition(
     node: ProcessDefinitionNode,
   ): GeneratedType<"RestBpmnProcessDefinition"> {
     return node as GeneratedType<"RestBpmnProcessDefinition">;
-  }
-
-  protected loadBpmnProcessDefinitions() {
-    this.utilService.setLoading(true);
-    this.bpmnService
-      .listProcessDefinitions()
-      .subscribe((processDefinitions) => {
-        this.data = this.buildTreeData(processDefinitions);
-        this.utilService.setLoading(false);
-      });
   }
 
   protected hasAllFormsUploaded(node: ProcessDefinitionGroupNode): boolean {
