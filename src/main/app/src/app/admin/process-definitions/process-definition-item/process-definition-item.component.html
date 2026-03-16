@@ -14,30 +14,30 @@
   <mat-card>
     <mat-card-content>
       <div class="flex-row gap-20">
-        <zac-static-text label="versie" [value]="processDefinition.version" />
+        <zac-static-text label="versie" [value]="processDefinition().version" />
         <zac-static-text
           label="bpmn-procesdefinitie.sleutel"
-          [value]="processDefinition.key"
+          [value]="processDefinition().key"
         />
         <zac-static-text
           label="bpmn-procesdefinitie.uploaded-datum"
           [value]="
-            processDefinition.details?.uploadDate | date: 'dd-MM-yyyy HH:mm'
+            processDefinition().details?.uploadDate | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
           label="bpmn-procesdefinitie.gewijzigd-datum"
           [value]="
-            processDefinition.details?.modificationDate
+            processDefinition().details?.modificationDate
               | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
           label="bpmn-procesdefinitie.documentatie"
-          [value]="processDefinition.details?.documentation"
+          [value]="processDefinition().details?.documentation"
         />
       </div>
-      @if (processDefinition.details?.inUse) {
+      @if (processDefinition().details?.inUse) {
         <mat-divider class="my-3"></mat-divider>
         <span class="icon-align">
           <mat-icon outlined color="primary">info</mat-icon>
@@ -63,7 +63,7 @@
           <mat-icon outlined>add_circle</mat-icon>
         </button>
       </div>
-      @if (missingForms.length !== 0) {
+      @if (missingForms().length !== 0) {
         <div>
           <mat-divider class="my-3"></mat-divider>
           <span class="icon-align">
@@ -79,7 +79,7 @@
       <div class="table-wrapper">
         <table
           mat-table
-          [dataSource]="processDefinition.details?.forms ?? []"
+          [dataSource]="processDefinition().details?.forms ?? []"
           class="mat-elevation-z8"
         >
           <ng-container matColumnDef="index">
@@ -148,7 +148,7 @@
                   mat-icon-button
                   id="delete"
                   title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="processDefinition.details?.inUse"
+                  [disabled]="processDefinition().details?.inUse"
                   (click)="deleteBpmnForm(row.formKey)"
                 >
                   <mat-icon>delete</mat-icon>
@@ -160,12 +160,12 @@
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
         </table>
-        @if ((processDefinition.details?.forms?.length ?? 0) === 0) {
+        @if ((processDefinition().details?.forms?.length ?? 0) === 0) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         }
       </div>
 
-      @if ((processDefinition.details?.orphanedForms?.length ?? 0) > 0) {
+      @if ((processDefinition().details?.orphanedForms?.length ?? 0) > 0) {
         <mat-divider class="my-3"></mat-divider>
         <div class="icon-align">
           <h3>
@@ -184,7 +184,7 @@
         </div>
         <mat-chip-set class="orphaned-forms">
           @for (
-            form of processDefinition.details?.orphanedForms;
+            form of processDefinition().details?.orphanedForms;
             track form.formKey
           ) {
             <mat-chip (removed)="deleteOrphanedForm(form.formKey)">

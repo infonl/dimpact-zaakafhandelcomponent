@@ -5,15 +5,14 @@
 
 import {
   Component,
+  computed,
   ElementRef,
-  EventEmitter,
   inject,
-  Input,
-  Output,
-  ViewChild,
+  input,
+  output,
+  viewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
@@ -32,31 +31,27 @@ import { readFileContent } from "../file.helper";
   imports: [SharedModule],
 })
 export class ProcessDefinitionItemComponent {
-  @Input({ required: true })
-  processDefinition!: GeneratedType<"RestBpmnProcessDefinition">;
+  readonly processDefinition =
+    input.required<GeneratedType<"RestBpmnProcessDefinition">>();
 
-  @Output()
-  bpmnFormListChanged = new EventEmitter<void>();
+  readonly bpmnFormListChanged = output<void>();
 
-  @ViewChild("bpmnFormFileInput", { static: false })
-  bpmnFormFileInput!: ElementRef;
+  protected readonly bpmnFormFileInput =
+    viewChild.required<ElementRef>("bpmnFormFileInput");
 
-  protected formsDataSource = new MatTableDataSource<
-    GeneratedType<"RestFormioFormulier">
-  >();
-  protected columns = ["index", "uploaded", "formKey", "title", "actions"];
+  protected readonly columns = [
+    "index",
+    "uploaded",
+    "formKey",
+    "title",
+    "actions",
+  ];
 
-  protected get uploadedForms() {
-    return (this.processDefinition.details?.forms ?? []).filter(
-      (form) => form.uploaded,
-    );
-  }
-
-  protected get missingForms() {
-    return (this.processDefinition.details?.forms ?? []).filter(
+  protected readonly missingForms = computed(() =>
+    (this.processDefinition().details?.forms ?? []).filter(
       (form) => !form.uploaded,
-    );
-  }
+    ),
+  );
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
@@ -64,7 +59,7 @@ export class ProcessDefinitionItemComponent {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   protected uploadBpmnForm() {
-    this.bpmnFormFileInput.nativeElement.click();
+    this.bpmnFormFileInput().nativeElement.click();
   }
 
   protected bpmnFormFileSelected(event: Event) {
@@ -75,7 +70,7 @@ export class ProcessDefinitionItemComponent {
     readFileContent(file)
       .then((content) => {
         this.bpmnService
-          .uploadProcessDefinitionForm(this.processDefinition.key, {
+          .uploadProcessDefinitionForm(this.processDefinition().key, {
             filename: file.name,
             content,
           })
@@ -103,7 +98,7 @@ export class ProcessDefinitionItemComponent {
             args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
-            this.processDefinition.key,
+            this.processDefinition().key,
             bpmnFormName,
           ),
         ),
@@ -122,7 +117,7 @@ export class ProcessDefinitionItemComponent {
 
   protected deleteOrphanedForm(formKey: string) {
     this.bpmnService
-      .deleteProcessDefinitionForm(this.processDefinition.key, formKey)
+      .deleteProcessDefinitionForm(this.processDefinition().key, formKey)
       .subscribe(() => {
         this.utilService.openSnackbar(
           "msg.formioformulier.verwijderen.uitgevoerd",
