@@ -259,7 +259,7 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 - **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
 ## Next Target
-`src/main/app/src/app/shared/export-button/export-button.component.ts`
-- Template: 1 button, no complex deps
-- Services: `CsvService`, `UtilService`
+`src/main/app/src/app/shared/table-zoek-filters/toggle-filter/toggle-filter.component.ts`
+- Template: `mat-icon-button`, `[ngSwitch]` / `*ngSwitchCase`, `mat-icon` — no services
+- Imports needed: `MatButtonModule`, `MatIconModule`, `NgSwitch`, `NgSwitchCase`
 - Module to clean: `shared.module.ts`
