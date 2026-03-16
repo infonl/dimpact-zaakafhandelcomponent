@@ -26,8 +26,8 @@ describe(ZacNarrowMatCheckboxDirective.name, () => {
   });
 
   it("should add mat-narrow-checkbox class to the host element", () => {
-    expect(
-      fixture.nativeElement.querySelector("div").classList,
-    ).toContain("mat-narrow-checkbox");
+    expect(fixture.nativeElement.querySelector("div").classList).toContain(
+      "mat-narrow-checkbox",
+    );
   });
 });

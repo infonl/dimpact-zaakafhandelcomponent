@@ -21,7 +21,11 @@ describe(VersionComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [VersionComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [
+        VersionComponent,
+        TranslateModule.forRoot(),
+        NoopAnimationsModule,
+      ],
       providers: [
         { provide: HealthCheckService, useValue: healthCheckServiceMock },
       ],
