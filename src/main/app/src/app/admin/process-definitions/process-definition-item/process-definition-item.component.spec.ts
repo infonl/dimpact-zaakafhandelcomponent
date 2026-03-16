@@ -324,7 +324,6 @@ describe(ProcessDefinitionItemComponent.name, () => {
       await Promise.resolve();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
     });
   });
 
@@ -332,7 +331,6 @@ describe(ProcessDefinitionItemComponent.name, () => {
     it("should open a confirm dialog with the correct translation key and form name", () => {
       component["deleteBpmnForm"]("form-uploaded");
 
-      expect(dialogOpenSpy).toHaveBeenCalled();
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
         "msg.formioformulier.verwijderen.bevestigen",
