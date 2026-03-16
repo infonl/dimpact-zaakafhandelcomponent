@@ -57,9 +57,9 @@ const baseProcessDefinition = fromPartial<
 describe(ProcessDefinitionItemComponent.name, () => {
   let fixture: ComponentFixture<ProcessDefinitionItemComponent>;
   let component: ProcessDefinitionItemComponent;
-  let bpmnService: BpmnService;
-  let utilService: UtilService;
-  let foutAfhandelingService: FoutAfhandelingService;
+  let bpmnService: jest.Mocked<BpmnService>;
+  let utilService: jest.Mocked<UtilService>;
+  let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
 
   beforeEach(async () => {
@@ -89,9 +89,11 @@ describe(ProcessDefinitionItemComponent.name, () => {
       ],
     }).compileComponents();
 
-    bpmnService = TestBed.inject(BpmnService);
-    utilService = TestBed.inject(UtilService);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    bpmnService = TestBed.inject(BpmnService) as jest.Mocked<BpmnService>;
+    utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
+    foutAfhandelingService = TestBed.inject(
+      FoutAfhandelingService,
+    ) as jest.Mocked<FoutAfhandelingService>;
 
     fixture = TestBed.createComponent(ProcessDefinitionItemComponent);
     component = fixture.componentInstance;
@@ -339,8 +341,8 @@ describe(ProcessDefinitionItemComponent.name, () => {
     });
 
     it("should pass the deleteProcessDefinitionForm observable to the dialog", () => {
-      const deleteObservable = of(null);
-      (bpmnService.deleteProcessDefinitionForm as jest.Mock).mockReturnValue(
+      const deleteObservable = of({});
+      bpmnService.deleteProcessDefinitionForm.mockReturnValue(
         deleteObservable,
       );
 
