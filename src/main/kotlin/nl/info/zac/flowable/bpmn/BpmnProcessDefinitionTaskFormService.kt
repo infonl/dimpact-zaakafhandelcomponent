@@ -74,24 +74,23 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
 
     @Transactional(Transactional.TxType.REQUIRED)
     fun deleteForm(processDefinitionKey: String, name: String) {
-        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let { processDefinition ->
-            entityManager.criteriaBuilder.let { criteriaBuilder ->
-                criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java).let { delete ->
-                    delete.from(BpmnProcessDefinitionTaskForm::class.java).let { root ->
-                        delete.where(
-                            criteriaBuilder.equal(
-                                root.get<String>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionKey.name),
-                                processDefinition.key
-                            ),
-                            criteriaBuilder.equal(
-                                root.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name),
-                                processDefinition.version
-                            ),
-                            criteriaBuilder.equal(root.get<String>("name"), name)
-                        )
-                    }
-                    entityManager.createQuery(delete).executeUpdate()
+        val processDefinition = readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
+        entityManager.criteriaBuilder.let { criteriaBuilder ->
+            criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java).let { delete ->
+                delete.from(BpmnProcessDefinitionTaskForm::class.java).let { root ->
+                    delete.where(
+                        criteriaBuilder.equal(
+                            root.get<String>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionKey.name),
+                            processDefinition.key
+                        ),
+                        criteriaBuilder.equal(
+                            root.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name),
+                            processDefinition.version
+                        ),
+                        criteriaBuilder.equal(root.get<String>("name"), name)
+                    )
                 }
+                entityManager.createQuery(delete).executeUpdate()
             }
         }
     }
