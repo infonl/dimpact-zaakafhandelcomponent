@@ -188,7 +188,7 @@ First, apply Spotless formatting (from repo root):
 Then stage and commit:
 ```bash
 git add <touched files>
-git commit -m "chore(app): NG19 migration to standalone components - <Component name>"
+git commit -m "chore(app): Angular v19 migration to standalone components - <Component name>"
 ```
 
 ### 12. FUNCTIONAL TESTING — by the user
@@ -201,16 +201,16 @@ Before renaming/PR, the user verifies the migrated component works correctly in 
 ### 13. RENAME branch + ask for Jira ticket
 Once functional testing passes, ask the user for the Jira ticket number, then rename:
 ```bash
-git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--NG19-migration--<component-name(s)>
+git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular v19-migration--<component-name(s)>
 ```
-Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-name(s)>`
-- Multiple components in one branch: separate names with `--` e.g. `chore/PZ-12345--FE--NG19-migration--export-button--static-text`
+Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-component-name(s)>`
+- Multiple components in one branch: separate names with `--` e.g. `chore/PZ-12345--FE--Angular v19-migration--export-button--static-text`
 - User provides the `PZ-XXXXX` ticket number
 - After rename, offer to push and open a PR
-- PR title format: `chore(app): NG19 migration to standalone components - <Component name>`
+- PR title format: `chore(app): Angular v19 migration to standalone components - <Component name>`
 - PR description format:
   ```
-  FE - NG19 migration to standalone components - <ComponentName>
+  FE - Angular v19 migration to standalone components - <ComponentName>
 
   - <ComponentName> made standalone
   - spec added/updated
@@ -241,12 +241,23 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 
 ## Completed
 
+### ✅ `shared/version/version.component.ts` (2026-03-16)
+- `imports: [NgIf, MatChipsModule, MatTooltipModule, MatIconModule, MatCardModule, DatumPipe, TranslateModule]`
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- Spec: 3 tests (default chip layout, verbose card layout, service called on init)
+- **Pattern**: Named `Pick<Service, 'method'>` mock + `TestBed.inject(Service)` after configure for typesafe assertions; `EMPTY` when service just needs to complete without emitting
+
+### ✅ `shared/table-zoek-filters/toggle-filter/toggle-filter.component.ts` (2026-03-16)
+- `imports: [MatButtonModule, MatIconModule, NgSwitch, NgSwitchCase]`
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- Spec: 4 tests (default icon, 3 cycle transitions + emit); icon rendering tests dropped (trust `ngSwitch`)
+- **Pattern**: Button click via `fixture.nativeElement.querySelector("button").click()`; `@Output()` EventEmitter is `public` so tests can subscribe to it
+
 ### ✅ `shared/read-more/read-more.component.ts` (2026-03-12)
 - `imports: [NgIf, MatTooltipModule]`
 - Removed from `shared.module.ts` `declarations`, moved to `imports` + kept in `exports`
 - Spec: 3 tests (full text, truncated + tooltip, undefined) — uses `By.directive(MatTooltip)` to assert tooltip presence
-- **Pattern**: No services — pure `@Input`/`@Output` component; `By.directive()` is the right way to assert directives in tests (raw attribute selectors don't work after Angular processes them)
-- **Progress**: 2/149 done
+- **Pattern**: `By.directive()` is the right way to assert directives in tests (raw attribute selectors don't work after Angular processes them)
 
 ### ✅ `core/loading/loading.component.ts` (2026-03-11)
 - `imports: [MatProgressBarModule]`
@@ -258,8 +269,10 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 - **Gotcha**: After migration, spec uses `imports: [LoadingComponent]` (not `declarations`); `MatProgressBarModule` drops from spec as the standalone component brings it.
 - **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
+**Progress: 4/149 done**
+
 ## Next Target
-`src/main/app/src/app/shared/export-button/export-button.component.ts`
-- Template: 1 button, no complex deps
-- Services: `CsvService`, `UtilService`
+`src/main/app/src/app/shared/material/narrow-checkbox.directive.ts`
+- Template: none — attribute directive, adds CSS class via `Renderer2`
+- Imports needed: none (no template dependencies)
 - Module to clean: `shared.module.ts`
