@@ -188,7 +188,7 @@ First, apply Spotless formatting (from repo root):
 Then stage and commit:
 ```bash
 git add <touched files>
-git commit -m "chore(app): NG19 migration to standalone components - <Component name>"
+git commit -m "chore(app): Angular v19 migration to standalone components - <Component name>"
 ```
 
 ### 12. FUNCTIONAL TESTING — by the user
@@ -201,16 +201,16 @@ Before renaming/PR, the user verifies the migrated component works correctly in 
 ### 13. RENAME branch + ask for Jira ticket
 Once functional testing passes, ask the user for the Jira ticket number, then rename:
 ```bash
-git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--NG19-migration--<component-name(s)>
+git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular v19-migration--<component-name(s)>
 ```
-Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-name(s)>`
-- Multiple components in one branch: separate names with `--` e.g. `chore/PZ-12345--FE--NG19-migration--export-button--static-text`
+Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-component-name(s)>`
+- Multiple components in one branch: separate names with `--` e.g. `chore/PZ-12345--FE--Angular v19-migration--export-button--static-text`
 - User provides the `PZ-XXXXX` ticket number
 - After rename, offer to push and open a PR
-- PR title format: `chore(app): NG19 migration to standalone components - <Component name>`
+- PR title format: `chore(app): Angular v19 migration to standalone components - <Component name>`
 - PR description format:
   ```
-  FE - NG19 migration to standalone components - <ComponentName>
+  FE - Angular v19 migration to standalone components - <ComponentName>
 
   - <ComponentName> made standalone
   - spec added/updated
