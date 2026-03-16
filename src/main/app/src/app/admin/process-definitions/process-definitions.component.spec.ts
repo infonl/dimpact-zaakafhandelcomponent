@@ -84,9 +84,6 @@ describe(ProcessDefinitionsComponent.name, () => {
             listProcessDefinitions: jest.fn().mockReturnValue({
               queryKey: ["/rest/bpmn-process-definitions"],
               queryFn: () => Promise.resolve([baseProcessDefinition]),
-              staleTime: 0,
-              retry: false,
-              refetchOnWindowFocus: false,
             }),
             uploadProcessDefinition: jest.fn().mockReturnValue({
               mutationFn: jest.fn().mockResolvedValue({}),
@@ -131,10 +128,11 @@ describe(ProcessDefinitionsComponent.name, () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const internalDialog = (component as unknown as { dialog: MatDialog })
-      .dialog;
     dialogOpenSpy = jest
-      .spyOn(internalDialog, "open")
+      .spyOn(
+        (component as unknown as { dialog: MatDialog }).dialog,
+        "open",
+      )
       .mockReturnValue({ afterClosed: () => of(false) } as never);
   });
 
@@ -185,39 +183,42 @@ describe(ProcessDefinitionsComponent.name, () => {
 
   describe("hasAllFormsUploaded", () => {
     it("should return true when all forms are uploaded", () => {
-      const node = {
-        name: "A",
-        key: "key-a",
-        definition: baseProcessDefinition,
-      };
-      expect(component["hasAllFormsUploaded"](node)).toBe(true);
+      expect(
+        component["hasAllFormsUploaded"]({
+          name: "",
+          key: "",
+          definition: baseProcessDefinition,
+        }),
+      ).toBe(true);
     });
 
     it("should return false when a form is not uploaded", () => {
-      const node = {
-        name: "A",
-        key: "key-a",
-        definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
-          },
+      expect(
+        component["hasAllFormsUploaded"]({
+          name: "",
+          key: "",
+          definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+            ...baseProcessDefinition,
+            details: {
+              ...baseProcessDefinition.details,
+              forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
+            },
+          }),
         }),
-      };
-      expect(component["hasAllFormsUploaded"](node)).toBe(false);
+      ).toBe(false);
     });
 
     it("should return false when there are no forms", () => {
-      const node = {
-        name: "A",
-        key: "key-a",
-        definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: { ...baseProcessDefinition.details, forms: [] },
+      expect(
+        component["hasAllFormsUploaded"]({
+          name: "",
+          key: "",
+          definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+            ...baseProcessDefinition,
+            details: { ...baseProcessDefinition.details, forms: [] },
+          }),
         }),
-      };
-      expect(component["hasAllFormsUploaded"](node)).toBe(false);
+      ).toBe(false);
     });
   });
 
@@ -235,8 +236,9 @@ describe(ProcessDefinitionsComponent.name, () => {
 
   describe("bpmnProcessDefinitionFileSelected", () => {
     it("should do nothing when target is not an HTMLInputElement", () => {
-      const event = { target: {} } as unknown as Event;
-      component["bpmnProcessDefinitionFileSelected"](event);
+      component["bpmnProcessDefinitionFileSelected"]({
+        target: {},
+      } as unknown as Event);
       expect(readFileContent).not.toHaveBeenCalled();
     });
 
@@ -244,18 +246,17 @@ describe(ProcessDefinitionsComponent.name, () => {
       const fileContent = "<bpmn/>";
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
-      const file = new File([fileContent], "process.bpmn", {
-        type: "text/xml",
-      });
+      const file = new File([fileContent], "process.bpmn");
       const input = document.createElement("input");
       Object.defineProperty(input, "files", { value: [file] });
-      const event = { target: input } as unknown as Event;
 
       const mutateMock = jest.fn();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (component as any)["uploadMutation"] = { mutate: mutateMock };
 
-      component["bpmnProcessDefinitionFileSelected"](event);
+      component["bpmnProcessDefinitionFileSelected"]({
+        target: input,
+      } as unknown as Event);
       await Promise.resolve();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
@@ -270,9 +271,10 @@ describe(ProcessDefinitionsComponent.name, () => {
       Object.defineProperty(input, "files", {
         value: [new File(["<bpmn/>"], "process.bpmn")],
       });
-      const event = { target: input } as unknown as Event;
 
-      component["bpmnProcessDefinitionFileSelected"](event);
+      component["bpmnProcessDefinitionFileSelected"]({
+        target: input,
+      } as unknown as Event);
 
       expect(input.value).toBe("");
     });
@@ -285,9 +287,10 @@ describe(ProcessDefinitionsComponent.name, () => {
       Object.defineProperty(input, "files", {
         value: [new File(["<bad>"], "bad.bpmn")],
       });
-      const event = { target: input } as unknown as Event;
 
-      component["bpmnProcessDefinitionFileSelected"](event);
+      component["bpmnProcessDefinitionFileSelected"]({
+        target: input,
+      } as unknown as Event);
       await Promise.resolve();
       await Promise.resolve();
 
