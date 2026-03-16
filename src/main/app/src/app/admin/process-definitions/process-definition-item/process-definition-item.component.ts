@@ -46,6 +46,18 @@ export class ProcessDefinitionItemComponent {
   >();
   protected columns = ["index", "uploaded", "formKey", "title", "actions"];
 
+  protected get uploadedForms() {
+    return (this.processDefinition.details?.forms ?? []).filter(
+      (form) => form.uploaded,
+    );
+  }
+
+  protected get missingForms() {
+    return (this.processDefinition.details?.forms ?? []).filter(
+      (form) => !form.uploaded,
+    );
+  }
+
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
@@ -80,11 +92,8 @@ export class ProcessDefinitionItemComponent {
       });
   }
 
-  protected deleteBpmnForm(
-    bpmnProcessDefinitionKey: string,
-    bpmnFormName: string,
-  ) {
-    console.log("deleteBpmnForm", bpmnProcessDefinitionKey, bpmnFormName);
+  protected deleteBpmnForm(bpmnFormName: string) {
+    console.log("deleteBpmnForm", bpmnFormName);
 
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -94,7 +103,7 @@ export class ProcessDefinitionItemComponent {
             args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
-            bpmnProcessDefinitionKey,
+            this.processDefinition.key,
             bpmnFormName,
           ),
         ),
@@ -108,6 +117,18 @@ export class ProcessDefinitionItemComponent {
           );
           this.bpmnFormListChanged.emit();
         }
+      });
+  }
+
+  protected deleteOrphanedForm(formKey: string) {
+    this.bpmnService
+      .deleteProcessDefinitionForm(this.processDefinition.key, formKey)
+      .subscribe(() => {
+        this.utilService.openSnackbar(
+          "msg.formioformulier.verwijderen.uitgevoerd",
+          { naam: formKey },
+        );
+        this.bpmnFormListChanged.emit();
       });
   }
 }
