@@ -67,12 +67,12 @@ import { VersionComponent } from "./version/version.component";
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
     ZaakdataComponent,
-    VersionComponent,
     ZacNarrowMatCheckboxDirective,
   ],
   imports: [
     ReadMoreComponent,
     ToggleFilterComponent,
+    VersionComponent,
     SortPipe,
     FormsModule,
     BrowserAnimationsModule,
