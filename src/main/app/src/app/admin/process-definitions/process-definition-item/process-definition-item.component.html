@@ -37,17 +37,27 @@
 
   <mat-card>
     <mat-card-content>
-      <h3>
-        {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
-        @if (missingForms.length !== 0) {
-          <mat-icon
-            matTooltip="{{
-              'bpmn-procesdefinitie.card.formulieren.title.tooltip' | translate
-            }}"
-            >help</mat-icon
-          >
-        }
-      </h3>
+      <div class="flex-row items-center">
+        <h3 class="flex-1">
+          {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
+          @if (missingForms.length !== 0) {
+            <mat-icon
+              matTooltip="{{
+                'bpmn-procesdefinitie.card.formulieren.title.tooltip'
+                  | translate
+              }}"
+              >help</mat-icon
+            >
+          }
+        </h3>
+        <button
+          mat-icon-button
+          title="{{ 'actie.toevoegen' | translate }}"
+          (click)="uploadBpmnForm()"
+        >
+          <mat-icon outlined>add_circle</mat-icon>
+        </button>
+      </div>
       <div class="table-wrapper">
         <table
           mat-table
@@ -113,15 +123,7 @@
           </ng-container>
 
           <ng-container matColumnDef="actions" stickyEnd>
-            <th mat-header-cell *matHeaderCellDef>
-              <button
-                mat-icon-button
-                title="{{ 'actie.toevoegen' | translate }}"
-                (click)="uploadBpmnForm()"
-              >
-                <mat-icon>add_circle</mat-icon>
-              </button>
-            </th>
+            <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
               @if (row.uploaded) {
                 <button
