@@ -21,35 +21,40 @@
         />
         <zac-static-text
           label="bpmn-procesdefinitie.uploaded-datum"
-          [value]="processDefinition.details?.uploadDate | date: 'dd-MM-yyyy HH:mm'"
+          [value]="
+            processDefinition.details?.uploadDate | date: 'dd-MM-yyyy HH:mm'
+          "
         />
         <zac-static-text
           label="bpmn-procesdefinitie.gewijzigd-datum"
-          [value]="processDefinition.details?.modificationDate | date: 'dd-MM-yyyy HH:mm'"
+          [value]="
+            processDefinition.details?.modificationDate
+              | date: 'dd-MM-yyyy HH:mm'
+          "
         />
         <zac-static-text
           label="bpmn-procesdefinitie.documentatie"
           [value]="processDefinition.details?.documentation"
         />
       </div>
+      @if (processDefinition.details?.inUse) {
+        <mat-divider class="my-3"></mat-divider>
+        <span class="icon-align">
+          <mat-icon outlined color="primary">info</mat-icon>
+          {{ "bpmn-procesdefinitie.tooltip.in-use" | translate }}
+        </span>
+      }
     </mat-card-content>
   </mat-card>
 
   <mat-card>
     <mat-card-content>
       <div class="flex-row items-center">
-        <h3 class="flex-1">
-          {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
-          @if (missingForms.length !== 0) {
-            <mat-icon
-              matTooltip="{{
-                'bpmn-procesdefinitie.card.formulieren.title.tooltip'
-                  | translate
-              }}"
-              >help</mat-icon
-            >
-          }
-        </h3>
+        <div class="icon-align flex-1">
+          <h3>
+            {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
+          </h3>
+        </div>
         <button
           mat-icon-button
           title="{{ 'actie.toevoegen' | translate }}"
@@ -58,6 +63,19 @@
           <mat-icon outlined>add_circle</mat-icon>
         </button>
       </div>
+      @if (missingForms.length !== 0) {
+        <div>
+          <mat-divider class="my-3"></mat-divider>
+          <span class="icon-align">
+            <mat-icon outlined color="warn">error</mat-icon>
+            {{
+              "bpmn-procesdefinitie.card.formulieren.title.tooltip" | translate
+            }}
+          </span>
+          <mat-divider class="my-3"></mat-divider>
+        </div>
+      }
+
       <div class="table-wrapper">
         <table
           mat-table
@@ -149,33 +167,34 @@
 
       @if ((processDefinition.details?.orphanedForms?.length ?? 0) > 0) {
         <mat-divider class="my-3"></mat-divider>
-        <ng-container>
+        <div class="icon-align">
           <h3>
             {{
               "bpmn-procesdefinitie.card.ongebruikte-formulieren.title"
                 | translate
-            }}<mat-icon
-              matTooltip="{{
-                'bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip'
-                  | translate
-              }}"
-              >help</mat-icon
-            >
+            }}
           </h3>
-          <mat-chip-set class="orphaned-forms">
-            @for (
-              form of processDefinition.details?.orphanedForms;
-              track form.formKey
-            ) {
-              <mat-chip (removed)="deleteOrphanedForm(form.formKey)">
-                {{ form.formKey }}
-                <button matChipRemove>
-                  <mat-icon>close</mat-icon>
-                </button>
-              </mat-chip>
-            }
-          </mat-chip-set>
-        </ng-container>
+          <mat-icon
+            matTooltip="{{
+              'bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip'
+                | translate
+            }}"
+            >help</mat-icon
+          >
+        </div>
+        <mat-chip-set class="orphaned-forms">
+          @for (
+            form of processDefinition.details?.orphanedForms;
+            track form.formKey
+          ) {
+            <mat-chip (removed)="deleteOrphanedForm(form.formKey)">
+              {{ form.formKey }}
+              <button matChipRemove>
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-chip>
+          }
+        </mat-chip-set>
       }
     </mat-card-content>
   </mat-card>
