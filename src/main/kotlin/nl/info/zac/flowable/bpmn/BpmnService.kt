@@ -46,7 +46,8 @@ class BpmnService @Inject constructor(
     private val runtimeService: RuntimeService,
     private val historyService: HistoryService,
     private val processEngine: ProcessEngine,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -123,11 +124,14 @@ class BpmnService @Inject constructor(
             .enableDuplicateFiltering()
             .deploy()
 
-    fun deleteProcessDefinition(processDefinitionKey: String) =
+    fun deleteProcessDefinition(processDefinitionKey: String) {
         repositoryService.createDeploymentQuery()
             .processDefinitionKey(processDefinitionKey)
             .list()
             .forEach { repositoryService.deleteDeployment(it.id, true) }
+        // Remove related forms
+        bpmnProcessDefinitionTaskFormService.deleteFormsForProcessDefinition(processDefinitionKey)
+    }
 
     /**
      * Returns the BPMN process definition for the given zaaktype UUID

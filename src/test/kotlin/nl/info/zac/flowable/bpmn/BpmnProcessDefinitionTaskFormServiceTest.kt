@@ -101,6 +101,58 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { processDefinitionQuery.singleResult() } returns processDefinition
     }
 
+    /**
+     * Sets up the criteria query for bulk delete of forms for a given process definition key.
+     */
+    fun setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey: String, deletedCount: Int = 0) {
+        val criteriaDelete = mockk<jakarta.persistence.criteria.CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
+        val deleteQuery = mockk<jakarta.persistence.Query>()
+        
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaDelete
+        every { criteriaDelete.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
+        every {
+            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
+        } returns predicate
+        every { criteriaDelete.where(predicate) } returns criteriaDelete
+        every { entityManager.createQuery(criteriaDelete) } returns deleteQuery
+        every { deleteQuery.executeUpdate() } returns deletedCount
+    }
+
+    /**
+     * Sets up the criteria query for bulk delete of a specific form by key, version, and name.
+     */
+    fun setupBulkDeleteFormQuery(
+        processDefinitionKey: String,
+        processDefinitionVersion: Int,
+        formName: String,
+        deletedCount: Int = 0
+    ) {
+        val criteriaDelete = mockk<jakarta.persistence.criteria.CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
+        val deleteQuery = mockk<jakarta.persistence.Query>()
+        val predicate1 = mockk<Predicate>()
+        val predicate2 = mockk<Predicate>()
+        val predicate3 = mockk<Predicate>()
+        
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaDelete
+        every { criteriaDelete.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
+        every { root.get<String>("name") } returns namePath
+        every {
+            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
+        } returns predicate1
+        every {
+            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
+        } returns predicate2
+        every { criteriaBuilder.equal(namePath, formName) } returns predicate3
+        every { criteriaDelete.where(predicate1, predicate2, predicate3) } returns criteriaDelete
+        every { entityManager.createQuery(criteriaDelete) } returns deleteQuery
+        every { deleteQuery.executeUpdate() } returns deletedCount
+    }
+
     afterEach {
         checkUnnecessaryStub()
     }
@@ -340,23 +392,16 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             key = processDefinitionKey,
             version = processDefinitionVersion
         )
-        val existingForm = createBpmnProcessDefinitionTaskForm(
-            bpmnProcessDefinition = processDefinitionKey,
-            bpmnProcessDefinitionVersion = processDefinitionVersion,
-            name = formName
-        )
 
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
-        setupCriteriaQueryBase()
-        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.of(existingForm)
-        every { entityManager.remove(existingForm) } just Runs
+        setupBulkDeleteFormQuery(processDefinitionKey, processDefinitionVersion, formName, deletedCount = 1)
 
         When("deleteForm is called") {
             service.deleteForm(processDefinitionKey, formName)
 
-            Then("it should remove the form") {
-                verify(exactly = 1) { entityManager.remove(existingForm) }
+            Then("it should execute a bulk delete operation") {
+                verify(exactly = 1) { entityManager.criteriaBuilder }
+                verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }
         }
     }
@@ -371,14 +416,43 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
 
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
-        setupCriteriaQueryBase()
-        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.empty()
+        setupBulkDeleteFormQuery(processDefinitionKey, processDefinitionVersion, formName, deletedCount = 0)
 
         When("deleteForm is called") {
             service.deleteForm(processDefinitionKey, formName)
 
-            Then("it should not attempt to remove anything") {
+            Then("it should execute a bulk delete operation without errors") {
+                verify(exactly = 1) { entityManager.criteriaBuilder }
+                verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
+            }
+        }
+    }
+
+    Given("Multiple forms exist for a process definition") {
+        val processDefinitionKey = "processKey"
+
+        setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 3)
+
+        When("deleteFormsForProcessDefinition is called") {
+            service.deleteFormsForProcessDefinition(processDefinitionKey)
+
+            Then("it should execute a bulk delete operation") {
+                verify(exactly = 1) { entityManager.criteriaBuilder }
+                verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
+            }
+        }
+    }
+
+    Given("No forms exist for a process definition") {
+        val processDefinitionKey = "processKey"
+
+        setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 0)
+
+        When("deleteFormsForProcessDefinition is called") {
+            service.deleteFormsForProcessDefinition(processDefinitionKey)
+
+            Then("it should execute a bulk delete operation without errors") {
+                verify(exactly = 1) { entityManager.criteriaBuilder }
                 verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }
         }
