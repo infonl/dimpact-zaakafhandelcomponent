@@ -25,6 +25,7 @@ import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -62,8 +63,8 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         val forms = bpmnProcessDefinitionTaskFormService.listForms()
         val formsMetadata = forms.associateBy(
             { "${it.bpmnProcessDefinitionKey}-${it.bpmnProcessDefinitionVersion}-${it.name}" },
-        { it.title }
-            )
+            { it.title }
+        )
             .let { HashMap(it) }
 
         return bpmnService.listProcessDefinitions()
@@ -86,6 +87,12 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                             metadata.formKeys,
                             formsMetadata
                         ),
+                        orphanedForms = getRestBpmnProcessDefinitionOrphanedForms(
+                            it.key,
+                            it.version,
+                            metadata.formKeys,
+                            forms
+                        )
                     )
                 )
             }
@@ -103,6 +110,24 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                 it,
                 formsMetadata[key],
                 formsMetadata.containsKey(key)
+            )
+        }
+
+    private fun getRestBpmnProcessDefinitionOrphanedForms(
+        bpmnProcessDefinitionKey: String,
+        bpmnProcessDefinitionVersion: Int,
+        formKeys: List<String>,
+        forms: List<BpmnProcessDefinitionTaskForm>
+    ) =
+        forms.filter {
+            it.bpmnProcessDefinitionKey == bpmnProcessDefinitionKey &&
+                it.bpmnProcessDefinitionVersion == bpmnProcessDefinitionVersion &&
+                !formKeys.contains(it.name)
+        }.map {
+            RestBpmnProcessDefinitionForm(
+                it.name,
+                it.title,
+                uploaded = true
             )
         }
 
