@@ -39,10 +39,10 @@ export class VersionComponent implements OnInit {
   @Input() protected layout?: VersionLayout;
   protected buildInformatie?: GeneratedType<"RESTBuildInformation">;
 
-  constructor(private readonly healtCheckService: HealthCheckService) {}
+  constructor(private readonly healthCheckService: HealthCheckService) {}
 
   ngOnInit() {
-    this.healtCheckService
+    this.healthCheckService
       .readBuildInformatie()
       .subscribe((buildInformatie) => {
         this.buildInformatie = buildInformatie;
