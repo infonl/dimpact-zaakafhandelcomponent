@@ -1,6 +1,4 @@
-# BPMN guide (BETA)
-
-:fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases. :fire:
+# BPMN guide
 
 ## ZAC and BPMN
 ZAC uses [Flowable](https://www.flowable.com/) as embedded process automation engine to support BPMN processes. 
@@ -10,6 +8,11 @@ Forms that provide input for user tasks in BPMN processes are implemented using 
 To create a BPMN process definition, you can:
 * use Flowable [web editor](https://trial.flowable.com/design)
 * start with our integration tests [process](../../../src/itest/resources/bpmn/itProcessDefinition.bpmn)
+
+## Use of quotes
+Please make sure that you use straight quotes (') in expressions. Sometimes your system will use
+[smart (curly) quotes](https://practicaltypography.com/straight-and-curly-quotes.html) which will
+not parse correctly.
 
 ### Requirements
 
