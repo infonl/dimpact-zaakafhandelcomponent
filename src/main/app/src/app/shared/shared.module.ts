@@ -83,6 +83,7 @@ import { VersionComponent } from "./version/version.component";
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
     EmptyPipe,
+    ReadMoreComponent,
   ],
   exports: [
     CommonModule,

@@ -9,7 +9,6 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnChanges,
   Output,
   ViewChild,
 } from "@angular/core";
