@@ -52,7 +52,6 @@ import { VersionComponent } from "./version/version.component";
     SideNavComponent,
     BackButtonDirective,
     StaticTextComponent,
-    ReadMoreComponent,
     OutsideClickDirective,
     EditInputComponent,
     DateRangeFilterComponent,

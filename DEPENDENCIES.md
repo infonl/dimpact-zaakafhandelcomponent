@@ -12,8 +12,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.14.1-static
 - **brp-api/personen-mock**: 2.7.0-202511050738
 - **kontextwork-converter**: 1.8.2
-- **otel/opentelemetry-collector-contrib**: 0.145.0
-- **grafana/tempo**: 2.10.1
+- **otel/opentelemetry-collector-contrib**: 0.147.0
+- **grafana/tempo**: 2.10.2
 - **prom/prometheus**: v3.10.0
 - **grafana/grafana**: 12.4.1
 - **greenmail/standalone**: 2.1.8
@@ -24,7 +24,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 - **open-zaak**: 1.26.0
 - **objects-api**: 3.3.1
-- **open-klant**: 2.13.0
+- **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
 - **pabc-migrations**: 1.0.0

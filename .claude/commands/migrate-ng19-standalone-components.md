@@ -18,7 +18,7 @@ We migrate one component at a time using TDD, in order of complexity (fewest dep
 | **Fix TS errors only in touched files** | Only fix TypeScript errors in files you actually modified in this session. Do not fix pre-existing errors in untouched files. |
 | **Access modifiers in component `.ts`** | All class members (methods, fields, getters, computed signals) must have an explicit access modifier: use `protected` as the default for anything used in the template; use `private` for anything only used internally within the class; use `public` only when required by an interface or called from outside the class. |
 | **No access modifiers in spec files** | Spec files are plain functions — no class members to annotate. But still: no `any`. |
-| **SPDX header** | Every modified file needs the header. For **existing files**: only add `2026 INFO.nl` if `INFO.nl` is completely absent; if it already appears (any year), leave unchanged. For **new spec files we create**: use only `SPDX-License-Identifier: EUPL-1.2+` — no `SPDX-FileCopyrightText` line. |
+| **SPDX header** | Every modified or new file needs the header with `SPDX-FileCopyrightText: 2026 INFO.nl` + `SPDX-License-Identifier: EUPL-1.2+`. For **existing files**: only add `2026 INFO.nl` if `INFO.nl` is completely absent; if it already appears (any year), leave unchanged. |
 
 ### ATOS Form Builder — Excluded Files (do not touch)
 
@@ -240,6 +240,13 @@ Branch name format: `chore/PZ-XXXXX--FE--NG19-migration--<kebab-case-component-n
 5. **Last** — SharedModule, CoreModule themselves (after all their components are standalone)
 
 ## Completed
+
+### ✅ `shared/read-more/read-more.component.ts` (2026-03-12)
+- `imports: [NgIf, MatTooltipModule]`
+- Removed from `shared.module.ts` `declarations`, moved to `imports` + kept in `exports`
+- Spec: 3 tests (full text, truncated + tooltip, undefined) — uses `By.directive(MatTooltip)` to assert tooltip presence
+- **Pattern**: No services — pure `@Input`/`@Output` component; `By.directive()` is the right way to assert directives in tests (raw attribute selectors don't work after Angular processes them)
+- **Progress**: 2/149 done
 
 ### ✅ `core/loading/loading.component.ts` (2026-03-11)
 - `imports: [MatProgressBarModule]`
