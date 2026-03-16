@@ -47,13 +47,17 @@
           @if (row.uploaded) {
             <mat-icon
               color="primary"
-              matTooltip="{{ 'bpmn-procesdefinitie.formulier.geupload' | translate }}"
+              matTooltip="{{
+                'bpmn-procesdefinitie.formulier.geupload' | translate
+              }}"
               >check_circle</mat-icon
             >
           } @else {
             <mat-icon
               color="warn"
-              matTooltip="{{ 'bpmn-procesdefinitie.formulier.niet-geupload' | translate }}"
+              matTooltip="{{
+                'bpmn-procesdefinitie.formulier.niet-geupload' | translate
+              }}"
               >error</mat-icon
             >
           }
@@ -94,6 +98,7 @@
               mat-icon-button
               id="delete"
               title="{{ 'actie.verwijderen' | translate }}"
+              [disabled]="processDefinition.details?.inUse"
               (click)="deleteBpmnForm(processDefinition.key, row.formKey)"
             >
               <mat-icon>delete</mat-icon>
