@@ -26,6 +26,14 @@ import java.io.InputStream
 import java.util.UUID
 import java.util.logging.Logger
 
+data class FormReference(
+    val processDefinitionKey: String,
+    val processName: String,
+    val taskId: String,
+    val taskName: String,
+    val formKey: String
+)
+
 @ApplicationScoped
 @Transactional
 @NoArgConstructor
@@ -190,4 +198,32 @@ class BpmnService @Inject constructor(
      */
     fun isProcessDefinitionInUse(processDefinitionKey: String) =
         hasProcessInstances(processDefinitionKey) || hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
+
+    fun extractFormsFromProcessDefinition(processDefinition: ProcessDefinition): List<FormReference> {
+        val forms = mutableListOf<FormReference>()
+
+        val bpmnModel = repositoryService.getBpmnModel(processDefinition.id)
+        val processes = bpmnModel.processes
+
+        processes.forEach { process ->
+            // Find all user tasks with form keys
+            process.flowElements
+                .filterIsInstance<org.flowable.bpmn.model.UserTask>()
+                .forEach { userTask ->
+                    userTask.formKey?.let { formKey ->
+                        forms.add(
+                            FormReference(
+                                processDefinitionKey = processDefinition.key,
+                                processName = processDefinition.name ?: processDefinition.key,
+                                taskId = userTask.id,
+                                taskName = userTask.name ?: userTask.id,
+                                formKey = formKey
+                            )
+                        )
+                    }
+                }
+        }
+
+        return forms
+    }
 }
