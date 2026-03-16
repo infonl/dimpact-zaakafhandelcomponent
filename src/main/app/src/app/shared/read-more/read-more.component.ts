@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Input, numberAttribute, OnChanges } from "@angular/core";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @Component({
   selector: "read-more",
@@ -13,13 +15,14 @@ import { Component, Input, numberAttribute, OnChanges } from "@angular/core";
       [innerHTML]="subText"
     ></div>
     <div *ngIf="!showTooltip" [innerHTML]="text"></div>`,
-  standalone: false,
+  standalone: true,
+  imports: [NgIf, MatTooltipModule],
 })
 export class ReadMoreComponent implements OnChanges {
   @Input() text?: string;
   @Input({ transform: numberAttribute }) maxLength = 100;
-  subText: string | null = null;
-  showTooltip = false;
+  protected subText: string | null = null;
+  protected showTooltip = false;
 
   ngOnChanges() {
     this.showTooltip =
