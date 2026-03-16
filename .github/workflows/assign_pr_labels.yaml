@@ -1,0 +1,75 @@
+#
+# SPDX-FileCopyrightText: 2024 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Assign PR labels
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+jobs:
+  determine-pr-labels:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Determine and set PR labels
+        uses: actions/github-script@ed59740818d2a8298b4b9c63c4bd9dd858a1df90
+        with:
+          script: |
+            const extensionLabels = {
+              '.java': 'java',
+              '.kt': 'kotlin',
+              '.ts': 'typescript',
+              '.js': 'javascript',
+              '.py': 'python',
+              '.sh': 'shell',
+              '.sql': 'sql'
+            };
+              
+            const pathLabels = [
+              { startsWith: 'docs/', label: 'documentation' },
+              { startsWith: '.github/workflows/', label: 'github_actions' },
+              { startsWith: 'gradle/wrapper/', label: 'gradle-wrapper' },
+              { startsWith: 'charts/', label: 'helm' }
+            ];
+              
+            const labels = new Set();
+            if (context.payload.pull_request.user.login === 'renovate[bot]') {
+              labels.add('dependencies');
+            }
+              
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+              
+            for (const f of files) {
+              const filename = f.filename;
+              // Extension-based labels
+              for (const [ext, label] of Object.entries(extensionLabels)) {
+                if (filename.endsWith(ext)) labels.add(label);
+              }
+              // Path-based labels
+              for (const { startsWith, label } of pathLabels) {
+                if (filename.startsWith(startsWith)) labels.add(label);
+              }
+              // Special case for Dockerfile
+              if (filename.includes('Dockerfile')) labels.add('docker');
+            }
+              
+            const existingLabels = context.payload.pull_request.labels.map(l => l.name);
+            const newLabels = Array.from(labels).filter(label => !existingLabels.includes(label));
+            if (newLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: newLabels
+              });
+            }
