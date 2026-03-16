@@ -44,6 +44,63 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val service = BpmnProcessDefinitionTaskFormService(entityManager, repositoryService)
 
+    /**
+     * Sets up the common criteria query chain for querying BpmnProcessDefinitionTaskForm entities.
+     * This includes setting up the entity manager, criteria builder, query, root, and paths.
+     */
+    fun setupCriteriaQueryBase() {
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
+        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
+        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
+        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
+        every { root.get<String>("name") } returns namePath
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+    }
+
+    /**
+     * Sets up the criteria query predicates for a specific form lookup.
+     */
+    fun setupFormQueryPredicates(
+        processDefinitionKey: String,
+        processDefinitionVersion: Int,
+        formName: String
+    ) {
+        every {
+            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
+        } returns predicate
+        every {
+            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
+        } returns predicate
+        every { criteriaBuilder.equal(namePath, formName) } returns predicate
+    }
+
+    /**
+     * Sets up the repository service query chain to return a specific process definition.
+     */
+    fun setupProcessDefinitionQuery(
+        processDefinitionKey: String,
+        processDefinition: org.flowable.engine.repository.ProcessDefinition
+    ) {
+        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
+        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
+        every { processDefinitionQuery.active() } returns processDefinitionQuery
+        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
+        every { processDefinitionQuery.singleResult() } returns processDefinition
+    }
+
+    /**
+     * Sets up the repository service query for a specific process definition ID lookup.
+     */
+    fun setupProcessDefinitionQueryById(
+        processDefinitionId: String,
+        processDefinition: org.flowable.engine.repository.ProcessDefinition
+    ) {
+        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
+        every { processDefinitionQuery.processDefinitionId(processDefinitionId) } returns processDefinitionQuery
+        every { processDefinitionQuery.singleResult() } returns processDefinition
+    }
+
     afterEach {
         checkUnnecessaryStub()
     }
@@ -66,23 +123,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             version = processDefinitionVersion
         )
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionId(processDefinitionId) } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQueryById(processDefinitionId, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.of(form)
 
         When("readForm is called") {
@@ -106,23 +149,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             version = processDefinitionVersion
         )
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionId(processDefinitionId) } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQueryById(processDefinitionId, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.empty()
 
         When("readForm is called") {
@@ -159,16 +188,11 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
 
         val bpmnProcessDefinitionVersionIntPath = mockk<Path<Int>>()
 
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
+        setupCriteriaQueryBase()
         every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionIntPath
-        every { root.get<String>("name") } returns namePath
         every { criteriaBuilder.asc(bpmnProcessDefinitionKeyPath) } returns order
         every { criteriaBuilder.asc(bpmnProcessDefinitionVersionIntPath) } returns order
         every { criteriaBuilder.asc(namePath) } returns order
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
         every { typedQuery.resultList } returns listOf(form1, form2, form3)
 
         When("listForms is called") {
@@ -196,25 +220,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
         val formSlot = slot<BpmnProcessDefinitionTaskForm>()
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.empty()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
@@ -252,25 +260,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
         val formSlot = slot<BpmnProcessDefinitionTaskForm>()
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.of(existingForm)
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
@@ -298,25 +290,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
         val formSlot = slot<BpmnProcessDefinitionTaskForm>()
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, "testForm") } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, "testForm")
         every { typedQuery.resultStream } returns Stream.empty()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
@@ -341,25 +317,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
         val formSlot = slot<BpmnProcessDefinitionTaskForm>()
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.empty()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
@@ -386,25 +346,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             name = formName
         )
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.of(existingForm)
         every { entityManager.remove(existingForm) } just Runs
 
@@ -426,25 +370,9 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
             version = processDefinitionVersion
         )
 
-        every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
-        every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
-        every { processDefinitionQuery.active() } returns processDefinitionQuery
-        every { processDefinitionQuery.latestVersion() } returns processDefinitionQuery
-        every { processDefinitionQuery.singleResult() } returns processDefinition
-        every { entityManager.criteriaBuilder } returns criteriaBuilder
-        every { criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaQuery
-        every { criteriaQuery.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
-        every { root.get<String>("bpmnProcessDefinitionKey") } returns bpmnProcessDefinitionKeyPath
-        every { root.get<Int>("bpmnProcessDefinitionVersion") } returns bpmnProcessDefinitionVersionPath
-        every { root.get<String>("name") } returns namePath
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionKeyPath, processDefinitionKey)
-        } returns predicate
-        every {
-            criteriaBuilder.equal(bpmnProcessDefinitionVersionPath, processDefinitionVersion)
-        } returns predicate
-        every { criteriaBuilder.equal(namePath, formName) } returns predicate
-        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultStream } returns Stream.empty()
 
         When("deleteForm is called") {
