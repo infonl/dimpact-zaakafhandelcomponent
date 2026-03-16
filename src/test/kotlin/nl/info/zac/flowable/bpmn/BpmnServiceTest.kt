@@ -44,12 +44,14 @@ class BpmnServiceTest : BehaviorSpec({
     val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         historyService,
         processEngine,
-        zaaktypeBpmnConfigurationBeheerService
+        zaaktypeBpmnConfigurationBeheerService,
+        bpmnProcessDefinitionTaskFormService
     )
 
     beforeEach {
