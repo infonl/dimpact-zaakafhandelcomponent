@@ -4,6 +4,7 @@
   */
 
 import { Component, computed, inject } from "@angular/core";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
 import {
   QueryClient,
   injectIsFetching,
@@ -14,7 +15,8 @@ import { UtilService } from "../service/util.service";
 @Component({
   selector: "zac-loading",
   templateUrl: "./loading.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [MatProgressBarModule],
 })
 export class LoadingComponent {
   protected readonly utilService = inject(UtilService);

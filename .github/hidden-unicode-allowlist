@@ -1,0 +1,15 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+# Hidden Unicode Allowlist
+#
+# Files listed here are excluded from the hidden Unicode character check.
+# Use this to allowlist files that intentionally contain characters like
+# non-breaking spaces (U+00A0), zero-width joiners, etc.
+#
+# One file path per line (relative to repo root). Lines starting with # are comments.
+#
+# Examples:
+#   src/test/resources/fixtures/unicode-test.txt
+#   docs/i18n/arabic-sample.md
