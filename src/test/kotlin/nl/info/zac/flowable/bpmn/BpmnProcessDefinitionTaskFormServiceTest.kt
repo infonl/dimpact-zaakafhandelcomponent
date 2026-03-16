@@ -7,10 +7,8 @@ package nl.info.zac.flowable.bpmn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -24,7 +22,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
-import nl.info.zac.formio.createBpmnProcessDefinitionTaskForm
+import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.repository.ProcessDefinitionQuery
 import java.util.stream.Stream
@@ -107,7 +105,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
     fun setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey: String, deletedCount: Int = 0) {
         val criteriaDelete = mockk<jakarta.persistence.criteria.CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
         val deleteQuery = mockk<jakarta.persistence.Query>()
-        
+
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaDelete
         every { criteriaDelete.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
@@ -134,7 +132,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         val predicate1 = mockk<Predicate>()
         val predicate2 = mockk<Predicate>()
         val predicate3 = mockk<Predicate>()
-        
+
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaDelete
         every { criteriaDelete.from(BpmnProcessDefinitionTaskForm::class.java) } returns root
@@ -164,7 +162,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         val processDefinitionVersion = 2
         val formContent = """{"name": "$formName", "title": "Test Form"}"""
         val form = createBpmnProcessDefinitionTaskForm(
-            bpmnProcessDefinition = processDefinitionKey,
+            bpmnProcessDefinitionKey = processDefinitionKey,
             bpmnProcessDefinitionVersion = processDefinitionVersion,
             name = formName,
             content = formContent
@@ -221,19 +219,19 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
     Given("Multiple forms exist") {
         val form1 = createBpmnProcessDefinitionTaskForm(
             id = 1L,
-            bpmnProcessDefinition = "process1",
+            bpmnProcessDefinitionKey = "process1",
             bpmnProcessDefinitionVersion = 1,
             name = "form1"
         )
         val form2 = createBpmnProcessDefinitionTaskForm(
             id = 2L,
-            bpmnProcessDefinition = "process1",
+            bpmnProcessDefinitionKey = "process1",
             bpmnProcessDefinitionVersion = 2,
             name = "form2"
         )
         val form3 = createBpmnProcessDefinitionTaskForm(
             id = 3L,
-            bpmnProcessDefinition = "process2",
+            bpmnProcessDefinitionKey = "process2",
             bpmnProcessDefinitionVersion = 1,
             name = "form3"
         )
@@ -306,7 +304,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         )
         val existingForm = createBpmnProcessDefinitionTaskForm(
             id = 123L,
-            bpmnProcessDefinition = processDefinitionKey,
+            bpmnProcessDefinitionKey = processDefinitionKey,
             bpmnProcessDefinitionVersion = processDefinitionVersion,
             name = formName
         )

@@ -173,6 +173,16 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         @PathParam("name") name: String
     ): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
+        if (bpmnService.isProcessDefinitionInUse(key)) {
+            return Response.status(Status.BAD_REQUEST)
+                .entity(
+                    mapOf(
+                        "message" to "BPMN process definition form '$name' cannot be deleted as " +
+                            "it is in use by process definition '$key'"
+                    )
+                )
+                .build()
+        }
         bpmnProcessDefinitionTaskFormService.deleteForm(key, name)
         return Response.noContent().build()
     }

@@ -10,7 +10,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
-import nl.info.zac.formio.createBpmnProcessDefinitionTaskForm
+import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
 
 class FormioFormulierenRestServiceTest : BehaviorSpec({
