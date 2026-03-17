@@ -24,6 +24,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -45,7 +46,7 @@ type ProcessDefinitionNode =
   standalone: true,
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
-  imports: [SharedModule, ProcessDefinitionItemComponent],
+  imports: [SharedModule, ProcessDefinitionItemComponent, FileDragAndDropDirective],
 })
 export class ProcessDefinitionsComponent
   extends AdminComponent
@@ -108,21 +109,26 @@ export class ProcessDefinitionsComponent
   protected bpmnProcessDefinitionFileSelected(event: Event) {
     if (event.target instanceof HTMLInputElement) {
       const file = event.target.files?.[0];
-      if (!file) return;
-
       event.target.value = "";
-
-      readFileContent(file)
-        .then((content) => {
-          this.uploadMutation.mutate({
-            content,
-            filename: file.name,
-          });
-        })
-        .catch((error) => {
-          this.foutAfhandelingService.foutAfhandelen(error);
-        });
+      if (file) this.uploadBpmnFile(file);
     }
+  }
+
+  protected bpmnProcessDefinitionFileDropped(files: FileList) {
+    const file = Array.from(files).find((file) =>
+      file.name.toLowerCase().endsWith(".bpmn"),
+    );
+    if (file) this.uploadBpmnFile(file);
+  }
+
+  private uploadBpmnFile(file: File) {
+    readFileContent(file)
+      .then((content) => {
+        this.uploadMutation.mutate({ content, filename: file.name });
+      })
+      .catch((error) => {
+        this.foutAfhandelingService.foutAfhandelen(error);
+      });
   }
 
   protected deleteProcessDefinition(processDefinition: {

@@ -335,6 +335,89 @@ describe(ProcessDefinitionItemComponent.name, () => {
     });
   });
 
+  describe("bpmnFormFilesDropped", () => {
+    it("should do nothing when FileList is empty", () => {
+      const fileList = { length: 0 } as unknown as FileList;
+
+      component["bpmnFormFilesDropped"](fileList);
+
+      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+    });
+
+    it("should ignore non-json files", () => {
+      const file = new File(["<bpmn/>"], "process.bpmn");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      component["bpmnFormFilesDropped"](fileList);
+
+      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+    });
+
+    it("should accept .JSON files (case-insensitive)", async () => {
+      const fileContent = '{"form": true}';
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const file = new File([fileContent], "form.JSON");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      jest.useFakeTimers();
+      component["bpmnFormFilesDropped"](fileList);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+        "test-key",
+        { filename: "form.JSON", content: fileContent },
+      );
+    });
+
+    it("should upload dropped files and emit bpmnFormListChanged on success", async () => {
+      jest.useFakeTimers();
+      const fileContent = '{"form": true}';
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const file = new File([fileContent], "dropped-form.json", {
+        type: "application/json",
+      });
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
+
+      component["bpmnFormFilesDropped"](fileList);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(readFileContent).toHaveBeenCalledWith(file);
+      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+        "test-key",
+        { filename: "dropped-form.json", content: fileContent },
+      );
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.formioformulier.uploaden.uitgevoerd",
+        { naam: "dropped-form.json" },
+      );
+      jest.runAllTimers();
+      expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it("should call foutAfhandelingService when readFileContent rejects", async () => {
+      const error = new Error("read error");
+      (readFileContent as jest.Mock).mockRejectedValue(error);
+
+      const file = new File(["bad"], "bad.json");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      component["bpmnFormFilesDropped"](fileList);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+    });
+  });
+
   describe("deleteBpmnForm", () => {
     it("should open a confirm dialog with the correct translation key and form name", () => {
       component["deleteBpmnForm"]("form-uploaded");

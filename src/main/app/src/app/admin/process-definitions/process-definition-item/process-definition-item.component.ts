@@ -22,6 +22,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
+import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
@@ -32,7 +33,7 @@ import { readFileContent } from "../file.helper";
   selector: "zac-process-definition-item",
   templateUrl: "./process-definition-item.component.html",
   styleUrls: ["./process-definition-item.component.less"],
-  imports: [SharedModule],
+  imports: [SharedModule, FileDragAndDropDirective],
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [
@@ -83,11 +84,20 @@ export class ProcessDefinitionItemComponent {
   protected bpmnFormFileSelected(event: Event) {
     const target = event.target as HTMLInputElement | null;
     const files = Array.from(target?.files ?? []);
-    if (!files.length) return;
+    if (target) target.value = "";
+    this.uploadFiles(files);
+  }
 
-    if (target) {
-      target.value = "";
-    }
+  protected bpmnFormFilesDropped(files: FileList) {
+    this.uploadFiles(
+      Array.from(files).filter((file) =>
+        file.name.toLowerCase().endsWith(".json"),
+      ),
+    );
+  }
+
+  private uploadFiles(files: File[]) {
+    if (!files.length) return;
 
     Promise.all(
       files.map((file) =>

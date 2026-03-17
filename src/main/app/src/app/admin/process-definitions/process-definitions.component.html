@@ -20,7 +20,11 @@
   <mat-sidenav-content class="flex-col gap-20">
     <mat-card>
       <mat-card-content class="table-container">
-        <div class="flex-row items-center">
+        <div
+          DropZone
+          (fileDropped)="bpmnProcessDefinitionFileDropped($event)"
+          class="flex-row items-center"
+        >
           <section class="flex-1">
             <h2>
               {{ "title.procesdefinities" | translate }}

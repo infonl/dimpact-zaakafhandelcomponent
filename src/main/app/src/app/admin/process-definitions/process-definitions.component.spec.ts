@@ -295,6 +295,80 @@ describe(ProcessDefinitionsComponent.name, () => {
     });
   });
 
+  describe("bpmnProcessDefinitionFileDropped", () => {
+    it("should upload the first dropped file", async () => {
+      const fileContent = "<bpmn/>";
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const file = new File([fileContent], "dropped.bpmn");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      const mutateMock = jest.fn();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any)["uploadMutation"] = { mutate: mutateMock };
+
+      component["bpmnProcessDefinitionFileDropped"](fileList);
+      await Promise.resolve();
+
+      expect(readFileContent).toHaveBeenCalledWith(file);
+      expect(mutateMock).toHaveBeenCalledWith({
+        filename: "dropped.bpmn",
+        content: fileContent,
+      });
+    });
+
+    it("should do nothing when FileList is empty", () => {
+      const fileList = { length: 0 } as unknown as FileList;
+
+      component["bpmnProcessDefinitionFileDropped"](fileList);
+
+      expect(readFileContent).not.toHaveBeenCalled();
+    });
+
+    it("should ignore non-bpmn files", () => {
+      const file = new File(["{}"], "form.json");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      component["bpmnProcessDefinitionFileDropped"](fileList);
+
+      expect(readFileContent).not.toHaveBeenCalled();
+    });
+
+    it("should accept .BPMN files (case-insensitive)", async () => {
+      const fileContent = "<bpmn/>";
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const file = new File([fileContent], "process.BPMN");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      const mutateMock = jest.fn();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any)["uploadMutation"] = { mutate: mutateMock };
+
+      component["bpmnProcessDefinitionFileDropped"](fileList);
+      await Promise.resolve();
+
+      expect(mutateMock).toHaveBeenCalledWith({
+        filename: "process.BPMN",
+        content: fileContent,
+      });
+    });
+
+    it("should call foutAfhandelingService when readFileContent rejects", async () => {
+      const error = new Error("read error");
+      (readFileContent as jest.Mock).mockRejectedValue(error);
+
+      const file = new File(["<bad>"], "bad.bpmn");
+      const fileList = { 0: file, length: 1 } as unknown as FileList;
+
+      component["bpmnProcessDefinitionFileDropped"](fileList);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+    });
+  });
+
   describe("deleteProcessDefinition", () => {
     it("should open a confirm dialog with the correct translation key and name", () => {
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
