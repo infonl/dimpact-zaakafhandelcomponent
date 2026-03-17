@@ -988,7 +988,7 @@
   "healthCheck.communicatiekanaal.e-formulier.uitleg": "The \"E-formulier\" communication channel is required for handling the product requests (Open Forms)",
   "healthCheck.synchroniseer.ztc.description": "Data was last synced on {{ztcCacheTime}}",
   "healthCheck.synchroniseer.ztc.title": "Case type catalog synchronization",
-  "healthCheck.synchroniseer.ztc.button": "Resync Case Type Catalog",
+  "healthCheck.synchroniseer.ztc.button": "Synchronize",
   "healthCheck.synchroniseer.ztc.uitleg.1": "After changing data in the case type catalog in Open-Zaak, it is necessary to synchronize the data.",
   "healthCheck.synchroniseer.ztc.uitleg.2": "The following data is synchronized; Case Types, Information Object Types, Decision Types, Case Type Information Object Types, Result Types, Status Types, and Role Types.",
   "healthCheck.build_informatie": "Component information",
