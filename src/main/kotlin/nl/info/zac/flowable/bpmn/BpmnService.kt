@@ -237,7 +237,7 @@ class BpmnService @Inject constructor(
         return extensionElements["modificationdate"]
             ?.firstOrNull()
             ?.elementText
-            ?.let { ZonedDateTime.parse(it) }
+            ?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
     }
 
     private fun getUploadDate(deploymentId: String): ZonedDateTime? {
