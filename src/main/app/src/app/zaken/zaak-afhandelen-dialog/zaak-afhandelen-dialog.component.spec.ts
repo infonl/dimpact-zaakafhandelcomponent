@@ -121,8 +121,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakAfhandelenDialogComponent, StaticTextComponent],
+      declarations: [ZaakAfhandelenDialogComponent],
       imports: [
+        StaticTextComponent,
         ReactiveFormsModule,
         TranslateModule.forRoot(),
         PipesModule,

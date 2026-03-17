@@ -1,36 +1,38 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestBed } from "@angular/core/testing";
-import { RouterTestingModule } from "@angular/router/testing";
-import { BackButtonDirective } from "./back-button.directive";
+import { Component } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NavigationService } from "./navigation.service";
+import { BackButtonDirective } from "./back-button.directive";
 
-jest.autoMockOn();
-describe("BackButtonDirective", () => {
-  let directive: BackButtonDirective;
-  const mockNavigationService = { back: jest.fn() };
+@Component({
+  template: "<button zacBackButton>back</button>",
+  imports: [BackButtonDirective],
+})
+class TestHostComponent {}
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        BackButtonDirective,
-        { provide: NavigationService, useValue: mockNavigationService },
-      ],
-      imports: [RouterTestingModule.withRoutes([])],
+describe(BackButtonDirective.name, () => {
+  let fixture: ComponentFixture<TestHostComponent>;
+  let navigationServiceMock: Pick<NavigationService, "back">;
+
+  beforeEach(async () => {
+    navigationServiceMock = { back: jest.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+      providers: [{ provide: NavigationService, useValue: navigationServiceMock }],
     }).compileComponents();
-    directive = TestBed.inject(BackButtonDirective);
+
+    fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
   });
 
-  it("should create an instance", () => {
-    expect(directive).toBeTruthy();
-  });
+  it("should navigate back when clicked", () => {
+    fixture.nativeElement.querySelector("button").click();
 
-  it("should call navigation back", () => {
-    directive.onClick();
-
-    expect(mockNavigationService.back).toHaveBeenCalled();
+    expect(navigationServiceMock.back).toHaveBeenCalled();
   });
 });

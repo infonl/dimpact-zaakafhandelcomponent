@@ -105,9 +105,9 @@ describe(TaakViewComponent.name, () => {
         TaakViewComponent,
         ZaakVerkortComponent,
         SideNavComponent,
-        StaticTextComponent,
       ],
       imports: [
+        StaticTextComponent,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),

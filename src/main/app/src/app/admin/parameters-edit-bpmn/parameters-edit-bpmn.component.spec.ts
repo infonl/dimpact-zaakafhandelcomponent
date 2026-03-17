@@ -88,9 +88,9 @@ describe(ParametersEditBpmnComponent.name, () => {
       declarations: [
         ParametersEditBpmnComponent,
         SideNavComponent,
-        StaticTextComponent,
       ],
       imports: [
+        StaticTextComponent,
         TranslateModule.forRoot(),
         MaterialModule,
         RouterModule,

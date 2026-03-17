@@ -61,9 +61,9 @@ describe(ParametersEditCmmnComponent.name, () => {
       declarations: [
         ParametersEditCmmnComponent,
         SideNavComponent,
-        StaticTextComponent,
       ],
       imports: [
+        StaticTextComponent,
         TranslateModule.forRoot(),
         MaterialModule,
         RouterModule,
