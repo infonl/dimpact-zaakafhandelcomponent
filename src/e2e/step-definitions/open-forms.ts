@@ -57,7 +57,7 @@ Given(
       .getByLabel("Omschrijving van het voorval")
       .fill(profile.incidentDetails.description);
     await this.page
-      .getByPlaceholder("dd-mm-jjjj HH:mm")
+      .getByPlaceholder("d-m-jjjj uu:mm")
       .nth(1)
       .fill(profile.incidentDetails.date);
 
