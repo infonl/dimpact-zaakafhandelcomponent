@@ -4,6 +4,7 @@
  */
 
 import { animate, style, transition, trigger } from "@angular/animations";
+import { forkJoin } from "rxjs";
 import {
   Component,
   computed,
@@ -81,32 +82,40 @@ export class ProcessDefinitionItemComponent {
 
   protected bpmnFormFileSelected(event: Event) {
     const target = event.target as HTMLInputElement | null;
-    const file = target?.files?.[0];
-    if (!file) return;
+    const files = Array.from(target?.files ?? []);
+    if (!files.length) return;
 
     if (target) {
       target.value = "";
     }
 
-    readFileContent(file)
-      .then((content) => {
-        this.bpmnService
-          .uploadProcessDefinitionForm(this.processDefinition().key, {
-            filename: file.name,
-            content,
-          })
-          .subscribe(() => {
+    Promise.all(
+      files.map((file) =>
+        readFileContent(file).then((content) => ({ file, content })),
+      ),
+    )
+      .then((fileContents) => {
+        forkJoin(
+          fileContents.map(({ file, content }) =>
+            this.bpmnService.uploadProcessDefinitionForm(
+              this.processDefinition().key,
+              { filename: file.name, content },
+            ),
+          ),
+        ).subscribe(() => {
+          files.forEach((file) => {
             this.utilService.openSnackbar(
               "msg.formioformulier.uploaden.uitgevoerd",
               { naam: file.name },
             );
-            if (this.missingForms().length === 1) {
-              this.forceHideWarning.set(true);
-              setTimeout(() => this.bpmnFormListChanged.emit(), 450);
-            } else {
-              this.bpmnFormListChanged.emit();
-            }
           });
+          if (files.length >= this.missingForms().length) {
+            this.forceHideWarning.set(true);
+            setTimeout(() => this.bpmnFormListChanged.emit(), 450);
+          } else {
+            this.bpmnFormListChanged.emit();
+          }
+        });
       })
       .catch((error) => {
         this.foutAfhandelingService.foutAfhandelen(error);

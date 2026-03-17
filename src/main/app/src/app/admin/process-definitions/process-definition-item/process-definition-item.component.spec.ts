@@ -112,6 +112,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.useRealTimers();
   });
 
   describe("process definition metadata", () => {
@@ -295,7 +296,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["bpmnFormFileSelected"](event);
-      await Promise.resolve(); // flush the resolved-promise .then() microtask
+      await Promise.resolve(); // MT1: inner .then(content => ...) runs
+      await Promise.resolve(); // MT2: Promise.all internal resolution
+      await Promise.resolve(); // MT3: outer .then runs → forkJoin subscribes
 
       expect(readFileContent).toHaveBeenCalledWith(file);
       expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
@@ -308,7 +311,6 @@ describe(ProcessDefinitionItemComponent.name, () => {
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
-      jest.useRealTimers();
     });
 
     it("should call foutAfhandelingService when readFileContent rejects", async () => {
@@ -321,8 +323,11 @@ describe(ProcessDefinitionItemComponent.name, () => {
       } as unknown as Event;
 
       component["bpmnFormFileSelected"](event);
-      // Rejection propagates through two microtask levels:
-      // MT1: propagate P0 rejection → P1; MT2: invoke .catch() handler
+      // Rejection propagates through four microtask levels via Promise.all:
+      // MT1: inner .then pass-through; MT2: Promise.all rejects;
+      // MT3: outer .then pass-through; MT4: .catch() runs
+      await Promise.resolve();
+      await Promise.resolve();
       await Promise.resolve();
       await Promise.resolve();
 
