@@ -16,8 +16,6 @@ import nl.info.zac.util.NoArgConstructor
 data class RestZaakbeeindigParameter(
     // id is nullable to allow creation of new parameters without specifying an id
     var id: Long? = null,
-    // unfortunately, both zaakbeeindigReden and resultaattype need to nullable currently,
-    // because the frontend only sets one of them at a time
     var zaakbeeindigReden: RestZaakbeeindigReden,
     var resultaattype: RestResultaattype
 )
