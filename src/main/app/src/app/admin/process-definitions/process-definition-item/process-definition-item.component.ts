@@ -84,6 +84,10 @@ export class ProcessDefinitionItemComponent {
     const file = target?.files?.[0];
     if (!file) return;
 
+    if (target) {
+      target.value = "";
+    }
+
     readFileContent(file)
       .then((content) => {
         this.bpmnService
