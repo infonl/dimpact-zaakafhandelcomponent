@@ -7,9 +7,9 @@ import {
   Component,
   computed,
   ElementRef,
+  inject,
   OnInit,
   ViewChild,
-  inject,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";

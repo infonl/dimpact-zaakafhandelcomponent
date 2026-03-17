@@ -6,7 +6,7 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { from, forkJoin, map } from "rxjs";
+import { forkJoin, from, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
 import { BpmnService } from "./bpmn.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";

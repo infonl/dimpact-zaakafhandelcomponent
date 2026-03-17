@@ -1100,11 +1100,12 @@
   "bpmn-procesdefinitie.uploaded-datum": "Datum geüpload",
   "bpmn-procesdefinitie.gewijzigd-datum": "Datum gewijzigd",
   "bpmn-procesdefinitie.documentatie": "Documentatie",
-  "bpmn-procesdefinitie.tooltip.in-use": "Deze procesdefinitie is in gebruik en kan niet worden verwijderd. Het is wel mogelijk om formulieren aan te passen door een nieuwe versie te uploaden.",
-  "bpmn-procesdefinitie.card.formulieren.title": "Formulieren (opgevoerd in de procesdefinitie)",
+  "bpmn-procesdefinitie.card.procesdefinitie-details.title": "Procesdefinitie-details",
+  "bpmn-procesdefinitie.card.procesdefinitie-details.in-gebruik": "Deze procesdefinitie is in gebruik en kan niet meer worden verwijderd. Formulieren kunnen niet worden verwijderd, maar kunnen wel worden aangepast door een nieuw formulier te uploaden.",
+  "bpmn-procesdefinitie.card.formulieren.title": "Formulieren (vereist door de procesdefinitie)",
   "bpmn-procesdefinitie.card.formulieren.title.tooltip": "Een of meerdere formulieren zijn nog niet geüpload. Upload de benodigde formulieren om deze procesdefinitie volledig te maken.",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.uploaded": "Formulier geüpload",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.missing": "Formulier nog niet geüpload",
-  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Formulieren (ongebruikt)",
-  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "Er zijn één of meerdere formulieren geüpload die niet gebruikt worden in deze procesdefinitie. Verwijder de ongebruikte formulieren of koppel ze aan een taak in de procesdefinitie."
+  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Formulieren (niet gekoppeld aan procesdefinitie)",
+  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "Er zijn één of meerdere formulieren geüpload die niet gebruikt worden in deze procesdefinitie. Verwijder deze ongebruikte formulieren."
 }

@@ -129,10 +129,7 @@ describe(ProcessDefinitionsComponent.name, () => {
     fixture.detectChanges();
 
     dialogOpenSpy = jest
-      .spyOn(
-        (component as unknown as { dialog: MatDialog }).dialog,
-        "open",
-      )
+      .spyOn((component as unknown as { dialog: MatDialog }).dialog, "open")
       .mockReturnValue({ afterClosed: () => of(false) } as never);
   });
 

@@ -13,6 +13,12 @@
 <div class="process-definition-item">
   <mat-card>
     <mat-card-content>
+      <h3>
+        {{
+          "bpmn-procesdefinitie.card.procesdefinitie-details.title" | translate
+        }}
+      </h3>
+
       <div class="flex-row gap-20">
         <zac-static-text label="versie" [value]="processDefinition().version" />
         <zac-static-text
@@ -41,7 +47,10 @@
         <mat-divider class="my-3"></mat-divider>
         <span class="icon-align">
           <mat-icon outlined color="primary">info</mat-icon>
-          {{ "bpmn-procesdefinitie.tooltip.in-use" | translate }}
+          {{
+            "bpmn-procesdefinitie.card.procesdefinitie-details.in-gebruik"
+              | translate
+          }}
         </span>
       }
     </mat-card-content>
@@ -63,8 +72,8 @@
           <mat-icon outlined>add_circle</mat-icon>
         </button>
       </div>
-      @if (missingForms().length !== 0) {
-        <div>
+      @if (showMissingWarning()) {
+        <div @fadeSlide>
           <mat-divider class="my-3"></mat-divider>
           <span class="icon-align">
             <mat-icon outlined color="warn">error</mat-icon>
@@ -164,9 +173,12 @@
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         }
       </div>
+    </mat-card-content>
+  </mat-card>
 
-      @if ((processDefinition().details?.orphanedForms?.length ?? 0) > 0) {
-        <mat-divider class="my-3"></mat-divider>
+  @if ((processDefinition().details?.orphanedForms?.length ?? 0) > 0) {
+    <mat-card>
+      <mat-card-content>
         <div class="icon-align">
           <h3>
             {{
@@ -174,13 +186,6 @@
                 | translate
             }}
           </h3>
-          <mat-icon
-            matTooltip="{{
-              'bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip'
-                | translate
-            }}"
-            >help</mat-icon
-          >
         </div>
         <mat-chip-set class="orphaned-forms">
           @for (
@@ -195,7 +200,17 @@
             </mat-chip>
           }
         </mat-chip-set>
-      }
-    </mat-card-content>
-  </mat-card>
+        <div>
+          <mat-divider class="my-3"></mat-divider>
+          <span class="icon-align">
+            <mat-icon outlined color="primary">info</mat-icon>
+            {{
+              "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip"
+                | translate
+            }}
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
 </div>

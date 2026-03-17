@@ -282,6 +282,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
     });
 
     it("should upload file content and emit bpmnFormListChanged on success", async () => {
+      jest.useFakeTimers();
       const fileContent = '{"form": true}';
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
@@ -305,7 +306,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
         "msg.formioformulier.uploaden.uitgevoerd",
         { naam: "test-form.json" },
       );
+      jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
+      jest.useRealTimers();
     });
 
     it("should call foutAfhandelingService when readFileContent rejects", async () => {
@@ -340,9 +343,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
     it("should pass the deleteProcessDefinitionForm observable to the dialog", () => {
       const deleteObservable = of({});
-      bpmnService.deleteProcessDefinitionForm.mockReturnValue(
-        deleteObservable,
-      );
+      bpmnService.deleteProcessDefinitionForm.mockReturnValue(deleteObservable);
 
       component["deleteBpmnForm"]("form-uploaded");
 

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { animate, style, transition, trigger } from "@angular/animations";
 import {
   Component,
   computed,
@@ -10,6 +11,7 @@ import {
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
@@ -29,6 +31,15 @@ import { readFileContent } from "../file.helper";
   templateUrl: "./process-definition-item.component.html",
   styleUrls: ["./process-definition-item.component.less"],
   imports: [SharedModule],
+  animations: [
+    trigger("fadeSlide", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("750ms ease-in", style({ opacity: 1 })),
+      ]),
+      transition(":leave", [animate("750ms ease-out", style({ opacity: 0 }))]),
+    ]),
+  ],
 })
 export class ProcessDefinitionItemComponent {
   readonly processDefinition =
@@ -51,6 +62,11 @@ export class ProcessDefinitionItemComponent {
     (this.processDefinition().details?.forms ?? []).filter(
       (form) => !form.uploaded,
     ),
+  );
+
+  private readonly forceHideWarning = signal(false);
+  protected readonly showMissingWarning = computed(
+    () => !this.forceHideWarning() && this.missingForms().length !== 0,
   );
 
   private readonly dialog = inject(MatDialog);
@@ -79,7 +95,12 @@ export class ProcessDefinitionItemComponent {
               "msg.formioformulier.uploaden.uitgevoerd",
               { naam: file.name },
             );
-            this.bpmnFormListChanged.emit();
+            if (this.missingForms().length === 1) {
+              this.forceHideWarning.set(true);
+              setTimeout(() => this.bpmnFormListChanged.emit(), 450);
+            } else {
+              this.bpmnFormListChanged.emit();
+            }
           });
       })
       .catch((error) => {

@@ -1100,10 +1100,11 @@
   "bpmn-procesdefinitie.uploaded-datum": "Upload date",
   "bpmn-procesdefinitie.gewijzigd-datum": "Modified date",
   "bpmn-procesdefinitie.documentatie": "Documentation",
-  "bpmn-procesdefinitie.card.formulieren.title": "Forms (listed in the process definition)",
+  "bpmn-procesdefinitie.card.procesdefinitie-details.in-gebruik": "This process definition is in use and cannot be deleted. Forms cannot be deleted, but they can be modified by uploading a new form.",
+  "bpmn-procesdefinitie.card.formulieren.title": "Forms (required by the process definition)",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.uploaded": "Form uploaded",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.missing": "Form not yet uploaded",
   "bpmn-procesdefinitie.card.formulieren.title.tooltip": "One or more forms have not yet been uploaded. Upload the required forms to complete this process definition.",
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Unused forms",
-  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms or link them to a task in the process definition."
+  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms."
 }
