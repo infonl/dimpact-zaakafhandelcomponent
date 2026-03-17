@@ -19,7 +19,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
     Given(
-        """A BPMN process definition has been created in ZAC in the integration test setup phase
+        """BPMN process definitions have been created in ZAC in the integration test setup phase
             and a beheerder is logged in"""
     ) {
         When("the process definitions are retrieved") {
@@ -27,7 +27,38 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/bpmn-process-definitions",
                 testUser = BEHEERDER_ELK_ZAAKTYPE
             )
-            Then("the response contains the BPMN process definition that was just created") {
+            Then("the response contains the BPMN process definitions that were just created") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                 [  
+                  {
+                    "key": "itProcessDefinition",
+                    "name": "Integration Tests BPMN Process Definition",
+                    "version": 1
+                  },
+                  {
+                    "key": "userManagement",
+                    "name": "User Management",
+                    "version": 1
+                  }
+                ]  
+                """.trimIndent()
+            }
+        }
+    }
+
+    Given(
+        """BPMN process definitions have been created in ZAC in the integration test setup phase
+            and a beheerder is logged in"""
+    ) {
+        When("the process definitions are retrieved with details") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions?details=true",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
+            Then("the response contains the BPMN process definitions that were just created") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -37,13 +68,59 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1,
-                    "inUse": true
+                    "details": {
+                      "inUse": true,
+                      "documentation": "BPMN Process definition used in ZAC Integration tests",
+                      "forms": [
+                        {
+                          "formKey": "summaryForm",
+                          "title": "Summary form",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "testForm",
+                          "title": "Test form",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
                   },
                   {
                     "key": "userManagement",
                     "name": "User Management",
                     "version": 1,
-                    "inUse": true
+                    "details": {
+                      "inUse": true,
+                      "forms": [
+                        {
+                          "formKey": "zaakDefaults",
+                          "title": "Zaak defaults",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "hardCoded",
+                          "title": "Hard-coded",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "userGroupSelection",
+                          "title": "User and group selection",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "newZaakDefaults",
+                          "title": "New Zaak Defaults",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "copyUserGroup",
+                          "title": "Copy user and group",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
                   }
                 ]  
                 """.trimIndent()
