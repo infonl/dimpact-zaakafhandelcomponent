@@ -4,7 +4,6 @@
  */
 
 import { animate, style, transition, trigger } from "@angular/animations";
-import { forkJoin } from "rxjs";
 import {
   Component,
   computed,
@@ -16,6 +15,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { forkJoin } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {

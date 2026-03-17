@@ -46,7 +46,11 @@ type ProcessDefinitionNode =
   standalone: true,
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
-  imports: [SharedModule, ProcessDefinitionItemComponent, FileDragAndDropDirective],
+  imports: [
+    SharedModule,
+    ProcessDefinitionItemComponent,
+    FileDragAndDropDirective,
+  ],
 })
 export class ProcessDefinitionsComponent
   extends AdminComponent
