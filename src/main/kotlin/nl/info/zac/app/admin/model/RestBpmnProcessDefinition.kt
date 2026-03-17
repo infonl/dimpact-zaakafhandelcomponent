@@ -18,8 +18,10 @@ data class RestBpmnProcessDefinition(
     var details: RestBpmnProcessDefinitionDetails? = null,
 )
 
+@AllOpen
+@NoArgConstructor
 data class RestBpmnProcessDefinitionDetails(
-    var inUse: Boolean,
+    var inUse: Boolean = false,
     var documentation: String? = null,
     var modificationDate: ZonedDateTime? = null,
     var uploadDate: ZonedDateTime? = null,

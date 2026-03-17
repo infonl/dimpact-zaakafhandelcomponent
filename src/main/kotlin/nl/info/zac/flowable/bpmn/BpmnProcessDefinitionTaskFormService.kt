@@ -87,7 +87,7 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                             root.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name),
                             processDefinition.version
                         ),
-                        criteriaBuilder.equal(root.get<String>("name"), name)
+                        criteriaBuilder.equal(root.get<String>(BpmnProcessDefinitionTaskForm::name.name), name)
                     )
                 }
                 entityManager.createQuery(delete).executeUpdate()
