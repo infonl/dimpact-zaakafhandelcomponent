@@ -173,7 +173,9 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         @PathParam("name") name: String
     ): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
-        if (bpmnService.isProcessDefinitionInUse(key)) {
+        if (bpmnService.isProcessDefinitionInUse(key) &&
+            !isFormOrphaned(key, name)
+        ) {
             return Response.status(Status.BAD_REQUEST)
                 .entity(
                     mapOf(
@@ -186,4 +188,9 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         bpmnProcessDefinitionTaskFormService.deleteForm(key, name)
         return Response.noContent().build()
     }
+
+    private fun isFormOrphaned(processDefinitionKey: String, form: String) =
+        bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.let {
+            !bpmnService.getProcessDefinitionMetadata(it).formKeys.contains(form)
+        } ?: false
 }
