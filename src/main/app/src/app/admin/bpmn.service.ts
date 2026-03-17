@@ -55,28 +55,4 @@ export class BpmnService {
       },
     );
   }
-
-  listFormioFormulieren() {
-    return this.zacHttpClient.GET("/rest/formio-formulieren");
-  }
-
-  uploadProcessDefinitionForm(
-    key: string,
-    body: PostBody<"/rest/bpmn-process-definitions/{key}/forms">,
-  ) {
-    return this.zacHttpClient.POST(
-      "/rest/bpmn-process-definitions/{key}/forms",
-      body,
-      { path: { key } },
-    );
-  }
-
-  deleteProcessDefinitionForm(key: string, name: string) {
-    return this.zacHttpClient.DELETE(
-      "/rest/bpmn-process-definitions/{key}/forms/{name}",
-      {
-        path: { key, name },
-      },
-    );
-  }
 }
