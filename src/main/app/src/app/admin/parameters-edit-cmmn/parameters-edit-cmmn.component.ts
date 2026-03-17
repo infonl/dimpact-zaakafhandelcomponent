@@ -781,6 +781,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       const zaakAfzender = afzenders[i];
       if (zaakAfzender.mail === afzender) {
         afzenders.splice(i, 1);
+        break;
       }
     }
     this.loadZaakAfzenders();
