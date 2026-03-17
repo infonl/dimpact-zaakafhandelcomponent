@@ -260,8 +260,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         ? this.parameters.afrondenMail
         : "BESCHIKBAAR_UIT";
       this.userEventListenerParameters =
-        this.parameters.userEventListenerParameters;
-      this.humanTaskParameters = this.parameters.humanTaskParameters;
+        this.parameters.userEventListenerParameters ?? [];
+      this.humanTaskParameters = this.parameters.humanTaskParameters ?? [];
 
       forkJoin([
         zaakafhandelParametersService.listFormulierDefinities(),
@@ -531,7 +531,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       { validators: this.afzenderValidator },
     );
     this.mailtemplateKoppelingen.forEach((beschikbareKoppeling) => {
-      const mailtemplate = this.parameters.mailtemplateKoppelingen.find(
+      const mailtemplate = (this.parameters.mailtemplateKoppelingen ?? []).find(
         (mailtemplateKoppeling) =>
           mailtemplateKoppeling.mailtemplate?.mail === beschikbareKoppeling,
       )?.mailtemplate;
@@ -596,19 +596,19 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private createBrpDoelbindingForm() {
     this.brpProtocoleringFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
-        this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
+        this.parameters.brpDoelbindingen?.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       zoekWaarde: [
-        this.parameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.parameters.brpDoelbindingen?.zoekWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       verwerkingregisterWaarde: [
-        this.parameters.brpDoelbindingen.verwerkingregisterWaarde ?? "",
+        this.parameters.brpDoelbindingen?.verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
@@ -637,21 +637,23 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         "TAAK_ONTVANGSTBEVESTIGING",
       ).find(
         ({ mailTemplateNaam }) =>
-          mailTemplateNaam === automaticEmailConfirmation.templateName,
+          mailTemplateNaam === automaticEmailConfirmation?.templateName,
       ),
       emailSender: this.replyTos.find(
-        ({ mail }) => mail === automaticEmailConfirmation.emailSender,
+        ({ mail }) => mail === automaticEmailConfirmation?.emailSender,
       ),
       emailReply: this.replyTos.find(
-        ({ mail }) => mail === automaticEmailConfirmation.emailReply,
+        ({ mail }) => mail === automaticEmailConfirmation?.emailReply,
       ),
-      enabled: automaticEmailConfirmation.enabled ?? false,
+      enabled: automaticEmailConfirmation?.enabled ?? false,
     });
   }
 
   private createSmartDocumentsEnabledForm() {
-    this.smartDocumentsEnabledForm = this.formBuilder.group({
-      enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
+    this.smartDocumentsEnabledForm = new FormGroup({
+      enabledForZaaktype: new FormControl<boolean | undefined>(
+        this.parameters.smartDocuments?.enabledForZaaktype ?? false,
+      ),
     });
   }
 
@@ -686,7 +688,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
     let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
-    for (const item of this.parameters.zaakbeeindigParameters) {
+    for (const item of this.parameters.zaakbeeindigParameters ?? []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -724,7 +726,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private initZaakAfzenders() {
     let i = 0;
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders ?? []) {
       (zaakAfzender as { index: number }).index = i++;
       this.addZaakAfzenderControl(zaakAfzender);
     }
@@ -733,7 +735,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private loadZaakAfzenders() {
-    this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders
+    this.zaakAfzendersDataSource.data = (this.parameters.zaakAfzenders ?? [])
       .slice()
       .sort((a, b) => {
         return a.speciaal !== b.speciaal
@@ -753,13 +755,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         replyTo: undefined,
         index: 0,
       };
-    for (const bestaand of this.parameters.zaakAfzenders) {
+    for (const bestaand of this.parameters.zaakAfzenders ?? []) {
       if (zaakAfzender.index <= (bestaand as { index: number }).index) {
         zaakAfzender.index = (bestaand as { index: number }).index + 1;
       }
     }
     this.addZaakAfzenderControl(zaakAfzender);
-    this.parameters.zaakAfzenders.push(zaakAfzender);
+    this.parameters.zaakAfzenders!.push(zaakAfzender);
     this.loadZaakAfzenders();
     this.removeAfzender(afzender);
     this.mailFormGroup.markAsTouched();
@@ -767,17 +769,18 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected updateZaakAfzenders(afzender: string): void {
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders ?? []) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
     this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 
   protected removeZaakAfzender(afzender: string): void {
-    for (let i = 0; i < this.parameters.zaakAfzenders.length; i++) {
-      const zaakAfzender = this.parameters.zaakAfzenders[i];
+    const afzenders = this.parameters.zaakAfzenders ?? [];
+    for (let i = 0; i < afzenders.length; i++) {
+      const zaakAfzender = afzenders[i];
       if (zaakAfzender.mail === afzender) {
-        this.parameters.zaakAfzenders.splice(i, 1);
+        afzenders.splice(i, 1);
       }
     }
     this.loadZaakAfzenders();
@@ -804,7 +807,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private initAfzenders() {
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders ?? []) {
       if (zaakAfzender.mail) {
         this.removeAfzender(zaakAfzender.mail);
       }
@@ -886,7 +889,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         "doorlooptijd",
       ).value;
       const bestaandeHumanTaskParameter =
-        this.parameters.humanTaskParameters.find(
+        (this.parameters.humanTaskParameters ?? []).find(
           ({ planItemDefinition }) =>
             planItemDefinition?.id === param.planItemDefinition?.id,
         );
@@ -951,14 +954,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           param,
           "beeindigResultaat",
         )?.value;
-        this.parameters.zaakbeeindigParameters.push(
+        this.parameters.zaakbeeindigParameters!.push(
           param as GeneratedType<"RestZaakbeeindigParameter">,
         );
       }
     });
 
     const index: string[] = [];
-    for (const afzender of this.parameters.zaakAfzenders) {
+    for (const afzender of this.parameters.zaakAfzenders ?? []) {
       if (afzender.mail) {
         index[(afzender as { index: number }).index] = afzender.mail;
       }
@@ -1003,7 +1006,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
             "msg.zaakafhandelparameters.opgeslagen",
           );
           this.parameters = data;
-          for (const afzender of this.parameters.zaakAfzenders) {
+          for (const afzender of this.parameters.zaakAfzenders ?? []) {
             for (let i = 0; i < index.length; i++) {
               if (index[i] === afzender.mail) {
                 (

@@ -387,7 +387,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
     let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ?? []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -443,7 +443,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           param,
           "beeindigResultaat",
         )?.value;
-        this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(
+        this.bpmnZaakafhandelParameters.zaakbeeindigParameters!.push(
           param as GeneratedType<"RestZaakbeeindigParameter">,
         );
       }
