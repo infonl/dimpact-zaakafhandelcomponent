@@ -6,6 +6,7 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -229,5 +230,70 @@ describe("Human tasks form step", () => {
     );
     expect(actief).not.toBeNull();
     expect(actief.value).toBe(true);
+  });
+
+  it("isHumanTaskParameterValid returns true when formulierDefinitie is set", () => {
+    const component = fixture.componentInstance;
+    component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "formulierDefinitie",
+    ).setValue("DEFAULT_TAAKFORMULIER");
+    expect(component["isHumanTaskParameterValid"](humanTaskParameters[0])).toBe(
+      true,
+    );
+  });
+
+  it("formulierDefinitieChanged updates formulierDefinitieId and rebuilds the task form group", () => {
+    const component = fixture.componentInstance;
+    const task = {
+      ...humanTaskParameters[0],
+      formulierDefinitieId: undefined as string | undefined,
+    };
+
+    component["formulierDefinitieChanged"](
+      { value: "DEFAULT_TAAKFORMULIER" } as MatSelectChange,
+      task,
+    );
+
+    expect(task.formulierDefinitieId).toBe("DEFAULT_TAAKFORMULIER");
+    expect(
+      component.humanTasksFormGroup.get(
+        task.planItemDefinition?.id ?? "",
+      ),
+    ).not.toBeNull();
+  });
+
+  it("opslaan reads doorlooptijd and actief from form controls into humanTaskParameters", () => {
+    const component = fixture.componentInstance;
+    jest
+      .spyOn(zaakafhandelParametersService, "updateZaakafhandelparameters")
+      .mockReturnValue(of(component.parameters));
+
+    component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "formulierDefinitie",
+    ).setValue("DEFAULT_TAAKFORMULIER");
+    component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "doorlooptijd",
+    ).setValue(10);
+    component["getHumanTaskControl"](humanTaskParameters[0], "actief").setValue(
+      false,
+    );
+
+    component.algemeenFormGroup.controls["caseDefinition"].setValue(
+      fromPartial<GeneratedType<"RESTCaseDefinition">>({ key: "case-1" }),
+      { emitEvent: false },
+    );
+    component.algemeenFormGroup.controls["defaultGroep"].setValue(
+      { id: "test-group-id", naam: "test-group" },
+      { emitEvent: false },
+    );
+    component["updateZaakAfzenders"]("test@example.com");
+
+    component["opslaan"]();
+
+    expect(component["humanTaskParameters"][0].doorlooptijd).toBe(10);
+    expect(component["humanTaskParameters"][0].actief).toBe(false);
   });
 });
