@@ -117,7 +117,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   userEventListenerParameters: GeneratedType<"RESTUserEventListenerParameter">[] =
     [];
   zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] = [];
-  selection = new SelectionModel<RestPristineZaakbeeindigParameterFormData>(true);
+  selection = new SelectionModel<RestPristineZaakbeeindigParameterFormData>(
+    true,
+  );
   zaakAfzenders: string[] = [];
   zaakAfzendersDataSource = new MatTableDataSource<
     GeneratedType<"RestZaakAfzender">
@@ -698,7 +700,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return parameter;
   }
 
-  private updateZaakbeeindigForm(parameter: RestPristineZaakbeeindigParameterFormData) {
+  private updateZaakbeeindigForm(
+    parameter: RestPristineZaakbeeindigParameterFormData,
+  ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
