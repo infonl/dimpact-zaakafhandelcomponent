@@ -888,11 +888,12 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         param,
         "doorlooptijd",
       ).value;
-      const bestaandeHumanTaskParameter =
-        (this.parameters.humanTaskParameters ?? []).find(
-          ({ planItemDefinition }) =>
-            planItemDefinition?.id === param.planItemDefinition?.id,
-        );
+      const bestaandeHumanTaskParameter = (
+        this.parameters.humanTaskParameters ?? []
+      ).find(
+        ({ planItemDefinition }) =>
+          planItemDefinition?.id === param.planItemDefinition?.id,
+      );
       const bestaandeReferentietabellen = bestaandeHumanTaskParameter
         ? bestaandeHumanTaskParameter.referentieTabellen
         : [];
