@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Component } from "@angular/core";
 import {
   ComponentFixture,
   TestBed,
   fakeAsync,
   tick,
 } from "@angular/core/testing";
-import { Component } from "@angular/core";
 import { UtilService } from "../../core/service/util.service";
 import { OutsideClickDirective } from "./outside-click.directive";
 

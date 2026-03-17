@@ -5,8 +5,8 @@
 
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NavigationService } from "./navigation.service";
 import { BackButtonDirective } from "./back-button.directive";
+import { NavigationService } from "./navigation.service";
 
 @Component({
   template: "<button zacBackButton>back</button>",
@@ -23,7 +23,9 @@ describe(BackButtonDirective.name, () => {
 
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [{ provide: NavigationService, useValue: navigationServiceMock }],
+      providers: [
+        { provide: NavigationService, useValue: navigationServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

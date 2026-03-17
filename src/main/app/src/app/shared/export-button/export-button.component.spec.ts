@@ -22,7 +22,11 @@ describe(ExportButtonComponent.name, () => {
     utilServiceMock = { downloadBlobResponse: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [ExportButtonComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        ExportButtonComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         { provide: CsvService, useValue: csvServiceMock },
         { provide: UtilService, useValue: utilServiceMock },
@@ -45,8 +49,7 @@ describe(ExportButtonComponent.name, () => {
   });
 
   it("should call csvService and download blob on click", () => {
-    const zoekParameters =
-      {} as GeneratedType<"RestZoekParameters">;
+    const zoekParameters = {} as GeneratedType<"RestZoekParameters">;
     const blob = new Blob(["data"], { type: "text/csv" });
     (csvServiceMock.exportToCSV as jest.Mock).mockReturnValue(of(blob));
 

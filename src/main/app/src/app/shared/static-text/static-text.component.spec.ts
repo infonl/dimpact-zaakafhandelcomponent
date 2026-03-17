@@ -10,11 +10,17 @@ import { TextIcon } from "../edit/text-icon";
 import { StaticTextComponent } from "./static-text.component";
 
 describe(StaticTextComponent.name, () => {
-  let fixture: ComponentFixture<StaticTextComponent<string | number | null | undefined>>;
+  let fixture: ComponentFixture<
+    StaticTextComponent<string | number | null | undefined>
+  >;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StaticTextComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        StaticTextComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StaticTextComponent);

@@ -16,15 +16,22 @@ import {
 import { FormControl } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
+import { TextIcon } from "../edit/text-icon";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { ReadMoreComponent } from "../read-more/read-more.component";
-import { TextIcon } from "../edit/text-icon";
 
 @Component({
   selector: "zac-static-text",
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
-  imports: [NgIf, NgClass, MatIconModule, TranslateModule, ReadMoreComponent, EmptyPipe],
+  imports: [
+    NgIf,
+    NgClass,
+    MatIconModule,
+    TranslateModule,
+    ReadMoreComponent,
+    EmptyPipe,
+  ],
 })
 export class StaticTextComponent<
     T extends string | number | null | undefined = string,
