@@ -1,15 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
- *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -24,49 +20,41 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
-describe(ParametersEditCmmnComponent.name, () => {
+describe("Human tasks form step", () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
-  let loader: HarnessLoader;
   let utilService: UtilService;
+  let activatedRouteMock: Pick<ActivatedRoute, 'data'>;
+
+  const humanTaskParameters = [
+    fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+      planItemDefinition: { id: "task-1", naam: "Taak 1", type: "HUMAN_TASK" },
+      actief: true,
+      doorlooptijd: 5,
+      formulierDefinitieId: undefined,
+      referentieTabellen: [],
+    }),
+  ];
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
-    zaaktype: {
-      uuid: "test-uuid",
-    },
+    zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test@example.com",
-        replyTo: undefined,
-      },
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test2@example.com",
-        replyTo: undefined,
-      },
+      { speciaal: false, defaultMail: false, mail: "test@example.com", replyTo: undefined },
+      { speciaal: false, defaultMail: false, mail: "test2@example.com", replyTo: undefined },
     ],
-    humanTaskParameters: [],
+    humanTaskParameters,
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: {
-      enabledGlobally: false,
-      enabledForZaaktype: false,
-    },
+    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
-    },
+    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -82,6 +70,16 @@ describe(ParametersEditCmmnComponent.name, () => {
   });
 
   beforeEach(async () => {
+    activatedRouteMock = {
+      data: of({
+        parameters: {
+          zaakafhandelParameters,
+          isSavedZaakafhandelParameters: true,
+          featureFlagPabcIntegration: true,
+        },
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         ParametersEditCmmnComponent,
@@ -92,18 +90,7 @@ describe(ParametersEditCmmnComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({
-              parameters: {
-                zaakafhandelParameters,
-                isSavedZaakafhandelParameters: true,
-                featureFlagPabcIntegration: true,
-              },
-            }),
-          },
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -125,14 +112,8 @@ describe(ParametersEditCmmnComponent.name, () => {
       .mockReturnValue(of([]));
     jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
       of([
-        {
-          mail: "reply1@example.com",
-          speciaal: false,
-        },
-        {
-          mail: "reply2@example.com",
-          speciaal: false,
-        },
+        { mail: "reply1@example.com", speciaal: false },
+        { mail: "reply2@example.com", speciaal: false },
       ]),
     );
     jest
@@ -193,15 +174,60 @@ describe(ParametersEditCmmnComponent.name, () => {
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  describe("Stepper", () => {
-    it("should render all stepper steps", async () => {
-      const stepper = await loader.getHarness(MatStepperHarness);
-      const steps = await stepper.getSteps();
-      expect(steps.length).toBe(7);
-    });
+  it("should create a form group for each humanTaskParameter", () => {
+    const component = fixture.componentInstance;
+    const taskId = humanTaskParameters[0].planItemDefinition?.id ?? "";
+    const taskFormGroup = component.humanTasksFormGroup.get(taskId);
+    expect(taskFormGroup).not.toBeNull();
+  });
+
+  it("should have actief control with initial value true", () => {
+    const component = fixture.componentInstance;
+    const actief = component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "actief",
+    );
+    expect(actief.value).toBe(true);
+  });
+
+  it("should have doorlooptijd control with initial value 5", () => {
+    const component = fixture.componentInstance;
+    const doorlooptijd = component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "doorlooptijd",
+    );
+    expect(doorlooptijd.value).toBe(5);
+  });
+
+  it("should validate doorlooptijd with min(0) - set to -1, expect invalid", () => {
+    const component = fixture.componentInstance;
+    const doorlooptijd = component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "doorlooptijd",
+    );
+    doorlooptijd.setValue(-1);
+    doorlooptijd.updateValueAndValidity();
+    expect(doorlooptijd.hasError("min")).toBe(true);
+  });
+
+  it("isHumanTaskParameterValid returns false when formulierDefinitie is required but missing", () => {
+    const component = fixture.componentInstance;
+    // formulierDefinitieId is undefined → formulierDefinitie control has Validators.required and no value
+    const isValid = component["isHumanTaskParameterValid"](
+      humanTaskParameters[0],
+    );
+    expect(isValid).toBe(false);
+  });
+
+  it("getHumanTaskControl returns the correct control", () => {
+    const component = fixture.componentInstance;
+    const actief = component["getHumanTaskControl"](
+      humanTaskParameters[0],
+      "actief",
+    );
+    expect(actief).not.toBeNull();
+    expect(actief.value).toBe(true);
   });
 });
