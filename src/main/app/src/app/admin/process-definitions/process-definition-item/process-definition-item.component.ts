@@ -114,8 +114,6 @@ export class ProcessDefinitionItemComponent {
   }
 
   protected deleteBpmnForm(bpmnFormName: string) {
-    console.log("deleteBpmnForm", bpmnFormName);
-
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
