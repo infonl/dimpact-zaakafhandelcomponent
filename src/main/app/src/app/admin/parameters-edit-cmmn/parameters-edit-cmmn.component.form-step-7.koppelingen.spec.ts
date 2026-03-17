@@ -27,7 +27,7 @@ describe("Koppelingen form step", () => {
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, 'data'>;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -36,8 +36,18 @@ describe("Koppelingen form step", () => {
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
-      { speciaal: false, defaultMail: false, mail: "test@example.com", replyTo: undefined },
-      { speciaal: false, defaultMail: false, mail: "test2@example.com", replyTo: undefined },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test@example.com",
+        replyTo: undefined,
+      },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test2@example.com",
+        replyTo: undefined,
+      },
     ],
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
@@ -255,11 +265,15 @@ describe("Koppelingen form step", () => {
     it("should add required validators to templateName and emailSender when enabled is set to true", () => {
       const component = fixture.componentInstance;
 
-      component["automatischeOntvangstbevestigingFormGroup"].controls.enabled.setValue(
-        true,
-      );
-      component["automatischeOntvangstbevestigingFormGroup"].controls.templateName.updateValueAndValidity();
-      component["automatischeOntvangstbevestigingFormGroup"].controls.emailSender.updateValueAndValidity();
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.enabled.setValue(true);
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.templateName.updateValueAndValidity();
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.emailSender.updateValueAndValidity();
 
       expect(
         component[
@@ -276,14 +290,18 @@ describe("Koppelingen form step", () => {
     it("should remove required validators when enabled is set back to false", () => {
       const component = fixture.componentInstance;
 
-      component["automatischeOntvangstbevestigingFormGroup"].controls.enabled.setValue(
-        true,
-      );
-      component["automatischeOntvangstbevestigingFormGroup"].controls.enabled.setValue(
-        false,
-      );
-      component["automatischeOntvangstbevestigingFormGroup"].controls.templateName.updateValueAndValidity();
-      component["automatischeOntvangstbevestigingFormGroup"].controls.emailSender.updateValueAndValidity();
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.enabled.setValue(true);
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.enabled.setValue(false);
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.templateName.updateValueAndValidity();
+      component[
+        "automatischeOntvangstbevestigingFormGroup"
+      ].controls.emailSender.updateValueAndValidity();
 
       expect(
         component[

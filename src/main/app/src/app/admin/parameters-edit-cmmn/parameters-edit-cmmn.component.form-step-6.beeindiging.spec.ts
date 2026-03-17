@@ -28,7 +28,7 @@ describe("Beeindiging form step", () => {
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, 'data'>;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const reden = fromPartial<GeneratedType<"RestZaakbeeindigReden">>({
     id: "1",
@@ -42,8 +42,18 @@ describe("Beeindiging form step", () => {
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
-      { speciaal: false, defaultMail: false, mail: "test@example.com", replyTo: undefined },
-      { speciaal: false, defaultMail: false, mail: "test2@example.com", replyTo: undefined },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test@example.com",
+        replyTo: undefined,
+      },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test2@example.com",
+        replyTo: undefined,
+      },
     ],
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],

@@ -27,7 +27,7 @@ describe("Algemeen form step", () => {
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, 'data'>;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
@@ -36,8 +36,18 @@ describe("Algemeen form step", () => {
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
-      { speciaal: false, defaultMail: false, mail: "test@example.com", replyTo: undefined },
-      { speciaal: false, defaultMail: false, mail: "test2@example.com", replyTo: undefined },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test@example.com",
+        replyTo: undefined,
+      },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test2@example.com",
+        replyTo: undefined,
+      },
     ],
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],

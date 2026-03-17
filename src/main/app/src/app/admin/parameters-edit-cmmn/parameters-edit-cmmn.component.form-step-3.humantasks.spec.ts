@@ -28,7 +28,7 @@ describe("Human tasks form step", () => {
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, 'data'>;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const humanTaskParameters = [
     fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
@@ -47,8 +47,18 @@ describe("Human tasks form step", () => {
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
-      { speciaal: false, defaultMail: false, mail: "test@example.com", replyTo: undefined },
-      { speciaal: false, defaultMail: false, mail: "test2@example.com", replyTo: undefined },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test@example.com",
+        replyTo: undefined,
+      },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test2@example.com",
+        replyTo: undefined,
+      },
     ],
     humanTaskParameters,
     mailtemplateKoppelingen: [],
@@ -257,9 +267,7 @@ describe("Human tasks form step", () => {
 
     expect(task.formulierDefinitieId).toBe("DEFAULT_TAAKFORMULIER");
     expect(
-      component.humanTasksFormGroup.get(
-        task.planItemDefinition?.id ?? "",
-      ),
+      component.humanTasksFormGroup.get(task.planItemDefinition?.id ?? ""),
     ).not.toBeNull();
   });
 

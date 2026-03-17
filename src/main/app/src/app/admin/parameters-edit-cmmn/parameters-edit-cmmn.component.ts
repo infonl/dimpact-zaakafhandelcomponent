@@ -284,7 +284,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       this.userEventListenerParameters =
         this.parameters.userEventListenerParameters ?? [];
       this.humanTaskParameters =
-        (this.parameters.humanTaskParameters as GeneratedType<"RESTHumanTaskParameters">[]) ??
+        (this.parameters
+          .humanTaskParameters as GeneratedType<"RESTHumanTaskParameters">[]) ??
         [];
 
       forkJoin([
@@ -676,7 +677,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private createSmartDocumentsEnabledForm() {
     this.smartDocumentsEnabledForm = this.formBuilder.group({
       enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
-    }) as FormGroup<{ enabledForZaaktype: FormControl<boolean | null | undefined> }>;
+    }) as FormGroup<{
+      enabledForZaaktype: FormControl<boolean | null | undefined>;
+    }>;
   }
 
   protected isZaaknietontvankelijkParameter(
@@ -757,8 +760,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private loadZaakAfzenders() {
-    this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders!
-      .slice()
+    this.zaakAfzendersDataSource.data = this.parameters
+      .zaakAfzenders!.slice()
       .sort((a, b) => {
         return a.speciaal !== b.speciaal
           ? a.speciaal
