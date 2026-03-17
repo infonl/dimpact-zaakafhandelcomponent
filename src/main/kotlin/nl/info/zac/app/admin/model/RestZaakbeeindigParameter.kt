@@ -26,10 +26,8 @@ fun List<RestZaakbeeindigParameter>.toZaaktypeCompletionParametersList() = map {
 
 fun RestZaakbeeindigParameter.toZaaktypeCompletionParameters() = ZaaktypeCompletionParameters().apply {
     id = this@toZaaktypeCompletionParameters.id
-    zaakbeeindigReden = checkNotNull(this@toZaaktypeCompletionParameters.zaakbeeindigReden) {
-        "zaakbeeindigReden cannot be null"
-    }.let(RESTZaakbeeindigRedenConverter::convertRESTZaakbeeindigReden)
-    resultaattype = checkNotNull(this@toZaaktypeCompletionParameters.resultaattype) {
-        "resultaattype cannot be null"
-    }.id
+    zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
+        this@toZaaktypeCompletionParameters.zaakbeeindigReden
+    )
+    resultaattype = this@toZaaktypeCompletionParameters.resultaattype.id
 }

@@ -46,7 +46,7 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
  * In opslaan(), normal parameters are guaranteed to have both fields set by form validation
  * before being pushed to the backend as GeneratedType<"RestZaakbeeindigParameter">.
  */
-type RestZaakbeeindigParameterFormData = Omit<
+type RestPristineZaakbeeindigParameterFormData = Omit<
   GeneratedType<"RestZaakbeeindigParameter">,
   "zaakbeeindigReden" | "resultaattype"
 > & {
@@ -124,11 +124,11 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: RestZaakbeeindigParameterFormData[] = [];
+  protected zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] = [];
 
   protected zaakbeeindigFormGroup = new FormGroup({});
 
-  protected selection = new SelectionModel<RestZaakbeeindigParameterFormData>(
+  protected selection = new SelectionModel<RestPristineZaakbeeindigParameterFormData>(
     true,
   );
 
@@ -328,14 +328,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected isZaaknietontvankelijkParameter(
-    restZaakbeeindigParameter: RestZaakbeeindigParameterFormData,
+    restZaakbeeindigParameter: RestPristineZaakbeeindigParameterFormData,
   ) {
     return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
   }
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: RestZaakbeeindigParameterFormData,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -344,7 +344,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected getZaakbeeindigControl(
-    parameter: RestZaakbeeindigParameterFormData,
+    parameter: RestPristineZaakbeeindigParameterFormData,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -363,7 +363,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private addZaakbeeindigParameter(
-    parameter: RestZaakbeeindigParameterFormData,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -376,7 +376,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
   ) {
-    const parameter: RestZaakbeeindigParameterFormData = {
+    const parameter: RestPristineZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -386,7 +386,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
-    let parameter: RestZaakbeeindigParameterFormData | null = null;
+    let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
     for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
@@ -400,7 +400,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     return parameter;
   }
 
-  private updateZaakbeeindigForm(parameter: RestZaakbeeindigParameterFormData) {
+  private updateZaakbeeindigForm(parameter: RestPristineZaakbeeindigParameterFormData) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
