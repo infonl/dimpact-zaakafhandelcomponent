@@ -124,14 +124,13 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: RestZaakbeeindigParameterFormData[] =
-    [];
+  protected zaakbeeindigParameters: RestZaakbeeindigParameterFormData[] = [];
 
-    protected zaakbeeindigFormGroup = new FormGroup({});
+  protected zaakbeeindigFormGroup = new FormGroup({});
 
-  protected selection = new SelectionModel<
-      RestZaakbeeindigParameterFormData
-  >(true);
+  protected selection = new SelectionModel<RestZaakbeeindigParameterFormData>(
+    true,
+  );
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
@@ -401,9 +400,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     return parameter;
   }
 
-  private updateZaakbeeindigForm(
-    parameter: RestZaakbeeindigParameterFormData,
-  ) {
+  private updateZaakbeeindigForm(parameter: RestZaakbeeindigParameterFormData) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
       control?.addValidators([Validators.required]);
