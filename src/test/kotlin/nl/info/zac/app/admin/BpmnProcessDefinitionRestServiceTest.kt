@@ -227,12 +227,54 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("User has beheren rights and wants to delete a form from a process definition which is in use") {
+    Given(
+        "User has beheren rights and wants to delete a form from a process definition which is in use, but the form is orphaned"
+    ) {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
+        val processDefinition = createProcessDefinition(
+            id = "pd3",
+            name = "Process 3",
+            version = 1,
+            key = processDefinitionKey,
+        )
+        val metadata = createBpmnProcessDefinitionMetadata()
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns true
+        every {
+            bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
+        } just Runs
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
+
+        When("deleteForm is called") {
+            val response = restService.deleteForm(processDefinitionKey, formName)
+
+            Then("it should delete the form and return 204 No Content") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
+                }
+            }
+        }
+    }
+
+    Given("User has beheren rights and wants to delete a form from a process definition which is in use") {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val processDefinition = createProcessDefinition(
+            id = "pd3",
+            name = "Process 3",
+            version = 1,
+            key = processDefinitionKey,
+        )
+        val metadata = createBpmnProcessDefinitionMetadata(formKeys = listOf(formName))
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns true
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
 
         When("deleteForm is called") {
             val response = restService.deleteForm(processDefinitionKey, formName)
