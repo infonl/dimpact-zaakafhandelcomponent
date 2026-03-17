@@ -27,6 +27,7 @@ import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
 
 @Component({
+  standalone: true,
   selector: "zac-process-definition-item",
   templateUrl: "./process-definition-item.component.html",
   styleUrls: ["./process-definition-item.component.less"],

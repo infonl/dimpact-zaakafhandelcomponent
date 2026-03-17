@@ -42,6 +42,7 @@ type ProcessDefinitionNode =
   | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
+  standalone: true,
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
   imports: [SharedModule, ProcessDefinitionItemComponent],
