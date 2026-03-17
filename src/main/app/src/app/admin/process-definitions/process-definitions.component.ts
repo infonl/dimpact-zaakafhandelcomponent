@@ -57,7 +57,7 @@ export class ProcessDefinitionsComponent
   bpmnProcessDefinitionFileInput!: ElementRef;
 
   protected readonly processDefinitionsQuery = injectQuery(() =>
-    this.bpmnService.listProcessDefinitions(true),
+    this.bpmnService.listProcessDefinitionsQuery(true),
   );
 
   protected readonly data = computed(() =>
@@ -85,7 +85,7 @@ export class ProcessDefinitionsComponent
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private readonly uploadMutation = injectMutation(() => ({
-    ...this.bpmnService.uploadProcessDefinition(),
+    ...this.bpmnService.uploadProcessDefinitionQuery(),
     onSuccess: () => void this.processDefinitionsQuery.refetch(),
   }));
 

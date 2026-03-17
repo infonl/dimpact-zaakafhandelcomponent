@@ -81,11 +81,11 @@ describe(ProcessDefinitionsComponent.name, () => {
         {
           provide: BpmnService,
           useValue: {
-            listProcessDefinitions: jest.fn().mockReturnValue({
+            listProcessDefinitionsQuery: jest.fn().mockReturnValue({
               queryKey: ["/rest/bpmn-process-definitions"],
               queryFn: () => Promise.resolve([baseProcessDefinition]),
             }),
-            uploadProcessDefinition: jest.fn().mockReturnValue({
+            uploadProcessDefinitionQuery: jest.fn().mockReturnValue({
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
             deleteProcessDefinition: deleteMutationFn,
@@ -139,8 +139,8 @@ describe(ProcessDefinitionsComponent.name, () => {
   });
 
   describe("on init", () => {
-    it("should call listProcessDefinitions", () => {
-      expect(bpmnService.listProcessDefinitions).toHaveBeenCalled();
+    it("should call listProcessDefinitionsQuery", () => {
+      expect(bpmnService.listProcessDefinitionsQuery).toHaveBeenCalled();
     });
 
     it("should render a group row per process definition", () => {

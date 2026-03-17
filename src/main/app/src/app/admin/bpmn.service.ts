@@ -16,13 +16,13 @@ export class BpmnService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  listProcessDefinitions(details: boolean = false) {
+  listProcessDefinitionsQuery(details: boolean = false) {
     return this.zacQueryClient.GET("/rest/bpmn-process-definitions", {
       query: { details },
     });
   }
 
-  uploadProcessDefinition() {
+  uploadProcessDefinitionQuery() {
     return this.zacQueryClient.POST("/rest/bpmn-process-definitions");
   }
 

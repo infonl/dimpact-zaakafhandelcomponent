@@ -38,7 +38,7 @@ export class ZaakafhandelParametersResolver {
         this.zaakafhandelParametersService.getZaaktypeBpmnConfiguration(),
       bpmnProcessDefinitions: from(
         this.queryClient.fetchQuery(
-          this.bpmnService.listProcessDefinitions(false),
+          this.bpmnService.listProcessDefinitionsQuery(false),
         ),
       ),
       featureFlagPabcIntegration:
