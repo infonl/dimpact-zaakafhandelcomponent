@@ -5,11 +5,16 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { Component, effect, Input } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatIconModule } from "@angular/material/icon";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
+  MatTreeModule,
 } from "@angular/material/tree";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
@@ -18,6 +23,7 @@ import {
   SmartDocumentsService,
   TemplateMapping,
 } from "../../smart-documents.service";
+import { SmartDocumentsFormItemComponent } from "./smart-documents-form-item/smart-documents-form-item.component";
 
 interface FlatNode {
   expandable: boolean;
@@ -29,7 +35,16 @@ interface FlatNode {
   selector: "smart-documents-form",
   templateUrl: "./smart-documents-form.component.html",
   styleUrl: "./smart-documents-form.component.less",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatTreeModule,
+    TranslateModule,
+    SmartDocumentsFormItemComponent,
+  ],
 })
 export class SmartDocumentsFormComponent {
   @Input({ required: true }) zaakTypeUuid!: string;

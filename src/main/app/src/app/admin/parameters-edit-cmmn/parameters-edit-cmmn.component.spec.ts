@@ -18,11 +18,6 @@ import { of } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -88,17 +83,10 @@ describe(ParametersEditCmmnComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        ParametersEditCmmnComponent,
-        SideNavComponent,
-        StaticTextComponent,
-      ],
       imports: [
+        ParametersEditCmmnComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         RouterModule,
-        PipesModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
@@ -217,13 +205,36 @@ describe(ParametersEditCmmnComponent.name, () => {
     });
   });
 
+  describe("Process definition form", () => {
+    it("should disable cmmnBpmnFormGroup when parameters are already saved", () => {
+      const component = fixture.componentInstance;
+      expect(component["cmmnBpmnFormGroup"].disabled).toBe(true);
+    });
+
+    it("should set featureFlagPabcIntegration from route data", () => {
+      const component = fixture.componentInstance;
+      expect(component["featureFlagPabcIntegration"]).toBe(true);
+    });
+  });
+
+  describe("Default mail values", () => {
+    it("should default intakeMail to BESCHIKBAAR_UIT when not provided", () => {
+      const component = fixture.componentInstance;
+      expect(component.parameters.intakeMail).toBe("BESCHIKBAAR_UIT");
+    });
+
+    it("should default afrondenMail to BESCHIKBAAR_UIT when not provided", () => {
+      const component = fixture.componentInstance;
+      expect(component.parameters.afrondenMail).toBe("BESCHIKBAAR_UIT");
+    });
+  });
+
   describe("Algemeen form step", () => {
     it("should have valid Algemeen form group after patching with valid values", async () => {
       const component = fixture.componentInstance;
 
       expect(component.algemeenFormGroup.valid).toBe(false);
 
-      // Patch the form with valid values
       component.algemeenFormGroup.patchValue({
         caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
           key: "case-1",
@@ -250,21 +261,170 @@ describe(ParametersEditCmmnComponent.name, () => {
     });
   });
 
-  describe("Mailgegevens form step", () => {
-    it("should have valid mailFormGroup after selecting default afzender", async () => {
+  describe("Case handler", () => {
+    it("should load medewerkers for the default group on initialization", () => {
+      const component = fixture.componentInstance;
+      expect(component["medewerkers"]).toEqual([
+        { id: "test-user-id", naam: "test-user" },
+        { id: "test-user-id-2", naam: "test-user-2" },
+      ]);
+    });
+
+    it("should set the default behandelaar matching defaultBehandelaarId", () => {
+      const component = fixture.componentInstance;
+      expect(
+        component.algemeenFormGroup.controls.defaultBehandelaar.value,
+      ).toEqual({ id: "test-user-id", naam: "test-user" });
+    });
+
+    it("should reload medewerkers when the selected group changes", async () => {
       const component = fixture.componentInstance;
 
-      expect(component.mailFormGroup.valid).toBe(false);
+      component.algemeenFormGroup.controls.defaultGroep.setValue({
+        id: "test-group-id-2",
+        naam: "test-group-2",
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-      // Simulate selecting a default afzender
+      expect(component["medewerkers"]).toEqual([]);
+    });
+
+    it("should clear defaultBehandelaar when new group has no matching user", async () => {
+      const component = fixture.componentInstance;
+
+      component.algemeenFormGroup.controls.defaultGroep.setValue({
+        id: "test-group-id-2",
+        naam: "test-group-2",
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(
+        component.algemeenFormGroup.controls.defaultBehandelaar.value,
+      ).toBeNull();
+    });
+  });
+
+  describe("Mailgegevens form step", () => {
+    it("should be invalid when no default afzender is set", () => {
+      const component = fixture.componentInstance;
+      expect(component.mailFormGroup.valid).toBe(false);
+    });
+
+    it("should become valid after selecting a default afzender", () => {
+      const component = fixture.componentInstance;
+
       component["updateZaakAfzenders"]("test@example.com");
       fixture.detectChanges();
 
       expect(component.mailFormGroup.valid).toBe(true);
-      const defaultAfzender = component["parameters"].zaakAfzenders?.find(
+    });
+
+    it("should mark the selected afzender as defaultMail", () => {
+      const component = fixture.componentInstance;
+
+      component["updateZaakAfzenders"]("test@example.com");
+
+      const defaultAfzender = component.parameters.zaakAfzenders?.find(
         (afzender) => afzender.defaultMail === true,
       );
       expect(defaultAfzender?.mail).toBe("test@example.com");
+    });
+
+    it("should add a new afzender to the data source", () => {
+      const component = fixture.componentInstance;
+      const initialCount = component.zaakAfzendersDataSource.data.length;
+
+      component["addZaakAfzender"]("new@example.com");
+
+      expect(component.zaakAfzendersDataSource.data.length).toBe(
+        initialCount + 1,
+      );
+      expect(
+        component.zaakAfzendersDataSource.data.some(
+          (a) => a.mail === "new@example.com",
+        ),
+      ).toBe(true);
+    });
+
+    it("should remove an afzender from the data source", () => {
+      const component = fixture.componentInstance;
+      const initialCount = component.zaakAfzendersDataSource.data.length;
+
+      component["removeZaakAfzender"]("test@example.com");
+
+      expect(component.zaakAfzendersDataSource.data.length).toBe(
+        initialCount - 1,
+      );
+      expect(
+        component.zaakAfzendersDataSource.data.some(
+          (a) => a.mail === "test@example.com",
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe("Betrokkene koppelingen", () => {
+    it("should initialize form with values from parameters", () => {
+      const component = fixture.componentInstance;
+      expect(component["betrokkeneKoppelingen"].value).toEqual({
+        brpKoppelen: false,
+        kvkKoppelen: false,
+      });
+    });
+
+    it("should add required validators to brp fields when brpKoppelen is enabled", () => {
+      const component = fixture.componentInstance;
+
+      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
+      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.updateValueAndValidity();
+      component.brpProtocoleringFormGroup.controls.zoekWaarde.updateValueAndValidity();
+      component.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.updateValueAndValidity();
+
+      expect(
+        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.hasError(
+          "required",
+        ),
+      ).toBe(true);
+      expect(
+        component.brpProtocoleringFormGroup.controls.zoekWaarde.hasError(
+          "required",
+        ),
+      ).toBe(true);
+      expect(
+        component.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.hasError(
+          "required",
+        ),
+      ).toBe(true);
+    });
+
+    it("should clear required validators from brp fields when brpKoppelen is disabled", () => {
+      const component = fixture.componentInstance;
+
+      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
+      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(false);
+      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.updateValueAndValidity();
+
+      expect(
+        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.hasError(
+          "required",
+        ),
+      ).toBe(false);
+    });
+
+    it("should reset brp fields when brpKoppelen is disabled", () => {
+      const component = fixture.componentInstance;
+
+      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValue(
+        "some-value",
+      );
+      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
+      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(false);
+
+      expect(
+        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.value,
+      ).toBeNull();
     });
   });
 });

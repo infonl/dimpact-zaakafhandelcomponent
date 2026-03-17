@@ -19,15 +19,31 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import {
+  MatCheckboxChange,
+  MatCheckboxModule,
+} from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSelectChange } from "@angular/material/select";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatRadioModule } from "@angular/material/radio";
+import { MatSelectChange, MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatStepperModule } from "@angular/material/stepper";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
 import {
   ConfirmDialogComponent,
@@ -36,6 +52,8 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
@@ -51,7 +69,28 @@ import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-docume
   selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameters-edit-cmmn.component.html",
   styleUrls: ["./parameters-edit-cmmn.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatStepperModule,
+    MatTableModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+    SharedModule,
+    SmartDocumentsFormComponent,
+  ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;
