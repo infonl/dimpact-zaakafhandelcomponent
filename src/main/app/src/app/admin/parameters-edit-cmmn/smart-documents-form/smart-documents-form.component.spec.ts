@@ -48,7 +48,9 @@ describe(SmartDocumentsFormComponent.name, () => {
       .spyOn(smartDocumentsService, "addTemplateMappings")
       .mockReturnValue([]);
     jest.spyOn(smartDocumentsService, "flattenGroups").mockReturnValue([]);
-    jest.spyOn(smartDocumentsService, "getTemplateMappings").mockReturnValue([]);
+    jest
+      .spyOn(smartDocumentsService, "getTemplateMappings")
+      .mockReturnValue([]);
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     jest

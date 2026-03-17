@@ -45,6 +45,12 @@ import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-ta
     ProcessDefinitionsComponent,
   ],
   exports: [],
-  imports: [SharedModule, ZoekenModule, AdminRoutingModule, NgxEditorModule, ParametersEditCmmnComponent],
+  imports: [
+    SharedModule,
+    ZoekenModule,
+    AdminRoutingModule,
+    NgxEditorModule,
+    ParametersEditCmmnComponent,
+  ],
 })
 export class AdminModule {}
