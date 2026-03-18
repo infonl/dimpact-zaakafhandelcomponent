@@ -101,10 +101,10 @@ describe(ZaakViewComponent.name, () => {
         NotitiesComponent,
         SideNavComponent,
         PersoonsgegevensComponent,
-        StaticTextComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        StaticTextComponent,
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,

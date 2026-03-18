@@ -269,10 +269,38 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - **Gotcha**: After migration, spec uses `imports: [LoadingComponent]` (not `declarations`); `MatProgressBarModule` drops from spec as the standalone component brings it.
 - **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
-**Progress: 4/149 done**
+**Progress: 9/149 done**
+
+### ✅ `shared/material/narrow-checkbox.directive.ts` (2026-03-17)
+- `imports: []` — no template dependencies (attribute directive only)
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- Spec: 1 test (class added to host element); `TestHostComponent` made standalone with `imports: [ZacNarrowMatCheckboxDirective]`
+- **Pattern**: Attribute directives with no template deps need no `imports` array; test host becomes standalone and imports the directive
+
+### ✅ `shared/export-button/export-button.component.ts` (2026-03-17)
+- `imports: [MatButtonModule, MatIconModule, TranslateModule]`
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- Fixed pre-existing TS2564: added `!` to both `@Input()` properties (selector already enforces required inputs)
+- Spec: 2 tests (render icon, click triggers export + download); `Pick<Service, 'method'>` mocks with `useValue`
+- **Pattern**: Spec baseline uses `declarations` → after migration switch to `imports: [Component]` and drop the Material module imports (component brings them)
+
+### ✅ `shared/navigation/back-button.directive.ts` (2026-03-17)
+- `imports: []` — no template dependencies (host listener directive only)
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- Spec rewritten: replaced `jest.autoMockOn()` + `RouterTestingModule` + untyped mock with `TestHostComponent` pattern + `Pick<NavigationService, 'back'>` mock
+- **Pattern**: Same TestHost pattern as `narrow-checkbox` — host component standalone, imports directive, TestBed uses `imports: [TestHostComponent]`
+
+### ✅ `shared/directives/outside-click.directive.ts` (2026-03-17)
+- `imports: []` — no template dependencies
+- Removed from `shared.module.ts` declarations, added to imports (needed by `EditInputComponent` in same module), NOT in exports (not used outside SharedModule)
+- Spec: 3 tests (outside click emits, inside click silent, overlay suppresses); `fakeAsync` + `tick(0)` to flush the `setTimeout` in `ngOnInit`
+- **Pattern**: When a directive is used by another non-standalone component in the same module, it still needs to be in module `imports` even though it doesn't need re-exporting
+
+### ✅ `shared/static-text/static-text.component.ts` (2026-03-17)
+- `imports: [NgIf, NgClass, MatIconModule, TranslateModule, ReadMoreComponent, EmptyPipe]`
+- Removed from `shared.module.ts` declarations, added to imports + kept in exports
+- Spec: 5 tests (label, empty pipe dash, value, read-more, icon click); generic typed as `StaticTextComponent<string | number | null | undefined>`
+- **Pattern**: Generic components need the full type union in `ComponentFixture<...>` — `string` alone is too narrow
 
 ## Next Target
-`src/main/app/src/app/shared/material/narrow-checkbox.directive.ts`
-- Template: none — attribute directive, adds CSS class via `Renderer2`
-- Imports needed: none (no template dependencies)
-- Module to clean: `shared.module.ts`
+TBD — remaining `shared.module.ts` declarations: `EditInputComponent`, `DateRangeFilterComponent`, `FacetFilterComponent`, `TekstFilterComponent`, `ConfirmDialogComponent`, `DialogComponent`, `ColumnPickerComponent`, `DocumentViewerComponent`, `NotificationDialogComponent`, `BesluitIndicatiesComponent`, `PersoonIndicatiesComponent`, `ZaakIndicatiesComponent`, `ZaakdataComponent`, `SideNavComponent`

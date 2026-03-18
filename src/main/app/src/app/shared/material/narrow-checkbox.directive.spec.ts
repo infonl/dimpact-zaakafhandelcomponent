@@ -9,7 +9,7 @@ import { ZacNarrowMatCheckboxDirective } from "./narrow-checkbox.directive";
 
 @Component({
   template: "<div zacNarrowMatCheckbox></div>",
-  standalone: false,
+  imports: [ZacNarrowMatCheckboxDirective],
 })
 class TestHostComponent {}
 
@@ -18,7 +18,7 @@ describe(ZacNarrowMatCheckboxDirective.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacNarrowMatCheckboxDirective, TestHostComponent],
+      imports: [TestHostComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

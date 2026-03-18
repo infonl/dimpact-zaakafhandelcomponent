@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -13,13 +14,24 @@ import {
   Output,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { MatIconModule } from "@angular/material/icon";
+import { TranslateModule } from "@ngx-translate/core";
 import { TextIcon } from "../edit/text-icon";
+import { EmptyPipe } from "../pipes/empty.pipe";
+import { ReadMoreComponent } from "../read-more/read-more.component";
 
 @Component({
   selector: "zac-static-text",
   templateUrl: "./static-text.component.html",
   styleUrls: ["./static-text.component.less"],
-  standalone: false,
+  imports: [
+    NgIf,
+    NgClass,
+    MatIconModule,
+    TranslateModule,
+    ReadMoreComponent,
+    EmptyPipe,
+  ],
 })
 export class StaticTextComponent<
     T extends string | number | null | undefined = string,

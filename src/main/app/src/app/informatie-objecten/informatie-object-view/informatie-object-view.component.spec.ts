@@ -78,10 +78,10 @@ describe(InformatieObjectViewComponent.name, () => {
       declarations: [
         InformatieObjectViewComponent,
         SideNavComponent,
-        StaticTextComponent,
         InformatieObjectEditComponent,
       ],
       imports: [
+        StaticTextComponent,
         MaterialModule,
         InformatieObjectIndicatiesComponent,
         TranslateModule.forRoot(),
