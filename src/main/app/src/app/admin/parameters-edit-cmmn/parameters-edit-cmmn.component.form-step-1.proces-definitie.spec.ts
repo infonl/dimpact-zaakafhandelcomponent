@@ -1,51 +1,41 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
- *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
-describe(ParametersEditCmmnComponent.name, () => {
+describe("Proces-definitie step", () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
-  let loader: HarnessLoader;
   let utilService: UtilService;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
-    zaaktype: {
-      uuid: "test-uuid",
-    },
+    zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
         speciaal: false,
@@ -63,15 +53,9 @@ describe(ParametersEditCmmnComponent.name, () => {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: {
-      enabledGlobally: false,
-      enabledForZaaktype: false,
-    },
+    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
-    },
+    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -87,32 +71,28 @@ describe(ParametersEditCmmnComponent.name, () => {
   });
 
   beforeEach(async () => {
+    activatedRouteMock = {
+      data: of({
+        parameters: {
+          zaakafhandelParameters,
+          isSavedZaakafhandelParameters: true,
+          featureFlagPabcIntegration: true,
+        },
+      }),
+    };
+
     await TestBed.configureTestingModule({
-      declarations: [ParametersEditCmmnComponent, SideNavComponent],
       imports: [
+        ParametersEditCmmnComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         RouterModule,
-        PipesModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({
-              parameters: {
-                zaakafhandelParameters,
-                isSavedZaakafhandelParameters: true,
-                featureFlagPabcIntegration: true,
-              },
-            }),
-          },
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -134,14 +114,8 @@ describe(ParametersEditCmmnComponent.name, () => {
       .mockReturnValue(of([]));
     jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
       of([
-        {
-          mail: "reply1@example.com",
-          speciaal: false,
-        },
-        {
-          mail: "reply2@example.com",
-          speciaal: false,
-        },
+        { mail: "reply1@example.com", speciaal: false },
+        { mail: "reply2@example.com", speciaal: false },
       ]),
     );
     jest
@@ -202,66 +176,25 @@ describe(ParametersEditCmmnComponent.name, () => {
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  describe("Stepper", () => {
-    it("should render all stepper steps", async () => {
-      const stepper = await loader.getHarness(MatStepperHarness);
-      const steps = await stepper.getSteps();
-      expect(steps.length).toBe(7);
-    });
+  it("should disable cmmnBpmnFormGroup when parameters are already saved", () => {
+    const component = fixture.componentInstance;
+    expect(component["cmmnBpmnFormGroup"].disabled).toBe(true);
   });
 
-  describe("Algemeen form step", () => {
-    it("should have valid Algemeen form group after patching with valid values", async () => {
-      const component = fixture.componentInstance;
-
-      expect(component.algemeenFormGroup.valid).toBe(false);
-
-      // Patch the form with valid values
-      component.algemeenFormGroup.patchValue({
-        caseDefinition: fromPartial<GeneratedType<"RESTCaseDefinition">>({
-          key: "case-1",
-          naam: "Case Definition 1",
-        }),
-        domein: "test-domein",
-        defaultGroep: { id: "test-group-id", naam: "test-group" },
-        defaultBehandelaar: { id: "test-user-id", naam: "test-user" },
-        einddatumGeplandWaarschuwing: 5,
-        uiterlijkeEinddatumAfdoeningWaarschuwing: 10,
-        productaanvraagtype: null,
-      });
-
-      expect(component.algemeenFormGroup.valid).toBe(true);
-      expect(component.algemeenFormGroup.value.caseDefinition?.key).toBe(
-        "case-1",
-      );
-      expect(component.algemeenFormGroup.value.defaultGroep?.id).toBe(
-        "test-group-id",
-      );
-      expect(component.algemeenFormGroup.value.defaultBehandelaar?.id).toBe(
-        "test-user-id",
-      );
-    });
+  it("should set featureFlagPabcIntegration from route data", () => {
+    const component = fixture.componentInstance;
+    expect(component["featureFlagPabcIntegration"]).toBe(true);
   });
 
-  describe("Mailgegevens form step", () => {
-    it("should have valid mailFormGroup after selecting default afzender", async () => {
-      const component = fixture.componentInstance;
+  it("should default intakeMail to BESCHIKBAAR_UIT when not provided", () => {
+    const component = fixture.componentInstance;
+    expect(component.parameters.intakeMail).toBe("BESCHIKBAAR_UIT");
+  });
 
-      expect(component.mailFormGroup.valid).toBe(false);
-
-      // Simulate selecting a default afzender
-      component["updateZaakAfzenders"]("test@example.com");
-      fixture.detectChanges();
-
-      expect(component.mailFormGroup.valid).toBe(true);
-      const defaultAfzender = component["parameters"].zaakAfzenders?.find(
-        (afzender) => afzender.defaultMail === true,
-      );
-      expect(defaultAfzender?.mail).toBe("test@example.com");
-    });
+  it("should default afrondenMail to BESCHIKBAAR_UIT when not provided", () => {
+    const component = fixture.componentInstance;
+    expect(component.parameters.afrondenMail).toBe("BESCHIKBAAR_UIT");
   });
 });

@@ -4,6 +4,7 @@
  */
 
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { CommonModule } from "@angular/common";
 import {
   Injector,
   NgModule,
@@ -13,7 +14,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { Title } from "@angular/platform-browser";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
@@ -65,6 +65,8 @@ import { VersionComponent } from "./version/version.component";
     ZaakdataComponent,
   ],
   imports: [
+    CommonModule,
+    DragDropModule,
     ReadMoreComponent,
     ExportButtonComponent,
     BackButtonDirective,
@@ -75,7 +77,6 @@ import { VersionComponent } from "./version/version.component";
     VersionComponent,
     SortPipe,
     FormsModule,
-    BrowserAnimationsModule,
     RouterModule,
     PipesModule,
     MaterialModule,
@@ -85,7 +86,7 @@ import { VersionComponent } from "./version/version.component";
     EmptyPipe,
   ],
   exports: [
-    BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     TranslateModule,
     DragDropModule,

@@ -15,6 +15,7 @@ import {
   PathLocationStrategy,
 } from "@angular/common";
 import { MatIconRegistry } from "@angular/material/icon";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import {
   provideTanStackQuery,
   QueryClient,
@@ -54,6 +55,7 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
   exports: [ToolbarComponent],
   bootstrap: [AppComponent],
   imports: [
+    BrowserAnimationsModule,
     CoreModule,
     SharedModule,
     DashboardModule,
