@@ -19,6 +19,7 @@ import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 
 describe("Proces-definitie step", () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
@@ -83,6 +84,7 @@ describe("Proces-definitie step", () => {
     await TestBed.configureTestingModule({
       imports: [
         ParametersEditCmmnComponent,
+        StaticTextComponent,
         TranslateModule.forRoot(),
         RouterModule,
         NoopAnimationsModule,
