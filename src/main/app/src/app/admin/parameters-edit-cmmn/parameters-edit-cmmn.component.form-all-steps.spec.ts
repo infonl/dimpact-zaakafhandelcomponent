@@ -24,7 +24,6 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { SideNavComponent } from "src/app/shared/side-nav/side-nav.component";
 
 describe(ParametersEditCmmnComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
