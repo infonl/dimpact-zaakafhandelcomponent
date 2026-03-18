@@ -11,6 +11,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -19,7 +20,6 @@ import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
-import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 
 describe("Proces-definitie step", () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
