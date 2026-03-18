@@ -16,7 +16,7 @@ export const Alice: DamageReport = {
   incidentDetails: {
     description:
       "Achterstallig onderhoud aan de weg heeft schade aan mijn auto aangebracht",
-    date: "10-10-2024 00:00_",
+    date: "10-10-2024 00:00",
     damageType: "materiële schade aan een voertuig",
     witnesses: true,
     attachments: true,
