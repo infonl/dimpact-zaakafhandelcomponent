@@ -399,7 +399,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.2@sha256:b6ade23a821c6bdb89487130dee39bd7bf6595e9fc521212ecb7878feb934d72
+    image: grafana/tempo:2.10.3@sha256:cac9de2ac9f6da8efca5b64b690a7cb8c786a0c49cac7b4517dd1b0089a6c703
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -463,7 +463,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.4-alpine@sha256:c8a204d5b0bba833cbff44067b482b40152e8156d811a369e92fa0f1da8cb9c0
+    image: rabbitmq:4.2.5-alpine@sha256:0a81e68b7681c2eb24737833f8dcd4293af2662af2cc0af91185c68216a89d01
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
