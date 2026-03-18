@@ -175,7 +175,7 @@ When(
   "{string} submits the filled-in form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByText("Indienen").click();
+    await this.page.getByRole("button").filter({ hasText: "Indienen" }).click();
   },
 );
 
