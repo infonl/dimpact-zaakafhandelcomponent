@@ -16,7 +16,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
 import org.flowable.engine.RepositoryService
-import org.flowable.engine.repository.ProcessDefinition
 
 @ApplicationScoped
 @Transactional(Transactional.TxType.SUPPORTS)
@@ -129,29 +128,29 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                             it.get<Int>(BpmnProcessDefinitionTaskForm::bpmnProcessDefinitionVersion.name),
                             version
                         ),
-                        criteriaBuilder.equal(it.get<String>("name"), name)
+                        criteriaBuilder.equal(
+                            it.get<String>(BpmnProcessDefinitionTaskForm::name.name),
+                            name
+                        )
                     )
                 }
-                entityManager.createQuery(query).resultStream.findFirst().orElse(null)
+                entityManager.createQuery(query).resultList.firstOrNull()
             }
         }
 
     private fun String.toJsonObject(): JsonObject = Json.createReader(this.reader()).readObject()
 
-    private fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition {
-        val processDefinition = repositoryService.createProcessDefinitionQuery()
+    private fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String) =
+        repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)
             .active()
             .latestVersion()
             .singleResult()
-        return processDefinition
             ?: throw ProcessDefinitionNotFoundException("No process definition found for key '$processDefinitionKey'")
-    }
-    private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String): ProcessDefinition {
-        val processDefinition = repositoryService.createProcessDefinitionQuery()
+
+    private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String) =
+        repositoryService.createProcessDefinitionQuery()
             .processDefinitionId(processDefinitionId)
             .singleResult()
-        return processDefinition
             ?: throw ProcessDefinitionNotFoundException("No process definition found for id '$processDefinitionId'")
-    }
 }

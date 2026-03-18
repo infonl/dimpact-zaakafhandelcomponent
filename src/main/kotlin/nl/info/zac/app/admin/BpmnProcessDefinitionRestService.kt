@@ -46,8 +46,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     ): List<RestBpmnProcessDefinition> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         if (details) {
-            val list = listProcessDefinitionsWithDetails()
-            return list
+            return listProcessDefinitionsWithDetails()
         }
         return bpmnService.listProcessDefinitions()
             .map {
@@ -55,7 +54,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             }
     }
 
-    fun listProcessDefinitionsWithDetails(): List<RestBpmnProcessDefinition> {
+    private fun listProcessDefinitionsWithDetails(): List<RestBpmnProcessDefinition> {
         val uniqueBpmnProcessDefinitionKeysFromProcessInstances =
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
         val uniqueBpmnProcessDefinitionKeysFromConfigurations =
@@ -65,7 +64,6 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             { "${it.bpmnProcessDefinitionKey}-${it.bpmnProcessDefinitionVersion}-${it.name}" },
             { it.title }
         )
-            .let { HashMap(it) }
 
         return bpmnService.listProcessDefinitions()
             .map {
@@ -192,5 +190,5 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     private fun isFormOrphaned(processDefinitionKey: String, form: String) =
         bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)?.let {
             !bpmnService.getProcessDefinitionMetadata(it).formKeys.contains(form)
-        } ?: false
+        } ?: true
 }

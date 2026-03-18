@@ -60,7 +60,7 @@ class BpmnServiceTest : BehaviorSpec({
         bpmnProcessDefinitionTaskFormService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -512,7 +512,6 @@ class BpmnServiceTest : BehaviorSpec({
             every { firstProcess.flowElements } returns listOf(userTask1)
 
             val secondProcess = mockk<Process>()
-            every { secondProcess.extensionElements } returns emptyMap()
             every { secondProcess.flowElements } returns listOf(userTask2)
 
             val bpmnModel = mockk<BpmnModel>()

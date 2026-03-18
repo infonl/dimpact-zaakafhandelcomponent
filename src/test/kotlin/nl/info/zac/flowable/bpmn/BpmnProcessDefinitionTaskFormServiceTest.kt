@@ -13,8 +13,10 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
+import jakarta.persistence.Query
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaDelete
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
@@ -24,8 +26,8 @@ import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import org.flowable.engine.RepositoryService
+import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.repository.ProcessDefinitionQuery
-import java.util.stream.Stream
 
 class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
@@ -78,7 +80,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
      */
     fun setupProcessDefinitionQuery(
         processDefinitionKey: String,
-        processDefinition: org.flowable.engine.repository.ProcessDefinition
+        processDefinition: ProcessDefinition
     ) {
         every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
         every { processDefinitionQuery.processDefinitionKey(processDefinitionKey) } returns processDefinitionQuery
@@ -92,7 +94,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
      */
     fun setupProcessDefinitionQueryById(
         processDefinitionId: String,
-        processDefinition: org.flowable.engine.repository.ProcessDefinition
+        processDefinition: ProcessDefinition
     ) {
         every { repositoryService.createProcessDefinitionQuery() } returns processDefinitionQuery
         every { processDefinitionQuery.processDefinitionId(processDefinitionId) } returns processDefinitionQuery
@@ -103,8 +105,8 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
      * Sets up the criteria query for bulk delete of forms for a given process definition key.
      */
     fun setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey: String, deletedCount: Int = 0) {
-        val criteriaDelete = mockk<jakarta.persistence.criteria.CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
-        val deleteQuery = mockk<jakarta.persistence.Query>()
+        val criteriaDelete = mockk<CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
+        val deleteQuery = mockk<Query>()
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every { criteriaBuilder.createCriteriaDelete(BpmnProcessDefinitionTaskForm::class.java) } returns criteriaDelete
@@ -127,8 +129,8 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         formName: String,
         deletedCount: Int = 0
     ) {
-        val criteriaDelete = mockk<jakarta.persistence.criteria.CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
-        val deleteQuery = mockk<jakarta.persistence.Query>()
+        val criteriaDelete = mockk<CriteriaDelete<BpmnProcessDefinitionTaskForm>>()
+        val deleteQuery = mockk<Query>()
         val predicate1 = mockk<Predicate>()
         val predicate2 = mockk<Predicate>()
         val predicate3 = mockk<Predicate>()
@@ -176,7 +178,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQueryById(processDefinitionId, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.of(form)
+        every { typedQuery.resultList } returns listOf(form)
 
         When("readForm is called") {
             val result = service.readForm(processDefinitionId, formName)
@@ -202,7 +204,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQueryById(processDefinitionId, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.empty()
+        every { typedQuery.resultList } returns emptyList()
 
         When("readForm is called") {
             Then("it should throw NoSuchElementException") {
@@ -273,7 +275,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.empty()
+        every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
         When("addForm is called") {
@@ -313,7 +315,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.of(existingForm)
+        every { typedQuery.resultList } returns listOf(existingForm)
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
         When("addForm is called") {
@@ -343,7 +345,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, "testForm")
-        every { typedQuery.resultStream } returns Stream.empty()
+        every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
         When("addForm is called") {
@@ -370,7 +372,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupCriteriaQueryBase()
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
-        every { typedQuery.resultStream } returns Stream.empty()
+        every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
         When("addForm is called") {
