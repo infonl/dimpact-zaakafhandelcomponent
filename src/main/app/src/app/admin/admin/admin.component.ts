@@ -59,13 +59,6 @@ export abstract class AdminComponent extends ViewComponent {
     );
     this.menu.push(
       this.getMenuLink(
-        "title.formulierdefinities",
-        "/admin/formulierdefinities",
-        "design_services",
-      ),
-    );
-    this.menu.push(
-      this.getMenuLink(
         "title.inrichtingscheck",
         "/admin/check",
         "health_and_safety",
