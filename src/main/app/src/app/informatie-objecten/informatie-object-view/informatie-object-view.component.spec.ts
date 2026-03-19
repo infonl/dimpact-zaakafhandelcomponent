@@ -77,10 +77,10 @@ describe(InformatieObjectViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         InformatieObjectViewComponent,
-        SideNavComponent,
         InformatieObjectEditComponent,
       ],
       imports: [
+        SideNavComponent,
         StaticTextComponent,
         MaterialModule,
         InformatieObjectIndicatiesComponent,

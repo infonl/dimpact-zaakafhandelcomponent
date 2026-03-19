@@ -85,8 +85,9 @@ describe(ParametersEditBpmnComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ParametersEditBpmnComponent, SideNavComponent],
+      declarations: [ParametersEditBpmnComponent],
       imports: [
+        SideNavComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),
         MaterialModule,
