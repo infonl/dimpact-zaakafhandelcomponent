@@ -19,6 +19,14 @@ import { ProcessDefinitionItemComponent } from "./process-definition-item.compon
 
 jest.mock("../file.helper");
 
+function makeFileList(...files: File[]): FileList {
+  return {
+    ...files,
+    length: files.length,
+    item: (index: number) => files[index] ?? null,
+  } as FileList;
+}
+
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
   title: "Uploaded Form",
@@ -337,7 +345,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
   describe("bpmnFormFilesDropped", () => {
     it("should do nothing when FileList is empty", () => {
-      const fileList = { length: 0 } as unknown as FileList;
+      const fileList = makeFileList();
 
       component["bpmnFormFilesDropped"](fileList);
 
@@ -346,7 +354,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
     it("should ignore non-json files", () => {
       const file = new File(["<bpmn/>"], "process.bpmn");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       component["bpmnFormFilesDropped"](fileList);
 
@@ -358,7 +366,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
       const file = new File([fileContent], "form.JSON");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       jest.useFakeTimers();
       component["bpmnFormFilesDropped"](fileList);
@@ -380,7 +388,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       const file = new File([fileContent], "dropped-form.json", {
         type: "application/json",
       });
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["bpmnFormFilesDropped"](fileList);
@@ -406,7 +414,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       (readFileContent as jest.Mock).mockRejectedValue(error);
 
       const file = new File(["bad"], "bad.json");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       component["bpmnFormFilesDropped"](fileList);
       await Promise.resolve();

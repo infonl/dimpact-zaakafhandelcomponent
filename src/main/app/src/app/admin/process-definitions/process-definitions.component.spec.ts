@@ -28,6 +28,14 @@ import { ProcessDefinitionsComponent } from "./process-definitions.component";
 
 jest.mock("./file.helper");
 
+function makeFileList(...files: File[]): FileList {
+  return {
+    ...files,
+    length: files.length,
+    item: (index: number) => files[index] ?? null,
+  } as FileList;
+}
+
 @Component({
   selector: "zac-process-definition-item",
   template: "",
@@ -303,7 +311,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
       const file = new File([fileContent], "dropped.bpmn");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       const mutateMock = jest.fn();
       Object.defineProperty(component, "uploadMutation", {
@@ -322,7 +330,7 @@ describe(ProcessDefinitionsComponent.name, () => {
     });
 
     it("should do nothing when FileList is empty", () => {
-      const fileList = { length: 0 } as unknown as FileList;
+      const fileList = makeFileList();
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
 
@@ -331,7 +339,7 @@ describe(ProcessDefinitionsComponent.name, () => {
 
     it("should ignore non-bpmn files", () => {
       const file = new File(["{}"], "form.json");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
 
@@ -343,7 +351,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
 
       const file = new File([fileContent], "process.BPMN");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       const mutateMock = jest.fn();
       Object.defineProperty(component, "uploadMutation", {
@@ -365,7 +373,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       (readFileContent as jest.Mock).mockRejectedValue(error);
 
       const file = new File(["<bad>"], "bad.bpmn");
-      const fileList = { 0: file, length: 1 } as unknown as FileList;
+      const fileList = makeFileList(file);
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
       await Promise.resolve();
