@@ -25,7 +25,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.bpmn.model.BpmnModel
 import org.flowable.bpmn.model.ExtensionElement
@@ -160,7 +160,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
-            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
             }
 
@@ -189,7 +189,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns null
 
         When("reading the process definition by process definition key") {
-            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             }
 

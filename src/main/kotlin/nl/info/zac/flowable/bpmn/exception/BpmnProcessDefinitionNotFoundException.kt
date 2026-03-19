@@ -4,4 +4,4 @@
  */
 package nl.info.zac.flowable.bpmn.exception
 
-class ProcessDefinitionNotFoundException(override val message: String) : RuntimeException(message)
+class BpmnProcessDefinitionNotFoundException(override val message: String) : RuntimeException(message)
