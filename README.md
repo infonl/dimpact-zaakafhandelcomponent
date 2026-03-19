@@ -20,6 +20,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more
 
 Please see [development](docs/development/README.md).
 
+The Docker images and versions that ZAC has been tested against can be found in [DEPENDENCIES.md](DEPENDENCIES.md).
+
 ## Solution architecture documentation
 
 Please see [solution architecture](docs/solution-architecture/README.md).
