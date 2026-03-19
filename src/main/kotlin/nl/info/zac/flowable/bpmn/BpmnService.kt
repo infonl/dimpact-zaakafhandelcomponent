@@ -134,7 +134,7 @@ class BpmnService @Inject constructor(
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
         zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-            ?: throw BpmnProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
+            ?: throw BpmnProcessDefinitionNotFoundException("No BPMN process definition found for zaaktype with UUID: '$zaaktypeUUID'")
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
