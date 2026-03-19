@@ -143,6 +143,14 @@ Tests must pass on the **current non-standalone** code. This is the baseline.
 
 > ⚠️ Use `ng test --test-path-pattern=` (kebab-case), NOT `npm test -- --testPathPattern` (which fails). The `ng` builder is `@angular-builders/jest:run`.
 
+### 5.5 GATE — convince yourself before continuing
+**Do NOT proceed to step 6 until:**
+- All tests in the spec are green (0 failures, 0 errors)
+- The test output shows the expected number of passing tests
+- No "Test suite failed to run" errors (these are compile/config errors, not test failures — fix them first)
+
+If any test fails or the suite errors out, fix the spec until it is fully green. Only a fully green baseline proves the spec is valid and that the migration didn't silently break anything.
+
 ### 6. MIGRATE COMPONENT
 In `<component>.component.ts`:
 - Change `standalone: false` → `standalone: true`
@@ -304,3 +312,36 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 
 ## Next Target
 TBD — remaining `shared.module.ts` declarations: `EditInputComponent`, `DateRangeFilterComponent`, `FacetFilterComponent`, `TekstFilterComponent`, `ConfirmDialogComponent`, `DialogComponent`, `ColumnPickerComponent`, `DocumentViewerComponent`, `NotificationDialogComponent`, `BesluitIndicatiesComponent`, `PersoonIndicatiesComponent`, `ZaakIndicatiesComponent`, `ZaakdataComponent`, `SideNavComponent`
+
+---
+
+## Intermediate Goal: Lazy-load the `/admin` route
+
+**Progress: 9/20 done**
+
+Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` into a standalone route config (`admin.routes.ts`) and wiring it up with `loadChildren` in the app routing.
+
+**All components below must be `standalone: true` before the module can be dissolved.**
+
+| Component | Status |
+|---|---|
+| `shared/abstract-view/view-component.ts` | ✅ done |
+| `admin/admin/admin.component` | ✅ done |
+| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form-item.component` | ✅ done |
+| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form.component` | ✅ done |
+| `admin/parameters-edit-cmmn/parameters-edit-cmmn.component` | ✅ done |
+| `admin/formio-formulieren/formio-formulieren.component` | ✅ deleted (open PR) |
+| `admin/formulier-definities/formulier-definities.component` | ⬜ pending |
+| `admin/formulier-definitie-edit/formulier-definitie-edit.component` | ⬜ pending |
+| `admin/groep-signaleringen/groep-signaleringen.component` | ✅ done |
+| `admin/mailtemplates/mailtemplates.component` | ⬜ pending |
+| `admin/mailtemplate/mailtemplate.component` | ⬜ pending |
+| `admin/process-definitions/process-definitions.component` | ✅ done (open PR) |
+| `admin/referentie-tabellen/referentie-tabellen.component` | ✅ done |
+| `admin/referentie-tabel/referentie-tabel.component` | ⬜ pending |
+| `admin/inrichtingscheck/inrichtingscheck.component` | ⬜ pending |
+| `admin/parameters/parameters.component` | ⬜ pending |
+| `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ pending |
+| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ pending |
+| `admin/parameters-edit-wrapper/parameters-edit-wrapper.component` | ⬜ pending |
+| **Replace `admin.module.ts` with `admin.routes.ts` + wire `loadChildren` in app routing** | ⬜ pending |
