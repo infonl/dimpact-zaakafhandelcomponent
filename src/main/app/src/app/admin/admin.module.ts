@@ -13,7 +13,6 @@ import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulie
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { TekstvlakEditDialogComponent } from "./formulier-definitie-edit/tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
-import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
@@ -24,18 +23,15 @@ import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parame
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
-import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 
 @NgModule({
   declarations: [
-    GroepSignaleringenComponent,
     ParametersEditWrapperComponent,
     ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
     FormulierDefinitiesComponent,
     FormulierDefinitieEditComponent,
-    ReferentieTabellenComponent,
     ReferentieTabelComponent,
     InrichtingscheckComponent,
     MailtemplatesComponent,
