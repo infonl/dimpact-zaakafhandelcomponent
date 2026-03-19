@@ -49,7 +49,6 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
     TekstFilterComponent,
@@ -79,6 +78,7 @@ import { VersionComponent } from "./version/version.component";
     RouterModule,
     PipesModule,
     MaterialModule,
+    EditInputComponent,
     MaterialFormBuilderModule.forRoot(),
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,

@@ -1,10 +1,23 @@
 # Generic TDD Standalone Migration Plan
 
 ## Context
-149 components remain `standalone: false` after the Angular CLI schematic run.
-We migrate one component at a time using TDD, in order of complexity (fewest deps first).
+Components are being migrated from `standalone: false` to `standalone: true` one at a time using TDD.
 
-**Progress: 1/149 done**
+**Progress: 11 done — 143 remaining** (as of 2026-03-19)
+
+> The original "149" figure was inaccurate. Verified 2026-03-19: 143 explicit `standalone: false` files remain (non-spec). 11 done by this migration effort; deletions and pre-session migrations account for the rest.
+
+### Standalone status breakdown (verified 2026-03-19)
+
+| Category | Count | Notes |
+|---|---|---|
+| `standalone: false` — needs migration | **143** | Target of this effort (non-spec files) |
+| Explicit `standalone: true` | 25 | Fully migrated, keyword present |
+| Implicit standalone (`imports:` present, no keyword) | 11 | Angular 19 default; effectively standalone |
+| `@Directive` with no keyword and no `imports:` | 5 | Angular 19 default; 3 migrated by us, 1 ATOS, 1 pending |
+| **Total** | **184** | |
+
+> To re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (run from `src/main/app/`)
 
 ---
 
@@ -17,6 +30,7 @@ We migrate one component at a time using TDD, in order of complexity (fewest dep
 | **No `any` — everywhere** | Zero use of `any` in all files: component `.ts`, spec `.ts`, and any helper touched. Use explicit types, generics, or `unknown`. |
 | **Fix TS errors only in touched files** | Only fix TypeScript errors in files you actually modified in this session. Do not fix pre-existing errors in untouched files. |
 | **Access modifiers in component `.ts`** | All class members (methods, fields, getters, computed signals) must have an explicit access modifier: use `protected` as the default for anything used in the template; use `private` for anything only used internally within the class; use `public` only when required by an interface or called from outside the class. |
+| **`@Input({ required: true })` for mandatory inputs** | When adding `!` to a `@Input()` field (non-null assertion), also add `{ required: true }` to the decorator: `@Input({ required: true }) formField!: InputFormField`. This gives Angular a runtime check and signals intent clearly. Optional inputs use `?` without `required`. |
 | **No access modifiers in spec files** | Spec files are plain functions — no class members to annotate. But still: no `any`. |
 | **SPDX header** | Every modified or new file needs the header with `SPDX-FileCopyrightText: 2026 INFO.nl` + `SPDX-License-Identifier: EUPL-1.2+`. For **existing files**: only add `2026 INFO.nl` if `INFO.nl` is completely absent; if it already appears (any year), leave unchanged. |
 
@@ -67,6 +81,28 @@ From the template, list every Angular feature used:
 - Pipes: `translate` → `TranslateModule`; custom pipes → import them directly
 - Child components used in template → they must be standalone first (or mocked in tests)
 
+### 3.5 ANALYSE TEMPLATE FOR TEST COVERAGE
+
+**This step is mandatory and must produce visible output before writing any `it(...)`.**
+
+Read the full HTML template and produce a numbered checklist of every testable behaviour. Output it as a markdown table with columns `# | Behaviour | Tested?` — start all rows with ❌, tick them ✅ as you write each test.
+
+| Category | What to look for |
+|---|---|
+| **Conditional rendering** | Every `*ngIf` / `@if` / `[hidden]` / CSS class toggle — each branch (true AND false) is a separate row |
+| **Repeated content** | `*ngFor` / `@for` — verify count and at least one representative item's rendered fields |
+| **User interactions** | Every `(click)`, `(change)`, `(submit)`, `(keyup)` — one row per handler |
+| **Service calls on init** | `ngOnInit` / `ngAfterViewInit` — each endpoint is one row; include child components that fetch on init |
+| **Bound outputs** | `@Output()` emitters — one row per emitter, verify payload |
+| **State transitions** | Flags like `loading`, `expandedRow`, `disabled` — before AND after state each count |
+| **Attribute bindings** | `[disabled]`, `[class]`, `[attr.*]` that change based on state |
+
+**Gate: do not proceed to writing `it(...)` tests until the checklist is complete.**
+
+After writing the spec, count ✅ vs total rows. If coverage < 90%, identify the missing rows and add the tests before moving on.
+
+> The most common failure mode is writing tests from the *component's methods* instead of from the *template*. The template is the source of truth for what users see and do — drive the checklist from it, not from the `.ts` file.
+
 ### 4. WRITE SPEC (TDD — before migration)
 - Create `<component>.component.spec.ts` if it does not exist; extend it if it does.
 - Follow the same testing style as `loading.component.spec.ts` (canonical reference), but note the TestBed difference:
@@ -74,13 +110,15 @@ From the template, list every Angular feature used:
   - **After migration (standalone component)**: `TestBed.configureTestingModule({ imports: [Component, ...] })` — this is what `loading.component.spec.ts` uses.
   - `NoopAnimationsModule` for Material
   - `TranslateModule.forRoot()` if template uses `translate`
-  - Use `MatHarness` classes for Material component interaction
+  - Use `MatHarness` classes for Material component interaction — **always prefer harnesses over raw DOM queries**
   - Use `fixture.componentRef.setInput()` for inputs
+- **Target: ≥ 90% of behaviours identified in step 3.5**
 - Cover at minimum:
   - All `@Input()` variations that change rendered output
   - All user interactions (`click`, form input) that emit `@Output()` or call service methods
-  - All conditional rendering branches (`@if`, `*ngIf`)
-  - Service calls: verify they are called with correct args (use `jest.fn()` or spy)
+  - All conditional rendering branches (`@if`, `*ngIf`) — both true and false sides
+  - All service calls on init — verify called with correct args
+  - All state transitions (loading flags, expanded rows, disabled states)
 
 #### Service mocking — priority order (use the first that fits)
 
@@ -151,12 +189,26 @@ Tests must pass on the **current non-standalone** code. This is the baseline.
 
 If any test fails or the suite errors out, fix the spec until it is fully green. Only a fully green baseline proves the spec is valid and that the migration didn't silently break anything.
 
+### 5.7 FIX PRE-EXISTING TS ERRORS (before migration, while still `standalone: false`)
+With the baseline spec green, fix all TypeScript errors that exist in the component `.ts` file **before** changing `standalone`. Common patterns:
+- `@ViewChild` / `@ContentChild` without `!` → add the non-null assertion
+- Uninitialized class fields → add `= value` or `| undefined` + narrow at use-site
+- Nullable values passed to functions that expect non-nullable → use `?? fallback`
+- Implicit `any` from untyped index access → explicit type or `unknown`
+
+> Fix only errors in the files you are about to touch. Do **not** cascade into untouched files.
+
+### 5.8 RUN TESTS — must still PASS after TS fixes
+```bash
+cd src/main/app && ng test --test-path-pattern="<component-name>.spec"
+```
+TS fixes must not break any existing tests. If they do, fix the spec before proceeding.
+
 ### 6. MIGRATE COMPONENT
 In `<component>.component.ts`:
 - Change `standalone: false` → `standalone: true`
 - Add `imports: [...]` array with everything identified in step 3
 - Remove constructor injection in favour of `inject()` where the existing code already uses it (don't refactor if not needed)
-- Fix any TS errors introduced
 
 ### 7. CLEAN UP MODULE
 In the module that declared this component (e.g. `core.module.ts`, `shared.module.ts`, feature module):
@@ -164,7 +216,8 @@ In the module that declared this component (e.g. `core.module.ts`, `shared.modul
 - If the component was also in `exports: []`, move it there only if other modules import it — otherwise remove entirely
 - If the module's `declarations` array becomes empty, flag it for future pruning (do not delete the module yet)
 
-### 8. FIX TS ERRORS
+### 8. FIX TS ERRORS introduced by migration
+- Pre-existing TS errors were already resolved in step 5.7 — this step covers only errors *introduced* by adding `standalone: true` + `imports`
 - Check all files touched in steps 6 and 7 compile cleanly
 - No `any`, no implicit types
 
@@ -237,7 +290,7 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - [ ] `imports: []` array is complete and minimal
 - [ ] Component removed from module `declarations`
 - [ ] All TS errors resolved
-- [ ] Spec exists and covers 90%+ of behavior
+- [ ] Spec exists and covers ≥ 90% of behaviours identified in the step 3.5 template analysis
 - [ ] Tests pass
 - [ ] Lint passes
 
@@ -280,7 +333,7 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - **Gotcha**: After migration, spec uses `imports: [LoadingComponent]` (not `declarations`); `MatProgressBarModule` drops from spec as the standalone component brings it.
 - **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
-**Progress: 9/149 done**
+**Progress: 11 done — 143 remaining**
 
 ### ✅ `shared/material/narrow-checkbox.directive.ts` (2026-03-17)
 - `imports: []` — no template dependencies (attribute directive only)
@@ -320,14 +373,40 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - **Pattern**: For standalone components importing `MatDialogModule`, use `fixture.debugElement.injector.get(MatDialog)` to spy on `open` — the component's own injector provides a separate `MatDialog` instance from `TestBed`'s root injector
 - **Pattern**: Real services + `jest.spyOn` after `TestBed.inject()` (not `useValue`); `provideHttpClient()` + `provideHttpClientTesting()` for HTTP-dependent services
 
+### ✅ `admin/inrichtingscheck/inrichtingscheck.component.ts` (2026-03-19)
+- `imports: [NgIf, MatSidenavModule, MatCardModule, MatExpansionModule, MatIconModule, MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatButtonModule, TranslateModule, DatumPipe, SideNavComponent, ToggleFilterComponent, VersionComponent, ReadMoreComponent]`
+- Removed from `admin.module.ts` declarations (not added to imports — router handles standalone components directly)
+- Spec: 16 tests (setTitle, 3 endpoints, dataSource, ztcCacheTime, bestaatCommunicatiekanaal, loadingZaaktypes=false, expand/collapse invalid row, no expand valid row, row renders omschrijving, beschikbaar text, niet beschikbaar text, text filter, loading msg, sync button disabled, geen gegevens, clearZTCCache)
+- **Pattern**: `TestXxxComponent extends RealComponent` wrapper — wrapper `standalone: true` with own `imports[]`, class logic from parent; use when parent is not yet standalone so TestBed can render the template
+- **Pattern**: Split `beforeEach` into `async` (TestBed + spies) and `fakeAsync` (create + `tick(0)`) — required when `ngAfterViewInit` emits synchronously via `of()` and causes `NG0100`; use `delay(0)` on all mock observables
+- **Pattern**: Mock 4th hidden endpoint `readBuildInformatie()` — `VersionComponent` embedded in template calls it on its own `ngOnInit`; omitting this spy causes unhandled HTTP
+- **Pattern**: Default `valideFilter = UNCHECKED` hides valid rows — `table.getRows({ selector: ".main-row" })[0]` is the invalid row; switch to `CHECKED` to see valid rows, `INDETERMINATE` to see all
+- **Pattern**: `MatButtonHarness.isDisabled()` unreliable for `[disabled]` binding in Angular Material 19 — use native `querySelector("[mat-raised-button]").disabled` instead
+- **Pattern**: State-manipulation tests (loading, empty, niet-beschikbaar) directly set component properties + `fixture.detectChanges()` instead of re-creating fixture with different mocks
+
+### ✅ `admin/mailtemplate/mailtemplate.component.ts` (2026-03-19)
+- Already `standalone: true` before this session (migrated earlier)
+- `imports: [ReactiveFormsModule, MatSidenavModule, MatCardModule, MatButtonModule, RouterModule, TranslateModule, SideNavComponent, MaterialFormBuilderModule]`
+- Not in `admin.module.ts` (router resolves standalone directly)
+- Spec: 9 tests (setTitle, form invalid, populate existing template, cancel, create save, load variables, submit button disabled, mail control disabled for existing, updateMailtemplate for existing)
+- **Note**: Imports `MaterialFormBuilderModule` (ATOS subtree) — already migrated, exclusion rule applies only to future migrations
+
+### ✅ `shared/edit/edit-input/edit-input.component.ts` (2026-03-19) — exception to ATOS exclusion rule
+- `imports: [NgIf, MatIconModule, MatButtonModule, TranslateModule, EmptyPipe, OutsideClickDirective, MaterialFormBuilderModule]`
+- Removed from `shared.module.ts` declarations, moved to imports + kept in exports
+- TS fixes: `@Input({ required: true }) formField!`, `@Input() reasonField?`
+- Spec: 5 minimal tests (render label/value, click starts editing, readonly blocks edit, save emits, cancel exits)
+- **Exception**: imports `MaterialFormBuilderModule` (ATOS) — granted because this component is a thin wrapper around ATOS, not ATOS internals itself; migrating it unblocks `referentie-tabel.component`
+- **Pattern**: `@Input({ required: true }) field!: Type` — use `{ required: true }` whenever adding `!` to an `@Input()`; omit for optional inputs (use `?` instead)
+
 ## Next Target
-TBD — remaining `shared.module.ts` declarations: `EditInputComponent`, `DateRangeFilterComponent`, `FacetFilterComponent`, `TekstFilterComponent`, `ConfirmDialogComponent`, `DialogComponent`, `ColumnPickerComponent`, `DocumentViewerComponent`, `NotificationDialogComponent`, `BesluitIndicatiesComponent`, `PersoonIndicatiesComponent`, `ZaakIndicatiesComponent`, `ZaakdataComponent`, `SideNavComponent`
+`admin/referentie-tabel/referentie-tabel.component.ts` (now unblocked by EditInputComponent migration)
 
 ---
 
 ## Intermediate Goal: Lazy-load the `/admin` route
 
-**Progress: 10/18 done** (2 components deleted in PR #5535, total reduced from 20 to 18)
+**Progress: 12/18 done** (2 components deleted in PR #5535, total reduced from 20 to 18)
 
 Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` into a standalone route config (`admin.routes.ts`) and wiring it up with `loadChildren` in the app routing.
 
@@ -345,11 +424,11 @@ Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` int
 | `admin/formulier-definitie-edit/formulier-definitie-edit.component` | ✅ deleted (PR #5535) |
 | `admin/groep-signaleringen/groep-signaleringen.component` | ✅ done |
 | `admin/mailtemplates/mailtemplates.component` | ✅ done |
-| `admin/mailtemplate/mailtemplate.component` | ⬜ pending |
+| `admin/mailtemplate/mailtemplate.component` | ✅ done |
 | `admin/process-definitions/process-definitions.component` | ✅ done (open PR) |
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ done |
 | `admin/referentie-tabel/referentie-tabel.component` | ⬜ pending |
-| `admin/inrichtingscheck/inrichtingscheck.component` | ⬜ pending |
+| `admin/inrichtingscheck/inrichtingscheck.component` | ✅ done |
 | `admin/parameters/parameters.component` | ⬜ pending |
 | `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ pending |
 | `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ pending |
