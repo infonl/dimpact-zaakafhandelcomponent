@@ -27,6 +27,9 @@ function makeFileList(...files: File[]): FileList {
   } as FileList;
 }
 
+const flushPromises = (): Promise<void> =>
+  new Promise<void>((resolve) => setTimeout(resolve));
+
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
   title: "Uploaded Form",
@@ -304,9 +307,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["bpmnFormFileSelected"](event);
-      await Promise.resolve(); // MT1: inner .then(content => ...) runs
-      await Promise.resolve(); // MT2: Promise.all internal resolution
-      await Promise.resolve(); // MT3: outer .then runs → forkJoin subscribes
+      await Promise.resolve(); // readFileContent.then
+      await Promise.resolve(); // Promise.all resolves
+      await Promise.resolve(); // outer .then → forkJoin subscribes
 
       expect(readFileContent).toHaveBeenCalledWith(file);
       expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
@@ -314,7 +317,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
         { filename: "test-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.formioformulier.uploaden.uitgevoerd",
+        "msg.bpmn-formulier.uploaden.uitgevoerd",
         { naam: "test-form.json" },
       );
       jest.runAllTimers();
@@ -331,13 +334,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       } as unknown as Event;
 
       component["bpmnFormFileSelected"](event);
-      // Rejection propagates through four microtask levels via Promise.all:
-      // MT1: inner .then pass-through; MT2: Promise.all rejects;
-      // MT3: outer .then pass-through; MT4: .catch() runs
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
     });
@@ -370,9 +367,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
       jest.useFakeTimers();
       component["bpmnFormFilesDropped"](fileList);
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await Promise.resolve(); // readFileContent.then
+      await Promise.resolve(); // Promise.all resolves
+      await Promise.resolve(); // outer .then → forkJoin subscribes
 
       expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
         "test-key",
@@ -392,9 +389,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["bpmnFormFilesDropped"](fileList);
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await Promise.resolve(); // readFileContent.then
+      await Promise.resolve(); // Promise.all resolves
+      await Promise.resolve(); // outer .then → forkJoin subscribes
 
       expect(readFileContent).toHaveBeenCalledWith(file);
       expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
@@ -402,7 +399,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
         { filename: "dropped-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.formioformulier.uploaden.uitgevoerd",
+        "msg.bpmn-formulier.uploaden.uitgevoerd",
         { naam: "dropped-form.json" },
       );
       jest.runAllTimers();
@@ -417,10 +414,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       const fileList = makeFileList(file);
 
       component["bpmnFormFilesDropped"](fileList);
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
     });
@@ -432,7 +426,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.formioformulier.verwijderen.bevestigen",
+        "msg.bpmn-formulier.verwijderen.bevestigen",
       );
       expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
     });
@@ -454,7 +448,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       component["deleteBpmnForm"]("form-uploaded");
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.formioformulier.verwijderen.uitgevoerd",
+        "msg.bpmn-formulier.verwijderen.uitgevoerd",
         { naam: "form-uploaded" },
       );
       expect(emitSpy).toHaveBeenCalled();
@@ -486,7 +480,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       component["deleteOrphanedForm"]("orphan-form");
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.formioformulier.verwijderen.uitgevoerd",
+        "msg.bpmn-formulier.verwijderen.uitgevoerd",
         { naam: "orphan-form" },
       );
       expect(emitSpy).toHaveBeenCalled();

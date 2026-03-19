@@ -36,6 +36,9 @@ function makeFileList(...files: File[]): FileList {
   } as FileList;
 }
 
+const flushPromises = (): Promise<void> =>
+  new Promise<void>((resolve) => setTimeout(resolve));
+
 @Component({
   selector: "zac-process-definition-item",
   template: "",
@@ -264,7 +267,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       component["bpmnProcessDefinitionFileSelected"]({
         target: input,
       } as unknown as Event);
-      await Promise.resolve();
+      await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
       expect(mutateMock).toHaveBeenCalledWith({
@@ -298,8 +301,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       component["bpmnProcessDefinitionFileSelected"]({
         target: input,
       } as unknown as Event);
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
     });
@@ -320,7 +322,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       });
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
-      await Promise.resolve();
+      await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
       expect(mutateMock).toHaveBeenCalledWith({
@@ -360,7 +362,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       });
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
-      await Promise.resolve();
+      await flushPromises();
 
       expect(mutateMock).toHaveBeenCalledWith({
         filename: "process.BPMN",
@@ -376,8 +378,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       const fileList = makeFileList(file);
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
     });

@@ -115,7 +115,7 @@ export class ProcessDefinitionItemComponent {
         ).subscribe(() => {
           files.forEach((file) => {
             this.utilService.openSnackbar(
-              "msg.formioformulier.uploaden.uitgevoerd",
+              "msg.bpmn-formulier.uploaden.uitgevoerd",
               { naam: file.name },
             );
           });
@@ -137,7 +137,7 @@ export class ProcessDefinitionItemComponent {
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.formioformulier.verwijderen.bevestigen",
+            key: "msg.bpmn-formulier.verwijderen.bevestigen",
             args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
@@ -150,7 +150,7 @@ export class ProcessDefinitionItemComponent {
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(
-            "msg.formioformulier.verwijderen.uitgevoerd",
+            "msg.bpmn-formulier.verwijderen.uitgevoerd",
             { naam: bpmnFormName },
           );
           this.bpmnFormListChanged.emit();
@@ -163,7 +163,7 @@ export class ProcessDefinitionItemComponent {
       .deleteProcessDefinitionForm(this.processDefinition().key, formKey)
       .subscribe(() => {
         this.utilService.openSnackbar(
-          "msg.formioformulier.verwijderen.uitgevoerd",
+          "msg.bpmn-formulier.verwijderen.uitgevoerd",
           { naam: formKey },
         );
         this.bpmnFormListChanged.emit();
