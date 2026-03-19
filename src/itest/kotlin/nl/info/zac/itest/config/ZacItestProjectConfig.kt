@@ -328,7 +328,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     private fun createBpmnProcessTaskForms() {
-        hashMapOf(
+        mapOf(
             BPMN_TEST_PROCESS_DEFINITION_KEY to listOf(
                 BPMN_TEST_FORM_RESOURCE_PATH,
                 BPMN_SUMMARY_FORM_RESOURCE_PATH
