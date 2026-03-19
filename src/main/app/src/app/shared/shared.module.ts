@@ -66,7 +66,6 @@ import { VersionComponent } from "./version/version.component";
   imports: [
     CommonModule,
     DragDropModule,
-    ReadMoreComponent,
     ExportButtonComponent,
     BackButtonDirective,
     StaticTextComponent,
@@ -84,6 +83,7 @@ import { VersionComponent } from "./version/version.component";
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
     EmptyPipe,
+    ReadMoreComponent,
   ],
   exports: [
     CommonModule,

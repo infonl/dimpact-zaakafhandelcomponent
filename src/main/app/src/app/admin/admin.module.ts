@@ -9,7 +9,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
-import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { TekstvlakEditDialogComponent } from "./formulier-definitie-edit/tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
@@ -18,6 +17,8 @@ import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn/parameters-edit-cmmn.component";
+import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
+import { SmartDocumentsFormComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-select-process-definition/parameters-edit-select-process-definition.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
@@ -37,8 +38,6 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     MailtemplatesComponent,
     MailtemplateComponent,
     TekstvlakEditDialogComponent,
-    FormioFormulierenComponent,
-    ProcessDefinitionsComponent,
   ],
   exports: [],
   imports: [
@@ -47,6 +46,9 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     AdminRoutingModule,
     NgxEditorModule,
     ParametersEditCmmnComponent,
+    SmartDocumentsFormComponent,
+    SmartDocumentsFormItemComponent,
+    ProcessDefinitionsComponent,
   ],
 })
 export class AdminModule {}

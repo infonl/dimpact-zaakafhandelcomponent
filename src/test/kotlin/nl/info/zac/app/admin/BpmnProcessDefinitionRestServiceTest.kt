@@ -14,10 +14,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionForm
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
+import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionMetadata
+import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 
@@ -35,7 +40,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("User has beheren rights and process definitions exist") {
+    Given("User has beheren rights and process definitions with forms exist") {
         val processDefinition1 = createProcessDefinition(
             id = "pd1",
             name = "Process 1",
@@ -50,27 +55,127 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         )
         val processDefinitionsInUse = setOf("process1")
         val processDefinitionsInConfig = setOf("process2")
+        val processDefinition1Metadata = createBpmnProcessDefinitionMetadata(formKeys = listOf("form1", "form2"))
+        val processDefinition2Metadata = createBpmnProcessDefinitionMetadata(formKeys = listOf("form3"))
+        val form1 = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinition1.key,
+            bpmnProcessDefinitionVersion = processDefinition1.version,
+            name = "form1"
+        )
+        val form2 = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinition1.key,
+            bpmnProcessDefinitionVersion = processDefinition1.version,
+            name = "form2"
+        )
+        val form3 = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinition2.key,
+            bpmnProcessDefinitionVersion = processDefinition2.version,
+            name = "form3"
+        )
+        val form4 = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinition2.key,
+            bpmnProcessDefinitionVersion = processDefinition2.version,
+            name = "form4"
+        )
+        val restBpmnProcessDefinition1 = RestBpmnProcessDefinition(
+            id = processDefinition1.id,
+            name = processDefinition1.name,
+            version = processDefinition1.version,
+            key = processDefinition1.key,
+            details = RestBpmnProcessDefinitionDetails(
+                inUse = true,
+                documentation = processDefinition1Metadata.documentation,
+                modificationDate = processDefinition1Metadata.modificationDate,
+                uploadDate = processDefinition1Metadata.uploadDate,
+                forms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form1",
+                        title = "fakeTitle",
+                        uploaded = true
+                    ),
+                    RestBpmnProcessDefinitionForm(formKey = "form2", title = "fakeTitle", uploaded = true)
+                ),
+                orphanedForms = emptyList()
+            )
+        )
+        val restBpmnProcessDefinition2 = RestBpmnProcessDefinition(
+            id = processDefinition2.id,
+            name = processDefinition2.name,
+            version = processDefinition2.version,
+            key = processDefinition2.key,
+            details = RestBpmnProcessDefinitionDetails(
+                inUse = true,
+                documentation = processDefinition2Metadata.documentation,
+                modificationDate = processDefinition2Metadata.modificationDate,
+                uploadDate = processDefinition2Metadata.uploadDate,
+                forms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form3",
+                        title = "fakeTitle",
+                        uploaded = true
+                    )
+                ),
+                orphanedForms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form4",
+                        title = "fakeTitle",
+                        uploaded = true
+                    )
+                )
+            )
+        )
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances() } returns processDefinitionsInUse
         every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations() } returns processDefinitionsInConfig
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition1, processDefinition2)
+        every { bpmnProcessDefinitionTaskFormService.listForms() } returns listOf(form1, form2, form3, form4)
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition1) } returns processDefinition1Metadata
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition2) } returns processDefinition2Metadata
 
-        When("listProcessDefinitions is called") {
-            val result = restService.listProcessDefinitions()
+        When("listProcessDefinitions is called with details") {
+            val result = restService.listProcessDefinitions(true)
 
-            Then("it should return all process definitions with inUse status") {
-                result.size shouldBe 2
-                result[0].id shouldBe "pd1"
-                result[0].name shouldBe "Process 1"
-                result[0].version shouldBe 1
-                result[0].key shouldBe "process1"
-                result[0].inUse shouldBe true
-                result[1].id shouldBe "pd2"
-                result[1].name shouldBe "Process 2"
-                result[1].version shouldBe 2
-                result[1].key shouldBe "process2"
-                result[1].inUse shouldBe true
+            Then("it should return all process definitions with correct details") {
+                result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
+            }
+        }
+    }
+
+    Given("User has beheren rights and process definitions exist") {
+        val processDefinition1 = createProcessDefinition(
+            id = "pd1",
+            name = "Process 1",
+            version = 1,
+            key = "process1"
+        )
+        val processDefinition2 = createProcessDefinition(
+            id = "pd2",
+            name = "Process 2",
+            version = 2,
+            key = "process2"
+        )
+        val restBpmnProcessDefinition1 = RestBpmnProcessDefinition(
+            id = processDefinition1.id,
+            name = processDefinition1.name,
+            version = processDefinition1.version,
+            key = processDefinition1.key
+        )
+        val restBpmnProcessDefinition2 = RestBpmnProcessDefinition(
+            id = processDefinition2.id,
+            name = processDefinition2.name,
+            version = processDefinition2.version,
+            key = processDefinition2.key
+        )
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition1, processDefinition2)
+
+        When("listProcessDefinitions is called without details") {
+            val result = restService.listProcessDefinitions(false)
+
+            Then("it should return all process definitions with correct details") {
+                result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
             }
         }
     }
@@ -82,18 +187,26 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             version = 1,
             key = "process3"
         )
+        val processDefinitionMetadata = createBpmnProcessDefinitionMetadata(formKeys = listOf("form1"))
+        val form1 = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinition.key,
+            bpmnProcessDefinitionVersion = processDefinition.version,
+            name = "form1"
+        )
+        every { bpmnProcessDefinitionTaskFormService.listForms() } returns listOf(form1)
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances() } returns emptySet()
         every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations() } returns emptySet()
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition)
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns processDefinitionMetadata
 
         When("listProcessDefinitions is called") {
-            val result = restService.listProcessDefinitions()
+            val result = restService.listProcessDefinitions(true)
 
             Then("it should return the process definition with inUse as false") {
                 result.size shouldBe 1
-                result[0].inUse shouldBe false
+                result[0].details?.inUse shouldBe false
             }
         }
     }
@@ -175,11 +288,12 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("User has beheren rights and wants to delete a form from a process definition") {
+    Given("User has beheren rights and wants to delete a form from a process definition which is not in use") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns false
         every {
             bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
         } just Runs
@@ -192,6 +306,68 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
                 }
+            }
+        }
+    }
+
+    Given(
+        "User has beheren rights and wants to delete a form from a process definition which is in use, but the form is orphaned"
+    ) {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val processDefinition = createProcessDefinition(
+            id = "pd3",
+            name = "Process 3",
+            version = 1,
+            key = processDefinitionKey,
+        )
+        val metadata = createBpmnProcessDefinitionMetadata()
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns true
+        every {
+            bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
+        } just Runs
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
+
+        When("deleteForm is called") {
+            val response = restService.deleteForm(processDefinitionKey, formName)
+
+            Then("it should delete the form and return 204 No Content") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
+                }
+            }
+        }
+    }
+
+    Given("User has beheren rights and wants to delete a form from a process definition which is in use") {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val processDefinition = createProcessDefinition(
+            id = "pd3",
+            name = "Process 3",
+            version = 1,
+            key = processDefinitionKey,
+        )
+        val metadata = createBpmnProcessDefinitionMetadata(formKeys = listOf(formName))
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns true
+        every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
+        every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
+
+        When("deleteForm is called") {
+            val response = restService.deleteForm(processDefinitionKey, formName)
+
+            Then("it should return 400 Bad Request with error message") {
+                response.status shouldBe Response.Status.BAD_REQUEST.statusCode
+                val entity = response.entity as Map<*, *>
+                entity["message"] shouldBe "BPMN process definition form 'testForm' cannot be deleted as it is in use" +
+                    " by process definition 'processKey'"
+                verify(exactly = 0) { bpmnService.deleteProcessDefinition(any()) }
             }
         }
     }
