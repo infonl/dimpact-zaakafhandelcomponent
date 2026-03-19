@@ -7,7 +7,7 @@ import { NgClass, NgIf } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import {
   MatSidenav,
@@ -37,6 +37,7 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
     NgIf,
     MatSidenavModule,
     MatCardModule,
+    MatDialogModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
