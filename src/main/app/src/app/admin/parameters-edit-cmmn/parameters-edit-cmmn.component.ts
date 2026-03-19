@@ -729,7 +729,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
-    let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
+    let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
     for (const item of this.parameters.zaakbeeindigParameters ?? []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
