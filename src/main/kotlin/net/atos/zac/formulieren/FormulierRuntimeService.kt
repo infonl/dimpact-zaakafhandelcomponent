@@ -12,19 +12,15 @@ import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.formulieren.model.FormulierData
-import net.atos.zac.app.formulieren.model.RESTFormulierVeldDefinitie
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.formulieren.model.FormulierVeldtype
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpgeschort
-import nl.info.zac.admin.ReferenceTableService
-import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.identity.IdentityService
@@ -42,7 +38,6 @@ class FormulierRuntimeService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
-    private val referenceTableService: ReferenceTableService,
     private val suspensionZaakHelper: SuspensionZaakHelper,
     private val drcClientService: DrcClientService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
@@ -54,47 +49,11 @@ class FormulierRuntimeService @Inject constructor(
 
         private const val REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces"
 
-        private const val REFERENCE_TABLE_SEPARATOR = ";"
-
         private const val DOCUMENT_SEPARATOR = ";"
 
         private const val FORMIO_DEFAULT_VALUE = "defaultValue"
 
         private const val FORMIO_TITLE = "title"
-
-        private const val AANTAL_DAGEN_VANAF_HEDEN_FORMAAT = "^[+-]\\d{1,4}$"
-
-        private const val DEFAULT_VALUE_JA = "ja"
-        private const val DEFAULT_VALUE_TRUE = "true"
-        private const val DEFAULT_VALUE_ONE = "1"
-    }
-
-    fun renderFormulierDefinitie(restTask: RestTask) =
-        restTask.formulierDefinitie?.run {
-            veldDefinities.forEach { fieldDefinition ->
-                fieldDefinition.defaultWaarde?.let { defaultValue ->
-                    setDefaultValue(defaultValue, fieldDefinition, restTask)
-                }
-            }
-        }
-
-    private fun setDefaultValue(
-        defaultValue: String,
-        fieldDefinition: RESTFormulierVeldDefinitie,
-        restTask: RestTask
-    ) {
-        if (defaultValue.isNotBlank()) {
-            fieldDefinition.defaultWaarde = resolveDefaultValue(
-                defaultValue,
-                ResolveDefaultValueContext(restTask, zrcClientService, zaakVariabelenService)
-            )
-            fieldDefinition.veldtype?.let {
-                fieldDefinition.defaultWaarde = formatDefaultValue(defaultValue, it)
-            }
-        }
-        fieldDefinition.meerkeuzeOpties?.let {
-            fieldDefinition.meerkeuzeOpties = resolveMultipleChoiceOptions(it)
-        }
     }
 
     fun renderFormioFormulier(restTask: RestTask) =
@@ -122,11 +81,7 @@ class FormulierRuntimeService @Inject constructor(
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
-                if (restTask.formulierDefinitie != null) {
-                    restTask.formulierDefinitie?.naam
-                } else {
-                    restTask.formioFormulier?.getString(FORMIO_TITLE)
-                }
+                restTask.formioFormulier?.getString(FORMIO_TITLE)
             )
         }
         if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
@@ -220,48 +175,6 @@ class FormulierRuntimeService @Inject constructor(
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
             behandelaar?.getIdentificatienummer()?.let {
                 identityService.readUser(it).getFullName()
-            }
-        }
-
-    private fun formatDefaultValue(defaultWaarde: String, veldtype: FormulierVeldtype) =
-        when (veldtype) {
-            FormulierVeldtype.CHECKBOX -> formatCheckboxDefaultValue(defaultWaarde)
-            FormulierVeldtype.DATUM -> formatDatumDefaultValue(defaultWaarde)
-            else -> defaultWaarde
-        }
-
-    private fun formatCheckboxDefaultValue(defaultWaarde: String?) =
-        if (DEFAULT_VALUE_JA.equals(defaultWaarde, ignoreCase = true) ||
-            DEFAULT_VALUE_TRUE.equals(defaultWaarde, ignoreCase = true) ||
-            DEFAULT_VALUE_ONE.equals(defaultWaarde, ignoreCase = true)
-        ) {
-            true.toString()
-        } else {
-            false.toString()
-        }
-
-    private fun formatDatumDefaultValue(defaultWaarde: String) =
-        if (defaultWaarde.matches(AANTAL_DAGEN_VANAF_HEDEN_FORMAAT.toRegex())) {
-            val dagen = defaultWaarde.substring(1).toInt()
-            if (defaultWaarde.startsWith("+")) {
-                LocalDate.now().plusDays(dagen.toLong()).format(DATUM_FORMAAT)
-            } else {
-                LocalDate.now().minusDays(dagen.toLong()).format(DATUM_FORMAAT)
-            }
-        } else {
-            defaultWaarde
-        }
-
-    private fun resolveMultipleChoiceOptions(multipleChoiceOptions: String) =
-        multipleChoiceOptions.substringAfter("REF:").let { referenceTableCode ->
-            if (referenceTableCode.isNotBlank()) {
-                referenceTableService.readReferenceTable(referenceTableCode).let { referenceTableValue ->
-                    referenceTableValue.values
-                        .sortedWith(Comparator.comparingInt(ReferenceTableValue::sortOrder))
-                        .joinToString(REFERENCE_TABLE_SEPARATOR) { it.name }
-                }
-            } else {
-                multipleChoiceOptions
             }
         }
 

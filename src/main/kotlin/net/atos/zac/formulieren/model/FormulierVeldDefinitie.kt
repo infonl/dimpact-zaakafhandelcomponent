@@ -38,11 +38,6 @@ class FormulierVeldDefinitie {
     @Column(name = "id_formulier_veld_definitie")
     var id: Long? = null
 
-    @ManyToOne
-    @JoinColumn(name = "id_formulier_definitie", referencedColumnName = "id_formulier_definitie")
-    @field:NotNull
-    var formulierDefinitie: FormulierDefinitie? = null
-
     @Column(name = "systeemnaam", nullable = false, unique = true)
     @field:NotBlank
     var systeemnaam: String? = null
