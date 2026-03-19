@@ -68,7 +68,6 @@ describe(TaakViewComponent.name, () => {
     },
     status: "TOEGEKEND",
     taakdata: {},
-    formulierDefinitie: undefined,
     formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
     tabellen: {},
     taakdocumenten: [],
@@ -282,9 +281,9 @@ describe(TaakViewComponent.name, () => {
       "smartDocuments = %o",
       async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
-          enabledGlobally;
+          enabledGlobally as boolean;
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
-          enabledForZaaktype;
+          enabledForZaaktype as boolean;
 
         jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
 
