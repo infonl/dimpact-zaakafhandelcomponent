@@ -59,9 +59,9 @@ class BpmnProcessDefinitionRestService @Inject constructor(
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
         val uniqueBpmnProcessDefinitionKeysFromConfigurations =
             bpmnService.findUniqueBpmnProcessDefinitionKeysFromConfigurations()
-        val forms = bpmnProcessDefinitionTaskFormService.listForms()
-        val formsMetadata = forms.associateBy(
-            { "${it.bpmnProcessDefinitionKey}-${it.bpmnProcessDefinitionVersion}-${it.name}" },
+        val uploadedForms = bpmnProcessDefinitionTaskFormService.listForms()
+        val uploadedFormTitleMap = uploadedForms.associateBy(
+            { "[${it.bpmnProcessDefinitionKey}]-[${it.bpmnProcessDefinitionVersion}]-[${it.name}]" },
             { it.title }
         )
 
@@ -83,13 +83,13 @@ class BpmnProcessDefinitionRestService @Inject constructor(
                             it.key,
                             it.version,
                             metadata.formKeys,
-                            formsMetadata
+                            uploadedFormTitleMap
                         ),
                         orphanedForms = getRestBpmnProcessDefinitionOrphanedForms(
                             it.key,
                             it.version,
                             metadata.formKeys,
-                            forms
+                            uploadedForms
                         )
                     )
                 )
@@ -100,14 +100,15 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         bpmnProcessDefinitionKey: String,
         bpmnProcessDefinitionVersion: Int,
         formKeys: List<String>,
-        formsMetadata: Map<String, String>
+        uploadedFormTitleMap: Map<String, String>
     ) =
         formKeys.map {
-            val key = "$bpmnProcessDefinitionKey-$bpmnProcessDefinitionVersion-$it"
+            val key = "[$bpmnProcessDefinitionKey]-[$bpmnProcessDefinitionVersion]-[$it]"
+            val uploadedFormTitle = uploadedFormTitleMap[key]
             RestBpmnProcessDefinitionForm(
                 it,
-                formsMetadata[key],
-                formsMetadata.containsKey(key)
+                uploadedFormTitle,
+                uploadedFormTitle != null
             )
         }
 

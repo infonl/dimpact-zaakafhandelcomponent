@@ -434,7 +434,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 3)
 
         When("deleteFormsForProcessDefinition is called") {
-            service.deleteFormsForProcessDefinition(processDefinitionKey)
+            service.deleteAllFormsForProcessDefinition(processDefinitionKey)
 
             Then("it should execute a bulk delete operation") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }
@@ -449,7 +449,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 0)
 
         When("deleteFormsForProcessDefinition is called") {
-            service.deleteFormsForProcessDefinition(processDefinitionKey)
+            service.deleteAllFormsForProcessDefinition(processDefinitionKey)
 
             Then("it should execute a bulk delete operation without errors") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }

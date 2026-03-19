@@ -11,7 +11,7 @@ fun createBpmnProcessDefinitionTaskForm(
     bpmnProcessDefinitionVersion: Int = 1,
     name: String = "testForm",
     title: String = "fakeTitle",
-    content: String = """{ "fakeKey": "fakeValue" }, "title": "$title"}"""
+    content: String = """{ "fakeKey": "fakeValue", "title": "$title"}"""
 ) = BpmnProcessDefinitionTaskForm().apply {
     this.id = id
     this.bpmnProcessDefinitionKey = bpmnProcessDefinitionKey
