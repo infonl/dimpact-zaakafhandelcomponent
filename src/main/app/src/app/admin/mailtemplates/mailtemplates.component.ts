@@ -95,7 +95,7 @@ export class MailtemplatesComponent
   protected expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
 
   constructor(
-    public dialog: MatDialog,
+    private dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
     private mailtemplateBeheerService: MailtemplateBeheerService,

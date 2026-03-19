@@ -76,11 +76,11 @@ export class InrichtingscheckComponent
   @ViewChild(MatSort) private sort!: MatSort;
 
   protected readonly versionLayout = VersionLayout;
-  public dataSource: MatTableDataSource<
+  protected dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
-  public loadingZaaktypes = true;
-  public loadingCommunicatiekanaal = true;
+  protected loadingZaaktypes = true;
+  protected loadingCommunicatiekanaal = true;
   protected columnsToDisplay = [
     "valide",
     "expand",
@@ -88,11 +88,11 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  public expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
-  public valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
+  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
+  protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
-  public bestaatCommunicatiekanaalEformulier = false;
-  public ztcCacheTime = "";
+  protected bestaatCommunicatiekanaalEformulier = false;
+  protected ztcCacheTime = "";
 
   constructor(
     public utilService: UtilService,

@@ -182,19 +182,19 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should populate dataSource with zaaktype data after init", () => {
-    expect(component.dataSource.data.length).toBe(2);
+    expect(component["dataSource"].data.length).toBe(2);
   });
 
   it("should store ztcCacheTime from service response", () => {
-    expect(component.ztcCacheTime).toBe("2024-01-01T12:00:00");
+    expect(component["ztcCacheTime"]).toBe("2024-01-01T12:00:00");
   });
 
   it("should store bestaatCommunicatiekanaalEformulier from service response", () => {
-    expect(component.bestaatCommunicatiekanaalEformulier).toBe(true);
+    expect(component["bestaatCommunicatiekanaalEformulier"]).toBe(true);
   });
 
   it("should set loadingZaaktypes to false after data loads", () => {
-    expect(component.loadingZaaktypes).toBe(false);
+    expect(component["loadingZaaktypes"]).toBe(false);
   });
 
   it("should expand an invalid row on click and collapse it on second click", async () => {
@@ -203,18 +203,18 @@ describe(InrichtingscheckComponent.name, () => {
     const mainRows = await table.getRows({ selector: ".main-row" });
     const invalidRow = mainRows[0];
 
-    expect(component.expandedRow).toBeNull();
+    expect(component["expandedRow"]).toBeNull();
 
     await (await invalidRow.host()).click();
-    expect(component.expandedRow).toBe(mockZaaktype2);
+    expect(component["expandedRow"]).toBe(mockZaaktype2);
 
     await (await invalidRow.host()).click();
-    expect(component.expandedRow).toBeNull();
+    expect(component["expandedRow"]).toBeNull();
   });
 
   it("should not expand a valid row on click", async () => {
     // switch filter to CHECKED so valid rows are visible
-    component.valideFilter = ToggleSwitchOptions.CHECKED;
+    component["valideFilter"] = ToggleSwitchOptions.CHECKED;
     component["applyFilter"]();
     fixture.detectChanges();
 
@@ -224,7 +224,7 @@ describe(InrichtingscheckComponent.name, () => {
 
     await (await validRow.host()).click();
 
-    expect(component.expandedRow).toBeNull();
+    expect(component["expandedRow"]).toBeNull();
   });
 
   it("should render zaaktype omschrijving in the visible table row", async () => {
@@ -242,8 +242,8 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should show 'niet beschikbaar' text when communicatiekanaal e-formulier does not exist", () => {
-    component.bestaatCommunicatiekanaalEformulier = false;
-    component.loadingCommunicatiekanaal = false;
+    component["bestaatCommunicatiekanaalEformulier"] = false;
+    component["loadingCommunicatiekanaal"] = false;
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain(
       "healthCheck.communicatiekanaal.e-formulier.niet.beschikbaar",
@@ -251,27 +251,27 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should filter rows by zaaktype omschrijving text", () => {
-    component.valideFilter = ToggleSwitchOptions.INDETERMINATE;
+    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
     component["applyFilter"]();
-    expect(component.dataSource.filteredData.length).toBe(2);
+    expect(component["dataSource"].filteredData.length).toBe(2);
 
     const event = { target: { value: "Zaaktype A" } } as unknown as Event;
     component["applyFilter"](event);
-    expect(component.dataSource.filteredData.length).toBe(1);
-    expect(component.dataSource.filteredData[0].zaaktype.omschrijving).toBe(
+    expect(component["dataSource"].filteredData.length).toBe(1);
+    expect(component["dataSource"].filteredData[0].zaaktype.omschrijving).toBe(
       "Zaaktype A",
     );
   });
 
   it("should show loading message while zaaktypes are loading", () => {
-    component.dataSource.data = [];
-    component.loadingZaaktypes = true;
+    component["dataSource"].data = [];
+    component["loadingZaaktypes"] = true;
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain("msg.loading");
   });
 
   it("should disable the sync button while zaaktypes are loading", () => {
-    component.loadingZaaktypes = true;
+    component["loadingZaaktypes"] = true;
     fixture.detectChanges();
     const button = fixture.nativeElement.querySelector(
       "[mat-raised-button]",
@@ -280,8 +280,8 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should show 'geen gegevens' message when data source is empty and not loading", () => {
-    component.dataSource.data = [];
-    component.loadingZaaktypes = false;
+    component["dataSource"].data = [];
+    component["loadingZaaktypes"] = false;
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain(
       "msg.geen.gegevens.gevonden",
@@ -309,7 +309,7 @@ describe(InrichtingscheckComponent.name, () => {
     tick(0);
 
     expect(event.stopPropagation).toHaveBeenCalled();
-    expect(component.ztcCacheTime).toBe(newCacheTime);
+    expect(component["ztcCacheTime"]).toBe(newCacheTime);
     expect(listSpy).toHaveBeenCalled();
   }));
 });
