@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -27,15 +28,20 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.bpmn.model.BpmnModel
+import org.flowable.bpmn.model.ExtensionElement
 import org.flowable.bpmn.model.Process
 import org.flowable.bpmn.model.UserTask
 import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
+import org.flowable.engine.repository.Deployment
+import org.flowable.engine.repository.DeploymentQuery
 import org.flowable.engine.runtime.ProcessInstance
 import org.flowable.engine.runtime.ProcessInstanceBuilder
 import java.net.URI
+import java.time.ZonedDateTime
+import java.util.Date
 import java.util.UUID
 
 class BpmnServiceTest : BehaviorSpec({
@@ -44,15 +50,17 @@ class BpmnServiceTest : BehaviorSpec({
     val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         historyService,
         processEngine,
-        zaaktypeBpmnConfigurationBeheerService
+        zaaktypeBpmnConfigurationBeheerService,
+        bpmnProcessDefinitionTaskFormService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -382,230 +390,209 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Extracting forms from process definition") {
-        Given("A process definition with multiple user tasks with form keys") {
-            val processDefinitionKey = "testProcess"
-            val processDefinitionName = "Test Process"
-            val processDefinition = createProcessDefinition(
-                key = processDefinitionKey,
-                name = processDefinitionName
-            )
+    Context("Getting process definition metadata") {
+        Given(
+            "A process definition with full metadata including documentation, modification date, form keys and upload date"
+        ) {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val modificationDateStr = "2026-01-15T10:00:00+01:00"
+            val modificationDate = ZonedDateTime.parse(modificationDateStr)
+            val deploymentTime = Date()
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns modificationDateStr
 
             val userTask1 = mockk<UserTask>()
-            every { userTask1.id } returns "task1"
-            every { userTask1.name } returns "First Task"
             every { userTask1.formKey } returns "form1"
-
             val userTask2 = mockk<UserTask>()
-            every { userTask2.id } returns "task2"
-            every { userTask2.name } returns "Second Task"
             every { userTask2.formKey } returns "form2"
 
             val process = mockk<Process>()
+            every { process.documentation } returns "Test documentation"
+            every { process.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
             every { process.flowElements } returns listOf(userTask1, userTask2)
 
             val bpmnModel = mockk<BpmnModel>()
             every { bpmnModel.processes } returns listOf(process)
             every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
 
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
+            val deployment = mockk<Deployment>()
+            every { deployment.deploymentTime } returns deploymentTime
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns deployment
 
-                Then("all form references are returned") {
-                    result shouldHaveSize 2
-                    result[0].processDefinitionKey shouldBe processDefinitionKey
-                    result[0].processName shouldBe processDefinitionName
-                    result[0].taskId shouldBe "task1"
-                    result[0].taskName shouldBe "First Task"
-                    result[0].formKey shouldBe "form1"
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                    result[1].processDefinitionKey shouldBe processDefinitionKey
-                    result[1].processName shouldBe processDefinitionName
-                    result[1].taskId shouldBe "task2"
-                    result[1].taskName shouldBe "Second Task"
-                    result[1].formKey shouldBe "form2"
+                Then("all metadata fields are populated correctly") {
+                    result.documentation shouldBe "Test documentation"
+                    result.modificationDate shouldBe modificationDate
+                    result.uploadDate shouldNotBe null
+                    result.formKeys shouldBe listOf("form1", "form2")
                 }
             }
         }
 
-        Given("A process definition with user tasks without form keys") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
-
-            val userTask = mockk<UserTask>()
-            every { userTask.formKey } returns null
-
-            val process = mockk<Process>()
-            every { process.flowElements } returns listOf(userTask)
+        Given("A process definition with an empty process list") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val deploymentTime = Date()
 
             val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns listOf(process)
+            every { bpmnModel.processes } returns emptyList()
             every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
 
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
+            val deployment = mockk<Deployment>()
+            every { deployment.deploymentTime } returns deploymentTime
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns deployment
 
-                Then("an empty list is returned") {
-                    result.shouldBeEmpty()
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("documentation and modification date are null and form keys is empty") {
+                    result.documentation shouldBe null
+                    result.modificationDate shouldBe null
+                    result.uploadDate shouldNotBe null
+                    result.formKeys.shouldBeEmpty()
                 }
             }
         }
 
-        Given("A process definition with no user tasks") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
+        Given("A process definition whose deployment cannot be found") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
 
             val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns emptyMap()
             every { process.flowElements } returns emptyList()
 
             val bpmnModel = mockk<BpmnModel>()
             every { bpmnModel.processes } returns listOf(process)
             every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
 
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
 
-                Then("an empty list is returned") {
-                    result.shouldBeEmpty()
-                }
-            }
-        }
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-        Given("A process definition with mixed flow elements including user tasks") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
-
-            val userTask = mockk<UserTask>()
-            every { userTask.id } returns "userTask1"
-            every { userTask.name } returns "User Task"
-            every { userTask.formKey } returns "testForm"
-
-            val serviceTask = mockk<org.flowable.bpmn.model.ServiceTask>()
-            val startEvent = mockk<org.flowable.bpmn.model.StartEvent>()
-
-            val process = mockk<Process>()
-            every { process.flowElements } returns listOf(startEvent, userTask, serviceTask)
-
-            val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns listOf(process)
-            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
-
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
-
-                Then("only user tasks with form keys are returned") {
-                    result shouldHaveSize 1
-                    result[0].taskId shouldBe "userTask1"
-                    result[0].formKey shouldBe "testForm"
-                }
-            }
-        }
-
-        Given("A process definition with user task without a name") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
-
-            val userTask = mockk<UserTask>()
-            every { userTask.id } returns "task1"
-            every { userTask.name } returns null
-            every { userTask.formKey } returns "form1"
-
-            val process = mockk<Process>()
-            every { process.flowElements } returns listOf(userTask)
-
-            val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns listOf(process)
-            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
-
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
-
-                Then("task ID is used as task name") {
-                    result shouldHaveSize 1
-                    result[0].taskName shouldBe "task1"
-                }
-            }
-        }
-
-        Given("A process definition without a name") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(
-                key = processDefinitionKey,
-                name = null
-            )
-
-            val userTask = mockk<UserTask>()
-            every { userTask.id } returns "task1"
-            every { userTask.name } returns "Task Name"
-            every { userTask.formKey } returns "form1"
-
-            val process = mockk<Process>()
-            every { process.flowElements } returns listOf(userTask)
-
-            val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns listOf(process)
-            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
-
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
-
-                Then("process definition key is used as process name") {
-                    result shouldHaveSize 1
-                    result[0].processName shouldBe processDefinitionKey
+                Then("upload date is null") {
+                    result.uploadDate shouldBe null
                 }
             }
         }
 
         Given("A process definition with multiple processes") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val modificationDateStr = "2026-03-01T09:00:00+01:00"
+            val modificationDate = ZonedDateTime.parse(modificationDateStr)
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns modificationDateStr
 
             val userTask1 = mockk<UserTask>()
-            every { userTask1.id } returns "task1"
-            every { userTask1.name } returns "Task 1"
-            every { userTask1.formKey } returns "form1"
+            every { userTask1.formKey } returns "form-from-process-1"
 
             val userTask2 = mockk<UserTask>()
-            every { userTask2.id } returns "task2"
-            every { userTask2.name } returns "Task 2"
-            every { userTask2.formKey } returns "form2"
+            every { userTask2.formKey } returns "form-from-process-2"
 
-            val process1 = mockk<Process>()
-            every { process1.flowElements } returns listOf(userTask1)
+            val firstProcess = mockk<Process>()
+            every { firstProcess.documentation } returns "First process documentation"
+            every { firstProcess.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
+            every { firstProcess.flowElements } returns listOf(userTask1)
 
-            val process2 = mockk<Process>()
-            every { process2.flowElements } returns listOf(userTask2)
+            val secondProcess = mockk<Process>()
+            every { secondProcess.flowElements } returns listOf(userTask2)
 
             val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns listOf(process1, process2)
+            every { bpmnModel.processes } returns listOf(firstProcess, secondProcess)
             every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
 
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
 
-                Then("forms from all processes are returned") {
-                    result shouldHaveSize 2
-                    result[0].taskId shouldBe "task1"
-                    result[0].formKey shouldBe "form1"
-                    result[1].taskId shouldBe "task2"
-                    result[1].formKey shouldBe "form2"
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then(
+                    "documentation and modification date come only from the first process and form keys are collected from all processes"
+                ) {
+                    result.documentation shouldBe "First process documentation"
+                    result.modificationDate shouldBe modificationDate
+                    result.formKeys shouldBe listOf("form-from-process-1", "form-from-process-2")
                 }
             }
         }
 
-        Given("A process definition with empty processes list") {
-            val processDefinitionKey = "testProcess"
-            val processDefinition = createProcessDefinition(key = processDefinitionKey)
+        Given("A process definition with a process that has no modificationDate extension element") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns emptyMap()
+            every { process.flowElements } returns emptyList()
 
             val bpmnModel = mockk<BpmnModel>()
-            every { bpmnModel.processes } returns emptyList()
+            every { bpmnModel.processes } returns listOf(process)
             every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
 
-            When("extracting forms from the process definition") {
-                val result = bpmnService.extractFormsFromProcessDefinition(processDefinition)
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
 
-                Then("an empty list is returned") {
-                    result.shouldBeEmpty()
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("modification date is null") {
+                    result.modificationDate shouldBe null
+                }
+            }
+        }
+
+        Given("A process definition with user tasks where some have no form key") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val userTaskWithFormKey = mockk<UserTask>()
+            every { userTaskWithFormKey.formKey } returns "someForm"
+
+            val userTaskWithoutFormKey = mockk<UserTask>()
+            every { userTaskWithoutFormKey.formKey } returns null
+
+            val process = mockk<Process>()
+            every { process.documentation } returns null
+            every { process.extensionElements } returns emptyMap()
+            every { process.flowElements } returns listOf(userTaskWithFormKey, userTaskWithoutFormKey)
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("only user tasks with form keys are included in the form keys list") {
+                    result.formKeys shouldHaveSize 1
+                    result.formKeys[0] shouldBe "someForm"
                 }
             }
         }

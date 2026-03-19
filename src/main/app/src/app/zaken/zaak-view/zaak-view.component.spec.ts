@@ -99,11 +99,11 @@ describe(ZaakViewComponent.name, () => {
         ZaakIndicatiesComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
-        SideNavComponent,
         PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        SideNavComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),
         PipesModule,

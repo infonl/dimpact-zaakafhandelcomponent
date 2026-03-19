@@ -3,10 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -14,14 +24,33 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
+import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
+import { readFileContent } from "./file.helper";
+import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
+
+interface ProcessDefinitionGroupNode {
+  name: string;
+  key: string;
+  definition: GeneratedType<"RestBpmnProcessDefinition">;
+}
+
+type ProcessDefinitionNode =
+  | ProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
+  standalone: true,
   templateUrl: "./process-definitions.component.html",
   styleUrls: ["./process-definitions.component.less"],
-  standalone: false,
+  imports: [
+    SharedModule,
+    ProcessDefinitionItemComponent,
+    FileDragAndDropDirective,
+  ],
 })
 export class ProcessDefinitionsComponent
   extends AdminComponent
@@ -31,127 +60,130 @@ export class ProcessDefinitionsComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
-  @ViewChild("formioFileInput", { static: false })
-  formioFileInput!: ElementRef;
 
-  isLoadingResults = false;
-  columns: string[] = ["name", "version", "key", "id"];
-  dataSource = new MatTableDataSource<
-    GeneratedType<"RestBpmnProcessDefinition">
-  >();
+  protected readonly processDefinitionsQuery = injectQuery(() =>
+    this.bpmnService.listProcessDefinitionsQuery(true),
+  );
 
-  private currentProcessDefinitionKey = "";
+  protected readonly data = computed(() =>
+    this.buildTreeData(this.processDefinitionsQuery.data() ?? []),
+  );
 
-  constructor(
-    public dialog: MatDialog,
-    public utilService: UtilService,
-    public configuratieService: ConfiguratieService,
-    private bpmnService: BpmnService,
-    private foutAfhandelingService: FoutAfhandelingService,
-  ) {
-    super(utilService, configuratieService);
+  protected expandedKey: string | null = null;
+
+  protected toggleNode(node: ProcessDefinitionGroupNode) {
+    this.expandedKey = this.expandedKey === node.key ? null : node.key;
+  }
+
+  childrenAccessor = (node: ProcessDefinitionNode) =>
+    "definition" in node
+      ? [(node as ProcessDefinitionGroupNode).definition]
+      : [];
+
+  hasChild = (
+    _: number,
+    node: ProcessDefinitionNode,
+  ): node is ProcessDefinitionGroupNode => "definition" in node;
+
+  private readonly dialog = inject(MatDialog);
+  private readonly bpmnService = inject(BpmnService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+
+  private readonly uploadMutation = injectMutation(() => ({
+    ...this.bpmnService.uploadProcessDefinitionQuery(),
+    onSuccess: () => void this.processDefinitionsQuery.refetch(),
+  }));
+
+  private readonly deleteMutation = injectMutation(() => ({
+    mutationFn: (key: string) => this.bpmnService.deleteProcessDefinition(key),
+  }));
+
+  constructor() {
+    super(inject(UtilService), inject(ConfiguratieService));
   }
 
   ngOnInit() {
     this.setupMenu("title.procesdefinities");
-    this.loadProcessDefinitions();
   }
 
-  selectBpmnProcessDefinitionFile() {
+  protected selectBpmnProcessDefinitionFile() {
     this.bpmnProcessDefinitionFileInput.nativeElement.click();
   }
 
-  bpmnProcessDefinitionFileSelected(event: Event) {
+  protected bpmnProcessDefinitionFileSelected(event: Event) {
     if (event.target instanceof HTMLInputElement) {
       const file = event.target.files?.[0];
-      if (!file) return;
-
-      this.readFileContent(file)
-        .then((content) => {
-          this.bpmnService
-            .uploadProcessDefinition({
-              content,
-              filename: file.name,
-            })
-            .subscribe(() => {
-              this.loadProcessDefinitions();
-            });
-        })
-        .catch((error) => {
-          this.foutAfhandelingService.foutAfhandelen(error);
-        });
+      event.target.value = "";
+      if (file) this.uploadBpmnFile(file);
     }
   }
 
-  deleteProcessDefinition(
-    processDefinition: GeneratedType<"RestBpmnProcessDefinition">,
-  ) {
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.procesdefinitie.verwijderen.bevestigen",
-            args: { naam: processDefinition.name },
-          },
-          this.bpmnService.deleteProcessDefinition(processDefinition.key),
-        ),
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.utilService.openSnackbar(
-            "msg.procesdefinitie.verwijderen.uitgevoerd",
-            { naam: processDefinition.name },
-          );
-          this.loadProcessDefinitions();
-        }
-      });
+  protected bpmnProcessDefinitionFileDropped(files: FileList) {
+    const file = Array.from(files).find((file) =>
+      file.name.toLowerCase().endsWith(".bpmn"),
+    );
+    if (file) this.uploadBpmnFile(file);
   }
 
-  selectFormioFile(bpmnProcessDefinitionKey: string) {
-    this.currentProcessDefinitionKey = bpmnProcessDefinitionKey;
-    this.formioFileInput.nativeElement.click();
-  }
-
-  formioFileSelected(event: Event) {
-    const target = event.target as HTMLInputElement | null;
-    const file = target?.files?.[0];
-    if (!file) return;
-
-    this.readFileContent(file)
+  private uploadBpmnFile(file: File) {
+    readFileContent(file)
       .then((content) => {
-        this.bpmnService
-          .uploadProcessDefinitionForm(this.currentProcessDefinitionKey, {
-            filename: file.name,
-            content,
-          })
-          .subscribe(() => {
-            this.loadProcessDefinitions();
-          });
+        this.uploadMutation.mutate({ content, filename: file.name });
       })
       .catch((error) => {
         this.foutAfhandelingService.foutAfhandelen(error);
       });
   }
 
-  private loadProcessDefinitions() {
-    this.isLoadingResults = true;
-    this.utilService.setLoading(true);
-    this.bpmnService
-      .listProcessDefinitions()
-      .subscribe((processDefinitions) => {
-        this.dataSource.data = processDefinitions;
-        this.isLoadingResults = false;
-        this.utilService.setLoading(false);
+  protected deleteProcessDefinition(processDefinition: {
+    key: string;
+    name: string;
+  }) {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData({
+          key: "msg.procesdefinitie.verwijderen.bevestigen",
+          args: { naam: processDefinition.name },
+        }),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.deleteMutation.mutate(processDefinition.key, {
+            onSuccess: () => {
+              this.utilService.openSnackbar(
+                "msg.procesdefinitie.verwijderen.uitgevoerd",
+                { naam: processDefinition.name },
+              );
+              void this.processDefinitionsQuery.refetch();
+            },
+          });
+        }
       });
   }
 
-  private readFileContent(file: File) {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
+  protected refreshDefinitions() {
+    void this.processDefinitionsQuery.refetch();
+  }
+
+  protected asProcessDefinition(
+    node: ProcessDefinitionNode,
+  ): GeneratedType<"RestBpmnProcessDefinition"> {
+    return node as GeneratedType<"RestBpmnProcessDefinition">;
+  }
+
+  protected hasAllFormsUploaded(node: ProcessDefinitionGroupNode): boolean {
+    const forms = node.definition.details?.forms ?? [];
+    return forms.length > 0 && forms.every((form) => form.uploaded);
+  }
+
+  private buildTreeData(
+    definitions: GeneratedType<"RestBpmnProcessDefinition">[],
+  ): ProcessDefinitionGroupNode[] {
+    return definitions.map((def) => ({
+      name: def.name,
+      key: def.key,
+      definition: def,
+    }));
   }
 }

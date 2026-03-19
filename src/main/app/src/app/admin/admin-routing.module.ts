@@ -32,7 +32,10 @@ const routes: Routes = [
         component: ParametersEditWrapperComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
-      { path: "processdefinitions", component: ProcessDefinitionsComponent },
+      {
+        path: "bpmn-procesdefinities",
+        component: ProcessDefinitionsComponent,
+      },
       { path: "referentietabellen", component: ReferentieTabellenComponent },
       {
         path: "referentietabellen/:id",
