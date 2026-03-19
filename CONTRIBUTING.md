@@ -80,6 +80,20 @@ Using the Skywalking Eyes configuration file in our codebase you can also run th
 add SPDX license identifiers to files that are missing them.
 Please see https://github.com/apache/skywalking-eyes for instructions.
 
+## TypeScript conventions
+
+We use TypeScript strict mode. The following rules are enforced and must **never** be bypassed:
+
+- **No `any`** — do not use `any`, `as any`, or any of the following escape hatches:
+  - `eslint-disable-next-line @typescript-eslint/no-explicit-any`
+  - `eslint-disable @typescript-eslint/no-explicit-any`
+  - `// @ts-ignore`
+
+When test code needs access to a private or protected member, use a properly typed alternative:
+- Cast to the concrete class: `(component as MyComponent)["privateMember"]`
+- Use `Object.defineProperty` to override a readonly field
+- Use `jest.spyOn` on the prototype
+
 ## Conventional Commits
 
 We use [Conventional Commits](https://www.conventionalcommits.org) for our commit messages.
