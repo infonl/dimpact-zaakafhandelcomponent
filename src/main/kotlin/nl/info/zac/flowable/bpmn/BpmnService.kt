@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.flowable.bpmn
@@ -17,6 +17,7 @@ import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.bpmn.model.ExtensionElement
+import org.flowable.bpmn.model.UserTask
 import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
@@ -211,7 +212,7 @@ class BpmnService @Inject constructor(
         // Find all user tasks with form keys
         bpmnModel.processes.forEach { process ->
             process.flowElements
-                .filterIsInstance<org.flowable.bpmn.model.UserTask>()
+                .filterIsInstance<UserTask>()
                 .forEach { userTask ->
                     userTask.formKey?.let { formKey ->
                         formKeys.add(formKey)
