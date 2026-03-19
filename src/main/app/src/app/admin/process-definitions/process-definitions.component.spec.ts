@@ -248,8 +248,10 @@ describe(ProcessDefinitionsComponent.name, () => {
       Object.defineProperty(input, "files", { value: [file] });
 
       const mutateMock = jest.fn();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component as any)["uploadMutation"] = { mutate: mutateMock };
+      Object.defineProperty(component, "uploadMutation", {
+        value: { mutate: mutateMock },
+        writable: true,
+      });
 
       component["bpmnProcessDefinitionFileSelected"]({
         target: input,
@@ -304,8 +306,10 @@ describe(ProcessDefinitionsComponent.name, () => {
       const fileList = { 0: file, length: 1 } as unknown as FileList;
 
       const mutateMock = jest.fn();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component as any)["uploadMutation"] = { mutate: mutateMock };
+      Object.defineProperty(component, "uploadMutation", {
+        value: { mutate: mutateMock },
+        writable: true,
+      });
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
       await Promise.resolve();
@@ -342,8 +346,10 @@ describe(ProcessDefinitionsComponent.name, () => {
       const fileList = { 0: file, length: 1 } as unknown as FileList;
 
       const mutateMock = jest.fn();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (component as any)["uploadMutation"] = { mutate: mutateMock };
+      Object.defineProperty(component, "uploadMutation", {
+        value: { mutate: mutateMock },
+        writable: true,
+      });
 
       component["bpmnProcessDefinitionFileDropped"](fileList);
       await Promise.resolve();
