@@ -190,4 +190,63 @@ describe(MailtemplateComponent.name, () => {
     ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
     expect(component.testVariabelen).toEqual(["GEMEENTE", "ZAAK_URL"]);
   });
+
+  it("should disable the submit button when the form is invalid", () => {
+    const submitButton = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    ) as HTMLButtonElement;
+    expect(submitButton.disabled).toBe(true);
+  });
+
+  it("should disable the mail control when loading an existing template", () => {
+    TestBed.inject(ActivatedRoute).data = of({
+      template: {
+        id: 1,
+        mailTemplateNaam: "Test template",
+        mail: "TAAK_ONTVANGSTBEVESTIGING",
+        onderwerp: "Test onderwerp",
+        body: "Test body",
+        defaultMailtemplate: false,
+      },
+    });
+
+    fixture = TestBed.createComponent(TestMailtemplateComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.testForm.controls.mail.disabled).toBe(true);
+  });
+
+  it("should call updateMailtemplate when saving an existing template", () => {
+    jest
+      .spyOn(mailtemplateBeheerService, "updateMailtemplate")
+      .mockReturnValue(
+        of({}) as ReturnType<
+          typeof mailtemplateBeheerService.updateMailtemplate
+        >,
+      );
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    TestBed.inject(ActivatedRoute).data = of({
+      template: {
+        id: 42,
+        mailTemplateNaam: "Bestaand template",
+        mail: "TAAK_ONTVANGSTBEVESTIGING",
+        onderwerp: "Bestaand onderwerp",
+        body: "Bestaand body",
+        defaultMailtemplate: false,
+      },
+    });
+
+    fixture = TestBed.createComponent(TestMailtemplateComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.saveMailtemplate();
+
+    expect(mailtemplateBeheerService.updateMailtemplate).toHaveBeenCalledWith(
+      42,
+      expect.objectContaining({ mailTemplateNaam: "Bestaand template" }),
+    );
+  });
 });
