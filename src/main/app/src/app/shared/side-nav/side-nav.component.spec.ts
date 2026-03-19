@@ -12,7 +12,6 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { MaterialModule } from "../material/material.module";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
 import { LinkMenuItem } from "./menu-item/link-menu-item";
@@ -32,11 +31,10 @@ describe(SideNavComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [SideNavComponent],
       imports: [
+        SideNavComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MaterialModule,
         RouterModule.forRoot([]),
       ],
     })

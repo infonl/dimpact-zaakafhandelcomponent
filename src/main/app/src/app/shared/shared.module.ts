@@ -49,7 +49,6 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    SideNavComponent,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
@@ -73,6 +72,7 @@ import { VersionComponent } from "./version/version.component";
     OutsideClickDirective,
     ZacNarrowMatCheckboxDirective,
     ToggleFilterComponent,
+    SideNavComponent,
     VersionComponent,
     SortPipe,
     FormsModule,

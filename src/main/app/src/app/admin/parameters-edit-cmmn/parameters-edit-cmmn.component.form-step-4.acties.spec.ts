@@ -1,87 +1,104 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
- *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
-describe(ParametersEditCmmnComponent.name, () => {
+describe("Acties form step", () => {
   let fixture: ComponentFixture<ParametersEditCmmnComponent>;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
   let mailtemplateBeheerService: MailtemplateBeheerService;
-  let loader: HarnessLoader;
   let utilService: UtilService;
+  let activatedRouteMock: Pick<ActivatedRoute, "data">;
+
+  const userEventListenerParameters = [
+    fromPartial<GeneratedType<"RESTUserEventListenerParameter">>({
+      id: "event-1",
+      naam: "Event 1",
+      toelichting: "initial toelichting",
+    }),
+  ];
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaakafhandelParameters">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
-    zaaktype: {
-      uuid: "test-uuid",
-    },
+    zaaktype: { uuid: "test-uuid" },
+    zaakAfzenders: [
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test@example.com",
+        replyTo: undefined,
+      },
+      {
+        speciaal: false,
+        defaultMail: false,
+        mail: "test2@example.com",
+        replyTo: undefined,
+      },
+    ],
     humanTaskParameters: [],
-    userEventListenerParameters: [],
     mailtemplateKoppelingen: [],
-    zaakAfzenders: [],
-    smartDocuments: {},
-    brpDoelbindingen: {},
+    zaakbeeindigParameters: [],
+    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+    userEventListenerParameters,
+    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+    brpDoelbindingen: {
+      zoekWaarde: "",
+      raadpleegWaarde: "",
+      verwerkingregisterWaarde: "",
+    },
+    productaanvraagtype: null,
     automaticEmailConfirmation: {
       enabled: false,
+      templateName: null,
+      emailSender: null,
+      emailReply: null,
     },
   });
 
   beforeEach(async () => {
+    activatedRouteMock = {
+      data: of({
+        parameters: {
+          zaakafhandelParameters,
+          isSavedZaakafhandelParameters: true,
+          featureFlagPabcIntegration: true,
+        },
+      }),
+    };
+
     await TestBed.configureTestingModule({
-      declarations: [ParametersEditCmmnComponent, SideNavComponent],
       imports: [
-        StaticTextComponent,
+        ParametersEditCmmnComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         RouterModule,
-        PipesModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({
-              parameters: {
-                zaakafhandelParameters,
-                isSavedZaakafhandelParameters: true,
-              },
-            }),
-          },
-        },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -90,13 +107,23 @@ describe(ParametersEditCmmnComponent.name, () => {
     );
     jest
       .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(of([]));
+      .mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RESTCaseDefinition">>({
+            key: "case-1",
+            naam: "Case Definition 1",
+          }),
+        ]),
+      );
     jest
       .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
       .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listReplyTos")
-      .mockReturnValue(of([]));
+    jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
+      of([
+        { mail: "reply1@example.com", speciaal: false },
+        { mail: "reply2@example.com", speciaal: false },
+      ]),
+    );
     jest
       .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
       .mockReturnValue(of([]));
@@ -109,12 +136,17 @@ describe(ParametersEditCmmnComponent.name, () => {
       .spyOn(referentieTabelService, "listReferentieTabellen")
       .mockReturnValue(of([]));
     jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listAfzenders").mockReturnValue(of([]));
+    jest
+      .spyOn(referentieTabelService, "listAfzenders")
+      .mockReturnValue(of(["test@example.com", "other@example.com"]));
     jest
       .spyOn(referentieTabelService, "listBrpViewValues")
       .mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listBrpSearchValues")
+      .mockReturnValue(of([]));
+    jest
+      .spyOn(referentieTabelService, "listBrpProcessingValues")
       .mockReturnValue(of([]));
 
     identityService = TestBed.inject(IdentityService);
@@ -142,29 +174,41 @@ describe(ParametersEditCmmnComponent.name, () => {
       .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
       .mockReturnValue(of([]));
 
+    const configuratieService = TestBed.inject(ConfiguratieService);
+    jest
+      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
+      .mockReturnValue(of(false));
+
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
-  describe("Case handler", () => {
-    it("should set the case handlers which are in the selected group", async () => {
-      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-      const caseHandlerSelect = selectFields[3];
+  it("should create a toelichting control for each userEventListenerParameter", () => {
+    const component = fixture.componentInstance;
+    const eventId = userEventListenerParameters[0].id ?? "";
+    const eventFormGroup = component.userEventListenersFormGroup.get(eventId);
+    expect(eventFormGroup).not.toBeNull();
+    const toelichtingControl = eventFormGroup?.get("toelichting");
+    expect(toelichtingControl).not.toBeNull();
+  });
 
-      const value = await caseHandlerSelect.getValueText();
-      expect(value).toBe("-kies.generiek-");
-    });
+  it("should initialize toelichting with value from parameters", () => {
+    const component = fixture.componentInstance;
+    const eventId = userEventListenerParameters[0].id ?? "";
+    const toelichtingControl = component.userEventListenersFormGroup
+      .get(eventId)
+      ?.get("toelichting");
+    expect(toelichtingControl?.value).toBe("initial toelichting");
+  });
 
-    it("should update the case handlers when the group changes", async () => {
-      const selectFields = await loader.getAllHarnesses(MatSelectHarness);
-      const groupField = selectFields[2];
-
-      await groupField.clickOptions({ text: "test-group-2" });
-
-      const caseHandlerSelect = selectFields[3];
-      const value = await caseHandlerSelect.getValueText();
-
-      expect(value).toBe("-kies.generiek-");
-    });
+  it("should allow updating toelichting value", () => {
+    const component = fixture.componentInstance;
+    const eventId = userEventListenerParameters[0].id ?? "";
+    const toelichtingControl = component.userEventListenersFormGroup
+      .get(eventId)
+      ?.get("toelichting");
+    toelichtingControl?.setValue("updated toelichting");
+    expect(toelichtingControl?.value).toBe("updated toelichting");
   });
 });

@@ -4,16 +4,30 @@
  *
  */
 
+import { NgFor } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { TranslateService } from "@ngx-translate/core";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 @Component({
   selector: "smart-documents-form-item",
   templateUrl: "./smart-documents-form-item.component.html",
   styleUrls: ["./smart-documents-form-item.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    ReactiveFormsModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    TranslateModule,
+  ],
 })
 export class SmartDocumentsFormItemComponent implements OnInit {
   @Input({ required: true })
@@ -24,10 +38,10 @@ export class SmartDocumentsFormItemComponent implements OnInit {
     GeneratedType<"RestMappedSmartDocumentsTemplate">
   >();
 
-  confidentiality = new FormControl({ value: "", disabled: true });
-  checkbox = new FormControl({ value: false, disabled: false });
+  protected confidentiality = new FormControl({ value: "", disabled: true });
+  protected checkbox = new FormControl({ value: false, disabled: false });
 
-  previousInformatieObjectTypeUUID: string | undefined = undefined;
+  private previousInformatieObjectTypeUUID: string | undefined = undefined;
 
   constructor(private readonly translateService: TranslateService) {}
 
@@ -36,7 +50,7 @@ export class SmartDocumentsFormItemComponent implements OnInit {
     this.updateFormControls();
   }
 
-  clearSelectedDocumentType() {
+  protected clearSelectedDocumentType() {
     this.node.informatieObjectTypeUUID = "";
     this.updateFormControls();
   }
