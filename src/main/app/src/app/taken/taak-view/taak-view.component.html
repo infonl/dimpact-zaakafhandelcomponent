@@ -86,15 +86,6 @@
               [formFields]="formulier.form"
               [config]="formConfig"
             ></mfb-form>
-            <zac-formulier
-              *ngIf="formulierDefinitie"
-              (formPartial)="onConfigurableFormPartial($event)"
-              (formSubmit)="onConfigurableFormSubmit($event)"
-              [definitie]="formulierDefinitie"
-              [waarden]="taak?.taakdata"
-              [zaak]="zaak"
-              [readonly]="isReadonly()"
-            ></zac-formulier>
             <zac-formio-wrapper
               *ngIf="formioFormulier"
               [submission]="{ data: taak.taakdata }"
@@ -107,7 +98,6 @@
             <mat-progress-bar
               *ngIf="
                 !formulier &&
-                !formulierDefinitie &&
                 !formioFormulier &&
                 !formFields.length
               "

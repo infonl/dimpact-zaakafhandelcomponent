@@ -80,7 +80,6 @@ export class TaakViewComponent
   protected zaak?: GeneratedType<"RestZaak">;
   protected formulier?: AbstractTaakFormulier | null = null;
   protected formConfig?: FormConfig | null = null;
-  protected formulierDefinitie?: GeneratedType<"RESTFormulierDefinitie">;
   protected formioFormulier?: FormioForm;
 
   protected smartDocumentsGroupPath: string[] = [];
@@ -238,15 +237,12 @@ export class TaakViewComponent
   ) {
     this.formConfig = null;
     this.formulier = null;
-    this.formulierDefinitie = undefined;
     this.formioFormulier = undefined;
 
     this.changeDetectorRef.detectChanges();
 
     if (taak.formulierDefinitieId) {
       void this.createHardCodedTaakForm(taak, zaak);
-    } else if (taak.formulierDefinitie) {
-      this.createConfigurableTaakForm(taak.formulierDefinitie);
     } else if (!this.formioFormulier) {
       this.formioFormulier = taak.formioFormulier ?? undefined;
       if (!this.formioFormulier) return;
@@ -338,14 +334,6 @@ export class TaakViewComponent
     });
   }
 
-  private createConfigurableTaakForm(
-    formulierDefinitie: GeneratedType<"RESTFormulierDefinitie">,
-  ) {
-    this.formulierDefinitie = formulierDefinitie;
-    this.utilService.setTitle("title.taak", {
-      taak: formulierDefinitie.naam,
-    });
-  }
 
   protected isReadonly() {
     return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
@@ -479,29 +467,6 @@ export class TaakViewComponent
     });
   }
 
-  onConfigurableFormPartial(formState?: Record<string, string>) {
-    if (!formState) return;
-    if (!this.taak) return;
-
-    this.taak.taakdata = formState;
-    this.updateTaakdataMutation.mutate(this.taak, {
-      onSuccess: (task) => {
-        this.init(task);
-      },
-    });
-  }
-
-  onConfigurableFormSubmit(formState?: Record<string, string>) {
-    if (!formState) return;
-    if (!this.taak) return;
-
-    this.taak.taakdata = formState;
-    this.completeTaakMutation.mutate(this.taak, {
-      onSuccess: (task) => {
-        this.init(task);
-      },
-    });
-  }
 
   onFormioFormSubmit(submission: {
     data: Record<string, string>;

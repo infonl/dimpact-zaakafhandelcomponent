@@ -6,9 +6,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
-import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
-import { FormulierDefinitieResolverService } from "./formulier-definitie-edit/formulier-definitie-resolver.service";
-import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
 import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
@@ -28,12 +25,6 @@ const routes: Routes = [
     children: [
       { path: "", redirectTo: "check", pathMatch: "full" },
       { path: "formioformulieren", component: FormioFormulierenComponent },
-      { path: "formulierdefinities", component: FormulierDefinitiesComponent },
-      {
-        path: "formulierdefinities/:id",
-        component: FormulierDefinitieEditComponent,
-        resolve: { definitie: FormulierDefinitieResolverService },
-      },
       { path: "groepen", component: GroepSignaleringenComponent },
       { path: "parameters", component: ParametersComponent },
       {
