@@ -101,7 +101,6 @@ describe(FormioSetupService.name, () => {
     },
     status: "TOEGEKEND",
     taakdata: {},
-    formulierDefinitie: undefined,
     formulierDefinitieId: "test-formulierDefinitieId",
     tabellen: {},
     taakdocumenten: [],

@@ -63,8 +63,8 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
                 this.bpmnProcessDefinitionVersion = processDefinition.version
                 this.filename = filename
                 this.content = content
-                name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
-                title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
+                this.name = form.getJsonString("name")?.string ?: filename.removeSuffix(".json")
+                this.title = form.getJsonString("title")?.string ?: StringUtils.EMPTY
                 findForm(processDefinition.key, processDefinition.version, name)?.let {
                     id = it.id
                 }

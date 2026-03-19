@@ -140,9 +140,6 @@ class TaskRestService @Inject constructor(
             deleteSignaleringen(task)
             val restTask = restTaskConverter.convert(task)
             if (TaskUtil.isOpen(task)) {
-                restTask.formulierDefinitie?.let {
-                    formulierRuntimeService.renderFormulierDefinitie(restTask)
-                }
                 restTask.formioFormulier?.let {
                     restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
                     addZaakdata(restTask)
@@ -244,7 +241,7 @@ class TaskRestService @Inject constructor(
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
-        val updatedTask = if (restTask.formulierDefinitie != null || restTask.formioFormulier != null) {
+        val updatedTask = if (restTask.formioFormulier != null) {
             formulierRuntimeService.submit(restTask, task, zaak)
         } else {
             processHardCodedFormTask(restTask, zaak)

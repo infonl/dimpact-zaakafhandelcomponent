@@ -9,9 +9,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
-import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
-import { TekstvlakEditDialogComponent } from "./formulier-definitie-edit/tekstvlak-edit-dialog/tekstvlak-edit-dialog.component";
-import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
@@ -31,13 +28,10 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
-    FormulierDefinitiesComponent,
-    FormulierDefinitieEditComponent,
     ReferentieTabelComponent,
     InrichtingscheckComponent,
     MailtemplatesComponent,
     MailtemplateComponent,
-    TekstvlakEditDialogComponent,
   ],
   exports: [],
   imports: [
