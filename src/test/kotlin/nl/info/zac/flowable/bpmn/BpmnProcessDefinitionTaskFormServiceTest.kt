@@ -23,6 +23,7 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
+import nl.info.zac.flowable.bpmn.exception.BpmnTaskFormNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import org.flowable.engine.RepositoryService
@@ -207,13 +208,13 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns emptyList()
 
         When("readForm is called") {
-            Then("it should throw NoSuchElementException") {
-                val exception = shouldThrow<NoSuchElementException> {
+            Then("it should throw BpmnTaskFormNotFoundException") {
+                val exception = shouldThrow<BpmnTaskFormNotFoundException> {
                     service.readForm(processDefinitionId, formName)
                 }
-                exception.message shouldBe "No BpmnProcessDefinitionTaskForm found with name: '$formName' " +
-                    "for processDefinition key='$processDefinitionKey', version=$processDefinitionVersion, " +
-                    "id='$processDefinitionId'"
+                exception.message shouldBe "No BPMN task form found with name: '$formName' " +
+                    "for BPMN process definition with key: '$processDefinitionKey', version: '$processDefinitionVersion', " +
+                    "and id: '$processDefinitionId'"
             }
         }
     }

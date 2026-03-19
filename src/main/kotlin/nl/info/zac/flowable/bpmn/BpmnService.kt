@@ -12,7 +12,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -82,7 +82,7 @@ class BpmnService @Inject constructor(
 
     fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
         findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
-            ?: throw ProcessDefinitionNotFoundException(
+            ?: throw BpmnProcessDefinitionNotFoundException(
                 "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             )
 
@@ -130,11 +130,11 @@ class BpmnService @Inject constructor(
      * Returns the BPMN process definition for the given zaaktype UUID
      *
      * @param zaaktypeUUID UUID of the zaaktype for which the process definition is requested
-     * @throws ProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
+     * @throws BpmnProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
         zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-            ?: throw ProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
+            ?: throw BpmnProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
