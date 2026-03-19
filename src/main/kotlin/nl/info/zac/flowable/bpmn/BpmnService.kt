@@ -122,7 +122,6 @@ class BpmnService @Inject constructor(
             .processDefinitionKey(processDefinitionKey)
             .list()
             .forEach { repositoryService.deleteDeployment(it.id, true) }
-        // Remove related forms
         bpmnProcessDefinitionTaskFormService.deleteAllFormsForProcessDefinition(processDefinitionKey)
     }
 
