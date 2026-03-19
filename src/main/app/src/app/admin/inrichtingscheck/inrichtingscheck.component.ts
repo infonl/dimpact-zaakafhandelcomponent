@@ -10,15 +10,27 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
+import { NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatSort, Sort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatSidenav, MatSidenavContainer, MatSidenavModule } from "@angular/material/sidenav";
+import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { VersionLayout } from "../../shared/version/version.component";
+import { VersionComponent, VersionLayout } from "../../shared/version/version.component";
 import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
 
@@ -35,15 +47,33 @@ import { HealthCheckService } from "../health-check.service";
       ),
     ]),
   ],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatSidenavModule,
+    MatCardModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    TranslateModule,
+    DatumPipe,
+    SideNavComponent,
+    ToggleFilterComponent,
+    VersionComponent,
+    ReadMoreComponent,
+  ],
 })
 export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild(MatSort) sort!: MatSort;
 
   readonly versionLayout = VersionLayout;
   dataSource: MatTableDataSource<
@@ -58,12 +88,12 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  zaaktypes: GeneratedType<"RESTZaaktypeInrichtingscheck">[];
-  expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null;
+  zaaktypes: GeneratedType<"RESTZaaktypeInrichtingscheck">[] = [];
+  expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
   valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   filterValue = "";
-  bestaatCommunicatiekanaalEformulier: boolean;
-  ztcCacheTime: string;
+  bestaatCommunicatiekanaalEformulier = false;
+  ztcCacheTime = "";
 
   constructor(
     public utilService: UtilService,
@@ -82,13 +112,13 @@ export class InrichtingscheckComponent
     this.dataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case "zaaktypeOmschrijving":
-          return item.zaaktype.omschrijving.toLowerCase();
+          return item.zaaktype.omschrijving?.toLowerCase() ?? "";
         case "zaaktypeDoel":
-          return item.zaaktype.doel;
+          return item.zaaktype.doel ?? "";
         case "beginGeldigheid":
-          return item.zaaktype.beginGeldigheid;
+          return item.zaaktype.beginGeldigheid ?? "";
         default:
-          return item[property];
+          return "";
       }
     };
     this.dataSource.sort = this.sort;
@@ -145,7 +175,9 @@ export class InrichtingscheckComponent
       .subscribe((value) => {
         this.loadingZaaktypes = false;
         this.dataSource.data = value.sort((a, b) =>
-          a.zaaktype.omschrijving.localeCompare(b.zaaktype.omschrijving),
+          (a.zaaktype.omschrijving ?? "").localeCompare(
+            b.zaaktype.omschrijving ?? "",
+          ),
         );
         this.applyFilter();
       });
@@ -161,20 +193,24 @@ export class InrichtingscheckComponent
       switch (sort.active) {
         case "zaaktypeOmschrijving":
           return this.compare(
-            a.zaaktype.omschrijving,
-            b.zaaktype.omschrijving,
+            a.zaaktype.omschrijving ?? "",
+            b.zaaktype.omschrijving ?? "",
             isAsc,
           );
         case "doel":
-          return this.compare(a.zaaktype.doel, b.zaaktype.doel, isAsc);
+          return this.compare(
+            a.zaaktype.doel ?? "",
+            b.zaaktype.doel ?? "",
+            isAsc,
+          );
         case "beginGeldigheid":
           return this.compare(
-            a.zaaktype.beginGeldigheid,
-            b.zaaktype.beginGeldigheid,
+            a.zaaktype.beginGeldigheid ?? "",
+            b.zaaktype.beginGeldigheid ?? "",
             isAsc,
           );
         case "valide":
-          return this.compare(a.valide, b.valide, isAsc);
+          return this.compare(a.valide ?? false, b.valide ?? false, isAsc);
         default:
           return 0;
       }

@@ -9,7 +9,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
-import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn/parameters-edit-cmmn.component";
 import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
@@ -27,7 +26,6 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
     ReferentieTabelComponent,
-    InrichtingscheckComponent,
   ],
   exports: [],
   imports: [
