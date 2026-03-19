@@ -11,9 +11,7 @@ import { SharedModule } from "../shared/shared.module";
 import { FormioWrapperComponent } from "./formio-wrapper/formio-wrapper.component";
 
 @NgModule({
-  declarations: [
-    FormioWrapperComponent,
-  ],
+  declarations: [FormioWrapperComponent],
   exports: [FormioWrapperComponent],
   imports: [
     SharedModule,

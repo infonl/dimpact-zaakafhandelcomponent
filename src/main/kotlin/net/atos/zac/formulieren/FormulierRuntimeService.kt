@@ -81,7 +81,7 @@ class FormulierRuntimeService @Inject constructor(
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
-                restTask.formioFormulier?.getString(FORMIO_TITLE)
+                restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
         if (formulierData.zaakHervatten && zaak.isOpgeschort()) {

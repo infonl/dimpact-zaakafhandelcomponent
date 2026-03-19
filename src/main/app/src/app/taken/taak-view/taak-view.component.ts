@@ -334,7 +334,6 @@ export class TaakViewComponent
     });
   }
 
-
   protected isReadonly() {
     return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
   }
@@ -466,7 +465,6 @@ export class TaakViewComponent
       },
     });
   }
-
 
   onFormioFormSubmit(submission: {
     data: Record<string, string>;

@@ -10,7 +10,6 @@ import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
 import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
-
 import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
