@@ -42,6 +42,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
+import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -124,6 +125,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
                 exception = exception
+            )
+            is ZacSetupException -> generateResponse(
+                responseStatus = Response.Status.CONFLICT,
+                errorCode = exception.errorCode,
+                exception = exception,
+                exceptionMessage = exception.message
             )
             else -> inspectCause(exception = exception)
         }
@@ -247,7 +254,11 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         .build().also {
             log(
                 logger = LOG,
-                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
+                level = when (responseStatus) {
+                    Response.Status.INTERNAL_SERVER_ERROR -> Level.SEVERE
+                    Response.Status.CONFLICT -> Level.WARNING
+                    else -> Level.FINE
+                },
                 message = exception.message
                     ?: "Exception was thrown. Returning response with error code: '${errorCode?.value}'.",
                 throwable = exception
