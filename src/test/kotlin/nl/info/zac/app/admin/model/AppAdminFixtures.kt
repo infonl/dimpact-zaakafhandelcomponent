@@ -13,7 +13,7 @@ import java.util.UUID
 fun createRestFormioFormulierContent(
     filename: String = "testForm.json",
     content: String = """{ "fakeKey": "fakeValue" }"""
-) = RestFormioFormulierContent(
+) = BpmnProcessDefinitionTaskFormContent(
     filename = filename,
     content = content
 )

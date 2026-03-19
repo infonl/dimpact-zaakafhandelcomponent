@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Response.Status
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionForm
-import nl.info.zac.app.admin.model.RestFormioFormulierContent
+import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -154,13 +154,13 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     @Path("{key}/forms")
     fun createForm(
         @PathParam("key") key: String,
-        restFormioFormulierContent: RestFormioFormulierContent
+        bpmnProcessDefinitionTaskFormContent: BpmnProcessDefinitionTaskFormContent
     ): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         bpmnProcessDefinitionTaskFormService.addForm(
             key,
-            restFormioFormulierContent.filename,
-            restFormioFormulierContent.content
+            bpmnProcessDefinitionTaskFormContent.filename,
+            bpmnProcessDefinitionTaskFormContent.content
         )
         return Response.status(Status.CREATED).build()
     }

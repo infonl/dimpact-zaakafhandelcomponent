@@ -17,7 +17,7 @@ import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionForm
-import nl.info.zac.app.admin.model.RestFormioFormulierContent
+import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -269,7 +269,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val content = """{"name": "Test Form", "title": "Test Title"}"""
-        val restFormioFormulierContent = RestFormioFormulierContent(filename, content)
+        val bpmnProcessDefinitionTaskFormContent = BpmnProcessDefinitionTaskFormContent(filename, content)
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every {
@@ -277,7 +277,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         } just Runs
 
         When("createForm is called") {
-            val response = restService.createForm(processDefinitionKey, restFormioFormulierContent)
+            val response = restService.createForm(processDefinitionKey, bpmnProcessDefinitionTaskFormContent)
 
             Then("it should create the form and return 201 Created") {
                 response.status shouldBe Response.Status.CREATED.statusCode

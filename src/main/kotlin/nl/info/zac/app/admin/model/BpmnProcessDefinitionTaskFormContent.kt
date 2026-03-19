@@ -7,7 +7,7 @@ package nl.info.zac.app.admin.model
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
-data class RestFormioFormulierContent(
+data class BpmnProcessDefinitionTaskFormContent(
     var filename: String,
     var content: String
 )
