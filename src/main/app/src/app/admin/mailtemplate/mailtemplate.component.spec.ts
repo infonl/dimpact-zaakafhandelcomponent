@@ -144,7 +144,7 @@ describe(MailtemplateComponent.name, () => {
   it("should navigate to /admin/mailtemplates on cancel", () => {
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    component.cancel();
+    component["cancel"]();
 
     expect(router.navigate).toHaveBeenCalledWith(["/admin/mailtemplates"]);
   });
@@ -166,7 +166,7 @@ describe(MailtemplateComponent.name, () => {
       defaultMailtemplate: false,
     });
 
-    component.saveMailtemplate();
+    component["saveMailtemplate"]();
 
     expect(mailtemplateBeheerService.createMailtemplate).toHaveBeenCalled();
     expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
@@ -242,7 +242,7 @@ describe(MailtemplateComponent.name, () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.saveMailtemplate();
+    component["saveMailtemplate"]();
 
     expect(mailtemplateBeheerService.updateMailtemplate).toHaveBeenCalledWith(
       42,

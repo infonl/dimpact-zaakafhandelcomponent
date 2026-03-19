@@ -113,10 +113,10 @@ describe(MailtemplatesComponent.name, () => {
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([koppeling]));
 
-    component.laadMailtemplates();
+    component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    expect(component.isDisabled(mailtemplate)).toBe(true);
+    expect(component["isDisabled"](mailtemplate)).toBe(true);
   });
 
   it("should open confirm dialog when verwijderMailtemplate is called", () => {
@@ -124,7 +124,7 @@ describe(MailtemplatesComponent.name, () => {
       afterClosed: () => of(false),
     } as MatDialogRef<unknown>);
 
-    component.verwijderMailtemplate(mailtemplate);
+    component["verwijderMailtemplate"](mailtemplate);
 
     expect(dialog.open).toHaveBeenCalled();
   });
@@ -134,7 +134,7 @@ describe(MailtemplatesComponent.name, () => {
       afterClosed: () => of(true),
     } as MatDialogRef<unknown>);
 
-    component.verwijderMailtemplate(mailtemplate);
+    component["verwijderMailtemplate"](mailtemplate);
 
     expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
       "msg.mailtemplate.verwijderen.uitgevoerd",

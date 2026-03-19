@@ -26,7 +26,7 @@ import {
 import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -77,29 +77,28 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
-  isLoadingResults = false;
-  columns = ["mailTemplateNaam", "mail", "defaultMailtemplate", "id"] as const;
-  columnsToDisplay = [
+  protected isLoadingResults = false;
+  protected columns = ["mailTemplateNaam", "mail", "defaultMailtemplate", "id"] as const;
+  protected columnsToDisplay = [
     "expand",
     "mailTemplateNaam",
     "mail",
     "defaultMailtemplate",
     "id",
   ] as const;
-  dataSource = new MatTableDataSource<GeneratedType<"RESTMailtemplate">>();
-  mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
-  filterValue = "";
-  expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
+  protected dataSource = new MatTableDataSource<GeneratedType<"RESTMailtemplate">>();
+  private mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
+  private filterValue = "";
+  protected expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
 
   constructor(
     public dialog: MatDialog,
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
     private mailtemplateBeheerService: MailtemplateBeheerService,
-    private translate: TranslateService,
     private mailtemplateKoppelingService: MailtemplateKoppelingService,
   ) {
     super(utilService, configuratieService);
@@ -110,7 +109,7 @@ export class MailtemplatesComponent
     this.laadMailtemplates();
   }
 
-  laadMailtemplates(): void {
+  protected laadMailtemplates(): void {
     this.isLoadingResults = true;
     forkJoin([
       this.mailtemplateBeheerService.listMailtemplates(),
@@ -122,11 +121,11 @@ export class MailtemplatesComponent
     });
   }
 
-  isDisabled(mailtemplate: GeneratedType<"RESTMailtemplate">): boolean {
+  protected isDisabled(mailtemplate: GeneratedType<"RESTMailtemplate">): boolean {
     return this.getMailtemplateKoppeling(mailtemplate) != null;
   }
 
-  verwijderMailtemplate(mailtemplate: GeneratedType<"RESTMailtemplate">): void {
+  protected verwijderMailtemplate(mailtemplate: GeneratedType<"RESTMailtemplate">): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
@@ -145,7 +144,7 @@ export class MailtemplatesComponent
       });
   }
 
-  getKoppelingen(mailtemplate: GeneratedType<"RESTMailtemplate">) {
+  protected getKoppelingen(mailtemplate: GeneratedType<"RESTMailtemplate">) {
     return this.mailKoppelingen.reduce((acc, koppeling) => {
       if (koppeling.mailtemplate?.id === mailtemplate.id) {
         acc.push(koppeling);
@@ -162,7 +161,7 @@ export class MailtemplatesComponent
     );
   }
 
-  applyFilter(event?: Event) {
+  protected applyFilter(event?: Event) {
     if (event) {
       const filterValue = (event.target as HTMLInputElement).value;
       this.filterValue = filterValue.trim().toLowerCase();
@@ -173,7 +172,7 @@ export class MailtemplatesComponent
     }
   }
 
-  sortData(sort: Sort) {
+  protected sortData(sort: Sort) {
     if (!sort.active || sort.direction === "") {
       return;
     }
@@ -191,7 +190,7 @@ export class MailtemplatesComponent
     });
   }
 
-  compare(isAsc: boolean, a?: number | string, b?: number | string) {
+  private compare(isAsc: boolean, a?: number | string, b?: number | string) {
     const direction = isAsc ? 1 : -1;
 
     if (!a || !b) return direction;

@@ -71,29 +71,28 @@ export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  @ViewChild(MatSort) private sort!: MatSort;
 
-  readonly versionLayout = VersionLayout;
-  dataSource: MatTableDataSource<
+  protected readonly versionLayout = VersionLayout;
+  public dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
-  loadingZaaktypes = true;
-  loadingCommunicatiekanaal = true;
-  columnsToDisplay = [
+  public loadingZaaktypes = true;
+  public loadingCommunicatiekanaal = true;
+  protected columnsToDisplay = [
     "valide",
     "expand",
     "zaaktypeOmschrijving",
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  zaaktypes: GeneratedType<"RESTZaaktypeInrichtingscheck">[] = [];
-  expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
-  valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
-  filterValue = "";
-  bestaatCommunicatiekanaalEformulier = false;
-  ztcCacheTime = "";
+  public expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
+  public valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
+  private filterValue = "";
+  public bestaatCommunicatiekanaalEformulier = false;
+  public ztcCacheTime = "";
 
   constructor(
     public utilService: UtilService,
@@ -148,7 +147,7 @@ export class InrichtingscheckComponent
     });
   }
 
-  applyFilter(event?: Event) {
+  protected applyFilter(event?: Event) {
     if (event) {
       const filterValue = (event.target as HTMLInputElement).value;
       this.filterValue = filterValue.trim().toLowerCase();
@@ -159,7 +158,7 @@ export class InrichtingscheckComponent
     }
   }
 
-  clearZTCCache($event: MouseEvent) {
+  protected clearZTCCache($event: MouseEvent) {
     $event.stopPropagation();
     this.healtCheckService.clearZTCCaches().subscribe((value) => {
       this.ztcCacheTime = value;
@@ -167,7 +166,7 @@ export class InrichtingscheckComponent
     });
   }
 
-  checkZaaktypes() {
+  private checkZaaktypes() {
     this.loadingZaaktypes = true;
     this.dataSource.data = [];
     this.healtCheckService
@@ -183,7 +182,7 @@ export class InrichtingscheckComponent
       });
   }
 
-  sortData(sort: Sort) {
+  protected sortData(sort: Sort) {
     if (!sort.active || sort.direction === "") {
       return;
     }
@@ -217,7 +216,7 @@ export class InrichtingscheckComponent
     });
   }
 
-  compare(
+  private compare(
     a: number | string | boolean,
     b: number | string | boolean,
     isAsc: boolean,

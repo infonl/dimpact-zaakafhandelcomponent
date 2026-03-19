@@ -17,7 +17,6 @@ import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
-import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 
 @NgModule({
   declarations: [
@@ -25,7 +24,6 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
-    ReferentieTabelComponent,
   ],
   exports: [],
   imports: [

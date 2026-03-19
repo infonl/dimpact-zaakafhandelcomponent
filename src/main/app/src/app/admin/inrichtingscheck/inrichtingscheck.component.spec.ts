@@ -215,7 +215,7 @@ describe(InrichtingscheckComponent.name, () => {
   it("should not expand a valid row on click", async () => {
     // switch filter to CHECKED so valid rows are visible
     component.valideFilter = ToggleSwitchOptions.CHECKED;
-    component.applyFilter();
+    component["applyFilter"]();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -252,11 +252,11 @@ describe(InrichtingscheckComponent.name, () => {
 
   it("should filter rows by zaaktype omschrijving text", () => {
     component.valideFilter = ToggleSwitchOptions.INDETERMINATE;
-    component.applyFilter();
+    component["applyFilter"]();
     expect(component.dataSource.filteredData.length).toBe(2);
 
     const event = { target: { value: "Zaaktype A" } } as unknown as Event;
-    component.applyFilter(event);
+    component["applyFilter"](event);
     expect(component.dataSource.filteredData.length).toBe(1);
     expect(component.dataSource.filteredData[0].zaaktype.omschrijving).toBe(
       "Zaaktype A",
@@ -305,7 +305,7 @@ describe(InrichtingscheckComponent.name, () => {
     const event = new MouseEvent("click");
     jest.spyOn(event, "stopPropagation");
 
-    component.clearZTCCache(event);
+    component["clearZTCCache"](event);
     tick(0);
 
     expect(event.stopPropagation).toHaveBeenCalled();

@@ -3,7 +3,7 @@
 ## Context
 Components are being migrated from `standalone: false` to `standalone: true` one at a time using TDD.
 
-**Progress: 11 done — 143 remaining** (as of 2026-03-19)
+**Progress: 12 done — 142 remaining** (as of 2026-03-19)
 
 > The original "149" figure was inaccurate. Verified 2026-03-19: 143 explicit `standalone: false` files remain (non-spec). 11 done by this migration effort; deletions and pre-session migrations account for the rest.
 
@@ -29,7 +29,8 @@ Components are being migrated from `standalone: false` to `standalone: true` one
 | **Skip routing** | Do not touch any `*-routing.module.ts` or router config files. |
 | **No `any` — everywhere** | Zero use of `any` in all files: component `.ts`, spec `.ts`, and any helper touched. Use explicit types, generics, or `unknown`. |
 | **Fix TS errors only in touched files** | Only fix TypeScript errors in files you actually modified in this session. Do not fix pre-existing errors in untouched files. |
-| **Access modifiers in component `.ts`** | All class members (methods, fields, getters, computed signals) must have an explicit access modifier: use `protected` as the default for anything used in the template; use `private` for anything only used internally within the class; use `public` only when required by an interface or called from outside the class. |
+| **Access modifiers in component `.ts`** | All class members (methods, fields, getters, computed signals) must have an explicit access modifier: use `protected` as the default for everything (template-used OR called from specs); use `private` for anything only used internally within the class; use `public` only when required by an interface or Angular binding (e.g. `@Input`). Never use `public` just because a spec calls the member — use bracket notation in the spec instead (see below). |
+| **Bracket notation in specs for protected members** | Specs must never be the reason a member is `public`. When a test needs to call a protected method or read a protected field, use `component["methodName"]()` / `component["fieldName"]` — TypeScript's bracket notation bypasses the access-modifier check at compile time while keeping the component API clean. |
 | **`@Input({ required: true })` for mandatory inputs** | When adding `!` to a `@Input()` field (non-null assertion), also add `{ required: true }` to the decorator: `@Input({ required: true }) formField!: InputFormField`. This gives Angular a runtime check and signals intent clearly. Optional inputs use `?` without `required`. |
 | **No access modifiers in spec files** | Spec files are plain functions — no class members to annotate. But still: no `any`. |
 | **SPDX header** | Every modified or new file needs the header with `SPDX-FileCopyrightText: 2026 INFO.nl` + `SPDX-License-Identifier: EUPL-1.2+`. For **existing files**: only add `2026 INFO.nl` if `INFO.nl` is completely absent; if it already appears (any year), leave unchanged. |
@@ -333,7 +334,7 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - **Gotcha**: After migration, spec uses `imports: [LoadingComponent]` (not `declarations`); `MatProgressBarModule` drops from spec as the standalone component brings it.
 - **Pattern**: `WritableSignal` mocked with real `signal()`, not jest; `UtilService` provided inline via `useValue: { loading: signal(false) } satisfies Pick<UtilService, 'loading'>`; `QueryClient` via `provideQueryClient(testQueryClient)`.
 
-**Progress: 11 done — 143 remaining**
+**Progress: 12 done — 142 remaining**
 
 ### ✅ `shared/material/narrow-checkbox.directive.ts` (2026-03-17)
 - `imports: []` — no template dependencies (attribute directive only)
@@ -399,14 +400,24 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - **Exception**: imports `MaterialFormBuilderModule` (ATOS) — granted because this component is a thin wrapper around ATOS, not ATOS internals itself; migrating it unblocks `referentie-tabel.component`
 - **Pattern**: `@Input({ required: true }) field!: Type` — use `{ required: true }` whenever adding `!` to an `@Input()`; omit for optional inputs (use `?` instead)
 
+### ✅ `admin/referentie-tabel/referentie-tabel.component.ts` (2026-03-19)
+- `imports: [NgIf, DragDropModule, MatSidenavModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, TranslateModule, SideNavComponent, EditInputComponent]`
+- Removed from `admin.module.ts` declarations (router handles standalone components directly)
+- TS fixes: `codeFormField!`, `naamFormField!`; `this.tabel.waarden!` non-null assertions throughout; `@ViewChild` fields made `protected`
+- Spec: 8 tests (setTitle, render rows, code readonly for systeem, delete button for non-system only, add→updateReferentieTabel, delete→updateReferentieTabel, row readonly for systemValue, move→updateReferentieTabel)
+- **Pattern**: `By.directive(EditInputComponent)` to query all instances incl. inside table cells; `.map(el => !!el.componentInstance.readonly).filter(Boolean)` to count readonly inputs without assuming DOM order
+- **Pattern**: `CdkDragDrop` event tested by calling `component.moveTabelWaarde({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)` directly — no need to simulate actual drag interaction
+- **Pattern**: `import type { CdkDragDrop }` (type-only import) when used only as a type cast in spec — avoids "declared but never read" lint hint
+- **Pattern**: `*matNoDataRow` does not render synchronously in tests (async MatTable internals); test empty-state via component state or `By.directive` approach instead
+
 ## Next Target
-`admin/referentie-tabel/referentie-tabel.component.ts` (now unblocked by EditInputComponent migration)
+`admin/parameters/parameters.component.ts`
 
 ---
 
 ## Intermediate Goal: Lazy-load the `/admin` route
 
-**Progress: 12/18 done** (2 components deleted in PR #5535, total reduced from 20 to 18)
+**Progress: 13/18 done** (2 components deleted in PR #5535, total reduced from 20 to 18)
 
 Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` into a standalone route config (`admin.routes.ts`) and wiring it up with `loadChildren` in the app routing.
 
@@ -427,7 +438,7 @@ Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` int
 | `admin/mailtemplate/mailtemplate.component` | ✅ done |
 | `admin/process-definitions/process-definitions.component` | ✅ done (open PR) |
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ done |
-| `admin/referentie-tabel/referentie-tabel.component` | ⬜ pending |
+| `admin/referentie-tabel/referentie-tabel.component` | ✅ done |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ done |
 | `admin/parameters/parameters.component` | ⬜ pending |
 | `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ pending |

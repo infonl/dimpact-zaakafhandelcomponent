@@ -43,8 +43,8 @@ export class MailtemplateComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   protected form = this.formBuilder.group({
     mailTemplateNaam: this.formBuilder.control("", [Validators.required]),
@@ -113,7 +113,7 @@ export class MailtemplateComponent
     });
   }
 
-  saveMailtemplate() {
+  protected saveMailtemplate() {
     const data = this.form.getRawValue();
     const templateData = {
       mail: data.mail!.value!,
@@ -136,7 +136,7 @@ export class MailtemplateComponent
     });
   }
 
-  cancel() {
+  protected cancel() {
     void this.router.navigate(["/admin/mailtemplates"]);
   }
 }
