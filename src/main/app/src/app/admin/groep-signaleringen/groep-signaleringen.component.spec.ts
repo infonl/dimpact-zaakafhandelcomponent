@@ -15,7 +15,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -200,6 +200,28 @@ describe(GroepSignaleringenComponent.name, () => {
       naam: "Groep 1",
     } as GeneratedType<"RestGroup">;
     component.laadSignaleringSettings(groep);
+
+    const row = {
+      type: "ZAAK_OP_NAAM",
+      subjecttype: "ZAAK",
+      dashboard: false,
+      mail: false,
+    } as GeneratedType<"RestSignaleringInstellingen">;
+
+    component.changed(row, "dashboard", true);
+
+    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
+  });
+
+  it("should call setLoading false even when put fails", () => {
+    const groep = {
+      id: "groep-1",
+      naam: "Groep 1",
+    } as GeneratedType<"RestGroup">;
+    component.laadSignaleringSettings(groep);
+    (signaleringenServiceMock.put as jest.Mock).mockReturnValue(
+      throwError(() => new Error("put failed")),
+    );
 
     const row = {
       type: "ZAAK_OP_NAAM",

@@ -16,7 +16,7 @@ import {
 } from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
-import { Observable } from "rxjs";
+import { Observable, finalize } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -91,8 +91,9 @@ export class GroepSignaleringenComponent
     if (!this.groepId) return;
     this.utilService.setLoading(true);
     (row as Record<string, unknown>)[column] = checked;
-    this.service.put(this.groepId, row).subscribe(() => {
-      this.utilService.setLoading(false);
-    });
+    this.service
+      .put(this.groepId, row)
+      .pipe(finalize(() => this.utilService.setLoading(false)))
+      .subscribe();
   }
 }
