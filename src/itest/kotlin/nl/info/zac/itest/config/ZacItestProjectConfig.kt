@@ -328,45 +328,34 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     private fun createBpmnProcessTaskForms() {
-        arrayOf(
-            arrayOf(BPMN_TEST_PROCESS_DEFINITION_KEY, BPMN_TEST_FORM_RESOURCE_PATH),
-            arrayOf(BPMN_TEST_PROCESS_DEFINITION_KEY, BPMN_SUMMARY_FORM_RESOURCE_PATH),
-            arrayOf(
-                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
-                BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH
+        mapOf(
+            BPMN_TEST_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_TEST_FORM_RESOURCE_PATH,
+                BPMN_SUMMARY_FORM_RESOURCE_PATH
             ),
-            arrayOf(
-                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
-                BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
-            ),
-            arrayOf(
-                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
-                BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
-            ),
-            arrayOf(
-                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
-                BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH
-            ),
-            arrayOf(
-                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
                 BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
-            )
-        ).forEach {
-            val key = it[0]
-            val formResourcePath = it[1]
-            itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/bpmn-process-definitions/$key/forms",
-                requestBodyAsString = """
+            ),
+        ).forEach { (processDefinitionKey, formResourcePaths) ->
+            formResourcePaths.forEach { formResourcePath ->
+                itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/bpmn-process-definitions/$processDefinitionKey/forms",
+                    requestBodyAsString = """
                     {
                         "filename": "$formResourcePath",
                         "content": "${readResourceFile(formResourcePath)}"
                     }
-                """.trimIndent(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE
-            ).let { response ->
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_CREATED
+                    """.trimIndent(),
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                ).let { response ->
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_CREATED
+                }
             }
         }
     }
