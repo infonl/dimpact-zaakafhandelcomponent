@@ -5,7 +5,6 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
 import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
 import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
@@ -24,7 +23,6 @@ const routes: Routes = [
     path: "admin",
     children: [
       { path: "", redirectTo: "check", pathMatch: "full" },
-      { path: "formioformulieren", component: FormioFormulierenComponent },
       { path: "groepen", component: GroepSignaleringenComponent },
       { path: "parameters", component: ParametersComponent },
       {

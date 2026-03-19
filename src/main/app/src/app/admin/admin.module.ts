@@ -23,26 +23,26 @@ import { ProcessDefinitionsComponent } from "./process-definitions/process-defin
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 
 @NgModule({
-    declarations: [
-        ParametersEditWrapperComponent,
-        ParametersComponent,
-        ParameterEditSelectProcessDefinitionComponent,
-        ParametersEditBpmnComponent,
-        ReferentieTabelComponent,
-        InrichtingscheckComponent,
-        MailtemplatesComponent,
-        MailtemplateComponent,
-    ],
-    exports: [],
-    imports: [
-        SharedModule,
-        ZoekenModule,
-        AdminRoutingModule,
-        NgxEditorModule,
-        ParametersEditCmmnComponent,
-        SmartDocumentsFormComponent,
-        SmartDocumentsFormItemComponent,
-        ProcessDefinitionsComponent,
-    ],
+  declarations: [
+    ParametersEditWrapperComponent,
+    ParametersComponent,
+    ParameterEditSelectProcessDefinitionComponent,
+    ParametersEditBpmnComponent,
+    ReferentieTabelComponent,
+    InrichtingscheckComponent,
+    MailtemplatesComponent,
+    MailtemplateComponent,
+  ],
+  exports: [],
+  imports: [
+    SharedModule,
+    ZoekenModule,
+    AdminRoutingModule,
+    NgxEditorModule,
+    ParametersEditCmmnComponent,
+    SmartDocumentsFormComponent,
+    SmartDocumentsFormItemComponent,
+    ProcessDefinitionsComponent,
+  ],
 })
 export class AdminModule {}
