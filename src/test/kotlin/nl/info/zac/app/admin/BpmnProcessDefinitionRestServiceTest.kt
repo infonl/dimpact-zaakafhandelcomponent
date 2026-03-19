@@ -5,9 +5,7 @@
 package nl.info.zac.app.admin
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -16,6 +14,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
+import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionForm
 import nl.info.zac.app.admin.model.RestFormioFormulierContent
 import nl.info.zac.app.admin.model.RestProcessDefinitionContent
@@ -40,7 +40,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("User has beheren rights and process definitions exist") {
+    Given("User has beheren rights and process definitions with forms exist") {
         val processDefinition1 = createProcessDefinition(
             id = "pd1",
             name = "Process 1",
@@ -77,6 +77,53 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             bpmnProcessDefinitionVersion = processDefinition2.version,
             name = "form4"
         )
+        val restBpmnProcessDefinition1 = RestBpmnProcessDefinition(
+            id = processDefinition1.id,
+            name = processDefinition1.name,
+            version = processDefinition1.version,
+            key = processDefinition1.key,
+            details = RestBpmnProcessDefinitionDetails(
+                inUse = true,
+                documentation = processDefinition1Metadata.documentation,
+                modificationDate = processDefinition1Metadata.modificationDate,
+                uploadDate = processDefinition1Metadata.uploadDate,
+                forms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form1",
+                        title = "fakeTitle",
+                        uploaded = true
+                    ),
+                    RestBpmnProcessDefinitionForm(formKey = "form2", title = "fakeTitle", uploaded = true)
+                ),
+                orphanedForms = emptyList()
+            )
+        )
+        val restBpmnProcessDefinition2 = RestBpmnProcessDefinition(
+            id = processDefinition2.id,
+            name = processDefinition2.name,
+            version = processDefinition2.version,
+            key = processDefinition2.key,
+            details = RestBpmnProcessDefinitionDetails(
+                inUse = true,
+                documentation = processDefinition2Metadata.documentation,
+                modificationDate = processDefinition2Metadata.modificationDate,
+                uploadDate = processDefinition2Metadata.uploadDate,
+                forms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form3",
+                        title = "fakeTitle",
+                        uploaded = true
+                    )
+                ),
+                orphanedForms = listOf(
+                    RestBpmnProcessDefinitionForm(
+                        formKey = "form4",
+                        title = "fakeTitle",
+                        uploaded = true
+                    )
+                )
+            )
+        )
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances() } returns processDefinitionsInUse
@@ -90,51 +137,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             val result = restService.listProcessDefinitions(true)
 
             Then("it should return all process definitions with correct details") {
-                result.size shouldBe 2
-                result[0].id shouldBe "pd1"
-                result[0].name shouldBe "Process 1"
-                result[0].version shouldBe 1
-                result[0].key shouldBe "process1"
-                result[0].details shouldNotBe null
-                result[0].details?.inUse shouldBe true
-                result[0].details?.documentation shouldBe processDefinition1Metadata.documentation
-                result[0].details?.modificationDate shouldBe processDefinition1Metadata.modificationDate
-                result[0].details?.uploadDate shouldBe processDefinition1Metadata.uploadDate
-                result[0].details?.forms?.shouldHaveSize(2)
-                result[0].details?.forms shouldBe listOf(
-                    RestBpmnProcessDefinitionForm(
-                        formKey = "form1",
-                        title = "fakeTitle",
-                        uploaded = true
-                    ),
-                    RestBpmnProcessDefinitionForm(formKey = "form2", title = "fakeTitle", uploaded = true)
-                )
-                result[0].details?.orphanedForms?.shouldHaveSize(0)
-                result[1].id shouldBe "pd2"
-                result[1].name shouldBe "Process 2"
-                result[1].version shouldBe 2
-                result[1].key shouldBe "process2"
-                result[1].details shouldNotBe null
-                result[1].details?.inUse shouldBe true
-                result[1].details?.documentation shouldBe processDefinition2Metadata.documentation
-                result[1].details?.modificationDate shouldBe processDefinition2Metadata.modificationDate
-                result[1].details?.uploadDate shouldBe processDefinition2Metadata.uploadDate
-                result[1].details?.forms?.shouldHaveSize(1)
-                result[1].details?.forms shouldBe listOf(
-                    RestBpmnProcessDefinitionForm(
-                        formKey = "form3",
-                        title = "fakeTitle",
-                        uploaded = true
-                    )
-                )
-                result[1].details?.orphanedForms?.shouldHaveSize(1)
-                result[1].details?.orphanedForms shouldBe listOf(
-                    RestBpmnProcessDefinitionForm(
-                        formKey = "form4",
-                        title = "fakeTitle",
-                        uploaded = true
-                    )
-                )
+                result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
             }
         }
     }
@@ -152,6 +155,18 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             version = 2,
             key = "process2"
         )
+        val restBpmnProcessDefinition1 = RestBpmnProcessDefinition(
+            id = processDefinition1.id,
+            name = processDefinition1.name,
+            version = processDefinition1.version,
+            key = processDefinition1.key
+        )
+        val restBpmnProcessDefinition2 = RestBpmnProcessDefinition(
+            id = processDefinition2.id,
+            name = processDefinition2.name,
+            version = processDefinition2.version,
+            key = processDefinition2.key
+        )
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition1, processDefinition2)
@@ -160,17 +175,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             val result = restService.listProcessDefinitions(false)
 
             Then("it should return all process definitions with correct details") {
-                result.size shouldBe 2
-                result[0].id shouldBe "pd1"
-                result[0].name shouldBe "Process 1"
-                result[0].version shouldBe 1
-                result[0].key shouldBe "process1"
-                result[0].details shouldBe null
-                result[1].id shouldBe "pd2"
-                result[1].name shouldBe "Process 2"
-                result[1].version shouldBe 2
-                result[1].key shouldBe "process2"
-                result[1].details shouldBe null
+                result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
             }
         }
     }

@@ -94,8 +94,6 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
         }
     }
 
-    // This method deletes all forms related to any version of a process definition. It will only be called
-    // when a complete process definition is deleted.
     @Transactional(Transactional.TxType.REQUIRED)
     fun deleteAllFormsForProcessDefinition(processDefinitionKey: String) {
         entityManager.criteriaBuilder.let { criteriaBuilder ->
