@@ -5,7 +5,6 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { FormioFormulierenComponent } from "./formio-formulieren/formio-formulieren.component";
 import { FormulierDefinitieEditComponent } from "./formulier-definitie-edit/formulier-definitie-edit.component";
 import { FormulierDefinitieResolverService } from "./formulier-definitie-edit/formulier-definitie-resolver.service";
 import { FormulierDefinitiesComponent } from "./formulier-definities/formulier-definities.component";
@@ -27,7 +26,6 @@ const routes: Routes = [
     path: "admin",
     children: [
       { path: "", redirectTo: "check", pathMatch: "full" },
-      { path: "formioformulieren", component: FormioFormulierenComponent },
       { path: "formulierdefinities", component: FormulierDefinitiesComponent },
       {
         path: "formulierdefinities/:id",
@@ -41,7 +39,10 @@ const routes: Routes = [
         component: ParametersEditWrapperComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
-      { path: "processdefinitions", component: ProcessDefinitionsComponent },
+      {
+        path: "bpmn-procesdefinities",
+        component: ProcessDefinitionsComponent,
+      },
       { path: "referentietabellen", component: ReferentieTabellenComponent },
       {
         path: "referentietabellen/:id",

@@ -65,17 +65,6 @@ The following steps can help you debug failing integration tests:
       2.  Continue running until the second breakpoint is reached. In most cases you can find out from the logs what the issue is.
       3.  When the integration tests are on a breakpoint you can also do manual testing in the ZAC user interface from a browser to troubleshoot.
 
-### Parallel execution of integration tests
-
-The integration are set up run in parallel. 
-Specific integration tests that cannot be run in parallel (typically because they use certain asynchronous functionality) need to be have the following line of code inside the test class (or spec):
-
-```kotlin
-    blockingTest = true
-```
-
-See [Kotest concurrency](https://kotest.io/docs/framework/concurrency6.html) for details.
-
 ## End-to-end (e2e) tests
 
 Our end-to-end tests use the [Playwright e2e test framework](https://playwright.dev/).

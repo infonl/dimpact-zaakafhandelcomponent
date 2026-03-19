@@ -328,4 +328,99 @@ describe(KlantZakenTabelComponent.name, () => {
       expect(result.length).toBe(1);
     }));
   });
+
+  describe("setBetrokkeneFieldToSolrKeyName", () => {
+    it.each([
+      ["Behandelaar", "zaak_betrokkene_Behandelaar"],
+      ["Melder", "zaak_betrokkene_Melder"],
+      ["Initiator", "zaak_betrokkene_Initiator"],
+    ])(
+      "should convert simple role name '%s' to field name '%s'",
+      (input, expected) => {
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it.each([
+      [
+        "Belanghebbende Met Spaties",
+        "zaak_betrokkene_Belanghebbende_Met_Spaties",
+      ],
+      ["Rol Met Veel Spaties", "zaak_betrokkene_Rol_Met_Veel_Spaties"],
+      ["A B C", "zaak_betrokkene_A_B_C"],
+    ])(
+      "should convert role name with spaces '%s' to field name '%s'",
+      (input, expected) => {
+        expect(component["setBetrokkeneFieldToSolrKeyName"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it("should handle an empty search", () => {
+      expect(component["setBetrokkeneFieldToSolrKeyName"]("")).toBe(
+        "ZAAK_BETROKKENEN",
+      );
+    });
+
+    it("should handle role name that already has underscores", () => {
+      expect(
+        component["setBetrokkeneFieldToSolrKeyName"]("Rol_Met_Underscores"),
+      ).toBe("zaak_betrokkene_Rol_Met_Underscores");
+    });
+  });
+
+  describe("makeSolrKeyNameReadableBetrokkeneType", () => {
+    it.each([
+      ["Behandelaar", "Behandelaar"],
+      ["Melder", "Melder"],
+      ["Initiator", "Initiator"],
+    ])(
+      "should keep simple role name '%s' unchanged as '%s'",
+      (input, expected) => {
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it.each([
+      ["Belanghebbende_Met_Spaties", "Belanghebbende Met Spaties"],
+      ["Rol_Met_Veel_Spaties", "Rol Met Veel Spaties"],
+      ["A_B_C", "A B C"],
+    ])(
+      "should convert field name with underscores '%s' to human-readable '%s'",
+      (input, expected) => {
+        expect(component["makeSolrKeyNameReadableBetrokkeneType"](input)).toBe(
+          expected,
+        );
+      },
+    );
+
+    it("should handle empty string", () => {
+      expect(component["makeSolrKeyNameReadableBetrokkeneType"]("")).toBe("");
+    });
+  });
+
+  describe("betrokkene field name round-trip conversion", () => {
+    it.each([
+      "Behandelaar",
+      "Melder",
+      "Belanghebbende Met Spaties",
+      "Rol Met Veel Spaties",
+    ])(
+      "should convert '%s' to field name and back to original (minus prefix)",
+      (original) => {
+        const fieldName =
+          component["setBetrokkeneFieldToSolrKeyName"](original);
+        // Remove the prefix before converting back
+        const withoutPrefix = fieldName.replace("zaak_betrokkene_", "");
+        const result =
+          component["makeSolrKeyNameReadableBetrokkeneType"](withoutPrefix);
+        expect(result).toBe(original);
+      },
+    );
+  });
 });

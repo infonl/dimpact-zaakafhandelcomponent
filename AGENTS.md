@@ -123,11 +123,16 @@ All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
 Replace `<YEAR>` with the current year.
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
-When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` if not already present.
+When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
+
+## Git branch conventions
+When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
+Replace `PZ-XXX` with the relevant Jira ticket number.
+The branch name convention `renovate/` is reserved for automated dependency updates by Renovate and should not be used for manual branches.
 
 ## Key Configuration Files
 - `.env.example` — all environment variables with descriptions

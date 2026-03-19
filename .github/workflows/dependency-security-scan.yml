@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 2 # Need previous commit to detect changes
 
       - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -103,7 +103,7 @@ jobs:
           echo "🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload npm audit SARIF results (main app)
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/upload-sarif@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
         if: always() && hashFiles('src/main/app/npm-audit-main.sarif') != ''
         with:
           sarif_file: src/main/app/npm-audit-main.sarif
@@ -144,7 +144,7 @@ jobs:
       - name: Update OWASP dependency database
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          ./gradlew dependencyCheckUpdate --no-configuration-cache -DdependencyCheck.connectionTimeout=2400000 || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
@@ -225,7 +225,7 @@ jobs:
           EOF
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/upload-sarif@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif

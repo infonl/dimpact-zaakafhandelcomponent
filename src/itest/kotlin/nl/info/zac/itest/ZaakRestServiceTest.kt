@@ -763,7 +763,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Assigning zaken from the list") {
-        blockingTest = true
         Given(
             """
             Two zaken have been created and a websocket subscriptions has been created to listen for 'zaken verdelen' 
@@ -928,7 +927,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Assigning a zaak to the logged-in user from the list") {
-        blockingTest = true
         Given(
             """
         A zaak which has not been assigned to the currently logged in user, 
@@ -986,7 +984,6 @@ class ZaakRestServiceTest : BehaviorSpec({
     }
 
     Context("Releasing zaken from the list") {
-        blockingTest = true
         Given(
             """Two zaken that have been assigned and a websocket subscription has been created to listen
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job

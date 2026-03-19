@@ -29,7 +29,6 @@ import { FormHelper } from "./helpers";
  * It should **never** be used directly in a template.
  */
 @Component({
-  standalone: true,
   template: "",
 })
 export class SingleInputFormField<
@@ -114,7 +113,6 @@ export class SingleInputFormField<
  * It should **never** be used directly in a template.
  */
 @Component({
-  standalone: true,
   template: "",
 })
 export class MultiInputFormField<

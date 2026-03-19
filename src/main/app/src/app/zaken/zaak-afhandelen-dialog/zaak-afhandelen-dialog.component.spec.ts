@@ -121,8 +121,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakAfhandelenDialogComponent, StaticTextComponent],
+      declarations: [ZaakAfhandelenDialogComponent],
       imports: [
+        StaticTextComponent,
         ReactiveFormsModule,
         TranslateModule.forRoot(),
         PipesModule,
@@ -401,14 +402,20 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     test.each([
       [
         {
-          resultaatType: { id: "test-id-1", besluitVerplicht: true },
+          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
+            id: "test-id-1",
+            besluitVerplicht: true,
+          }),
           besluiten: [],
         },
         false,
       ],
       [
         {
-          resultaatType: { id: "test-id-2", besluitVerplicht: true },
+          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
+            id: "test-id-2",
+            besluitVerplicht: true,
+          }),
           besluiten: [
             fromPartial<GeneratedType<"RestDecision">>({
               uuid: "mock-besluit-uuid",
@@ -420,7 +427,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ],
       [
         {
-          resultaatType: { id: "test-id-3", besluitVerplicht: false },
+          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
+            id: "test-id-3",
+            besluitVerplicht: false,
+          }),
           besluiten: [
             fromPartial<GeneratedType<"RestDecision">>({
               uuid: "mock-besluit-uuid",
@@ -432,7 +442,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ],
       [
         {
-          resultaatType: { id: "test-id-4", besluitVerplicht: false },
+          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
+            id: "test-id-4",
+            besluitVerplicht: false,
+          }),
           besluiten: [],
         },
         true,

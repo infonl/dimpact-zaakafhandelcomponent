@@ -19,12 +19,12 @@ export class FoutAfhandelingComponent implements OnInit {
   serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
   constructor(
-    private readonly service: FoutAfhandelingService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly referentieTabelService: ReferentieTabelService,
   ) {}
 
   ngOnInit() {
-    this.bericht = this.service.bericht;
-    this.foutmelding = this.service.foutmelding;
+    this.foutmelding = this.foutAfhandelingService.foutmelding;
+    this.bericht = this.foutAfhandelingService.bericht;
   }
 }

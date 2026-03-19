@@ -14,13 +14,13 @@ import { SideNavUtil } from "../side-nav/side-nav.util";
 
 @Component({
   template: "",
-  standalone: false,
+  standalone: true,
 })
 export abstract class ViewComponent implements OnDestroy, AfterViewInit {
-  abstract sideNavContainer: MatSidenavContainer;
-  abstract menuSidenav: MatSidenav;
+  protected abstract sideNavContainer: MatSidenavContainer;
+  protected abstract menuSidenav: MatSidenav;
   protected subscriptions$: Subscription[] = [];
-  sideNaveMode: MatDrawerMode = SideNavUtil.getMode();
+  protected sideNaveMode: MatDrawerMode = SideNavUtil.getMode();
 
   protected constructor() {}
 
@@ -30,7 +30,7 @@ export abstract class ViewComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  menuModeChanged(mode: string): void {
+  protected menuModeChanged(mode: string): void {
     this.sideNaveMode = mode as MatDrawerMode;
     this.updateMargins();
   }

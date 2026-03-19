@@ -62,12 +62,18 @@ describe(ParametersEditBpmnComponent.name, () => {
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      details: {
+        inUse: true,
+      },
     },
     {
       id: "RestBpmnProcessDefinition-2",
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
+      details: {
+        inUse: true,
+      },
     },
   ];
 
@@ -83,12 +89,10 @@ describe(ParametersEditBpmnComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        ParametersEditBpmnComponent,
+      declarations: [ParametersEditBpmnComponent],
+      imports: [
         SideNavComponent,
         StaticTextComponent,
-      ],
-      imports: [
         TranslateModule.forRoot(),
         MaterialModule,
         RouterModule,

@@ -4,15 +4,14 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:2cd82735a36356842d5eb1ef80db3ae8f1154172f0f653db48fde079b2a0b7f7
     ports:
       - "54326:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 30s
     environment:
       - POSTGRES_USER=keycloak
       - POSTGRES_PASSWORD=keycloak
@@ -21,7 +20,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.4@sha256:ae8efb0d218d8921334b03a2dbee7069a0b868240691c50a3ffc9f42fabba8b4
+    image: quay.io/keycloak/keycloak:26.5.6@sha256:8d44614c74798322c4e07fbe0ecb15cfbb5879d69b484628555f58ade06f0d8c
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -33,7 +32,7 @@ services:
         "CMD-SHELL",
         "exec 3<>/dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost:9000\r\nConnection: close\r\n\r\n' >&3;cat <&3 | grep -q '\"status\": \"UP\"' && exit 0 || exit 1"
       ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
     environment:
@@ -102,10 +101,9 @@ services:
       - "54322:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 30
     environment:
       - POSTGRES_USER=openzaak
       - POSTGRES_PASSWORD=openzaak
@@ -154,13 +152,13 @@ services:
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 30
       # This should allow for enough time for migrations to run before the max
-      # retries have passed. This healthcheck in turn allows other containers
+      # retries have passed. This health check in turn allows other containers
       # to wait for the database migrations.
-      start_period: 30s
+      start_period: 10s
     depends_on:
       openzaak-database:
         condition: service_healthy
@@ -177,9 +175,9 @@ services:
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       start_period: 10s
     depends_on:
       openzaak.local:
@@ -210,10 +208,9 @@ services:
       - EMAIL_HOST=localhost
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 10s
     depends_on:
       objecten-api-database:
         condition: service_healthy
@@ -227,10 +224,9 @@ services:
       - "54323:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
@@ -251,7 +247,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
+    image: solr:9.10.1-slim@sha256:9dd498f7bd407e4a9e349f89f914e359c553e9ea56e35bdd03641f9fa9a05a2d
     ports:
       - "8983:8983"
     volumes:
@@ -266,7 +262,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.13.2-static@sha256:649113d3bfefc6ae2ab0520ff71c73550f2447913c1a4802d967199fb55ad6cd
+    image: openpolicyagent/opa:1.14.1-static@sha256:5c1a4f535f83ebaf271f51095bc5ac8848519bc84ae3cc7ad81edceca71a4e0a
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -291,15 +287,14 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:2cd82735a36356842d5eb1ef80db3ae8f1154172f0f653db48fde079b2a0b7f7
     ports:
       - "54325:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=openklant
       - POSTGRES_PASSWORD=openklant
@@ -309,7 +304,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
+    image: maykinmedia/open-klant:2.14.0@sha256:8ac6eafe5738fc2a27316abe7bc3532e5d41f955269a577d10e95c0d7be87a59
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
@@ -371,7 +366,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.13.2@sha256:22770e039a71a885231059c93166cce0644db256cab751043d94bfd150f220d5
+    image: openpolicyagent/opa:1.14.1@sha256:d94bd6ac314a57aceeb6dacc3f27bc59f9083b49f365aa79105abb345f94e573
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -380,7 +375,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.1@sha256:653d38f59f4b271f2a4b3ebc7cf4f701b746307be339407ae54a613b1b9d300a
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
@@ -388,7 +383,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.146.1@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c
+    image: otel/opentelemetry-collector-contrib:0.147.0@sha256:e7c92c715f28ff142f3bcaccd4fc5603cf4c71276ef09954a38eb4038500a5a5
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -404,7 +399,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.1@sha256:9371af1b75b4e057eb77f22dc4dd4d9176cd6985e29f181527be6723b7f29c41
+    image: grafana/tempo:2.10.3@sha256:cac9de2ac9f6da8efca5b64b690a7cb8c786a0c49cac7b4517dd1b0089a6c703
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -418,7 +413,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
+    image: prom/prometheus:v3.10.0@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -431,7 +426,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:12.3.3@sha256:9e1e77ade304069aee3196e9a4f210830e96e80ce9a2640891eccc324b152faf
+    image: grafana/grafana:12.4.1@sha256:e932bd6ed0e026595b08483cd0141e5103e1ab7ff8604839ff899b8dc54cabcb
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -444,10 +439,9 @@ services:
       - "3000:3000"
     healthcheck:
       test: "bash -c 'printf \"GET /api/health HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/3000; exit $?;'"
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     depends_on:
       - tempo
       - prometheus
@@ -469,12 +463,12 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.4-alpine@sha256:09fbd90e09ca0f12f0c4c40a069147412f7be25245cad774d9df5684b03a031e
+    image: rabbitmq:4.2.5-alpine@sha256:0a81e68b7681c2eb24737833f8dcd4293af2662af2cc0af91185c68216a89d01
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
+      interval: 10s
+      timeout: 10s
+      retries: 20
     profiles: [ "opennotificaties" ]
 
   opennotificaties-database:
@@ -485,10 +479,9 @@ services:
       - "54327:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       - POSTGRES_USER=opennotificaties
       - POSTGRES_PASSWORD=opennotificaties
@@ -527,13 +520,13 @@ services:
       SECRET_KEY: opennotificatiesApiSecretKey
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       # This should allow for enough time for migrations to run before the max
       # retries have passed.
       # This health check in turn allows other containers to wait for the database migrations.
-      start_period: 30s
+      start_period: 10s
     ports:
       - "8003:8000"
     volumes: &opennotificaties-volumes
@@ -570,9 +563,9 @@ services:
     command: /celery_worker.sh
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      interval: 5s
+      timeout: 10s
+      retries: 10
       start_period: 10s
     depends_on:
       opennotificaties:
@@ -585,10 +578,9 @@ services:
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
-      start_period: 30s
     environment:
       - POSTGRES_USER=openarchiefbeheer
       - POSTGRES_PASSWORD=openarchiefbeheer
@@ -634,13 +626,8 @@ services:
       - REQUESTS_READ_TIMEOUT=5000
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      # This should allow for enough time for migrations to run before the max
-      # retries have passed. This healthcheck in turn allows other containers
-      # to wait for the database migrations.
-      start_period: 30s
+      interval: 5s
+      timeout: 10s
     ports:
       - "8004:8000"
     depends_on:
@@ -669,10 +656,9 @@ services:
     environment: *web_env
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       - openarchiefbeheer-database
       - redis
@@ -688,7 +674,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.29.5@sha256:79f2c2c26124360d69d12078d36f9bf129fffe6eabe146ed3689b523fdf39a17
+    image: nginxinc/nginx-unprivileged:1.29.5@sha256:e080d97d1ce51db45c3f843b55b187bd66c2aa43c038ca16353f389139443d23
     ports:
       - "8005:8080"
     volumes:
@@ -699,7 +685,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:2cd82735a36356842d5eb1ef80db3ae8f1154172f0f653db48fde079b2a0b7f7
     ports:
       - "54329:5432"
     environment:
@@ -708,7 +694,7 @@ services:
       - POSTGRES_DB=Pabc
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 10
     volumes:
@@ -753,15 +739,14 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:2cd82735a36356842d5eb1ef80db3ae8f1154172f0f653db48fde079b2a0b7f7
     ports:
       - "54320:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 20
     environment:
       POSTGRES_USER: zac
       POSTGRES_PASSWORD: password

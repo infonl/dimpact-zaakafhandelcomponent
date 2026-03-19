@@ -45,7 +45,6 @@ import java.time.LocalDate
  */
 @Suppress("LargeClass")
 class SearchRestServiceTest : BehaviorSpec({
-    blockingTest = true
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)

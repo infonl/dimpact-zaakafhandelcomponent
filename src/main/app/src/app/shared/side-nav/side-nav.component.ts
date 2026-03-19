@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import { Component, inject, input, output, signal } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatListModule } from "@angular/material/list";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { RouterModule } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { finalize } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { rotate180, sideNavToggle } from "../animations/animations";
@@ -19,7 +28,21 @@ import { SideNavUtil } from "./side-nav.util";
   templateUrl: "./side-nav.component.html",
   styleUrls: ["./side-nav.component.less"],
   animations: [rotate180, sideNavToggle],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    MatListModule,
+    MatDividerModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatTooltipModule,
+    RouterModule,
+    TranslateModule,
+  ],
 })
 export class SideNavComponent {
   private readonly utilService = inject(UtilService);

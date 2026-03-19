@@ -3,13 +3,13 @@ kotlin = "2.3.10"
 kotlinx-coroutines = "1.10.2"
 jsonschema2pojo = "1.3.3"
 kotlin-csv = "1.10.0"
-openapi = "4.1.1"
+openapi = "4.2.4"
 openapi-generator = "7.20.0"
-opentelemetry = "1.59.0"
-opentelemetry-instrumentation = "2.25.0"
+opentelemetry = "1.60.1"
+opentelemetry-instrumentation = "2.26.0"
 node-gradle = "7.1.0"
 detekt = "1.23.8"
-spotless = "8.2.1"
+spotless = "8.4.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
@@ -30,11 +30,11 @@ javax-cache = "1.1.1"
 google-guava = "33.5.0-jre"
 itextpdf = "9.5.0"
 itextpdf-html2pdf = "6.3.1"
-flyway = "12.0.2"
+flyway = "12.1.1"
 apache-solr = "9.10.1"
-webdav-servlet = "1.2.245"
+webdav-servlet = "1.2.250"
 htmlcleaner = "2.29"
-infinispan = "16.1.0"
+infinispan = "16.1.2"
 apache-httpclient = "4.5.14"
 reactive-streams = "1.0.4"
 jakarta-mail = "2.1.5"
@@ -42,6 +42,7 @@ caffeine = "3.2.3"
 jackson = "2.21.1"
 jackson-annotations = "2.21"
 jacobras-human-readable = "1.12.3"
+kotlinx-metadata-jvm = "0.9.0"
 
 # Versions of dependencies provided by Wildfly.
 # These need to be updated manually when upgrading WildFly.
@@ -62,11 +63,11 @@ wildfly-security-elytron-http-oidc = "2.7.0.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "6.1.3"
+kotest = "6.1.7"
 mockk = "1.14.9"
 
-testcontainers = "2.0.3"
-testcontainers-mockserver = "2.0.3"
+testcontainers = "2.0.4"
+testcontainers-mockserver = "2.0.4"
 testcontainers-postgresql = "1.21.4"
 
 json-json = "20250517"
@@ -100,6 +101,7 @@ apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "a
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-metadata-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-metadata-jvm", version.ref = "kotlinx-metadata-jvm" }
 kotlin-csv-jvm = { group = "com.jsoizo", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 jacobras-human-readable = { group = "nl.jacobras", name = "Human-Readable", version.ref = "jacobras-human-readable" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }

@@ -8,6 +8,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatTableDataSource } from "@angular/material/table";
 import { of } from "rxjs";
+import { IndicatiesLayout } from "src/app/shared/indicaties/indicaties.component";
 import {
   mapDocumentenToString,
   mapStringToDocumentenStrings,
@@ -46,6 +47,8 @@ export class DocumentenFormulierVeldComponent implements OnInit {
   selection = new SelectionModel<
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
+
+  readonly indicatiesLayout = IndicatiesLayout;
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,

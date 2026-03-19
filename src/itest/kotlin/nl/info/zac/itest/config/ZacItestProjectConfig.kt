@@ -11,7 +11,6 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
-import io.kotest.engine.concurrency.SpecExecutionMode
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
@@ -143,13 +142,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * and do not depend on each other's side effects.
      */
     override val specExecutionOrder = SpecExecutionOrder.Random
-
-    /**
-     * Run the integration tests concurrently to speed up the test execution.
-     * Integration tests that cannot be run concurrently should be marked using `blockingTest = true`.
-     * See: https://kotest.io/docs/framework/concurrency6.html
-     */
-    override val specExecutionMode = SpecExecutionMode.Concurrent
 
     override suspend fun beforeProject() {
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
@@ -337,20 +329,37 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     private fun createBpmnProcessTaskForms() {
         arrayOf(
-            BPMN_TEST_FORM_RESOURCE_PATH,
-            BPMN_SUMMARY_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+            arrayOf(BPMN_TEST_PROCESS_DEFINITION_KEY, BPMN_TEST_FORM_RESOURCE_PATH),
+            arrayOf(BPMN_TEST_PROCESS_DEFINITION_KEY, BPMN_SUMMARY_FORM_RESOURCE_PATH),
+            arrayOf(
+                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+                BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH
+            ),
+            arrayOf(
+                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+                BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH
+            ),
+            arrayOf(
+                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+                BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
+            ),
+            arrayOf(
+                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+                BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH
+            ),
+            arrayOf(
+                BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY,
+                BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+            )
         ).forEach {
+            val key = it[0]
+            val formResourcePath = it[1]
             itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/formio-formulieren",
+                url = "$ZAC_API_URI/bpmn-process-definitions/$key/forms",
                 requestBodyAsString = """
                     {
-                        "filename": "$it",
-                        "content": "${readResourceFile(it)}"
+                        "filename": "$formResourcePath",
+                        "content": "${readResourceFile(formResourcePath)}"
                     }
                 """.trimIndent(),
                 testUser = BEHEERDER_ELK_ZAAKTYPE

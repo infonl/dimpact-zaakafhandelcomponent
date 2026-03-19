@@ -13,11 +13,11 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 
 @Component({
   template: "",
-  standalone: false,
+  standalone: true,
 })
 export abstract class AdminComponent extends ViewComponent {
-  menu: MenuItem[] = [];
-  activeMenu = "";
+  protected menu: MenuItem[] = [];
+  protected activeMenu = "";
 
   protected constructor(
     public readonly utilService: UtilService,
@@ -26,7 +26,7 @@ export abstract class AdminComponent extends ViewComponent {
     super();
   }
 
-  setupMenu(title: string, params?: Record<string, unknown>) {
+  protected setupMenu(title: string, params?: Record<string, unknown>) {
     this.utilService.setTitle((this.activeMenu = title), params);
     this.menu = [];
     this.menu.push(new HeaderMenuItem("actie.admin"));
@@ -53,7 +53,7 @@ export abstract class AdminComponent extends ViewComponent {
     this.menu.push(
       this.getMenuLink(
         "title.procesdefinities",
-        "/admin/processdefinitions",
+        "/admin/bpmn-procesdefinities",
         "design_services",
       ),
     );
@@ -61,13 +61,6 @@ export abstract class AdminComponent extends ViewComponent {
       this.getMenuLink(
         "title.formulierdefinities",
         "/admin/formulierdefinities",
-        "design_services",
-      ),
-    );
-    this.menu.push(
-      this.getMenuLink(
-        "title.formioformulieren",
-        "/admin/formioformulieren",
         "design_services",
       ),
     );

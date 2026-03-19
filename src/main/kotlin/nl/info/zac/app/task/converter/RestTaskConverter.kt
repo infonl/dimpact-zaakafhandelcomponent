@@ -22,7 +22,7 @@ import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
-import nl.info.zac.formio.FormioService
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
@@ -36,7 +36,7 @@ class RestTaskConverter @Inject constructor(
     private val policyService: PolicyService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val formulierDefinitieService: FormulierDefinitieService,
-    private val formioService: FormioService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
 
@@ -105,7 +105,10 @@ class RestTaskConverter @Inject constructor(
                 if (it != null) {
                     restTask.formulierDefinitie = it.toRESTFormulierDefinitie(true)
                 } else {
-                    restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
+                    restTask.formioFormulier = bpmnProcessDefinitionTaskFormService.readForm(
+                        taskInfo.processDefinitionId,
+                        taskInfo.formKey
+                    )
                 }
             }
         }

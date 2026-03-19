@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: paths-filter
         with:
           # the field below incorrectly results in a schema validation. see: https://github.com/dorny/paths-filter/issues/225
@@ -80,15 +80,15 @@ jobs:
         uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/init@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/autobuild@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/analyze@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
         with:
           category: "/language:${{matrix.language}}"
 
@@ -105,8 +105,59 @@ jobs:
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
     steps:
       - name: Check CodeQL Status
-        uses: eldrick19/code-scanning-status-checker@868f78ef588214f12e365604583b7673d18941ce # v2.0.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event.pull_request.number }}
-          repo: ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check the conclusion of CodeQL check runs on the last commit of this PR.
+          # Replaces the abandoned eldrick19/code-scanning-status-checker action.
+          MAX_ATTEMPTS=10
+          SLEEP_SECONDS=10
+
+          for ATTEMPT in $(seq 1 $MAX_ATTEMPTS); do
+            CONCLUSIONS=$(gh api graphql -f query='{
+              repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
+                pullRequest(number: ${{ github.event.pull_request.number }}) {
+                  commits(last: 1) {
+                    nodes {
+                      commit {
+                        checkSuites(first: 100, filterBy: {checkName: "CodeQL"}) {
+                          nodes {
+                            checkRuns(first: 100) {
+                              nodes {
+                                name
+                                conclusion
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' --jq '[.data.repository.pullRequest.commits.nodes[0].commit.checkSuites.nodes[].checkRuns.nodes[]]')
+
+            TOTAL=$(echo "$CONCLUSIONS" | jq 'length')
+            PENDING=$(echo "$CONCLUSIONS" | jq '[.[] | select(.conclusion == null)] | length')
+
+            if [ "$TOTAL" -gt 0 ] && [ "$PENDING" -eq 0 ]; then
+              break
+            fi
+
+            if [ "$ATTEMPT" -eq "$MAX_ATTEMPTS" ]; then
+              echo "::warning::CodeQL check runs not ready after $((MAX_ATTEMPTS * SLEEP_SECONDS))s (found: ${TOTAL}, pending: ${PENDING}). Skipping."
+              exit 78
+            fi
+
+            echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}: CodeQL check runs not ready yet (found: ${TOTAL}, pending: ${PENDING}). Retrying in ${SLEEP_SECONDS}s..."
+            sleep $SLEEP_SECONDS
+          done
+
+          FAILED=$(echo "$CONCLUSIONS" | jq '[.[] | select(.conclusion != "SUCCESS" and .conclusion != "NEUTRAL")] | length')
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::${FAILED} of ${TOTAL} CodeQL check run(s) did not succeed:"
+            echo "$CONCLUSIONS" | jq -r '.[] | select(.conclusion != "SUCCESS" and .conclusion != "NEUTRAL") | "  \(.name): \(.conclusion)"'
+            exit 1
+          fi
+
+          echo "All ${TOTAL} CodeQL check run(s) passed"

@@ -4,6 +4,7 @@
  *
  */
 
+import "@angular/compiler";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import "whatwg-fetch";
 

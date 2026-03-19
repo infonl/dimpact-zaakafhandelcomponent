@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { CommonModule } from "@angular/common";
 import {
   Injector,
   NgModule,
@@ -13,7 +14,6 @@ import {
 import { FormsModule } from "@angular/forms";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { Title } from "@angular/platform-browser";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
@@ -49,33 +49,33 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    SideNavComponent,
-    BackButtonDirective,
-    StaticTextComponent,
-    ReadMoreComponent,
-    OutsideClickDirective,
     EditInputComponent,
     DateRangeFilterComponent,
     FacetFilterComponent,
     TekstFilterComponent,
-    ToggleFilterComponent,
     ConfirmDialogComponent,
     DialogComponent,
     ColumnPickerComponent,
     DocumentViewerComponent,
     NotificationDialogComponent,
-    ExportButtonComponent,
     BesluitIndicatiesComponent,
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
     ZaakdataComponent,
-    VersionComponent,
-    SortPipe,
-    ZacNarrowMatCheckboxDirective,
   ],
   imports: [
+    CommonModule,
+    DragDropModule,
+    ExportButtonComponent,
+    BackButtonDirective,
+    StaticTextComponent,
+    OutsideClickDirective,
+    ZacNarrowMatCheckboxDirective,
+    ToggleFilterComponent,
+    SideNavComponent,
+    VersionComponent,
+    SortPipe,
     FormsModule,
-    BrowserAnimationsModule,
     RouterModule,
     PipesModule,
     MaterialModule,
@@ -83,9 +83,10 @@ import { VersionComponent } from "./version/version.component";
     TranslateModule,
     VertrouwelijkaanduidingToTranslationKeyPipe,
     EmptyPipe,
+    ReadMoreComponent,
   ],
   exports: [
-    BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     TranslateModule,
     DragDropModule,

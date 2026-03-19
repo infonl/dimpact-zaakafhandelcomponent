@@ -308,10 +308,7 @@ function ensureDirectory(dirPath) {
     }
 }
 
-/**
- * Find the most recent collection in parent folder
- */
-function findMostRecentCollection(parentFolder) {
+function findExistingCollection(parentFolder) {
     if (!fs.existsSync(parentFolder)) {
         return null;
     }
@@ -342,39 +339,6 @@ function findMostRecentCollection(parentFolder) {
     // Sort by modification time, most recent first
     collections.sort((a, b) => b.mtime - a.mtime);
     return collections[0].path;
-}
-
-/**
- * Copy environments from source collection to target
- */
-function copyEnvironments(sourceCollection, targetCollection) {
-    const sourceEnvPath = path.join(sourceCollection, 'environments');
-    const targetEnvPath = path.join(targetCollection, 'environments');
-
-    if (fs.existsSync(sourceEnvPath)) {
-        log(`Copying environments from previous collection`, 'cyan');
-        ensureDirectory(targetEnvPath);
-        fs.cpSync(sourceEnvPath, targetEnvPath, { recursive: true });
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Copy collection.bru file from source collection to target
- */
-function copyCollectionBruFile(sourceCollection, targetCollection) {
-    const sourceEnvPath = path.join(sourceCollection, 'collection.bru');
-    const targetEnvPath = path.join(targetCollection, 'collection.bru');
-
-    if (fs.existsSync(sourceEnvPath)) {
-        log(`Copying 'collection.bru' file from previous collection`, 'cyan');
-        fs.cpSync(sourceEnvPath, targetEnvPath);
-        return true;
-    }
-
-    return false;
 }
 
 /**
@@ -452,49 +416,37 @@ function convertOpenApiToBruno(openApiSpec, options = {}) {
 }
 
 /**
- * Create new Bruno collection with OpenAPI data
+ * Update an existing Bruno collection with OpenAPI data, or create a new one.
+ * Preserves environments/ and collection.bru; regenerates all request files.
  */
 function updateFromOpenapi(parentFolder, openApiSpec, options = {}) {
     const { dryRun = false, organizeByTags = false } = options;
 
-    // Ensure parent folder exists
     if (!dryRun) {
         ensureDirectory(parentFolder);
     }
 
-    // Find most recent collection to copy environments from
-    const lastCollection = findMostRecentCollection(parentFolder);
+    // Find existing collection, or prepare to create a fresh one
+    const existingCollection = findExistingCollection(parentFolder);
+    let collectionPath;
+    let collectionName;
 
-    // Create timestamped collection name using OpenAPI title
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').split('.')[0];
-    const apiTitle = openApiSpec.info?.title || 'api';
-    const baseName = toSnakeCase(apiTitle);
-    const collectionName = `${baseName}-${timestamp}`;
-    const collectionPath = path.join(parentFolder, collectionName);
-
-    log(`Creating new collection: ${collectionName}`, 'bright');
-
-    if (!dryRun) {
-        ensureDirectory(collectionPath);
-    }
-
-    // Copy environments from last collection if it exists
-    if (lastCollection && !dryRun) {
-        const environmentsCopied = copyEnvironments(lastCollection, collectionPath);
-        if (environmentsCopied) {
-            log(`✓ Copied environments from: ${path.basename(lastCollection)}`, 'green');
-        }
-        const collectionBruFileCopied = copyCollectionBruFile(lastCollection, collectionPath);
-        if (collectionBruFileCopied) {
-            log(`✓ Copied 'collection.bru' from: ${path.basename(lastCollection)}`, 'green');
-        }
-    } else if (lastCollection) {
-        log(`[DRY RUN] Would copy environments and 'collection.bru' file from: ${path.basename(lastCollection)}`, 'cyan');
+    if (existingCollection) {
+        collectionPath = existingCollection;
+        const brunoJson = JSON.parse(fs.readFileSync(path.join(collectionPath, 'bruno.json'), 'utf8'));
+        collectionName = brunoJson.name;
+        log(`Updating existing collection: ${path.basename(collectionPath)}`, 'bright');
     } else {
-        log(`No previous collection found - creating fresh environment`, 'yellow');
+        const apiTitle = openApiSpec.info?.title || 'api';
+        collectionName = toSnakeCase(apiTitle);
+        collectionPath = path.join(parentFolder, collectionName);
+        log(`No existing collection found - creating new collection: ${collectionName}`, 'yellow');
+        if (!dryRun) {
+            ensureDirectory(collectionPath);
+        }
     }
 
-    // Create bruno.json with timestamped name
+    // Write/update bruno.json
     const brunoJson = {
         version: '1',
         name: collectionName,
@@ -510,7 +462,32 @@ function updateFromOpenapi(parentFolder, openApiSpec, options = {}) {
         );
     }
 
-    log(`Collection: ${brunoJson.name}`, 'bright');
+    log(`Collection: ${collectionName}`, 'blue');
+
+    // Remove existing request directories and loose .bru files,
+    // preserving environments/ and collection.bru
+    const preservedDirs = new Set(['environments']);
+    const preservedFiles = new Set(['bruno.json', 'collection.bru']);
+
+    if (fs.existsSync(collectionPath)) {
+        for (const entry of fs.readdirSync(collectionPath)) {
+            const entryPath = path.join(collectionPath, entry);
+            const stat = fs.statSync(entryPath);
+            if (stat.isDirectory() && !preservedDirs.has(entry)) {
+                if (dryRun) {
+                    log(`[DRY RUN] Would remove directory: ${entry}`, 'cyan');
+                } else {
+                    fs.rmSync(entryPath, { recursive: true, force: true });
+                }
+            } else if (!stat.isDirectory() && !preservedFiles.has(entry)) {
+                if (dryRun) {
+                    log(`[DRY RUN] Would remove file: ${entry}`, 'cyan');
+                } else {
+                    fs.rmSync(entryPath);
+                }
+            }
+        }
+    }
 
     // Convert OpenAPI to Bruno structure
     const { requests, servers } = convertOpenApiToBruno(openApiSpec, { organizeByTags });
@@ -527,7 +504,7 @@ function updateFromOpenapi(parentFolder, openApiSpec, options = {}) {
         folderMap.get(folder).push(request);
     }
 
-    // Create new request files
+    // Regenerate request files
     let createdCount = 0;
     for (const [folder, folderRequests] of folderMap.entries()) {
         const folderPath = path.join(collectionPath, folder);
@@ -581,11 +558,11 @@ async function main() {
 ${colors.bright}Bruno Collection OpenAPI Updater${colors.reset}
 
 ${colors.bright}Usage:${colors.reset}
-  node update-from-openapi.js [options] <parent-folder> <openapi-url>
+  node update-from-openapi.js [options] <collections-folder> <openapi-source>
 
 ${colors.bright}Arguments:${colors.reset}
-  parent-folder     Parent directory where timestamped collections will be created
-  openapi-url       URL to the OpenAPI JSON specification
+  collections-folder  Directory containing Bruno collections (most recent will be updated)
+  openapi-source      Path to an OpenAPI JSON file, or a URL to an OpenAPI JSON specification
 
 ${colors.bright}Options:${colors.reset}
   --dry-run            Preview changes without modifying files
@@ -599,9 +576,10 @@ ${colors.bright}Examples:${colors.reset}
   node update-from-openapi.js ./collections ./local-openapi.json
 
 ${colors.bright}Note:${colors.reset}
-  - Creates a new timestamped collection for each run
-  - Copies environments from the most recent collection in parent folder
-  - Opens the new collection in Bruno automatically
+  - Updates the most recent existing collection in the collections folder in place
+  - Preserves environments/ and collection.bru; regenerates all request files
+  - If no existing collection is found, a new one is created
+  - Opens the updated collection in Bruno automatically
 `);
         process.exit(0);
     }
@@ -645,7 +623,7 @@ ${colors.bright}Note:${colors.reset}
         // Create new collection
         const result = updateFromOpenapi(parentFolder, openApiSpec, options);
 
-        log(`\n${colors.bright}${colors.green}✓ Collection Created${colors.reset}`, 'bright');
+        log(`\n${colors.bright}${colors.green}✓ Collection Updated${colors.reset}`, 'bright');
         log(`  Name: ${result.collectionName}`);
         log(`  Path: ${result.collectionPath}`);
         log(`  Folders: ${result.folderCount}`);
@@ -653,7 +631,7 @@ ${colors.bright}Note:${colors.reset}
 
         if (options.dryRun) {
             log(`\n${colors.yellow}This was a dry run. No files were modified.${colors.reset}`);
-            log('Run without --dry-run to create the collection.');
+            log('Run without --dry-run to apply the changes.');
         } else {
             log(`\n${colors.green}✓ Collection opened in Bruno${colors.reset}`);
         }

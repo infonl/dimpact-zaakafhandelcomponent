@@ -73,7 +73,12 @@ describe(HttpClient.name, () => {
     it("adds the query params", (done) => {
       httpclient
         .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
-          query: { zoekZaakIdentifier: "test", relationType: "HOOFDZAAK" },
+          query: {
+            zoekZaakIdentifier: "test",
+            relationType: "HOOFDZAAK",
+            page: 1,
+            rows: 10,
+          },
           path: { zaakUuid: "123" },
         })
         .subscribe(() => {
@@ -81,7 +86,7 @@ describe(HttpClient.name, () => {
         });
 
       const req = httpTestingController.expectOne(
-        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&relationType=HOOFDZAAK",
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&relationType=HOOFDZAAK&page=1&rows=10",
       );
       expect(req.request.method).toEqual("GET");
       req.flush(null);
@@ -91,11 +96,6 @@ describe(HttpClient.name, () => {
 
   describe(HttpClient.prototype.POST.name, () => {
     it("Http post works with all expected types", (done) => {
-      const testData: paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"] =
-        {
-          headers: {},
-        };
-
       httpclient
         .POST(
           "/rest/informatieobjecten/informatieobject/{uuid}/convert",
@@ -105,19 +105,14 @@ describe(HttpClient.name, () => {
             path: { uuid: "123" },
           },
         )
-        .subscribe((data) => {
-          expectType<
-            paths["/rest/informatieobjecten/informatieobject/{uuid}/convert"]["post"]["responses"]["200"]["content"]
-          >(data);
-
-          expect(data).toEqual(testData);
+        .subscribe(() => {
           done();
         });
       const req = httpTestingController.expectOne(
         "/rest/informatieobjecten/informatieobject/123/convert?zaak=123",
       );
       expect(req.request.method).toEqual("POST");
-      req.flush(testData);
+      req.flush(null, { status: 204, statusText: "No Content" });
       httpTestingController.verify();
     });
   });

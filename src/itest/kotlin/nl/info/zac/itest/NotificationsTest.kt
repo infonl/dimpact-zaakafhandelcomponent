@@ -77,7 +77,6 @@ import kotlin.time.toJavaDuration
  */
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
-    blockingTest = true
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
@@ -289,7 +288,7 @@ class NotificationsTest : BehaviorSpec({
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_1_UUID.toString()
-                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION.toString()
+                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
                         getBoolean("isProcesGestuurd") shouldBe true
                         getString("communicatiekanaal") shouldBe "E-formulier"
