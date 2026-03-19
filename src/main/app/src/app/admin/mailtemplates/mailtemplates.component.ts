@@ -10,12 +10,23 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
+import { NgFor, NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { Sort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
-import { TranslateService } from "@ngx-translate/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatSortModule, Sort } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { RouterModule } from "@angular/router";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -23,6 +34,8 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -41,7 +54,24 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
       ),
     ]),
   ],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    MatSidenavModule,
+    MatTableModule,
+    MatSortModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+    RouterModule,
+    TranslateModule,
+    SideNavComponent,
+    ReadMoreComponent,
+  ],
 })
 export class MailtemplatesComponent
   extends AdminComponent

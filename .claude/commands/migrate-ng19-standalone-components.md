@@ -185,13 +185,16 @@ bash scripts/lint-changed-files.sh
 - Ignores pre-existing TS errors in untouched files — only fails on errors **in changed files**
 - Also picks up untracked new files automatically
 
-### 11. COMMIT on temp branch
+### 11. COMMIT on temp branch — only when user asks
 Work is done on `temp/standalone-migration` (branched from `main`).
+
+> ⚠️ **Never commit without explicit user instruction.** Do not auto-commit after spotless, after tests pass, or after any other step. Wait for the user to say "commit" or "make the branch".
 
 First, apply Spotless formatting (from repo root):
 ```bash
-./gradlew clean spotlessAppApply
+./gradlew spotlessAppApply
 ```
+> `clean` is not needed — Spotless works on source files directly and Gradle caches the config.
 
 Then stage and commit:
 ```bash
@@ -310,6 +313,13 @@ Branch name format: `chore/PZ-XXXXX--FE--Angular v19-migration--<kebab-case-comp
 - Spec: 5 tests (label, empty pipe dash, value, read-more, icon click); generic typed as `StaticTextComponent<string | number | null | undefined>`
 - **Pattern**: Generic components need the full type union in `ComponentFixture<...>` — `string` alone is too narrow
 
+### ✅ `admin/mailtemplates/mailtemplates.component.ts` (2026-03-19)
+- `imports: [NgIf, NgFor, MatSidenavModule, MatTableModule, MatSortModule, MatCardModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatDialogModule, RouterModule, TranslateModule, SideNavComponent, ReadMoreComponent]`
+- Removed from `admin.module.ts` declarations (not added to imports — router handles standalone components directly)
+- Spec: 5 tests (init/load, table row, disabled state, dialog open, delete confirmed)
+- **Pattern**: For standalone components importing `MatDialogModule`, use `fixture.debugElement.injector.get(MatDialog)` to spy on `open` — the component's own injector provides a separate `MatDialog` instance from `TestBed`'s root injector
+- **Pattern**: Real services + `jest.spyOn` after `TestBed.inject()` (not `useValue`); `provideHttpClient()` + `provideHttpClientTesting()` for HTTP-dependent services
+
 ## Next Target
 TBD — remaining `shared.module.ts` declarations: `EditInputComponent`, `DateRangeFilterComponent`, `FacetFilterComponent`, `TekstFilterComponent`, `ConfirmDialogComponent`, `DialogComponent`, `ColumnPickerComponent`, `DocumentViewerComponent`, `NotificationDialogComponent`, `BesluitIndicatiesComponent`, `PersoonIndicatiesComponent`, `ZaakIndicatiesComponent`, `ZaakdataComponent`, `SideNavComponent`
 
@@ -317,7 +327,7 @@ TBD — remaining `shared.module.ts` declarations: `EditInputComponent`, `DateRa
 
 ## Intermediate Goal: Lazy-load the `/admin` route
 
-**Progress: 9/20 done**
+**Progress: 10/18 done** (2 components deleted in PR #5535, total reduced from 20 to 18)
 
 Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` into a standalone route config (`admin.routes.ts`) and wiring it up with `loadChildren` in the app routing.
 
@@ -331,10 +341,10 @@ Make the entire `/admin` section lazy-loaded by converting `admin.module.ts` int
 | `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form.component` | ✅ done |
 | `admin/parameters-edit-cmmn/parameters-edit-cmmn.component` | ✅ done |
 | `admin/formio-formulieren/formio-formulieren.component` | ✅ deleted (open PR) |
-| `admin/formulier-definities/formulier-definities.component` | ⬜ pending |
-| `admin/formulier-definitie-edit/formulier-definitie-edit.component` | ⬜ pending |
+| `admin/formulier-definities/formulier-definities.component` | ✅ deleted (PR #5535) |
+| `admin/formulier-definitie-edit/formulier-definitie-edit.component` | ✅ deleted (PR #5535) |
 | `admin/groep-signaleringen/groep-signaleringen.component` | ✅ done |
-| `admin/mailtemplates/mailtemplates.component` | ⬜ pending |
+| `admin/mailtemplates/mailtemplates.component` | ✅ done |
 | `admin/mailtemplate/mailtemplate.component` | ⬜ pending |
 | `admin/process-definitions/process-definitions.component` | ✅ done (open PR) |
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ done |
