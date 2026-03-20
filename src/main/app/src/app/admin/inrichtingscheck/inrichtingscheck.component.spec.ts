@@ -24,6 +24,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
+import { MatSortHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -290,24 +291,21 @@ describe(InrichtingscheckComponent.name, () => {
     );
   });
 
-  it("should sort by doel ascending", () => {
+  it("should sort by doel ascending then descending via column header click", async () => {
     component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
     component["applyFilter"]();
+    fixture.detectChanges();
 
-    component["sortData"]({ active: "zaaktypeDoel", direction: "asc" });
-    const data = component["dataSource"].data;
-    expect(data[0].zaaktype.doel).toBe("Doel A");
-    expect(data[1].zaaktype.doel).toBe("Doel B");
-  });
+    const sort = await loader.getHarness(MatSortHarness);
+    const [doelHeader] = await sort.getSortHeaders({ label: "doel" });
 
-  it("should sort by doel descending", () => {
-    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
-    component["applyFilter"]();
+    await doelHeader.click();
+    expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel A");
+    expect(component["dataSource"].data[1].zaaktype.doel).toBe("Doel B");
 
-    component["sortData"]({ active: "zaaktypeDoel", direction: "desc" });
-    const data = component["dataSource"].data;
-    expect(data[0].zaaktype.doel).toBe("Doel B");
-    expect(data[1].zaaktype.doel).toBe("Doel A");
+    await doelHeader.click();
+    expect(component["dataSource"].data[0].zaaktype.doel).toBe("Doel B");
+    expect(component["dataSource"].data[1].zaaktype.doel).toBe("Doel A");
   });
 
   it("should reload zaaktypes and update cache time on clearZTCCache", fakeAsync(() => {
