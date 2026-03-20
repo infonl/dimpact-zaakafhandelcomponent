@@ -9,11 +9,11 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
+import { OutsideClickDirective } from "../../directives/outside-click.directive";
 import { InputFormField } from "../../material-form-builder/form-components/input/input-form-field";
+import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialFormBuilderService } from "../../material-form-builder/material-form-builder.service";
 import { EmptyPipe } from "../../pipes/empty.pipe";
-import { OutsideClickDirective } from "../../directives/outside-click.directive";
 import { EditComponent } from "../edit.component";
 
 @Component({

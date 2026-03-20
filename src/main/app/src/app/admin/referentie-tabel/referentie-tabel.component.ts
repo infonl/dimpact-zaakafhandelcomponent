@@ -3,14 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from "@angular/cdk/drag-drop";
 import { NgIf } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSidenav, MatSidenavContainer, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -19,9 +27,9 @@ import { catchError } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { EditInputComponent } from "../../shared/edit/edit-input/edit-input.component";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { EditInputComponent } from "../../shared/edit/edit-input/edit-input.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -45,7 +53,8 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
   ],
 })
 export class ReferentieTabelComponent extends AdminComponent implements OnInit {
-  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   protected tabel: GeneratedType<"RestReferenceTable"> = {
@@ -162,7 +171,9 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     }
   }
 
-  protected verwijderTabelWaarde(row: GeneratedType<"RestReferenceTableValue">) {
+  protected verwijderTabelWaarde(
+    row: GeneratedType<"RestReferenceTableValue">,
+  ) {
     this.tabel.waarden!.splice(this.getTabelWaardeIndex(row), 1);
     this.persistTabel();
   }

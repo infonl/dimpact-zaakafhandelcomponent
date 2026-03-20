@@ -77,11 +77,17 @@ export class MailtemplatesComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   protected isLoadingResults = false;
-  protected columns = ["mailTemplateNaam", "mail", "defaultMailtemplate", "id"] as const;
+  protected columns = [
+    "mailTemplateNaam",
+    "mail",
+    "defaultMailtemplate",
+    "id",
+  ] as const;
   protected columnsToDisplay = [
     "expand",
     "mailTemplateNaam",
@@ -89,7 +95,9 @@ export class MailtemplatesComponent
     "defaultMailtemplate",
     "id",
   ] as const;
-  protected dataSource = new MatTableDataSource<GeneratedType<"RESTMailtemplate">>();
+  protected dataSource = new MatTableDataSource<
+    GeneratedType<"RESTMailtemplate">
+  >();
   private mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
   private filterValue = "";
   protected expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
@@ -121,11 +129,15 @@ export class MailtemplatesComponent
     });
   }
 
-  protected isDisabled(mailtemplate: GeneratedType<"RESTMailtemplate">): boolean {
+  protected isDisabled(
+    mailtemplate: GeneratedType<"RESTMailtemplate">,
+  ): boolean {
     return this.getMailtemplateKoppeling(mailtemplate) != null;
   }
 
-  protected verwijderMailtemplate(mailtemplate: GeneratedType<"RESTMailtemplate">): void {
+  protected verwijderMailtemplate(
+    mailtemplate: GeneratedType<"RESTMailtemplate">,
+  ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(

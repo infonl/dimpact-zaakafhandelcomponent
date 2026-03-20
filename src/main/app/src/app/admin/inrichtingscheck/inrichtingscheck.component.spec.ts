@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { NgIf } from "@angular/common";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
@@ -13,9 +15,6 @@ import {
   fakeAsync,
   tick,
 } from "@angular/core/testing";
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { MatTableHarness } from "@angular/material/table/testing";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -25,6 +24,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
+import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -35,9 +35,9 @@ import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
+import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { VersionComponent } from "../../shared/version/version.component";
 import { HealthCheckService } from "../health-check.service";
-import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { InrichtingscheckComponent } from "./inrichtingscheck.component";
 
 const mockZaaktype1 = {
@@ -231,7 +231,9 @@ describe(InrichtingscheckComponent.name, () => {
     // default UNCHECKED filter shows only invalid rows — mockZaaktype2 is the only visible row
     const table = await loader.getHarness(MatTableHarness);
     const rows = await table.getRows({ selector: ".main-row" });
-    const cells = await rows[0].getCells({ columnName: "zaaktypeOmschrijving" });
+    const cells = await rows[0].getCells({
+      columnName: "zaaktypeOmschrijving",
+    });
     expect(await cells[0].getText()).toBe("Zaaktype B");
   });
 

@@ -11,10 +11,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../../core/service/util.service";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { InputFormFieldBuilder } from "../../material-form-builder/form-components/input/input-form-field-builder";
-import { EmptyPipe } from "../../pipes/empty.pipe";
 import { OutsideClickDirective } from "../../directives/outside-click.directive";
+import { InputFormFieldBuilder } from "../../material-form-builder/form-components/input/input-form-field-builder";
+import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
+import { EmptyPipe } from "../../pipes/empty.pipe";
 import { EditInputComponent } from "./edit-input.component";
 
 @Component({
@@ -50,7 +50,10 @@ describe(EditInputComponent.name, () => {
             setTitle: jest.fn(),
             openSnackbar: jest.fn(),
             hasEditOverlay: jest.fn().mockReturnValue(false),
-          } satisfies Pick<UtilService, "setTitle" | "openSnackbar" | "hasEditOverlay">,
+          } satisfies Pick<
+            UtilService,
+            "setTitle" | "openSnackbar" | "hasEditOverlay"
+          >,
         },
       ],
     }).compileComponents();

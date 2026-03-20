@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { DragDropModule } from "@angular/cdk/drag-drop";
 import type { CdkDragDrop } from "@angular/cdk/drag-drop";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgIf } from "@angular/common";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
@@ -148,9 +148,8 @@ describe(ReferentieTabelComponent.name, () => {
   });
 
   it("should show delete button only for non-system values", () => {
-    const deleteButtons = fixture.nativeElement.querySelectorAll(
-      "button#verwijderen",
-    );
+    const deleteButtons =
+      fixture.nativeElement.querySelectorAll("button#verwijderen");
     expect(deleteButtons.length).toBe(1);
   });
 

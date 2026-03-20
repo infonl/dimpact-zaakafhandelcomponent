@@ -18,7 +18,11 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { MatSidenav, MatSidenavContainer, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
 import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
@@ -30,7 +34,10 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { VersionComponent, VersionLayout } from "../../shared/version/version.component";
+import {
+  VersionComponent,
+  VersionLayout,
+} from "../../shared/version/version.component";
 import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
 
@@ -71,7 +78,8 @@ export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
   @ViewChild(MatSort) private sort!: MatSort;
 
@@ -88,7 +96,8 @@ export class InrichtingscheckComponent
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null = null;
+  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null =
+    null;
   protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
   private filterValue = "";
   protected bestaatCommunicatiekanaalEformulier = false;
@@ -112,7 +121,7 @@ export class InrichtingscheckComponent
       switch (property) {
         case "zaaktypeOmschrijving":
           return item.zaaktype.omschrijving?.toLowerCase() ?? "";
-        case "zaaktypeDoel":
+        case "doel":
           return item.zaaktype.doel ?? "";
         case "beginGeldigheid":
           return item.zaaktype.beginGeldigheid ?? "";
