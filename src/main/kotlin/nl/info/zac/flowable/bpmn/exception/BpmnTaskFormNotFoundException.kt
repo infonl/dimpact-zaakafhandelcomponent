@@ -4,4 +4,10 @@
  */
 package nl.info.zac.flowable.bpmn.exception
 
-class BpmnTaskFormNotFoundException(override val message: String) : RuntimeException(message)
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BPMN_TASK_FORM_NOT_FOUND
+import nl.info.zac.exception.ZacSetupException
+
+class BpmnTaskFormNotFoundException(override val message: String) : ZacSetupException(
+    message,
+    ERROR_CODE_BPMN_TASK_FORM_NOT_FOUND
+)

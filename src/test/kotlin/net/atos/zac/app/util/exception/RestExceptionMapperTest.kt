@@ -38,6 +38,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_HAS_LOCKED_INFORMATION_OBJECTS
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
+import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import org.apache.http.HttpHost
 import org.apache.http.HttpStatus
@@ -576,6 +577,27 @@ class RestExceptionMapperTest : BehaviorSpec({
 
                 And("it should log the exception") {
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
+                }
+            }
+        }
+
+        Given("A ZAC setup exception") {
+            val exception = ZacSetupException("fakeMessage", ErrorCode.ERROR_CODE_BPMN_TASK_FORM_NOT_FOUND)
+
+            When("the chain is mapped to a response") {
+                val response = restExceptionMapper.toResponse(exception)
+
+                Then("it should return the expected error code and exception message") {
+                    checkResponse(
+                        response = response,
+                        errorMessage = "msg.error.bpmn.task.form.not.found",
+                        exceptionMessage = "fakeMessage",
+                        expectedStatus = HttpStatus.SC_CONFLICT
+                    )
+                }
+
+                And("it should log the exception") {
+                    verify(exactly = 1) { log(any(), Level.WARNING, exception.message, exception) }
                 }
             }
         }

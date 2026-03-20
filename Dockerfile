@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
+# syntax=docker/dockerfile:1.22.0@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91
 # check=skip=SecretsUsedInArgOrEnv
 
 #
@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM eclipse-temurin:21.0.10_7-jre-ubi10-minimal@sha256:318a5c25bfb7503f82ba5cc1877a263f1f0911cb2a45bd486d3d160612926798 AS runtime
+FROM eclipse-temurin:21.0.10_7-jre-ubi10-minimal@sha256:97124c310726e566c097a6b270263869cbf3bb3b831e01c40885c40582343888 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
