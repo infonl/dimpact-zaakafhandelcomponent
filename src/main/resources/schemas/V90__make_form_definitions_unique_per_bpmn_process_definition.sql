@@ -10,7 +10,7 @@ CREATE TABLE ${schema}.temp_bpmn_procesdefinities_form_keys (
 );
 
 INSERT INTO ${schema}.temp_bpmn_procesdefinities_form_keys
-SELECT
+SELECT DISTINCT
     key_,
     version_,
     form_key

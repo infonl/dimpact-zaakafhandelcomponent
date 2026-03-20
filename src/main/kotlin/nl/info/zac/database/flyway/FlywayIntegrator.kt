@@ -46,6 +46,10 @@ class FlywayIntegrator {
             LOG.info("Found existing ZAC database: version '${it.version}', description: '${it.description}'")
         } ?: LOG.info("No existing ZAC database at the configured datasource")
 
+        // temporary fix: repair() is needed because V90 was modified to fix a duplicate key issue;
+        // this realigns the checksum on environments where V90 already ran successfully.
+        // TODO remove this repair() call once all environments have been upgraded to this version
+        flyway.repair()
         flyway.migrate()
         LOG.info("Successfully migrated to database version: '${flyway.info().current().version}'")
     }
