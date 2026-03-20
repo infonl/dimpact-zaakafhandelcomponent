@@ -23,7 +23,7 @@ import {
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
-import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
+import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -81,8 +81,6 @@ export class InrichtingscheckComponent
   @ViewChild("sideNavContainer")
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
-  @ViewChild(MatSort) private sort!: MatSort;
-
   protected readonly versionLayout = VersionLayout;
   protected dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
@@ -117,19 +115,6 @@ export class InrichtingscheckComponent
 
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "zaaktypeOmschrijving":
-          return item.zaaktype.omschrijving?.toLowerCase() ?? "";
-        case "zaaktypeDoel":
-          return item.zaaktype.doel ?? "";
-        case "beginGeldigheid":
-          return item.zaaktype.beginGeldigheid ?? "";
-        default:
-          return "";
-      }
-    };
-    this.dataSource.sort = this.sort;
     this.dataSource.filterPredicate = (data, filter: string) => {
       if (this.valideFilter === ToggleSwitchOptions.CHECKED && !data.valide) {
         return false;
