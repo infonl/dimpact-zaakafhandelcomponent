@@ -121,7 +121,7 @@ export class InrichtingscheckComponent
       switch (property) {
         case "zaaktypeOmschrijving":
           return item.zaaktype.omschrijving?.toLowerCase() ?? "";
-        case "doel":
+        case "zaaktypeDoel":
           return item.zaaktype.doel ?? "";
         case "beginGeldigheid":
           return item.zaaktype.beginGeldigheid ?? "";
@@ -205,7 +205,7 @@ export class InrichtingscheckComponent
             b.zaaktype.omschrijving ?? "",
             isAsc,
           );
-        case "doel":
+        case "zaaktypeDoel":
           return this.compare(
             a.zaaktype.doel ?? "",
             b.zaaktype.doel ?? "",

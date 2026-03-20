@@ -294,7 +294,7 @@ describe(InrichtingscheckComponent.name, () => {
     component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
     component["applyFilter"]();
 
-    component["sortData"]({ active: "doel", direction: "asc" });
+    component["sortData"]({ active: "zaaktypeDoel", direction: "asc" });
     const data = component["dataSource"].data;
     expect(data[0].zaaktype.doel).toBe("Doel A");
     expect(data[1].zaaktype.doel).toBe("Doel B");
@@ -304,7 +304,7 @@ describe(InrichtingscheckComponent.name, () => {
     component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
     component["applyFilter"]();
 
-    component["sortData"]({ active: "doel", direction: "desc" });
+    component["sortData"]({ active: "zaaktypeDoel", direction: "desc" });
     const data = component["dataSource"].data;
     expect(data[0].zaaktype.doel).toBe("Doel B");
     expect(data[1].zaaktype.doel).toBe("Doel A");
