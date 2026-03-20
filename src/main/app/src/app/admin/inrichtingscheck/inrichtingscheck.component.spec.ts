@@ -290,6 +290,26 @@ describe(InrichtingscheckComponent.name, () => {
     );
   });
 
+  it("should sort by doel ascending", () => {
+    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
+    component["applyFilter"]();
+
+    component["sortData"]({ active: "doel", direction: "asc" });
+    const data = component["dataSource"].data;
+    expect(data[0].zaaktype.doel).toBe("Doel A");
+    expect(data[1].zaaktype.doel).toBe("Doel B");
+  });
+
+  it("should sort by doel descending", () => {
+    component["valideFilter"] = ToggleSwitchOptions.INDETERMINATE;
+    component["applyFilter"]();
+
+    component["sortData"]({ active: "doel", direction: "desc" });
+    const data = component["dataSource"].data;
+    expect(data[0].zaaktype.doel).toBe("Doel B");
+    expect(data[1].zaaktype.doel).toBe("Doel A");
+  });
+
   it("should reload zaaktypes and update cache time on clearZTCCache", fakeAsync(() => {
     const newCacheTime = "2024-03-19T10:00:00";
     jest
