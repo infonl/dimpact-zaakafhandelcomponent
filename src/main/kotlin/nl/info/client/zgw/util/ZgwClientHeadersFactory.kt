@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedMap
+import nl.info.zac.app.util.filter.MdcLoggingFilter.Companion.MDC_CORRELATION_ID
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -26,6 +27,7 @@ class ZgwClientHeadersFactory @Inject constructor(
 ) : ClientHeadersFactory {
     companion object {
         private const val X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting"
+        private const val X_NLX_REQUEST_ID = "X-NLX-Request-Id"
         private val auditExplanations = ConcurrentHashMap<String, String>()
     }
 
@@ -37,6 +39,7 @@ class ZgwClientHeadersFactory @Inject constructor(
         try {
             addAuthorizationHeader(outgoingHeaders, loggedInUser)
             addXAuditToelichtingHeader(outgoingHeaders, loggedInUser)
+            addCorrelationIdHeader(outgoingHeaders)
             return outgoingHeaders
         } finally {
             clearAuditExplanation(loggedInUser)
@@ -61,5 +64,11 @@ class ZgwClientHeadersFactory @Inject constructor(
         loggedInUser: LoggedInUser
     ) = auditExplanations[loggedInUser.id]?.let {
         outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, it)
+    }
+
+    private fun addCorrelationIdHeader(
+        outgoingHeaders: MultivaluedMap<String, String>
+    ) = (org.jboss.logging.MDC.get(MDC_CORRELATION_ID) as? String)?.let {
+        outgoingHeaders.add(X_NLX_REQUEST_ID, it)
     }
 }
