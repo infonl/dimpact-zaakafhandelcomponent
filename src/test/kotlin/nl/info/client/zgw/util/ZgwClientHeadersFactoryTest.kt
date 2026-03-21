@@ -13,8 +13,10 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedHashMap
+import nl.info.zac.app.util.filter.MdcLoggingFilter.Companion.MDC_CORRELATION_ID
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import org.jboss.logging.MDC
 
 class ZgwClientHeadersFactoryTest : BehaviorSpec({
     val zgwClientId = "fakeZgwClientId"
@@ -26,8 +28,9 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
         zgwApiSecret
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
+        MDC.remove(MDC_CORRELATION_ID)
     }
 
     Context("Updating headers for ZGW client") {
@@ -36,21 +39,33 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
             val incomingHeaders = MultivaluedHashMap<String, String>()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("update is called without an audit explanation set") {
+            When("update is called without an audit explanation set and no MDC correlation ID") {
                 val outgoingHeaders = MultivaluedHashMap<String, String>()
                 zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
 
-                Then("it should add an Authorization header starting with Bearer and no X-Audit-Toelichting header") {
+                Then("it should add an Authorization header but no X-Audit-Toelichting or X-NLX-Request-Id header") {
                     val authorizationHeader = outgoingHeaders.getFirst(HttpHeaders.AUTHORIZATION)
                     with(authorizationHeader) {
                         this shouldNotBe null
                         startsWith("Bearer ") shouldBe true
                     }
                     outgoingHeaders.containsKey("X-Audit-Toelichting") shouldBe false
+                    outgoingHeaders.containsKey("X-NLX-Request-Id") shouldBe false
                 }
 
                 And("the incoming headers should remain unchanged") {
                     incomingHeaders.isEmpty() shouldBe true
+                }
+            }
+
+            When("update is called with a correlation ID in MDC") {
+                val correlationId = "test-correlation-id-123"
+                MDC.put(MDC_CORRELATION_ID, correlationId)
+                val outgoingHeaders = MultivaluedHashMap<String, String>()
+                zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
+
+                Then("it should add the X-NLX-Request-Id header with the correlation ID") {
+                    outgoingHeaders.getFirst("X-NLX-Request-Id") shouldBe correlationId
                 }
             }
 

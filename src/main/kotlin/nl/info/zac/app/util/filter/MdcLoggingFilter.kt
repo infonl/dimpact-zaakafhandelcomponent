@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.util.filter
 
+import io.opentelemetry.api.trace.Span
 import jakarta.annotation.Priority
 import jakarta.ws.rs.container.ContainerRequestContext
 import jakarta.ws.rs.container.ContainerRequestFilter
@@ -42,6 +43,7 @@ private const val HIGH_PRIORITY = 1000
  *   "message": "Zaak retrieved successfully",
  *   "mdc": {
  *     "correlationId": "550e8400-e29b-41d4-a716-446655440000",
+ *     "traceId": "0af7651916cd43dd8448eb211c80319c",
  *     "userId": "johndoe",
  *     "httpMethod": "GET",
  *     "httpPath": "zaken/ZAAK-2024-0001",
@@ -66,6 +68,7 @@ class MdcLoggingFilter(
         const val CONTEXT_REQUEST_START_TIME = "context.request.startTime"
         const val MDC_OPERATION = "operation"
         const val MDC_CORRELATION_ID = "correlationId"
+        const val MDC_TRACE_ID = "traceId"
         const val MDC_HTTP_METHOD = "httpMethod"
         const val MDC_HTTP_PATH = "httpPath"
         const val MDC_HTTP_STATUS = "httpStatus"
@@ -74,6 +77,7 @@ class MdcLoggingFilter(
 
         private val mdcKeys = setOf(
             MDC_CORRELATION_ID,
+            MDC_TRACE_ID,
             MDC_HTTP_METHOD,
             MDC_HTTP_PATH,
             MDC_HTTP_STATUS,
@@ -96,6 +100,8 @@ class MdcLoggingFilter(
 
         // Add correlation ID from the header or generate a new one and set to MDC
         putMdc(MDC_CORRELATION_ID, requestContext.getOrNewCorrelationId())
+        // Add OpenTelemetry trace ID if available
+        putMdc(MDC_TRACE_ID, getTraceId())
         // Add request method, path, and operation to MDC
         putMdc(MDC_HTTP_METHOD, requestContext.method)
         putMdc(MDC_HTTP_PATH, requestContext.uriInfo.path)
@@ -178,6 +184,14 @@ class MdcLoggingFilter(
     private fun extractOperationFromPath(path: String): String? =
         path.split("/")
             .firstOrNull { it.isNotBlank() }
+
+    /**
+     * Returns the current OpenTelemetry trace ID if a valid span is active, or null otherwise.
+     */
+    private fun getTraceId(): String? =
+        Span.current().spanContext
+            .takeIf { it.isValid }
+            ?.traceId
 
     // Helper extension functions for ContainerRequestContext
     private fun ContainerRequestContext.getUserPrincipal(): Principal? = securityContext?.userPrincipal
