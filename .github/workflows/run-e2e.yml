@@ -87,11 +87,11 @@ jobs:
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3.19.0
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
-          status: custom
-          fields: workflow,job,status
-          custom_payload: |
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
             {
               "text": ":performing_arts: Playwright Tests Update",
               "attachments": [
@@ -166,9 +166,6 @@ jobs:
                 }
               ]
             }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
         uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # v2.2.0
