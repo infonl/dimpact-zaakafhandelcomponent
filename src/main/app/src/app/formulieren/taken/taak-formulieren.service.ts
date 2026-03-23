@@ -69,7 +69,7 @@ export class TaakFormulierenService {
         return this.adviesFormulier.handleForm(taak);
       default:
         throw new Error(
-          `${taak.formulierDefinitie}: Onbekende formulierDefinitie for Angular`,
+          `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
         );
     }
   }

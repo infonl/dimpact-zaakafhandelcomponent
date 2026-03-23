@@ -42,6 +42,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.ServerErrorException
+import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
@@ -103,27 +104,39 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             is PolicyException -> generateResponse(
                 responseStatus = Response.Status.FORBIDDEN,
                 errorCode = ERROR_CODE_FORBIDDEN,
-                exception = exception
+                exception = exception,
+                logLevel = Level.FINE
             )
             is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
-                exception = exception
+                exception = exception,
+                logLevel = Level.FINE
             )
             is InputValidationFailedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
-                exception = exception
+                exception = exception,
+                logLevel = Level.FINE
             )
             is ServerErrorException -> generateResponse(
                 responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
                 errorCode = exception.errorCode,
-                exception = exception
+                exception = exception,
+                logLevel = Level.SEVERE
             )
             is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
-                exception = exception
+                exception = exception,
+                logLevel = Level.FINE
+            )
+            is ZacSetupException -> generateResponse(
+                responseStatus = Response.Status.CONFLICT,
+                errorCode = exception.errorCode,
+                exception = exception,
+                exceptionMessage = exception.message,
+                logLevel = Level.WARNING
             )
             else -> inspectCause(exception = exception)
         }
@@ -179,7 +192,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_ZGW,
             exception = exception,
             // we only want to set the 'reason' field for the invalid parameters in the response
-            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason }
+            exceptionMessage = exception.validatieFout.invalidParams.joinToString(separator = ", ") { it.reason },
+            logLevel = Level.FINE
         )
 
     /**
@@ -235,7 +249,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         responseStatus: Response.Status,
         errorCode: ErrorCode? = null,
         exception: Exception,
-        exceptionMessage: String? = null
+        exceptionMessage: String? = null,
+        logLevel: Level
     ): Response = Response.status(responseStatus)
         .type(MediaType.APPLICATION_JSON)
         .entity(
@@ -247,7 +262,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         .build().also {
             log(
                 logger = LOG,
-                level = if (responseStatus == Response.Status.INTERNAL_SERVER_ERROR) Level.SEVERE else Level.FINE,
+                level = logLevel,
                 message = exception.message
                     ?: "Exception was thrown. Returning response with error code: '${errorCode?.value}'.",
                 throwable = exception
@@ -262,7 +277,8 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
         responseStatus = Response.Status.INTERNAL_SERVER_ERROR,
         errorCode = errorCode ?: ERROR_CODE_SERVER_GENERIC,
         exception = exception,
-        exceptionMessage = exceptionMessage
+        exceptionMessage = exceptionMessage,
+        logLevel = Level.SEVERE
     )
 
     private fun getJSONMessage(errorMessage: String, exceptionMessage: String? = null) =

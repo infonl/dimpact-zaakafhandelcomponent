@@ -10,7 +10,8 @@ import jakarta.json.Json
 import jakarta.json.JsonObject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnTaskFormNotFoundException
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -28,10 +29,10 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
     fun readForm(processDefinitionId: String, name: String): JsonObject {
         val processDefinition = readProcessDefinitionByProcessDefinitionId(processDefinitionId)
         return findForm(processDefinition.key, processDefinition.version, name)?.content?.toJsonObject()
-            ?: throw NoSuchElementException(
-                "No BpmnProcessDefinitionTaskForm found with name: '$name' " +
-                    "for processDefinition key='${processDefinition.key}', " +
-                    "version=${processDefinition.version}, id='${processDefinition.id}'"
+            ?: throw BpmnTaskFormNotFoundException(
+                "No BPMN task form found with name: '$name' " +
+                    "for BPMN process definition with key: '${processDefinition.key}', " +
+                    "version: '${processDefinition.version}', and id: '${processDefinition.id}'"
             )
     }
 
@@ -146,11 +147,11 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
             .active()
             .latestVersion()
             .singleResult()
-            ?: throw ProcessDefinitionNotFoundException("No process definition found for key '$processDefinitionKey'")
+            ?: throw BpmnProcessDefinitionNotFoundException("No BPMN process definition found for key: '$processDefinitionKey'")
 
     private fun readProcessDefinitionByProcessDefinitionId(processDefinitionId: String) =
         repositoryService.createProcessDefinitionQuery()
             .processDefinitionId(processDefinitionId)
             .singleResult()
-            ?: throw ProcessDefinitionNotFoundException("No process definition found for id '$processDefinitionId'")
+            ?: throw BpmnProcessDefinitionNotFoundException("No BPMN process definition found for id: '$processDefinitionId'")
 }

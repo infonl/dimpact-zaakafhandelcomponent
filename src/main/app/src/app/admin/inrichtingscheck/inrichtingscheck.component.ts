@@ -10,15 +10,34 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
+import { NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatSort, Sort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatSortModule, Sort } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { VersionLayout } from "../../shared/version/version.component";
+import {
+  VersionComponent,
+  VersionLayout,
+} from "../../shared/version/version.component";
 import { AdminComponent } from "../admin/admin.component";
 import { HealthCheckService } from "../health-check.service";
 
@@ -35,35 +54,52 @@ import { HealthCheckService } from "../health-check.service";
       ),
     ]),
   ],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatSidenavModule,
+    MatCardModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    TranslateModule,
+    DatumPipe,
+    SideNavComponent,
+    ToggleFilterComponent,
+    VersionComponent,
+    ReadMoreComponent,
+  ],
 })
 export class InrichtingscheckComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav: MatSidenav;
-  @ViewChild(MatSort) sort: MatSort;
-
-  readonly versionLayout = VersionLayout;
-  dataSource: MatTableDataSource<
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  protected readonly versionLayout = VersionLayout;
+  protected dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
-  loadingZaaktypes = true;
-  loadingCommunicatiekanaal = true;
-  columnsToDisplay = [
+  protected loadingZaaktypes = true;
+  protected loadingCommunicatiekanaal = true;
+  protected columnsToDisplay = [
     "valide",
     "expand",
     "zaaktypeOmschrijving",
     "zaaktypeDoel",
     "beginGeldigheid",
   ];
-  zaaktypes: GeneratedType<"RESTZaaktypeInrichtingscheck">[];
-  expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null;
-  valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
-  filterValue = "";
-  bestaatCommunicatiekanaalEformulier: boolean;
-  ztcCacheTime: string;
+  protected expandedRow: GeneratedType<"RESTZaaktypeInrichtingscheck"> | null =
+    null;
+  protected valideFilter: ToggleSwitchOptions = ToggleSwitchOptions.UNCHECKED;
+  private filterValue = "";
+  protected bestaatCommunicatiekanaalEformulier = false;
+  protected ztcCacheTime = "";
 
   constructor(
     public utilService: UtilService,
@@ -79,19 +115,6 @@ export class InrichtingscheckComponent
 
   ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.dataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "zaaktypeOmschrijving":
-          return item.zaaktype.omschrijving.toLowerCase();
-        case "zaaktypeDoel":
-          return item.zaaktype.doel;
-        case "beginGeldigheid":
-          return item.zaaktype.beginGeldigheid;
-        default:
-          return item[property];
-      }
-    };
-    this.dataSource.sort = this.sort;
     this.dataSource.filterPredicate = (data, filter: string) => {
       if (this.valideFilter === ToggleSwitchOptions.CHECKED && !data.valide) {
         return false;
@@ -118,7 +141,7 @@ export class InrichtingscheckComponent
     });
   }
 
-  applyFilter(event?: Event) {
+  protected applyFilter(event?: Event) {
     if (event) {
       const filterValue = (event.target as HTMLInputElement).value;
       this.filterValue = filterValue.trim().toLowerCase();
@@ -129,7 +152,7 @@ export class InrichtingscheckComponent
     }
   }
 
-  clearZTCCache($event: MouseEvent) {
+  protected clearZTCCache($event: MouseEvent) {
     $event.stopPropagation();
     this.healtCheckService.clearZTCCaches().subscribe((value) => {
       this.ztcCacheTime = value;
@@ -137,7 +160,7 @@ export class InrichtingscheckComponent
     });
   }
 
-  checkZaaktypes() {
+  private checkZaaktypes() {
     this.loadingZaaktypes = true;
     this.dataSource.data = [];
     this.healtCheckService
@@ -145,13 +168,15 @@ export class InrichtingscheckComponent
       .subscribe((value) => {
         this.loadingZaaktypes = false;
         this.dataSource.data = value.sort((a, b) =>
-          a.zaaktype.omschrijving.localeCompare(b.zaaktype.omschrijving),
+          (a.zaaktype.omschrijving ?? "").localeCompare(
+            b.zaaktype.omschrijving ?? "",
+          ),
         );
         this.applyFilter();
       });
   }
 
-  sortData(sort: Sort) {
+  protected sortData(sort: Sort) {
     if (!sort.active || sort.direction === "") {
       return;
     }
@@ -161,27 +186,31 @@ export class InrichtingscheckComponent
       switch (sort.active) {
         case "zaaktypeOmschrijving":
           return this.compare(
-            a.zaaktype.omschrijving,
-            b.zaaktype.omschrijving,
+            a.zaaktype.omschrijving ?? "",
+            b.zaaktype.omschrijving ?? "",
             isAsc,
           );
-        case "doel":
-          return this.compare(a.zaaktype.doel, b.zaaktype.doel, isAsc);
+        case "zaaktypeDoel":
+          return this.compare(
+            a.zaaktype.doel ?? "",
+            b.zaaktype.doel ?? "",
+            isAsc,
+          );
         case "beginGeldigheid":
           return this.compare(
-            a.zaaktype.beginGeldigheid,
-            b.zaaktype.beginGeldigheid,
+            a.zaaktype.beginGeldigheid ?? "",
+            b.zaaktype.beginGeldigheid ?? "",
             isAsc,
           );
         case "valide":
-          return this.compare(a.valide, b.valide, isAsc);
+          return this.compare(a.valide ?? false, b.valide ?? false, isAsc);
         default:
           return 0;
       }
     });
   }
 
-  compare(
+  private compare(
     a: number | string | boolean,
     b: number | string | boolean,
     isAsc: boolean,
