@@ -9,7 +9,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { TextIcon } from "../edit/text-icon";
 import { StaticTextComponent } from "./static-text.component";
 
-
 describe(StaticTextComponent.name, () => {
   let fixture: ComponentFixture<
     StaticTextComponent<string | number | null | undefined>
@@ -94,5 +93,4 @@ describe(StaticTextComponent.name, () => {
     const matIcon = fixture.nativeElement.querySelector("mat-icon");
     expect(matIcon.classList).toContain("my-custom-class");
   });
-
 });

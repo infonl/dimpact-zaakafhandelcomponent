@@ -111,7 +111,9 @@ describe(EditInputComponent.name, () => {
   });
 
   it("should show edit icons when not readonly", () => {
-    expect(fixture.nativeElement.querySelectorAll("mat-icon").length).toBeGreaterThan(0);
+    expect(
+      fixture.nativeElement.querySelectorAll("mat-icon").length,
+    ).toBeGreaterThan(0);
   });
 
   it("should hide edit icons when readonly", () => {

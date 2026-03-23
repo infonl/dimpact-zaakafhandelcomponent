@@ -75,9 +75,8 @@ describe(VersionComponent.name, () => {
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
-      const paragraphs = fixture.nativeElement.querySelectorAll(
-        "mat-card-content p",
-      );
+      const paragraphs =
+        fixture.nativeElement.querySelectorAll("mat-card-content p");
       expect(paragraphs.length).toBe(3); // version + build + commit
     });
 
@@ -89,9 +88,8 @@ describe(VersionComponent.name, () => {
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
-      const paragraphs = fixture.nativeElement.querySelectorAll(
-        "mat-card-content p",
-      );
+      const paragraphs =
+        fixture.nativeElement.querySelectorAll("mat-card-content p");
       expect(paragraphs.length).toBe(2); // version + commit only
     });
 
@@ -103,9 +101,8 @@ describe(VersionComponent.name, () => {
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
-      const paragraphs = fixture.nativeElement.querySelectorAll(
-        "mat-card-content p",
-      );
+      const paragraphs =
+        fixture.nativeElement.querySelectorAll("mat-card-content p");
       expect(paragraphs.length).toBe(2); // version + build only
     });
 

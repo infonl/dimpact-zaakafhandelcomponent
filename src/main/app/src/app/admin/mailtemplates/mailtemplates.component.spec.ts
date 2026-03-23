@@ -199,7 +199,9 @@ describe(MailtemplatesComponent.name, () => {
 
     const arrowUpIcon = fixture.debugElement
       .queryAll(By.css("td mat-icon"))
-      .find((el) => el.nativeElement.textContent.trim() === "keyboard_arrow_up");
+      .find(
+        (el) => el.nativeElement.textContent.trim() === "keyboard_arrow_up",
+      );
     expect(arrowUpIcon).toBeTruthy();
   });
 
@@ -252,7 +254,11 @@ describe(MailtemplatesComponent.name, () => {
   });
 
   it("should sort data ascending by mailTemplateNaam", () => {
-    const template2 = { ...mailtemplate, id: 2, mailTemplateNaam: "A Template" };
+    const template2 = {
+      ...mailtemplate,
+      id: 2,
+      mailTemplateNaam: "A Template",
+    };
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
       .mockReturnValue(of([mailtemplate, template2]));
