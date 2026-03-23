@@ -8,7 +8,9 @@
 
 ## Marcel
 
-<!-- Add your claimed components here before starting a batch -->
+### Batch 1 — PR: `chore/PZ-10681--FE--Angular-v19-migration--DateRangeFilterComponent--ParametersComponent`
+- [x] `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts`
+- [x] `admin/parameters/parameters.component.ts`
 
 ## Colleague
 
