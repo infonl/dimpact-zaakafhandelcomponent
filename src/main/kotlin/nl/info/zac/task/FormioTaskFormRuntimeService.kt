@@ -45,14 +45,11 @@ class FormioTaskFormRuntimeService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val DATUM_FORMAAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy")
+        private val DATUM_FORMAAT = DateTimeFormatter.ofPattern("dd-MM-yyy")
 
         private const val REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces"
-
         private const val DOCUMENT_SEPARATOR = ";"
-
         private const val FORMIO_DEFAULT_VALUE = "defaultValue"
-
         private const val FORMIO_TITLE = "title"
     }
 
@@ -110,7 +107,7 @@ class FormioTaskFormRuntimeService @Inject constructor(
         }
 
     private fun copyJsonObjectValue(
-        stringJsonValueEntry: MutableMap.MutableEntry<String, JsonValue>,
+        stringJsonValueEntry: Map.Entry<String, JsonValue>,
         resolveDefaultValueContext: ResolveDefaultValueContext
     ) =
         if (stringJsonValueEntry.value.valueType == JsonValue.ValueType.STRING &&
@@ -182,13 +179,13 @@ class FormioTaskFormRuntimeService @Inject constructor(
         formulierData.documentenVerzenden?.let { documentsToMark ->
             documentsToMark.split(DOCUMENT_SEPARATOR.toRegex())
                 .dropLastWhile { it.isEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach {
                     enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                        it.url.extractUuid(),
-                        formulierData.documentenVerzendenDatum,
-                        formulierData.toelichting
+                        uuid = it.url.extractUuid(),
+                        verzenddatum = formulierData.documentenVerzendenDatum,
+                        toelichting = formulierData.toelichting
                     )
                 }
         }
@@ -196,8 +193,8 @@ class FormioTaskFormRuntimeService @Inject constructor(
     private fun markDocumentAsSigned(formulierData: FormulierData) =
         formulierData.documentenOndertekenen?.let { documentenOndertekenen ->
             documentenOndertekenen.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .filter { it.ondertekening == null }
                 .forEach {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
@@ -212,6 +209,6 @@ private class ResolveDefaultValueContext(
     zrcClientService: ZrcClientService,
     zaakVariabelenService: ZaakVariabelenService
 ) {
-    val zaak: Zaak = zrcClientService.readZaak(task.zaakUuid)
-    val zaakData: Map<String, Any> = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
+    val zaak = zrcClientService.readZaak(task.zaakUuid)
+    val zaakData = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
 }
