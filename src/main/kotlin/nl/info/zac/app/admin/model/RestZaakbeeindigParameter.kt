@@ -16,20 +16,16 @@ import nl.info.zac.util.NoArgConstructor
 data class RestZaakbeeindigParameter(
     // id is nullable to allow creation of new parameters without specifying an id
     var id: Long? = null,
-    // unfortunately, both zaakbeeindigReden and resultaattype need to nullable currently,
-    // because the frontend only sets one of them at a time
-    var zaakbeeindigReden: RestZaakbeeindigReden? = null,
-    var resultaattype: RestResultaattype? = null
+    var zaakbeeindigReden: RestZaakbeeindigReden,
+    var resultaattype: RestResultaattype
 )
 
 fun List<RestZaakbeeindigParameter>.toZaaktypeCompletionParametersList() = map { it.toZaaktypeCompletionParameters() }
 
 fun RestZaakbeeindigParameter.toZaaktypeCompletionParameters() = ZaaktypeCompletionParameters().apply {
     id = this@toZaaktypeCompletionParameters.id
-    zaakbeeindigReden = checkNotNull(this@toZaaktypeCompletionParameters.zaakbeeindigReden) {
-        "zaakbeeindigReden cannot be null"
-    }.let(RESTZaakbeeindigRedenConverter::convertRESTZaakbeeindigReden)
-    resultaattype = checkNotNull(this@toZaaktypeCompletionParameters.resultaattype) {
-        "resultaattype cannot be null"
-    }.id
+    zaakbeeindigReden = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(
+        this@toZaaktypeCompletionParameters.zaakbeeindigReden
+    )
+    resultaattype = this@toZaaktypeCompletionParameters.resultaattype.id
 }
