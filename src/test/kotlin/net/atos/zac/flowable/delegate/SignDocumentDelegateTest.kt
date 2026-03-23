@@ -6,21 +6,18 @@ package net.atos.zac.flowable.delegate
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import io.mockk.runs
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -32,9 +29,8 @@ class SignDocumentDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
     val parentDelegateExecution = mockk<DelegateExecution>()
     val drcClientService = mockk<DrcClientService>()
-    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>(relaxed = true)
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val eventingService = mockk<EventingService>()
     val zaakUuid = UUID.randomUUID()
     val documentUuid = UUID.randomUUID()
     val documentenKeyPrefix = "ZAAK_Documents_To_Sign_Select"
@@ -54,7 +50,6 @@ class SignDocumentDelegateTest : BehaviorSpec({
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService
-        every { flowableHelper.eventingService } returns eventingService
 
         val cdiInstance = mockk<CDI<Any>>()
         every { CDI.current() } returns cdiInstance
@@ -72,18 +67,16 @@ class SignDocumentDelegateTest : BehaviorSpec({
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) } returns zaakUuid
 
         val documentenKeyExpression = mockk<Expression>()
-        every { documentenKeyExpression.toString() } returns documentenKeyPrefix
+        every { documentenKeyExpression.getValue(delegateExecution) } returns documentenKeyPrefix
 
         When("a single unsigned document is found") {
+            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
                 documentenKeyPrefix to listOf(documentUuid.toString())
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document
-            every {
-                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
-            } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
 
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
@@ -93,13 +86,11 @@ class SignDocumentDelegateTest : BehaviorSpec({
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
                 }
             }
-
-            And("a screen event is sent") {
-                verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
-            }
         }
 
         When("the document is already signed") {
+            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+
             val signedDocument = createEnkelvoudigInformatieObject(
                 uuid = documentUuid,
                 ondertekening = createOndertekening()
@@ -117,13 +108,11 @@ class SignDocumentDelegateTest : BehaviorSpec({
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
                 }
             }
-
-            And("no screen event is sent") {
-                verify(exactly = 0) { eventingService.send(any<ScreenEvent>()) }
-            }
         }
 
         When("no documents match the key prefix") {
+            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
                 "ZAAK_SomeOtherField" to listOf("some-value")
             )
@@ -139,16 +128,14 @@ class SignDocumentDelegateTest : BehaviorSpec({
         }
 
         When("no documentenKey is configured") {
+            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+
             val defaultKey = "ZAAK_Documenten_Ondertekenen_Selectie"
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
                 defaultKey to listOf(documentUuid.toString())
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document
-            every {
-                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
-            } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
 
             SignDocumentDelegate().execute(delegateExecution)
 
@@ -160,6 +147,8 @@ class SignDocumentDelegateTest : BehaviorSpec({
         }
 
         When("multiple documents are found across numbered keys") {
+            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+
             val documentUuid2 = UUID.randomUUID()
             val document1 = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             val document2 = createEnkelvoudigInformatieObject(uuid = documentUuid2, ondertekening = null)
@@ -169,10 +158,6 @@ class SignDocumentDelegateTest : BehaviorSpec({
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document1
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid2) } returns document2
-            every {
-                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
-            } just runs
-            every { eventingService.send(any<ScreenEvent>()) } just runs
 
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
@@ -184,10 +169,6 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid2)
                 }
-            }
-
-            And("a screen event is sent for each document") {
-                verify(exactly = 2) { eventingService.send(any<ScreenEvent>()) }
             }
         }
     }
