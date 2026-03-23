@@ -473,7 +473,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "zaps.step.proces-definitie.bevestig-switch.msg",
+          key: "zaps.step.proces-modellering-methode.bevestig-switch.msg",
           args: { process: "BPMN" },
         }),
       })

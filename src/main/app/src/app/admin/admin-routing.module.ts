@@ -10,7 +10,7 @@ import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.c
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
 import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
+import { ParametersEditShellComponent } from "./parameters-edit-shell/parameters-edit-shell.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions/bpmn-process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
@@ -27,7 +27,7 @@ const routes: Routes = [
       { path: "parameters", component: ParametersComponent },
       {
         path: "parameters/:uuid",
-        component: ParametersEditWrapperComponent,
+        component: ParametersEditShellComponent,
         resolve: { parameters: ZaakafhandelParametersResolver },
       },
       {

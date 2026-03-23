@@ -24,11 +24,11 @@
       </div>
     } @else {
       <ng-container [ngSwitch]="processDefinitionType.type">
-        <zac-parameters-edit-select-process-definition
+        <zac-parameters-select-process-modelling-method
           *ngSwitchCase="'SELECT-PROCESS-DEFINITION'"
           (switchProcessDefinition)="switchProcessDefinition($event)"
         >
-        </zac-parameters-edit-select-process-definition>
+        </zac-parameters-select-process-modelling-method>
 
         <zac-parameters-edit-cmmn
           *ngSwitchCase="'CMMN'"

@@ -12,10 +12,10 @@ import { AdminComponent } from "../admin/admin.component";
 import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definition-type";
 
 @Component({
-  templateUrl: "./parameters-edit-wrapper.component.html",
+  templateUrl: "./parameters-edit-shell.component.html",
   standalone: false,
 })
-export class ParametersEditWrapperComponent
+export class ParametersEditShellComponent
   extends AdminComponent
   implements OnInit
 {

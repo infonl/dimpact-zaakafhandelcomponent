@@ -14,11 +14,11 @@ import {
 } from "../model/parameters/zaak-process-definition-type";
 
 @Component({
-  selector: "zac-parameters-edit-select-process-definition",
-  templateUrl: "./parameters-edit-select-process-definition.component.html",
+  selector: "zac-parameters-select-process-modelling-method",
+  templateUrl: "./parameters-select-process-modelling-method.component.html",
   standalone: false,
 })
-export class ParameterEditSelectProcessDefinitionComponent {
+export class ParameterSelectProcessModdelingMethodComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   protected readonly zaakProcessDefinitionOptions: Array<{
