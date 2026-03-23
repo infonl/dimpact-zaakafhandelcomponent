@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 12 done — 142 remaining** (2026-03-19)
+**Progress: 14 done — 140 remaining** (2026-03-23)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -142,14 +142,28 @@ Solves PZ-XXXXX
 
 ---
 
+### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23)
+- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
+- **Pre-existing fix**: `@Input({ required: true })` on `range!`/`label!`; `FormControl<Date | null>` instead of `FormControl<Date>`
+- **Pre-existing fix**: removed invalid `floatLabel="never"` from template (not in `FloatLabelType`)
+- **Pattern**: Component brings its own `MatNativeDateModule` (date adapter) — host TestBed only needs `[DateRangeFilterComponent, NoopAnimationsModule]`
+
+### ✅ `admin/parameters/parameters.component.ts` (2026-03-23)
+- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
+- **Blocker**: `DateRangeFilterComponent` was `standalone: false` — migrated it first
+- **Pattern**: existing pure unit tests (`new Component(...)`) stay as-is; added separate TestBed `describe(ParametersComponent.name, ...)` for render tests
+- **Pattern**: `describe(ClassName.name, ...)` and `` describe(`${ClassName.name} suffix`, ...) `` for describe labels
+
+---
+
 ## Next Target
-`admin/parameters/parameters.component.ts`
+`admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component.ts`
 
 ---
 
 ## Intermediate Goal: Lazy-load `/admin`
 
-**Progress: 13/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 14/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
 
 | Component | Status |
 |---|---|
@@ -165,7 +179,7 @@ Solves PZ-XXXXX
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ⬜ |
+| `admin/parameters/parameters.component` | ✅ |
 | `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ |
 | `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ |
 | `admin/parameters-edit-wrapper/parameters-edit-wrapper.component` | ⬜ |

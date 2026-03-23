@@ -15,13 +15,11 @@ import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-do
 import { SmartDocumentsFormComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit-select-process-definition/parameters-edit-select-process-definition.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
-import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
 
 @NgModule({
   declarations: [
     ParametersEditWrapperComponent,
-    ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
   ],

@@ -3,18 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { MatSelectChange } from "@angular/material/select";
+import { signal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
+import { of } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { MatSelectChange } from "@angular/material/select";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
 
-describe("ParametersComponent applyFilter", () => {
+describe(`${ParametersComponent.name} applyFilter`, () => {
   const filterTestCases = [
     {
       event: ToggleSwitchOptions.CHECKED as ToggleSwitchOptions,
@@ -74,7 +81,7 @@ describe("ParametersComponent applyFilter", () => {
       );
 
       component["storedParameterFilters"] = "test-key";
-      component.filterParameters = {
+      component["filterParameters"] = {
         valide: ToggleSwitchOptions.INDETERMINATE,
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
@@ -87,16 +94,157 @@ describe("ParametersComponent applyFilter", () => {
         maxResults: 25,
       } satisfies ZaakafhandelParametersListParameters;
 
-      component.applyFilter({
+      component["applyFilter"]({
         event,
         filter,
       });
 
-      expect(component.filterParameters[filter]).toEqual(expectedValue);
+      expect(component["filterParameters"][filter]).toEqual(expectedValue);
       expect(setItemSpy).toHaveBeenCalledWith(
         "test-key",
-        component.filterParameters,
+        component["filterParameters"],
       );
     },
   );
+});
+
+describe(`${ParametersComponent.name} compare functions`, () => {
+  const makeComponent = () =>
+    new ParametersComponent(
+      fromPartial<UtilService>({}),
+      fromPartial<ConfiguratieService>({}),
+      fromPartial<ZaakafhandelParametersService>({}),
+    );
+
+  describe("compareZaaktype", () => {
+    it("should return true when identificatie matches", () => {
+      const component = makeComponent();
+      const a = fromPartial<GeneratedType<"RestZaaktype">>({
+        identificatie: "ZT-001",
+      });
+      const b = fromPartial<GeneratedType<"RestZaaktype">>({
+        identificatie: "ZT-001",
+      });
+      expect(component["compareZaaktype"](a, b)).toBe(true);
+    });
+
+    it("should return false when identificatie differs", () => {
+      const component = makeComponent();
+      const a = fromPartial<GeneratedType<"RestZaaktype">>({
+        identificatie: "ZT-001",
+      });
+      const b = fromPartial<GeneratedType<"RestZaaktype">>({
+        identificatie: "ZT-002",
+      });
+      expect(component["compareZaaktype"](a, b)).toBe(false);
+    });
+  });
+
+  describe("compareCaseDefinition", () => {
+    it("should return true when key matches", () => {
+      const component = makeComponent();
+      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+        key: "key-1",
+      });
+      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+        key: "key-1",
+      });
+      expect(component["compareCaseDefinition"](a, b)).toBe(true);
+    });
+
+    it("should return false when key differs", () => {
+      const component = makeComponent();
+      const a = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+        key: "key-1",
+      });
+      const b = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+        key: "key-2",
+      });
+      expect(component["compareCaseDefinition"](a, b)).toBe(false);
+    });
+  });
+});
+
+describe(ParametersComponent.name, () => {
+  let fixture: ComponentFixture<ParametersComponent>;
+  let component: ParametersComponent;
+  let utilServiceMock: Pick<
+    UtilService,
+    "setTitle" | "getUniqueItemsList" | "loading"
+  >;
+  let zaakafhandelParametersServiceMock: Pick<
+    ZaakafhandelParametersService,
+    "listZaakafhandelParameters"
+  >;
+
+  beforeEach(async () => {
+    utilServiceMock = {
+      setTitle: jest.fn(),
+      getUniqueItemsList: jest.fn().mockReturnValue([]),
+      loading: signal(false),
+    } satisfies Pick<
+      UtilService,
+      "setTitle" | "getUniqueItemsList" | "loading"
+    >;
+
+    zaakafhandelParametersServiceMock = {
+      listZaakafhandelParameters: jest.fn().mockReturnValue(of([])),
+    } satisfies Pick<
+      ZaakafhandelParametersService,
+      "listZaakafhandelParameters"
+    >;
+
+    await TestBed.configureTestingModule({
+      imports: [
+        ParametersComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
+      providers: [
+        { provide: UtilService, useValue: utilServiceMock },
+        { provide: ConfiguratieService, useValue: {} },
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: zaakafhandelParametersServiceMock,
+        },
+        provideRouter([]),
+      ],
+    }).compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ParametersComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it("should create and call setupMenu on init", () => {
+    expect(component).toBeTruthy();
+    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
+      "title.parameters",
+      undefined,
+    );
+  });
+
+  it("should show no-data message when data is empty and not loading", () => {
+    const paragraphs = Array.from(
+      fixture.nativeElement.querySelectorAll("p"),
+    ) as HTMLElement[];
+    expect(
+      paragraphs.some((p) =>
+        p.textContent?.includes("msg.geen.gegevens.gevonden"),
+      ),
+    ).toBe(true);
+  });
+
+  it("should show loading message when loading is true", () => {
+    component["loading"] = true;
+    fixture.detectChanges();
+    const paragraphs = Array.from(
+      fixture.nativeElement.querySelectorAll("p"),
+    ) as HTMLElement[];
+    expect(
+      paragraphs.some((p) => p.textContent?.includes("msg.loading")),
+    ).toBe(true);
+  });
 });
