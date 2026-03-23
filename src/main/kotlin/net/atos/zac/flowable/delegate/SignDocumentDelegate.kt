@@ -55,11 +55,6 @@ class SignDocumentDelegate : AbstractDelegate() {
 
             LOG.fine("Signing document '${enkelvoudigInformatieobject.identificatie}'")
             enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
-
-            // Open Zaak does not send a notification for this. So we send the ScreenEvent ourselves!
-            flowableHelper.eventingService.send(
-                ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(enkelvoudigInformatieobject)
-            )
         }
     }
 }
