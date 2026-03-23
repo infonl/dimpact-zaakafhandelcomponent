@@ -14,7 +14,7 @@ import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-e
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn/parameters-edit-cmmn.component";
 import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 import { SmartDocumentsFormComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
-import { ParameterSelectProcessModdelingMethodComponent } from "./parameters-select-process-modelling-method/parameters-select-process-modelling-method.component";
+import { ParameterSelectProcessModellingMethodComponent } from "./parameters-select-process-modelling-method/parameters-select-process-modelling-method.component";
 import { ParametersEditShellComponent } from "./parameters-edit-shell/parameters-edit-shell.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions/bpmn-process-definitions.component";
@@ -23,7 +23,7 @@ import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions/bpmn
   declarations: [
     ParametersEditShellComponent,
     ParametersComponent,
-    ParameterSelectProcessModdelingMethodComponent,
+    ParameterSelectProcessModellingMethodComponent,
     ParametersEditBpmnComponent,
   ],
   exports: [],

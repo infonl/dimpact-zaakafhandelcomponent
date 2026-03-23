@@ -18,7 +18,7 @@ import {
   templateUrl: "./parameters-select-process-modelling-method.component.html",
   standalone: false,
 })
-export class ParameterSelectProcessModdelingMethodComponent {
+export class ParameterSelectProcessModellingMethodComponent {
   @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
 
   protected readonly zaakProcessDefinitionOptions: Array<{
