@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 12 done — 142 remaining** (2026-03-19)
+**Progress: 15 done — 138 remaining** (2026-03-23)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -26,6 +26,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
+| 0 | **Align collaboration** — see [Collaboration](#collaboration) below: pull the coordination branch, check what colleagues have claimed, add your batch, push before starting | **Never start a component already claimed by someone else** |
 | 1 | **Branch** — confirm on `temp/standalone-migration` (create from `main` if needed) | — |
 | 2 | **Select** — pick fewest-deps non-standalone component; exclude ATOS, routing, already-standalone | **Ask user to confirm target** |
 | 3 | **Read** — component `.ts`, `.html`, declaring module | — |
@@ -71,6 +72,39 @@ Solves PZ-XXXXX
 3. **Composite** — uses other components (migrate leaves first)
 4. **Complex / dialogs** — `MAT_DIALOG_DATA`, complex service graphs
 5. **Last** — SharedModule, CoreModule themselves
+
+---
+
+## Collaboration
+
+**Branch**: `chore/anguklar-19-migration--collaboration-list--no-merging_keep_me`
+**File**: `migration-claims.md` in the root of that branch
+**Rule**: This branch is **never merged** — it is a shared whiteboard only.
+
+### Protocol (Step 0 — do this before every session)
+
+```bash
+# 1. Fetch latest claims without switching branches
+git fetch origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+
+# 2. Read the claims file directly from the branch (no checkout needed)
+git show origin/chore/anguklar-19-migration--collaboration-list--no-merging_keep_me:migration-claims.md
+
+# 3. Switch to the coordination branch, claim your batch, push
+git checkout chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+# → edit migration-claims.md: add your name + components
+git add migration-claims.md && git commit -m "claim: <your name> — <component list>"
+git push origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+
+# 4. Switch back to your work branch
+git checkout <your-work-branch>
+```
+
+### Rules
+- **Claim before you start** — if it's not in `migration-claims.md` under your name, don't assume it's free.
+- **One section per developer** — edit only your own section; never rewrite a colleague's.
+- **Mark done inline** — change `- [ ]` to `- [x]` and push when a component is merged.
+- **Pull before editing** — always `git pull` on the coordination branch to avoid conflicts on the claims file.
 
 ---
 
@@ -139,6 +173,23 @@ Solves PZ-XXXXX
 - **Pattern**: `CdkDragDrop` tested by calling `component["moveTabelWaarde"]({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)` directly
 - **Pattern**: `import type { CdkDragDrop }` when used only as type cast — avoids "declared but never read"
 - **Pattern**: `*matNoDataRow` does not render synchronously — test empty-state via component state instead
+
+---
+
+### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23)
+- `imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule]`
+- **Pattern**: `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data for use in assertions
+
+### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23)
+- `imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule]`
+- **Fix**: `@Input() value: string` → `@Input() value?: string`; `FormControl<string>` → `FormControl<string | undefined>`; `formControl.value` assigned with `?? undefined` to avoid `null`
+- **Pattern**: `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger `change()` without going through the DOM input
+
+### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23)
+- `imports: [NgIf, MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule]`
+- **Pattern**: `setup()` helper function keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
+- **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
+- **Note**: `confirm-dialog.component.less` has a pre-existing ESLint parse error (no LESS parser configured); `autofocus` attribute on confirm button is a pre-existing `no-autofocus` lint violation — both are in untouched files
 
 ---
 

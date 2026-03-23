@@ -4,19 +4,27 @@
  */
 
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./notification-dialog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule],
 })
 export class NotificationDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<NotificationDialogData>,
-    @Inject(MAT_DIALOG_DATA) public data: NotificationDialogData,
+    private readonly dialogRef: MatDialogRef<NotificationDialogData>,
+    @Inject(MAT_DIALOG_DATA) protected readonly data: NotificationDialogData,
   ) {}
 
-  confirm(): void {
+  protected confirm(): void {
     this.dialogRef.close(true);
   }
 }

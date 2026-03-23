@@ -4,26 +4,30 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
 
 @Component({
   selector: "zac-tekst-filter",
   templateUrl: "./tekst-filter.component.html",
   styleUrls: ["./tekst-filter.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
 })
 export class TekstFilterComponent implements OnInit {
-  formControl = new FormControl<string>(undefined);
-  @Input() value: string;
+  protected formControl = new FormControl<string | undefined>(undefined);
+  @Input() value?: string;
   @Output() changed = new EventEmitter<string>();
 
   ngOnInit(): void {
     this.formControl.setValue(this.value);
   }
 
-  change(): void {
+  protected change(): void {
     if (this.value !== this.formControl.value) {
-      this.value = this.formControl.value;
+      this.value = this.formControl.value ?? undefined;
       this.changed.emit(this.value);
     }
   }
