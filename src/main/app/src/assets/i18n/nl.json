@@ -313,7 +313,7 @@
   "besluit.publicatie.indicatie.koptitel": "Publicatiegegevens",
   "besluit.publicatie.indicatie.onderschrift": "Publicatie termijn: {{publicationTermDays}} dag",
   "besluit.publicatie.indicatie.onderschrift.meervoud": "Publicatie termijn: {{publicationTermDays}} dagen",
-  "zaps.step.proces-modellering-methode.intro": "Geef hier aan of CMMN- of BPMN-procesmodellering gebruikt moet worden.",
+  "zaps.step.proces-modellering-methode.intro": "Geef hier aan of CMMN- of BPMN-procesmodelleringsmethode gebruikt moet worden.",
   "zaps.step.proces-modellering-methode.label": "Procesmodelleringsmethode",
   "zaps.step.proces-modellering-methode.bevestig-switch.msg": "Het wijzigen van procesmodelleringsmethodeverwijdert alle niet-opgeslagen {{ process }}-wijzigingen. Weet je zeker dat je wilt doorgaan?",
   "zaps.step.algemeen.zaaktype.hint": "De groep en eventueel medewerker plus vertrouwelijkheidaanduiding worden gezet na het kiezen van het zaaktype",
