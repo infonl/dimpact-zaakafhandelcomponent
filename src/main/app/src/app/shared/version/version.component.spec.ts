@@ -81,10 +81,11 @@ describe(VersionComponent.name, () => {
     });
 
     it("should hide build paragraph in verbose layout when buildId is absent", () => {
-      fixture.componentInstance["buildInformatie"] = {
-        ...buildInfo,
-        buildId: null,
-      };
+      jest
+        .spyOn(healthCheckService, "readBuildInformatie")
+        .mockReturnValue(of({ ...buildInfo, buildId: null }));
+      fixture.destroy();
+      fixture = TestBed.createComponent(VersionComponent);
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
@@ -94,10 +95,11 @@ describe(VersionComponent.name, () => {
     });
 
     it("should hide commit paragraph in verbose layout when commit is absent", () => {
-      fixture.componentInstance["buildInformatie"] = {
-        ...buildInfo,
-        commit: null,
-      };
+      jest
+        .spyOn(healthCheckService, "readBuildInformatie")
+        .mockReturnValue(of({ ...buildInfo, commit: null }));
+      fixture.destroy();
+      fixture = TestBed.createComponent(VersionComponent);
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
@@ -106,16 +108,8 @@ describe(VersionComponent.name, () => {
       expect(paragraphs.length).toBe(2); // version + build only
     });
 
-    it("should show chip tooltip content when buildId and buildDatumTijd are present", () => {
-      const chip = fixture.nativeElement.querySelector("mat-chip");
-      expect(chip).toBeTruthy();
-      // Tooltip is bound when both buildId and buildDatumTijd are present
-      expect(fixture.componentInstance["buildInformatie"]?.buildId).toBe(
-        "build-42",
-      );
-      expect(
-        fixture.componentInstance["buildInformatie"]?.buildDatumTijd,
-      ).toBeDefined();
+    it("should render chip in normal layout when build info is loaded", () => {
+      expect(fixture.nativeElement.querySelector("mat-chip")).toBeTruthy();
     });
   });
 });

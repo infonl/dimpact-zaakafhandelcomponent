@@ -172,7 +172,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       expect(matSelect.options.length).toBe(informationObjectTypes.length + 1);
     });
 
-    it("should render informationObjectType omschrijving as option values", () => {
+    it("should bind informationObjectType uuid as option value", () => {
       const selectDE = fixture.debugElement.query(By.directive(MatSelect));
       const matSelect = selectDE.injector.get(MatSelect);
       const optionValues = matSelect.options.map((o) => o.value);
