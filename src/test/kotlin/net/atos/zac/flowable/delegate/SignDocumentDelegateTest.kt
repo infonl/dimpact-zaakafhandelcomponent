@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.runs
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
@@ -37,6 +38,10 @@ class SignDocumentDelegateTest : BehaviorSpec({
     val zaakUuid = UUID.randomUUID()
     val documentUuid = UUID.randomUUID()
     val documentenKeyPrefix = "ZAAK_Documents_To_Sign_Select"
+
+    afterSpec {
+        unmockkStatic(CDI::class)
+    }
 
     beforeEach {
         checkUnnecessaryStub()

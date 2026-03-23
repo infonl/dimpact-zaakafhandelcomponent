@@ -32,7 +32,8 @@ class SignDocumentDelegate : AbstractDelegate() {
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
-        val zaakDataKey = documentenKey?.toString()?.takeUnless { it.isBlank() } ?: DEFAULT_DOCUMENTEN_KEY
+        val zaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
+            ?: DEFAULT_DOCUMENTEN_KEY
         LOG.fine("Signing documents with key '$zaakDataKey' from activity '${execution.currentActivityName}'")
         val documentsToSign = flowableHelper.zaakVariabelenService.readZaakdata(zaakUuid)
             .filter { (key, _) -> key.startsWith(zaakDataKey) }
@@ -41,6 +42,7 @@ class SignDocumentDelegate : AbstractDelegate() {
             .flatten()
             .filterIsInstance<String>()
             .map { UUID.fromString(it) }
+            .distinct()
 
         LOG.fine(
             "Found ${documentsToSign.size} document(s) to sign " +
