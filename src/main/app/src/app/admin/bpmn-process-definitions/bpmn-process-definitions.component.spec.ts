@@ -399,4 +399,17 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
     });
   });
+
+  describe("refreshDefinitions", () => {
+    it("should not throw when called", () => {
+      expect(() => component["refreshDefinitions"]()).not.toThrow();
+    });
+  });
+
+  describe("asProcessDefinition", () => {
+    it("should return the node cast as a process definition", () => {
+      const result = component["asProcessDefinition"](baseProcessDefinition);
+      expect(result).toBe(baseProcessDefinition);
+    });
+  });
 });
