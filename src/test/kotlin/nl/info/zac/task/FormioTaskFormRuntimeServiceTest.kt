@@ -353,7 +353,7 @@ class FormioTaskFormRuntimeServiceTest : BehaviorSpec({
                     ?.getJsonArray("components")
                     ?.getJsonObject(0)
                     ?.getString("defaultValue")
-                resolvedDefault shouldBe creationDateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyy"))
+                resolvedDefault shouldBe creationDateTime.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
             }
         }
     }

@@ -45,7 +45,7 @@ class FormioTaskFormRuntimeService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val DATUM_FORMAAT = DateTimeFormatter.ofPattern("dd-MM-yyy")
+        private val DATUM_FORMAAT = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
         private const val REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces"
         private const val DOCUMENT_SEPARATOR = ";"
