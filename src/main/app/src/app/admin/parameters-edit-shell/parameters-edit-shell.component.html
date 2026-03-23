@@ -32,14 +32,18 @@
 
         <zac-parameters-edit-cmmn
           *ngSwitchCase="'CMMN'"
-          [selectedIndexStart]="modellingMethodSelection.selectedIndexStart ?? 0"
+          [selectedIndexStart]="
+            modellingMethodSelection.selectedIndexStart ?? 0
+          "
           (switchModellingMethod)="switchModellingMethod($event)"
         >
         </zac-parameters-edit-cmmn>
 
         <zac-parameters-edit-bpmn
           *ngSwitchCase="'BPMN'"
-          [selectedIndexStart]="modellingMethodSelection.selectedIndexStart ?? 0"
+          [selectedIndexStart]="
+            modellingMethodSelection.selectedIndexStart ?? 0
+          "
           (switchModellingMethod)="switchModellingMethod($event)"
         >
           >
