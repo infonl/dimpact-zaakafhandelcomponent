@@ -12,6 +12,14 @@
 - [x] `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts`
 - [x] `admin/parameters/parameters.component.ts`
 
+## Dax
+
+### Batch 1 — PR: TBD
+- [ ] `shared/material/mat-zac-error.ts`
+- [ ] `shared/notification-dialog/notification-dialog.component.ts`
+- [ ] `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts`
+- [ ] `shared/confirm-dialog/confirm-dialog.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
