@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 14 done — 140 remaining** (2026-03-23)
+**Progress: 12 done — 142 remaining** (2026-03-19)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -26,6 +26,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
+| 0 | **Align collaboration** — see [Collaboration](#collaboration) below: pull the coordination branch, check what colleagues have claimed, add your batch, push before starting | **Never start a component already claimed by someone else** |
 | 1 | **Branch** — confirm on `temp/standalone-migration` (create from `main` if needed) | — |
 | 2 | **Select** — pick fewest-deps non-standalone component; exclude ATOS, routing, already-standalone | **Ask user to confirm target** |
 | 3 | **Read** — component `.ts`, `.html`, declaring module | — |
@@ -71,6 +72,39 @@ Solves PZ-XXXXX
 3. **Composite** — uses other components (migrate leaves first)
 4. **Complex / dialogs** — `MAT_DIALOG_DATA`, complex service graphs
 5. **Last** — SharedModule, CoreModule themselves
+
+---
+
+## Collaboration
+
+**Branch**: `chore/anguklar-19-migration--collaboration-list--no-merging_keep_me`
+**File**: `migration-claims.md` in the root of that branch
+**Rule**: This branch is **never merged** — it is a shared whiteboard only.
+
+### Protocol (Step 0 — do this before every session)
+
+```bash
+# 1. Fetch latest claims without switching branches
+git fetch origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+
+# 2. Read the claims file directly from the branch (no checkout needed)
+git show origin/chore/anguklar-19-migration--collaboration-list--no-merging_keep_me:migration-claims.md
+
+# 3. Switch to the coordination branch, claim your batch, push
+git checkout chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+# → edit migration-claims.md: add your name + components
+git add migration-claims.md && git commit -m "claim: <your name> — <component list>"
+git push origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
+
+# 4. Switch back to your work branch
+git checkout <your-work-branch>
+```
+
+### Rules
+- **Claim before you start** — if it's not in `migration-claims.md` under your name, don't assume it's free.
+- **One section per developer** — edit only your own section; never rewrite a colleague's.
+- **Mark done inline** — change `- [ ]` to `- [x]` and push when a component is merged.
+- **Pull before editing** — always `git pull` on the coordination branch to avoid conflicts on the claims file.
 
 ---
 
@@ -142,28 +176,14 @@ Solves PZ-XXXXX
 
 ---
 
-### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23)
-- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
-- **Pre-existing fix**: `@Input({ required: true })` on `range!`/`label!`; `FormControl<Date | null>` instead of `FormControl<Date>`
-- **Pre-existing fix**: removed invalid `floatLabel="never"` from template (not in `FloatLabelType`)
-- **Pattern**: Component brings its own `MatNativeDateModule` (date adapter) — host TestBed only needs `[DateRangeFilterComponent, NoopAnimationsModule]`
-
-### ✅ `admin/parameters/parameters.component.ts` (2026-03-23)
-- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
-- **Blocker**: `DateRangeFilterComponent` was `standalone: false` — migrated it first
-- **Pattern**: existing pure unit tests (`new Component(...)`) stay as-is; added separate TestBed `describe(ParametersComponent.name, ...)` for render tests
-- **Pattern**: `describe(ClassName.name, ...)` and `` describe(`${ClassName.name} suffix`, ...) `` for describe labels
-
----
-
 ## Next Target
-`admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component.ts`
+`admin/parameters/parameters.component.ts`
 
 ---
 
 ## Intermediate Goal: Lazy-load `/admin`
 
-**Progress: 14/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 13/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
 
 | Component | Status |
 |---|---|
@@ -179,7 +199,7 @@ Solves PZ-XXXXX
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ✅ |
+| `admin/parameters/parameters.component` | ⬜ |
 | `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ |
 | `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ |
 | `admin/parameters-edit-wrapper/parameters-edit-wrapper.component` | ⬜ |
