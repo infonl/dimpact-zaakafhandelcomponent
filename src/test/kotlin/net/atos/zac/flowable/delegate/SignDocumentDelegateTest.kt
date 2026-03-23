@@ -133,6 +133,27 @@ class SignDocumentDelegateTest : BehaviorSpec({
             }
         }
 
+        When("no documentenKey is configured") {
+            val defaultKey = "ZAAK_Documenten_Ondertekenen_Selectie"
+            val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
+            every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
+                defaultKey to listOf(documentUuid.toString())
+            )
+            every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document
+            every {
+                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
+            } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+
+            SignDocumentDelegate().execute(delegateExecution)
+
+            Then("the default key is used and the document is signed") {
+                verify(exactly = 1) {
+                    enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
+                }
+            }
+        }
+
         When("multiple documents are found across numbered keys") {
             val documentUuid2 = UUID.randomUUID()
             val document1 = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)

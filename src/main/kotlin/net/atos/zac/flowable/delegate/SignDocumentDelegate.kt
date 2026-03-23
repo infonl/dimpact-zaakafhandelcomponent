@@ -9,7 +9,6 @@ import jakarta.enterprise.inject.spi.CDI
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
@@ -18,11 +17,12 @@ import java.util.logging.Logger
 
 class SignDocumentDelegate : AbstractDelegate() {
 
-    // Set by Flowable. Can be either FixedValue or JuelExpression
-    lateinit var documentenKey: Expression
+    // Set by Flowable. Can be either FixedValue or JuelExpression. Defaults to DEFAULT_DOCUMENTEN_KEY if not set.
+    var documentenKey: Expression? = null
 
     companion object {
         private val LOG = Logger.getLogger(SignDocumentDelegate::class.java.name)
+        private const val DEFAULT_DOCUMENTEN_KEY = "ZAAK_Documenten_Ondertekenen_Selectie"
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -32,8 +32,10 @@ class SignDocumentDelegate : AbstractDelegate() {
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
+        val zaakDataKey = documentenKey?.toString()?.takeUnless { it.isBlank() } ?: DEFAULT_DOCUMENTEN_KEY
+        LOG.fine("Signing documents with key '$zaakDataKey' from activity '${execution.currentActivityName}'")
         val documentsToSign = flowableHelper.zaakVariabelenService.readZaakdata(zaakUuid)
-            .filter { (key, _) -> key.startsWith(documentenKey.toString()) }
+            .filter { (key, _) -> key.startsWith(zaakDataKey) }
             .values
             .filterIsInstance<List<*>>()
             .flatten()
