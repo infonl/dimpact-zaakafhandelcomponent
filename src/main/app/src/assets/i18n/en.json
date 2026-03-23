@@ -313,7 +313,7 @@
   "besluit.publicatie.indicatie.koptitel": "Publication",
   "besluit.publicatie.indicatie.onderschrift": "Publication term: {{publicationTermDays}} day",
   "besluit.publicatie.indicatie.onderschrift.meervoud": "Publication term: {{publicationTermDays}} days",
-  "zaps.step.proces-modellering-methode.intro": "Indicate which CMMN model or BPMN process modelling should be used.",
+  "zaps.step.proces-modellering-methode.intro": "Indicate which CMMN model or BPMN process modelling method should be used.",
   "zaps.step.proces-modellering-methode.label": "Process modelling method",
   "zaps.step.proces-modellering-methode.bevestig-switch.msg": "Changing the process modelling method will remove all unsaved {{ process }} changes. Are you sure you want to continue?",
   "zaps.step.algemeen.zaaktype.hint": "The group and optionally employee plus confidentiality notice are set after selecting the case type",
