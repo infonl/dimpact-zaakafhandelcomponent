@@ -82,6 +82,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 .execute(delegateExecution)
 
             Then("the document is signed") {
+                verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
                 }
@@ -104,6 +105,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 .execute(delegateExecution)
 
             Then("the document is not signed again") {
+                verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
                 }
@@ -121,6 +123,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 .execute(delegateExecution)
 
             Then("no documents are signed") {
+                verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
                 }
@@ -163,6 +166,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 .execute(delegateExecution)
 
             Then("all documents are signed") {
+                verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
                 }
