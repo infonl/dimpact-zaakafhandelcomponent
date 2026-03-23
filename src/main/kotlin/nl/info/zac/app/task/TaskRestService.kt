@@ -38,7 +38,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.formulieren.FormulierRuntimeService
+import nl.info.zac.task.FormioTaskFormRuntimeService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -108,7 +108,7 @@ class TaskRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
-    private val formulierRuntimeService: FormulierRuntimeService,
+    private val formioTaskFormRuntimeService: FormioTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
 
     /**
@@ -141,7 +141,7 @@ class TaskRestService @Inject constructor(
             val restTask = restTaskConverter.convert(task)
             if (TaskUtil.isOpen(task)) {
                 restTask.formioFormulier?.let {
-                    restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
+                    restTask.formioFormulier = formioTaskFormRuntimeService.renderFormioFormulier(restTask)
                     addZaakdata(restTask)
                 }
             }
@@ -241,11 +241,9 @@ class TaskRestService @Inject constructor(
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
-        val updatedTask = if (restTask.formioFormulier != null) {
-            formulierRuntimeService.submit(restTask, task, zaak)
-        } else {
-            processHardCodedFormTask(restTask, zaak)
-        }
+        val updatedTask = restTask.formioFormulier?.let {
+            formioTaskFormRuntimeService.submit(restTask, task, zaak)
+        } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
             indexingService.addOrUpdateZaak(restTask.zaakUuid, false)

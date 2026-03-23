@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.formulieren
+package nl.info.zac.task
 
 import jakarta.inject.Inject
 import jakarta.json.Json
@@ -33,7 +33,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class FormulierRuntimeService @Inject constructor(
+class FormioTaskFormRuntimeService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -205,4 +205,13 @@ class FormulierRuntimeService @Inject constructor(
                     )
                 }
         }
+}
+
+private class ResolveDefaultValueContext(
+    val task: RestTask,
+    zrcClientService: ZrcClientService,
+    zaakVariabelenService: ZaakVariabelenService
+) {
+    val zaak: Zaak = zrcClientService.readZaak(task.zaakUuid)
+    val zaakData: Map<String, Any> = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
 }

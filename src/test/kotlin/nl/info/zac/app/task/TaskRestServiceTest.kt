@@ -28,7 +28,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.formulieren.FormulierRuntimeService
+import nl.info.zac.task.FormioTaskFormRuntimeService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -87,7 +87,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
-    val formulierRuntimeService = mockk<FormulierRuntimeService>()
+    val formioTaskFormRuntimeService = mockk<FormioTaskFormRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val testDispatcher = StandardTestDispatcher()
     val taskRestService = TaskRestService(
@@ -108,7 +108,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
         taskService = taskService,
-        formulierRuntimeService = formulierRuntimeService,
+        formioTaskFormRuntimeService = formioTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
         dispatcher = testDispatcher
     )
@@ -501,7 +501,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readTask(taskId) } returns taskInfo
             every { policyService.readTaakRechten(taskInfo).lezen } returns true
             every { restTaskConverter.convert(taskInfo) } returns restTask
-            every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
+            every { formioTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
             every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
                 "fakeKey" to "fakeValue"
             )
@@ -515,7 +515,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         signaleringService.deleteSignaleringen(any())
                     }
                     verify(exactly = 1) {
-                        formulierRuntimeService.renderFormioFormulier(restTask)
+                        formioTaskFormRuntimeService.renderFormioFormulier(restTask)
                     }
                 }
             }
