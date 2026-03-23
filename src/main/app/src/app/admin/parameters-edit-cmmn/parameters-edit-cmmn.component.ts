@@ -58,9 +58,9 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
@@ -111,7 +111,8 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
@@ -165,9 +166,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
@@ -175,8 +176,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      label: ZaakProcessSelect;
-      value: ZaakProcessSelect;
+      label: ProcessModelMethod;
+      value: ProcessModelMethod;
     }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
@@ -351,12 +352,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       if (value?.value === "BPMN" && this.isDirty()) {
-        this.confirmProcessDefinitionSwitch();
+        this.confirmModellingMethodSwitch();
         return;
       }
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 
@@ -1119,20 +1118,18 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       : replyTo.mail;
   }
 
-  confirmProcessDefinitionSwitch() {
+  confirmModellingMethodSwitch() {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "zaps.step.proces-modellering-methode.bevestig-switch.msg",
+          key: "zaps.step.proces-model-methode.bevestig-switch.msg",
           args: { process: "CMMN" },
         }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.switchProcessDefinition.emit({
-            type: "BPMN",
-          });
+          this.switchModellingMethod.emit({ type: "BPMN" });
         } else {
           this.cmmnBpmnFormGroup.controls.options.patchValue(
             { value: "CMMN", label: "CMMN" },

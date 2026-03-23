@@ -16,14 +16,14 @@ import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn/parameters-e
 import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
 import { SmartDocumentsFormComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 import { ParametersEditShellComponent } from "./parameters-edit-shell/parameters-edit-shell.component";
-import { ParameterSelectProcessModellingMethodComponent } from "./parameters-select-process-modelling-method/parameters-select-process-modelling-method.component";
+import { ParameterSelectProcessModelMethodComponent } from "./parameters-select-process-model-method/parameters-select-process-model-method.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 
 @NgModule({
   declarations: [
     ParametersEditShellComponent,
     ParametersComponent,
-    ParameterSelectProcessModellingMethodComponent,
+    ParameterSelectProcessModelMethodComponent,
     ParametersEditBpmnComponent,
   ],
   exports: [],

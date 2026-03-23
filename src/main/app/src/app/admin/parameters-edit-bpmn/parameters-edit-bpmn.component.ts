@@ -31,9 +31,9 @@ import {
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
@@ -62,7 +62,8 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 })
 export class ParametersEditBpmnComponent implements OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
   private readonly destroy$ = new Subject<void>();
 
@@ -100,9 +101,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     zaakbeeindigParameters: [],
   };
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
@@ -110,7 +111,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: ZaakProcessSelect;
+      value: ProcessModelMethod;
       label: string;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
@@ -208,12 +209,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       if (value?.value === "CMMN" && this.isDirty()) {
-        this.confirmProcessDefinitionSwitch();
+        this.confirmModellingMethodSwitch();
         return;
       }
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 
@@ -487,20 +486,18 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       });
   }
 
-  confirmProcessDefinitionSwitch() {
+  confirmModellingMethodSwitch() {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "zaps.step.proces-modellering-methode.bevestig-switch.msg",
+          key: "zaps.step.proces-model-methode.bevestig-switch.msg",
           args: { process: "BPMN" },
         }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.switchProcessDefinition.emit({
-            type: "CMMN",
-          });
+          this.switchModellingMethod.emit({ type: "CMMN" });
         } else {
           this.cmmnBpmnFormGroup.controls.options.patchValue(
             { value: "BPMN", label: "BPMN" },

@@ -6,13 +6,13 @@
 <mat-stepper orientation="horizontal" [linear]="true">
   <mat-step>
     <ng-template matStepLabel>{{
-      "gegevens.proces-modellering-methode" | translate
+      "gegevens.proces-model-methode" | translate
     }}</ng-template>
 
     <header>
-      <h2>{{ zaakafhandelParameters.zaaktype.omschrijving }}</h2>
+      <h2>{{ caseParameters.zaaktype.omschrijving }}</h2>
       <p>
-        {{ "zaps.step.proces-modellering-methode.intro" | translate }}
+        {{ "zaps.step.proces-model-methode.intro" | translate }}
       </p>
     </header>
 
@@ -20,8 +20,8 @@
       <zac-radio
         [form]="cmmnBpmnFormGroup"
         key="options"
-        label="zaps.step.proces-modellering-methode.label"
-        [options]="zaakProcessDefinitionOptions"
+        label="zaps.step.proces-model-methode.label"
+        [options]="modellingMethodOptions"
         optionDisplayValue="label"
       ></zac-radio>
 

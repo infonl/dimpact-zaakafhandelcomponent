@@ -376,7 +376,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.procesdefinitie.verwijderen.bevestigen",
+        "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
       );
       expect(dialogData._melding.args).toEqual({ naam: "Process A" });
     });
@@ -389,7 +389,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       expect(deleteMutationFn).toHaveBeenCalledWith("key-a");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.procesdefinitie.verwijderen.uitgevoerd",
+        "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
         { naam: "Process A" },
       );
     });

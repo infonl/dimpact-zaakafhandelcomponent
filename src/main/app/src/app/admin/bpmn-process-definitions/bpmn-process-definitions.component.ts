@@ -96,7 +96,7 @@ export class BpmnProcessDefinitionsComponent
   }
 
   ngOnInit() {
-    this.setupMenu("title.procesdefinities");
+    this.setupMenu("title.bpmn-procesdefinities");
   }
 
   protected selectBpmnProcessDefinitionFile() {
@@ -135,7 +135,7 @@ export class BpmnProcessDefinitionsComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "msg.procesdefinitie.verwijderen.bevestigen",
+          key: "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
           args: { naam: processDefinition.name },
         }),
       })
@@ -145,7 +145,7 @@ export class BpmnProcessDefinitionsComponent
           this.deleteMutation.mutate(processDefinition.key, {
             onSuccess: () => {
               this.utilService.openSnackbar(
-                "msg.procesdefinitie.verwijderen.uitgevoerd",
+                "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
                 { naam: processDefinition.name },
               );
               void this.processDefinitionsQuery.refetch();
