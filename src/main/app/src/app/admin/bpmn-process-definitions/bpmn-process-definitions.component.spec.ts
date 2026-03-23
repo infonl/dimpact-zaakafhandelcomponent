@@ -21,8 +21,8 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BpmnService } from "../bpmn.service";
-import { readFileContent } from "./file.helper";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions.component";
+import { readFileContent } from "./file.helper";
 
 jest.mock("./file.helper");
 
