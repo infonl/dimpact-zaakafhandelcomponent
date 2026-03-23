@@ -4,6 +4,8 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { MatSelect } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -137,6 +139,96 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       expect(emitSpy).toHaveBeenCalledWith(
         expect.objectContaining({ informatieObjectTypeUUID: "" }),
       );
+    });
+
+    it("should clear informatieObjectTypeUUID via checkbox (change) template event", () => {
+      const checkboxEl = fixture.debugElement.query(By.css("mat-checkbox"));
+      checkboxEl.triggerEventHandler("change", { checked: false });
+
+      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe("");
+    });
+  });
+
+  describe("mat-select options", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template D",
+          informatieObjectTypeUUID: "",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges();
+    });
+
+    it("should register empty option plus one option per informationObjectType in mat-select", () => {
+      const selectDE = fixture.debugElement.query(By.directive(MatSelect));
+      const matSelect = selectDE.injector.get(MatSelect);
+      // 1 empty option + 2 from *ngFor
+      expect(matSelect.options.length).toBe(informationObjectTypes.length + 1);
+    });
+
+    it("should render informationObjectType omschrijving as option values", () => {
+      const selectDE = fixture.debugElement.query(By.directive(MatSelect));
+      const matSelect = selectDE.injector.get(MatSelect);
+      const optionValues = matSelect.options.map((o) => o.value);
+      expect(optionValues).toContain("uuid-1");
+      expect(optionValues).toContain("uuid-2");
+    });
+  });
+
+  describe("updateFormControls", () => {
+    it("should emit selectionChange when UUID changes from previous value", () => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template E",
+          informatieObjectTypeUUID: "",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges(); // ngOnInit sets previousUUID = ""
+
+      const emitSpy = jest.spyOn(
+        fixture.componentInstance.selectionChange,
+        "emit",
+      );
+      fixture.componentInstance.node.informatieObjectTypeUUID = "uuid-1";
+      fixture.componentInstance["updateFormControls"]();
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ informatieObjectTypeUUID: "uuid-1" }),
+      );
+    });
+
+    it("should not emit selectionChange when UUID has not changed", () => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template F",
+          informatieObjectTypeUUID: "uuid-1",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges(); // ngOnInit sets previousUUID = "uuid-1"
+
+      const emitSpy = jest.spyOn(
+        fixture.componentInstance.selectionChange,
+        "emit",
+      );
+      fixture.componentInstance["updateFormControls"]();
+
+      expect(emitSpy).not.toHaveBeenCalled();
     });
   });
 });

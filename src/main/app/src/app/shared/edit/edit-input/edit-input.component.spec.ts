@@ -8,6 +8,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../../core/service/util.service";
@@ -107,5 +108,58 @@ describe(EditInputComponent.name, () => {
 
     expect(component.editing).toBe(false);
     expect(emitted).toHaveLength(0);
+  });
+
+  it("should show edit icons when not readonly", () => {
+    expect(fixture.nativeElement.querySelectorAll("mat-icon").length).toBeGreaterThan(0);
+  });
+
+  it("should hide edit icons when readonly", () => {
+    component.readonly = true;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll("mat-icon").length).toBe(0);
+  });
+
+  it("should render second form field when editing with reasonField set", () => {
+    component.reasonField = new InputFormFieldBuilder("reason value")
+      .id("reden")
+      .label("reason.label")
+      .build();
+    component.edit();
+    fixture.detectChanges();
+
+    const formFields = fixture.nativeElement.querySelectorAll("mfb-form-field");
+    expect(formFields.length).toBe(2);
+  });
+
+  it("should cancel on outside click when form is not dirty", () => {
+    component.edit();
+    fixture.detectChanges();
+
+    const outsideClickDE = fixture.debugElement.query(
+      By.directive(OutsideClickDirective),
+    );
+    outsideClickDE.triggerEventHandler("zacOutsideClick", null);
+
+    expect(component.editing).toBe(false);
+  });
+
+  it("should save on outside click when form is dirty", () => {
+    component.formField.formControl.setValue("new value");
+    component.edit();
+    fixture.detectChanges();
+    component.formField.formControl.markAsDirty();
+
+    const emitted: Record<string, unknown>[] = [];
+    component.saveField.subscribe((v) => emitted.push(v));
+
+    const outsideClickDE = fixture.debugElement.query(
+      By.directive(OutsideClickDirective),
+    );
+    outsideClickDE.triggerEventHandler("zacOutsideClick", null);
+
+    expect(emitted).toHaveLength(1);
+    expect(component.editing).toBe(false);
   });
 });

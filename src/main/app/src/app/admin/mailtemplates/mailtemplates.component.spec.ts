@@ -143,4 +143,154 @@ describe(MailtemplatesComponent.name, () => {
       2,
     ); // once on init, once after delete
   });
+
+  it("should show close icon for non-default mailtemplate", () => {
+    const icons = fixture.debugElement.queryAll(By.css("td mat-icon"));
+    const closeIcon = icons.find(
+      (el) => el.nativeElement.textContent.trim() === "close",
+    );
+    expect(closeIcon).toBeTruthy();
+  });
+
+  it("should show done icon and hide delete button for default mailtemplate", () => {
+    const defaultTemplate = { ...mailtemplate, defaultMailtemplate: true };
+    jest
+      .spyOn(mailtemplateBeheerService, "listMailtemplates")
+      .mockReturnValue(of([defaultTemplate]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const doneIcon = fixture.debugElement
+      .queryAll(By.css("td mat-icon"))
+      .find((el) => el.nativeElement.textContent.trim() === "done");
+    expect(doneIcon).toBeTruthy();
+
+    const deleteBtn = fixture.debugElement.query(By.css("button#verwijderen"));
+    expect(deleteBtn).toBeNull();
+  });
+
+  it("should show expand arrow down when row is disabled and not expanded", () => {
+    jest
+      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
+      .mockReturnValue(of([koppeling]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const arrowDownIcon = fixture.debugElement
+      .queryAll(By.css("td mat-icon"))
+      .find(
+        (el) => el.nativeElement.textContent.trim() === "keyboard_arrow_down",
+      );
+    expect(arrowDownIcon).toBeTruthy();
+  });
+
+  it("should expand row and show arrow up icon on main-row click", () => {
+    jest
+      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
+      .mockReturnValue(of([koppeling]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const mainRow = fixture.debugElement.query(By.css("tr.main-row"));
+    mainRow.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(component["expandedRow"]).toEqual(mailtemplate);
+
+    const arrowUpIcon = fixture.debugElement
+      .queryAll(By.css("td mat-icon"))
+      .find((el) => el.nativeElement.textContent.trim() === "keyboard_arrow_up");
+    expect(arrowUpIcon).toBeTruthy();
+  });
+
+  it("should collapse row when clicked again", () => {
+    jest
+      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
+      .mockReturnValue(of([koppeling]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const mainRow = fixture.debugElement.query(By.css("tr.main-row"));
+    mainRow.nativeElement.click();
+    fixture.detectChanges();
+    mainRow.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(component["expandedRow"]).toBeNull();
+  });
+
+  it("should return koppelingen for the matching mailtemplate", () => {
+    jest
+      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
+      .mockReturnValue(of([koppeling]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const koppelingen = component["getKoppelingen"](mailtemplate);
+    expect(koppelingen).toHaveLength(1);
+    expect(koppelingen[0]).toEqual(koppeling);
+  });
+
+  it("should return empty koppelingen for unrelated mailtemplate", () => {
+    const otherTemplate = { ...mailtemplate, id: 99 };
+    jest
+      .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
+      .mockReturnValue(of([koppeling]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    expect(component["getKoppelingen"](otherTemplate)).toHaveLength(0);
+  });
+
+  it("should apply filter to data source on keyup", () => {
+    const input = fixture.debugElement.query(By.css("mat-form-field input"));
+    input.nativeElement.value = "Test";
+    input.nativeElement.dispatchEvent(new KeyboardEvent("keyup"));
+    fixture.detectChanges();
+
+    expect(component["dataSource"].filter).toBe("Test");
+  });
+
+  it("should sort data ascending by mailTemplateNaam", () => {
+    const template2 = { ...mailtemplate, id: 2, mailTemplateNaam: "A Template" };
+    jest
+      .spyOn(mailtemplateBeheerService, "listMailtemplates")
+      .mockReturnValue(of([mailtemplate, template2]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    component["sortData"]({ active: "mailTemplateNaam", direction: "asc" });
+    fixture.detectChanges();
+
+    expect(component["dataSource"].data[0].mailTemplateNaam).toBe("A Template");
+  });
+
+  it("should sort data descending by mail", () => {
+    const template2 = {
+      ...mailtemplate,
+      id: 2,
+      mail: "ZAAK_ALGEMEEN",
+    } as GeneratedType<"RESTMailtemplate">;
+    jest
+      .spyOn(mailtemplateBeheerService, "listMailtemplates")
+      .mockReturnValue(of([mailtemplate, template2]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    component["sortData"]({ active: "mail", direction: "desc" });
+    fixture.detectChanges();
+
+    expect(component["dataSource"].data[0].mail).toBe("ZAAK_ALGEMEEN");
+  });
+
+  it("should show empty state message when data source is empty", () => {
+    jest
+      .spyOn(mailtemplateBeheerService, "listMailtemplates")
+      .mockReturnValue(of([]));
+    component["laadMailtemplates"]();
+    fixture.detectChanges();
+
+    const emptyMsg = fixture.debugElement.query(By.css("p"));
+    expect(emptyMsg).toBeTruthy();
+  });
 });
