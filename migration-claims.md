@@ -14,11 +14,11 @@
 
 ## Dax
 
-### Batch 1 — PR: TBD
-- [ ] `shared/material/mat-zac-error.ts`
-- [ ] `shared/notification-dialog/notification-dialog.component.ts`
-- [ ] `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts`
-- [ ] `shared/confirm-dialog/confirm-dialog.component.ts`
+### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
+- ⏭ `shared/material/mat-zac-error.ts` — skipped, declared in ATOS `MaterialFormBuilderModule`
+- [x] `shared/notification-dialog/notification-dialog.component.ts`
+- [x] `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts`
+- [x] `shared/confirm-dialog/confirm-dialog.component.ts`
 
 ## Colleague
 
