@@ -12,7 +12,7 @@ import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
 import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
-import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
+import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions/bpmn-process-definitions.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
@@ -32,7 +32,7 @@ const routes: Routes = [
       },
       {
         path: "bpmn-procesdefinities",
-        component: ProcessDefinitionsComponent,
+        component: BpmnProcessDefinitionsComponent,
       },
       { path: "referentietabellen", component: ReferentieTabellenComponent },
       {

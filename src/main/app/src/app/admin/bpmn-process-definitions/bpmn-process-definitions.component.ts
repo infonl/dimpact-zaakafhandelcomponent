@@ -30,29 +30,27 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
 import { readFileContent } from "./file.helper";
-import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
+import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
 
-interface ProcessDefinitionGroupNode {
+interface GroupNode {
   name: string;
   key: string;
   definition: GeneratedType<"RestBpmnProcessDefinition">;
 }
 
-type ProcessDefinitionNode =
-  | ProcessDefinitionGroupNode
-  | GeneratedType<"RestBpmnProcessDefinition">;
+type Node = GroupNode | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
-  templateUrl: "./process-definitions.component.html",
-  styleUrls: ["./process-definitions.component.less"],
+  templateUrl: "./bpmn-process-definitions.component.html",
+  styleUrls: ["./bpmn-process-definitions.component.less"],
   imports: [
     SharedModule,
-    ProcessDefinitionItemComponent,
+    BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,
   ],
 })
-export class ProcessDefinitionsComponent
+export class BpmnProcessDefinitionsComponent
   extends AdminComponent
   implements OnInit
 {
@@ -71,19 +69,14 @@ export class ProcessDefinitionsComponent
 
   protected expandedKey: string | null = null;
 
-  protected toggleNode(node: ProcessDefinitionGroupNode) {
+  protected toggleNode(node: GroupNode) {
     this.expandedKey = this.expandedKey === node.key ? null : node.key;
   }
 
-  childrenAccessor = (node: ProcessDefinitionNode) =>
-    "definition" in node
-      ? [(node as ProcessDefinitionGroupNode).definition]
-      : [];
+  childrenAccessor = (node: Node) =>
+    "definition" in node ? [(node as GroupNode).definition] : [];
 
-  hasChild = (
-    _: number,
-    node: ProcessDefinitionNode,
-  ): node is ProcessDefinitionGroupNode => "definition" in node;
+  hasChild = (_: number, node: Node): node is GroupNode => "definition" in node;
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
@@ -167,19 +160,19 @@ export class ProcessDefinitionsComponent
   }
 
   protected asProcessDefinition(
-    node: ProcessDefinitionNode,
+    node: Node,
   ): GeneratedType<"RestBpmnProcessDefinition"> {
     return node as GeneratedType<"RestBpmnProcessDefinition">;
   }
 
-  protected hasAllFormsUploaded(node: ProcessDefinitionGroupNode): boolean {
+  protected hasAllFormsUploaded(node: GroupNode): boolean {
     const forms = node.definition.details?.forms ?? [];
     return forms.length > 0 && forms.every((form) => form.uploaded);
   }
 
   private buildTreeData(
     definitions: GeneratedType<"RestBpmnProcessDefinition">[],
-  ): ProcessDefinitionGroupNode[] {
+  ): GroupNode[] {
     return definitions.map((def) => ({
       name: def.name,
       key: def.key,

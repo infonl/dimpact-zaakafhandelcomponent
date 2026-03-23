@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -23,8 +22,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BpmnService } from "../bpmn.service";
 import { readFileContent } from "./file.helper";
-import { ProcessDefinitionItemComponent } from "./process-definition-item/process-definition-item.component";
-import { ProcessDefinitionsComponent } from "./process-definitions.component";
+import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions.component";
 
 jest.mock("./file.helper");
 
@@ -38,15 +36,6 @@ function makeFileList(...files: File[]): FileList {
 
 const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
-
-@Component({
-  selector: "zac-process-definition-item",
-  template: "",
-})
-class ProcessDefinitionItemStubComponent {
-  @Input() processDefinition!: unknown;
-  @Output() bpmnFormListChanged = new EventEmitter<void>();
-}
 
 const baseProcessDefinition = fromPartial<
   GeneratedType<"RestBpmnProcessDefinition">
@@ -62,9 +51,9 @@ const baseProcessDefinition = fromPartial<
   },
 });
 
-describe(ProcessDefinitionsComponent.name, () => {
-  let fixture: ComponentFixture<ProcessDefinitionsComponent>;
-  let component: ProcessDefinitionsComponent;
+describe(BpmnProcessDefinitionsComponent.name, () => {
+  let fixture: ComponentFixture<BpmnProcessDefinitionsComponent>;
+  let component: BpmnProcessDefinitionsComponent;
   let bpmnService: jest.Mocked<BpmnService>;
   let utilService: jest.Mocked<UtilService>;
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
@@ -79,7 +68,7 @@ describe(ProcessDefinitionsComponent.name, () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        ProcessDefinitionsComponent,
+        BpmnProcessDefinitionsComponent,
         SharedModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
@@ -100,6 +89,8 @@ describe(ProcessDefinitionsComponent.name, () => {
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
             deleteProcessDefinition: deleteMutationFn,
+            uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
+            deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
           },
         },
         {
@@ -119,12 +110,7 @@ describe(ProcessDefinitionsComponent.name, () => {
           useValue: { foutAfhandelen: jest.fn() },
         },
       ],
-    })
-      .overrideComponent(ProcessDefinitionsComponent, {
-        remove: { imports: [ProcessDefinitionItemComponent] },
-        add: { imports: [ProcessDefinitionItemStubComponent] },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     queryClient = TestBed.inject(QueryClient);
     bpmnService = TestBed.inject(BpmnService) as jest.Mocked<BpmnService>;
@@ -133,7 +119,7 @@ describe(ProcessDefinitionsComponent.name, () => {
       FoutAfhandelingService,
     ) as jest.Mocked<FoutAfhandelingService>;
 
-    fixture = TestBed.createComponent(ProcessDefinitionsComponent);
+    fixture = TestBed.createComponent(BpmnProcessDefinitionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
