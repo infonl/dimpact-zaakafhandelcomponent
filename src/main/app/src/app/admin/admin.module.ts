@@ -9,9 +9,6 @@ import { NgxEditorModule } from "ngx-editor";
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { AdminRoutingModule } from "./admin-routing.module";
-import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
-import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
-import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
 import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn/parameters-edit-bpmn.component";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn/parameters-edit-cmmn.component";
 import { SmartDocumentsFormItemComponent } from "./parameters-edit-cmmn/smart-documents-form/smart-documents-form-item/smart-documents-form-item.component";
@@ -20,7 +17,6 @@ import { ParameterEditSelectProcessDefinitionComponent } from "./parameters-edit
 import { ParametersEditWrapperComponent } from "./parameters-edit-wrapper/parameters-edit-wrapper.component";
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ProcessDefinitionsComponent } from "./process-definitions/process-definitions.component";
-import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
 
 @NgModule({
   declarations: [
@@ -28,10 +24,6 @@ import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.co
     ParametersComponent,
     ParameterEditSelectProcessDefinitionComponent,
     ParametersEditBpmnComponent,
-    ReferentieTabelComponent,
-    InrichtingscheckComponent,
-    MailtemplatesComponent,
-    MailtemplateComponent,
   ],
   exports: [],
   imports: [
