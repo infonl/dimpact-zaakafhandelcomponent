@@ -5,6 +5,7 @@
 
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -16,7 +17,6 @@ import { UtilService } from "../../core/service/util.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { MatSelectChange } from "@angular/material/select";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersComponent } from "./parameters.component";
 import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-list-parameters";
@@ -243,8 +243,8 @@ describe(ParametersComponent.name, () => {
     const paragraphs = Array.from(
       fixture.nativeElement.querySelectorAll("p"),
     ) as HTMLElement[];
-    expect(
-      paragraphs.some((p) => p.textContent?.includes("msg.loading")),
-    ).toBe(true);
+    expect(paragraphs.some((p) => p.textContent?.includes("msg.loading"))).toBe(
+      true,
+    );
   });
 });

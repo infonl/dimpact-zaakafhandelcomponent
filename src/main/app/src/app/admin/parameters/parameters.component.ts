@@ -10,7 +10,11 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSelectChange, MatSelectModule } from "@angular/material/select";
-import { MatSidenav, MatSidenavContainer, MatSidenavModule } from "@angular/material/sidenav";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
@@ -60,7 +64,8 @@ export class ParametersComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
   @ViewChild("parametersSort") private parametersSort!: MatSort;
 

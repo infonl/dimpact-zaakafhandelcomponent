@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -10,7 +11,6 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
-import { NgIf } from "@angular/common";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";

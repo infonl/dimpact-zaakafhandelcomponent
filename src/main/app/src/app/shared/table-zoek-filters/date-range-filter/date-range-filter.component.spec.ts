@@ -67,7 +67,10 @@ describe(DateRangeFilterComponent.name, () => {
     });
 
     it("should return true when both van and tot are set", () => {
-      component.range = new DatumRange(new Date(2024, 0, 1), new Date(2024, 0, 31));
+      component.range = new DatumRange(
+        new Date(2024, 0, 1),
+        new Date(2024, 0, 31),
+      );
 
       expect(component["hasRange"]()).toBe(true);
     });
@@ -75,7 +78,10 @@ describe(DateRangeFilterComponent.name, () => {
 
   describe("clearDate", () => {
     it("should reset form controls, clear range van/tot, and emit changed", () => {
-      component.range = new DatumRange(new Date(2024, 0, 1), new Date(2024, 0, 31));
+      component.range = new DatumRange(
+        new Date(2024, 0, 1),
+        new Date(2024, 0, 31),
+      );
       component.ngOnChanges();
       const emitted: DatumRange[] = [];
       component.changed.subscribe((val) => emitted.push(val));
