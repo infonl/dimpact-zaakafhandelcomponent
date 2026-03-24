@@ -33,7 +33,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class FormioTaskFormRuntimeService @Inject constructor(
+class BpmnTaskFormRuntimeService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService,

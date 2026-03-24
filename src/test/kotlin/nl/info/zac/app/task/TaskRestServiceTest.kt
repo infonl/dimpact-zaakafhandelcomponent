@@ -60,7 +60,7 @@ import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
-import nl.info.zac.task.FormioTaskFormRuntimeService
+import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI
@@ -87,7 +87,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
-    val formioTaskFormRuntimeService = mockk<FormioTaskFormRuntimeService>()
+    val bpmnTaskFormRuntimeService = mockk<BpmnTaskFormRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val testDispatcher = StandardTestDispatcher()
     val taskRestService = TaskRestService(
@@ -108,7 +108,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
         taskService = taskService,
-        formioTaskFormRuntimeService = formioTaskFormRuntimeService,
+        bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
         dispatcher = testDispatcher
     )
@@ -501,7 +501,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readTask(taskId) } returns taskInfo
             every { policyService.readTaakRechten(taskInfo).lezen } returns true
             every { restTaskConverter.convert(taskInfo) } returns restTask
-            every { formioTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
+            every { bpmnTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
             every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
                 "fakeKey" to "fakeValue"
             )
@@ -515,7 +515,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         signaleringService.deleteSignaleringen(any())
                     }
                     verify(exactly = 1) {
-                        formioTaskFormRuntimeService.renderFormioFormulier(restTask)
+                        bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
                     }
                 }
             }

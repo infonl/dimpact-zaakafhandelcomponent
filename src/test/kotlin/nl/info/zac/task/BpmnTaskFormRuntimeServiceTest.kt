@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
 
-class FormioTaskFormRuntimeServiceTest : BehaviorSpec({
+class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val flowableTaskService = mockk<FlowableTaskService>()
@@ -46,7 +46,7 @@ class FormioTaskFormRuntimeServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val service = FormioTaskFormRuntimeService(
+    val service = BpmnTaskFormRuntimeService(
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         zaakVariabelenService = zaakVariabelenService,

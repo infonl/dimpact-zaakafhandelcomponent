@@ -67,7 +67,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
-import nl.info.zac.task.FormioTaskFormRuntimeService
+import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -108,7 +108,7 @@ class TaskRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
-    private val formioTaskFormRuntimeService: FormioTaskFormRuntimeService,
+    private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
 
     /**
@@ -141,7 +141,7 @@ class TaskRestService @Inject constructor(
             val restTask = restTaskConverter.convert(task)
             if (TaskUtil.isOpen(task)) {
                 restTask.formioFormulier?.let {
-                    restTask.formioFormulier = formioTaskFormRuntimeService.renderFormioFormulier(restTask)
+                    restTask.formioFormulier = bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
                     addZaakdata(restTask)
                 }
             }
@@ -242,7 +242,7 @@ class TaskRestService @Inject constructor(
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
         val updatedTask = restTask.formioFormulier?.let {
-            formioTaskFormRuntimeService.submit(restTask, task, zaak)
+            bpmnTaskFormRuntimeService.submit(restTask, task, zaak)
         } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
