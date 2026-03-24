@@ -52,7 +52,7 @@ export abstract class AdminComponent extends ViewComponent {
     );
     this.menu.push(
       this.getMenuLink(
-        "title.procesdefinities",
+        "title.bpmn-procesdefinities",
         "/admin/bpmn-procesdefinities",
         "design_services",
       ),
