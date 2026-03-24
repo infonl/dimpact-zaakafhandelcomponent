@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 17 done — 137 remaining** (2026-03-24)
+**Progress: 20 done — 134 remaining** (2026-03-24)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -30,37 +30,40 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 |---|---|---|
 | 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
+| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; add batch under `## Marcel` in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
 
 ### Phase B — Per-component loop (repeat until PR)
 
 | # | Step | Gate |
 |---|---|---|
-| 3 | **Read** — component `.ts`, `.html`, declaring module | — |
-| 4 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
-| 5 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
-| 6 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
-| 7 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
-| 8 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
-| 9 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
-| 10 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
-| 11 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
-| 12 | **Fix new TS errors** introduced by migration only | — |
-| 13 | **Run tests** — must still pass | **Fix until green** |
-| 14 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
-| 15 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 16 | → if **continue**: go to step 3 with next component | — |
-| 17 | → if **stop**: proceed to Phase C | — |
+| 4 | **Read** — component `.ts`, `.html`, declaring module | — |
+| 5 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
+| 6 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
+| 7 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
+| 8 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
+| 9 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
+| 10 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
+| 11 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
+| 12 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
+| 13 | **Fix new TS errors** introduced by migration only | — |
+| 14 | **Run tests** — must still pass | **Fix until green** |
+| 15 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
+| 16 | **Tick off claim** — `git checkout claims-update`, mark component `[x]` in `migration-claims.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout temp/standalone-migration` | — |
+| 17 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
+| 18 | → if **continue**: go to step 4 with next component | — |
+| 19 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
 
 | # | Step | Gate |
 |---|---|---|
-| 18 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
-| 19 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
-| 20 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
-| 21 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
-| 22 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
-| 23 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
+| 20 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
+| 21 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
+| 22 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
+| 23 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
+| 24 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
+| 25 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git checkout claims-update`, `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > .claude/commands/migrate-ng19-standalone-components.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout <work-branch>` | — |
+| 26 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
 
 ### Spec conventions
 - Service mocking priority: **1)** real service + `jest.spyOn` **2)** `let mock: Pick<Service, 'method'>` + `useValue: mock` **3)** inline `useValue: { ... } satisfies Pick<...>`
@@ -69,6 +72,8 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - TanStack Query → `provideQueryClient(testQueryClient)` from `setupJest.ts`
 - Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
+- **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
+- **Harnesses over raw DOM** — always use `MatButtonHarness`, `MatSelectHarness`, etc. instead of `querySelectorAll`. Exception: `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
 
 ### PR body template
 ```
@@ -183,16 +188,32 @@ Solves PZ-XXXXX
 - **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
 - **Note**: `confirm-dialog.component.less` has a pre-existing ESLint parse error (no LESS parser configured); `autofocus` attribute on confirm button is a pre-existing `no-autofocus` lint violation — both are in untouched files
 
+### ✅ `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts` (2026-03-24)
+- `imports: [MatStepperModule, MatIconModule, MatButtonModule, TranslateModule, MaterialFormBuilderModule]`
+- **Pattern**: `MatButtonHarness.with({ text: /regex/ })` to find button by translated text; `nativeElement.disabled` for `[disabled]` binding (harness `isDisabled()` unreliable)
+- **Pattern**: `satisfies Pick<ActivatedRoute, "data">` for typed route mock
+
+### ✅ `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts` (2026-03-24)
+- `imports: [NgIf, NgFor, ReactiveFormsModule, MatStepperModule, MatIconModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, MatTableModule, TranslateModule, MaterialFormBuilderModule, StaticTextComponent]`
+- **Pattern**: `private readonly dialog = inject(MatDialog)` (field initializer) — removed from constructor
+- **Pattern**: `fixture.debugElement.injector.get(MatDialog)` for standalone component with `MatDialogModule`
+- **Pattern**: `MatDialogRef` spy with `afterClosed: () => of(true)` to simulate confirm dialog close
+
+### ✅ `admin/parameters-edit-shell/parameters-edit-shell.component.ts` (2026-03-24)
+- `imports: [NgSwitch, NgSwitchCase, NgSwitchDefault, MatSidenavModule, MatProgressSpinnerModule, SideNavComponent, ParameterSelectProcessModelMethodComponent, ParametersEditCmmnComponent, ParametersEditBpmnComponent]`
+- **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
+- **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
+
 ---
 
 ## Next Target
-Wait for PR #5563 (rename process-definitions → bpmn-process-definitions) to merge; then migrate `admin/parameters-edit-shell/parameters-edit-shell.component.ts`, `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts`, `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`.
+Dissolve `admin.module.ts` → `admin.routes.ts` and wire `loadChildren` for lazy-loading `/admin`. All required components now standalone.
 
 ---
 
 ## Intermediate Goal: Lazy-load `/admin`
 
-**Progress: 14/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 17/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
 
 | Component | Status |
 |---|---|
@@ -209,7 +230,7 @@ Wait for PR #5563 (rename process-definitions → bpmn-process-definitions) to m
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
 | `admin/parameters/parameters.component` | ✅ (open PR #5565) |
-| `admin/parameters-edit-select-process-definition` → renamed to `parameters-select-process-model-method` by PR #5563 | ⬜ |
-| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ |
-| `admin/parameters-edit-wrapper` → renamed to `parameters-edit-shell` by PR #5563 | ⬜ |
+| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ (open PR) |
+| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ (open PR) |
+| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ (open PR) |
 | **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ⬜ |
