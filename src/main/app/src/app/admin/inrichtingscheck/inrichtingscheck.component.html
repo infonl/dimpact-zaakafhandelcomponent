@@ -108,7 +108,11 @@
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="zaaktypeDoel">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header="doel">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    mat-sort-header="zaaktypeDoel"
+                  >
                     {{ "doel" | translate }}
                   </th>
                   <td mat-cell *matCellDef="let row">

@@ -3,24 +3,49 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { Observable } from "rxjs";
 
 @Component({
   templateUrl: "confirm-dialog.component.html",
   styleUrls: ["./confirm-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatToolbarModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDividerModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+  ],
 })
 export class ConfirmDialogComponent {
-  loading = false;
+  protected loading = false;
 
   constructor(
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
+    private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) protected readonly data: ConfirmDialogData,
   ) {}
 
-  confirm(): void {
+  protected confirm(): void {
     if (this.data.observable) {
       this.loading = true;
       this.dialogRef.disableClose = true;
@@ -33,7 +58,7 @@ export class ConfirmDialogComponent {
     }
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.dialogRef.close(false);
   }
 }

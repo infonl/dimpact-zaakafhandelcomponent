@@ -5,11 +5,20 @@
 
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { ActivatedRoute, Router } from "@angular/router";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -18,14 +27,25 @@ import { mailSelectList } from "../model/mail-utils";
 @Component({
   templateUrl: "./mailtemplate.component.html",
   styleUrls: ["./mailtemplate.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatSidenavModule,
+    MatCardModule,
+    MatButtonModule,
+    RouterModule,
+    TranslateModule,
+    SideNavComponent,
+    MaterialFormBuilderModule,
+  ],
 })
 export class MailtemplateComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   protected form = this.formBuilder.group({
     mailTemplateNaam: this.formBuilder.control("", [Validators.required]),
@@ -94,7 +114,7 @@ export class MailtemplateComponent
     });
   }
 
-  saveMailtemplate() {
+  protected saveMailtemplate() {
     const data = this.form.getRawValue();
     const templateData = {
       mail: data.mail!.value!,
@@ -117,7 +137,7 @@ export class MailtemplateComponent
     });
   }
 
-  cancel() {
+  protected cancel() {
     void this.router.navigate(["/admin/mailtemplates"]);
   }
 }

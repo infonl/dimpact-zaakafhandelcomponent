@@ -3,19 +3,34 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from "@angular/cdk/drag-drop";
+import { NgIf } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { EditInputComponent } from "../../shared/edit/edit-input/edit-input.component";
 import { InputFormField } from "../../shared/material-form-builder/form-components/input/input-form-field";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
@@ -23,13 +38,26 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 @Component({
   templateUrl: "./referentie-tabel.component.html",
   styleUrls: ["./referentie-tabel.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    DragDropModule,
+    MatSidenavModule,
+    MatCardModule,
+    MatTableModule,
+    MatIconModule,
+    MatButtonModule,
+    TranslateModule,
+    SideNavComponent,
+    EditInputComponent,
+  ],
 })
 export class ReferentieTabelComponent extends AdminComponent implements OnInit {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
-  tabel: GeneratedType<"RestReferenceTable"> = {
+  protected tabel: GeneratedType<"RestReferenceTable"> = {
     code: "VUL SVP EEN UNIEKE TABEL CODE IN",
     naam: "Nieuwe referentietabel",
     systeem: false,
@@ -37,16 +65,16 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     aantalWaarden: 0,
   };
 
-  codeFormField: InputFormField;
-  naamFormField: InputFormField;
+  protected codeFormField!: InputFormField;
+  protected naamFormField!: InputFormField;
 
-  isLoadingResults = false;
-  columns = ["naam", "id"] as const;
-  dataSource = new MatTableDataSource<
+  private isLoadingResults = false;
+  protected columns = ["naam", "id"] as const;
+  protected dataSource = new MatTableDataSource<
     GeneratedType<"RestReferenceTableValue">
   >();
 
-  waardeFormField: InputFormField[] = [];
+  protected waardeFormField: InputFormField[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -64,14 +92,14 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     });
   }
 
-  init(tabel?: GeneratedType<"RestReferenceTable">) {
+  protected init(tabel?: GeneratedType<"RestReferenceTable">) {
     this.tabel = tabel ?? this.tabel;
     this.setupMenu("title.referentietabel", { tabel: this.tabel.code });
     this.createForm();
     this.laadTabelWaarden();
   }
 
-  createForm() {
+  private createForm() {
     this.codeFormField = new InputFormFieldBuilder(this.tabel.code)
       .id("code")
       .label("tabel")
@@ -84,7 +112,7 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
       .build();
   }
 
-  editTabel(
+  protected editTabel(
     event: Record<string, unknown>,
     field: keyof typeof this.tabel,
   ): void {
@@ -92,32 +120,32 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     this.persistTabel();
   }
 
-  laadTabelWaarden() {
+  private laadTabelWaarden() {
     this.isLoadingResults = true;
-    this.tabel.waarden.forEach((waarde) => {
+    this.tabel.waarden!.forEach((waarde) => {
       this.waardeFormField[waarde.id!] = new InputFormFieldBuilder(waarde.naam)
         .id("waarde_" + waarde.id)
         .label("waarde")
         .validators(Validators.required)
         .build();
     });
-    this.dataSource.data = this.tabel.waarden;
+    this.dataSource.data = this.tabel.waarden!;
     this.isLoadingResults = false;
   }
 
-  nieuweTabelWaarde() {
-    this.tabel.waarden.push({
+  protected nieuweTabelWaarde() {
+    this.tabel.waarden!.push({
       naam: this.getUniqueNaam(1),
     });
     this.persistTabel();
   }
 
-  editTabelWaarde(
+  protected editTabelWaarde(
     event: Record<string, unknown>,
     row: GeneratedType<"RestReferenceTableValue">,
   ) {
-    const naam = event["waarde_" + row.id];
-    for (const waarde of this.tabel.waarden) {
+    const naam = event["waarde_" + row.id!];
+    for (const waarde of this.tabel.waarden!) {
       if (waarde.naam === naam) {
         this.foutAfhandelingService.openFoutDialog(
           'Deze referentietabel bevat al een "' + naam + '" waarde.',
@@ -125,11 +153,11 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
         return;
       }
     }
-    this.tabel.waarden[this.getTabelWaardeIndex(row)].naam = String(naam);
+    this.tabel.waarden![this.getTabelWaardeIndex(row)].naam = String(naam);
     this.persistTabel();
   }
 
-  moveTabelWaarde(
+  protected moveTabelWaarde(
     event: CdkDragDrop<GeneratedType<"RestReferenceTableValue">[]>,
   ) {
     const sameRow = event.previousIndex === event.currentIndex;
@@ -143,18 +171,20 @@ export class ReferentieTabelComponent extends AdminComponent implements OnInit {
     }
   }
 
-  verwijderTabelWaarde(row: GeneratedType<"RestReferenceTableValue">) {
-    this.tabel.waarden.splice(this.getTabelWaardeIndex(row), 1);
+  protected verwijderTabelWaarde(
+    row: GeneratedType<"RestReferenceTableValue">,
+  ) {
+    this.tabel.waarden!.splice(this.getTabelWaardeIndex(row), 1);
     this.persistTabel();
   }
 
   private getTabelWaardeIndex(row: GeneratedType<"RestReferenceTableValue">) {
-    return this.tabel.waarden.findIndex((waarde) => waarde.id === row.id);
+    return this.tabel.waarden!.findIndex((waarde) => waarde.id === row.id);
   }
 
   private getUniqueNaam(i: number) {
     let naam: string = "Nieuwe waarde" + (1 < i ? " " + i : "");
-    this.tabel.waarden.forEach((waarde) => {
+    this.tabel.waarden!.forEach((waarde) => {
       if (waarde.naam === naam) {
         naam = this.getUniqueNaam(i + 1);
         return;

@@ -31,11 +31,28 @@ import {
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+
+/**
+ * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
+ * are optional. This is needed because:
+ * - The "niet ontvankelijk" row has no zaakbeeindigReden (only a resultaattype)
+ * - Newly added redenen start without a resultaattype (user must pick one)
+ *
+ * In opslaan(), normal parameters are guaranteed to have both fields set by form validation
+ * before being pushed to the backend as GeneratedType<"RestZaakbeeindigParameter">.
+ */
+type RestPristineZaakbeeindigParameterFormData = Omit<
+  GeneratedType<"RestZaakbeeindigParameter">,
+  "zaakbeeindigReden" | "resultaattype"
+> & {
+  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
+  resultaattype?: GeneratedType<"RestResultaattype"> | null;
+};
 
 @Component({
   selector: "zac-parameters-edit-bpmn",
@@ -45,7 +62,8 @@ import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.servic
 })
 export class ParametersEditBpmnComponent implements OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
   private readonly destroy$ = new Subject<void>();
 
@@ -83,9 +101,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     zaakbeeindigParameters: [],
   };
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
@@ -93,7 +111,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: ZaakProcessSelect;
+      value: ProcessModelMethod;
       label: string;
     }>({ label: "BPMN", value: "BPMN" }, []),
   });
@@ -107,14 +125,13 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
-  protected zaakbeeindigParameters: GeneratedType<"RestZaakbeeindigParameter">[] =
+  protected zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] =
     [];
 
   protected zaakbeeindigFormGroup = new FormGroup({});
 
-  protected selection = new SelectionModel<
-    GeneratedType<"RestZaakbeeindigParameter">
-  >(true);
+  protected selection =
+    new SelectionModel<RestPristineZaakbeeindigParameterFormData>(true);
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
 
@@ -154,7 +171,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       if (!data?.parameters?.zaakafhandelParameters) {
         return;
       }
-
       this.bpmnZaakafhandelParameters =
         data.parameters.bpmnZaakafhandelParameters;
       this.isSavedZaakafhandelParameters =
@@ -193,12 +209,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       if (value?.value === "CMMN" && this.isDirty()) {
-        this.confirmProcessDefinitionSwitch();
+        this.confirmModellingMethodSwitch();
         return;
       }
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 
@@ -313,14 +327,14 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected isZaaknietontvankelijkParameter(
-    restZaakbeeindigParameter: GeneratedType<"RestZaakbeeindigParameter">,
+    restZaakbeeindigParameter: RestPristineZaakbeeindigParameterFormData,
   ) {
     return restZaakbeeindigParameter.zaakbeeindigReden === undefined;
   }
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -329,7 +343,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   protected getZaakbeeindigControl(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -348,7 +362,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private addZaakbeeindigParameter(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -361,7 +375,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration">,
   ) {
-    const parameter: GeneratedType<"RestZaakbeeindigParameter"> = {
+    const parameter: RestPristineZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -371,8 +385,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
-    let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
-    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters) {
+    let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
+    for (const item of this.bpmnZaakafhandelParameters.zaakbeeindigParameters ??
+      []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -386,7 +401,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   }
 
   private updateZaakbeeindigForm(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
@@ -428,7 +443,9 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           param,
           "beeindigResultaat",
         )?.value;
-        this.bpmnZaakafhandelParameters.zaakbeeindigParameters.push(param);
+        this.bpmnZaakafhandelParameters.zaakbeeindigParameters!.push(
+          param as GeneratedType<"RestZaakbeeindigParameter">,
+        );
       }
     });
 
@@ -469,20 +486,18 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       });
   }
 
-  confirmProcessDefinitionSwitch() {
+  confirmModellingMethodSwitch() {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "zaps.step.proces-definitie.bevestig-switch.msg",
+          key: "zaps.step.proces-model-methode.bevestig-switch.msg",
           args: { process: "BPMN" },
         }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.switchProcessDefinition.emit({
-            type: "CMMN",
-          });
+          this.switchModellingMethod.emit({ type: "CMMN" });
         } else {
           this.cmmnBpmnFormGroup.controls.options.patchValue(
             { value: "BPMN", label: "BPMN" },
