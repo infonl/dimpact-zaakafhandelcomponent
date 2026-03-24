@@ -166,7 +166,9 @@ describe(MailtemplatesComponent.name, () => {
 
     await loader.getHarness(MatIconHarness.with({ name: "done" }));
     expect(
-      await loader.getAllHarnesses(MatButtonHarness.with({ selector: "#verwijderen" })),
+      await loader.getAllHarnesses(
+        MatButtonHarness.with({ selector: "#verwijderen" }),
+      ),
     ).toHaveLength(0);
   });
 
@@ -177,7 +179,9 @@ describe(MailtemplatesComponent.name, () => {
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    await loader.getHarness(MatIconHarness.with({ name: "keyboard_arrow_down" }));
+    await loader.getHarness(
+      MatIconHarness.with({ name: "keyboard_arrow_down" }),
+    );
   });
 
   it("should expand row and show arrow up icon on main-row click", async () => {

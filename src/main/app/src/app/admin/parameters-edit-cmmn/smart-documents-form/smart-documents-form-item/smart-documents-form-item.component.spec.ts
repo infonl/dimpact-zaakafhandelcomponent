@@ -181,9 +181,9 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       const typeAOption = await select.getOptions({ text: "Type A" });
       await typeAOption[0].click();
 
-      expect(
-        fixture.componentInstance.node.informatieObjectTypeUUID,
-      ).toBe("uuid-1");
+      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe(
+        "uuid-1",
+      );
     });
   });
 

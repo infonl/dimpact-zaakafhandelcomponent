@@ -10,8 +10,8 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { ReadMoreComponent } from "../read-more/read-more.component";
 import { TextIcon } from "../edit/text-icon";
+import { ReadMoreComponent } from "../read-more/read-more.component";
 import { StaticTextComponent } from "./static-text.component";
 
 describe(StaticTextComponent.name, () => {
