@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSelect } from "@angular/material/select";
-import { By } from "@angular/platform-browser";
+import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -14,6 +16,7 @@ import { SmartDocumentsFormItemComponent } from "./smart-documents-form-item.com
 
 describe(SmartDocumentsFormItemComponent.name, () => {
   let fixture: ComponentFixture<SmartDocumentsFormItemComponent>;
+  let loader: HarnessLoader;
 
   const informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [
     fromPartial({
@@ -38,6 +41,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(SmartDocumentsFormItemComponent);
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("when node has no informatieObjectTypeUUID", () => {
@@ -57,10 +61,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     });
 
     it("should render the node name", () => {
-      const nameEl = fixture.nativeElement.querySelector(
-        ".flex-1",
-      ) as HTMLElement;
-      expect(nameEl?.textContent?.trim()).toBe("Template A");
+      expect(fixture.nativeElement.textContent).toContain("Template A");
     });
 
     it("should initialize checkbox as unchecked and disabled", () => {
@@ -141,9 +142,9 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       );
     });
 
-    it("should clear informatieObjectTypeUUID via checkbox (change) template event", () => {
-      const checkboxEl = fixture.debugElement.query(By.css("mat-checkbox"));
-      checkboxEl.triggerEventHandler("change", { checked: false });
+    it("should clear informatieObjectTypeUUID when checkbox is unchecked", async () => {
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      await checkbox.uncheck();
 
       expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe("");
     });
@@ -165,19 +166,24 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should register empty option plus one option per informationObjectType in mat-select", () => {
-      const selectDE = fixture.debugElement.query(By.directive(MatSelect));
-      const matSelect = selectDE.injector.get(MatSelect);
+    it("should register empty option plus one option per informationObjectType in mat-select", async () => {
+      const select = await loader.getHarness(MatSelectHarness);
+      await select.open();
+      const options = await select.getOptions();
       // 1 empty option + 2 from *ngFor
-      expect(matSelect.options.length).toBe(informationObjectTypes.length + 1);
+      expect(options.length).toBe(informationObjectTypes.length + 1);
+      await select.close();
     });
 
-    it("should bind informationObjectType uuid as option value", () => {
-      const selectDE = fixture.debugElement.query(By.directive(MatSelect));
-      const matSelect = selectDE.injector.get(MatSelect);
-      const optionValues = matSelect.options.map((o) => o.value);
-      expect(optionValues).toContain("uuid-1");
-      expect(optionValues).toContain("uuid-2");
+    it("should bind informationObjectType uuid as option value", async () => {
+      const select = await loader.getHarness(MatSelectHarness);
+      await select.open();
+      const typeAOption = await select.getOptions({ text: "Type A" });
+      await typeAOption[0].click();
+
+      expect(
+        fixture.componentInstance.node.informatieObjectTypeUUID,
+      ).toBe("uuid-1");
     });
   });
 

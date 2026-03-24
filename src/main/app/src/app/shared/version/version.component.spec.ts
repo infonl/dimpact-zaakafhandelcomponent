@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatCardHarness } from "@angular/material/card/testing";
+import { MatChipHarness } from "@angular/material/chips/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { EMPTY, of } from "rxjs";
@@ -13,6 +17,7 @@ import { VersionComponent, VersionLayout } from "./version.component";
 
 describe(VersionComponent.name, () => {
   let fixture: ComponentFixture<VersionComponent>;
+  let loader: HarnessLoader;
   let healthCheckService: HealthCheckService;
   let healthCheckServiceMock: Pick<HealthCheckService, "readBuildInformatie">;
 
@@ -36,18 +41,19 @@ describe(VersionComponent.name, () => {
 
     fixture = TestBed.createComponent(VersionComponent);
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  it("should show chip and not card in normal layout by default", () => {
-    expect(fixture.nativeElement.querySelector("mat-chip")).toBeTruthy();
-    expect(fixture.nativeElement.querySelector("mat-card")).toBeNull();
+  it("should show chip and not card in normal layout by default", async () => {
+    await loader.getHarness(MatChipHarness);
+    expect(await loader.getAllHarnesses(MatCardHarness)).toHaveLength(0);
   });
 
-  it("should show card and not chip in verbose layout", () => {
+  it("should show card and not chip in verbose layout", async () => {
     fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector("mat-card")).toBeTruthy();
-    expect(fixture.nativeElement.querySelector("mat-chip")).toBeNull();
+    await loader.getHarness(MatCardHarness);
+    expect(await loader.getAllHarnesses(MatChipHarness)).toHaveLength(0);
   });
 
   it("should call readBuildInformatie on init", () => {
@@ -69,18 +75,21 @@ describe(VersionComponent.name, () => {
       fixture.destroy();
       fixture = TestBed.createComponent(VersionComponent);
       fixture.detectChanges();
+      loader = TestbedHarnessEnvironment.loader(fixture);
     });
 
-    it("should show build and commit paragraphs in verbose layout when all info is present", () => {
+    it("should show version, build and commit in verbose layout when all info is present", async () => {
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
 
-      const paragraphs =
-        fixture.nativeElement.querySelectorAll("mat-card-content p");
-      expect(paragraphs.length).toBe(3); // version + build + commit
+      const card = await loader.getHarness(MatCardHarness);
+      const text = await card.getText();
+      expect(text).toContain("healthCheck.build_informatie.version");
+      expect(text).toContain("healthCheck.build_informatie.build");
+      expect(text).toContain("healthCheck.build_informatie.commit");
     });
 
-    it("should hide build paragraph in verbose layout when buildId is absent", () => {
+    it("should hide build info in verbose layout when buildId is absent", async () => {
       jest
         .spyOn(healthCheckService, "readBuildInformatie")
         .mockReturnValue(of({ ...buildInfo, buildId: null }));
@@ -88,13 +97,16 @@ describe(VersionComponent.name, () => {
       fixture = TestBed.createComponent(VersionComponent);
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
+      loader = TestbedHarnessEnvironment.loader(fixture);
 
-      const paragraphs =
-        fixture.nativeElement.querySelectorAll("mat-card-content p");
-      expect(paragraphs.length).toBe(2); // version + commit only
+      const card = await loader.getHarness(MatCardHarness);
+      const text = await card.getText();
+      expect(text).toContain("healthCheck.build_informatie.version");
+      expect(text).not.toContain("healthCheck.build_informatie.build");
+      expect(text).toContain("healthCheck.build_informatie.commit");
     });
 
-    it("should hide commit paragraph in verbose layout when commit is absent", () => {
+    it("should hide commit info in verbose layout when commit is absent", async () => {
       jest
         .spyOn(healthCheckService, "readBuildInformatie")
         .mockReturnValue(of({ ...buildInfo, commit: null }));
@@ -102,14 +114,17 @@ describe(VersionComponent.name, () => {
       fixture = TestBed.createComponent(VersionComponent);
       fixture.componentRef.setInput("layout", VersionLayout.VERBOSE);
       fixture.detectChanges();
+      loader = TestbedHarnessEnvironment.loader(fixture);
 
-      const paragraphs =
-        fixture.nativeElement.querySelectorAll("mat-card-content p");
-      expect(paragraphs.length).toBe(2); // version + build only
+      const card = await loader.getHarness(MatCardHarness);
+      const text = await card.getText();
+      expect(text).toContain("healthCheck.build_informatie.version");
+      expect(text).toContain("healthCheck.build_informatie.build");
+      expect(text).not.toContain("healthCheck.build_informatie.commit");
     });
 
-    it("should render chip in normal layout when build info is loaded", () => {
-      expect(fixture.nativeElement.querySelector("mat-chip")).toBeTruthy();
+    it("should render chip in normal layout when build info is loaded", async () => {
+      await loader.getHarness(MatChipHarness);
     });
   });
 });

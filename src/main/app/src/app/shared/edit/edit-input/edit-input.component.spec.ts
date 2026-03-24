@@ -5,9 +5,12 @@
 
 import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -36,6 +39,7 @@ class TestEditInputComponent extends EditInputComponent {}
 describe(EditInputComponent.name, () => {
   let fixture: ComponentFixture<TestEditInputComponent>;
   let component: TestEditInputComponent;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -66,6 +70,7 @@ describe(EditInputComponent.name, () => {
       .label("test.label")
       .build();
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should render the field label and value in static view", () => {
@@ -110,17 +115,17 @@ describe(EditInputComponent.name, () => {
     expect(emitted).toHaveLength(0);
   });
 
-  it("should show edit icons when not readonly", () => {
-    expect(
-      fixture.nativeElement.querySelectorAll("mat-icon").length,
-    ).toBeGreaterThan(0);
+  it("should show edit icons when not readonly", async () => {
+    const icons = await loader.getAllHarnesses(MatIconHarness);
+    expect(icons.length).toBeGreaterThan(0);
   });
 
-  it("should hide edit icons when readonly", () => {
+  it("should hide edit icons when readonly", async () => {
     component.readonly = true;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelectorAll("mat-icon").length).toBe(0);
+    const icons = await loader.getAllHarnesses(MatIconHarness);
+    expect(icons).toHaveLength(0);
   });
 
   it("should render second form field when editing with reasonField set", () => {

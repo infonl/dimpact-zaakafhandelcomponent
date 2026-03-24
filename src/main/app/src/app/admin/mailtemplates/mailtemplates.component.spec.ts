@@ -3,11 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { By } from "@angular/platform-browser";
+import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatInputHarness } from "@angular/material/input/testing";
+import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -21,6 +26,7 @@ import { MailtemplatesComponent } from "./mailtemplates.component";
 
 describe(MailtemplatesComponent.name, () => {
   let fixture: ComponentFixture<MailtemplatesComponent>;
+  let loader: HarnessLoader;
   let component: MailtemplatesComponent;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let mailtemplateKoppelingService: MailtemplateKoppelingService;
@@ -90,6 +96,7 @@ describe(MailtemplatesComponent.name, () => {
       .mockReturnValue(of([]));
 
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should call setTitle and load mailtemplates on init", () => {
@@ -103,8 +110,9 @@ describe(MailtemplatesComponent.name, () => {
     ).toHaveBeenCalled();
   });
 
-  it("should render a row for each mailtemplate", () => {
-    const rows = fixture.debugElement.queryAll(By.css("tr.main-row"));
+  it("should render a row for each mailtemplate", async () => {
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows({ selector: ".main-row" });
     expect(rows).toHaveLength(1);
   });
 
@@ -144,15 +152,11 @@ describe(MailtemplatesComponent.name, () => {
     ); // once on init, once after delete
   });
 
-  it("should show close icon for non-default mailtemplate", () => {
-    const icons = fixture.debugElement.queryAll(By.css("td mat-icon"));
-    const closeIcon = icons.find(
-      (el) => el.nativeElement.textContent.trim() === "close",
-    );
-    expect(closeIcon).toBeTruthy();
+  it("should show close icon for non-default mailtemplate", async () => {
+    await loader.getHarness(MatIconHarness.with({ name: "close" }));
   });
 
-  it("should show done icon and hide delete button for default mailtemplate", () => {
+  it("should show done icon and hide delete button for default mailtemplate", async () => {
     const defaultTemplate = { ...mailtemplate, defaultMailtemplate: true };
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
@@ -160,62 +164,52 @@ describe(MailtemplatesComponent.name, () => {
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    const doneIcon = fixture.debugElement
-      .queryAll(By.css("td mat-icon"))
-      .find((el) => el.nativeElement.textContent.trim() === "done");
-    expect(doneIcon).toBeTruthy();
-
-    const deleteBtn = fixture.debugElement.query(By.css("button#verwijderen"));
-    expect(deleteBtn).toBeNull();
+    await loader.getHarness(MatIconHarness.with({ name: "done" }));
+    expect(
+      await loader.getAllHarnesses(MatButtonHarness.with({ selector: "#verwijderen" })),
+    ).toHaveLength(0);
   });
 
-  it("should show expand arrow down when row is disabled and not expanded", () => {
+  it("should show expand arrow down when row is disabled and not expanded", async () => {
     jest
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([koppeling]));
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    const arrowDownIcon = fixture.debugElement
-      .queryAll(By.css("td mat-icon"))
-      .find(
-        (el) => el.nativeElement.textContent.trim() === "keyboard_arrow_down",
-      );
-    expect(arrowDownIcon).toBeTruthy();
+    await loader.getHarness(MatIconHarness.with({ name: "keyboard_arrow_down" }));
   });
 
-  it("should expand row and show arrow up icon on main-row click", () => {
+  it("should expand row and show arrow up icon on main-row click", async () => {
     jest
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([koppeling]));
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    const mainRow = fixture.debugElement.query(By.css("tr.main-row"));
-    mainRow.nativeElement.click();
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows();
+    await (await rows[0].host()).click();
     fixture.detectChanges();
 
     expect(component["expandedRow"]).toEqual(mailtemplate);
 
-    const arrowUpIcon = fixture.debugElement
-      .queryAll(By.css("td mat-icon"))
-      .find(
-        (el) => el.nativeElement.textContent.trim() === "keyboard_arrow_up",
-      );
-    expect(arrowUpIcon).toBeTruthy();
+    await loader.getHarness(MatIconHarness.with({ name: "keyboard_arrow_up" }));
   });
 
-  it("should collapse row when clicked again", () => {
+  it("should collapse row when clicked again", async () => {
     jest
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([koppeling]));
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    const mainRow = fixture.debugElement.query(By.css("tr.main-row"));
-    mainRow.nativeElement.click();
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows();
+    const firstRowHost = await rows[0].host();
+    await firstRowHost.click();
     fixture.detectChanges();
-    mainRow.nativeElement.click();
+    await firstRowHost.click();
     fixture.detectChanges();
 
     expect(component["expandedRow"]).toBeNull();
@@ -244,10 +238,10 @@ describe(MailtemplatesComponent.name, () => {
     expect(component["getKoppelingen"](otherTemplate)).toHaveLength(0);
   });
 
-  it("should apply filter to data source on keyup", () => {
-    const input = fixture.debugElement.query(By.css("mat-form-field input"));
-    input.nativeElement.value = "Test";
-    input.nativeElement.dispatchEvent(new KeyboardEvent("keyup"));
+  it("should apply filter to data source on keyup", async () => {
+    const input = await loader.getHarness(MatInputHarness);
+    await input.setValue("Test");
+    await (await input.host()).dispatchEvent("keyup");
     fixture.detectChanges();
 
     expect(component["dataSource"].filter).toBe("Test");
@@ -289,14 +283,15 @@ describe(MailtemplatesComponent.name, () => {
     expect(component["dataSource"].data[0].mail).toBe("ZAAK_ALGEMEEN");
   });
 
-  it("should show empty state message when data source is empty", () => {
+  it("should show empty state when data source is empty", async () => {
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
       .mockReturnValue(of([]));
     component["laadMailtemplates"]();
     fixture.detectChanges();
 
-    const emptyMsg = fixture.debugElement.query(By.css("p"));
-    expect(emptyMsg).toBeTruthy();
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows();
+    expect(rows).toHaveLength(0);
   });
 });
