@@ -15,6 +15,7 @@ The project uses Gradle for build automation and has a strong emphasis on type s
 ### Backend (Gradle)
 ```bash
 ./gradlew build                     # Full build with tests
+./gradlew test --tests "<SPECIFIC_TEST_CLASS>" # Run specific test class
 ./gradlew build -x test             # Build without tests
 ./gradlew compileKotlin             # Compile Kotlin only
 ./gradlew buildDockerImage          # Build Docker image

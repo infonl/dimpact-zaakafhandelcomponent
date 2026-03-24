@@ -8,9 +8,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.brp.model.createNaamPersoon
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
+import nl.info.client.brp.model.createNaamPersoon
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createVerblijfadresBinnenland
 import nl.info.client.kvk.KvkClientService
