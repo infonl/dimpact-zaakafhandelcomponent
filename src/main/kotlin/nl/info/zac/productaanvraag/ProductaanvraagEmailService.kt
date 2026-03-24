@@ -44,7 +44,8 @@ class ProductaanvraagEmailService @Inject constructor(
 
     fun sendConfirmationOfReceiptEmailFromProductaanvraag(
         zaak: Zaak,
-        betrokkene: Betrokkene,
+        betrokkene: Betrokkene?,
+        productaanvraagSpecificEmailAddress: String?,
         zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
         LOG.fine {
@@ -52,9 +53,17 @@ class ProductaanvraagEmailService @Inject constructor(
                 "and zaaktype '${zaak.zaaktype}' to zaak initiator."
         }
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
-            extractBetrokkeneEmail(betrokkene)?.let { to ->
+            productaanvraagSpecificEmailAddress?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
-            } ?: LOG.fine {
+                return
+            }
+            betrokkene?.let {
+                extractBetrokkeneEmail(it)?.let { to ->
+                    sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
+                    return
+                }
+            }
+            LOG.fine {
                 "No email address found for initiator of zaak with identification: '${zaak.identificatie}' " +
                     "and zaaktype '${zaak.zaaktype}'. Skipping automatic email confirmation."
             }

@@ -26,6 +26,8 @@ import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
 import nl.info.client.or.`object`.ObjectsClientService
@@ -68,7 +70,7 @@ const val TOELICHTING_MAX_LENGTH = 1000
 @ApplicationScoped
 @NoArgConstructor
 @AllOpen
-@Suppress("TooManyFunctions", "LongParameterList")
+@Suppress("TooManyFunctions", "LongParameterList", "LargeClass")
 class ProductaanvraagService @Inject constructor(
     private val objectsClientService: ObjectsClientService,
     private val zgwApiService: ZgwApiService,
@@ -84,7 +86,8 @@ class ProductaanvraagService @Inject constructor(
     private val cmmnService: CMMNService,
     private val bpmnService: BpmnService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val configurationService: ConfigurationService
+    private val configurationService: ConfigurationService,
+    private val klantClientService: KlantClientService
 ) {
 
     companion object {
@@ -531,6 +534,12 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
+        val productaanvraagSpecificContactDetails = klantClientService.findProductaanvraagSpecificContactDetails(
+            productaanvraag.bron.kenmerk
+        )
+        productaanvraagSpecificContactDetails?.let {
+            LOG.info { "Productaanvraag specific contact details: $it" }
+        }
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
             .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraag.type)
         val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
@@ -549,14 +558,16 @@ class ProductaanvraagService @Inject constructor(
                 processProductaanvraagWithCmmnZaaktype(
                     zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject
+                    productaanvraagObject = productaanvraagObject,
+                    productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
                 )
 
             hasBpmnDefinition ->
                 processProductaanvraagWithBpmnZaaktype(
                     zaaktypeBpmnConfiguration = zaaktypeBpmnProcessDefinition,
                     productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject
+                    productaanvraagObject = productaanvraagObject,
+                    productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
                 )
 
             else -> {
@@ -573,7 +584,8 @@ class ProductaanvraagService @Inject constructor(
     private fun processProductaanvraagWithCmmnZaaktype(
         zaaktypeCmmnConfiguration: List<ZaaktypeCmmnConfiguration>,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
+        productaanvraagObject: ModelObject,
+        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
     ) {
         if (zaaktypeCmmnConfiguration.size > 1) {
             LOG.warning(
@@ -591,7 +603,8 @@ class ProductaanvraagService @Inject constructor(
             startZaakWithCmmnProcess(
                 zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaaktypeUuid,
                 productaanvraagDimpact = productaanvraagDimpact,
-                productaanvraagObject = productaanvraagObject
+                productaanvraagObject = productaanvraagObject,
+                productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
             )
         } catch (exception: ExplanationRequiredException) {
             logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
@@ -661,10 +674,14 @@ class ProductaanvraagService @Inject constructor(
     private fun processProductaanvraagWithBpmnZaaktype(
         zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
+        productaanvraagObject: ModelObject,
+        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        productaanvraagSpecificContactDetails?.let {
+            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
+        }
         val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
         val zaakDataVariablesMap = zaaktypeBpmnConfiguration.groepID?.let { baseBpmnVariablesMap + mapOf(VAR_ZAAK_GROUP to it) }
             ?: baseBpmnVariablesMap
@@ -689,10 +706,14 @@ class ProductaanvraagService @Inject constructor(
     private fun startZaakWithCmmnProcess(
         zaaktypeUuid: UUID,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject
+        productaanvraagObject: ModelObject,
+        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
+        productaanvraagSpecificContactDetails?.let {
+            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
+        }
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
         // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
@@ -727,14 +748,13 @@ class ProductaanvraagService @Inject constructor(
             zaak = zaak,
             brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
-        )?.run {
+        ).run {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak = zaak,
                 betrokkene = this,
+                productaanvraagSpecificEmailAddress = productaanvraagSpecificContactDetails?.email,
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
-        } ?: LOG.fine {
-            "No initiator provided for zaak with identification: '${zaak.identificatie}'. Skipping automatic email confirmation."
         }
     }
 
