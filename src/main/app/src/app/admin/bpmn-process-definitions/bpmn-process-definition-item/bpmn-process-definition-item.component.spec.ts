@@ -15,7 +15,7 @@ import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
-import { ProcessDefinitionItemComponent } from "./process-definition-item.component";
+import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item.component";
 
 jest.mock("../file.helper");
 
@@ -65,9 +65,9 @@ const baseProcessDefinition = fromPartial<
   },
 });
 
-describe(ProcessDefinitionItemComponent.name, () => {
-  let fixture: ComponentFixture<ProcessDefinitionItemComponent>;
-  let component: ProcessDefinitionItemComponent;
+describe(BpmnProcessDefinitionItemComponent.name, () => {
+  let fixture: ComponentFixture<BpmnProcessDefinitionItemComponent>;
+  let component: BpmnProcessDefinitionItemComponent;
   let bpmnService: jest.Mocked<BpmnService>;
   let utilService: jest.Mocked<UtilService>;
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
@@ -76,7 +76,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        ProcessDefinitionItemComponent,
+        BpmnProcessDefinitionItemComponent,
         SharedModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
@@ -106,7 +106,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       FoutAfhandelingService,
     ) as jest.Mocked<FoutAfhandelingService>;
 
-    fixture = TestBed.createComponent(ProcessDefinitionItemComponent);
+    fixture = TestBed.createComponent(BpmnProcessDefinitionItemComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("processDefinition", {
       ...baseProcessDefinition,
@@ -528,7 +528,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       await fixture.whenStable();
 
       const deleteOrphanedSpy = jest.spyOn(
-        component as ProcessDefinitionItemComponent & {
+        component as BpmnProcessDefinitionItemComponent & {
           deleteOrphanedForm: (key: string) => void;
         },
         "deleteOrphanedForm",

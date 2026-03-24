@@ -14,13 +14,13 @@
   -->
   <mat-step [stepControl]="cmmnBpmnFormGroup">
     <ng-template matStepLabel>{{
-      "gegevens.proces-definitie.BPMN" | translate
+      "gegevens.proces-model-methode.BPMN" | translate
     }}</ng-template>
 
     <header>
       <h2>{{ bpmnZaakafhandelParameters.zaaktype.omschrijving }}</h2>
       <p>
-        {{ "zaps.step.proces-definitie.intro" | translate }}
+        {{ "zaps.step.proces-model-methode.intro" | translate }}
       </p>
     </header>
 
@@ -28,8 +28,8 @@
       <zac-radio
         [form]="cmmnBpmnFormGroup"
         key="options"
-        label="zaps.step.proces-definitie.label"
-        [options]="zaakProcessDefinitionOptions"
+        label="zaps.step.proces-model-methode.label"
+        [options]="modellingMethodOptions"
         optionDisplayValue="label"
       ></zac-radio>
 
