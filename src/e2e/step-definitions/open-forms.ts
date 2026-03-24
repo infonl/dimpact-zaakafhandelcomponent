@@ -61,11 +61,8 @@ Given(
       .fill(profile.incidentDetails.date);
 
     await this.page.getByLabel("materiële schade aan een").check();
-    await this.page.getByLabel("ja", { exact: true }).check();
-
-    this.page.getByLabel("Hoeveel getuigen?").evaluate((node) => node.click());
-
-    await this.page.getByRole("option", { name: "1" }).click();
+    // "Waren er getuigen aanwezig?"
+    await this.page.getByLabel("nee", { exact: true }).check();
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
     await this.page.getByRole("combobox").nth(1).click();
     await this.page.getByRole("option", { name: "Enschede" }).click();
