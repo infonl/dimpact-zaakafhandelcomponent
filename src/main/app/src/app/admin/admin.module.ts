@@ -20,13 +20,12 @@ import { ParameterSelectProcessModelMethodComponent } from "./parameters-select-
 import { ParametersComponent } from "./parameters/parameters.component";
 
 @NgModule({
-  declarations: [
+  declarations: [],
+  exports: [],
+  imports: [
     ParametersEditShellComponent,
     ParameterSelectProcessModelMethodComponent,
     ParametersEditBpmnComponent,
-  ],
-  exports: [],
-  imports: [
     ParametersComponent,
     SharedModule,
     ZoekenModule,
