@@ -9,6 +9,7 @@ import jakarta.enterprise.inject.spi.CDI
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
@@ -30,7 +31,6 @@ class SignDocumentDelegate : AbstractDelegate() {
         val drcClientService = CDI.current().select(DrcClientService::class.java).get()
         val enkelvoudigInformatieObjectUpdateService =
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
-
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
         val zaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
             ?: DEFAULT_DOCUMENTEN_KEY
@@ -59,6 +59,11 @@ class SignDocumentDelegate : AbstractDelegate() {
 
             LOG.fine("Signing document '${enkelvoudigInformatieobject.identificatie}'")
             enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
+
+            // Open Zaak does not send a notification for this. So we send the ScreenEvent ourselves!
+            flowableHelper.eventingService.send(
+                ScreenEventType.ENKELVOUDIG_INFORMATIEOBJECT.updated(enkelvoudigInformatieobject)
+            )
         }
     }
 }
