@@ -33,7 +33,10 @@ describe(DateRangeFilterComponent.name, () => {
   });
 
   it("should display dates in dd-MM-yyyy format", async () => {
-    component.range = new DatumRange(new Date(2026, 2, 25), new Date(2026, 2, 31));
+    component.range = new DatumRange(
+      new Date(2026, 2, 25),
+      new Date(2026, 2, 31),
+    );
     component.ngOnChanges();
     fixture.detectChanges();
     await fixture.whenStable();
