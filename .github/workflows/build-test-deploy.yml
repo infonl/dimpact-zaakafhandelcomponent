@@ -219,10 +219,10 @@ jobs:
           cache: 'maven'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/wrapper-validation@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
@@ -282,7 +282,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Restore Gradle build artefacts
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
@@ -376,7 +376,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0f4528296b4bc09e8ae0fc7be30185a4ab435545 # v6.0.0
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       - name: Restore built ZAC JAR
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
