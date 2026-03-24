@@ -28,10 +28,6 @@ describe(DateRangeFilterComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
-    expect(component).toBeTruthy();
-  });
-
   it("should display dates in dd-MM-yyyy format", async () => {
     component.range = new DatumRange(
       new Date(2026, 2, 25),
