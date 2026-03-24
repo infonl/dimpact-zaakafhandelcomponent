@@ -32,13 +32,15 @@ import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
 import { readFileContent } from "./file.helper";
 
-interface GroupNode {
+interface BpmnProcessDefinitionGroupNode {
   name: string;
   key: string;
   definition: GeneratedType<"RestBpmnProcessDefinition">;
 }
 
-type Node = GroupNode | GeneratedType<"RestBpmnProcessDefinition">;
+type Node =
+  | BpmnProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
@@ -69,14 +71,17 @@ export class BpmnProcessDefinitionsComponent
 
   protected expandedKey: string | null = null;
 
-  protected toggleNode(node: GroupNode) {
+  protected toggleNode(node: BpmnProcessDefinitionGroupNode) {
     this.expandedKey = this.expandedKey === node.key ? null : node.key;
   }
 
   childrenAccessor = (node: Node) =>
-    "definition" in node ? [(node as GroupNode).definition] : [];
+    "definition" in node
+      ? [(node as BpmnProcessDefinitionGroupNode).definition]
+      : [];
 
-  hasChild = (_: number, node: Node): node is GroupNode => "definition" in node;
+  hasChild = (_: number, node: Node): node is BpmnProcessDefinitionGroupNode =>
+    "definition" in node;
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
@@ -165,14 +170,14 @@ export class BpmnProcessDefinitionsComponent
     return node as GeneratedType<"RestBpmnProcessDefinition">;
   }
 
-  protected hasAllFormsUploaded(node: GroupNode): boolean {
+  protected hasAllFormsUploaded(node: BpmnProcessDefinitionGroupNode): boolean {
     const forms = node.definition.details?.forms ?? [];
     return forms.length > 0 && forms.every((form) => form.uploaded);
   }
 
   private buildTreeData(
     definitions: GeneratedType<"RestBpmnProcessDefinition">[],
-  ): GroupNode[] {
+  ): BpmnProcessDefinitionGroupNode[] {
     return definitions.map((def) => ({
       name: def.name,
       key: def.key,
