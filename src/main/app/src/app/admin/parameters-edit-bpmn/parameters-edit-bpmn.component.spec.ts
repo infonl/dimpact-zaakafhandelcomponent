@@ -9,6 +9,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -186,17 +187,12 @@ describe(ParametersEditBpmnComponent.name, () => {
   });
 
   describe("opslaan", () => {
-    it("should disable opslaan when the form is invalid", () => {
+    it("should disable opslaan when the form is invalid", async () => {
       // bpmnDefinition is null (key mismatch) → algemeenFormGroup invalid → isValid() false
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll(
-          "button[mat-raised-button]",
-        ) as NodeListOf<HTMLButtonElement>,
+      const opslaanButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.opslaan/ }),
       );
-      const opslaanButton = buttons.find((b) =>
-        b.textContent?.includes("actie.opslaan"),
-      );
-      expect(opslaanButton?.disabled).toBe(true);
+      expect(await opslaanButton.isDisabled()).toBe(true);
     });
   });
 
