@@ -16,6 +16,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
 import net.atos.client.zgw.drc.DrcClientService
+import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -31,6 +32,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>(relaxed = true)
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
+    val eventingService = mockk<EventingService>(relaxed = true)
     val zaakUuid = UUID.randomUUID()
     val documentUuid = UUID.randomUUID()
     val documentenKeyPrefix = "ZAAK_Documents_To_Sign_Select"
@@ -50,6 +52,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService
+        every { flowableHelper.eventingService } returns eventingService
 
         val cdiInstance = mockk<CDI<Any>>()
         every { CDI.current() } returns cdiInstance
