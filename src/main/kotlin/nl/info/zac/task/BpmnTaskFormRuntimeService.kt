@@ -11,7 +11,6 @@ import jakarta.json.JsonObject
 import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.formulieren.model.FormulierData
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -26,6 +25,7 @@ import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.task.model.BpmnTaskFormData
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -63,33 +63,33 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        val formulierData = FormulierData(restTask.taakdata ?: emptyMap())
+        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata ?: emptyMap())
 
-        if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
-            formulierData.toelichting?.let {
+        if (bpmnTaskFormData.toelichting != null || bpmnTaskFormData.taakFataleDatum != null) {
+            bpmnTaskFormData.toelichting?.let {
                 task.description = it
             }
-            formulierData.taakFataleDatum?.let {
+            bpmnTaskFormData.taakFataleDatum?.let {
                 task.dueDate = DateTimeConverterUtil.convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }
-        if (formulierData.zaakOpschorten && !zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
-        if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.zaakHervatten && zaak.isOpgeschort()) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
-        markDocumentAsSent(formulierData)
-        markDocumentAsSigned(formulierData)
+        markDocumentAsSent(bpmnTaskFormData)
+        markDocumentAsSigned(bpmnTaskFormData)
 
         zaakVariabelenService.setZaakdata(
             zaak.uuid,
-            zaakVariabelenService.readProcessZaakdata(zaak.uuid) + formulierData.zaakVariabelen
+            zaakVariabelenService.readProcessZaakdata(zaak.uuid) + bpmnTaskFormData.zaakVariabelen
         )
 
         return task
@@ -175,8 +175,8 @@ class BpmnTaskFormRuntimeService @Inject constructor(
             }
         }
 
-    private fun markDocumentAsSent(formulierData: FormulierData) =
-        formulierData.documentenVerzenden?.let { documentsToMark ->
+    private fun markDocumentAsSent(bpmnTaskFormData: BpmnTaskFormData) =
+        bpmnTaskFormData.documentenVerzenden?.let { documentsToMark ->
             documentsToMark.split(DOCUMENT_SEPARATOR.toRegex())
                 .dropLastWhile { it.isEmpty() }
                 .map(UUID::fromString)
@@ -184,14 +184,14 @@ class BpmnTaskFormRuntimeService @Inject constructor(
                 .forEach {
                     enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                         uuid = it.url.extractUuid(),
-                        verzenddatum = formulierData.documentenVerzendenDatum,
-                        toelichting = formulierData.toelichting
+                        verzenddatum = bpmnTaskFormData.documentenVerzendenDatum,
+                        toelichting = bpmnTaskFormData.toelichting
                     )
                 }
         }
 
-    private fun markDocumentAsSigned(formulierData: FormulierData) =
-        formulierData.documentenOndertekenen?.let { documentenOndertekenen ->
+    private fun markDocumentAsSigned(bpmnTaskFormData: BpmnTaskFormData) =
+        bpmnTaskFormData.documentenOndertekenen?.let { documentenOndertekenen ->
             documentenOndertekenen.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
                 .map(UUID::fromString)
                 .map(drcClientService::readEnkelvoudigInformatieobject)
