@@ -3,16 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  NO_ERRORS_SCHEMA,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
@@ -81,6 +75,7 @@ describe(ParametersEditShellComponent.name, () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideRouter([]),
         {
           provide: UtilService,
           useValue: utilServiceMock satisfies Pick<UtilService, "setTitle">,
@@ -96,7 +91,6 @@ describe(ParametersEditShellComponent.name, () => {
           } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(ParametersEditShellComponent, {
         remove: {
