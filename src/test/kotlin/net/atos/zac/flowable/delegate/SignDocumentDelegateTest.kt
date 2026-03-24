@@ -90,7 +90,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         }
 
         When("the document is already signed") {
-            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+            clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             val signedDocument = createEnkelvoudigInformatieObject(
                 uuid = documentUuid,
@@ -113,7 +113,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         }
 
         When("no documents match the key prefix") {
-            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+            clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
                 "ZAAK_SomeOtherField" to listOf("some-value")
@@ -150,7 +150,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         }
 
         When("multiple documents are found across numbered keys") {
-            clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
+            clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             val documentUuid2 = UUID.randomUUID()
             val document1 = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
