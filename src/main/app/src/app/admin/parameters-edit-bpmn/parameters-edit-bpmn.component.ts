@@ -4,9 +4,11 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   Output,
@@ -16,11 +18,24 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MatDialog } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import {
+  MatCheckboxChange,
+  MatCheckboxModule,
+} from "@angular/material/checkbox";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatStepperModule } from "@angular/material/stepper";
+import { MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { IdentityService } from "src/app/identity/identity.service";
@@ -28,6 +43,8 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
+import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
+import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import {
@@ -58,7 +75,25 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   selector: "zac-parameters-edit-bpmn",
   templateUrl: "./parameters-edit-bpmn.component.html",
   styleUrls: ["./parameters-edit-bpmn.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    ReactiveFormsModule,
+    MatStepperModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+    StaticTextComponent,
+  ],
 })
 export class ParametersEditBpmnComponent implements OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
@@ -66,6 +101,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     new EventEmitter<ProcessModelMethodSelection>();
 
   private readonly destroy$ = new Subject<void>();
+  private readonly dialog = inject(MatDialog);
 
   protected isLoading: boolean = false;
   protected isSavedZaakafhandelParameters: boolean = false;
@@ -142,7 +178,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
   protected brpProcessingValues: string[] = [];
   protected brpDoelbindingSetupEnabled = false;
 
-  algemeenFormGroup = this.formBuilder.group({
+  protected algemeenFormGroup = this.formBuilder.group({
     bpmnDefinition:
       this.formBuilder.control<GeneratedType<"RestBpmnProcessDefinition"> | null>(
         null,
@@ -163,7 +199,6 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
-    public readonly dialog: MatDialog,
     private readonly configuratieService: ConfiguratieService,
     private readonly referentieTabelService: ReferentieTabelService,
   ) {
@@ -411,6 +446,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     }
     control?.updateValueAndValidity({ emitEvent: false });
   }
+
   protected compareObject = (a: unknown, b: unknown) =>
     this.utilService.compare(a, b);
 
@@ -486,7 +522,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       });
   }
 
-  confirmModellingMethodSwitch() {
+  protected confirmModellingMethodSwitch() {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({

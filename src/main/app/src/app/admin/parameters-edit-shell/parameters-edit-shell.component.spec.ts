@@ -3,18 +3,51 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { CommonModule } from "@angular/common";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
+import { ParametersEditBpmnComponent } from "../parameters-edit-bpmn/parameters-edit-bpmn.component";
+import { ParametersEditCmmnComponent } from "../parameters-edit-cmmn/parameters-edit-cmmn.component";
+import { ParameterSelectProcessModelMethodComponent } from "../parameters-select-process-model-method/parameters-select-process-model-method.component";
 import { ParametersEditShellComponent } from "./parameters-edit-shell.component";
+
+@Component({
+  selector: "zac-parameters-select-process-model-method",
+  template: "",
+  standalone: true,
+})
+class StubSelectMethodComponent {
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
+}
+
+@Component({
+  selector: "zac-parameters-edit-cmmn",
+  template: "",
+  standalone: true,
+})
+class StubCmmnComponent {
+  @Input() selectedIndexStart = 0;
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
+}
+
+@Component({
+  selector: "zac-parameters-edit-bpmn",
+  template: "",
+  standalone: true,
+})
+class StubBpmnComponent {
+  @Input() selectedIndexStart = 0;
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
+}
 
 describe(ParametersEditShellComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditShellComponent>;
@@ -36,26 +69,46 @@ describe(ParametersEditShellComponent.name, () => {
     });
 
     await TestBed.configureTestingModule({
-      declarations: [ParametersEditShellComponent],
       imports: [
-        CommonModule,
-        MatSidenavModule,
+        ParametersEditShellComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: UtilService, useValue: utilServiceMock },
+        provideRouter([]),
+        {
+          provide: UtilService,
+          useValue: utilServiceMock satisfies Pick<UtilService, "setTitle">,
+        },
         {
           provide: ConfiguratieService,
           useValue: {} satisfies Partial<ConfiguratieService>,
         },
         {
           provide: ActivatedRoute,
-          useValue: { data: routeData$.asObservable() },
+          useValue: {
+            data: routeData$.asObservable(),
+          } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(ParametersEditShellComponent, {
+        remove: {
+          imports: [
+            ParameterSelectProcessModelMethodComponent,
+            ParametersEditCmmnComponent,
+            ParametersEditBpmnComponent,
+          ],
+        },
+        add: {
+          imports: [
+            StubSelectMethodComponent,
+            StubCmmnComponent,
+            StubBpmnComponent,
+          ],
+        },
+      })
+      .compileComponents();
   });
 
   it("should show the modelling method selector when no process type is configured", () => {
@@ -88,8 +141,7 @@ describe(ParametersEditShellComponent.name, () => {
     beforeEach(() => createComponent({}));
 
     it("should switch to BPMN editor", () => {
-      const definition: ProcessModelMethodSelection = { type: "BPMN" };
-      component.switchModellingMethod(definition);
+      component["switchModellingMethod"]({ type: "BPMN" });
       fixture.detectChanges();
 
       expect(
@@ -98,8 +150,7 @@ describe(ParametersEditShellComponent.name, () => {
     });
 
     it("should switch to CMMN editor", () => {
-      const definition: ProcessModelMethodSelection = { type: "CMMN" };
-      component.switchModellingMethod(definition);
+      component["switchModellingMethod"]({ type: "CMMN" });
       fixture.detectChanges();
 
       expect(
@@ -108,10 +159,10 @@ describe(ParametersEditShellComponent.name, () => {
     });
 
     it("should switch back to the modelling method selector", () => {
-      component.switchModellingMethod({ type: "BPMN" });
+      component["switchModellingMethod"]({ type: "BPMN" });
       fixture.detectChanges();
 
-      component.switchModellingMethod({ type: null });
+      component["switchModellingMethod"]({ type: null });
       fixture.detectChanges();
 
       expect(

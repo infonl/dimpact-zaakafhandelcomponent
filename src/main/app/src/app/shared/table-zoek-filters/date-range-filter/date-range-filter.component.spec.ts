@@ -3,8 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DATE_LOCALE } from "@angular/material/core";
+import {
+  MatEndDateHarness,
+  MatStartDateHarness,
+} from "@angular/material/datepicker/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
@@ -12,6 +18,7 @@ import { DateRangeFilterComponent } from "./date-range-filter.component";
 describe(DateRangeFilterComponent.name, () => {
   let fixture: ComponentFixture<DateRangeFilterComponent>;
   let component: DateRangeFilterComponent;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,10 +33,7 @@ describe(DateRangeFilterComponent.name, () => {
     component.range = new DatumRange();
     component.label = "test.label";
     fixture.detectChanges();
-  });
-
-  it("should create", () => {
-    expect(component).toBeTruthy();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should display dates in dd-MM-yyyy format", async () => {
@@ -41,11 +45,10 @@ describe(DateRangeFilterComponent.name, () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const inputs = fixture.nativeElement.querySelectorAll(
-      "input",
-    ) as NodeListOf<HTMLInputElement>;
-    expect(inputs[0].value).toBe("25-3-2026");
-    expect(inputs[1].value).toBe("31-3-2026");
+    const startInput = await loader.getHarness(MatStartDateHarness);
+    const endInput = await loader.getHarness(MatEndDateHarness);
+    expect(await startInput.getValue()).toBe("25-3-2026");
+    expect(await endInput.getValue()).toBe("31-3-2026");
   });
 
   describe("ngOnChanges", () => {
