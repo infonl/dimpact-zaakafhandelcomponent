@@ -23,7 +23,6 @@ import {
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
-import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
@@ -68,7 +67,6 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     ProductaanvragenModule,
     SignaleringenModule,
     IdentityModule,
-    AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
   ],
