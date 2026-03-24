@@ -6,7 +6,7 @@ kotlin-csv = "1.10.0"
 openapi = "4.2.4"
 openapi-generator = "7.20.0"
 opentelemetry = "1.60.1"
-opentelemetry-instrumentation = "2.26.0"
+opentelemetry-instrumentation = "2.26.1"
 node-gradle = "7.1.0"
 detekt = "1.23.8"
 spotless = "8.4.0"
@@ -63,7 +63,7 @@ wildfly-security-elytron-http-oidc = "2.7.0.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "6.1.7"
+kotest = "6.1.8"
 mockk = "1.14.9"
 
 testcontainers = "2.0.4"
