@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.formulieren
+package nl.info.zac.task
 
 import jakarta.inject.Inject
 import jakarta.json.Json
@@ -11,7 +11,6 @@ import jakarta.json.JsonObject
 import jakarta.json.JsonString
 import jakarta.json.JsonValue
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.formulieren.model.FormulierData
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -26,6 +25,7 @@ import nl.info.zac.app.task.model.RestTask
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.shared.helper.SuspensionZaakHelper
+import nl.info.zac.task.model.BpmnTaskFormData
 import org.flowable.task.api.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,7 +33,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class FormulierRuntimeService @Inject constructor(
+class BpmnTaskFormRuntimeService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -45,14 +45,11 @@ class FormulierRuntimeService @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) {
     companion object {
-        private val DATUM_FORMAAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy")
+        private val DATUM_FORMAAT = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
         private const val REDEN_ZAAK_HERVATTEN = "Zaak hervat vanuit proces"
-
         private const val DOCUMENT_SEPARATOR = ";"
-
         private const val FORMIO_DEFAULT_VALUE = "defaultValue"
-
         private const val FORMIO_TITLE = "title"
     }
 
@@ -66,33 +63,33 @@ class FormulierRuntimeService @Inject constructor(
         taakVariabelenService.setTaskinformation(task, restTask.taakinformatie)
         taakVariabelenService.setTaskData(task, restTask.taakdata)
 
-        val formulierData = FormulierData(restTask.taakdata ?: emptyMap())
+        val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata ?: emptyMap())
 
-        if (formulierData.toelichting != null || formulierData.taakFataleDatum != null) {
-            formulierData.toelichting?.let {
+        if (bpmnTaskFormData.toelichting != null || bpmnTaskFormData.taakFataleDatum != null) {
+            bpmnTaskFormData.toelichting?.let {
                 task.description = it
             }
-            formulierData.taakFataleDatum?.let {
+            bpmnTaskFormData.taakFataleDatum?.let {
                 task.dueDate = DateTimeConverterUtil.convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }
-        if (formulierData.zaakOpschorten && !zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
                 ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
-        if (formulierData.zaakHervatten && zaak.isOpgeschort()) {
+        if (bpmnTaskFormData.zaakHervatten && zaak.isOpgeschort()) {
             suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
-        markDocumentAsSent(formulierData)
-        markDocumentAsSigned(formulierData)
+        markDocumentAsSent(bpmnTaskFormData)
+        markDocumentAsSigned(bpmnTaskFormData)
 
         zaakVariabelenService.setZaakdata(
             zaak.uuid,
-            zaakVariabelenService.readProcessZaakdata(zaak.uuid) + formulierData.zaakVariabelen
+            zaakVariabelenService.readProcessZaakdata(zaak.uuid) + bpmnTaskFormData.zaakVariabelen
         )
 
         return task
@@ -110,7 +107,7 @@ class FormulierRuntimeService @Inject constructor(
         }
 
     private fun copyJsonObjectValue(
-        stringJsonValueEntry: MutableMap.MutableEntry<String, JsonValue>,
+        stringJsonValueEntry: Map.Entry<String, JsonValue>,
         resolveDefaultValueContext: ResolveDefaultValueContext
     ) =
         if (stringJsonValueEntry.value.valueType == JsonValue.ValueType.STRING &&
@@ -178,26 +175,26 @@ class FormulierRuntimeService @Inject constructor(
             }
         }
 
-    private fun markDocumentAsSent(formulierData: FormulierData) =
-        formulierData.documentenVerzenden?.let { documentsToMark ->
+    private fun markDocumentAsSent(bpmnTaskFormData: BpmnTaskFormData) =
+        bpmnTaskFormData.documentenVerzenden?.let { documentsToMark ->
             documentsToMark.split(DOCUMENT_SEPARATOR.toRegex())
                 .dropLastWhile { it.isEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .forEach {
                     enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
-                        it.url.extractUuid(),
-                        formulierData.documentenVerzendenDatum,
-                        formulierData.toelichting
+                        uuid = it.url.extractUuid(),
+                        verzenddatum = bpmnTaskFormData.documentenVerzendenDatum,
+                        toelichting = bpmnTaskFormData.toelichting
                     )
                 }
         }
 
-    private fun markDocumentAsSigned(formulierData: FormulierData) =
-        formulierData.documentenOndertekenen?.let { documentenOndertekenen ->
+    private fun markDocumentAsSigned(bpmnTaskFormData: BpmnTaskFormData) =
+        bpmnTaskFormData.documentenOndertekenen?.let { documentenOndertekenen ->
             documentenOndertekenen.split(DOCUMENT_SEPARATOR.toRegex()).dropLastWhile { it.isEmpty() }
-                .map { UUID.fromString(it) }
-                .map { drcClientService.readEnkelvoudigInformatieobject(it) }
+                .map(UUID::fromString)
+                .map(drcClientService::readEnkelvoudigInformatieobject)
                 .filter { it.ondertekening == null }
                 .forEach {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
@@ -205,4 +202,13 @@ class FormulierRuntimeService @Inject constructor(
                     )
                 }
         }
+}
+
+private class ResolveDefaultValueContext(
+    val task: RestTask,
+    zrcClientService: ZrcClientService,
+    zaakVariabelenService: ZaakVariabelenService
+) {
+    val zaak = zrcClientService.readZaak(task.zaakUuid)
+    val zaakData = zaakVariabelenService.readProcessZaakdata(task.zaakUuid)
 }

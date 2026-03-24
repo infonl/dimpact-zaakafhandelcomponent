@@ -22,12 +22,12 @@ import { ParametersComponent } from "./parameters/parameters.component";
 @NgModule({
   declarations: [
     ParametersEditShellComponent,
-    ParametersComponent,
     ParameterSelectProcessModelMethodComponent,
     ParametersEditBpmnComponent,
   ],
   exports: [],
   imports: [
+    ParametersComponent,
     SharedModule,
     ZoekenModule,
     AdminRoutingModule,
