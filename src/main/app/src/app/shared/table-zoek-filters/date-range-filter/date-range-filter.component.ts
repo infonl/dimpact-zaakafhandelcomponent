@@ -45,7 +45,7 @@ const NL_DATE_FORMATS = {
 })
 export class DateRangeFilterComponent implements OnChanges {
   @Input({ required: true }) range!: DatumRange;
-  @Input({ required: true }) label!: string;
+  @Input() label!: string;
   @Output() changed = new EventEmitter<DatumRange>();
 
   protected dateVan = new FormControl<Date | null>(null);
