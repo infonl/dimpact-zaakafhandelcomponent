@@ -32,7 +32,6 @@ import { MaterialFormBuilderModule } from "./material-form-builder/material-form
 import { MaterialModule } from "./material/material.module";
 import { ZacNarrowMatCheckboxDirective } from "./material/narrow-checkbox.directive";
 import { BackButtonDirective } from "./navigation/back-button.directive";
-import { NotificationDialogComponent } from "./notification-dialog/notification-dialog.component";
 import { paginatorLanguageInitializerFactory } from "./paginator/paginator-language-initializer";
 import { PaginatorTranslator } from "./paginator/paginator-translator";
 import { EmptyPipe } from "./pipes/empty.pipe";
@@ -51,12 +50,9 @@ import { VersionComponent } from "./version/version.component";
   declarations: [
     DateRangeFilterComponent,
     FacetFilterComponent,
-    TekstFilterComponent,
-    ConfirmDialogComponent,
     DialogComponent,
     ColumnPickerComponent,
     DocumentViewerComponent,
-    NotificationDialogComponent,
     BesluitIndicatiesComponent,
     PersoonIndicatiesComponent,
     ZaakIndicatiesComponent,
@@ -71,6 +67,8 @@ import { VersionComponent } from "./version/version.component";
     OutsideClickDirective,
     ZacNarrowMatCheckboxDirective,
     ToggleFilterComponent,
+    TekstFilterComponent,
+    ConfirmDialogComponent,
     SideNavComponent,
     VersionComponent,
     SortPipe,
