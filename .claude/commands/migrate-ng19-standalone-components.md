@@ -19,6 +19,8 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 | **Bracket notation in specs** | Access protected members via `component["member"]()` — never promote to `public` for a spec. |
 | **`@Input()` with `!`** | Must use `@Input({ required: true }) field!: Type`. Optional inputs use `?`. |
 | **SPDX header** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. |
+| **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
+| **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
 
 ---
 
@@ -73,7 +75,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
-- **Harnesses over raw DOM** — always use `MatButtonHarness`, `MatSelectHarness`, etc. instead of `querySelectorAll`. Exception: `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
+- **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
 
 ### PR body template
 ```
