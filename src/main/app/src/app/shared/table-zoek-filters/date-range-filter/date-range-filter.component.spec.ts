@@ -4,6 +4,7 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MAT_DATE_LOCALE } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
@@ -15,6 +16,7 @@ describe(DateRangeFilterComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DateRangeFilterComponent, NoopAnimationsModule],
+      providers: [{ provide: MAT_DATE_LOCALE, useValue: "nl-NL" }],
     }).compileComponents();
   });
 
@@ -28,6 +30,19 @@ describe(DateRangeFilterComponent.name, () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should display dates in dd-MM-yyyy format", async () => {
+    component.range = new DatumRange(new Date(2026, 2, 25), new Date(2026, 2, 31));
+    component.ngOnChanges();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const inputs = fixture.nativeElement.querySelectorAll(
+      "input",
+    ) as NodeListOf<HTMLInputElement>;
+    expect(inputs[0].value).toBe("25-3-2026");
+    expect(inputs[1].value).toBe("31-3-2026");
   });
 
   describe("ngOnChanges", () => {
