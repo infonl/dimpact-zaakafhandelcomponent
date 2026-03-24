@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 12 done — 142 remaining** (2026-03-19)
+**Progress: 17 done — 137 remaining** (2026-03-24)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -68,6 +68,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `WritableSignal` in mocks → `signal(value)`, not `jest.fn()`
 - TanStack Query → `provideQueryClient(testQueryClient)` from `setupJest.ts`
 - Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
+- `describe(ClassName.name, ...)` — always use class name reference, not string literal
 
 ### PR body template
 ```
@@ -157,16 +158,41 @@ Solves PZ-XXXXX
 - **Pattern**: `import type { CdkDragDrop }` when used only as type cast — avoids "declared but never read"
 - **Pattern**: `*matNoDataRow` does not render synchronously — test empty-state via component state instead
 
+### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23) — PR #5565
+- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
+- **Fix**: `floatLabel="never"` removed from template (not a valid `FloatLabelType`); `FormControl<Date | null>` for nullable date controls
+- **Fix**: `@Input({ required: true }) range!: DatumRange`, `@Input({ required: true }) label!: string`
+
+### ✅ `admin/parameters/parameters.component.ts` (2026-03-23) — PR #5565
+- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
+- **Pattern**: `provideRouter([])` instead of `RouterModule.forRoot([])` in standalone spec
+- **Pattern**: Three describe blocks: unit tests for `applyFilter`, unit tests for compare functions, TestBed render tests
+
+### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23) — PR #5567
+- `imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule]`
+- **Pattern**: `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data for use in assertions
+
+### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23) — PR #5567
+- `imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule]`
+- **Fix**: `@Input() value: string` → `@Input() value?: string`; `FormControl<string>` → `FormControl<string | undefined>`; `formControl.value` assigned with `?? undefined` to avoid `null`
+- **Pattern**: `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger `change()` without going through the DOM input
+
+### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23) — PR #5567
+- `imports: [NgIf, MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule]`
+- **Pattern**: `setup()` helper function keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
+- **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
+- **Note**: `confirm-dialog.component.less` has a pre-existing ESLint parse error (no LESS parser configured); `autofocus` attribute on confirm button is a pre-existing `no-autofocus` lint violation — both are in untouched files
+
 ---
 
 ## Next Target
-`admin/parameters/parameters.component.ts`
+Wait for PR #5563 (rename process-definitions → bpmn-process-definitions) to merge; then migrate `admin/parameters-edit-shell/parameters-edit-shell.component.ts`, `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts`, `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`.
 
 ---
 
 ## Intermediate Goal: Lazy-load `/admin`
 
-**Progress: 13/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 14/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
 
 | Component | Status |
 |---|---|
@@ -182,8 +208,8 @@ Solves PZ-XXXXX
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ⬜ |
-| `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ |
+| `admin/parameters/parameters.component` | ✅ (open PR #5565) |
+| `admin/parameters-edit-select-process-definition` → renamed to `parameters-select-process-model-method` by PR #5563 | ⬜ |
 | `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ |
-| `admin/parameters-edit-wrapper/parameters-edit-wrapper.component` | ⬜ |
+| `admin/parameters-edit-wrapper` → renamed to `parameters-edit-shell` by PR #5563 | ⬜ |
 | **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ⬜ |
