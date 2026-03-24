@@ -11,6 +11,11 @@ import { IdentityComponent } from "./identity/identity.component";
 const routes: Routes = [
   { path: "", component: DashboardComponent },
   { path: "gebruiker", component: IdentityComponent },
+  {
+    path: "taken",
+    loadChildren: () =>
+      import("./taken/taken.module").then((module) => module.TakenModule),
+  },
 ];
 
 @NgModule({

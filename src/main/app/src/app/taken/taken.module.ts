@@ -5,8 +5,7 @@
 
 import { NgModule } from "@angular/core";
 
-import { FormioModule } from "@formio/angular";
-import { FormulierenModule } from "../formulieren/formulieren.module";
+import { FormioWrapperComponent } from "../formulieren/formio-wrapper/formio-wrapper.component";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
@@ -37,9 +36,8 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     InformatieObjectenModule,
     ZoekenModule,
     GebruikersvoorkeurenModule,
-    FormulierenModule,
+    FormioWrapperComponent,
     MimetypeToExtensionPipe,
-    FormioModule,
   ],
 })
 export class TakenModule {}
