@@ -9,27 +9,28 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 
 @Component({
-  selector: "zac-parameters-edit-select-process-definition",
-  templateUrl: "./parameters-edit-select-process-definition.component.html",
+  selector: "zac-parameters-select-process-model-method",
+  templateUrl: "./parameters-select-process-model-method.component.html",
   standalone: false,
 })
-export class ParameterEditSelectProcessDefinitionComponent {
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+export class ParameterSelectProcessModelMethodComponent {
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
   ];
 
-  protected zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
+  protected caseParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
   } = {
     zaaktypeUuid: "",
@@ -50,7 +51,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: ZaakProcessSelect;
+      value: ProcessModelMethod;
       label: string;
     } | null>(null, [Validators.required]),
   });
@@ -60,13 +61,11 @@ export class ParameterEditSelectProcessDefinitionComponent {
     private readonly route: ActivatedRoute,
   ) {
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
-      this.zaakafhandelParameters = data.parameters.zaakafhandelParameters;
+      this.caseParameters = data.parameters.zaakafhandelParameters;
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 }

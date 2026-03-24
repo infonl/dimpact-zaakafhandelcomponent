@@ -27,7 +27,7 @@
         >
           <section class="flex-1">
             <h2>
-              {{ "title.procesdefinities" | translate }}
+              {{ "title.bpmn-procesdefinities" | translate }}
             </h2>
           </section>
           <div class="actions-header">
@@ -52,10 +52,10 @@
         <div class="table-wrapper">
           <mat-tree [dataSource]="data()" [childrenAccessor]="childrenAccessor">
             <mat-nested-tree-node *matTreeNodeDef="let node" class="item">
-              <zac-process-definition-item
+              <zac-bpmn-process-definition-item
                 [processDefinition]="asProcessDefinition(node)"
                 (bpmnFormListChanged)="refreshDefinitions()"
-              ></zac-process-definition-item>
+              ></zac-bpmn-process-definition-item>
             </mat-nested-tree-node>
             <mat-nested-tree-node
               *matTreeNodeDef="let node; when: hasChild"
