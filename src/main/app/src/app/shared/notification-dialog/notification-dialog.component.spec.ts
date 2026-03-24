@@ -14,7 +14,7 @@ import {
 
 describe("NotificationDialogComponent", () => {
   let fixture: ComponentFixture<NotificationDialogComponent>;
-  let mockDialogRef: Pick<MatDialogRef<NotificationDialogData>, "close">;
+  let mockDialogRef: Pick<MatDialogRef<NotificationDialogComponent>, "close">;
   let dialogData: NotificationDialogData;
 
   beforeEach(async () => {

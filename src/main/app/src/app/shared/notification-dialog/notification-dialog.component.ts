@@ -25,7 +25,7 @@ import { TranslateModule } from "@ngx-translate/core";
 })
 export class NotificationDialogComponent {
   constructor(
-    private readonly dialogRef: MatDialogRef<NotificationDialogData>,
+    private readonly dialogRef: MatDialogRef<NotificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) protected readonly data: NotificationDialogData,
   ) {}
 
