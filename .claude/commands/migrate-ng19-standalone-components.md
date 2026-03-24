@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 15 done — 138 remaining** (2026-03-23)
+**Progress: 17 done — 137 remaining** (2026-03-24)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -24,27 +24,43 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 ## Steps
 
+### Phase A — Start branch (once per PR)
+
 | # | Step | Gate |
 |---|---|---|
-| 0 | **Align collaboration** — see [Collaboration](#collaboration) below: pull the coordination branch, check what colleagues have claimed, add your batch, push before starting | **Never start a component already claimed by someone else** |
-| 1 | **Branch** — confirm on `temp/standalone-migration` (create from `main` if needed) | — |
-| 2 | **Select** — pick fewest-deps non-standalone component; exclude ATOS, routing, already-standalone | **Ask user to confirm target** |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
+| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
+
+### Phase B — Per-component loop (repeat until PR)
+
+| # | Step | Gate |
+|---|---|---|
 | 3 | **Read** — component `.ts`, `.html`, declaring module | — |
 | 4 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
 | 5 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
 | 6 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
-| 7 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access | — |
+| 7 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
 | 8 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
 | 9 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
 | 10 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
 | 11 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
 | 12 | **Fix new TS errors** introduced by migration only | — |
 | 13 | **Run tests** — must still pass | **Fix until green** |
-| 14 | **Lint** — `bash scripts/lint-changed-files.sh` | **Fix before continuing** |
-| 15 | **Ask permission for next component** — _"Done with X. Pick next?"_ | **Wait for user** |
-| 16 | **Commit** — only on explicit user instruction; run `./gradlew spotlessAppApply` first | **Never auto-commit** |
-| 17 | **Functional test** — user verifies in browser (`npm run dev`) | **Wait for user go-ahead** |
-| 18 | **Rename + PR** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<name(s)>`; push + open PR | — |
+| 14 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
+| 15 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
+| 16 | → if **continue**: go to step 3 with next component | — |
+| 17 | → if **stop**: proceed to Phase C | — |
+
+### Phase C — Ship (once per PR)
+
+| # | Step | Gate |
+|---|---|---|
+| 18 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
+| 19 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
+| 20 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
+| 21 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
+| 22 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
+| 23 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
 
 ### Spec conventions
 - Service mocking priority: **1)** real service + `jest.spyOn` **2)** `let mock: Pick<Service, 'method'>` + `useValue: mock` **3)** inline `useValue: { ... } satisfies Pick<...>`
@@ -52,6 +68,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `WritableSignal` in mocks → `signal(value)`, not `jest.fn()`
 - TanStack Query → `provideQueryClient(testQueryClient)` from `setupJest.ts`
 - Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
+- `describe(ClassName.name, ...)` — always use class name reference, not string literal
 
 ### PR body template
 ```
@@ -72,39 +89,6 @@ Solves PZ-XXXXX
 3. **Composite** — uses other components (migrate leaves first)
 4. **Complex / dialogs** — `MAT_DIALOG_DATA`, complex service graphs
 5. **Last** — SharedModule, CoreModule themselves
-
----
-
-## Collaboration
-
-**Branch**: `chore/anguklar-19-migration--collaboration-list--no-merging_keep_me`
-**File**: `migration-claims.md` in the root of that branch
-**Rule**: This branch is **never merged** — it is a shared whiteboard only.
-
-### Protocol (Step 0 — do this before every session)
-
-```bash
-# 1. Fetch latest claims without switching branches
-git fetch origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
-
-# 2. Read the claims file directly from the branch (no checkout needed)
-git show origin/chore/anguklar-19-migration--collaboration-list--no-merging_keep_me:migration-claims.md
-
-# 3. Switch to the coordination branch, claim your batch, push
-git checkout chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
-# → edit migration-claims.md: add your name + components
-git add migration-claims.md && git commit -m "claim: <your name> — <component list>"
-git push origin chore/anguklar-19-migration--collaboration-list--no-merging_keep_me
-
-# 4. Switch back to your work branch
-git checkout <your-work-branch>
-```
-
-### Rules
-- **Claim before you start** — if it's not in `migration-claims.md` under your name, don't assume it's free.
-- **One section per developer** — edit only your own section; never rewrite a colleague's.
-- **Mark done inline** — change `- [ ]` to `- [x]` and push when a component is merged.
-- **Pull before editing** — always `git pull` on the coordination branch to avoid conflicts on the claims file.
 
 ---
 
@@ -174,18 +158,26 @@ git checkout <your-work-branch>
 - **Pattern**: `import type { CdkDragDrop }` when used only as type cast — avoids "declared but never read"
 - **Pattern**: `*matNoDataRow` does not render synchronously — test empty-state via component state instead
 
----
+### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23) — PR #5565
+- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
+- **Fix**: `floatLabel="never"` removed from template (not a valid `FloatLabelType`); `FormControl<Date | null>` for nullable date controls
+- **Fix**: `@Input({ required: true }) range!: DatumRange`, `@Input({ required: true }) label!: string`
 
-### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23)
+### ✅ `admin/parameters/parameters.component.ts` (2026-03-23) — PR #5565
+- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
+- **Pattern**: `provideRouter([])` instead of `RouterModule.forRoot([])` in standalone spec
+- **Pattern**: Three describe blocks: unit tests for `applyFilter`, unit tests for compare functions, TestBed render tests
+
+### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23) — PR #5567
 - `imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule]`
 - **Pattern**: `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data for use in assertions
 
-### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23)
+### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23) — PR #5567
 - `imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule]`
 - **Fix**: `@Input() value: string` → `@Input() value?: string`; `FormControl<string>` → `FormControl<string | undefined>`; `formControl.value` assigned with `?? undefined` to avoid `null`
 - **Pattern**: `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger `change()` without going through the DOM input
 
-### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23)
+### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23) — PR #5567
 - `imports: [NgIf, MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule]`
 - **Pattern**: `setup()` helper function keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
 - **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
@@ -194,13 +186,13 @@ git checkout <your-work-branch>
 ---
 
 ## Next Target
-`admin/parameters/parameters.component.ts`
+Wait for PR #5563 (rename process-definitions → bpmn-process-definitions) to merge; then migrate `admin/parameters-edit-shell/parameters-edit-shell.component.ts`, `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts`, `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`.
 
 ---
 
 ## Intermediate Goal: Lazy-load `/admin`
 
-**Progress: 13/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 14/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
 
 | Component | Status |
 |---|---|
@@ -216,8 +208,8 @@ git checkout <your-work-branch>
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ⬜ |
-| `admin/parameters-edit-select-process-definition/parameters-edit-select-process-definition.component` | ⬜ |
+| `admin/parameters/parameters.component` | ✅ (open PR #5565) |
+| `admin/parameters-edit-select-process-definition` → renamed to `parameters-select-process-model-method` by PR #5563 | ⬜ |
 | `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ⬜ |
-| `admin/parameters-edit-wrapper/parameters-edit-wrapper.component` | ⬜ |
+| `admin/parameters-edit-wrapper` → renamed to `parameters-edit-shell` by PR #5563 | ⬜ |
 | **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ⬜ |
