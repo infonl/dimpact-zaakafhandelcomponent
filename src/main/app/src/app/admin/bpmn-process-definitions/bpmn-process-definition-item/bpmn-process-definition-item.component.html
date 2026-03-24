@@ -60,12 +60,8 @@
             {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
           </h3>
         </div>
-        <button
-          mat-icon-button
-          title="{{ 'actie.toevoegen' | translate }}"
-          (click)="uploadBpmnForm()"
-        >
-          <mat-icon outlined>attach_file_add</mat-icon>
+        <button mat-raised-button color="primary" (click)="uploadBpmnForm()">
+          {{ "bpmn-procesdefinitie.button.formulier" | translate }}
         </button>
       </div>
       @if (showMissingWarning()) {
