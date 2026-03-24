@@ -9,13 +9,13 @@ import { ActivatedRoute } from "@angular/router";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { AdminComponent } from "../admin/admin.component";
-import { ZaakProcessDefinition } from "../model/parameters/zaak-process-definition-type";
+import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 
 @Component({
-  templateUrl: "./parameters-edit-wrapper.component.html",
+  templateUrl: "./parameters-edit-shell.component.html",
   standalone: false,
 })
-export class ParametersEditWrapperComponent
+export class ParametersEditShellComponent
   extends AdminComponent
   implements OnInit
 {
@@ -23,7 +23,7 @@ export class ParametersEditWrapperComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
 
   protected isLoading: boolean = true; // wait for data since mat-stepper cannot load its steps dynamically
-  protected processDefinitionType!: ZaakProcessDefinition;
+  protected modellingMethodSelection!: ProcessModelMethodSelection;
 
   constructor(
     public readonly utilService: UtilService,
@@ -40,20 +40,20 @@ export class ParametersEditWrapperComponent
       this.isLoading = false;
 
       if (parameters.isBpmn) {
-        this.processDefinitionType = { type: "BPMN", selectedIndexStart: 1 };
+        this.modellingMethodSelection = { type: "BPMN", selectedIndexStart: 1 };
         return;
       }
 
       if (parameters.isSavedZaakafhandelParameters) {
-        this.processDefinitionType = { type: "CMMN", selectedIndexStart: 1 };
+        this.modellingMethodSelection = { type: "CMMN", selectedIndexStart: 1 };
         return;
       }
 
-      this.processDefinitionType = { type: "SELECT-PROCESS-DEFINITION" };
+      this.modellingMethodSelection = { type: null };
     });
   }
 
-  switchProcessDefinition(switchToDefinition: ZaakProcessDefinition) {
-    this.processDefinitionType = switchToDefinition;
+  switchModellingMethod(selection: ProcessModelMethodSelection) {
+    this.modellingMethodSelection = selection;
   }
 }
