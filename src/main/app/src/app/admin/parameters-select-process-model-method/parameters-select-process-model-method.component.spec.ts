@@ -5,7 +5,6 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -62,7 +61,6 @@ describe(ParameterSelectProcessModelMethodComponent.name, () => {
           } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(

@@ -10,10 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import {
-  NO_ERRORS_SCHEMA,
-  provideExperimentalZonelessChangeDetection,
-} from "@angular/core";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -75,7 +72,6 @@ describe("ZaakVerlengenDialogComponent", () => {
           },
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakVerlengenDialogComponent);

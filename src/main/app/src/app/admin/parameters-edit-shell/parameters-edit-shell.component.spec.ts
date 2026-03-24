@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  NO_ERRORS_SCHEMA,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
@@ -96,7 +90,6 @@ describe(ParametersEditShellComponent.name, () => {
           } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(ParametersEditShellComponent, {
         remove: {
