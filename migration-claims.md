@@ -12,6 +12,11 @@
 - [x] `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts`
 - [x] `admin/parameters/parameters.component.ts`
 
+### Batch 2 — in progress (branch: `temp/standalone-migration`)
+- [ ] `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts`
+- [ ] `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`
+- [ ] `admin/parameters-edit-shell/parameters-edit-shell.component.ts`
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
