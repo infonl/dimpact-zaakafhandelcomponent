@@ -188,7 +188,11 @@ describe(ParametersEditBpmnComponent.name, () => {
 
   describe("opslaan", () => {
     it("should disable opslaan when the form is invalid", async () => {
-      // bpmnDefinition is null (key mismatch) → algemeenFormGroup invalid → isValid() false
+      expect(component["algemeenFormGroup"].controls.bpmnDefinition.value).toBe(
+        null,
+      );
+      expect(component["algemeenFormGroup"].invalid).toBe(true);
+
       const opslaanButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.opslaan/ }),
       );
