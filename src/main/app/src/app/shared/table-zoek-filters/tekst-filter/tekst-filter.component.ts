@@ -14,7 +14,12 @@ import { MatInputModule } from "@angular/material/input";
   templateUrl: "./tekst-filter.component.html",
   styleUrls: ["./tekst-filter.component.less"],
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
 })
 export class TekstFilterComponent implements OnInit {
   protected formControl = new FormControl<string | undefined>(undefined);

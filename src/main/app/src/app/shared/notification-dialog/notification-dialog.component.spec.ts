@@ -4,10 +4,7 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import {
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-} from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import {
@@ -24,7 +21,11 @@ describe("NotificationDialogComponent", () => {
     mockDialogRef = { close: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [NotificationDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        NotificationDialogComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         { provide: MatDialogRef, useValue: mockDialogRef },
         {

@@ -4,19 +4,24 @@
  */
 
 import { Component, Inject } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogContent,
   MatDialogRef,
 } from "@angular/material/dialog";
-import { MatButtonModule } from "@angular/material/button";
 import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   templateUrl: "./notification-dialog.component.html",
   standalone: true,
-  imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule],
+  imports: [
+    MatDialogContent,
+    MatDialogActions,
+    MatButtonModule,
+    TranslateModule,
+  ],
 })
 export class NotificationDialogComponent {
   constructor(

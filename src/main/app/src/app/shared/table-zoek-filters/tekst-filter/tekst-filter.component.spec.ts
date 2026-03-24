@@ -24,7 +24,9 @@ describe("TekstFilterComponent", () => {
     component.value = "hello";
     fixture.detectChanges();
 
-    const input = fixture.nativeElement.querySelector("input") as HTMLInputElement;
+    const input = fixture.nativeElement.querySelector(
+      "input",
+    ) as HTMLInputElement;
     expect(input.value).toBe("hello");
   });
 
@@ -36,7 +38,9 @@ describe("TekstFilterComponent", () => {
     component.changed.subscribe((v) => emitted.push(v));
 
     component["formControl"].setValue("new");
-    fixture.nativeElement.querySelector("input").dispatchEvent(new Event("blur"));
+    fixture.nativeElement
+      .querySelector("input")
+      .dispatchEvent(new Event("blur"));
 
     expect(emitted).toEqual(["new"]);
   });
@@ -76,7 +80,9 @@ describe("TekstFilterComponent", () => {
     const emitted: (string | undefined)[] = [];
     component.changed.subscribe((v) => emitted.push(v));
 
-    fixture.nativeElement.querySelector("input").dispatchEvent(new Event("blur"));
+    fixture.nativeElement
+      .querySelector("input")
+      .dispatchEvent(new Event("blur"));
 
     expect(emitted).toEqual([]);
   });

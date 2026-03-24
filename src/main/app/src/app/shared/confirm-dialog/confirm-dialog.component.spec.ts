@@ -20,7 +20,11 @@ function setup(data: ConfirmDialogData) {
   > = { close: jest.fn(), disableClose: false };
 
   TestBed.configureTestingModule({
-    imports: [ConfirmDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      ConfirmDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       { provide: MatDialogRef, useValue: mockDialogRef },
       { provide: MAT_DIALOG_DATA, useValue: data },
@@ -108,9 +112,7 @@ describe("ConfirmDialogComponent", () => {
       fixture.detectChanges();
 
       expect(mockDialogRef.disableClose).toBe(true);
-      expect(
-        fixture.nativeElement.querySelector("mat-spinner"),
-      ).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("mat-spinner")).not.toBeNull();
     });
 
     it("closes with true when the observable succeeds", () => {
