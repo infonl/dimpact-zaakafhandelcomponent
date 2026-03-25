@@ -9,7 +9,7 @@ import { CustomWorld } from "support/worlds/world";
 import uniqid from "uniqid";
 import { z } from "zod";
 import { profiles } from "../support/open-forms/profiles";
-import {ONE_MINUTE_IN_MS} from "../support/time-constants";
+import {ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS} from "../support/time-constants";
 
 export const profilesSchema = z.enum(["Alice"]);
 
@@ -100,7 +100,7 @@ Given(
     const filePath = path.join(__dirname, profile.documents.photo);
     await fileInput.setInputFiles(filePath);
     // wait a bit until file has been uploaded
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
 
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
