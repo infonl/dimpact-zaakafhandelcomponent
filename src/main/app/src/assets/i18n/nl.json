@@ -831,6 +831,7 @@
   "msg.error.besluit.response.date.invalid": "De uiterlijke reactiedatum voor het besluit mag niet vóór de publicatiedatum liggen.",
   "msg.error.bpmn.process.definition.not.found": "BPMN procesdefinitie kan niet gevonden worden.",
   "msg.error.bpmn.task.form.not.found": "BPMN taakformulier kan niet gevonden worden.",
+  "msg.error.process.task.not.found": "Procestaak kan niet gevonden worden.",
   "msg.error.case.has.open.subcases": "Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.",
   "msg.error.case.has.locked.information.objects": "Deze zaak heeft vergrendelde documenten en kan niet afgesloten worden.",
   "msg.error.case.has.no.communication.channel": "De zaak heeft geen communicatiekanaal.",

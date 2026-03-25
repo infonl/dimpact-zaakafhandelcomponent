@@ -832,6 +832,7 @@
   "msg.error.bpmn.process.definition.not.found": "BPMN process definition could not be found.",
   "msg.error.bpmn.task.form.not.found": "BPMN task form could not be found.",
   "msg.error.case.has.open.subcases": "This case has open subcases and cannot be closed.",
+  "msg.error.process.task.not.found": "The process task could not be found.",
   "msg.error.case.has.locked.information.objects": "This case has locked documents and cannot be closed.",
   "msg.error.case.has.no.communication.channel": "The case has no communication channel.",
   "msg.error.case.cannot.have.due.date": "The case cannot have a due date.",
