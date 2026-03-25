@@ -431,9 +431,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       const { onSuccess } = mutateMock.mock.calls[0][1] as {
-        onSuccess: () => Promise<void>;
+        onSuccess: () => void;
       };
-      await onSuccess();
+      onSuccess();
     }
 
     it("should show a snackbar with the filename after successful upload", async () => {
@@ -449,9 +449,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       expect(component["expandedKey"]).toBe("key-a");
     });
 
-    it("should not expand when the definition key is not found in the list", async () => {
-      await triggerOnSuccess("unknown-process.bpmn");
-      expect(component["expandedKey"]).toBeNull();
+    it("should strip .bpmn extension case-insensitively when setting expandedKey", async () => {
+      await triggerOnSuccess("MY-PROCESS.BPMN");
+      expect(component["expandedKey"]).toBe("MY-PROCESS");
     });
   });
 });

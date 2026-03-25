@@ -129,18 +129,14 @@ export class BpmnProcessDefinitionsComponent
         this.uploadMutation.mutate(
           { content, filename: file.name },
           {
-            onSuccess: async () => {
+            onSuccess: () => {
               this.utilService.openSnackbar(
                 "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
                 { naam: file.name },
               );
-              const { data } = await this.processDefinitionsQuery.refetch();
-
-              // expand the newly uploaded definition, if it exists in the list (it should, but just to be sure)
-              const match = data?.find(
-                (def) => def.key === file.name.replace(/\.bpmn$/i, ""),
-              );
-              if (match) this.expandedKey = match.key;
+              // expand the newly uploaded definition by its expected key (filename without .bpmn)
+              // the mutation-level onSuccess already refetches the list
+              this.expandedKey = file.name.replace(/\.bpmn$/i, "");
             },
           },
         ),

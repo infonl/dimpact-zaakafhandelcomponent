@@ -16,7 +16,6 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -77,7 +76,6 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
-  private readonly translateService = inject(TranslateService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   protected uploadBpmnForm() {
@@ -117,7 +115,7 @@ export class BpmnProcessDefinitionItemComponent {
           ),
         ).subscribe(() => {
           this.utilService.openSnackbar(
-            "msg.bpmn-formulier.uploaden.uitgevoerd",
+            "msg.bpmn-formulieren.uploaden.uitgevoerd",
             {
               namen: files.map((f) => f.name).join(", "),
             },
@@ -153,8 +151,8 @@ export class BpmnProcessDefinitionItemComponent {
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar(
-            "msg.bpmn-formulier.verwijderen.uitgevoerd",
-            { naam: bpmnFormName },
+            "msg.bpmn-formulieren.verwijderen.uitgevoerd",
+            { namen: bpmnFormName },
           );
           this.bpmnFormListChanged.emit();
         }
@@ -171,7 +169,7 @@ export class BpmnProcessDefinitionItemComponent {
       ),
     ).subscribe(() => {
       this.utilService.openSnackbar(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
+        "msg.bpmn-formulieren.verwijderen.uitgevoerd",
         {
           namen: (this.processDefinition().details?.orphanedForms ?? [])
             .map((f) => f.formKey)
