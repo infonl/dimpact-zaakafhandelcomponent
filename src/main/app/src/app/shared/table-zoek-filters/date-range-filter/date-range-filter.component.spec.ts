@@ -22,7 +22,11 @@ describe(DateRangeFilterComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DateRangeFilterComponent, NoopAnimationsModule, MatNativeDateModule],
+      imports: [
+        DateRangeFilterComponent,
+        NoopAnimationsModule,
+        MatNativeDateModule,
+      ],
       providers: [{ provide: MAT_DATE_LOCALE, useValue: "nl-NL" }],
     }).compileComponents();
   });
