@@ -377,7 +377,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
+        "msg.bpmn.process-definition.delete.confirm",
       );
       expect(dialogData._melding.args).toEqual({ naam: "Process A" });
     });
@@ -390,7 +390,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       expect(deleteMutationFn).toHaveBeenCalledWith("key-a");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
+        "msg.bpmn.process-definition.deleted",
         { naam: "Process A" },
       );
     });
@@ -439,7 +439,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     it("should show a snackbar with the filename after successful upload", async () => {
       await triggerOnSuccess("key-a.bpmn");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
+        "msg.bpmn.process-definition.upload.succes",
         { naam: "key-a.bpmn" },
       );
     });

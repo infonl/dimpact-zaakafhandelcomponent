@@ -131,7 +131,7 @@ export class BpmnProcessDefinitionsComponent
           {
             onSuccess: () => {
               this.utilService.openSnackbar(
-                "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
+                "msg.bpmn.process-definition.upload.succes",
                 { naam: file.name },
               );
               // expand the newly uploaded definition by its expected key (filename without .bpmn)
@@ -151,7 +151,7 @@ export class BpmnProcessDefinitionsComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
+          key: "msg.bpmn.process-definition.delete.confirm",
           args: { naam: processDefinition.name },
         }),
       })
@@ -161,7 +161,7 @@ export class BpmnProcessDefinitionsComponent
           this.deleteMutation.mutate(processDefinition.key, {
             onSuccess: () => {
               this.utilService.openSnackbar(
-                "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
+                "msg.bpmn.process-definition.deleted",
                 { naam: processDefinition.name },
               );
               void this.processDefinitionsQuery.refetch();
