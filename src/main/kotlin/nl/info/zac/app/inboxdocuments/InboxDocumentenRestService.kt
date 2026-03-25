@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.inboxdocumenten
+package nl.info.zac.app.inboxdocuments
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -15,15 +15,15 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
-import net.atos.zac.app.inboxdocumenten.model.RestInboxDocument
-import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
-import net.atos.zac.app.inboxdocumenten.model.toRestInboxDocuments
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocument
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.inboxdocuments.converter.RestInboxDocumentListParametersConverter
+import nl.info.zac.app.inboxdocuments.model.RestInboxDocument
+import nl.info.zac.app.inboxdocuments.model.RestInboxDocumentListParameters
+import nl.info.zac.app.inboxdocuments.model.toRestInboxDocuments
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.inboxDocumenten
+package nl.info.zac.app.inboxdocuments
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -14,14 +14,13 @@ import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.inboxdocumenten.InboxDocumentenRestService
-import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
-import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
 import net.atos.zac.documenten.InboxDocumentenService
 import net.atos.zac.documenten.model.InboxDocumentListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.inboxdocuments.converter.RestInboxDocumentListParametersConverter
+import nl.info.zac.app.inboxdocuments.model.RestInboxDocumentListParameters
 import nl.info.zac.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
