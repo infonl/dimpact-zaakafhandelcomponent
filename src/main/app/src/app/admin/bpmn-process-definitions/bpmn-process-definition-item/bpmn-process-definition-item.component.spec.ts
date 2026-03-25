@@ -168,7 +168,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       await fixture.whenStable();
 
       const inUseIcon = fixture.nativeElement.querySelector(
-        "span.icon-align mat-icon[color=primary]",
+        "div.explanation mat-icon[color=primary]",
       );
       expect(inUseIcon).not.toBeNull();
     });
@@ -474,29 +474,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     });
   });
 
-  describe("deleteOrphanedForm", () => {
-    it("should call deleteProcessDefinitionForm with the correct key and form name", () => {
-      component["deleteOrphanedForm"]("orphan-form");
-
-      expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        "orphan-form",
-      );
-    });
-
-    it("should show snackbar and emit bpmnFormListChanged after deletion", () => {
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
-
-      component["deleteOrphanedForm"]("orphan-form");
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
-        { naam: "orphan-form" },
-      );
-      expect(emitSpy).toHaveBeenCalled();
-    });
-  });
-
   describe("orphaned forms section", () => {
     it("should not render the orphaned forms section when the list is empty", () => {
       const chipSet = fixture.nativeElement.querySelector("mat-chip-set");
@@ -517,36 +494,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const chips = await loader.getAllHarnesses(MatChipHarness);
-      expect(chips.length).toBe(1);
       expect(fixture.nativeElement.textContent).toContain("form-orphaned");
     });
 
-    it("should call deleteOrphanedForm when a chip's remove button is clicked", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            orphanedForms: [orphanedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const deleteOrphanedSpy = jest.spyOn(
-        component as BpmnProcessDefinitionItemComponent & {
-          deleteOrphanedForm: (key: string) => void;
-        },
-        "deleteOrphanedForm",
-      );
-      const removeButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector("button[matChipRemove]");
-      removeButton.click();
-
-      expect(deleteOrphanedSpy).toHaveBeenCalledWith("form-orphaned");
-    });
   });
 });

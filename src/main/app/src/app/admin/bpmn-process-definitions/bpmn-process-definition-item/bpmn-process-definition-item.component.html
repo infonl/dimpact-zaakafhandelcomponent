@@ -43,7 +43,7 @@
         />
       </div>
       @if (processDefinition().details?.inUse) {
-        <div class="explanaition">
+        <div class="explanation">
           <mat-icon outlined color="primary">info</mat-icon>
           {{ "bpmn-procesdefinitie.card.details.in-gebruik" | translate }}
         </div>
@@ -64,7 +64,7 @@
         </button>
       </div>
       @if (showMissingWarning()) {
-        <div class="explanaition" @fadeSlide>
+        <div class="explanation" @fadeSlide>
           <mat-icon outlined color="warn">error</mat-icon>
           {{
             "bpmn-procesdefinitie.card.formulieren.title.tooltip" | translate
@@ -173,7 +173,7 @@
           }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div class="flex-row items-center space-between explanaition">
+      <div class="flex-row items-center space-between explanation">
         <div class="icon-align">
           <mat-icon outlined color="primary">info</mat-icon>
           {{
@@ -182,7 +182,7 @@
           }}
         </div>
         <button
-          mat-raised-button
+          mat-stroked-button
           color="primary"
           (click)="deleteAllOrphanedForms()"
         >

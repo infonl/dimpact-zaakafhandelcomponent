@@ -1101,5 +1101,6 @@
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Unused forms",
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms.",
   "bpmn-procesdefinitie.button.upload.definitie": "Add BPMN process definition",
-  "bpmn-procesdefinitie.button.upload.formulier": "Add form"
+  "bpmn-procesdefinitie.button.upload.formulier": "Add form",
+  "bpmn-procesdefinitie.button.verwijder.alle.ongebruikte.formulieren": "Delete all forms"
 }

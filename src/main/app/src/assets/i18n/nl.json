@@ -1101,5 +1101,6 @@
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Formulieren (niet gekoppeld aan procesdefinitie)",
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "Er zijn één of meerdere formulieren geüpload die niet gebruikt worden in deze procesdefinitie. Verwijder deze ongebruikte formulieren.",
   "bpmn-procesdefinitie.button.upload.definitie": "BPMN-processdefinitie toevoegen",
-  "bpmn-procesdefinitie.button.upload.formulier": "Formulier toevoegen"
+  "bpmn-procesdefinitie.button.upload.formulier": "Formulier toevoegen",
+  "bpmn-procesdefinitie.button.verwijder.alle.ongebruikte.formulieren": "Verwijder formulieren"
 }

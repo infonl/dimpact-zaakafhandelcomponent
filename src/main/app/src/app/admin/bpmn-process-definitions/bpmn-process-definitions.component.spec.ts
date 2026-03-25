@@ -218,9 +218,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
   describe("selectBpmnProcessDefinitionFile", () => {
     it("should trigger a click on the hidden file input", () => {
-      const fileInput: HTMLInputElement =
-        fixture.nativeElement.querySelector('input[type="file"]');
-      const clickSpy = jest.spyOn(fileInput, "click");
+      const clickSpy = jest.spyOn(
+        component["bpmnProcessDefinitionFileInput"].nativeElement,
+        "click",
+      );
 
       component["selectBpmnProcessDefinitionFile"]();
 

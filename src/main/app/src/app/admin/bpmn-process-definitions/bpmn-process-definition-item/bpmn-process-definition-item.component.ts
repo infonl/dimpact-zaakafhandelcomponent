@@ -161,18 +161,6 @@ export class BpmnProcessDefinitionItemComponent {
       });
   }
 
-  protected deleteOrphanedForm(formKey: string) {
-    this.bpmnService
-      .deleteProcessDefinitionForm(this.processDefinition().key, formKey)
-      .subscribe(() => {
-        this.utilService.openSnackbar(
-          "msg.bpmn-formulier.verwijderen.uitgevoerd",
-          { naam: formKey },
-        );
-        this.bpmnFormListChanged.emit();
-      });
-  }
-
   protected deleteAllOrphanedForms() {
     forkJoin(
       (this.processDefinition().details?.orphanedForms ?? []).map((form) =>
