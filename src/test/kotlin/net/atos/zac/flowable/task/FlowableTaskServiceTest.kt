@@ -68,7 +68,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 flowableTaskService.readOpenTask(taskId)
             }
 
-            Then("the open task is returned") {
+            Then("a process task not found exception is thrown") {
                 processTaskNotFoundException.message shouldBe "No open task with id '$taskId' found"
             }
         }
@@ -113,7 +113,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 flowableTaskService.readClosedTask(taskId)
             }
 
-            Then("the open task is returned") {
+            Then("a process task not found exception is thrown") {
                 processTaskNotFoundException.message shouldBe "No historic task with id '$taskId' found"
             }
         }
