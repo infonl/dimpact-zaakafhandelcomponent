@@ -73,7 +73,15 @@ We use [Cucumber](https://cucumber.io/) to write reusable end-to-end tests in hu
 ### Running the e2e tests
 
 The end-to-end tests are located in the `src/e2e` folder.
-You can use the `start-e2e-xxx` scripts in the root folder of this project to run the e2e tests.
+You can use the [start-e2e-with-local-env.sh](../../start-e2e-with-local-env.sh) script if you want to run the end-to-end tests against a local environment,
+or [start-e2e-with-test-env.sh](../../start-e2e-with-test-env.sh) if you want to run the end-to-end tests against the INFO TEST environment (accessible for INFO developers only).
+Note that currently not all end-to-end tests can be run against a local environment.
+
+To run the tests in headless mode you can use the following command:
+
+```shell
+HEADLESS=true ./start-e2e-with-test-env.sh
+```
 
 ### Writing e2e tests
 

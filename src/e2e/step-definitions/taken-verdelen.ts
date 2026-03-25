@@ -5,8 +5,7 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
-
-const ONE_MINUTE_IN_MS = 60_000;
+import { ONE_MINUTE_IN_MS } from "../support/time-constants";
 
 let _noOfTaken = 0;
 
