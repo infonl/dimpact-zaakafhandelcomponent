@@ -114,12 +114,9 @@ export class BpmnProcessDefinitionItemComponent {
             ),
           ),
         ).subscribe(() => {
-          this.utilService.openSnackbar(
-            "msg.bpmn-formulieren.uploaden.uitgevoerd",
-            {
-              namen: files.map((f) => f.name).join(", "),
-            },
-          );
+          this.utilService.openSnackbar("msg.bpmn.task-forms.upload.success", {
+            namen: files.map((f) => f.name).join(", "),
+          });
           if (files.length >= this.missingForms().length) {
             this.forceHideWarning.set(true);
             setTimeout(() => this.bpmnFormListChanged.emit(), 450);
@@ -138,7 +135,7 @@ export class BpmnProcessDefinitionItemComponent {
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.bpmn-formulier.verwijderen.bevestigen",
+            key: "msg.bpmn.task-forms.delete.confirm",
             args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
@@ -150,10 +147,9 @@ export class BpmnProcessDefinitionItemComponent {
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar(
-            "msg.bpmn-formulieren.verwijderen.uitgevoerd",
-            { namen: bpmnFormName },
-          );
+          this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+            namen: bpmnFormName,
+          });
           this.bpmnFormListChanged.emit();
         }
       });
@@ -168,14 +164,11 @@ export class BpmnProcessDefinitionItemComponent {
         ),
       ),
     ).subscribe(() => {
-      this.utilService.openSnackbar(
-        "msg.bpmn-formulieren.verwijderen.uitgevoerd",
-        {
-          namen: (this.processDefinition().details?.orphanedForms ?? [])
-            .map((f) => f.formKey)
-            .join(", "),
-        },
-      );
+      this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+        namen: (this.processDefinition().details?.orphanedForms ?? [])
+          .map((f) => f.formKey)
+          .join(", "),
+      });
       this.bpmnFormListChanged.emit();
     });
   }

@@ -326,7 +326,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "test-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulieren.uploaden.uitgevoerd",
+        "msg.bpmn.task-forms.upload.success",
         { namen: "test-form.json" },
       );
       jest.runAllTimers();
@@ -408,7 +408,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "dropped-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulieren.uploaden.uitgevoerd",
+        "msg.bpmn.task-forms.upload.success",
         { namen: "dropped-form.json" },
       );
       jest.runAllTimers();
@@ -435,7 +435,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.bpmn-formulier.verwijderen.bevestigen",
+        "msg.bpmn.task-forms.delete.confirm",
       );
       expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
     });
@@ -457,7 +457,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteBpmnForm"]("form-uploaded");
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulieren.verwijderen.uitgevoerd",
+        "msg.bpmn.task-forms.deleted",
         { namen: "form-uploaded" },
       );
       expect(emitSpy).toHaveBeenCalled();
@@ -503,7 +503,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteAllOrphanedForms"]();
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulieren.verwijderen.uitgevoerd",
+        "msg.bpmn.task-forms.deleted",
         { namen: "form-orphaned" },
       );
       expect(emitSpy).toHaveBeenCalled();
