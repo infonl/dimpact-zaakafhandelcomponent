@@ -178,15 +178,37 @@ jobs:
           filters: |
             changes-requiring-build:
               - '**'
+              - '!*.sh'
+              - '!.github/CODEOWNERS'
               - '!**/*.md'
               - '!**/*.pdf'
               - '!**/*.png'
               - '!charts/**'
               - '!docs/**'
-              - '!*.sh'
-              - '!.github/CODEOWNERS'
+              - '!scripts/**'
+              - '!src/e2e/**'
+
+  spotless-check:
+    description: Run Spotless check to validate code formatting. This runs when no build is required to ensure that code formatting is always validated.
+    In case a build is required, the Spotless check is executed as part of the Gradle build in the 'build' job.
+    runs-on: ubuntu-24.04
+    needs: [paths-filter]
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
+
+      - name: Spotless
+        run: ./gradlew spotlessCheck
 
   build:
+    description: Build ZAC and cache the resulting ZAC JAR file and other build artefacts.
+    This job is skipped when no changes are detected that require a build, but it always runs for the main branch to ensure that the main branch is always built and tested.
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [paths-filter, validate-input]
@@ -225,14 +247,12 @@ jobs:
         uses: gradle/actions/wrapper-validation@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
-      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
-      # https://github.com/diffplug/spotless/issues/651
       - name: Gradle build
         run: |
           if [ "${{ needs.validate-input.outputs.version-bump }}" != "patch" ]; then
-            ./gradlew clean build -x test --info --no-configuration-cache
+            ./gradlew clean build -x test --info
           else
-            ./gradlew build -x test --info --no-configuration-cache
+            ./gradlew build -x test --info
           fi
 
       - name: Cache Gradle build artefacts
@@ -346,7 +366,7 @@ jobs:
           directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-filter, validate-input, determine-version]
+    needs: [build, paths-filter, determine-version]
     # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
     # but always run for the main branch
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
