@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.inboxdocuments.model
+package nl.info.zac.app.inboxdocument.model
 
 import net.atos.zac.document.model.InboxDocument
 import nl.info.zac.util.AllOpen

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.inboxdocuments
+package nl.info.zac.app.inboxdocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -19,8 +19,8 @@ import net.atos.zac.document.model.InboxDocumentListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.inboxdocuments.converter.RestInboxDocumentListParametersConverter
-import nl.info.zac.app.inboxdocuments.model.RestInboxDocumentListParameters
+import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
+import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
