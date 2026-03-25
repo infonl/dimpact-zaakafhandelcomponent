@@ -248,12 +248,14 @@ jobs:
         uses: gradle/actions/wrapper-validation@39e147cb9de83bb9910b8ef8bd7fff0ee20fcd6f # v6.0.1
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
+      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
+      # https://github.com/diffplug/spotless/issues/651
       - name: Gradle build
         run: |
           if [ "${{ needs.validate-input.outputs.version-bump }}" != "patch" ]; then
-            ./gradlew clean build -x test --info
+            ./gradlew clean build -x test --info --no-configuration-cache
           else
-            ./gradlew build -x test --info
+            ./gradlew build -x test --info --no-configuration-cache
           fi
 
       - name: Cache Gradle build artefacts
