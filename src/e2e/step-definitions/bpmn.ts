@@ -6,6 +6,11 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { z } from "zod";
+import {
+  FORTY_SECONDS_IN_MS,
+  TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
+} from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 
@@ -13,9 +18,6 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 const UUID_V4_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
 
-const TWO_MINUTES_IN_MS = 120_000;
-const FORTY_SECOND_IN_MS = 40_000;
-const TWO_SECONDS_IN_MS = 2_000;
 const PAGE_RELOAD_RETRIES = 5;
 
 const beheerdersGroupId = "beheerders_elk_domein";
@@ -68,7 +70,7 @@ Given(
     // BPMN form: create a document
     await this.page
       .getByLabel("Template")
-      .selectOption("Data Test", { timeout: FORTY_SECOND_IN_MS });
+      .selectOption("Data Test", { timeout: FORTY_SECONDS_IN_MS });
     await this.page.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
@@ -127,7 +129,7 @@ Then(
 
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
-    ).toContainText(documentName, { timeout: FORTY_SECOND_IN_MS });
+    ).toContainText(documentName, { timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
@@ -137,12 +139,12 @@ Then(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(this.page.getByLabel("Group")).toContainText(
       beheerdersGroupName,
-      { timeout: FORTY_SECOND_IN_MS },
+      { timeout: FORTY_SECONDS_IN_MS },
     );
     await this.page.getByLabel("Communication channel").press("ArrowDown");
     await expect(this.page.getByLabel("Communication channel")).toContainText(
       "E-mail",
-      { timeout: FORTY_SECOND_IN_MS },
+      { timeout: FORTY_SECONDS_IN_MS },
     );
   },
 );
@@ -205,7 +207,7 @@ Then(
     userName: string,
   ) {
     await expect(this.page.getByRole("cell", { name: "Summary" })).toBeVisible({
-      timeout: FORTY_SECOND_IN_MS,
+      timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
@@ -232,7 +234,7 @@ Then(
     await expect(
       this.page.getByRole("option", { name: UUID_V4_REGEX }),
     ).toBeVisible({
-      timeout: FORTY_SECOND_IN_MS,
+      timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(
       this.page.getByRole("textbox", { name: "Reference table value" }),
