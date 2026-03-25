@@ -49,10 +49,7 @@ concurrency:
 
 jobs:
   validate-input:
-    description: |
-        Validate the version bump input and set the version bump type for the 'determine-version' job.
-        The version bump input is only allowed on the main branch, on other branches it will be ignored and a patch version bump will be used as default.
-        For hotfix branches, the version must be explicitly provided to ensure that the correct version is used and that a valid semantic version is provided.
+    name: Validate the version bump input and set the version bump type for the subsequent jobs
     runs-on: ubuntu-24.04
     outputs:
       version-bump: ${{ github.event.inputs.confirm || 'patch' }}
@@ -69,11 +66,7 @@ jobs:
           exit 1
 
   determine-version:
-    description: |
-        Determine the next version number based on the branch and the version bump input.
-        For hotfix branches, the version is determined based on the hotfix_version input.
-        For the main branch, the version is determined by calculating the next version based on the latest tag and the version bump input.
-        For other branches, a dry run of the next version calculation is performed to determine the next version without actually creating a new tag.
+    name: Determine the next version number based on the branch and the version bump input
     runs-on: ubuntu-24.04
     needs: [validate-input]
     outputs:
@@ -170,9 +163,7 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.version }}"
 
   paths-filter:
-    description: |
-        Check which files have been changed to determine whether a build is required.
-        This job runs on all branches and pull requests, but the result is only used to skip certain jobs in the workflow.
+    name: Check which files have been changed to determine whether a build is required
     runs-on: ubuntu-24.04
     needs: validate-input
     outputs:
@@ -201,9 +192,7 @@ jobs:
               - '!src/e2e/**'
 
   spotless-check:
-    description: |
-        Run Spotless check to validate code formatting. This runs when no build is required to ensure that code formatting is always validated.
-        In case a build is required, the Spotless check is executed as part of the Gradle build in the 'build' job.
+    name: Run Spotless check to validate code formatting for changes that do not require a full build
     runs-on: ubuntu-24.04
     needs: [paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
@@ -220,9 +209,7 @@ jobs:
         run: ./gradlew spotlessCheck
 
   build:
-    description: |
-        Build ZAC and cache the resulting ZAC JAR file and other build artefacts.
-        This job is skipped when no changes are detected that require a build, but it always runs for the main branch to ensure that the main branch is always built and tested.
+    name: Build ZAC
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [paths-filter, validate-input]
@@ -299,9 +286,7 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    description: |
-        Run unit tests and publish results.
-        This job is skipped when no changes are detected that require a build, but it always runs for the main branch to ensure that the main branch is always built and tested.
+    name: Run unit tests and publish the results
     needs: [build, paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
@@ -383,9 +368,7 @@ jobs:
           directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
-    description: |
-        Build the ZAC Docker image and run integration tests.
-        This job is skipped when no changes are detected that require a build, but it always runs for the main branch to ensure that the main branch is always built and tested.
+    name: Build the ZAC Docker image and run integration tests
     needs: [build, paths-filter, determine-version]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
@@ -523,9 +506,7 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    description: |
-        Push the built Docker image to the container registry.
-        This job only runs for main and hotfix branches to ensure that only images from these branches are pushed to the container registry.
+    name: Push the built Docker image to the container registry
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -569,9 +550,7 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    description: |
-        Create or update a GitHub release for the ZAC new version.
-        This job only runs for main and hotfix branches to ensure that releases are only created from these branches.
+    name: Create or update a GitHub release for the ZAC new version
     needs: [push-docker-image, determine-version]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
     runs-on: ubuntu-24.04
@@ -608,9 +587,7 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    description: |
-        Trigger the ZAC provisioning workflow in the dimpact-provisioning repository to automatically provision a new environment for the new ZAC version.
-        This job only runs for main branches to ensure that only stable versions are automatically provisioned.
+    name: Trigger the ZAC provisioning workflow in the dimpact-provisioning repository to automatically provision the new ZAC version
     needs: [determine-version, push-docker-image, create-release]
     env:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
