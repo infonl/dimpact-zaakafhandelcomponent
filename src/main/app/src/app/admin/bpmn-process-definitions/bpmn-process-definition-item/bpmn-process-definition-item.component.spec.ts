@@ -150,7 +150,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     it("should not show inUse message when inUse is false", async () => {
       const inUseSpans = await loader.getAllHarnesses(
         MatIconHarness.with({
-          selector: "span.icon-align mat-icon[color=primary]",
+          selector: "div.explanation mat-icon[color=primary]",
         }),
       );
       expect(inUseSpans.length).toBe(0);
@@ -198,7 +198,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       const warnIconsInHeader = await loader.getAllHarnesses(
         MatIconHarness.with({
-          selector: '.icon-align mat-icon[color="warn"]',
+          selector: '.explanation mat-icon[color="warn"]',
         }),
       );
       expect(warnIconsInHeader.length).toBe(0);
@@ -328,7 +328,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "test-form.json" },
+        { namen: "test-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -410,7 +410,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "dropped-form.json" },
+        { namen: "dropped-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -474,6 +474,43 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     });
   });
 
+  describe("deleteAllOrphanedForms", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput(
+        "processDefinition",
+        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+          ...baseProcessDefinition,
+          details: {
+            ...baseProcessDefinition.details,
+            orphanedForms: [orphanedForm],
+          },
+        }),
+      );
+      fixture.detectChanges();
+    });
+
+    it("should call deleteProcessDefinitionForm for each orphaned form", () => {
+      component["deleteAllOrphanedForms"]();
+
+      expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
+        "test-key",
+        "form-orphaned",
+      );
+    });
+
+    it("should show snackbar and emit bpmnFormListChanged after all deletions", () => {
+      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
+
+      component["deleteAllOrphanedForms"]();
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.bpmn-formulier.verwijderen.uitgevoerd",
+        { namen: "form-orphaned" },
+      );
+      expect(emitSpy).toHaveBeenCalled();
+    });
+  });
+
   describe("orphaned forms section", () => {
     it("should not render the orphaned forms section when the list is empty", () => {
       const chipSet = fixture.nativeElement.querySelector("mat-chip-set");
@@ -496,6 +533,5 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       expect(fixture.nativeElement.textContent).toContain("form-orphaned");
     });
-
   });
 });

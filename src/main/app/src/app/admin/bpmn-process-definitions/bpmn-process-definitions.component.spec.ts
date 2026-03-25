@@ -257,10 +257,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "process.bpmn",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "process.bpmn", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should reset input value after file selection so re-uploading the same file works", () => {
@@ -312,10 +312,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "dropped.bpmn",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "dropped.bpmn", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should do nothing when FileList is empty", () => {
@@ -351,10 +351,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       component["bpmnProcessDefinitionFileDropped"](fileList);
       await flushPromises();
 
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "process.BPMN",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "process.BPMN", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should call foutAfhandelingService when readFileContent rejects", async () => {

@@ -116,12 +116,12 @@ export class BpmnProcessDefinitionItemComponent {
             ),
           ),
         ).subscribe(() => {
-          files.forEach((file) => {
-            this.utilService.openSnackbar(
-              "msg.bpmn-formulier.uploaden.uitgevoerd",
-              { naam: file.name },
-            );
-          });
+          this.utilService.openSnackbar(
+            "msg.bpmn-formulier.uploaden.uitgevoerd",
+            {
+              namen: files.map((f) => f.name).join(", "),
+            },
+          );
           if (files.length >= this.missingForms().length) {
             this.forceHideWarning.set(true);
             setTimeout(() => this.bpmnFormListChanged.emit(), 450);
@@ -173,7 +173,9 @@ export class BpmnProcessDefinitionItemComponent {
       this.utilService.openSnackbar(
         "msg.bpmn-formulier.verwijderen.uitgevoerd",
         {
-          naam: `${(this.processDefinition().details?.orphanedForms ?? []).length} ${this.translateService.instant("algemeen.formulieren")}`,
+          namen: (this.processDefinition().details?.orphanedForms ?? [])
+            .map((f) => f.formKey)
+            .join(", "),
         },
       );
       this.bpmnFormListChanged.emit();

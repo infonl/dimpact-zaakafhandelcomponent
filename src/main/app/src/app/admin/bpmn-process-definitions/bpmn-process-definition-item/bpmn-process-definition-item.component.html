@@ -54,7 +54,7 @@
   <mat-card>
     <mat-card-content DropZone (fileDropped)="bpmnFormFilesDropped($event)">
       <div class="flex-row items-center">
-        <div class="icon-align flex-1">
+        <div class="flex-1">
           <h3>
             {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
           </h3>
@@ -174,13 +174,13 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
       <div class="flex-row items-center space-between explanation">
-        <div class="icon-align">
-          <mat-icon outlined color="primary">info</mat-icon>
+        <mat-icon outlined color="primary">info</mat-icon>
+        <span class="flex-1">
           {{
             "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip"
               | translate
           }}
-        </div>
+        </span>
         <button
           mat-stroked-button
           color="primary"

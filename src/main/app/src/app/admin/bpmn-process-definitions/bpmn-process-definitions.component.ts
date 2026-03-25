@@ -126,7 +126,16 @@ export class BpmnProcessDefinitionsComponent
   private uploadBpmnFile(file: File) {
     readFileContent(file)
       .then((content) => {
-        this.uploadMutation.mutate({ content, filename: file.name });
+        this.uploadMutation.mutate(
+          { content, filename: file.name },
+          {
+            onSuccess: () =>
+              this.utilService.openSnackbar(
+                "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
+                { naam: file.name },
+              ),
+          },
+        );
       })
       .catch((error) => {
         this.foutAfhandelingService.foutAfhandelen(error);
