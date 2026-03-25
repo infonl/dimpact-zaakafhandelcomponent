@@ -188,7 +188,6 @@ jobs:
               - '!**/*.png'
               - '!charts/**'
               - '!docs/**'
-              - '!scripts/**'
               - '!src/e2e/**'
 
   spotless-check:
