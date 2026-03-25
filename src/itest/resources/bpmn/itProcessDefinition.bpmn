@@ -15,7 +15,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <serviceTask id="ServiceTask_353" name="Change status" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegateXXX">
+    <serviceTask id="ServiceTask_353" name="Change status" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
       <extensionElements>
         <flowable:field name="statustypeOmschrijving">
           <flowable:expression><![CDATA[${ZK_Status}]]></flowable:expression>
