@@ -15,6 +15,8 @@ import {
   viewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { TranslateService } from "@ngx-translate/core";
 import { forkJoin } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -33,7 +35,7 @@ import { readFileContent } from "../file.helper";
   selector: "zac-bpmn-process-definition-item",
   templateUrl: "./bpmn-process-definition-item.component.html",
   styleUrls: ["./bpmn-process-definition-item.component.less"],
-  imports: [SharedModule, FileDragAndDropDirective],
+  imports: [SharedModule, FileDragAndDropDirective, MatExpansionModule],
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [
@@ -75,6 +77,7 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
+  private readonly translateService = inject(TranslateService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   protected uploadBpmnForm() {
@@ -168,5 +171,24 @@ export class BpmnProcessDefinitionItemComponent {
         );
         this.bpmnFormListChanged.emit();
       });
+  }
+
+  protected deleteAllOrphanedForms() {
+    forkJoin(
+      (this.processDefinition().details?.orphanedForms ?? []).map((form) =>
+        this.bpmnService.deleteProcessDefinitionForm(
+          this.processDefinition().key,
+          form.formKey,
+        ),
+      ),
+    ).subscribe(() => {
+      this.utilService.openSnackbar(
+        "msg.bpmn-formulier.verwijderen.uitgevoerd",
+        {
+          naam: `${(this.processDefinition().details?.orphanedForms ?? []).length} ${this.translateService.instant("algemeen.formulieren")}`,
+        },
+      );
+      this.bpmnFormListChanged.emit();
+    });
   }
 }

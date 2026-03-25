@@ -1087,10 +1087,8 @@
   "verplicht": "Required",
   "meerkeuzeOpties": "Multiple choice options",
   "volgorde": "Order",
-  "bpmn-procesdefinitie.button.upload.definitie": "Add BPMN process definition",
-  "bpmn-procesdefinitie.button.upload.formulier": "Add form",
   "bpmn-procesdefinitie.sleutel": "Key",
-  "bpmn-procesdefinitie.chip.onvolledig": "This BPMN process definition is not yet complete. Upload the required forms to complete this process definition. ",
+  "bpmn-procesdefinitie.chip.onvolledig": "This BPMN process definition is not complete.",
   "bpmn-procesdefinitie.uploaded-datum": "Upload date",
   "bpmn-procesdefinitie.gewijzigd-datum": "Modified date",
   "bpmn-procesdefinitie.documentatie": "Documentation",
@@ -1099,7 +1097,9 @@
   "bpmn-procesdefinitie.card.formulieren.title": "Forms (required by the process definition)",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.uploaded": "Form uploaded",
   "bpmn-procesdefinitie.card.formulieren.table.tooltip.missing": "Form not yet uploaded",
-  "bpmn-procesdefinitie.card.formulieren.title.tooltip": "One or more forms have not yet been uploaded.",
+  "bpmn-procesdefinitie.card.formulieren.title.tooltip": "One or more forms have not yet been uploaded. Upload the required forms to complete this process definition.",
   "bpmn-procesdefinitie.card.ongebruikte-formulieren.title": "Unused forms",
-  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms."
+  "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms.",
+  "bpmn-procesdefinitie.button.upload.definitie": "Add BPMN process definition",
+  "bpmn-procesdefinitie.button.upload.formulier": "Add form"
 }
