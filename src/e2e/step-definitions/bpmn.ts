@@ -6,9 +6,13 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { z } from "zod";
+import {
+  FORTY_SECONDS_IN_MS,
+  TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
+} from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
-import { TWO_MINUTES_IN_MS, FORTY_SECONDS_IN_MS, TWO_SECONDS_IN_MS } from "../support/time-constants";
 
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
 const UUID_V4_REGEX =

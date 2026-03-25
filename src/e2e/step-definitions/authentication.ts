@@ -4,10 +4,10 @@
  */
 
 import { Given, When } from "@cucumber/cucumber";
+import { ONE_MINUTE_IN_MS } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
-import { ONE_MINUTE_IN_MS } from "../support/time-constants"
 
 export async function login(
   world: CustomWorld,

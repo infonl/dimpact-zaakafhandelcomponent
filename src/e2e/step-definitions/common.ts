@@ -3,9 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 import { Given, Then, When } from "@cucumber/cucumber";
+import {
+  FIVE_MINUTES_IN_MS,
+  ONE_MINUTE_IN_MS,
+  ONE_SECOND_IN_MS,
+  TEN_SECONDS_IN_MS,
+} from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls } from "../utils/schemes";
-import {FIVE_MINUTES_IN_MS, ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS, TEN_SECONDS_IN_MS} from "../support/time-constants";
 
 When(
   "Employee {string} opens zac",
