@@ -19,6 +19,8 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 | **Bracket notation in specs** | Access protected members via `component["member"]()` — never promote to `public` for a spec. |
 | **`@Input()` with `!`** | Must use `@Input({ required: true }) field!: Type`. Optional inputs use `?`. |
 | **SPDX header** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. |
+| **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
+| **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
 
 ---
 
@@ -73,7 +75,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
-- **Harnesses over raw DOM** — always use `MatButtonHarness`, `MatSelectHarness`, etc. instead of `querySelectorAll`. Exception: `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
+- **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
 
 ### PR body template
 ```
@@ -207,13 +209,13 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-Dissolve `admin.module.ts` → `admin.routes.ts` and wire `loadChildren` for lazy-loading `/admin`. All required components now standalone.
+TBD — `/admin` lazy-loading complete. Pick next module.
 
 ---
 
-## Intermediate Goal: Lazy-load `/admin`
+## Intermediate Goal: Lazy-load `/admin` ✅ DONE (2026-03-24)
 
-**Progress: 17/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 18/18**
 
 | Component | Status |
 |---|---|
@@ -225,12 +227,19 @@ Dissolve `admin.module.ts` → `admin.routes.ts` and wire `loadChildren` for laz
 | `admin/groep-signaleringen/groep-signaleringen.component` | ✅ |
 | `admin/mailtemplates/mailtemplates.component` | ✅ |
 | `admin/mailtemplate/mailtemplate.component` | ✅ |
-| `admin/process-definitions/process-definitions.component` | ✅ (open PR) |
+| `admin/process-definitions/process-definitions.component` | ✅ |
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ✅ (open PR #5565) |
-| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ (open PR) |
-| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ (open PR) |
-| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ (open PR) |
-| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ⬜ |
+| `admin/parameters/parameters.component` | ✅ |
+| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ |
+| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ |
+| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ |
+| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ✅ |
+
+### ✅ Lazy-load `/admin` (2026-03-24)
+- Created `admin/admin.routes.ts` with `ADMIN_ROUTES: Routes` (children only, no `"admin"` wrapper)
+- Added `{ path: "admin", loadChildren: () => import("./admin/admin.routes").then(m => m.ADMIN_ROUTES) }` to `app-routing.module.ts`
+- Removed `AdminModule` from `AppModule.imports`
+- Deleted `admin.module.ts` and `admin-routing.module.ts`
+- Build clean; lint 0 errors
