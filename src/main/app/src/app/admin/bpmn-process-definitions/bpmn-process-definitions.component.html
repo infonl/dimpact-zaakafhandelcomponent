@@ -46,7 +46,7 @@
               color="primary"
               (click)="selectBpmnProcessDefinitionFile()"
             >
-              {{ "bpmn-procesdefinitie.button.proces-definitie" | translate }}
+              {{ "bpmn-procesdefinitie.button.upload.definitie" | translate }}
             </button>
           </div>
         </div>
@@ -82,6 +82,8 @@
                     }}"
                     >error</mat-icon
                   >
+                } @else {
+                  <mat-icon outlined color="primary">check_circle</mat-icon>
                 }
 
                 <button
