@@ -14,8 +14,8 @@ import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.model.InboxDocumentListParameters
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.model.InboxDocumentListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -30,15 +30,15 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
-class InboxDocumentenRestServiceTest : BehaviorSpec({
-    val inboxDocumentenService = mockk<InboxDocumentenService>()
+class InboxDocumentRestServiceTest : BehaviorSpec({
+    val inboxDocumentService = mockk<InboxDocumentService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val listParametersConverter = mockk<RestInboxDocumentListParametersConverter>()
     val policyService = mockk<PolicyService>()
 
-    val inboxDocumentenRESTService = InboxDocumentenRestService(
-        inboxDocumentenService,
+    val inboxDocumentRESTService = InboxDocumentRestService(
+        inboxDocumentService,
         drcClientService,
         zrcClientService,
         listParametersConverter,
@@ -47,7 +47,7 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
 
     afterEach {
         clearMocks(
-            inboxDocumentenService,
+            inboxDocumentService,
             drcClientService,
             zrcClientService,
             listParametersConverter,
@@ -70,18 +70,18 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { listParametersConverter.convert(restListParameters) } returns listParameters
-                every { inboxDocumentenService.list(listParameters) } returns listOf(inboxDocument)
-                every { inboxDocumentenService.count(listParameters) } returns 1
+                every { inboxDocumentService.list(listParameters) } returns listOf(inboxDocument)
+                every { inboxDocumentService.count(listParameters) } returns 1
                 every { drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID) } returns enkelvoudigInformatieObject
 
                 Then("it should return the list of inbox documents with the correct informatieobject type UUID") {
-                    val result = inboxDocumentenRESTService.listInboxDocuments(restListParameters)
+                    val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
                         listParametersConverter.convert(restListParameters)
-                        inboxDocumentenService.list(listParameters)
-                        inboxDocumentenService.count(listParameters)
+                        inboxDocumentService.list(listParameters)
+                        inboxDocumentService.count(listParameters)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                     }
 
@@ -98,14 +98,14 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { listParametersConverter.convert(restListParameters) } returns listParameters
-                every { inboxDocumentenService.list(listParameters) } returns listOf(inboxDocument)
-                every { inboxDocumentenService.count(listParameters) } returns 1
+                every { inboxDocumentService.list(listParameters) } returns listOf(inboxDocument)
+                every { inboxDocumentService.count(listParameters) } returns 1
                 every {
                     drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                 } throws NotFoundException("Informatieobject not found")
 
                 Then("it should handle the error gracefully and continue processing") {
-                    val result = inboxDocumentenRESTService.listInboxDocuments(restListParameters)
+                    val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
@@ -144,9 +144,9 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { listParametersConverter.convert(restListParameters) } returns listParameters
                 every {
-                    inboxDocumentenService.list(listParameters)
+                    inboxDocumentService.list(listParameters)
                 } returns listOf(inboxDocument1, inboxDocument2, inboxDocument3)
-                every { inboxDocumentenService.count(listParameters) } returns 3
+                every { inboxDocumentService.count(listParameters) } returns 3
 
                 // First document returns successfully
                 every {
@@ -164,13 +164,13 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
                 } returns enkelvoudigInformatieObject3
 
                 Then("it should remove the missing document from the list and return the others") {
-                    val result = inboxDocumentenRESTService.listInboxDocuments(restListParameters)
+                    val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
                         listParametersConverter.convert(restListParameters)
-                        inboxDocumentenService.list(listParameters)
-                        inboxDocumentenService.count(listParameters)
+                        inboxDocumentService.list(listParameters)
+                        inboxDocumentService.count(listParameters)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID1)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID2)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID3)
@@ -193,7 +193,7 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
 
                 Then("it should throw a PolicyException") {
                     shouldThrow<PolicyException> {
-                        inboxDocumentenRESTService.listInboxDocuments(restListParameters)
+                        inboxDocumentRESTService.listInboxDocuments(restListParameters)
                     }
                 }
             }
@@ -214,22 +214,22 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
                 }
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentenService.find(documentId) } returns Optional.of(inboxDocument)
+                every { inboxDocumentService.find(documentId) } returns Optional.of(inboxDocument)
                 every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
                 every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
                 every { drcClientService.deleteEnkelvoudigInformatieobject(documentUUID) } returns Unit
-                every { inboxDocumentenService.delete(documentId) } returns Unit
+                every { inboxDocumentService.delete(documentId) } returns Unit
 
                 Then("it should delete both the inbox document and the informatieobject") {
-                    inboxDocumentenRESTService.deleteInboxDocument(documentId)
+                    inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
-                        inboxDocumentenService.find(documentId)
+                        inboxDocumentService.find(documentId)
                         drcClientService.readEnkelvoudigInformatieobject(documentUUID)
                         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
                         drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
-                        inboxDocumentenService.delete(documentId)
+                        inboxDocumentService.delete(documentId)
                     }
                 }
             }
@@ -251,22 +251,22 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
                 )
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentenService.find(documentId) } returns Optional.of(inboxDocument)
+                every { inboxDocumentService.find(documentId) } returns Optional.of(inboxDocument)
                 every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
                 every {
                     zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
                 } returns listOf(zaakInformatieobject)
-                every { inboxDocumentenService.delete(documentId) } returns Unit
+                every { inboxDocumentService.delete(documentId) } returns Unit
 
                 Then("it should delete the inbox document but not the informatieobject") {
-                    inboxDocumentenRESTService.deleteInboxDocument(documentId)
+                    inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
-                        inboxDocumentenService.find(documentId)
+                        inboxDocumentService.find(documentId)
                         drcClientService.readEnkelvoudigInformatieobject(documentUUID)
                         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
-                        inboxDocumentenService.delete(documentId)
+                        inboxDocumentService.delete(documentId)
                     }
 
                     verify(exactly = 0) {
@@ -280,21 +280,21 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
                 val documentId = 999L
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentenService.find(documentId) } returns Optional.empty()
+                every { inboxDocumentService.find(documentId) } returns Optional.empty()
 
                 Then("it should return without throwing an exception") {
-                    inboxDocumentenRESTService.deleteInboxDocument(documentId)
+                    inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
-                        inboxDocumentenService.find(documentId)
+                        inboxDocumentService.find(documentId)
                     }
 
                     verify(exactly = 0) {
                         drcClientService.readEnkelvoudigInformatieobject(any<UUID>())
                         zrcClientService.listZaakinformatieobjecten(any<EnkelvoudigInformatieObject>())
                         drcClientService.deleteEnkelvoudigInformatieobject(any<UUID>())
-                        inboxDocumentenService.delete(any<Long>())
+                        inboxDocumentService.delete(any<Long>())
                     }
                 }
             }
@@ -309,7 +309,7 @@ class InboxDocumentenRestServiceTest : BehaviorSpec({
 
                 Then("it should throw a PolicyException") {
                     shouldThrow<PolicyException> {
-                        inboxDocumentenRESTService.deleteInboxDocument(documentId)
+                        inboxDocumentRESTService.deleteInboxDocument(documentId)
                     }
                 }
             }

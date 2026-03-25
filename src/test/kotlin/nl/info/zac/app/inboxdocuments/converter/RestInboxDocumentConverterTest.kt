@@ -11,7 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.model.InboxDocument
 import nl.info.zac.app.inboxdocuments.model.toRestInboxDocument
 import nl.info.zac.app.inboxdocuments.model.toRestInboxDocuments
 import nl.info.zac.model.createInboxDocument

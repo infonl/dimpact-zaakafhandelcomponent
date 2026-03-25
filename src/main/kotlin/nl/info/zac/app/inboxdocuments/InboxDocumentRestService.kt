@@ -16,8 +16,8 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.model.InboxDocument
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocuments.converter.RestInboxDocumentListParametersConverter
@@ -38,15 +38,15 @@ import java.util.logging.Logger
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
-class InboxDocumentenRestService @Inject constructor(
-    private var inboxDocumentenService: InboxDocumentenService,
+class InboxDocumentRestService @Inject constructor(
+    private var inboxDocumentService: InboxDocumentService,
     private var drcClientService: DrcClientService,
     private var zrcClientService: ZrcClientService,
     private var listParametersConverter: RestInboxDocumentListParametersConverter,
     private var policyService: PolicyService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(InboxDocumentenRestService::class.java.name)
+        private val LOG = Logger.getLogger(InboxDocumentRestService::class.java.name)
     }
 
     @PUT
@@ -54,11 +54,11 @@ class InboxDocumentenRestService @Inject constructor(
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters?): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
-        val inboxDocuments = inboxDocumentenService.list(listParameters)
+        val inboxDocuments = inboxDocumentService.list(listParameters)
         val informationObjectTypeUUIDs = inboxDocuments.stream().map(::getInformatieobjectTypeUUID).toList()
         return RESTResultaat<RestInboxDocument>(
             inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
-            inboxDocumentenService.count(listParameters).toLong()
+            inboxDocumentService.count(listParameters).toLong()
         )
     }
 
@@ -82,7 +82,7 @@ class InboxDocumentenRestService @Inject constructor(
     @Path("{id}")
     fun deleteInboxDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().inbox)
-        val inboxDocument = inboxDocumentenService.find(id)
+        val inboxDocument = inboxDocumentService.find(id)
         if (inboxDocument.isEmpty()) {
             return // reeds verwijderd
         }
@@ -104,6 +104,6 @@ class InboxDocumentenRestService @Inject constructor(
                 inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
             )
         }
-        inboxDocumentenService.delete(id)
+        inboxDocumentService.delete(id)
     }
 }

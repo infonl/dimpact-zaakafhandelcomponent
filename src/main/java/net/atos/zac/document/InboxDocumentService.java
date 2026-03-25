@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documenten;
+package net.atos.zac.document;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
@@ -27,8 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.documenten.model.InboxDocument;
-import net.atos.zac.documenten.model.InboxDocumentListParameters;
+import net.atos.zac.document.model.InboxDocument;
+import net.atos.zac.document.model.InboxDocumentListParameters;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.search.model.DatumRange;
@@ -36,16 +36,16 @@ import nl.info.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional
-public class InboxDocumentenService {
+public class InboxDocumentService {
 
     private static final String LIKE = "%%%s%%";
 
     // Default constructor for CDI
-    public InboxDocumentenService() {
+    public InboxDocumentService() {
     }
 
     @Inject
-    public InboxDocumentenService(
+    public InboxDocumentService(
             final EntityManager entityManager,
             final ZrcClientService zrcClientService,
             final DrcClientService drcClientService

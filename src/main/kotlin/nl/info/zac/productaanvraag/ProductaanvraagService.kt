@@ -16,7 +16,7 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
@@ -78,7 +78,7 @@ class ProductaanvraagService @Inject constructor(
     private val identityService: IdentityService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
-    private val inboxDocumentenService: InboxDocumentenService,
+    private val inboxDocumentService: InboxDocumentService,
     private val inboxProductaanvraagService: InboxProductaanvraagService,
     private val productaanvraagEmailService: ProductaanvraagEmailService,
     private val cmmnService: CMMNService,
@@ -515,7 +515,7 @@ class ProductaanvraagService @Inject constructor(
         }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
-        inboxDocumentenService.find(documentUUID).ifPresent { inboxDocumentenService.delete(it.id) }
+        inboxDocumentService.find(documentUUID).ifPresent { inboxDocumentService.delete(it.id) }
 
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]

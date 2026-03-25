@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.documenten
+package net.atos.zac.document
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -15,19 +15,18 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.EntityManager
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.model.InboxDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import java.time.LocalDate
 import java.util.UUID
 
-class InboxDocumentenServiceTest : BehaviorSpec({
+class InboxDocumentServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val inboxDocumentenService = InboxDocumentenService(entityManager, zrcClientService, drcClientService)
+    val inboxDocumentService = InboxDocumentService(entityManager, zrcClientService, drcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -51,7 +50,7 @@ class InboxDocumentenServiceTest : BehaviorSpec({
         every { entityManager.persist(any<InboxDocument>()) } just Runs
 
         When("the Inbox Document Service retrieves creates a Document from the EnkelvoudigInformatieObject's UUID") {
-            val result = inboxDocumentenService.create(uuid)
+            val result = inboxDocumentService.create(uuid)
 
             Then("the Service should have stored an Inbox Document") {
                 verify { entityManager.persist(result) }
