@@ -131,7 +131,7 @@ export class BpmnProcessDefinitionsComponent
           {
             onSuccess: () => {
               this.utilService.openSnackbar(
-                "msg.bpmn.process-definition.upload.succes",
+                "msg.bpmn.process-definition.upload.success",
                 { naam: file.name },
               );
               // expand the newly uploaded definition by its expected key (filename without .bpmn)

@@ -883,7 +883,7 @@
   "msg.pagina.items": "Items per page",
   "msg.planitem.uitgevoerd.INTAKE_AFRONDEN": "The intake has been finished",
   "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN": "The case has been closed",
-  "msg.bpmn.process-definition.upload.succes": "Process definition '{{naam}}' has been uploaded",
+  "msg.bpmn.process-definition.upload.success": "Process definition '{{naam}}' has been uploaded",
   "msg.bpmn.process-definition.deleted": "Process definition '{{naam}}' has been deleted",
   "msg.bpmn.process-definition.delete.confirm": "Delete process definition '{{naam}}'?",
   "msg.bpmn.task-forms.upload.success": "Files uploaded: {{namen}}",

@@ -883,7 +883,7 @@
   "msg.pagina.items": "Items per pagina",
   "msg.planitem.uitgevoerd.INTAKE_AFRONDEN": "De intake is afgerond",
   "msg.planitem.uitgevoerd.ZAAK_AFHANDELEN": "De zaak is gesloten",
-  "msg.bpmn.process-definition.upload.succes": "Procesdefinitie '{{naam}}' is geüpload",
+  "msg.bpmn.process-definition.upload.success": "Procesdefinitie '{{naam}}' is geüpload",
   "msg.bpmn.process-definition.delete.confirm": "Procesdefinitie '{{naam}}' verwijderen?",
   "msg.bpmn.process-definition.deleted": "Procesdefinitie '{{naam}}' is verwijderd",
   "msg.bpmn.task-forms.upload.success": "Formulieren geüpload: {{namen}}",
@@ -1101,7 +1101,7 @@
   "bpmn.process-definition.card.task-forms.table.tooltip.missing": "Formulier nog niet geüpload",
   "bpmn.process-definition.card.task-forms.orphaned.title": "Formulieren (niet gekoppeld aan procesdefinitie)",
   "bpmn.process-definition.card.task-forms.orphaned.title.tooltip": "Er zijn één of meerdere formulieren geüpload die niet gebruikt worden in deze procesdefinitie. Verwijder deze ongebruikte formulieren.",
-  "bpmn.process-definition.button.upload.definition": "BPMN-processdefinitie toevoegen",
+  "bpmn.process-definition.button.upload.definition": "BPMN-procesdefinitie toevoegen",
   "bpmn.process-definition.button.upload.task-forms": "Formulieren toevoegen",
   "bpmn.process-definition.button.delete.task-forms.orphaned": "Formulieren verwijderen"
 }

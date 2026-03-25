@@ -439,7 +439,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     it("should show a snackbar with the filename after successful upload", async () => {
       await triggerOnSuccess("key-a.bpmn");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.process-definition.upload.succes",
+        "msg.bpmn.process-definition.upload.success",
         { naam: "key-a.bpmn" },
       );
     });
