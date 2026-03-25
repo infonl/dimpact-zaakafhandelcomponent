@@ -14,7 +14,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
@@ -133,7 +133,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         val lock = stripes.get(taskId).also { it.lock() }
         try {
             val task = flowableTaskService.findOpenTask(taskId)
-                ?: throw TaskNotFoundException("No open task found with task id: '$taskId'")
+                ?: throw ProcessTaskNotFoundException("No open task found with task id: '$taskId'")
             assertPolicy(skipPolicyCheck || policyService.readTaakRechten(task).toevoegenDocument)
 
             mutableListOf<UUID>().apply {

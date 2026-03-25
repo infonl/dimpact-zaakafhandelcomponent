@@ -19,7 +19,7 @@ import io.mockk.verify
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -379,7 +379,7 @@ class TaskServiceTest : BehaviorSpec({
         every { task2.assignee } returns null
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
-        } throws TaskNotFoundException("task not found!")
+        } throws ProcessTaskNotFoundException("task not found!")
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
             flowableTaskService.assignTaskToGroup(any(), any(), any())
@@ -570,7 +570,7 @@ class TaskServiceTest : BehaviorSpec({
         every { task2.id } returns taskId2
         every {
             flowableTaskService.readOpenTask(restTaakVerdelenTaken[0].taakId)
-        } throws TaskNotFoundException("task not found!")
+        } throws ProcessTaskNotFoundException("task not found!")
         every { flowableTaskService.readOpenTask(restTaakVerdelenTaken[1].taakId) } returns task2
         every {
             flowableTaskService.releaseTask(any(), any())

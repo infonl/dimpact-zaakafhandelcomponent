@@ -9,7 +9,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEventUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEventType
@@ -168,12 +168,12 @@ class TaskService @Inject constructor(
                 }
                 indexingService.indexeerDirect(restTask.taakId, ZoekObjectType.TAAK, false)
                 successfullyAssignedTaskIds.add(restTask.taakId)
-            } catch (taskNotFoundException: TaskNotFoundException) {
+            } catch (processTaskNotFoundException: ProcessTaskNotFoundException) {
                 // continue assigning remaining tasks if a particular open task could not be found
                 LOG.log(
                     Level.SEVERE,
                     "No open task with ID '${restTask.taakId}' found while assigning tasks. Skipping task.",
-                    taskNotFoundException
+                    processTaskNotFoundException
                 )
             }
         }
@@ -226,11 +226,11 @@ class TaskService @Inject constructor(
                     sendScreenEventsOnTaskChange(updatedTask, it.zaakUuid)
                     taskIds.add(task.id)
                 }
-            } catch (taskNotFoundException: TaskNotFoundException) {
+            } catch (processTaskNotFoundException: ProcessTaskNotFoundException) {
                 LOG.log(
                     Level.SEVERE,
                     "No open task with ID '${it.taakId}' found while releasing tasks. Skipping task.",
-                    taskNotFoundException
+                    processTaskNotFoundException
                 )
             }
         }

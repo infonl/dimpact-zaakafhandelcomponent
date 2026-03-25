@@ -15,7 +15,7 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -139,7 +139,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             )
             every { flowableTaskService.findOpenTask(taskId) } returns null
 
-            val exception = shouldThrow<TaskNotFoundException> {
+            val exception = shouldThrow<ProcessTaskNotFoundException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 

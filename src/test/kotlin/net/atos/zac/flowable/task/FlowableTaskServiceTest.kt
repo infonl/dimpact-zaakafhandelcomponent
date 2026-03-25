@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.HistoryService
 import org.flowable.engine.TaskService
@@ -64,12 +64,12 @@ class FlowableTaskServiceTest : BehaviorSpec({
         } returns null
 
         When("the read open task method is called") {
-            val taskNotFoundException = shouldThrow<TaskNotFoundException> {
+            val processTaskNotFoundException = shouldThrow<ProcessTaskNotFoundException> {
                 flowableTaskService.readOpenTask(taskId)
             }
 
             Then("the open task is returned") {
-                taskNotFoundException.message shouldBe "No open task with id '$taskId' found"
+                processTaskNotFoundException.message shouldBe "No open task with id '$taskId' found"
             }
         }
     }
@@ -109,12 +109,12 @@ class FlowableTaskServiceTest : BehaviorSpec({
         } returns null
 
         When("the read open task method is called") {
-            val taskNotFoundException = shouldThrow<TaskNotFoundException> {
+            val processTaskNotFoundException = shouldThrow<ProcessTaskNotFoundException> {
                 flowableTaskService.readClosedTask(taskId)
             }
 
             Then("the open task is returned") {
-                taskNotFoundException.message shouldBe "No historic task with id '$taskId' found"
+                processTaskNotFoundException.message shouldBe "No historic task with id '$taskId' found"
             }
         }
     }

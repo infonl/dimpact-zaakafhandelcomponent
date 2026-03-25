@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -80,7 +80,7 @@ class DocumentCreationRestService @Inject constructor(
             assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).creerenDocument)
             restDocumentCreationAttendedData.taskId?.let {
                 val task = flowableTaskService.findOpenTask(it)
-                    ?: throw TaskNotFoundException("No open task found with task id: '$it'")
+                    ?: throw ProcessTaskNotFoundException("No open task found with task id: '$it'")
                 assertPolicy(policyService.readTaakRechten(task).creerenDocument)
             }
         }.let { zaak ->

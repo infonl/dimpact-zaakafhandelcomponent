@@ -34,7 +34,7 @@ import org.flowable.task.api.history.HistoricTaskLogEntry;
 
 import net.atos.zac.flowable.task.model.ValueChangeData;
 import nl.info.zac.app.task.model.TaakSortering;
-import nl.info.zac.flowable.task.exception.TaskNotFoundException;
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException;
 import nl.info.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
@@ -166,7 +166,7 @@ public class FlowableTaskService {
     public Task readOpenTask(final String taskId) {
         final Task task = findOpenTask(taskId);
         if (task == null) {
-            throw new TaskNotFoundException(String.format("No open task with id '%s' found", taskId));
+            throw new ProcessTaskNotFoundException(String.format("No open task with id '%s' found", taskId));
         }
         return task;
     }
@@ -174,7 +174,7 @@ public class FlowableTaskService {
     public HistoricTaskInstance readClosedTask(final String taskId) {
         final HistoricTaskInstance historicTaskInstance = findClosedTask(taskId);
         if (historicTaskInstance == null) {
-            throw new TaskNotFoundException(String.format("No historic task with id '%s' found", taskId));
+            throw new ProcessTaskNotFoundException(String.format("No historic task with id '%s' found", taskId));
         }
         return historicTaskInstance;
     }

@@ -17,7 +17,7 @@ import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
@@ -108,7 +108,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { flowableTaskService.findOpenTask(taskId) } returns null
 
             When("creating information object for a non-open task") {
-                val exception = shouldThrow<TaskNotFoundException> {
+                val exception = shouldThrow<ProcessTaskNotFoundException> {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak = zaak,
                         enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,

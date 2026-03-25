@@ -27,7 +27,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
-import nl.info.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
@@ -523,10 +523,10 @@ class TaskRestServiceTest : BehaviorSpec({
 
         Given("An invalid task ID") {
             val taskId = "invalidTaskId"
-            every { flowableTaskService.readTask(taskId) } throws TaskNotFoundException("Task not found")
+            every { flowableTaskService.readTask(taskId) } throws ProcessTaskNotFoundException("Task not found")
 
             When("readTask is called") {
-                val exception = shouldThrow<TaskNotFoundException> {
+                val exception = shouldThrow<ProcessTaskNotFoundException> {
                     taskRestService.readTask(taskId)
                 }
 
