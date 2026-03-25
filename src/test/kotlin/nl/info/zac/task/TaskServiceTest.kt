@@ -19,7 +19,6 @@ import io.mockk.verify
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.task.FlowableTaskService
-import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import net.atos.zac.signalering.event.SignaleringEvent
 import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
@@ -28,6 +27,7 @@ import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.flowable.task.exception.ProcessTaskNotFoundException
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.task.api.Task
