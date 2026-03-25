@@ -3,16 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.flowable.task.exception;
+package nl.info.zac.flowable.task.exception
 
-import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotFoundException
 
-public class TaskNotFoundException extends NotFoundException {
-    public TaskNotFoundException(final String message) {
-        super(message);
-    }
-
-    public TaskNotFoundException(final String message, final Throwable cause) {
-        super(message, cause);
+class TaskNotFoundException(message: String) : NotFoundException(message) {
+    constructor(message: String, cause: Throwable) : this(message) {
+        initCause(cause)
     }
 }

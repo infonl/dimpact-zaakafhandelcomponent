@@ -15,7 +15,7 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService

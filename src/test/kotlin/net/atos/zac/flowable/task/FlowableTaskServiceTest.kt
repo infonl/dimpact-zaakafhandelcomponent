@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.zac.flowable.task.exception.TaskNotFoundException
 import org.flowable.cmmn.api.CmmnTaskService
 import org.flowable.engine.HistoryService
 import org.flowable.engine.TaskService
