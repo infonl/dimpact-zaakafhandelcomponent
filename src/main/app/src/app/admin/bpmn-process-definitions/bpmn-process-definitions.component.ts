@@ -125,21 +125,27 @@ export class BpmnProcessDefinitionsComponent
 
   private uploadBpmnFile(file: File) {
     readFileContent(file)
-      .then((content) => {
+      .then((content) =>
         this.uploadMutation.mutate(
           { content, filename: file.name },
           {
-            onSuccess: () =>
+            onSuccess: async () => {
               this.utilService.openSnackbar(
                 "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
                 { naam: file.name },
-              ),
+              );
+              const { data } = await this.processDefinitionsQuery.refetch();
+
+              // expand the newly uploaded definition, if it exists in the list (it should, but just to be sure)
+              const match = data?.find(
+                (def) => def.key === file.name.replace(/\.bpmn$/i, ""),
+              );
+              if (match) this.expandedKey = match.key;
+            },
           },
-        );
-      })
-      .catch((error) => {
-        this.foutAfhandelingService.foutAfhandelen(error);
-      });
+        ),
+      )
+      .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
   }
 
   protected deleteProcessDefinition(processDefinition: {

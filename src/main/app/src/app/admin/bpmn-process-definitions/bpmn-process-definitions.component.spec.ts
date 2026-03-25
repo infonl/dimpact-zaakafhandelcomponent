@@ -413,4 +413,45 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       expect(result).toBe(baseProcessDefinition);
     });
   });
+
+  describe("uploadBpmnFile onSuccess", () => {
+    async function triggerOnSuccess(filename: string) {
+      const fileContent = "<bpmn/>";
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const mutateMock = jest.fn();
+      Object.defineProperty(component, "uploadMutation", {
+        value: { mutate: mutateMock },
+        writable: true,
+      });
+
+      component["bpmnProcessDefinitionFileDropped"](
+        makeFileList(new File([fileContent], filename)),
+      );
+      await flushPromises();
+
+      const { onSuccess } = mutateMock.mock.calls[0][1] as {
+        onSuccess: () => Promise<void>;
+      };
+      await onSuccess();
+    }
+
+    it("should show a snackbar with the filename after successful upload", async () => {
+      await triggerOnSuccess("key-a.bpmn");
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.bpmn-procesdefinitie.uploaden.uitgevoerd",
+        { naam: "key-a.bpmn" },
+      );
+    });
+
+    it("should expand the uploaded definition after successful upload", async () => {
+      await triggerOnSuccess("key-a.bpmn");
+      expect(component["expandedKey"]).toBe("key-a");
+    });
+
+    it("should not expand when the definition key is not found in the list", async () => {
+      await triggerOnSuccess("unknown-process.bpmn");
+      expect(component["expandedKey"]).toBeNull();
+    });
+  });
 });
