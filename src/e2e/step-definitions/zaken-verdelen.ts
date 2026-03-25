@@ -7,9 +7,7 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "support/worlds/world";
 import { groups } from "../support/worlds/groups";
 import { users } from "../support/worlds/users";
-
-const ONE_MINUTE_IN_MS = 60_000;
-const TEN_SECONDS_IN_MS = 10_000;
+import {ONE_MINUTE_IN_MS, TEN_SECONDS_IN_MS} from "../support/time-constants";
 
 const zaakCheckmarkTitle = "Selecteren";
 let _noOfZaken = 0;

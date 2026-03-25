@@ -7,8 +7,7 @@ import { Given, When } from "@cucumber/cucumber";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
-
-const ONE_MINUTE_IN_MS = 60_000;
+import { ONE_MINUTE_IN_MS } from "../support/time-constants"
 
 export async function login(
   world: CustomWorld,

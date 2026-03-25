@@ -7,8 +7,7 @@ import { After, AfterAll, AfterStep, Before, Status } from "@cucumber/cucumber";
 import fs from "fs";
 import { CustomWorld, authFile } from "../support/worlds/world";
 import { testStorageFile } from "../utils/TestStorage.service";
-
-const ONE_MINUTE_IN_MS = 60_000;
+import {ONE_MINUTE_IN_MS} from "../support/time-constants";
 
 Before(async function (this: CustomWorld, { gherkinDocument, pickle }) {
   const escape = (s?: string) => s && encodeURIComponent(s);

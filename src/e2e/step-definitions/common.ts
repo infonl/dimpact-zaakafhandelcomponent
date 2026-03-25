@@ -5,11 +5,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/worlds/world";
 import { worldPossibleZacUrls } from "../utils/schemes";
-
-const ONE_MINUTE_IN_MS = 60_000;
-const ONE_SECOND_IN_MS = 1_000;
-const TEN_SECONDS_IN_MS = ONE_SECOND_IN_MS * 10;
-const FIVE_MINUTES_IN_MS = ONE_MINUTE_IN_MS * 5;
+import {FIVE_MINUTES_IN_MS, ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS, TEN_SECONDS_IN_MS} from "../support/time-constants";
 
 When(
   "Employee {string} opens zac",

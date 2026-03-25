@@ -6,9 +6,7 @@
 import { Then, When } from "@cucumber/cucumber";
 import { Page, expect } from "@playwright/test";
 import { CustomWorld } from "../support/worlds/world";
-
-const ONE_MINUTE_IN_MS = 60_000;
-const TWENTY_SECONDS_IN_MS = 20_000;
+import {ONE_MINUTE_IN_MS, TWENTY_SECONDS_IN_MS} from "../support/time-constants";
 
 let smartDocumentsWizardPage: Page;
 
