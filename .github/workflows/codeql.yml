@@ -44,10 +44,10 @@ jobs:
             changes-requiring-build:
               - '**'
               - '!**/*.md'
-              - '!**/*.pdf'
-              - '!**/*.png'
-              - '!charts/**'
-              - '!docs/**'
+              - '!**/*.pdf'          
+              - '!**/*.png'                 
+              - '!charts/**'          
+              - '!docs/**'          
               - '!*.sh'
               - '!.github/CODEOWNERS'
 
