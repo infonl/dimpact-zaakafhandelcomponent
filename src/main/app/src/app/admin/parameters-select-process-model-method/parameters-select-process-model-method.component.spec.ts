@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -24,6 +25,7 @@ const mockZaaktype: GeneratedType<"RestZaaktype"> = {
 describe(ParameterSelectProcessModelMethodComponent.name, () => {
   let fixture: ComponentFixture<ParameterSelectProcessModelMethodComponent>;
   let component: ParameterSelectProcessModelMethodComponent;
+  let loader: HarnessLoader;
   let routeData$: BehaviorSubject<{ parameters: Record<string, unknown> }>;
 
   beforeEach(async () => {
@@ -46,19 +48,19 @@ describe(ParameterSelectProcessModelMethodComponent.name, () => {
     });
 
     await TestBed.configureTestingModule({
-      declarations: [ParameterSelectProcessModelMethodComponent],
       imports: [
-        ReactiveFormsModule,
+        ParameterSelectProcessModelMethodComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: { data: routeData$.asObservable() },
+          useValue: {
+            data: routeData$.asObservable(),
+          } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(
@@ -66,6 +68,14 @@ describe(ParameterSelectProcessModelMethodComponent.name, () => {
     );
     component = fixture.componentInstance;
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  it("should have the opslaan button disabled", async () => {
+    const opslaanButton = await loader.getHarness(
+      MatButtonHarness.with({ text: /actie\.opslaan/ }),
+    );
+    expect(await opslaanButton.isDisabled()).toBe(true);
   });
 
   it("should display the zaaktype omschrijving from route data", () => {

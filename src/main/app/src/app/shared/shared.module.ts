@@ -48,7 +48,6 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    DateRangeFilterComponent,
     FacetFilterComponent,
     DialogComponent,
     ColumnPickerComponent,
@@ -82,6 +81,7 @@ import { VersionComponent } from "./version/version.component";
     VertrouwelijkaanduidingToTranslationKeyPipe,
     EmptyPipe,
     ReadMoreComponent,
+    DateRangeFilterComponent,
   ],
   exports: [
     CommonModule,

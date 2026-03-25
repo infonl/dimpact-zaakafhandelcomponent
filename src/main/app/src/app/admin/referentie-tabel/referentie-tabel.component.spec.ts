@@ -5,16 +5,20 @@
 
 import type { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { NgIf } from "@angular/common";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonModule } from "@angular/material/button";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatTableModule } from "@angular/material/table";
+import { MatRowHarness } from "@angular/material/table/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -62,6 +66,7 @@ class TestReferentieTabelComponent extends ReferentieTabelComponent {}
 describe(ReferentieTabelComponent.name, () => {
   let fixture: ComponentFixture<TestReferentieTabelComponent>;
   let referentieTabelService: ReferentieTabelService;
+  let loader: HarnessLoader;
   let utilServiceMock: Pick<
     UtilService,
     "setTitle" | "openSnackbar" | "hasEditOverlay"
@@ -120,6 +125,7 @@ describe(ReferentieTabelComponent.name, () => {
 
     fixture = TestBed.createComponent(TestReferentieTabelComponent);
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should call setTitle on init", () => {
@@ -129,8 +135,8 @@ describe(ReferentieTabelComponent.name, () => {
     );
   });
 
-  it("should render table rows for each tabel waarde", () => {
-    const rows = fixture.nativeElement.querySelectorAll("tr[mat-row]");
+  it("should render table rows for each tabel waarde", async () => {
+    const rows = await loader.getAllHarnesses(MatRowHarness);
     expect(rows.length).toBe(2);
   });
 
@@ -147,9 +153,10 @@ describe(ReferentieTabelComponent.name, () => {
     expect(editInputs[1].componentInstance.readonly).toBeFalsy();
   });
 
-  it("should show delete button only for non-system values", () => {
-    const deleteButtons =
-      fixture.nativeElement.querySelectorAll("button#verwijderen");
+  it("should show delete button only for non-system values", async () => {
+    const deleteButtons = await loader.getAllHarnesses(
+      MatButtonHarness.with({ selector: "button#verwijderen" }),
+    );
     expect(deleteButtons.length).toBe(1);
   });
 

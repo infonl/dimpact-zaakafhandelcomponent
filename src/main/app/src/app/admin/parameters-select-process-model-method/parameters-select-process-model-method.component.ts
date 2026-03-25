@@ -6,7 +6,12 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   ProcessModelMethod,
@@ -16,7 +21,14 @@ import {
 @Component({
   selector: "zac-parameters-select-process-model-method",
   templateUrl: "./parameters-select-process-model-method.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    MatStepperModule,
+    MatIconModule,
+    MatButtonModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class ParameterSelectProcessModelMethodComponent {
   @Output() switchModellingMethod =
