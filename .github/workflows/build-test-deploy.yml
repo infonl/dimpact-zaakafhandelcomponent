@@ -49,7 +49,6 @@ concurrency:
 
 jobs:
   validate-input:
-    name: Validate the version bump input and set the version bump type for the subsequent jobs
     runs-on: ubuntu-24.04
     outputs:
       version-bump: ${{ github.event.inputs.confirm || 'patch' }}
@@ -66,7 +65,6 @@ jobs:
           exit 1
 
   determine-version:
-    name: Determine the next version number based on the branch and the version bump input
     runs-on: ubuntu-24.04
     needs: [validate-input]
     outputs:
@@ -163,7 +161,6 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --body ":tada: Merging this PR at this moment should result in version ${{ steps.get-version.outputs.version }}"
 
   paths-filter:
-    name: Check which files have been changed to determine whether a build is required
     runs-on: ubuntu-24.04
     needs: validate-input
     outputs:
@@ -191,7 +188,6 @@ jobs:
               - '!src/e2e/**'
 
   spotless-check:
-    name: Run Spotless check to validate code formatting for changes that do not require a full build
     runs-on: ubuntu-24.04
     needs: [paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
@@ -214,7 +210,6 @@ jobs:
         run: ./gradlew spotlessCheck
 
   build:
-    name: Build ZAC
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     needs: [paths-filter, validate-input]
@@ -293,7 +288,6 @@ jobs:
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   run-unit-tests:
-    name: Run unit tests and publish the results
     needs: [build, paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
@@ -375,7 +369,6 @@ jobs:
           directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
-    name: Build the ZAC Docker image and run integration tests
     needs: [build, paths-filter, determine-version]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
@@ -513,7 +506,6 @@ jobs:
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
   push-docker-image:
-    name: Push the built Docker image to the container registry
     needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -557,7 +549,6 @@ jobs:
         run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
 
   create-release:
-    name: Create or update a GitHub release for the ZAC new version
     needs: [push-docker-image, determine-version]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/')
     runs-on: ubuntu-24.04
@@ -594,7 +585,6 @@ jobs:
           generateReleaseNotes: true
 
   trigger-provision:
-    name: Trigger the ZAC provisioning workflow in the dimpact-provisioning repository to automatically provision the new ZAC version
     needs: [determine-version, push-docker-image, create-release]
     env:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
