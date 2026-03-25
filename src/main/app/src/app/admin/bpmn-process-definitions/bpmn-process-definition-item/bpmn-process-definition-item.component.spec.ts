@@ -458,7 +458,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn-formulieren.verwijderen.uitgevoerd",
-        { naam: "form-uploaded" },
+        { namen: "form-uploaded" },
       );
       expect(emitSpy).toHaveBeenCalled();
     });
