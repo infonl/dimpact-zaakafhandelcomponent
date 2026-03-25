@@ -46,7 +46,9 @@
               color="primary"
               (click)="selectBpmnProcessDefinitionFile()"
             >
-              {{ "bpmn-procesdefinitie.button.upload.definitie" | translate }}
+              {{
+                "bpmn.process-definition.button.upload.definition" | translate
+              }}
             </button>
           </div>
         </div>
@@ -78,7 +80,7 @@
                     outlined
                     color="warn"
                     matTooltip="{{
-                      'bpmn-procesdefinitie.chip.onvolledig' | translate
+                      'bpmn.process-definition.chip.onvolledig' | translate
                     }}"
                     >error</mat-icon
                   >

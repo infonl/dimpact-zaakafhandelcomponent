@@ -15,37 +15,37 @@
   <mat-card>
     <mat-card-content>
       <h3>
-        {{ "bpmn-procesdefinitie.card.details.title" | translate }}
+        {{ "bpmn.process-definition.card.details.title" | translate }}
       </h3>
 
       <div class="flex-row gap-20">
         <zac-static-text label="versie" [value]="processDefinition().version" />
         <zac-static-text
-          label="bpmn-procesdefinitie.sleutel"
+          label="bpmn.process-definition.key"
           [value]="processDefinition().key"
         />
         <zac-static-text
-          label="bpmn-procesdefinitie.uploaded-datum"
+          label="bpmn.process-definition.date.uploaded"
           [value]="
             processDefinition().details?.uploadDate | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
-          label="bpmn-procesdefinitie.gewijzigd-datum"
+          label="bpmn.process-definition.date.changed"
           [value]="
             processDefinition().details?.modificationDate
               | date: 'dd-MM-yyyy HH:mm'
           "
         />
         <zac-static-text
-          label="bpmn-procesdefinitie.documentatie"
+          label="bpmn.process-definition.documentation"
           [value]="processDefinition().details?.documentation"
         />
       </div>
       @if (processDefinition().details?.inUse) {
         <div class="explanation">
           <mat-icon outlined color="primary">info</mat-icon>
-          {{ "bpmn-procesdefinitie.card.details.in-gebruik" | translate }}
+          {{ "bpmn.process-definition.card.details.in-use" | translate }}
         </div>
       }
     </mat-card-content>
@@ -56,18 +56,18 @@
       <div class="flex-row items-center">
         <div class="flex-1">
           <h3>
-            {{ "bpmn-procesdefinitie.card.formulieren.title" | translate }}
+            {{ "bpmn.process-definition.card.task-forms.title" | translate }}
           </h3>
         </div>
         <button mat-raised-button color="primary" (click)="uploadBpmnForm()">
-          {{ "bpmn-procesdefinitie.button.upload.formulier" | translate }}
+          {{ "bpmn.process-definition.button.upload.task-forms" | translate }}
         </button>
       </div>
       @if (showMissingWarning()) {
         <div class="explanation" @fadeSlide>
           <mat-icon outlined color="warn">error</mat-icon>
           {{
-            "bpmn-procesdefinitie.card.formulieren.title.tooltip" | translate
+            "bpmn.process-definition.card.task-forms.title.tooltip" | translate
           }}
         </div>
       }
@@ -91,7 +91,7 @@
                   outlined
                   color="primary"
                   matTooltip="{{
-                    'bpmn-procesdefinitie.card.formulieren.table.tooltip.uploaded'
+                    'bpmn.process-definition.card.task-forms.table.tooltip.uploaded'
                       | translate
                   }}"
                   >check_circle</mat-icon
@@ -101,7 +101,7 @@
                   outlined
                   color="warn"
                   matTooltip="{{
-                    'bpmn-procesdefinitie.card.formulieren.table.tooltip.missing'
+                    'bpmn.process-definition.card.task-forms.table.tooltip.missing'
                       | translate
                   }}"
                   >error</mat-icon
@@ -168,8 +168,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           {{
-            "bpmn-procesdefinitie.card.ongebruikte-formulieren.title"
-              | translate
+            "bpmn.process-definition.card.task-forms.orphaned.title" | translate
           }}
         </mat-panel-title>
       </mat-expansion-panel-header>
@@ -177,13 +176,13 @@
         <mat-icon outlined color="primary">info</mat-icon>
         <span class="flex-1">
           {{
-            "bpmn-procesdefinitie.card.ongebruikte-formulieren.title.tooltip"
+            "bpmn.process-definition.card.task-forms.orphaned.title.tooltip"
               | translate
           }}
         </span>
         <button mat-raised-button (click)="deleteAllOrphanedForms()">
           {{
-            "bpmn-procesdefinitie.button.verwijder.alle.ongebruikte.formulieren"
+            "bpmn.process-definition.button.delete.task-forms.orphaned"
               | translate
           }}
         </button>
