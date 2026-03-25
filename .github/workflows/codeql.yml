@@ -42,14 +42,15 @@ jobs:
           # Please keep this list in sync with the one in the 'build-test-deploy.yml' workflow
           filters: |
             changes-requiring-build:
-              - '**'
-              - '!**/*.md'
-              - '!**/*.pdf'          
-              - '!**/*.png'                 
-              - '!charts/**'          
-              - '!docs/**'          
-              - '!*.sh'
-              - '!.github/CODEOWNERS'
+                - '**'
+                - '!*.sh'
+                - '!.github/CODEOWNERS'
+                - '!**/*.md'
+                - '!**/*.pdf'
+                - '!**/*.png'
+                - '!charts/**'
+                - '!docs/**'
+                - '!src/e2e/**'
 
   analyze:
     name: Analyze
