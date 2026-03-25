@@ -5,6 +5,7 @@
 
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatNativeDateModule } from "@angular/material/core";
 import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -198,6 +199,7 @@ describe(ParametersComponent.name, () => {
       imports: [
         ParametersComponent,
         NoopAnimationsModule,
+        MatNativeDateModule,
         TranslateModule.forRoot(),
       ],
       providers: [
