@@ -7,7 +7,6 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatChipHarness } from "@angular/material/chips/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatRowHarness } from "@angular/material/table/testing";
