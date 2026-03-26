@@ -5,19 +5,6 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 ---
 
-## ⛔ Hard Gates — NEVER skip, NEVER auto-proceed
-
-| Gate | When | Action |
-|---|---|---|
-| **B-9 → B-10** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
-| **B-17** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
-| **C-21** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
-| **C-22** | After browser OK | Show PR title + body as markdown — **stop and wait** |
-
-These gates exist because the user explicitly asked for them and has corrected skipping them multiple times. Problem-solving mode is not an excuse to skip them. If a step fails (e.g. baseline red), fix it — do not jump past the gate.
-
----
-
 ## Rules
 
 | Rule | Detail |
@@ -43,7 +30,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 | # | Step | Gate |
 |---|---|---|
-| 0 | **Read claims** — `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` — note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
+| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
 | 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
 | 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; add batch under `## Marcel` in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
@@ -271,3 +258,13 @@ TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent
 - Removed `AdminModule` from `AppModule.imports`
 - Deleted `admin.module.ts` and `admin-routing.module.ts`
 - Build clean; lint 0 errors
+
+---
+
+## Pre-existing Bugs — Fix When You Touch the File
+
+Do **not** go hunting for these in files you are not already migrating. Only fix them when the component is part of the current migration batch.
+
+| Pattern | Why it is wrong | Fix |
+|---|---|---|
+| `ngOnChanges` re-assigns `@Input` from `changes.x?.currentValue` | Angular sets `@Input` fields before calling `ngOnChanges`. Re-assigning is redundant when the input _did_ change, and **destructive** (sets to `undefined`) when it _did not_. Only the side-effect call (e.g. `loadIndicaties()`) belongs in `ngOnChanges`. | Remove the re-assignment lines; keep only the side-effect call. Drop `SimpleChanges` from the parameter if it is no longer used. |
