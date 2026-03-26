@@ -29,6 +29,9 @@
 - [x] `shared/indicaties/persoon-indicaties/persoon-indicaties.component.ts`
 - [x] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
 
+### In progress
+- [ ] FacetFilterComponent
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
