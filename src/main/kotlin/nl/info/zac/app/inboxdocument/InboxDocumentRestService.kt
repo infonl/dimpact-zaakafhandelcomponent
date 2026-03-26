@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.inboxdocumenten
+package nl.info.zac.app.inboxdocument
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -15,15 +15,15 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.inboxdocumenten.converter.RestInboxDocumentListParametersConverter
-import net.atos.zac.app.inboxdocumenten.model.RestInboxDocument
-import net.atos.zac.app.inboxdocumenten.model.RestInboxDocumentListParameters
-import net.atos.zac.app.inboxdocumenten.model.toRestInboxDocuments
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.model.InboxDocument
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
+import nl.info.zac.app.inboxdocument.model.RestInboxDocument
+import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
+import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -38,15 +38,15 @@ import java.util.logging.Logger
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
-class InboxDocumentenRestService @Inject constructor(
-    private var inboxDocumentenService: InboxDocumentenService,
+class InboxDocumentRestService @Inject constructor(
+    private var inboxDocumentService: InboxDocumentService,
     private var drcClientService: DrcClientService,
     private var zrcClientService: ZrcClientService,
     private var listParametersConverter: RestInboxDocumentListParametersConverter,
     private var policyService: PolicyService
 ) {
     companion object {
-        private val LOG = Logger.getLogger(InboxDocumentenRestService::class.java.name)
+        private val LOG = Logger.getLogger(InboxDocumentRestService::class.java.name)
     }
 
     @PUT
@@ -54,11 +54,11 @@ class InboxDocumentenRestService @Inject constructor(
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters?): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
-        val inboxDocuments = inboxDocumentenService.list(listParameters)
+        val inboxDocuments = inboxDocumentService.list(listParameters)
         val informationObjectTypeUUIDs = inboxDocuments.stream().map(::getInformatieobjectTypeUUID).toList()
         return RESTResultaat<RestInboxDocument>(
             inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
-            inboxDocumentenService.count(listParameters).toLong()
+            inboxDocumentService.count(listParameters).toLong()
         )
     }
 
@@ -82,7 +82,7 @@ class InboxDocumentenRestService @Inject constructor(
     @Path("{id}")
     fun deleteInboxDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().inbox)
-        val inboxDocument = inboxDocumentenService.find(id)
+        val inboxDocument = inboxDocumentService.find(id)
         if (inboxDocument.isEmpty()) {
             return // reeds verwijderd
         }
@@ -104,6 +104,6 @@ class InboxDocumentenRestService @Inject constructor(
                 inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
             )
         }
-        inboxDocumentenService.delete(id)
+        inboxDocumentService.delete(id)
     }
 }

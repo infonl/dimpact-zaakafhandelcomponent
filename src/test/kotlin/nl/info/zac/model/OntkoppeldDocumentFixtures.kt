@@ -5,7 +5,7 @@
 
 package nl.info.zac.model
 
-import net.atos.zac.documenten.model.OntkoppeldDocument
+import net.atos.zac.document.model.OntkoppeldDocument
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID

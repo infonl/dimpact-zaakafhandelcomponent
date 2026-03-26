@@ -34,8 +34,8 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
@@ -81,7 +81,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val zgwApiService: ZgwApiService,
     private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
-    private val inboxDocumentenService: InboxDocumentenService,
+    private val inboxDocumentService: InboxDocumentService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
@@ -228,11 +228,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
                 ontkoppeldeDocumentenService.delete(it.id)
             }
-            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentenService.read(
+            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
                 enkelvoudigInformatieobjectUUID
             ).let {
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocumentenService.delete(it.id)
+                inboxDocumentService.delete(it.id)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
