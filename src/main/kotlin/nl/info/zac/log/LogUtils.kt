@@ -37,20 +37,30 @@ fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = l
  * @return The result of executing the block.
  */
 inline fun <T> withMDC(vararg context: Pair<String, String?>, block: () -> T): T {
-    val keysToRemove = mutableSetOf<String>()
+    // Store previous values so we can restore them after executing the block.
+    val previousValues = mutableMapOf<String, String?>()
 
     // Add context to MDC
     context.forEach { (key, value) ->
         if (value != null) {
+            // Capture the previous value (if any) before overwriting.
+            if (!previousValues.containsKey(key)) {
+                previousValues[key] = MDC.get(key) as String?
+            }
             MDC.put(key, value)
-            keysToRemove.add(key)
         }
     }
 
     try {
         return block()
     } finally {
-        // Clean up MDC
-        keysToRemove.forEach { MDC.remove(it) }
+        // Restore previous MDC values (or remove keys that did not exist before).
+        previousValues.forEach { (key, previousValue) ->
+            if (previousValue == null) {
+                MDC.remove(key)
+            } else {
+                MDC.put(key, previousValue)
+            }
+        }
     }
 }
