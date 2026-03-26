@@ -23,7 +23,7 @@ private const val HIGH_PRIORITY = 1000
  * JAX-RS filter that automatically adds contextual information to MDC for all REST API requests.
  *
  * This filter enriches all log statements within a request with structured context including:
- * - requestId: Unique identifier for correlating all logs from a single request and/or across services
+ * - correlationId: Unique identifier for correlating all logs from a single request and/or across services
  * - userId: Current authenticated user (if available)
  * - httpMethod: HTTP method (GET, POST, PUT, DELETE, etc.)
  * - httpPath: Request path
