@@ -30,13 +30,13 @@
     <serviceTask id="ServiceTask_358" name="Send email" flowable:class="net.atos.zac.flowable.delegate.SendEmailDelegate">
       <extensionElements>
         <flowable:field name="from">
-          <flowable:string><![CDATA[team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[team-dimpact@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="to">
-          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[shared-team-dimpact@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="replyTo">
-          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[shared-team-dimpact@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>

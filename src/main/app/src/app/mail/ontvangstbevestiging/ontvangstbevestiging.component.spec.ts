@@ -68,13 +68,13 @@ describe(OntvangstbevestigingComponent.name, () => {
     fromPartial<GeneratedType<"RestZaakAfzender">>({
       defaultMail: true,
       id: 1,
-      mail: "beheerder-test-1@team-dimpact.info.nl",
+      mail: "beheerder-test-1@example.com",
       speciaal: true,
       suffix: "gegevens.mail.afzender.MEDEWERKER",
     }),
     fromPartial<GeneratedType<"RestZaakAfzender">>({
       defaultMail: false,
-      mail: "gemeente-adorp-test@team-dimpact.info.nl",
+      mail: "gemeente-adorp-test@example.com",
       speciaal: true,
       suffix: "gegevens.mail.afzender.GEMEENTE",
     }),
