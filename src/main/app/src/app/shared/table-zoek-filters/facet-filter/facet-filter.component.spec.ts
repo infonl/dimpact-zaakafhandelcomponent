@@ -16,12 +16,20 @@ import { FacetFilterComponent } from "./facet-filter.component";
 const makeFilterParameters = (
   fields: Partial<GeneratedType<"FilterParameters">> = {},
 ): GeneratedType<"FilterParameters"> =>
-  ({ values: [], inverse: false, ...fields }) as unknown as GeneratedType<"FilterParameters">;
+  ({
+    values: [],
+    inverse: false,
+    ...fields,
+  }) as Partial<GeneratedType<"FilterParameters">> as unknown as GeneratedType<"FilterParameters">;
 
 const makeFilterResultaat = (
   fields: Partial<GeneratedType<"FilterResultaat">> = {},
 ): GeneratedType<"FilterResultaat"> =>
-  ({ naam: "optie", aantal: 1, ...fields }) as unknown as GeneratedType<"FilterResultaat">;
+  ({
+    naam: "optie",
+    aantal: 1,
+    ...fields,
+  }) as Partial<GeneratedType<"FilterResultaat">> as unknown as GeneratedType<"FilterResultaat">;
 
 describe(FacetFilterComponent.name, () => {
   let fixture: ComponentFixture<FacetFilterComponent>;
@@ -72,7 +80,9 @@ describe(FacetFilterComponent.name, () => {
   describe("isVertaalbaar()", () => {
     it("returns true for keys present in VERTAALBARE_FACETTEN", () => {
       expect(component["isVertaalbaar"]("indicaties")).toBe(true);
-      expect(component["isVertaalbaar"]("vertrouwelijkheidaanduiding")).toBe(true);
+      expect(component["isVertaalbaar"]("vertrouwelijkheidaanduiding")).toBe(
+        true,
+      );
       expect(component["isVertaalbaar"]("archiefNominatie")).toBe(true);
     });
 
