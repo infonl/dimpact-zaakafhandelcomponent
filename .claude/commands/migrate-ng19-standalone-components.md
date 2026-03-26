@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 25 done — 127 remaining** (2026-03-26)
+**Progress: 26 done — 126 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -30,10 +30,9 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
-| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
-| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; add batch under `## Marcel` in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
+| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; ask user to name the batch (`## {name}`) where this migration falls under in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
 
 ### Phase B — Per-component loop (repeat until PR)
 
@@ -77,7 +76,6 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
-- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T>): T => fields as unknown as T` — so the `Partial<T>` parameter validates field names and usage sites have zero casts. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T` — the first cast validates field names, the second forces assignment. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
 ```
@@ -208,11 +206,6 @@ Solves PZ-XXXXX
 - **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
 - **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
 
-### ✅ `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (2026-03-26)
-- Zero services; pure switch logic + `@HostListener` — fastest possible spec: direct class instantiation, 11 tests, no TestBed
-- **Cherry-pick pattern**: when a dependency PR (e.g. indicaties standalone) hasn't merged to `main` yet, `git cherry-pick <commit>` onto the work branch before migrating the dependent component
-- **Partial test fixtures**: use named factory helpers `const makeX = (fields: Partial<T>): T => fields as unknown as T`; for inline (single use) prefer `{ ...fields } as Partial<T> as unknown as T`; for invalid-union tests cast only the field: `makeX({ type: "UNKNOWN" as T["type"] })`
-
 ### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
 - `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
 - **Inheritance pattern**: Abstract base `@Component({ template: '', standalone: true })` needs no `imports[]`; each subclass declares its own `imports[]` covering the shared template's directives/pipes
@@ -221,10 +214,16 @@ Solves PZ-XXXXX
 - **NgModule cleanup**: Standalone components move from `declarations[]` → `imports[]` in `shared.module.ts`; remain in `exports[]` so consuming modules (`zoeken`, `zaken`, `informatie-objecten`) continue to receive them via `SharedModule`
 - **Downstream spec fix**: Other specs that had the component in `declarations[]` need it moved to `imports[]` (e.g., `zaak-view.component.spec.ts`)
 
+### ✅ `fout-afhandeling/dialog/fout-dialog.component.ts` + `actie-onmogelijk-dialog.component.ts` (2026-03-26) — Dax Batch 2
+- `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
+- **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
+- **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
+- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via `nativeElement.querySelector`
+
 ---
 
 ## Next Target
-TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent`, `MultiFacetFilterComponent`, `DateFilterComponent`, `ZaakZoekObjectComponent`, `TaakZoekObjectComponent`, `DocumentZoekObjectComponent`, `ZaakBetrokkeneFilterComponent`, `KlantZoekDialog`.
+`zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (module: `zoeken.module.ts`) — uses `zac-zaak-indicaties` (now standalone) and `zac-informatie-object-indicaties` (already standalone); needs `RouterModule`, `ReadMoreComponent`, `ZaakIndicatiesComponent`, `InformatieObjectIndicatiesComponent`, `MatIconModule`, `TranslateModule`; no existing spec.
 
 ---
 
