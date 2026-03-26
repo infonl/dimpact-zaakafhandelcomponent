@@ -23,11 +23,7 @@ import { ZaakBetrokkeneFilterComponent } from "./zoek/filters/zaak-betrokkene-fi
 import { ZoekComponent } from "./zoek/zoek.component";
 
 @NgModule({
-  declarations: [
-    ZoekComponent,
-    ZaakBetrokkeneFilterComponent,
-    KlantZoekDialog,
-  ],
+  declarations: [ZoekComponent, ZaakBetrokkeneFilterComponent, KlantZoekDialog],
   exports: [ZoekComponent],
   imports: [
     SharedModule,

@@ -4,13 +4,13 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSidenav } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { MatSidenav } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
-import { DocumentZoekObjectComponent } from "./document-zoek-object.component";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
+import { DocumentZoekObjectComponent } from "./document-zoek-object.component";
 
 const makeDocument = (
   fields: Partial<DocumentZoekObject>,
@@ -24,7 +24,11 @@ describe(DocumentZoekObjectComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DocumentZoekObjectComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        DocumentZoekObjectComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [provideRouter([])],
     }).compileComponents();
 

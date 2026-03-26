@@ -6,8 +6,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { MultiFacetFilterComponent } from "./multi-facet-filter.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { MultiFacetFilterComponent } from "./multi-facet-filter.component";
 
 const makeFilter = (
   fields: Partial<GeneratedType<"FilterParameters">> = {},
@@ -42,7 +42,11 @@ async function setup(
 describe(MultiFacetFilterComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MultiFacetFilterComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        MultiFacetFilterComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
     }).compileComponents();
   });
 

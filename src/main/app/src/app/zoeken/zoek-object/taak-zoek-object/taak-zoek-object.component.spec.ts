@@ -4,13 +4,13 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSidenav } from "@angular/material/sidenav";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { MatSidenav } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
-import { TaakZoekObjectComponent } from "./taak-zoek-object.component";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
+import { TaakZoekObjectComponent } from "./taak-zoek-object.component";
 
 const makeTaak = (fields: Partial<TaakZoekObject>): TaakZoekObject =>
   fields as unknown as TaakZoekObject;
@@ -23,7 +23,11 @@ describe(TaakZoekObjectComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaakZoekObjectComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        TaakZoekObjectComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [provideRouter([])],
     }).compileComponents();
 
