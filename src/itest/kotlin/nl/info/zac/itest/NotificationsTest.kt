@@ -97,7 +97,7 @@ class NotificationsTest : BehaviorSpec({
     lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 
     Given("""ZAC and all related Docker containers are running""") {
-        When(""""the notificaties endpoint is called with fake payload without authentication header""") {
+        When("""the notificaties endpoint is called with fake payload without authentication header""") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
@@ -114,7 +114,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"
+        """
             ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
             a productaanvraag type, zaaktypeCmmnConfiguration are defined in ZAC configured with the same productaanvraag type
             and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
@@ -335,7 +335,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
                     and productaanvraag PDF exists in Open Zaak"""
     ) {
         When(
@@ -427,7 +427,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
                     with both kvkNummer and vestigingsNummer"""
     ) {
         When(
@@ -515,7 +515,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
+        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
                     with only vestigingsNummer (invalid scenario)"""
     ) {
         When(
@@ -574,7 +574,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"ZAC and all related Docker containers are running"""
+        """ZAC and all related Docker containers are running"""
     ) {
         When(
             """the notificaties endpoint is called with a 'create zaaktype' payload with a 
@@ -640,7 +640,7 @@ class NotificationsTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = RAADPLEGER_DOMAIN_TEST_1
         )
-        When(""""a notification is sent to ZAC that the zaak in question has been updated""") {
+        When("""a notification is sent to ZAC that the zaak in question has been updated""") {
             // we need eventually here because it takes some time before the new websocket has been
             // successfully created in ZAC
             eventually(30.seconds) {
@@ -707,7 +707,7 @@ class NotificationsTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = RAADPLEGER_DOMAIN_TEST_1
         )
-        When(""""a notification is sent to ZAC that a zaak-rol has been created""") {
+        When("""a notification is sent to ZAC that a zaak-rol has been created""") {
             // we need eventually here because it takes some time before the new websocket has been
             // successfully created in ZAC
             eventually(30.seconds) {
@@ -754,7 +754,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"
+        """
             ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
             specific email address in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration are defined in
             ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of receipt'
@@ -848,7 +848,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """"
+        """
             ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
             specific email address and betrokkene in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration
             are defined in ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of
