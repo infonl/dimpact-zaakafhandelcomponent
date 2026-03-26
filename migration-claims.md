@@ -17,8 +17,8 @@
 - [x] `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`
 - [x] `admin/parameters-edit-shell/parameters-edit-shell.component.ts`
 
-### Batch 4 — in progress (branch: `temp/standalone-migration`)
-- [ ] `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts`
+### Batch 4 — done (branch: `temp/standalone-migration`)
+- [x] `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts`
 
 ### Batch 3 — done (branch: `temp/standalone-migration`)
 - [x] `shared/indicaties/indicaties.component.ts` (abstract base)
