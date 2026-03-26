@@ -5,6 +5,22 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 ---
 
+## Why migrate to standalone?
+
+Angular introduced standalone components in v14 and made them the **default in v17+**. In Angular 19, `NgModule` is effectively legacy. Here is why the migration matters:
+
+| Problem with NgModules | Standalone solution |
+|---|---|
+| New Angular features (`@defer`, signal inputs, `linkedSignal`, etc.) are designed for standalone — NgModule support is secondary or absent | Full access to the modern Angular feature set |
+| Dependencies declared in a module far from the component that needs them — hard to trace | Each component declares its own `imports[]` — dependencies are co-located and obvious |
+| Modules group unrelated components; one shared module can force the entire bundle into the initial chunk | Standalone components enable **per-component lazy loading** and finer tree-shaking |
+| `SharedModule` anti-pattern: everything exported "just in case" — unused code ships to the browser | Import only what you actually use; dead code is eliminated at build time |
+| `ng generate` defaults to standalone since v17 — new team members create standalone, old code stays NgModule — split mental model | Uniform codebase; one way to write components |
+
+**Concrete win already delivered**: migrating all `/admin` components + replacing `AdminModule` with `admin.routes.ts` turned the entire admin area into a **lazily-loaded chunk** — it no longer ships in the initial bundle at all.
+
+---
+
 ## Rules
 
 | Rule | Detail |
