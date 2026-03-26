@@ -25,10 +25,6 @@ import { ZoekComponent } from "./zoek/zoek.component";
 @NgModule({
   declarations: [
     ZoekComponent,
-    MultiFacetFilterComponent,
-    ZaakZoekObjectComponent,
-    TaakZoekObjectComponent,
-    DocumentZoekObjectComponent,
     ZaakBetrokkeneFilterComponent,
     KlantZoekDialog,
   ],
@@ -39,6 +35,10 @@ import { ZoekComponent } from "./zoek/zoek.component";
     RouterLink,
     InformatieObjectIndicatiesComponent,
     ZoekObjectLinkComponent,
+    ZaakZoekObjectComponent,
+    TaakZoekObjectComponent,
+    DocumentZoekObjectComponent,
+    MultiFacetFilterComponent,
     DateFilterComponent,
     BAGModule,
     PipesModule,

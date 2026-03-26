@@ -5,6 +5,10 @@
 
 import { Component, Input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
+import { TranslateModule } from "@ngx-translate/core";
+import { DatumPipe } from "../../../shared/pipes/datum.pipe";
+import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
+import { ZoekObjectLinkComponent } from "../zoek-object-link/zoek-object-link.component";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
@@ -12,9 +16,10 @@ import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
   selector: "zac-document-zoek-object",
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./document-zoek-object.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [ZoekObjectLinkComponent, StaticTextComponent, DatumPipe, TranslateModule],
 })
 export class DocumentZoekObjectComponent extends ZoekObjectComponent {
-  @Input() document: DocumentZoekObject;
-  @Input() sideNav: MatSidenav;
+  @Input({ required: true }) document!: DocumentZoekObject;
+  @Input({ required: true }) sideNav!: MatSidenav;
 }

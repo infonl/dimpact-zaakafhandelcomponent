@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 26 done — 126 remaining** (2026-03-26)
+**Progress: 32 done — 119 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -240,10 +240,27 @@ Solves PZ-XXXXX
 - **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
 - **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via Angular Material harnesses (e.g. `MatButtonHarness`), not `nativeElement.querySelector`, per Rules above
 
+### ✅ `zoeken/zoek-object/zoek-object/zoek-object-component.ts` + `zaak-zoek-object` + `taak-zoek-object` + `document-zoek-object` (2026-03-26) — Marcel Batch 6
+- Abstract base: `standalone: true`, no `imports[]` — same inheritance pattern as `indicaties` cluster
+- Concrete subclasses: `imports: [ZoekObjectLinkComponent, StaticTextComponent, DatumPipe, TranslateModule]` (identical set)
+- **Fix**: `@Input() taak: TaakZoekObject` / `@Input() document: DocumentZoekObject` → `@Input({ required: true }) taak!` / `document!` (pre-existing TS errors)
+- **Spec pattern**: baseline uses `declarations[]` + explicit child imports; after migration switch to `imports: [Component]`; child imports drop (component brings them)
+- **Spec pattern**: `ZoekObjectLinkComponent` uses `RouterLink` → `provideRouter([])` needed in test providers
+- **Spec pattern**: `ZoekObjectLinkComponent` calls `zoekObject.type.toLowerCase()` → fixture must include `type` field
+- **Spec pattern**: multiple `toContain` label assertions → `toEqual(expect.arrayContaining([...]))` for conciseness
+
+### ✅ `shared/material/narrow-checkbox.directive.ts` (fix) + `zoeken/zoek/filters/multi-facet-filter/multi-facet-filter.component.ts` (2026-03-26) — Marcel Batch 7
+- `ZacNarrowMatCheckboxDirective`: prior PR removed `standalone: false` but never added `standalone: true`; also already moved to `imports[]`/`exports[]` in `shared.module.ts` — only fix needed was adding explicit `standalone: true`
+- `MultiFacetFilterComponent` `imports: [NgIf, NgFor, LowerCasePipe, ReactiveFormsModule, MatCardModule, MatCheckboxModule, MatIconModule, TranslateModule, ZacNarrowMatCheckboxDirective, ReadMoreComponent]`
+- **Access modifiers**: `VERTAALBARE_FACETTEN` `public` → `protected`; `formGroup`/`inverse` → `protected`; `selected` → `private`; `checkboxChange`/`isVertaalbaar`/`invert` → `protected`
+- **Spec pattern**: `setup()` helper outside `describe` + `beforeEach` only configures TestBed; avoids re-calling `ngOnInit` across tests
+- **Spec pattern**: `makeFilter` default param `= {}` avoids redundant `makeFilter({ values: [] })` at call sites
+- **Spec pattern**: `toEqual(["ZAAK"])` replaces `toHaveLength(1)` + `toContain` + `not.toContain` triple
+
 ---
 
 ## Next Target
-TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent`, `MultiFacetFilterComponent`, `DateFilterComponent`, `ZaakZoekObjectComponent`, `TaakZoekObjectComponent`, `DocumentZoekObjectComponent`, `ZaakBetrokkeneFilterComponent`, `KlantZoekDialog`.
+`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
 
 ---
 
