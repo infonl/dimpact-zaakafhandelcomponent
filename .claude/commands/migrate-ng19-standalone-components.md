@@ -30,7 +30,8 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
+| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
 | 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; ask user to name the batch (`## {name}`) where this migration falls under in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
 
@@ -76,6 +77,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
+- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T>): T => fields as unknown as T` — so the `Partial<T>` parameter validates field names and usage sites have zero casts. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T` — the first cast validates field names, the second forces assignment. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
 ```
@@ -205,6 +207,11 @@ Solves PZ-XXXXX
 - `imports: [NgSwitch, NgSwitchCase, NgSwitchDefault, MatSidenavModule, MatProgressSpinnerModule, SideNavComponent, ParameterSelectProcessModelMethodComponent, ParametersEditCmmnComponent, ParametersEditBpmnComponent]`
 - **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
 - **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
+
+### ✅ `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (2026-03-26)
+- Zero services; pure switch logic + `@HostListener` — fastest possible spec: direct class instantiation, 11 tests, no TestBed
+- **Cherry-pick pattern**: when a dependency PR (e.g. indicaties standalone) hasn't merged to `main` yet, `git cherry-pick <commit>` onto the work branch before migrating the dependent component
+- **Partial test fixtures**: use named factory helpers `const makeX = (fields: Partial<T>): T => fields as unknown as T`; for inline (single use) prefer `{ ...fields } as Partial<T> as unknown as T`; for invalid-union tests cast only the field: `makeX({ type: "UNKNOWN" as T["type"] })`
 
 ### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
 - `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
