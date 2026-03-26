@@ -27,7 +27,6 @@ import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
-import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
 import nl.info.client.or.`object`.ObjectsClientService
@@ -534,9 +533,6 @@ class ProductaanvraagService @Inject constructor(
     private fun handleProductaanvraagDimpact(productaanvraagObject: ModelObject) {
         LOG.fine { "Start handling productaanvraag with object URL: ${productaanvraagObject.url}" }
         val productaanvraag = getProductaanvraag(productaanvraagObject)
-        val productaanvraagSpecificContactDetails = klantClientService.findProductaanvraagSpecificContactDetails(
-            productaanvraag.bron.kenmerk
-        )
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
             .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraag.type)
         val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
@@ -555,16 +551,14 @@ class ProductaanvraagService @Inject constructor(
                 processProductaanvraagWithCmmnZaaktype(
                     zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                     productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject,
-                    productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
+                    productaanvraagObject = productaanvraagObject
                 )
 
             hasBpmnDefinition ->
                 processProductaanvraagWithBpmnZaaktype(
                     zaaktypeBpmnConfiguration = zaaktypeBpmnProcessDefinition,
                     productaanvraagDimpact = productaanvraag,
-                    productaanvraagObject = productaanvraagObject,
-                    productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
+                    productaanvraagObject = productaanvraagObject
                 )
 
             else -> {
@@ -581,8 +575,7 @@ class ProductaanvraagService @Inject constructor(
     private fun processProductaanvraagWithCmmnZaaktype(
         zaaktypeCmmnConfiguration: List<ZaaktypeCmmnConfiguration>,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject,
-        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
+        productaanvraagObject: ModelObject
     ) {
         if (zaaktypeCmmnConfiguration.size > 1) {
             LOG.warning(
@@ -600,8 +593,7 @@ class ProductaanvraagService @Inject constructor(
             startZaakWithCmmnProcess(
                 zaaktypeUuid = firstZaaktypeCmmnConfiguration.zaaktypeUuid,
                 productaanvraagDimpact = productaanvraagDimpact,
-                productaanvraagObject = productaanvraagObject,
-                productaanvraagSpecificContactDetails = productaanvraagSpecificContactDetails
+                productaanvraagObject = productaanvraagObject
             )
         } catch (exception: ExplanationRequiredException) {
             logZaakCouldNotBeCreatedWarning("CMMN", productaanvraagDimpact, exception)
@@ -671,14 +663,10 @@ class ProductaanvraagService @Inject constructor(
     private fun processProductaanvraagWithBpmnZaaktype(
         zaaktypeBpmnConfiguration: ZaaktypeBpmnConfiguration,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject,
-        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
+        productaanvraagObject: ModelObject
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeBpmnConfiguration.zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-        productaanvraagSpecificContactDetails?.let {
-            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
-        }
         val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
         val zaakDataVariablesMap = zaaktypeBpmnConfiguration.groepID?.let { baseBpmnVariablesMap + mapOf(VAR_ZAAK_GROUP to it) }
             ?: baseBpmnVariablesMap
@@ -698,19 +686,20 @@ class ProductaanvraagService @Inject constructor(
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
         // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN
         // note: BPMN zaaktypes do not yet support automatic email notifications, as is the case for CMMN
+        klantClientService.findProductaanvraagSpecificContactDetails(
+            productaanvraagDimpact.bron.kenmerk
+        )?.let {
+            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
+        }
     }
 
     private fun startZaakWithCmmnProcess(
         zaaktypeUuid: UUID,
         productaanvraagDimpact: ProductaanvraagDimpact,
-        productaanvraagObject: ModelObject,
-        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails?
+        productaanvraagObject: ModelObject
     ) {
         val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
         val zaak = createZaak(zaaktype, productaanvraagDimpact, productaanvraagObject)
-        productaanvraagSpecificContactDetails?.let {
-            klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
-        }
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
         // First, start the CMMN process for the zaak and only then perform other actions related to the zaak,
         // so that should things fail, at least the CMMN process has been started.
@@ -746,6 +735,12 @@ class ProductaanvraagService @Inject constructor(
             brpEnabled = isBrpEnabled(zaaktypeCmmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeCmmnConfiguration)
         ).run {
+            val productaanvraagSpecificContactDetails = klantClientService.findProductaanvraagSpecificContactDetails(
+                productaanvraagDimpact.bron.kenmerk
+            )
+            productaanvraagSpecificContactDetails?.let {
+                klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
+            }
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak = zaak,
                 betrokkene = this,

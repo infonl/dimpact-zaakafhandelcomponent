@@ -1282,7 +1282,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             )
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
-            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -1395,7 +1394,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val inboxProductaanvraagSlot = slot<InboxProductaanvraag>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
-            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             // no zaaktypeCmmnConfiguration are configured for the zaaktype
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
