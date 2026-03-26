@@ -5,6 +5,19 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 ---
 
+## ⛔ Hard Gates — NEVER skip, NEVER auto-proceed
+
+| Gate | When | Action |
+|---|---|---|
+| **B-9 → B-10** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
+| **B-17** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
+| **C-21** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
+| **C-22** | After browser OK | Show PR title + body as markdown — **stop and wait** |
+
+These gates exist because the user explicitly asked for them and has corrected skipping them multiple times. Problem-solving mode is not an excuse to skip them. If a step fails (e.g. baseline red), fix it — do not jump past the gate.
+
+---
+
 ## Rules
 
 | Rule | Detail |
@@ -30,7 +43,8 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
+| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
 | 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; ask user to name the batch (`## {name}`) where this migration falls under in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
 
@@ -52,7 +66,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 | 15 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
 | 16 | **Tick off claim** — `git checkout claims-update`, mark component `[x]` in `migration-claims.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout temp/standalone-migration` | — |
 | 17 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 18 | → if **continue**: go to step 4 with next component | — |
+| 18 | → if **continue**: **claim first** — `git checkout claims-update`, add next component under `## Marcel` in `migration-claims.md`, commit + push, `git checkout temp/standalone-migration`; then go to step 4 | — |
 | 19 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
@@ -76,6 +90,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
+- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T>): T => fields as unknown as T` — so the `Partial<T>` parameter validates field names and usage sites have zero casts. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T` — the first cast validates field names, the second forces assignment. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
 ```
@@ -206,6 +221,11 @@ Solves PZ-XXXXX
 - **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
 - **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
 
+### ✅ `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (2026-03-26)
+- Zero services; pure switch logic + `@HostListener` — fastest possible spec: direct class instantiation, 11 tests, no TestBed
+- **Cherry-pick pattern**: when a dependency PR (e.g. indicaties standalone) hasn't merged to `main` yet, `git cherry-pick <commit>` onto the work branch before migrating the dependent component
+- **Partial test fixtures**: use named factory helpers `const makeX = (fields: Partial<T>): T => fields as unknown as T`; for inline (single use) prefer `{ ...fields } as Partial<T> as unknown as T`; for invalid-union tests cast only the field: `makeX({ type: "UNKNOWN" as T["type"] })`
+
 ### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
 - `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
 - **Inheritance pattern**: Abstract base `@Component({ template: '', standalone: true })` needs no `imports[]`; each subclass declares its own `imports[]` covering the shared template's directives/pipes
@@ -223,7 +243,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (module: `zoeken.module.ts`) — uses `zac-zaak-indicaties` (now standalone) and `zac-informatie-object-indicaties` (already standalone); needs `RouterModule`, `ReadMoreComponent`, `ZaakIndicatiesComponent`, `InformatieObjectIndicatiesComponent`, `MatIconModule`, `TranslateModule`; no existing spec.
+TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent`, `MultiFacetFilterComponent`, `DateFilterComponent`, `ZaakZoekObjectComponent`, `TaakZoekObjectComponent`, `DocumentZoekObjectComponent`, `ZaakBetrokkeneFilterComponent`, `KlantZoekDialog`.
 
 ---
 
