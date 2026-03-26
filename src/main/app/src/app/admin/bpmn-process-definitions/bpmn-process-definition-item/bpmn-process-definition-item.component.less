@@ -10,11 +10,11 @@
 }
 
 .process-definition-item {
-  padding: 10px 50px;
+  padding: 10px 60px;
   border-top: 1px solid #d8d8d8;
 
   mat-card {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
   }
 
   h3 {
@@ -23,21 +23,23 @@
 
   table {
     table-layout: fixed;
-
-    --mat-table-header-container-height: 4px;
   }
 
-  .icon-align {
+  .explanation {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
+    margin: 12px 0 16px;
 
-  .in-use-warning {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 0;
+    button {
+      white-space: nowrap;
+    }
+
+    mat-icon {
+      flex-shrink: 0;
+      min-width: 24px;
+      width: 24px;
+    }
   }
 
   td.mat-column-index,
@@ -48,9 +50,12 @@
     padding-right: 8px;
   }
 
-  td.mat-column-uploaded mat-icon {
-    position: relative;
-    top: 2px;
+  td.mat-column-uploaded {
+    vertical-align: middle;
+
+    mat-icon {
+      vertical-align: middle;
+    }
   }
 
   th.mat-column-formKey,
@@ -82,5 +87,11 @@
     text-align: right;
     padding: 0;
     width: 48px;
+  }
+
+  mat-expansion-panel p {
+    text-align: initial;
+    font-size: initial;
+    font-style: normal;
   }
 }
