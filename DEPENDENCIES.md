@@ -15,7 +15,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **otel/opentelemetry-collector-contrib**: 0.148.0
 - **grafana/tempo**: 2.10.3
 - **prom/prometheus**: v3.10.0
-- **grafana/grafana**: 12.4.1
+- **grafana/grafana**: 12.4.2
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.5-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.5

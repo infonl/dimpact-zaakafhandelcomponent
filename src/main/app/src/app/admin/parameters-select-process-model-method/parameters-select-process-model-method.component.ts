@@ -6,30 +6,43 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatStepperModule } from "@angular/material/stepper";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 
 @Component({
-  selector: "zac-parameters-edit-select-process-definition",
-  templateUrl: "./parameters-edit-select-process-definition.component.html",
-  standalone: false,
+  selector: "zac-parameters-select-process-model-method",
+  templateUrl: "./parameters-select-process-model-method.component.html",
+  standalone: true,
+  imports: [
+    MatStepperModule,
+    MatIconModule,
+    MatButtonModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
-export class ParameterEditSelectProcessDefinitionComponent {
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+export class ParameterSelectProcessModelMethodComponent {
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
   ];
 
-  protected zaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
+  protected caseParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
   } = {
     zaaktypeUuid: "",
@@ -50,7 +63,7 @@ export class ParameterEditSelectProcessDefinitionComponent {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      value: ZaakProcessSelect;
+      value: ProcessModelMethod;
       label: string;
     } | null>(null, [Validators.required]),
   });
@@ -60,13 +73,11 @@ export class ParameterEditSelectProcessDefinitionComponent {
     private readonly route: ActivatedRoute,
   ) {
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
-      this.zaakafhandelParameters = data.parameters.zaakafhandelParameters;
+      this.caseParameters = data.parameters.zaakafhandelParameters;
     });
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 }

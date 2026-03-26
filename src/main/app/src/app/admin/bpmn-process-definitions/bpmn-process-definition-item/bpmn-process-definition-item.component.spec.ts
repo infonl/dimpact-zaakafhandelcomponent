@@ -3,8 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import { MatChipHarness } from "@angular/material/chips/testing";
 import { MatDialog } from "@angular/material/dialog";
+import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -15,7 +21,7 @@ import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
-import { ProcessDefinitionItemComponent } from "./process-definition-item.component";
+import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item.component";
 
 jest.mock("../file.helper");
 
@@ -65,18 +71,19 @@ const baseProcessDefinition = fromPartial<
   },
 });
 
-describe(ProcessDefinitionItemComponent.name, () => {
-  let fixture: ComponentFixture<ProcessDefinitionItemComponent>;
-  let component: ProcessDefinitionItemComponent;
+describe(BpmnProcessDefinitionItemComponent.name, () => {
+  let fixture: ComponentFixture<BpmnProcessDefinitionItemComponent>;
+  let component: BpmnProcessDefinitionItemComponent;
   let bpmnService: jest.Mocked<BpmnService>;
   let utilService: jest.Mocked<UtilService>;
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        ProcessDefinitionItemComponent,
+        BpmnProcessDefinitionItemComponent,
         SharedModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
@@ -106,13 +113,14 @@ describe(ProcessDefinitionItemComponent.name, () => {
       FoutAfhandelingService,
     ) as jest.Mocked<FoutAfhandelingService>;
 
-    fixture = TestBed.createComponent(ProcessDefinitionItemComponent);
+    fixture = TestBed.createComponent(BpmnProcessDefinitionItemComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("processDefinition", {
       ...baseProcessDefinition,
     });
     fixture.detectChanges();
     await fixture.whenStable();
+    loader = TestbedHarnessEnvironment.loader(fixture);
 
     const internalDialog = (component as unknown as { dialog: MatDialog })
       .dialog;
@@ -139,9 +147,11 @@ describe(ProcessDefinitionItemComponent.name, () => {
   });
 
   describe("inUse indicator", () => {
-    it("should not show inUse message when inUse is false", () => {
-      const inUseSpans: NodeList = fixture.nativeElement.querySelectorAll(
-        "span.icon-align mat-icon[color=primary]",
+    it("should not show inUse message when inUse is false", async () => {
+      const inUseSpans = await loader.getAllHarnesses(
+        MatIconHarness.with({
+          selector: "span.icon-align mat-icon[color=primary]",
+        }),
       );
       expect(inUseSpans.length).toBe(0);
     });
@@ -165,9 +175,9 @@ describe(ProcessDefinitionItemComponent.name, () => {
   });
 
   describe("missing forms warning", () => {
-    it("should show warning icon when there are missing forms", () => {
-      const warnIcons: NodeList = fixture.nativeElement.querySelectorAll(
-        'mat-icon[color="warn"]',
+    it("should show warning icon when there are missing forms", async () => {
+      const warnIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ selector: 'mat-icon[color="warn"]' }),
       );
       expect(warnIcons.length).toBeGreaterThan(0);
     });
@@ -186,24 +196,24 @@ describe(ProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const warnIconsInHeader: NodeList =
-        fixture.nativeElement.querySelectorAll(
-          '.icon-align mat-icon[color="warn"]',
-        );
+      const warnIconsInHeader = await loader.getAllHarnesses(
+        MatIconHarness.with({
+          selector: '.icon-align mat-icon[color="warn"]',
+        }),
+      );
       expect(warnIconsInHeader.length).toBe(0);
     });
   });
 
   describe("forms table", () => {
-    it("should render a row for each form", () => {
-      const rows: NodeList =
-        fixture.nativeElement.querySelectorAll("tr[mat-row]");
+    it("should render a row for each form", async () => {
+      const rows = await loader.getAllHarnesses(MatRowHarness);
       expect(rows.length).toBe(2);
     });
 
-    it("should show check_circle icon for uploaded forms", () => {
-      const checkIcons: NodeList = fixture.nativeElement.querySelectorAll(
-        'mat-icon[color="primary"]',
+    it("should show check_circle icon for uploaded forms", async () => {
+      const checkIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ selector: 'mat-icon[color="primary"]' }),
       );
       expect(checkIcons.length).toBeGreaterThan(0);
     });
@@ -235,8 +245,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const rows: NodeList =
-        fixture.nativeElement.querySelectorAll("tr[mat-row]");
+      const rows = await loader.getAllHarnesses(MatRowHarness);
       expect(rows.length).toBe(0);
     });
 
@@ -262,9 +271,10 @@ describe(ProcessDefinitionItemComponent.name, () => {
       expect(deleteBtn.disabled).toBe(false);
     });
 
-    it("should only render a delete button for uploaded forms", () => {
-      const deleteButtons: NodeList =
-        fixture.nativeElement.querySelectorAll("button#delete");
+    it("should only render a delete button for uploaded forms", async () => {
+      const deleteButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ selector: "button#delete" }),
+      );
       // Only the one uploaded form should have a delete button
       expect(deleteButtons.length).toBe(1);
     });
@@ -507,8 +517,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const chips: NodeList =
-        fixture.nativeElement.querySelectorAll("mat-chip");
+      const chips = await loader.getAllHarnesses(MatChipHarness);
       expect(chips.length).toBe(1);
       expect(fixture.nativeElement.textContent).toContain("form-orphaned");
     });
@@ -528,7 +537,7 @@ describe(ProcessDefinitionItemComponent.name, () => {
       await fixture.whenStable();
 
       const deleteOrphanedSpy = jest.spyOn(
-        component as ProcessDefinitionItemComponent & {
+        component as BpmnProcessDefinitionItemComponent & {
           deleteOrphanedForm: (key: string) => void;
         },
         "deleteOrphanedForm",

@@ -14,33 +14,28 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
 
 const routes: Routes = [
   {
-    path: "taken",
-    children: [
-      {
-        path: "",
-        redirectTo: "werkvoorraad",
-        pathMatch: "full",
-      },
-      {
-        path: "werkvoorraad",
-        component: TakenWerkvoorraadComponent,
-        resolve: { tabelGegevens: TabelGegevensResolver },
-        data: {
-          werklijst: "WERKVOORRAAD_TAKEN" satisfies GeneratedType<"Werklijst">,
-        },
-      },
-      {
-        path: "mijn",
-        component: TakenMijnComponent,
-        resolve: { tabelGegevens: TabelGegevensResolver },
-        data: { werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst"> },
-      },
-      {
-        path: ":id",
-        component: TaakViewComponent,
-        resolve: { taak: TaakResolver },
-      },
-    ],
+    path: "",
+    redirectTo: "werkvoorraad",
+    pathMatch: "full",
+  },
+  {
+    path: "werkvoorraad",
+    component: TakenWerkvoorraadComponent,
+    resolve: { tabelGegevens: TabelGegevensResolver },
+    data: {
+      werklijst: "WERKVOORRAAD_TAKEN" satisfies GeneratedType<"Werklijst">,
+    },
+  },
+  {
+    path: "mijn",
+    component: TakenMijnComponent,
+    resolve: { tabelGegevens: TabelGegevensResolver },
+    data: { werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst"> },
+  },
+  {
+    path: ":id",
+    component: TaakViewComponent,
+    resolve: { taak: TaakResolver },
   },
 ];
 

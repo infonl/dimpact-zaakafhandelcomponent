@@ -30,9 +30,9 @@ import { readFileContent } from "../file.helper";
 
 @Component({
   standalone: true,
-  selector: "zac-process-definition-item",
-  templateUrl: "./process-definition-item.component.html",
-  styleUrls: ["./process-definition-item.component.less"],
+  selector: "zac-bpmn-process-definition-item",
+  templateUrl: "./bpmn-process-definition-item.component.html",
+  styleUrls: ["./bpmn-process-definition-item.component.less"],
   imports: [SharedModule, FileDragAndDropDirective],
   animations: [
     trigger("fadeSlide", [
@@ -44,7 +44,7 @@ import { readFileContent } from "../file.helper";
     ]),
   ],
 })
-export class ProcessDefinitionItemComponent {
+export class BpmnProcessDefinitionItemComponent {
   readonly processDefinition =
     input.required<GeneratedType<"RestBpmnProcessDefinition">>();
 

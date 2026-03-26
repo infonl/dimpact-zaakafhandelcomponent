@@ -209,13 +209,13 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-Dissolve `admin.module.ts` → `admin.routes.ts` and wire `loadChildren` for lazy-loading `/admin`. All required components now standalone.
+TBD — `/admin` lazy-loading complete. Pick next module.
 
 ---
 
-## Intermediate Goal: Lazy-load `/admin`
+## Intermediate Goal: Lazy-load `/admin` ✅ DONE (2026-03-24)
 
-**Progress: 17/18** — all components below must be `standalone: true` before `admin.module.ts` can be dissolved into `admin.routes.ts`.
+**Progress: 18/18**
 
 | Component | Status |
 |---|---|
@@ -227,12 +227,19 @@ Dissolve `admin.module.ts` → `admin.routes.ts` and wire `loadChildren` for laz
 | `admin/groep-signaleringen/groep-signaleringen.component` | ✅ |
 | `admin/mailtemplates/mailtemplates.component` | ✅ |
 | `admin/mailtemplate/mailtemplate.component` | ✅ |
-| `admin/process-definitions/process-definitions.component` | ✅ (open PR) |
+| `admin/process-definitions/process-definitions.component` | ✅ |
 | `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
 | `admin/referentie-tabel/referentie-tabel.component` | ✅ |
 | `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ✅ (open PR #5565) |
-| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ (open PR) |
-| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ (open PR) |
-| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ (open PR) |
-| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ⬜ |
+| `admin/parameters/parameters.component` | ✅ |
+| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ |
+| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ |
+| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ |
+| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ✅ |
+
+### ✅ Lazy-load `/admin` (2026-03-24)
+- Created `admin/admin.routes.ts` with `ADMIN_ROUTES: Routes` (children only, no `"admin"` wrapper)
+- Added `{ path: "admin", loadChildren: () => import("./admin/admin.routes").then(m => m.ADMIN_ROUTES) }` to `app-routing.module.ts`
+- Removed `AdminModule` from `AppModule.imports`
+- Deleted `admin.module.ts` and `admin-routing.module.ts`
+- Build clean; lint 0 errors

@@ -75,10 +75,6 @@ describe("NotitiesComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
-    expect(component).toBeTruthy();
-  });
-
   it("should set new text and current username on notitie edit", () => {
     const notitie: GeneratedType<"RestNote"> = {
       zaakUUID: "some-uuid",

@@ -18,7 +18,7 @@ export const Alice: DamageReport = {
       "Achterstallig onderhoud aan de weg heeft schade aan mijn auto aangebracht",
     date: "10-10-2024 00:00",
     damageType: "materiële schade aan een voertuig",
-    witnesses: true,
+    witnesses: false,
     attachments: true,
     location: {
       city: "Enschede",

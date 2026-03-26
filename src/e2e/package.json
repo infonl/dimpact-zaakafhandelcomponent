@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "engines": {
-    "node": "22.22.1",
+    "node": "22.22.2",
     "npm": "10.9.7"
   },
   "scripts": {
