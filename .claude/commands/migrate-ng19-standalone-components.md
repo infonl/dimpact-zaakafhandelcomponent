@@ -90,7 +90,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
-- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T>): T => fields as unknown as T` — so the `Partial<T>` parameter validates field names and usage sites have zero casts. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T` — the first cast validates field names, the second forces assignment. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
+- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T> = {}): T => ({ ...defaults, ...fields }) as Partial<T> as unknown as T` — the intermediate `as Partial<T>` validates the object literal's property names; `as unknown as T` forces assignment. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T`. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
 ```

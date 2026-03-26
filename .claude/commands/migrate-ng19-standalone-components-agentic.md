@@ -114,7 +114,7 @@ Requirements:
    Add any required child imports (standalone components used by the template) in the imports[] array.
 2. Providers: provideRouter([]) if RouterLink/ActivatedRoute used; mock services with Pick<Service, 'method'> pattern.
 3. Every test must assert meaningful behaviour — no `it("should create", ...)`.
-4. Use named factory helpers: `const makeX = (fields: Partial<T> = {}): T => ({ ...defaults, ...fields }) as unknown as T`
+4. Use named factory helpers: `const makeX = (fields: Partial<T> = {}): T => ({ ...defaults, ...fields }) as Partial<T> as unknown as T` — the intermediate `as Partial<T>` validates property names; never use bare `as unknown as T` on an object literal.
 5. Use `component["member"]` bracket notation for protected/private members.
 6. SPDX header: `2026 INFO.nl` (only if INFO.nl absent from existing header).
 7. Cover ≥90% of template behaviours from this checklist:
