@@ -57,9 +57,16 @@ private const val HIGH_PRIORITY = 1000
 @Provider
 @Priority(HIGH_PRIORITY) // Run early in the filter chain to ensure MDC is set before business logic
 @Suppress("TooManyFunctions")
-class MdcLoggingFilter(
-    val loggerProvider: LoggerProvider? = null // Provided for testing purposes
-) : ContainerRequestFilter, ContainerResponseFilter {
+class MdcLoggingFilter() : ContainerRequestFilter, ContainerResponseFilter {
+
+    private var _loggerProvider: LoggerProvider? = null
+    val loggerProvider: LoggerProvider?
+        get() = _loggerProvider
+
+    // Secondary constructor for tests that need to inject a custom LoggerProvider
+    constructor(loggerProvider: LoggerProvider?) : this() {
+        this._loggerProvider = loggerProvider
+    }
     companion object {
         private val LOG = Logger.getLogger(MdcLoggingFilter::class.java.name)
 
