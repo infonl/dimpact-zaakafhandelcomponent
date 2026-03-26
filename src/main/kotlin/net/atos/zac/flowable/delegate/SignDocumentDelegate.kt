@@ -1,12 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package net.atos.zac.flowable.delegate
 
 import jakarta.enterprise.inject.spi.CDI
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
@@ -28,7 +27,6 @@ class SignDocumentDelegate : AbstractDelegate() {
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
-        val drcClientService = CDI.current().select(DrcClientService::class.java).get()
         val enkelvoudigInformatieObjectUpdateService =
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
@@ -50,7 +48,7 @@ class SignDocumentDelegate : AbstractDelegate() {
         )
 
         documentsToSign.forEach { uuid ->
-            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
+            val enkelvoudigInformatieobject = flowableHelper.drcClientService.readEnkelvoudigInformatieobject(uuid)
 
             if (enkelvoudigInformatieobject.ondertekening?.datum != null) {
                 LOG.warning("Document '${enkelvoudigInformatieobject.identificatie}' is already signed, skipping")
