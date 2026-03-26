@@ -537,9 +537,6 @@ class ProductaanvraagService @Inject constructor(
         val productaanvraagSpecificContactDetails = klantClientService.findProductaanvraagSpecificContactDetails(
             productaanvraag.bron.kenmerk
         )
-        productaanvraagSpecificContactDetails?.let {
-            LOG.info { "Productaanvraag specific contact details: $it" }
-        }
         val zaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService
             .findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(productaanvraag.type)
         val zaaktypeBpmnProcessDefinition = zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
