@@ -1,5 +1,7 @@
 # Angular 19 Standalone Migration — Demo Overview
 
+![NgModules → Standalone Components](ng-demo.png)
+
 **Why are we doing this?** New Angular versions require standalone components — `NgModule` is legacy as of Angular 17+ and unsupported for new APIs (`@defer`, signal inputs, etc.) in Angular 19.
 
 ---
