@@ -17,11 +17,11 @@
 - [x] `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`
 - [x] `admin/parameters-edit-shell/parameters-edit-shell.component.ts`
 
-### Batch 3 — in progress (branch: `temp/standalone-migration`)
-- [ ] `shared/indicaties/indicaties.component.ts` (abstract base)
-- [ ] `shared/indicaties/besluit-indicaties/besluit-indicaties.component.ts`
-- [ ] `shared/indicaties/persoon-indicaties/persoon-indicaties.component.ts`
-- [ ] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
+### Batch 3 — done (branch: `temp/standalone-migration`)
+- [x] `shared/indicaties/indicaties.component.ts` (abstract base)
+- [x] `shared/indicaties/besluit-indicaties/besluit-indicaties.component.ts`
+- [x] `shared/indicaties/persoon-indicaties/persoon-indicaties.component.ts`
+- [x] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
 
 ## Dax
 
