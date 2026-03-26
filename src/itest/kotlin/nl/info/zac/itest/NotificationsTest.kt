@@ -25,6 +25,10 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRA
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK
@@ -50,6 +54,14 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_TOELICHTING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
@@ -736,6 +748,193 @@ class NotificationsTest : BehaviorSpec({
                 with(JSONObject(it)) {
                     getString("opcode") shouldBe "UPDATED"
                     getString("objectType") shouldBe "ZAAK_ROLLEN"
+                }
+            }
+        }
+    }
+
+    Given(
+        """"
+            ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
+            specific email address in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration are defined in
+            ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of receipt'
+            (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
+        """.trimIndent()
+    ) {
+        When(
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header, 
+                alternative email address without initiator'
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    // this test simulates that Open Notificaties sends the request to ZAC
+                    // using the secret API key that is configured in ZAC
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "kanaal" to "objecten",
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_3_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_3_UUID",
+                        "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        )
+                    )
+                ).toString()
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                        using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC
+                        with the correct identification"""
+            ) {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                // retrieve the newly created zaak and check the contents
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
+                        getJSONObject("status").getString("naam") shouldBe "Intake"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                        // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
+                        getBoolean("isProcesGestuurd") shouldBe false
+                        getString("communicatiekanaal") shouldBe "E-formulier"
+                        getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
+                        getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_3_TOELICHTING"
+                        zaakProductaanvraag3Uuid = getString("uuid").let(UUID::fromString)
+                    }
+                }
+            }
+
+            And("an automated acknowledgement of receipt email is sent to alternative email address") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL/messages/"
+                )
+                logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                with(receivedMails) {
+                    length() shouldBe 1
+                    with(getJSONObject(0)) {
+                        getString("subject") shouldContain
+                            "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION"
+                        getString("contentType") shouldStartWith "multipart/mixed"
+                        with(getString("mimeMessage")) {
+                            shouldContain("From: $CONFIG_GEMEENTE_NAAM <$TEST_GEMEENTE_EMAIL_ADDRESS>")
+                            shouldContain("Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>")
+                            shouldContain("Wij hebben uw verzoek ontvangen en deze op")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Given(
+        """"
+            ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
+            specific email address and betrokkene in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration
+            are defined in ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of
+            receipt' (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
+        """.trimIndent()
+    ) {
+        When(
+            """
+                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header, 
+                alternative email address and initiator of type 'BSN'
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/notificaties",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json",
+                    // this test simulates that Open Notificaties sends the request to ZAC
+                    // using the secret API key that is configured in ZAC
+                    "Authorization",
+                    OPEN_NOTIFICATIONS_API_SECRET_KEY
+                ),
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "kanaal" to "objecten",
+                        "resource" to "object",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
+                        "actie" to "create",
+                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                        "kenmerken" to mapOf(
+                            "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                        )
+                    )
+                ).toString()
+            )
+            Then(
+                """the response should be 'no content', a zaak should be created in OpenZaak
+                        using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC
+                        with the correct identification for the zaak"""
+            ) {
+                response.code shouldBe HTTP_NO_CONTENT
+
+                // retrieve the newly created zaak and check the contents
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                ).let { getZaakResponse ->
+                    val responseBody = getZaakResponse.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(JSONObject(responseBody)) {
+                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_TEST_3_UUID.toString()
+                        getJSONObject("status").getString("naam") shouldBe "Intake"
+                        getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                        // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
+                        // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
+                        getBoolean("isProcesGestuurd") shouldBe false
+                        getString("communicatiekanaal") shouldBe "E-formulier"
+                        getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
+                        getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
+                    }
+                }
+            }
+
+            And("an automated acknowledgement of receipt email is sent to alternative email address 2") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL/messages/"
+                )
+                logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                with(receivedMails) {
+                    length() shouldBe 1
+                    with(getJSONObject(0)) {
+                        getString("subject") shouldContain
+                            "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION"
+                        getString("contentType") shouldStartWith "multipart/mixed"
+                        with(getString("mimeMessage")) {
+                            shouldContain("From: $CONFIG_GEMEENTE_NAAM <$TEST_GEMEENTE_EMAIL_ADDRESS>")
+                            shouldContain("Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>")
+                            shouldContain("Wij hebben uw verzoek ontvangen en deze op")
+                        }
+                    }
                 }
             }
         }

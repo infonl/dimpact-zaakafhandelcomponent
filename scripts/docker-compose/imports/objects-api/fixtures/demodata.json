@@ -1322,12 +1322,17 @@
           }
         },
         "taal": "nld",
-        "betrokkenen": [],
-        "pdf": "http://host.docker.internal:8001/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag-alternative-email",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving-alternative-email",
+          "toelichting": "fakeZaakToelichting-alternative-email"
+        },
+        "betrokkenen": []
       },
-      "start_at": "1996-01-01",
+      "start_at": "1973-01-01",
       "end_at": null,
-      "registration_at": "1996-01-01",
+      "registration_at": "1973-01-01",
       "correct": null,
       "geometry": null,
       "created_on": "2026-03-24T12:16:12.567Z",
@@ -1369,17 +1374,22 @@
           }
         },
         "taal": "nld",
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag-alternative-email-2",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving-alternative-email-2",
+          "toelichting": "fakeZaakToelichting-alternative-email-2"
+        },
         "betrokkenen": [
           {
             "inpBsn": "999991838",
             "rolOmschrijvingGeneriek": "initiator"
           }
-        ],
-        "pdf": "http://host.docker.internal:8001/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"
+        ]
       },
-      "start_at": "1996-01-01",
+      "start_at": "1974-01-01",
       "end_at": null,
-      "registration_at": "1996-01-01",
+      "registration_at": "1974-01-01",
       "correct": null,
       "geometry": null,
       "created_on": "2026-03-24T12:16:12.567Z",
