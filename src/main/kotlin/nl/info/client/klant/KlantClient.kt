@@ -91,6 +91,6 @@ interface KlantClient {
     fun getPartijIdentificator(@PathParam("uuid") uuid: UUID): PartijIdentificator
 
     @POST
-    @Path("onderwerpobjecten")
+    @Path("/onderwerpobjecten")
     fun onderwerpobjectCreate(onderwerpobject: Onderwerpobject): Onderwerpobject
 }
