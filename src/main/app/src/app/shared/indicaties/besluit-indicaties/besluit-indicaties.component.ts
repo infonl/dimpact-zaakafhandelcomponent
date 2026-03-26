@@ -3,17 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { MaterialModule } from "../../material/material.module";
 import { BesluitIndicatie } from "../../model/indicatie";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
+
 @Component({
   selector: "zac-besluit-indicaties",
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, MaterialModule, TranslateModule],
 })
 export class BesluitIndicatiesComponent
   extends IndicatiesComponent

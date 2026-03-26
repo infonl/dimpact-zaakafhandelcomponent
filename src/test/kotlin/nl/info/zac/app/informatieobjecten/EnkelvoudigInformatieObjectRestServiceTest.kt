@@ -21,8 +21,8 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -69,7 +69,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
     val enkelvoudigInformatieObjectConvertService = mockk<EnkelvoudigInformatieObjectConvertService>()
     val eventingService = mockk<EventingService>()
-    val inboxDocumentenService = mockk<InboxDocumentenService>()
+    val inboxDocumentService = mockk<InboxDocumentService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
     val policyService = mockk<PolicyService>()
@@ -87,7 +87,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         zrcClientService = zrcClientService,
         zgwApiService = zgwApiService,
         ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
-        inboxDocumentenService = inboxDocumentenService,
+        inboxDocumentService = inboxDocumentService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
         eventingService = eventingService,
         restInformatieobjectConverter = restInformatieobjectConverter,

@@ -17,6 +17,15 @@
   >
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
+
+  <input
+    #bpmnProcessDefinitionFileInput
+    type="file"
+    accept=".bpmn"
+    style="display: none"
+    (change)="bpmnProcessDefinitionFileSelected($event)"
+  />
+
   <mat-sidenav-content class="flex-col gap-20">
     <mat-card>
       <mat-card-content class="table-container">
@@ -32,20 +41,15 @@
           </section>
           <div class="actions-header">
             <button
-              mat-icon-button
               id="upload"
-              title="{{ 'actie.toevoegen' | translate }}"
+              mat-raised-button
+              color="primary"
               (click)="selectBpmnProcessDefinitionFile()"
             >
-              <mat-icon>add_circle</mat-icon>
+              {{
+                "bpmn.process-definition.button.upload.definition" | translate
+              }}
             </button>
-            <input
-              #bpmnProcessDefinitionFileInput
-              type="file"
-              accept=".bpmn"
-              style="display: none"
-              (change)="bpmnProcessDefinitionFileSelected($event)"
-            />
           </div>
         </div>
 
@@ -71,14 +75,18 @@
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
 
-                <mat-chip [highlighted]="hasAllFormsUploaded(node)">
-                  {{
-                    (hasAllFormsUploaded(node)
-                      ? "bpmn-procesdefinitie.chip.volledig"
-                      : "bpmn-procesdefinitie.chip.onvolledig"
-                    ) | translate
-                  }}
-                </mat-chip>
+                @if (!hasAllFormsUploaded(node)) {
+                  <mat-icon
+                    outlined
+                    color="warn"
+                    matTooltip="{{
+                      'bpmn.process-definition.chip.onvolledig' | translate
+                    }}"
+                    >error</mat-icon
+                  >
+                } @else {
+                  <mat-icon outlined color="primary">check_circle</mat-icon>
+                }
 
                 <button
                   mat-icon-button

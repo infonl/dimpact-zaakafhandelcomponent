@@ -30,13 +30,13 @@ describe(PersoonIndicatiesComponent.name, () => {
     component = new PersoonIndicatiesComponent();
   });
 
-  it("toont geen indicaties wanneer persoon geen indicaties heeft", () => {
+  it("shows no indicaties when persoon has no indicaties", () => {
     component.persoon = {
       indicaties: [],
     } as unknown as GeneratedType<"RestPersoon">;
     component.ngOnInit();
 
-    expect(component.indicaties).toHaveLength(0);
+    expect(component["indicaties"]).toHaveLength(0);
   });
 
   it.each(persoonIndicatieMetadata)(
@@ -47,30 +47,30 @@ describe(PersoonIndicatiesComponent.name, () => {
       } as unknown as GeneratedType<"RestPersoon">;
       component.ngOnInit();
 
-      expect(component.indicaties).toHaveLength(1);
-      expect(component.indicaties[0].naam).toBe(indicatie);
-      expect(component.indicaties[0].icon).toBe(expectedIcon);
-      expect(component.indicaties[0].primary).toBe(true);
+      expect(component["indicaties"]).toHaveLength(1);
+      expect(component["indicaties"][0].naam).toBe(indicatie);
+      expect(component["indicaties"][0].icon).toBe(expectedIcon);
+      expect(component["indicaties"][0].primary).toBe(true);
     },
   );
 
-  it("ngOnChanges herberekent indicaties bij gewijzigd persoon", () => {
+  it("ngOnChanges recomputes indicaties when persoon changes", () => {
     component.persoon = {
       indicaties: ["NIET_INGEZETENE"],
     } as unknown as GeneratedType<"RestPersoon">;
-    component.ngOnChanges({});
+    component.ngOnChanges();
 
-    expect(component.indicaties).toHaveLength(1);
-    expect(component.indicaties[0].naam).toBe("NIET_INGEZETENE");
+    expect(component["indicaties"]).toHaveLength(1);
+    expect(component["indicaties"][0].naam).toBe("NIET_INGEZETENE");
   });
 
-  it("meerdere indicaties worden allemaal weergegeven", () => {
+  it("renders all indicaties when multiple are provided", () => {
     component.persoon = {
       indicaties: ["GEHEIMHOUDING_OP_PERSOONSGEGEVENS", "OVERLEDEN"],
     } as unknown as GeneratedType<"RestPersoon">;
     component.ngOnInit();
 
-    expect(component.indicaties.map((i) => i.naam)).toEqual([
+    expect(component["indicaties"].map((i) => i.naam)).toEqual([
       "GEHEIMHOUDING_OP_PERSOONSGEGEVENS",
       "OVERLEDEN",
     ]);

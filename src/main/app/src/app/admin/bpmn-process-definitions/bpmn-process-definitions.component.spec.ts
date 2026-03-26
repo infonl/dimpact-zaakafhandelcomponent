@@ -218,9 +218,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
   describe("selectBpmnProcessDefinitionFile", () => {
     it("should trigger a click on the hidden file input", () => {
-      const fileInput: HTMLInputElement =
-        fixture.nativeElement.querySelector('input[type="file"]');
-      const clickSpy = jest.spyOn(fileInput, "click");
+      const clickSpy = jest.spyOn(
+        component["bpmnProcessDefinitionFileInput"].nativeElement,
+        "click",
+      );
 
       component["selectBpmnProcessDefinitionFile"]();
 
@@ -256,10 +257,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "process.bpmn",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "process.bpmn", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should reset input value after file selection so re-uploading the same file works", () => {
@@ -311,10 +312,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "dropped.bpmn",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "dropped.bpmn", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should do nothing when FileList is empty", () => {
@@ -350,10 +351,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       component["bpmnProcessDefinitionFileDropped"](fileList);
       await flushPromises();
 
-      expect(mutateMock).toHaveBeenCalledWith({
-        filename: "process.BPMN",
-        content: fileContent,
-      });
+      expect(mutateMock).toHaveBeenCalledWith(
+        { filename: "process.BPMN", content: fileContent },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
     });
 
     it("should call foutAfhandelingService when readFileContent rejects", async () => {
@@ -376,7 +377,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
+        "msg.bpmn.process-definition.delete.confirm",
       );
       expect(dialogData._melding.args).toEqual({ naam: "Process A" });
     });
@@ -389,7 +390,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
       expect(deleteMutationFn).toHaveBeenCalledWith("key-a");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
+        "msg.bpmn.process-definition.deleted",
         { naam: "Process A" },
       );
     });
@@ -410,6 +411,47 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     it("should return the node cast as a process definition", () => {
       const result = component["asProcessDefinition"](baseProcessDefinition);
       expect(result).toBe(baseProcessDefinition);
+    });
+  });
+
+  describe("uploadBpmnFile onSuccess", () => {
+    async function triggerOnSuccess(filename: string) {
+      const fileContent = "<bpmn/>";
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+
+      const mutateMock = jest.fn();
+      Object.defineProperty(component, "uploadMutation", {
+        value: { mutate: mutateMock },
+        writable: true,
+      });
+
+      component["bpmnProcessDefinitionFileDropped"](
+        makeFileList(new File([fileContent], filename)),
+      );
+      await flushPromises();
+
+      const { onSuccess } = mutateMock.mock.calls[0][1] as {
+        onSuccess: () => void;
+      };
+      onSuccess();
+    }
+
+    it("should show a snackbar with the filename after successful upload", async () => {
+      await triggerOnSuccess("key-a.bpmn");
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.bpmn.process-definition.upload.success",
+        { naam: "key-a.bpmn" },
+      );
+    });
+
+    it("should expand the uploaded definition after successful upload", async () => {
+      await triggerOnSuccess("key-a.bpmn");
+      expect(component["expandedKey"]).toBe("key-a");
+    });
+
+    it("should strip .bpmn extension case-insensitively when setting expandedKey", async () => {
+      await triggerOnSuccess("MY-PROCESS.BPMN");
+      expect(component["expandedKey"]).toBe("MY-PROCESS");
     });
   });
 });

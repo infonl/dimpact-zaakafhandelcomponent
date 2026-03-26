@@ -20,7 +20,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -71,7 +71,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
-    val inboxDocumentenService = mockk<InboxDocumentenService>()
+    val inboxDocumentService = mockk<InboxDocumentService>()
     val inboxProductaanvraagService = mockk<InboxProductaanvraagService>()
     val productaanvraagEmailService = mockk<ProductaanvraagEmailService>()
     val cmmnService = mockk<CMMNService>()
@@ -87,7 +87,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         zaaktypeCmmnConfigurationBeheerService = zaaktypeCmmnConfigurationBeheerService,
-        inboxDocumentenService = inboxDocumentenService,
+        inboxDocumentService = inboxDocumentService,
         inboxProductaanvraagService = inboxProductaanvraagService,
         productaanvraagEmailService = productaanvraagEmailService,
         cmmnService = cmmnService,

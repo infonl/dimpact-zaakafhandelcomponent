@@ -19,37 +19,37 @@ describe(BesluitIndicatiesComponent.name, () => {
     } as unknown as TranslateService);
   });
 
-  it("toont geen indicaties wanneer besluit niet ingetrokken is", () => {
+  it("shows no indicaties when besluit is not ingetrokken", () => {
     component.ngOnChanges({
       besluit: new SimpleChange(
         undefined,
-        { isIngetrokken: false } as GeneratedType<"RestDecision">,
+        { isIngetrokken: false } as unknown as GeneratedType<"RestDecision">,
         true,
       ),
     });
 
-    expect(component.indicaties).toHaveLength(0);
+    expect(component["indicaties"]).toHaveLength(0);
   });
 
-  it("toont INGETROKKEN indicatie met 'stop' icon wanneer besluit ingetrokken is", () => {
+  it("shows INGETROKKEN indicatie with 'stop' icon when besluit is ingetrokken", () => {
     component.ngOnChanges({
       besluit: new SimpleChange(
         undefined,
         {
           isIngetrokken: true,
           vervalreden: "INGETROKKEN_OVERIG",
-        } as GeneratedType<"RestDecision">,
+        } as unknown as GeneratedType<"RestDecision">,
         true,
       ),
     });
 
-    expect(component.indicaties).toHaveLength(1);
-    expect(component.indicaties[0].naam).toBe("INGETROKKEN");
-    expect(component.indicaties[0].icon).toBe("stop");
-    expect(component.indicaties[0].primary).toBe(false);
+    expect(component["indicaties"]).toHaveLength(1);
+    expect(component["indicaties"][0].naam).toBe("INGETROKKEN");
+    expect(component["indicaties"][0].icon).toBe("stop");
+    expect(component["indicaties"][0].primary).toBe(false);
   });
 
-  it("toelichting bevat vertaalde vervalreden", () => {
+  it("toelichting contains translated vervalreden", () => {
     translateInstant.mockImplementation((key: string) => `vertaald:${key}`);
 
     component.ngOnChanges({
@@ -58,12 +58,12 @@ describe(BesluitIndicatiesComponent.name, () => {
         {
           isIngetrokken: true,
           vervalreden: "INGETROKKEN_OVERIG",
-        } as GeneratedType<"RestDecision">,
+        } as unknown as GeneratedType<"RestDecision">,
         true,
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       "vertaald:besluit.vervalreden.INGETROKKEN_OVERIG",
     );
   });

@@ -5,7 +5,7 @@
 
 package nl.info.zac.model
 
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.model.InboxDocument
 import java.time.LocalDate
 import java.util.UUID
 

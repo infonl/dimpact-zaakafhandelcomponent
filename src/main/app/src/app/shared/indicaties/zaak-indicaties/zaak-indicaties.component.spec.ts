@@ -26,7 +26,7 @@ describe(ZaakIndicatiesComponent.name, () => {
     } as unknown as TranslateService);
   });
 
-  it("toont geen indicaties wanneer zaak geen indicaties heeft", () => {
+  it("shows no indicaties when zaak has no indicaties", () => {
     component.ngOnChanges({
       zaak: new SimpleChange(
         undefined,
@@ -35,10 +35,10 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties).toHaveLength(0);
+    expect(component["indicaties"]).toHaveLength(0);
   });
 
-  it("OPSCHORTING → icon 'pause', primary=true, toelichting met reden", () => {
+  it("OPSCHORTING → icon 'pause', primary=true, toelichting contains reden", () => {
     component.ngOnChanges({
       zaak: new SimpleChange(
         undefined,
@@ -51,11 +51,11 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties).toHaveLength(1);
-    expect(component.indicaties[0].naam).toBe("OPSCHORTING");
-    expect(component.indicaties[0].icon).toBe("pause");
-    expect(component.indicaties[0].primary).toBe(true);
-    expect(component.indicaties[0].toelichting).toContain("vakantie");
+    expect(component["indicaties"]).toHaveLength(1);
+    expect(component["indicaties"][0].naam).toBe("OPSCHORTING");
+    expect(component["indicaties"][0].icon).toBe("pause");
+    expect(component["indicaties"][0].primary).toBe(true);
+    expect(component["indicaties"][0].toelichting).toContain("vakantie");
   });
 
   it("HEROPEND → icon 'restart_alt', primary=true", () => {
@@ -71,8 +71,8 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].icon).toBe("restart_alt");
-    expect(component.indicaties[0].primary).toBe(true);
+    expect(component["indicaties"][0].icon).toBe("restart_alt");
+    expect(component["indicaties"][0].primary).toBe(true);
   });
 
   it("VERLENGD → icon 'update', primary=false", () => {
@@ -88,8 +88,8 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].icon).toBe("update");
-    expect(component.indicaties[0].primary).toBe(false);
+    expect(component["indicaties"][0].icon).toBe("update");
+    expect(component["indicaties"][0].primary).toBe(false);
   });
 
   it("HOOFDZAAK → icon 'account_tree', primary=false", () => {
@@ -107,9 +107,9 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].icon).toBe("account_tree");
-    expect(component.indicaties[0].primary).toBe(false);
-    expect(component.indicaties[0].outlined).toBe(false);
+    expect(component["indicaties"][0].icon).toBe("account_tree");
+    expect(component["indicaties"][0].primary).toBe(false);
+    expect(component["indicaties"][0].outlined).toBe(false);
   });
 
   it("DEELZAAK → icon 'account_tree', outlined=true", () => {
@@ -127,8 +127,8 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].icon).toBe("account_tree");
-    expect(component.indicaties[0].outlined).toBe(true);
+    expect(component["indicaties"][0].icon).toBe("account_tree");
+    expect(component["indicaties"][0].outlined).toBe(true);
   });
 
   it("ONTVANGSTBEVESTIGING_NIET_VERSTUURD → icon 'unsubscribe'", () => {
@@ -143,11 +143,11 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].icon).toBe("unsubscribe");
-    expect(component.indicaties[0].primary).toBe(false);
+    expect(component["indicaties"][0].icon).toBe("unsubscribe");
+    expect(component["indicaties"][0].primary).toBe(false);
   });
 
-  it("gebruikt zaakZoekObject als zaak niet aanwezig is", () => {
+  it("falls back to zaakZoekObject when zaak is not present", () => {
     component.ngOnChanges({
       zaakZoekObject: new SimpleChange(
         undefined,
@@ -159,11 +159,11 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties).toHaveLength(1);
-    expect(component.indicaties[0].naam).toBe("OPSCHORTING");
+    expect(component["indicaties"]).toHaveLength(1);
+    expect(component["indicaties"][0].naam).toBe("OPSCHORTING");
   });
 
-  it("meerdere indicaties worden allemaal weergegeven", () => {
+  it("renders all indicaties when multiple are provided", () => {
     component.ngOnChanges({
       zaak: new SimpleChange(
         undefined,
@@ -175,7 +175,7 @@ describe(ZaakIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties.map((i) => i.naam)).toEqual([
+    expect(component["indicaties"].map((i) => i.naam)).toEqual([
       "VERLENGD",
       "ONTVANGSTBEVESTIGING_NIET_VERSTUURD",
     ]);

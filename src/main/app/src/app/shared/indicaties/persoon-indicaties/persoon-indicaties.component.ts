@@ -4,7 +4,10 @@
  *
  */
 
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
@@ -13,23 +16,20 @@ import { IndicatiesComponent } from "../indicaties.component";
   selector: "zac-persoon-indicaties",
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, MaterialModule, TranslateModule],
 })
 export class PersoonIndicatiesComponent
   extends IndicatiesComponent
   implements OnInit, OnChanges
 {
-  constructor() {
-    super();
-  }
-
   @Input({ required: true }) persoon!: GeneratedType<"RestPersoon">;
 
   ngOnInit() {
     this.loadIndicaties();
   }
 
-  loadIndicaties(): void {
+  private loadIndicaties(): void {
     if (!this.persoon?.indicaties?.length) {
       this.indicaties = [];
       return;
