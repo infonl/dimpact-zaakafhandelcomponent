@@ -9,7 +9,9 @@ import { DateFilterComponent } from "./date-filter.component";
 const makeRange = (
   fields: Partial<GeneratedType<"RestDatumRange">>,
 ): GeneratedType<"RestDatumRange"> =>
-  fields as Partial<GeneratedType<"RestDatumRange">> as unknown as GeneratedType<"RestDatumRange">;
+  fields as Partial<
+    GeneratedType<"RestDatumRange">
+  > as unknown as GeneratedType<"RestDatumRange">;
 
 describe(DateFilterComponent.name, () => {
   let component: DateFilterComponent;

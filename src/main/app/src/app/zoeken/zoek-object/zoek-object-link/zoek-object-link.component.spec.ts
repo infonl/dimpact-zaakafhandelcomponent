@@ -11,7 +11,9 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 import { ZoekObjectLinkComponent } from "./zoek-object-link.component";
 
 const makeZoekObject = (
-  fields: Partial<GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">>,
+  fields: Partial<
+    GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+  >,
 ): GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject"> =>
   fields as unknown as GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
 
@@ -44,13 +46,19 @@ describe(ZoekObjectLinkComponent.name, () => {
     });
 
     it("returns taak route for TAAK type", () => {
-      component.zoekObject = makeZoekObject({ type: "TAAK", id: "taak-uuid-123" });
+      component.zoekObject = makeZoekObject({
+        type: "TAAK",
+        id: "taak-uuid-123",
+      });
 
       expect(component["getLink"]()).toEqual(["/taken/", "taak-uuid-123"]);
     });
 
     it("returns document route for DOCUMENT type", () => {
-      component.zoekObject = makeZoekObject({ type: "DOCUMENT", id: "doc-uuid-456" });
+      component.zoekObject = makeZoekObject({
+        type: "DOCUMENT",
+        id: "doc-uuid-456",
+      });
 
       expect(component["getLink"]()).toEqual([
         "/informatie-objecten/",
@@ -106,7 +114,9 @@ describe(ZoekObjectLinkComponent.name, () => {
 
   describe("keyboard _newtab toggle", () => {
     it("sets _newtab to true on Control keydown", () => {
-      component["handleKeydown"](new KeyboardEvent("keydown", { key: "Control" }));
+      component["handleKeydown"](
+        new KeyboardEvent("keydown", { key: "Control" }),
+      );
 
       expect(component["_newtab"]).toBe(true);
     });
@@ -119,7 +129,9 @@ describe(ZoekObjectLinkComponent.name, () => {
     });
 
     it("ignores non-Control keys", () => {
-      component["handleKeydown"](new KeyboardEvent("keydown", { key: "Shift" }));
+      component["handleKeydown"](
+        new KeyboardEvent("keydown", { key: "Shift" }),
+      );
 
       expect(component["_newtab"]).toBe(false);
     });

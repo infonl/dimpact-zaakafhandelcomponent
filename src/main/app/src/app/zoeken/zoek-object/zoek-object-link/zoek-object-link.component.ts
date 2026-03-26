@@ -5,13 +5,13 @@
 
 import { NgIf } from "@angular/common";
 import { Component, HostListener, Input } from "@angular/core";
-import { RouterLink } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
+import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
-import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { ReadMoreComponent } from "../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
