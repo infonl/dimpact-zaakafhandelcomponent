@@ -65,7 +65,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
             }
 
             And("operation should be extracted from path") {
-                loggerProvider.getMdc("operation").toString() shouldBe "zaken"
+                loggerProvider.getMdc(MdcLoggingFilter.MDC_OPERATION).toString() shouldBe "zaken"
             }
 
             And("start time should be stored in request context") {
