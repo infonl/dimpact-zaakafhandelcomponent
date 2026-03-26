@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -24,31 +27,33 @@ function setup(data: string) {
 
   const fixture = TestBed.createComponent(FoutDialogComponent);
   fixture.detectChanges();
-  return { fixture, mockDialogRef };
+  const loader: HarnessLoader = TestbedHarnessEnvironment.loader(fixture);
+  return { fixture, mockDialogRef, loader };
 }
 
 describe(FoutDialogComponent.name, () => {
   it("renders the injected data string in the dialog content", () => {
     const { fixture } = setup("some.error.translation.key");
-    const content = fixture.nativeElement.querySelector(
-      "[mat-dialog-content]",
-    ) as HTMLElement;
-    expect(content.textContent).toContain("some.error.translation.key");
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      "some.error.translation.key",
+    );
   });
 
-  it("toolbar close button calls dialogRef.close()", () => {
-    const { fixture, mockDialogRef } = setup("error.key");
-    fixture.nativeElement
-      .querySelector("mat-toolbar button[mat-icon-button]")
-      .click();
+  it("toolbar close button calls dialogRef.close()", async () => {
+    const { loader, mockDialogRef } = setup("error.key");
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "[mat-icon-button]" }),
+    );
+    await button.click();
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
 
-  it("actions close button calls dialogRef.close()", () => {
-    const { fixture, mockDialogRef } = setup("error.key");
-    fixture.nativeElement
-      .querySelector("[mat-dialog-actions] button[mat-raised-button]")
-      .click();
+  it("actions close button calls dialogRef.close()", async () => {
+    const { loader, mockDialogRef } = setup("error.key");
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "[mat-raised-button]" }),
+    );
+    await button.click();
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
 });
