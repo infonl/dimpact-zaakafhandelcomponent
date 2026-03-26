@@ -7,7 +7,6 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatChipHarness } from "@angular/material/chips/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatRowHarness } from "@angular/material/table/testing";
@@ -150,7 +149,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     it("should not show inUse message when inUse is false", async () => {
       const inUseSpans = await loader.getAllHarnesses(
         MatIconHarness.with({
-          selector: "span.icon-align mat-icon[color=primary]",
+          selector: "div.explanation mat-icon[color=primary]",
         }),
       );
       expect(inUseSpans.length).toBe(0);
@@ -168,7 +167,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       await fixture.whenStable();
 
       const inUseIcon = fixture.nativeElement.querySelector(
-        "span.icon-align mat-icon[color=primary]",
+        "div.explanation mat-icon[color=primary]",
       );
       expect(inUseIcon).not.toBeNull();
     });
@@ -198,7 +197,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       const warnIconsInHeader = await loader.getAllHarnesses(
         MatIconHarness.with({
-          selector: '.icon-align mat-icon[color="warn"]',
+          selector: '.explanation mat-icon[color="warn"]',
         }),
       );
       expect(warnIconsInHeader.length).toBe(0);
@@ -327,8 +326,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "test-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "test-form.json" },
+        "msg.bpmn.task-forms.upload.success",
+        { namen: "test-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -409,8 +408,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "dropped-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "dropped-form.json" },
+        "msg.bpmn.task-forms.upload.success",
+        { namen: "dropped-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -436,7 +435,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.bpmn-formulier.verwijderen.bevestigen",
+        "msg.bpmn.task-forms.delete.confirm",
       );
       expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
     });
@@ -458,8 +457,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteBpmnForm"]("form-uploaded");
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
-        { naam: "form-uploaded" },
+        "msg.bpmn.task-forms.deleted",
+        { namen: "form-uploaded" },
       );
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -474,24 +473,38 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     });
   });
 
-  describe("deleteOrphanedForm", () => {
-    it("should call deleteProcessDefinitionForm with the correct key and form name", () => {
-      component["deleteOrphanedForm"]("orphan-form");
+  describe("deleteAllOrphanedForms", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput(
+        "processDefinition",
+        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+          ...baseProcessDefinition,
+          details: {
+            ...baseProcessDefinition.details,
+            orphanedForms: [orphanedForm],
+          },
+        }),
+      );
+      fixture.detectChanges();
+    });
+
+    it("should call deleteProcessDefinitionForm for each orphaned form", () => {
+      component["deleteAllOrphanedForms"]();
 
       expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
         "test-key",
-        "orphan-form",
+        "form-orphaned",
       );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged after deletion", () => {
+    it("should show snackbar and emit bpmnFormListChanged after all deletions", () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
-      component["deleteOrphanedForm"]("orphan-form");
+      component["deleteAllOrphanedForms"]();
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
-        { naam: "orphan-form" },
+        "msg.bpmn.task-forms.deleted",
+        { namen: "form-orphaned" },
       );
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -517,36 +530,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const chips = await loader.getAllHarnesses(MatChipHarness);
-      expect(chips.length).toBe(1);
       expect(fixture.nativeElement.textContent).toContain("form-orphaned");
-    });
-
-    it("should call deleteOrphanedForm when a chip's remove button is clicked", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            orphanedForms: [orphanedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const deleteOrphanedSpy = jest.spyOn(
-        component as BpmnProcessDefinitionItemComponent & {
-          deleteOrphanedForm: (key: string) => void;
-        },
-        "deleteOrphanedForm",
-      );
-      const removeButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector("button[matChipRemove]");
-      removeButton.click();
-
-      expect(deleteOrphanedSpy).toHaveBeenCalledWith("form-orphaned");
     });
   });
 });

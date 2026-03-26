@@ -15,6 +15,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { MatExpansionModule } from "@angular/material/expansion";
 import { forkJoin } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
@@ -33,7 +34,7 @@ import { readFileContent } from "../file.helper";
   selector: "zac-bpmn-process-definition-item",
   templateUrl: "./bpmn-process-definition-item.component.html",
   styleUrls: ["./bpmn-process-definition-item.component.less"],
-  imports: [SharedModule, FileDragAndDropDirective],
+  imports: [SharedModule, FileDragAndDropDirective, MatExpansionModule],
   animations: [
     trigger("fadeSlide", [
       transition(":enter", [
@@ -113,11 +114,8 @@ export class BpmnProcessDefinitionItemComponent {
             ),
           ),
         ).subscribe(() => {
-          files.forEach((file) => {
-            this.utilService.openSnackbar(
-              "msg.bpmn-formulier.uploaden.uitgevoerd",
-              { naam: file.name },
-            );
+          this.utilService.openSnackbar("msg.bpmn.task-forms.upload.success", {
+            namen: files.map((f) => f.name).join(", "),
           });
           if (files.length >= this.missingForms().length) {
             this.forceHideWarning.set(true);
@@ -137,7 +135,7 @@ export class BpmnProcessDefinitionItemComponent {
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.bpmn-formulier.verwijderen.bevestigen",
+            key: "msg.bpmn.task-forms.delete.confirm",
             args: { naam: bpmnFormName },
           },
           this.bpmnService.deleteProcessDefinitionForm(
@@ -149,24 +147,29 @@ export class BpmnProcessDefinitionItemComponent {
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar(
-            "msg.bpmn-formulier.verwijderen.uitgevoerd",
-            { naam: bpmnFormName },
-          );
+          this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+            namen: bpmnFormName,
+          });
           this.bpmnFormListChanged.emit();
         }
       });
   }
 
-  protected deleteOrphanedForm(formKey: string) {
-    this.bpmnService
-      .deleteProcessDefinitionForm(this.processDefinition().key, formKey)
-      .subscribe(() => {
-        this.utilService.openSnackbar(
-          "msg.bpmn-formulier.verwijderen.uitgevoerd",
-          { naam: formKey },
-        );
-        this.bpmnFormListChanged.emit();
+  protected deleteAllOrphanedForms() {
+    forkJoin(
+      (this.processDefinition().details?.orphanedForms ?? []).map((form) =>
+        this.bpmnService.deleteProcessDefinitionForm(
+          this.processDefinition().key,
+          form.formKey,
+        ),
+      ),
+    ).subscribe(() => {
+      this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+        namen: (this.processDefinition().details?.orphanedForms ?? [])
+          .map((f) => f.formKey)
+          .join(", "),
       });
+      this.bpmnFormListChanged.emit();
+    });
   }
 }

@@ -15,8 +15,8 @@ import io.mockk.just
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
-import net.atos.zac.documenten.model.OntkoppeldDocument
+import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.model.OntkoppeldDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.authentication.LoggedInUser
