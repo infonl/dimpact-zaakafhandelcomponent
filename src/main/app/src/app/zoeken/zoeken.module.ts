@@ -26,7 +26,6 @@ import { ZoekComponent } from "./zoek/zoek.component";
   declarations: [
     ZoekComponent,
     MultiFacetFilterComponent,
-    DateFilterComponent,
     ZaakZoekObjectComponent,
     TaakZoekObjectComponent,
     DocumentZoekObjectComponent,
@@ -41,6 +40,7 @@ import { ZoekComponent } from "./zoek/zoek.component";
     RouterLink,
     InformatieObjectIndicatiesComponent,
     ZoekObjectLinkComponent,
+    DateFilterComponent,
     BAGModule,
     PipesModule,
   ],
