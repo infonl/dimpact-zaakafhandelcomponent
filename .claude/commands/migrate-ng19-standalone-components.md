@@ -251,3 +251,13 @@ Solves PZ-XXXXX
 - Removed `AdminModule` from `AppModule.imports`
 - Deleted `admin.module.ts` and `admin-routing.module.ts`
 - Build clean; lint 0 errors
+
+---
+
+## Pre-existing Bugs — Fix When You Touch the File
+
+Do **not** go hunting for these in files you are not already migrating. Only fix them when the component is part of the current migration batch.
+
+| Pattern | Why it is wrong | Fix |
+|---|---|---|
+| `ngOnChanges` re-assigns `@Input` from `changes.x?.currentValue` | Angular sets `@Input` fields before calling `ngOnChanges`. Re-assigning is redundant when the input _did_ change, and **destructive** (sets to `undefined`) when it _did not_. Only the side-effect call (e.g. `loadIndicaties()`) belongs in `ngOnChanges`. | Remove the re-assignment lines; keep only the side-effect call. Drop `SimpleChanges` from the parameter if it is no longer used. |
