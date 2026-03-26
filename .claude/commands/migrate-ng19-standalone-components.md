@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 32 done — 119 remaining** (2026-03-26)
+**Progress: 34 done — 118 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -249,6 +249,11 @@ Solves PZ-XXXXX
 - **Spec pattern**: `ZoekObjectLinkComponent` calls `zoekObject.type.toLowerCase()` → fixture must include `type` field
 - **Spec pattern**: multiple `toContain` label assertions → `toEqual(expect.arrayContaining([...]))` for conciseness
 
+### ✅ `shared/table-zoek-filters/facet-filter/facet-filter.component.ts` (2026-03-26)
+- `imports: [NgFor, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, TranslateModule]`
+- Access modifiers: `selected`, `getFilters()`, `isVertaalbaar()`, `change()` → `protected`; `VERTAALBARE_FACETTEN` → `protected Record<string, string>`
+- **Pattern**: `MatSelectHarness` + `(await select.host()).getAttribute("id")` to assert on Material component attributes without querySelector
+
 ### ✅ `shared/material/narrow-checkbox.directive.ts` (fix) + `zoeken/zoek/filters/multi-facet-filter/multi-facet-filter.component.ts` (2026-03-26) — Marcel Batch 7
 - `ZacNarrowMatCheckboxDirective`: prior PR removed `standalone: false` but never added `standalone: true`; also already moved to `imports[]`/`exports[]` in `shared.module.ts` — only fix needed was adding explicit `standalone: true`
 - `MultiFacetFilterComponent` `imports: [NgIf, NgFor, LowerCasePipe, ReactiveFormsModule, MatCardModule, MatCheckboxModule, MatIconModule, TranslateModule, ZacNarrowMatCheckboxDirective, ReadMoreComponent]`
@@ -260,7 +265,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
+`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `KlantZoekDialog` → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
 
 ---
 
