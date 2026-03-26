@@ -37,7 +37,6 @@ import { ZoekComponent } from "./zoek/zoek.component";
     SharedModule,
     KlantenModule,
     RouterLink,
-    RouterLink,
     InformatieObjectIndicatiesComponent,
     ZoekObjectLinkComponent,
     DateFilterComponent,

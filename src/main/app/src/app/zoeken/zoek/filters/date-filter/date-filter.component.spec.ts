@@ -95,7 +95,7 @@ describe(DateFilterComponent.name, () => {
       expect(emitted[0].van).toContain("2026-06-01");
     });
 
-    it("emits null ISO when control is cleared", () => {
+    it("clears the property to undefined when control is cleared", () => {
       const emitted: GeneratedType<"RestDatumRange">[] = [];
       component.changed.subscribe((r) => emitted.push(r));
       component.range = makeRange({ van: "2026-01-01" });
