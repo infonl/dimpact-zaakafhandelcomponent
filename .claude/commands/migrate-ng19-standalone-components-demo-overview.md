@@ -1,16 +1,16 @@
-# Angular 19 Standalone Migration — Demo Overview
+# ZAC - Angular 19 Standalone Migration — Demo Overview
 
-![NgModules → Standalone Components](ng-demo.png)
+<p align="center"><img src="ng-demo.png" width="600" alt="NgModules → Standalone Components"></p>
 
-**Why are we doing this?** New Angular versions require standalone components — `NgModule` is legacy as of Angular 17+ and unsupported for new APIs (`@defer`, signal inputs, etc.) in Angular 19.
+**Why are we doing this?** New Angular versions require standalone components — `NgModule` is legacy as of Angular 17+ and unsupported for new APIs (`@defer`, signal inputs, etc.) in Angular 19. Newest Angular versions require standalone components. We need to move forward.
 
 ---
 
-## What I know about this project
+## What about ZAC project
 
 **Project**: ZAC — Dutch municipal case management system (Angular 19 frontend + Kotlin/WildFly backend)
 
-**Migration task**: Convert remaining `standalone: false` components to Angular 19 standalone. Already 20 done, 134 remaining (as of 2026-03-24).
+**Migration task**: Convert remaining `standalone: false` components to Angular 19 standalone. Already 20+ done, around 130 remaining (as of 2026-03-23).
 
 ---
 
