@@ -20,7 +20,9 @@ const makeFilterParameters = (
     values: [],
     inverse: false,
     ...fields,
-  }) as Partial<GeneratedType<"FilterParameters">> as unknown as GeneratedType<"FilterParameters">;
+  }) as Partial<
+    GeneratedType<"FilterParameters">
+  > as unknown as GeneratedType<"FilterParameters">;
 
 const makeFilterResultaat = (
   fields: Partial<GeneratedType<"FilterResultaat">> = {},
@@ -29,7 +31,9 @@ const makeFilterResultaat = (
     naam: "optie",
     aantal: 1,
     ...fields,
-  }) as Partial<GeneratedType<"FilterResultaat">> as unknown as GeneratedType<"FilterResultaat">;
+  }) as Partial<
+    GeneratedType<"FilterResultaat">
+  > as unknown as GeneratedType<"FilterResultaat">;
 
 describe(FacetFilterComponent.name, () => {
   let fixture: ComponentFixture<FacetFilterComponent>;
