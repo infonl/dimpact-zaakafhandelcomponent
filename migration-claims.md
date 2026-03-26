@@ -30,7 +30,7 @@
 - [x] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
 
 ### In progress
-- [ ] FacetFilterComponent
+- [x] FacetFilterComponent
 
 ## Dax
 
