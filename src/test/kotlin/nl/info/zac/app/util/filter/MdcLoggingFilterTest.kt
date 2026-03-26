@@ -61,7 +61,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
             }
 
             And("httpPath should be added to MDC") {
-                loggerProvider.getMdc("httpPath").toString() shouldBe "zaken/123"
+                loggerProvider.getMdc(MdcLoggingFilter.MDC_HTTP_PATH).toString() shouldBe "zaken/123"
             }
 
             And("operation should be extracted from path") {
