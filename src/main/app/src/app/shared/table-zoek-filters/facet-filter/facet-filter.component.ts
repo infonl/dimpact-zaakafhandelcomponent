@@ -13,7 +13,7 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { ReactiveFormsModule, FormControl } from "@angular/forms";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule } from "@ngx-translate/core";
