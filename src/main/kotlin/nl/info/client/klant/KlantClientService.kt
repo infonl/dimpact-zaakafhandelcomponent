@@ -143,6 +143,7 @@ class KlantClientService @Inject constructor(
         productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails,
         zaakUuid: UUID
     ) {
+        if (productaanvraagSpecificContactDetails.klantcontactUuid == null) return
         val onderwerpobject = Onderwerpobject().apply {
             klantcontact = KlantcontactForeignKey().apply { uuid = productaanvraagSpecificContactDetails.klantcontactUuid }
             onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
