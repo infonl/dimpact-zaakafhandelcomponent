@@ -3,10 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, HostListener, Input } from "@angular/core";
-
+import { RouterLink } from "@angular/router";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
+import { TranslateModule } from "@ngx-translate/core";
+import { InformatieObjectIndicatiesComponent } from "../../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
+import { ReadMoreComponent } from "../../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
@@ -16,30 +22,39 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
   selector: "zac-zoek-object-link",
   styleUrls: ["./zoek-object-link.component.less"],
   templateUrl: "./zoek-object-link.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    RouterLink,
+    MatIconModule,
+    TranslateModule,
+    ReadMoreComponent,
+    ZaakIndicatiesComponent,
+    InformatieObjectIndicatiesComponent,
+  ],
 })
 export class ZoekObjectLinkComponent {
   @Input({ required: true })
   zoekObject!: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
   @Input({ required: true }) sideNav!: MatSidenav;
-  _newtab = false;
-  indicatiesLayout = IndicatiesLayout;
+  protected _newtab = false;
+  protected indicatiesLayout = IndicatiesLayout;
 
   @HostListener("document:keydown", ["$event"])
-  handleKeydown(event: KeyboardEvent) {
+  protected handleKeydown(event: KeyboardEvent) {
     if (event.key === "Control") {
       this._newtab = true;
     }
   }
 
   @HostListener("document:keyup", ["$event"])
-  handleKeyup(event: KeyboardEvent) {
+  protected handleKeyup(event: KeyboardEvent) {
     if (event.key === "Control") {
       this._newtab = false;
     }
   }
 
-  getLink() {
+  protected getLink() {
     switch (this.zoekObject.type) {
       case "ZAAK":
         return ["/zaken/", (this.zoekObject as ZaakZoekObject).identificatie];
@@ -54,7 +69,7 @@ export class ZoekObjectLinkComponent {
     }
   }
 
-  getName() {
+  protected getName() {
     switch (this.zoekObject.type) {
       case "ZAAK":
         return (this.zoekObject as ZaakZoekObject).identificatie;

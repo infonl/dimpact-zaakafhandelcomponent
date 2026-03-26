@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 24 done — 128 remaining** (2026-03-26)
+**Progress: 25 done — 127 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -76,6 +76,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
+- **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T>): T => fields as unknown as T` — so the `Partial<T>` parameter validates field names and usage sites have zero casts. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T` — the first cast validates field names, the second forces assignment. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
 ```
@@ -206,6 +207,11 @@ Solves PZ-XXXXX
 - **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
 - **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
 
+### ✅ `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (2026-03-26)
+- Zero services; pure switch logic + `@HostListener` — fastest possible spec: direct class instantiation, 11 tests, no TestBed
+- **Cherry-pick pattern**: when a dependency PR (e.g. indicaties standalone) hasn't merged to `main` yet, `git cherry-pick <commit>` onto the work branch before migrating the dependent component
+- **Partial test fixtures**: use named factory helpers `const makeX = (fields: Partial<T>): T => fields as unknown as T`; for inline (single use) prefer `{ ...fields } as Partial<T> as unknown as T`; for invalid-union tests cast only the field: `makeX({ type: "UNKNOWN" as T["type"] })`
+
 ### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
 - `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
 - **Inheritance pattern**: Abstract base `@Component({ template: '', standalone: true })` needs no `imports[]`; each subclass declares its own `imports[]` covering the shared template's directives/pipes
@@ -217,7 +223,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (module: `zoeken.module.ts`) — uses `zac-zaak-indicaties` (now standalone) and `zac-informatie-object-indicaties` (already standalone); needs `RouterModule`, `ReadMoreComponent`, `ZaakIndicatiesComponent`, `InformatieObjectIndicatiesComponent`, `MatIconModule`, `TranslateModule`; no existing spec.
+TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent`, `MultiFacetFilterComponent`, `DateFilterComponent`, `ZaakZoekObjectComponent`, `TaakZoekObjectComponent`, `DocumentZoekObjectComponent`, `ZaakBetrokkeneFilterComponent`, `KlantZoekDialog`.
 
 ---
 
