@@ -37,6 +37,10 @@
 - [x] `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts`
 - [x] `shared/confirm-dialog/confirm-dialog.component.ts`
 
+### Batch 2 — done (branch: `temp/standalone-migration`)
+- [x] `fout-afhandeling/dialog/fout-dialog.component.ts`
+- [x] `fout-afhandeling/dialog/actie-onmogelijk-dialog.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
