@@ -14,10 +14,10 @@ export enum IndicatiesLayout {
 
 @Component({
   template: "",
-  standalone: false,
+  standalone: true,
 })
 export abstract class IndicatiesComponent {
-  Layout = IndicatiesLayout;
+  protected Layout = IndicatiesLayout;
   @Input({ required: true }) layout!: IndicatiesLayout;
-  indicaties: IndicatieItem[] = [];
+  protected indicaties: IndicatieItem[] = [];
 }

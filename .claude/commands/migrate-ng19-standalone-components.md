@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 20 done — 134 remaining** (2026-03-24)
+**Progress: 24 done — 128 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -206,10 +206,18 @@ Solves PZ-XXXXX
 - **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
 - **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
 
+### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
+- `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
+- **Inheritance pattern**: Abstract base `@Component({ template: '', standalone: true })` needs no `imports[]`; each subclass declares its own `imports[]` covering the shared template's directives/pipes
+- **Access modifiers**: `indicaties` and `Layout` fields on the base class → `protected`; `loadIndicaties()` in subclasses → `private`; `@Input()` fields remain `public`
+- **Spec pattern**: Instantiate component class directly with `new Component(mockService)` — no `TestBed.createComponent` needed when testing pure logic; use `component["indicaties"]` (bracket notation) to access the protected field
+- **NgModule cleanup**: Standalone components move from `declarations[]` → `imports[]` in `shared.module.ts`; remain in `exports[]` so consuming modules (`zoeken`, `zaken`, `informatie-objecten`) continue to receive them via `SharedModule`
+- **Downstream spec fix**: Other specs that had the component in `declarations[]` need it moved to `imports[]` (e.g., `zaak-view.component.spec.ts`)
+
 ---
 
 ## Next Target
-TBD — `/admin` lazy-loading complete. Pick next module.
+`zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (module: `zoeken.module.ts`) — uses `zac-zaak-indicaties` (now standalone) and `zac-informatie-object-indicaties` (already standalone); needs `RouterModule`, `ReadMoreComponent`, `ZaakIndicatiesComponent`, `InformatieObjectIndicatiesComponent`, `MatIconModule`, `TranslateModule`; no existing spec.
 
 ---
 
@@ -243,3 +251,13 @@ TBD — `/admin` lazy-loading complete. Pick next module.
 - Removed `AdminModule` from `AppModule.imports`
 - Deleted `admin.module.ts` and `admin-routing.module.ts`
 - Build clean; lint 0 errors
+
+---
+
+## Pre-existing Bugs — Fix When You Touch the File
+
+Do **not** go hunting for these in files you are not already migrating. Only fix them when the component is part of the current migration batch.
+
+| Pattern | Why it is wrong | Fix |
+|---|---|---|
+| `ngOnChanges` re-assigns `@Input` from `changes.x?.currentValue` | Angular sets `@Input` fields before calling `ngOnChanges`. Re-assigning is redundant when the input _did_ change, and **destructive** (sets to `undefined`) when it _did not_. Only the side-effect call (e.g. `loadIndicaties()`) belongs in `ngOnChanges`. | Remove the re-assignment lines; keep only the side-effect call. Drop `SimpleChanges` from the parameter if it is no longer used. |
