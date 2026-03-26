@@ -238,12 +238,12 @@ Solves PZ-XXXXX
 - `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
 - **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
 - **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
-- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via `nativeElement.querySelector`
+- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via Angular Material harnesses (e.g. `MatButtonHarness`), not `nativeElement.querySelector`, per Rules above
 
 ---
 
 ## Next Target
-`zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (module: `zoeken.module.ts`) — uses `zac-zaak-indicaties` (now standalone) and `zac-informatie-object-indicaties` (already standalone); needs `RouterModule`, `ReadMoreComponent`, `ZaakIndicatiesComponent`, `InformatieObjectIndicatiesComponent`, `MatIconModule`, `TranslateModule`; no existing spec.
+TBD — pick next from `zoeken.module.ts` remaining declarations: `ZoekComponent`, `MultiFacetFilterComponent`, `DateFilterComponent`, `ZaakZoekObjectComponent`, `TaakZoekObjectComponent`, `DocumentZoekObjectComponent`, `ZaakBetrokkeneFilterComponent`, `KlantZoekDialog`.
 
 ---
 
