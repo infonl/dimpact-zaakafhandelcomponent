@@ -59,7 +59,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | # | Step | Gate |
 |---|---|---|
-| 20 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
+| 20 | **Commit** — update plan first: bump progress counter, set `## Next Target`, add any new patterns/gotchas to `## Accumulated Patterns` (grouped by theme); include updated plan MD in same commit | **Never auto-commit** |
 | 21 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
 | 22 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
 | 23 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
@@ -99,147 +99,76 @@ Solves PZ-XXXXX
 
 ---
 
-## Completed
-
-### ✅ `shared/version/version.component.ts` (2026-03-16)
-- `imports: [NgIf, MatChipsModule, MatTooltipModule, MatIconModule, MatCardModule, DatumPipe, TranslateModule]`
-- **Pattern**: Named `Pick<Service, 'method'>` mock + `TestBed.inject` for typesafe assertions; `EMPTY` when service just needs to complete
-
-### ✅ `shared/table-zoek-filters/toggle-filter/toggle-filter.component.ts` (2026-03-16)
-- `imports: [MatButtonModule, MatIconModule, NgSwitch, NgSwitchCase]`
-- **Pattern**: Button click via `querySelector("button").click()`; `@Output()` EventEmitter is `public` so tests subscribe directly
-
-### ✅ `shared/read-more/read-more.component.ts` (2026-03-12)
-- `imports: [NgIf, MatTooltipModule]`
-- **Pattern**: `By.directive(MatTooltip)` to assert directive presence — raw attribute selectors don't work after Angular processes them
-
-### ✅ `core/loading/loading.component.ts` (2026-03-11) — canonical spec reference
-- `imports: [MatProgressBarModule]`
-- **Gotcha**: `injectIsMutating/IsFetching` use async scheduler → wrap in `describe` with `beforeEach(() => notifyManager.setScheduler((fn) => fn()))` + `afterEach` restore; import from `@tanstack/query-core`
-- **Gotcha**: In-flight query cancelled by `testQueryClient.clear()` → add `.catch(() => {})` on `query.fetch()`
-- **Pattern**: `WritableSignal` mocked with real `signal()`; `UtilService` inline `useValue: { loading: signal(false) } satisfies Pick<...>`; `provideQueryClient(testQueryClient)`
-
-### ✅ `shared/material/narrow-checkbox.directive.ts` (2026-03-17)
-- `imports: []` — attribute directive, no template deps
-- **Pattern**: Test host becomes standalone and imports the directive directly
-
-### ✅ `shared/export-button/export-button.component.ts` (2026-03-17)
-- `imports: [MatButtonModule, MatIconModule, TranslateModule]`
-- **Pattern**: Baseline uses `declarations[]` → after migration switch to `imports: [Component]`; Material modules drop from spec (component brings them)
-
-### ✅ `shared/navigation/back-button.directive.ts` (2026-03-17)
-- `imports: []` — host listener directive
-- **Pattern**: TestHost standalone + imports directive; `Pick<NavigationService, 'back'>` mock
-
-### ✅ `shared/directives/outside-click.directive.ts` (2026-03-17)
-- `imports: []`; kept in module `imports` (used by `EditInputComponent`) but NOT exported
-- **Pattern**: `fakeAsync` + `tick(0)` to flush `setTimeout` in `ngOnInit`
-- **Pattern**: Directive used by another non-standalone component in the same module → still needs module `imports` even without re-exporting
-
-### ✅ `shared/static-text/static-text.component.ts` (2026-03-17)
-- `imports: [NgIf, NgClass, MatIconModule, TranslateModule, ReadMoreComponent, EmptyPipe]`
-- **Pattern**: Generic components need full type union in `ComponentFixture<StaticTextComponent<string | number | null | undefined>>`
-
-### ✅ `admin/mailtemplates/mailtemplates.component.ts` (2026-03-19)
-- `imports: [NgIf, NgFor, MatSidenavModule, MatTableModule, MatSortModule, MatCardModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatDialogModule, RouterModule, TranslateModule, SideNavComponent, ReadMoreComponent]`
-- **Pattern**: Use `fixture.debugElement.injector.get(MatDialog)` — standalone component with `MatDialogModule` gets its own injector instance, not root
-
-### ✅ `admin/inrichtingscheck/inrichtingscheck.component.ts` (2026-03-19)
-- `imports: [NgIf, MatSidenavModule, MatCardModule, MatExpansionModule, MatIconModule, MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatButtonModule, TranslateModule, DatumPipe, SideNavComponent, ToggleFilterComponent, VersionComponent, ReadMoreComponent]`
-- **Pattern**: Split `beforeEach` into `async` (TestBed + spies) and `fakeAsync` (create + `tick(0)`) — needed when `ngAfterViewInit` emits synchronously; use `delay(0)` on all mock observables
-- **Pattern**: Mock hidden endpoints called by child components (`VersionComponent.readBuildInformatie`) or HTTP errors occur
-- **Pattern**: `MatButtonHarness.isDisabled()` unreliable for `[disabled]` binding in Angular Material 19 — use native `querySelector("[mat-raised-button]").disabled`
-
-### ✅ `admin/mailtemplate/mailtemplate.component.ts` (2026-03-19)
-- Already `standalone: true`; `imports: [ReactiveFormsModule, MatSidenavModule, MatCardModule, MatButtonModule, RouterModule, TranslateModule, SideNavComponent, MaterialFormBuilderModule]`
-- Note: imports ATOS `MaterialFormBuilderModule` — already migrated, exclusion applies only to future migrations
-
-### ✅ `shared/edit/edit-input/edit-input.component.ts` (2026-03-19) — ATOS exception
-- `imports: [NgIf, MatIconModule, MatButtonModule, TranslateModule, EmptyPipe, OutsideClickDirective, MaterialFormBuilderModule]`
-- **Exception**: thin wrapper around ATOS, not ATOS internals; migrating unblocks `referentie-tabel`
-
-### ✅ `admin/referentie-tabel/referentie-tabel.component.ts` (2026-03-19)
-- `imports: [NgIf, DragDropModule, MatSidenavModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, TranslateModule, SideNavComponent, EditInputComponent]`
-- **Pattern**: `By.directive(EditInputComponent)` to query all instances incl. inside table cells
-- **Pattern**: `CdkDragDrop` tested by calling `component["moveTabelWaarde"]({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)` directly
-- **Pattern**: `import type { CdkDragDrop }` when used only as type cast — avoids "declared but never read"
-- **Pattern**: `*matNoDataRow` does not render synchronously — test empty-state via component state instead
-
-### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23) — PR #5565
-- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
-- **Fix**: `floatLabel="never"` removed from template (not a valid `FloatLabelType`); `FormControl<Date | null>` for nullable date controls
-- **Fix**: `@Input({ required: true }) range!: DatumRange`, `@Input({ required: true }) label!: string`
-
-### ✅ `admin/parameters/parameters.component.ts` (2026-03-23) — PR #5565
-- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
-- **Pattern**: `provideRouter([])` instead of `RouterModule.forRoot([])` in standalone spec
-- **Pattern**: Three describe blocks: unit tests for `applyFilter`, unit tests for compare functions, TestBed render tests
-
-### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23) — PR #5567
-- `imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule]`
-- **Pattern**: `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data for use in assertions
-
-### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23) — PR #5567
-- `imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule]`
-- **Fix**: `@Input() value: string` → `@Input() value?: string`; `FormControl<string>` → `FormControl<string | undefined>`; `formControl.value` assigned with `?? undefined` to avoid `null`
-- **Pattern**: `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger `change()` without going through the DOM input
-
-### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23) — PR #5567
-- `imports: [NgIf, MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule]`
-- **Pattern**: `setup()` helper function keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
-- **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
-- **Note**: `confirm-dialog.component.less` has a pre-existing ESLint parse error (no LESS parser configured); `autofocus` attribute on confirm button is a pre-existing `no-autofocus` lint violation — both are in untouched files
-
-### ✅ `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts` (2026-03-24)
-- `imports: [MatStepperModule, MatIconModule, MatButtonModule, TranslateModule, MaterialFormBuilderModule]`
-- **Pattern**: `MatButtonHarness.with({ text: /regex/ })` to find button by translated text; `nativeElement.disabled` for `[disabled]` binding (harness `isDisabled()` unreliable)
-- **Pattern**: `satisfies Pick<ActivatedRoute, "data">` for typed route mock
-
-### ✅ `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts` (2026-03-24)
-- `imports: [NgIf, NgFor, ReactiveFormsModule, MatStepperModule, MatIconModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, MatTableModule, TranslateModule, MaterialFormBuilderModule, StaticTextComponent]`
-- **Pattern**: `private readonly dialog = inject(MatDialog)` (field initializer) — removed from constructor
-- **Pattern**: `fixture.debugElement.injector.get(MatDialog)` for standalone component with `MatDialogModule`
-- **Pattern**: `MatDialogRef` spy with `afterClosed: () => of(true)` to simulate confirm dialog close
-
-### ✅ `admin/parameters-edit-shell/parameters-edit-shell.component.ts` (2026-03-24)
-- `imports: [NgSwitch, NgSwitchCase, NgSwitchDefault, MatSidenavModule, MatProgressSpinnerModule, SideNavComponent, ParameterSelectProcessModelMethodComponent, ParametersEditCmmnComponent, ParametersEditBpmnComponent]`
-- **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
-- **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
-
----
-
 ## Next Target
 TBD — `/admin` lazy-loading complete. Pick next module.
 
 ---
 
-## Intermediate Goal: Lazy-load `/admin` ✅ DONE (2026-03-24)
+## Accumulated Patterns
 
-**Progress: 18/18**
+### Dialog
+- `fixture.debugElement.injector.get(MatDialog)` — standalone component with `MatDialogModule` gets its own injector instance, not the root injector
+- `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data in specs
+- `MatDialogRef` spy with `afterClosed: () => of(true)` to simulate confirm-dialog close
+- `private readonly dialog = inject(MatDialog)` as field initializer — remove from constructor
+- `setup()` helper keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
+- `Subject<void>` as the observable lets tests control next/error timing precisely
 
-| Component | Status |
-|---|---|
-| `shared/abstract-view/view-component.ts` | ✅ |
-| `admin/admin/admin.component` | ✅ |
-| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form-item.component` | ✅ |
-| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form.component` | ✅ |
-| `admin/parameters-edit-cmmn/parameters-edit-cmmn.component` | ✅ |
-| `admin/groep-signaleringen/groep-signaleringen.component` | ✅ |
-| `admin/mailtemplates/mailtemplates.component` | ✅ |
-| `admin/mailtemplate/mailtemplate.component` | ✅ |
-| `admin/process-definitions/process-definitions.component` | ✅ |
-| `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
-| `admin/referentie-tabel/referentie-tabel.component` | ✅ |
-| `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ✅ |
-| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ |
-| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ |
-| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ |
-| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ✅ |
+### Shell / composite
+- `TestBed.overrideComponent(Shell, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate a shell from full child service graphs
+- Stub: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match every `@Input`/`@Output` of the real component
 
-### ✅ Lazy-load `/admin` (2026-03-24)
-- Created `admin/admin.routes.ts` with `ADMIN_ROUTES: Routes` (children only, no `"admin"` wrapper)
-- Added `{ path: "admin", loadChildren: () => import("./admin/admin.routes").then(m => m.ADMIN_ROUTES) }` to `app-routing.module.ts`
-- Removed `AdminModule` from `AppModule.imports`
-- Deleted `admin.module.ts` and `admin-routing.module.ts`
-- Build clean; lint 0 errors
+### TanStack Query
+- `injectIsMutating` / `injectIsFetching` use async scheduler → `beforeEach(() => notifyManager.setScheduler((fn) => fn()))` + `afterEach` restore; import `notifyManager` from `@tanstack/query-core`
+- In-flight query cancelled by `testQueryClient.clear()` → add `.catch(() => {})` on `query.fetch()`
+- `WritableSignal` in mocks → `signal(value)`, never `jest.fn()`
+- `provideQueryClient(testQueryClient)` in `TestBed.configureTestingModule`
+
+### Service mocks
+- Named `Pick<Service, 'method'>` mock + `TestBed.inject` for type-safe assertion access
+- `useValue: { ... } satisfies Pick<Service, 'method'>` for inline mocks — never omit type annotation
+- `EMPTY` when a service method just needs to complete without emitting
+
+### Directives
+- Test host must be standalone and import the directive directly
+- `fakeAsync` + `tick(0)` to flush `setTimeout` in `ngOnInit`
+- Directive used by a non-standalone component in the same module → still needs module `imports[]` even if not re-exported
+- `By.directive(MatTooltip)` to assert directive presence — raw attribute selectors don't work after Angular processes them
+
+### Angular Material
+- `MatButtonHarness.isDisabled()` unreliable for `[disabled]` *binding* — use `nativeElement.querySelector(...).disabled` instead
+- `MatButtonHarness.with({ text: /regex/ })` to find a button by translated text
+- `By.directive(ChildComponent)` to query all instances including those inside table cells
+- `*matNoDataRow` does not render synchronously — assert empty-state via component state, not the DOM
+
+### Forms / inputs
+- `@Input({ required: true }) field!: Type`; optional inputs use `?`
+- `floatLabel="never"` is not a valid `FloatLabelType` — remove from template
+- `FormControl<Date | null>` for nullable date controls; `FormControl<string | undefined>` for optional strings
+- `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger output without touching the DOM input
+- `formControl.value ?? undefined` to avoid assigning `null` to `string | undefined`
+
+### Router
+- `provideRouter([])` instead of `RouterModule.forRoot([])` in standalone specs
+- `satisfies Pick<ActivatedRoute, "data">` for typed route mocks
+
+### Drag & drop
+- `CdkDragDrop` — call the handler method directly: `component["move"]({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)`
+- `import type { CdkDragDrop }` when used only as a type cast — avoids "declared but never read"
+
+### Generic components
+- Full type union in fixture: `ComponentFixture<StaticTextComponent<string | number | null | undefined>>`
+
+### Spec setup
+- Split `beforeEach` into `async` (TestBed config + spies) and `fakeAsync` (createComponent + `tick(0)`) when `ngAfterViewInit` emits synchronously; use `delay(0)` on all mock observables
+- Mock hidden HTTP endpoints called by imported child components, or test-level HTTP errors will fire
+- Baseline spec uses `declarations[]`; after migration switch to `imports: [Component]` — Material modules drop from the spec (component brings them)
+- `@Output()` EventEmitters may be `public` — specs can subscribe directly
+
+### ATOS exception
+- `edit-input` is a thin wrapper around ATOS and was migrated to unblock `referentie-tabel`; the exclusion covers the `material-form-builder/` subtree itself, not wrappers around it
+
+### Lazy-loading a module → routes (completed for `/admin`, 2026-03-24)
+- Create `<module>.routes.ts` with `ROUTES: Routes` (children only, no wrapper path)
+- `app-routing.module.ts`: `{ path: "admin", loadChildren: () => import("./admin/admin.routes").then(m => m.ADMIN_ROUTES) }`
+- Remove `AdminModule` from `AppModule.imports`; delete `admin.module.ts` + `admin-routing.module.ts`
