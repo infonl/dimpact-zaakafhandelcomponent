@@ -23,7 +23,6 @@ import {
 import { withDevtools } from "@tanstack/angular-query-experimental/devtools";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { persistQueryClient } from "@tanstack/query-persist-client-core";
-import { AdminModule } from "./admin/admin.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
@@ -40,7 +39,6 @@ import { ProductaanvragenModule } from "./productaanvragen/productaanvragen.modu
 import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
 import { SignaleringenModule } from "./signaleringen/signaleringen.module";
-import { TakenModule } from "./taken/taken.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
 
@@ -68,9 +66,7 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     PlanItemsModule,
     ProductaanvragenModule,
     SignaleringenModule,
-    TakenModule,
     IdentityModule,
-    AdminModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
   ],

@@ -1,0 +1,54 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2025 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+  <mat-sidenav-content class="flex-col gap-20">
+    @if (isLoading) {
+      <div class="flex-fill flex-row justify-center items-center">
+        <mat-spinner diameter="24"></mat-spinner>
+      </div>
+    } @else {
+      <ng-container [ngSwitch]="modellingMethodSelection.type">
+        <zac-parameters-select-process-model-method
+          *ngSwitchDefault
+          (switchModellingMethod)="switchModellingMethod($event)"
+        >
+        </zac-parameters-select-process-model-method>
+
+        <zac-parameters-edit-cmmn
+          *ngSwitchCase="'CMMN'"
+          [selectedIndexStart]="
+            modellingMethodSelection.selectedIndexStart ?? 0
+          "
+          (switchModellingMethod)="switchModellingMethod($event)"
+        >
+        </zac-parameters-edit-cmmn>
+
+        <zac-parameters-edit-bpmn
+          *ngSwitchCase="'BPMN'"
+          [selectedIndexStart]="
+            modellingMethodSelection.selectedIndexStart ?? 0
+          "
+          (switchModellingMethod)="switchModellingMethod($event)"
+        >
+          >
+        </zac-parameters-edit-bpmn>
+      </ng-container>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>

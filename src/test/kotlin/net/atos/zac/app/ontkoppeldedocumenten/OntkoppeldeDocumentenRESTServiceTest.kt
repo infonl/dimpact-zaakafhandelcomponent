@@ -21,8 +21,8 @@ import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
-import net.atos.zac.documenten.model.OntkoppeldDocument
+import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.model.OntkoppeldDocument
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter

@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -12,6 +16,7 @@ import { SmartDocumentsFormItemComponent } from "./smart-documents-form-item.com
 
 describe(SmartDocumentsFormItemComponent.name, () => {
   let fixture: ComponentFixture<SmartDocumentsFormItemComponent>;
+  let loader: HarnessLoader;
 
   const informationObjectTypes: GeneratedType<"RestInformatieobjecttype">[] = [
     fromPartial({
@@ -36,6 +41,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(SmartDocumentsFormItemComponent);
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("when node has no informatieObjectTypeUUID", () => {
@@ -55,10 +61,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     });
 
     it("should render the node name", () => {
-      const nameEl = fixture.nativeElement.querySelector(
-        ".flex-1",
-      ) as HTMLElement;
-      expect(nameEl?.textContent?.trim()).toBe("Template A");
+      expect(fixture.nativeElement.textContent).toContain("Template A");
     });
 
     it("should initialize checkbox as unchecked and disabled", () => {
@@ -137,6 +140,101 @@ describe(SmartDocumentsFormItemComponent.name, () => {
       expect(emitSpy).toHaveBeenCalledWith(
         expect.objectContaining({ informatieObjectTypeUUID: "" }),
       );
+    });
+
+    it("should clear informatieObjectTypeUUID when checkbox is unchecked", async () => {
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      await checkbox.uncheck();
+
+      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe("");
+    });
+  });
+
+  describe("mat-select options", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template D",
+          informatieObjectTypeUUID: "",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges();
+    });
+
+    it("should register empty option plus one option per informationObjectType in mat-select", async () => {
+      const select = await loader.getHarness(MatSelectHarness);
+      await select.open();
+      const options = await select.getOptions();
+      // 1 empty option + 2 from *ngFor
+      expect(options.length).toBe(informationObjectTypes.length + 1);
+      await select.close();
+    });
+
+    it("should bind informationObjectType uuid as option value", async () => {
+      const select = await loader.getHarness(MatSelectHarness);
+      await select.open();
+      const typeAOption = await select.getOptions({ text: "Type A" });
+      await typeAOption[0].click();
+
+      expect(fixture.componentInstance.node.informatieObjectTypeUUID).toBe(
+        "uuid-1",
+      );
+    });
+  });
+
+  describe("updateFormControls", () => {
+    it("should emit selectionChange when UUID changes from previous value", () => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template E",
+          informatieObjectTypeUUID: "",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges(); // ngOnInit sets previousUUID = ""
+
+      const emitSpy = jest.spyOn(
+        fixture.componentInstance.selectionChange,
+        "emit",
+      );
+      fixture.componentInstance.node.informatieObjectTypeUUID = "uuid-1";
+      fixture.componentInstance["updateFormControls"]();
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ informatieObjectTypeUUID: "uuid-1" }),
+      );
+    });
+
+    it("should not emit selectionChange when UUID has not changed", () => {
+      fixture.componentRef.setInput(
+        "node",
+        fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
+          name: "Template F",
+          informatieObjectTypeUUID: "uuid-1",
+        }),
+      );
+      fixture.componentRef.setInput(
+        "informationObjectTypes",
+        informationObjectTypes,
+      );
+      fixture.detectChanges(); // ngOnInit sets previousUUID = "uuid-1"
+
+      const emitSpy = jest.spyOn(
+        fixture.componentInstance.selectionChange,
+        "emit",
+      );
+      fixture.componentInstance["updateFormControls"]();
+
+      expect(emitSpy).not.toHaveBeenCalled();
     });
   });
 });

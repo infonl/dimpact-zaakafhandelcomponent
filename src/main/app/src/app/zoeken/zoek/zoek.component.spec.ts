@@ -5,12 +5,19 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { EventEmitter, NO_ERRORS_SCHEMA } from "@angular/core";
+import { Component, EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { ZoekComponent } from "./zoek.component";
+
+@Component({
+  selector: "zac-document-zoek-object",
+  template: "",
+  standalone: false,
+})
+class StubDocumentZoekObjectComponent {}
 
 describe("ZoekComponent", () => {
   let component: ZoekComponent;
@@ -36,9 +43,15 @@ describe("ZoekComponent", () => {
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [provideHttpClient(), provideHttpClientTesting()],
-      declarations: [ZoekComponent],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+      declarations: [ZoekComponent, StubDocumentZoekObjectComponent],
+    })
+      .overrideComponent(ZoekComponent, {
+        set: {
+          template:
+            '<zac-document-zoek-object *ngFor="let zoekObject of zoekResultaat.resultaten"></zac-document-zoek-object>',
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ZoekComponent);
     component = fixture.componentInstance;

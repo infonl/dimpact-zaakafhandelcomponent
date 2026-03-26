@@ -4,29 +4,10 @@
  */
 
 import { NgModule } from "@angular/core";
-import { FormioAppConfig, FormioModule } from "@formio/angular";
-import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
-import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { SharedModule } from "../shared/shared.module";
-import { FormioWrapperComponent } from "./formio-wrapper/formio-wrapper.component";
 
-@NgModule({
-  declarations: [FormioWrapperComponent],
-  exports: [FormioWrapperComponent],
-  imports: [
-    SharedModule,
-    DocumentIconComponent,
-    InformatieObjectIndicatiesComponent,
-    FormioModule,
-  ],
-  providers: [
-    {
-      provide: FormioAppConfig,
-      useValue: {
-        appUrl: window.location.origin,
-        apiUrl: window.location.origin,
-      },
-    },
-  ],
-})
+/**
+ * @deprecated FormulierenModule is empty. FormioWrapperComponent is standalone
+ * and lazy-loaded via @defer. Remove this module once all importers are updated.
+ */
+@NgModule({})
 export class FormulierenModule {}

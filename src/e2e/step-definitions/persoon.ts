@@ -5,11 +5,12 @@
 
 import { Then } from "@cucumber/cucumber";
 import { z } from "zod";
+import {
+  FIFTEEN_SECONDS_IN_MS,
+  ONE_MINUTE_IN_MS,
+} from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers } from "../utils/schemes";
-
-const ONE_MINUTE_IN_MS = 60_000;
-const FIFTEEN_SECONDS_IN_MS = 15_000;
 
 const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
 const TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com";

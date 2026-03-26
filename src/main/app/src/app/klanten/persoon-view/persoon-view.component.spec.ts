@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatRowHarness } from "@angular/material/table/testing";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
@@ -15,6 +18,7 @@ import { PersoonViewComponent } from "./persoon-view.component";
 describe(PersoonViewComponent.name, () => {
   let component: PersoonViewComponent;
   let fixture: ComponentFixture<PersoonViewComponent>;
+  let loader: HarnessLoader;
 
   const mockPersoon: GeneratedType<"RestPersoon"> = {
     naam: "Jan de Vries",
@@ -53,6 +57,7 @@ describe(PersoonViewComponent.name, () => {
     fixture = TestBed.createComponent(PersoonViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should receive persoon data from route resolver", () => {
@@ -97,11 +102,9 @@ describe(PersoonViewComponent.name, () => {
     expect(zakenTabel).toBeTruthy();
   });
 
-  it("should render empty zaken table", () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const zakenTabel = compiled.querySelector("zac-klant-zaken-tabel");
-    const tableRows = zakenTabel?.querySelectorAll("mat-row");
-    expect(tableRows?.length).toBe(0);
+  it("should render empty zaken table", async () => {
+    const tableRows = await loader.getAllHarnesses(MatRowHarness);
+    expect(tableRows.length).toBe(0);
   });
 
   it("should render contactmomenten table when persoon has BSN", () => {
@@ -112,12 +115,8 @@ describe(PersoonViewComponent.name, () => {
     expect(contactmomentenTabel).toBeTruthy();
   });
 
-  it("should render empty contactmomenten table", () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    const contactmomentenTabel = compiled.querySelector(
-      "zac-klant-contactmomenten-tabel",
-    );
-    const tableRows = contactmomentenTabel?.querySelectorAll("mat-row");
-    expect(tableRows?.length).toBe(0);
+  it("should render empty contactmomenten table", async () => {
+    const tableRows = await loader.getAllHarnesses(MatRowHarness);
+    expect(tableRows.length).toBe(0);
   });
 });

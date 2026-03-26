@@ -96,13 +96,13 @@ describe(ZaakViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         ZaakViewComponent,
-        ZaakIndicatiesComponent,
         ZaakDocumentenComponent,
         NotitiesComponent,
         PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,
         TranslateModule.forRoot(),

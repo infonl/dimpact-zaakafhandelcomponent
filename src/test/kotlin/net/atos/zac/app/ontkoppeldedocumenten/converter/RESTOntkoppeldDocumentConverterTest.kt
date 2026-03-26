@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.documenten.model.OntkoppeldDocument
+import net.atos.zac.document.model.OntkoppeldDocument
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService

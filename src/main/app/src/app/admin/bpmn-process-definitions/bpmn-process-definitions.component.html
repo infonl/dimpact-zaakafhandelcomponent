@@ -1,0 +1,114 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2024 Dimpact, 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+
+  <input
+    #bpmnProcessDefinitionFileInput
+    type="file"
+    accept=".bpmn"
+    style="display: none"
+    (change)="bpmnProcessDefinitionFileSelected($event)"
+  />
+
+  <mat-sidenav-content class="flex-col gap-20">
+    <mat-card>
+      <mat-card-content class="table-container">
+        <div
+          DropZone
+          (fileDropped)="bpmnProcessDefinitionFileDropped($event)"
+          class="flex-row items-center"
+        >
+          <section class="flex-1">
+            <h2>
+              {{ "title.bpmn-procesdefinities" | translate }}
+            </h2>
+          </section>
+          <div class="actions-header">
+            <button
+              id="upload"
+              mat-raised-button
+              color="primary"
+              (click)="selectBpmnProcessDefinitionFile()"
+            >
+              {{
+                "bpmn.process-definition.button.upload.definition" | translate
+              }}
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <mat-tree [dataSource]="data()" [childrenAccessor]="childrenAccessor">
+            <mat-nested-tree-node *matTreeNodeDef="let node" class="item">
+              <zac-bpmn-process-definition-item
+                [processDefinition]="asProcessDefinition(node)"
+                (bpmnFormListChanged)="refreshDefinitions()"
+              ></zac-bpmn-process-definition-item>
+            </mat-nested-tree-node>
+            <mat-nested-tree-node
+              *matTreeNodeDef="let node; when: hasChild"
+              class="group"
+            >
+              <div class="tree-group-row" (click)="toggleNode(node)">
+                <button mat-icon-button>
+                  <mat-icon class="mat-icon-rtl-mirror">
+                    {{
+                      expandedKey === node.key ? "expand_more" : "chevron_right"
+                    }}
+                  </mat-icon>
+                </button>
+                <div class="flex-1">{{ node.name }}</div>
+
+                @if (!hasAllFormsUploaded(node)) {
+                  <mat-icon
+                    outlined
+                    color="warn"
+                    matTooltip="{{
+                      'bpmn.process-definition.chip.onvolledig' | translate
+                    }}"
+                    >error</mat-icon
+                  >
+                } @else {
+                  <mat-icon outlined color="primary">check_circle</mat-icon>
+                }
+
+                <button
+                  mat-icon-button
+                  title="{{ 'actie.verwijderen' | translate }}"
+                  [disabled]="node.definition.details?.inUse"
+                  (click)="
+                    $event.stopPropagation(); deleteProcessDefinition(node)
+                  "
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <div [hidden]="expandedKey !== node.key">
+                <ng-container matTreeNodeOutlet></ng-container>
+              </div>
+            </mat-nested-tree-node>
+          </mat-tree>
+          @if (data().length === 0) {
+            <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
+</mat-sidenav-container>
