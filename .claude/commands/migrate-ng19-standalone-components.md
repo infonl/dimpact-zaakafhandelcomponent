@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 24 done — 128 remaining** (2026-03-26)
+**Progress: 26 done — 126 remaining** (2026-03-26)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -32,7 +32,7 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 |---|---|---|
 | 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
-| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; add batch under `## Marcel` in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
+| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; ask user to name the batch (`## {name}`) where this migration falls under in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
 
 ### Phase B — Per-component loop (repeat until PR)
 
@@ -213,6 +213,12 @@ Solves PZ-XXXXX
 - **Spec pattern**: Instantiate component class directly with `new Component(mockService)` — no `TestBed.createComponent` needed when testing pure logic; use `component["indicaties"]` (bracket notation) to access the protected field
 - **NgModule cleanup**: Standalone components move from `declarations[]` → `imports[]` in `shared.module.ts`; remain in `exports[]` so consuming modules (`zoeken`, `zaken`, `informatie-objecten`) continue to receive them via `SharedModule`
 - **Downstream spec fix**: Other specs that had the component in `declarations[]` need it moved to `imports[]` (e.g., `zaak-view.component.spec.ts`)
+
+### ✅ `fout-afhandeling/dialog/fout-dialog.component.ts` + `actie-onmogelijk-dialog.component.ts` (2026-03-26) — Dax Batch 2
+- `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
+- **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
+- **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
+- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via `nativeElement.querySelector`
 
 ---
 
