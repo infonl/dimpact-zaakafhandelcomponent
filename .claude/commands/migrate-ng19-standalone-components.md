@@ -238,7 +238,7 @@ Solves PZ-XXXXX
 - `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
 - **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
 - **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
-- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via `nativeElement.querySelector`
+- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via Angular Material harnesses (e.g. `MatButtonHarness`), not `nativeElement.querySelector`, per Rules above
 
 ---
 

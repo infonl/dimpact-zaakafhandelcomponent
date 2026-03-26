@@ -18,7 +18,11 @@ function setup(data: string) {
   };
 
   TestBed.configureTestingModule({
-    imports: [FoutDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      FoutDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       { provide: MatDialogRef, useValue: mockDialogRef },
       { provide: MAT_DIALOG_DATA, useValue: data },
