@@ -301,8 +301,9 @@ class TestLoggerProvider : LoggerProvider {
     val removedMdc = mutableMapOf<String, Any?>()
 
     override fun getLogger(name: String?): Logger {
-        return loggers.getOrPut(name ?: "default") {
-            Logger.getLogger(name)
+        val key = name ?: "default"
+        return loggers.getOrPut(key) {
+            Logger.getLogger(key)
         }
     }
 
