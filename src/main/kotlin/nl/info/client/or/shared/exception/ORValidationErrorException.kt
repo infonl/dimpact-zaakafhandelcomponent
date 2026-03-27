@@ -7,9 +7,8 @@ package nl.info.client.or.shared.exception
 import nl.info.client.or.shared.model.ORValidationError
 import nl.info.zac.exception.InputValidationFailedException
 
-class ORValidationErrorException(val validatieFout: ORValidationError) : InputValidationFailedException() {
-    override val message: String
-        get() = "${validatieFout.title} [${validatieFout.status} ${validatieFout.code}] ${validatieFout.detail}: " +
-            "${validatieFout.fieldValidationErrors?.joinToString(", ") { error -> "${error.name} [${error.code}] ${error.reason}" }} " +
-            "(${validatieFout.instance})"
-}
+class ORValidationErrorException(val oRValidationError: ORValidationError) : InputValidationFailedException(
+    message = "${oRValidationError.title} [${oRValidationError.status} ${oRValidationError.code}] ${oRValidationError.detail}: " +
+        "${oRValidationError.fieldValidationErrors?.joinToString(", ") { error -> "${error.name} [${error.code}] ${error.reason}" }} " +
+        "(${oRValidationError.instance})"
+)

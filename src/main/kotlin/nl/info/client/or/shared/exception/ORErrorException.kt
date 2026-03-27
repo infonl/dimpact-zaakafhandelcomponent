@@ -6,7 +6,6 @@ package nl.info.client.or.shared.exception
 
 import nl.info.client.or.shared.model.ORError
 
-class ORErrorException(val orError: ORError) : RuntimeException() {
-    override val message: String
-        get() = "${orError.title} [${orError.status} ${orError.code}] ${orError.detail} (${orError.instance})"
-}
+class ORErrorException(orError: ORError) : RuntimeException(
+    "${orError.title} [${orError.status} ${orError.code}] ${orError.detail} (${orError.instance})"
+)

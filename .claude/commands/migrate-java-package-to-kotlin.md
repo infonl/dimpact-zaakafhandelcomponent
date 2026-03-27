@@ -50,7 +50,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 **b) Package declaration** — update to the target package (e.g. `nl.info.client.bag`).
 
 **c) Imports** — update any `net.atos.*` imports to `nl.info.*`. Remove Java stdlib imports that have Kotlin equivalents.
-
+/mir
 **d) Classes**:
 - Remove `public` modifier (Kotlin default is public)
 - `@ApplicationScoped public class Foo { }` → `@ApplicationScoped @NoArgConstructor @AllOpen class Foo`
@@ -130,7 +130,22 @@ Fix any remaining Detekt violations — the most common in API interfaces is `Lo
 ```
 Fix any failing tests.
 
-## Step 9 — Conversion commit
+## Step 9 — Inspect and add unit tests
+
+Check whether the converted classes have adequate unit test coverage:
+
+1. Look for existing tests in `src/test/java/` and `src/test/kotlin/` that cover the migrated package.
+2. For each converted class, verify there is at least one test class covering its public methods and key behaviours.
+3. If a class has no test coverage, or only a few trivial cases, write a new Kotlin test class in `src/test/kotlin/nl/info/<subpath>/` following the conventions of nearby test files.
+4. Common gaps to check:
+   - Service methods with branching logic (if/when, null paths)
+   - Exception-throwing paths
+   - Adapter/converter round-trip correctness
+   - Enum `fromValue` / companion factory methods
+
+Write idiomatic Kotlin tests (JUnit 5 + Mockk or the framework already used in the module). Do **not** add tests for trivial getters or delegating one-liners that provide no value.
+
+## Step 10 — Conversion commit
 
 Stage all changes and commit:
 ```
@@ -140,7 +155,7 @@ Moves all classes from $ARGUMENTS to <target-package>
 and converts Java syntax to idiomatic Kotlin.
 ```
 
-## Step 10 — Verify git history
+## Step 11 — Verify git history
 
 ```bash
 git log --oneline --follow -- src/main/kotlin/nl/info/<path>/<MainClass>.kt
