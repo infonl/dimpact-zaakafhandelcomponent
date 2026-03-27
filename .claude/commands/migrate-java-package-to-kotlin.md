@@ -50,7 +50,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 **b) Package declaration** — update to the target package (e.g. `nl.info.client.bag`).
 
 **c) Imports** — update any `net.atos.*` imports to `nl.info.*`. Remove Java stdlib imports that have Kotlin equivalents.
-/mir
+
 **d) Classes**:
 - Remove `public` modifier (Kotlin default is public)
 - `@ApplicationScoped public class Foo { }` → `@ApplicationScoped @NoArgConstructor @AllOpen class Foo`
