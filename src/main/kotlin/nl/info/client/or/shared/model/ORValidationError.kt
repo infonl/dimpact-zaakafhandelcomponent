@@ -1,27 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.or.shared.model
 
-package net.atos.client.or.shared.model;
+import jakarta.json.bind.annotation.JsonbProperty
 
-import java.io.Serial;
-import java.util.List;
-
-import jakarta.json.bind.annotation.JsonbProperty;
-
-public class ORValidationError extends ORError {
-    @Serial
-    private static final long serialVersionUID = 456455676575665L;
-
-    @JsonbProperty("invalid_params")
-    private List<ORFieldValidationError> ORFieldValidationErrors;
-
-    public List<ORFieldValidationError> getFieldValidationErrors() {
-        return ORFieldValidationErrors;
-    }
-
-    public void setFieldValidationErrors(final List<ORFieldValidationError> ORFieldValidationErrors) {
-        this.ORFieldValidationErrors = ORFieldValidationErrors;
-    }
+class ORValidationError : ORError() {
+    @field:JsonbProperty("invalid_params")
+    var fieldValidationErrors: List<ORFieldValidationError>? = null
 }

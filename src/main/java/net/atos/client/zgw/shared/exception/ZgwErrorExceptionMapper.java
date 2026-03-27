@@ -9,8 +9,8 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.or.shared.exception.ORValidationErrorExceptionMapper;
 import net.atos.client.zgw.shared.model.ZgwError;
+import nl.info.client.or.shared.exception.ORValidationErrorExceptionMapper;
 
 /**
  * Maps all responses with status code greater than 400 (Bad Request) and less than 500 (Internal Server Error)
