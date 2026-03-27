@@ -21,7 +21,7 @@ import nl.info.client.or.shared.exception.ORValidationErrorExceptionMapper;
  * <p>
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
- * 400 (Bad Request) status codes are handled by {@link ORValidationErrorExceptionMapper}
+ * 400 (Bad Request) status codes are handled by {@link ZgwValidationErrorResponseExceptionMapper}
  */
 public class ZgwErrorExceptionMapper implements ResponseExceptionMapper<ZgwErrorException> {
 
