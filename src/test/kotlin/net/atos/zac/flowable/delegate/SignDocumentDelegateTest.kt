@@ -53,13 +53,10 @@ class SignDocumentDelegateTest : BehaviorSpec({
         every { FlowableHelper.getInstance() } returns flowableHelper
         every { flowableHelper.zaakVariabelenService } returns zaakVariabelenService
         every { flowableHelper.eventingService } returns eventingService
+        every { flowableHelper.drcClientService } returns drcClientService
 
         val cdiInstance = mockk<CDI<Any>>()
         every { CDI.current() } returns cdiInstance
-
-        val drcServiceInstance = mockk<Instance<DrcClientService>>()
-        every { cdiInstance.select(DrcClientService::class.java) } returns drcServiceInstance
-        every { drcServiceInstance.get() } returns drcClientService
 
         val updateServiceInstance = mockk<Instance<EnkelvoudigInformatieObjectUpdateService>>()
         every { cdiInstance.select(EnkelvoudigInformatieObjectUpdateService::class.java) } returns updateServiceInstance
