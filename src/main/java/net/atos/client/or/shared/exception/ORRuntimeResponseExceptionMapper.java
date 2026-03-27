@@ -18,8 +18,9 @@ public class ORRuntimeResponseExceptionMapper implements ResponseExceptionMapper
     }
 
     @Override
-    public RuntimeException toThrowable(final Response response) {
-        return new RuntimeException(String.format("Server response from object registratie: %d (%s)", response.getStatus(), response
-                .getStatusInfo()));
+    public ORRuntimeException toThrowable(final Response response) {
+        return new ORRuntimeException(
+                String.format("Server response from object registratie: %d (%s)", response.getStatus(), response.getStatusInfo())
+        );
     }
 }

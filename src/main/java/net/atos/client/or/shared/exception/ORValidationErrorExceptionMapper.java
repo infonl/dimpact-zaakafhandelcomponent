@@ -10,14 +10,14 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.or.shared.model.ValidatieFout;
+import net.atos.client.or.shared.model.ORValidationError;
 
 /**
  * Maps all responses with status code 400 (Bad Request) from the Object Registration APIs.
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
  */
-public class ValidatieFoutExceptionMapper implements ResponseExceptionMapper<ValidatieFoutException> {
+public class ORValidationErrorExceptionMapper implements ResponseExceptionMapper<ORValidationErrorException> {
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
@@ -25,7 +25,7 @@ public class ValidatieFoutExceptionMapper implements ResponseExceptionMapper<Val
     }
 
     @Override
-    public ValidatieFoutException toThrowable(final Response response) {
-        return new ValidatieFoutException(response.readEntity(ValidatieFout.class));
+    public ORValidationErrorException toThrowable(final Response response) {
+        return new ORValidationErrorException(response.readEntity(ORValidationError.class));
     }
 }

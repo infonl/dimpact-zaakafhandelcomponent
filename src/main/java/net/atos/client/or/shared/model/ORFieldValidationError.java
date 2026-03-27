@@ -7,7 +7,7 @@ package net.atos.client.or.shared.model;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class FieldValidationError implements Serializable {
+public class ORFieldValidationError implements Serializable {
     @Serial
     private static final long serialVersionUID = 7808093454353L;
 

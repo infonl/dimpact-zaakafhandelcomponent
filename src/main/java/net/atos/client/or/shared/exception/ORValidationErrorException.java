@@ -8,24 +8,26 @@ package net.atos.client.or.shared.exception;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import net.atos.client.or.shared.model.ValidatieFout;
+import net.atos.client.or.shared.model.ORValidationError;
+import nl.info.zac.exception.InputValidationFailedException;
 
-public class ValidatieFoutException extends RuntimeException {
+public class ORValidationErrorException extends InputValidationFailedException {
 
-    private final ValidatieFout validatieFout;
+    private final ORValidationError validatieFout;
 
-    public ValidatieFoutException(final ValidatieFout validatieFout) {
+    public ORValidationErrorException(final ORValidationError validatieFout) {
         this.validatieFout = validatieFout;
     }
 
-    public ValidatieFout getValidatieFout() {
+    public ORValidationError getValidatieFout() {
         return validatieFout;
     }
 
     @Override
     public String getMessage() {
         return "%s [%d %s] %s: %s (%s)"
-                .formatted(validatieFout.getTitle(),
+                .formatted(
+                        validatieFout.getTitle(),
                         validatieFout.getStatus(),
                         validatieFout.getCode(),
                         validatieFout.getDetail(),
@@ -35,7 +37,8 @@ public class ValidatieFoutException extends RuntimeException {
                                                 error.getCode(),
                                                 error.getReason()))
                                 .collect(Collectors.joining(", ")),
-                        uri(validatieFout.getInstance()));
+                        uri(validatieFout.getInstance())
+                );
     }
 
     private String uri(final URI uri) {

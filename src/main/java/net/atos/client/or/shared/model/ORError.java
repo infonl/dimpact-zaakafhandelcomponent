@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 
-public class Fout implements Serializable {
+public class ORError implements Serializable {
     @Serial
     private static final long serialVersionUID = 4564564564565456L;
 

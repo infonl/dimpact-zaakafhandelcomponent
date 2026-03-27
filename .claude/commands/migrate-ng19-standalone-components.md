@@ -234,7 +234,7 @@ Solves PZ-XXXXX
 - **NgModule cleanup**: Standalone components move from `declarations[]` → `imports[]` in `shared.module.ts`; remain in `exports[]` so consuming modules (`zoeken`, `zaken`, `informatie-objecten`) continue to receive them via `SharedModule`
 - **Downstream spec fix**: Other specs that had the component in `declarations[]` need it moved to `imports[]` (e.g., `zaak-view.component.spec.ts`)
 
-### ✅ `fout-afhandeling/dialog/fout-dialog.component.ts` + `actie-onmogelijk-dialog.component.ts` (2026-03-26) — Dax Batch 2
+### ✅ `ORError-afhandeling/dialog/ORError-dialog.component.ts` + `actie-onmogelijk-dialog.component.ts` (2026-03-26) — Dax Batch 2
 - `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
 - **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
 - **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
