@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
@@ -12,12 +15,12 @@ import { MultiFacetFilterComponent } from "./multi-facet-filter.component";
 const makeFilter = (
   fields: Partial<GeneratedType<"FilterParameters">> = {},
 ): GeneratedType<"FilterParameters"> =>
-  ({ values: [], ...fields }) as GeneratedType<"FilterParameters">;
+  ({ values: [], ...fields }) as Partial<GeneratedType<"FilterParameters">> as unknown as GeneratedType<"FilterParameters">;
 
 const makeOptie = (
-  fields: Partial<GeneratedType<"FilterResultaat">>,
+  fields: Partial<GeneratedType<"FilterResultaat">> = {},
 ): GeneratedType<"FilterResultaat"> =>
-  fields as unknown as GeneratedType<"FilterResultaat">;
+  ({ ...fields }) as Partial<GeneratedType<"FilterResultaat">> as unknown as GeneratedType<"FilterResultaat">;
 
 const opties = [
   makeOptie({ naam: "ZAAK", aantal: 10 }),
@@ -29,6 +32,7 @@ async function setup(
 ): Promise<{
   component: MultiFacetFilterComponent;
   fixture: ComponentFixture<MultiFacetFilterComponent>;
+  loader: HarnessLoader;
 }> {
   const fixture = TestBed.createComponent(MultiFacetFilterComponent);
   const component = fixture.componentInstance;
@@ -36,7 +40,8 @@ async function setup(
   component.filter = filter;
   component.opties = opties;
   fixture.detectChanges();
-  return { component, fixture };
+  const loader = TestbedHarnessEnvironment.loader(fixture);
+  return { component, fixture, loader };
 }
 
 describe(MultiFacetFilterComponent.name, () => {
@@ -51,10 +56,8 @@ describe(MultiFacetFilterComponent.name, () => {
   });
 
   it("renders a checkbox for each optie", async () => {
-    const { fixture } = await setup();
-    const checkboxes = fixture.nativeElement.querySelectorAll(
-      "mat-checkbox",
-    ) as NodeListOf<HTMLElement>;
+    const { loader } = await setup();
+    const checkboxes = await loader.getAllHarnesses(MatCheckboxHarness);
     expect(checkboxes.length).toBe(2);
   });
 
