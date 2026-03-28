@@ -74,7 +74,7 @@ class MdcLoggingFilterTest : BehaviorSpec({
         }
     }
 
-    Given("a request with x_request_id header") {
+    Given("a request with x_correlation_id header") {
         // Build a fresh filter and logger provider for each test case
         val loggerProvider = TestLoggerProvider()
         var filter = MdcLoggingFilter(loggerProvider)
