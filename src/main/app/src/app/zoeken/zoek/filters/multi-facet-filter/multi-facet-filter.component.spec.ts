@@ -15,12 +15,16 @@ import { MultiFacetFilterComponent } from "./multi-facet-filter.component";
 const makeFilter = (
   fields: Partial<GeneratedType<"FilterParameters">> = {},
 ): GeneratedType<"FilterParameters"> =>
-  ({ values: [], ...fields }) as Partial<GeneratedType<"FilterParameters">> as unknown as GeneratedType<"FilterParameters">;
+  ({ values: [], ...fields }) as Partial<
+    GeneratedType<"FilterParameters">
+  > as unknown as GeneratedType<"FilterParameters">;
 
 const makeOptie = (
   fields: Partial<GeneratedType<"FilterResultaat">> = {},
 ): GeneratedType<"FilterResultaat"> =>
-  ({ ...fields }) as Partial<GeneratedType<"FilterResultaat">> as unknown as GeneratedType<"FilterResultaat">;
+  ({ ...fields }) as Partial<
+    GeneratedType<"FilterResultaat">
+  > as unknown as GeneratedType<"FilterResultaat">;
 
 const opties = [
   makeOptie({ naam: "ZAAK", aantal: 10 }),
