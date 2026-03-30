@@ -125,8 +125,20 @@ All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 Replace `<YEAR>` with the current year.
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
-Only add a single year (the current year) for `INFO.nl` to the SPDX header, even if the file was modified in multiple years.
-For example, do not add `2025, 2026 INFO.nl`.
+For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year. 
+For example `2025, 2026 INFO.nl` is wrong.
+
+### Simplify Kotlin functions
+When you see a Kotlin function with a single expression body, convert it to an expression body syntax:
+```kotlin
+// Before
+fun add(a: Int, b: Int): Int {
+    return a + b
+}   
+// After
+fun add(a: Int, b: Int): Int = a + b
+```
+This makes the code more concise and easier to read.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`

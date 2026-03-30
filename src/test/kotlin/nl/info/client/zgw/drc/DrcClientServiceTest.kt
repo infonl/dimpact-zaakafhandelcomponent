@@ -87,7 +87,7 @@ class DrcClientServiceTest : BehaviorSpec({
 
         When("updating the EnkelvoudigInformatieobject") {
             val result = drcClientService.updateEnkelvoudigInformatieobject(
-                uuid = uuid,
+                enkelvoudigInformatieobjectUUID = uuid,
                 enkelvoudigInformatieObjectWithLockRequest = patchRequest,
                 auditExplanation = auditExplanation
             )
@@ -112,7 +112,7 @@ class DrcClientServiceTest : BehaviorSpec({
 
         When("updating the EnkelvoudigInformatieobject") {
             val result = drcClientService.updateEnkelvoudigInformatieobject(
-                uuid = uuid,
+                enkelvoudigInformatieobjectUUID = uuid,
                 enkelvoudigInformatieObjectWithLockRequest = patchRequest,
                 auditExplanation = null
             )

@@ -35,80 +35,42 @@ class DrcClientService @Inject constructor(
     private val zgwClientHeadersFactory: ZgwClientHeadersFactory,
     private val configurationService: ConfigurationService
 ) {
-    /**
-     * Read [EnkelvoudigInformatieObject] via its UUID.
-     * Throws a RuntimeException if the [EnkelvoudigInformatieObject] can not be read.
-     *
-     * @param uuid UUID of the [EnkelvoudigInformatieObject].
-     * @return [EnkelvoudigInformatieObject]. Never 'null'!
-     */
-    fun readEnkelvoudigInformatieobject(uuid: UUID): EnkelvoudigInformatieObject =
-        drcClient.enkelvoudigInformatieobjectRead(uuid)
+    fun readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): EnkelvoudigInformatieObject =
+        drcClient.enkelvoudigInformatieobjectRead(enkelvoudigInformatieobjectUUID)
 
-    /**
-     * Read [EnkelvoudigInformatieObject] via its URI.
-     * Throws a RuntimeException if the [EnkelvoudigInformatieObject] can not be read.
-     *
-     * @param enkelvoudigInformatieobjectURI URI of the [EnkelvoudigInformatieObject].
-     * @return [EnkelvoudigInformatieObject]. Never 'null'!
-     */
     fun readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectURI: URI): EnkelvoudigInformatieObject {
         validateZgwApiUri(enkelvoudigInformatieobjectURI, configurationService.readZgwApiClientMpRestUrl())
         return readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectURI.extractUuid())
     }
 
-    /**
-     * Read [EnkelvoudigInformatieObject] via its UUID and version.
-     * Throws a RuntimeException if the [EnkelvoudigInformatieObject] can not be read.
-     *
-     * @param uuid   UUID of the [EnkelvoudigInformatieObject].
-     * @param versie Required version
-     * @return [EnkelvoudigInformatieObject]. Never 'null'!
-     */
-    fun readEnkelvoudigInformatieobjectVersie(uuid: UUID, versie: Int): EnkelvoudigInformatieObject =
-        drcClient.enkelvoudigInformatieobjectReadVersie(uuid = uuid, versie = versie)
+    fun readEnkelvoudigInformatieobjectVersie(
+        enkelvoudigInformatieobjectUUID: UUID,
+        version: Int
+    ): EnkelvoudigInformatieObject =
+        drcClient.enkelvoudigInformatieobjectReadVersie(uuid = enkelvoudigInformatieobjectUUID, versie = version)
 
-    /**
-     * DELETE [EnkelvoudigInformatieObject] via its UUID.
-     * Throws a RuntimeException if the [EnkelvoudigInformatieObject] can not be deleted.
-     *
-     * @param uuid UUID of the [EnkelvoudigInformatieObject].
-     */
-    fun deleteEnkelvoudigInformatieobject(uuid: UUID) {
-        drcClient.enkelvoudigInformatieobjectDelete(uuid)
-    }
+    fun deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID) =
+        drcClient.enkelvoudigInformatieobjectDelete(enkelvoudigInformatieobjectUUID)
 
     fun updateEnkelvoudigInformatieobject(
-        uuid: UUID,
+        enkelvoudigInformatieobjectUUID: UUID,
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
         auditExplanation: String?
     ): EnkelvoudigInformatieObject {
         auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
         return drcClient.enkelvoudigInformatieobjectPartialUpdate(
-            uuid = uuid,
+            uuid = enkelvoudigInformatieobjectUUID,
             enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest
         )
     }
 
-    /**
-     * Lock a [EnkelvoudigInformatieObject].
-     *
-     * @param enkelvoudigInformatieobjectUUID [EnkelvoudigInformatieObject]
-     */
     fun lockEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): String {
-        // If the EnkelvoudigInformatieobject is already locked, a ValidationException is thrown.
         return drcClient.enkelvoudigInformatieobjectLock(
             uuid = enkelvoudigInformatieobjectUUID,
             enkelvoudigInformatieObjectLock = LockEnkelvoudigInformatieObject(UUID.randomUUID().toString())
         ).lock
     }
 
-    /**
-     * Unlock a [EnkelvoudigInformatieObject].
-     *
-     * @param enkelvoudigInformatieobjectUUID [EnkelvoudigInformatieObject]
-     * @param lock                            The lock id
-     */
     fun unlockEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID, lock: String) {
         drcClient.enkelvoudigInformatieobjectUnlock(
             uuid = enkelvoudigInformatieobjectUUID,
@@ -116,12 +78,6 @@ class DrcClientService @Inject constructor(
         )
     }
 
-    /**
-     * Download content of [EnkelvoudigInformatieObject].
-     *
-     * @param enkelvoudigInformatieobjectUUID UUID of [EnkelvoudigInformatieObject]
-     * @return Content of [EnkelvoudigInformatieObject].
-     */
     fun downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): ByteArrayInputStream {
         val response = drcClient.enkelvoudigInformatieobjectDownload(enkelvoudigInformatieobjectUUID)
         if (!response.bufferEntity()) {
@@ -132,45 +88,26 @@ class DrcClientService @Inject constructor(
         return response.entity as ByteArrayInputStream
     }
 
-    /**
-     * Download content of [EnkelvoudigInformatieObject] of a specific version
-     *
-     * @param enkelvoudigInformatieobjectUUID UUID of [EnkelvoudigInformatieObject]
-     * @param versie                          Required version
-     * @return Content of [EnkelvoudigInformatieObject].
-     */
     fun downloadEnkelvoudigInformatieobjectVersie(
         enkelvoudigInformatieobjectUUID: UUID,
-        versie: Int?
+        version: Int
     ): ByteArrayInputStream {
         val response = drcClient.enkelvoudigInformatieobjectDownloadVersie(
             uuid = enkelvoudigInformatieobjectUUID,
-            versie = versie
+            versie = version
         )
         if (!response.bufferEntity()) {
             throw DrcRuntimeException(
                 "Content of enkelvoudig informatieobject with uuid '$enkelvoudigInformatieobjectUUID' " +
-                    "and version '$versie' could not be buffered."
+                    "and version '$version' could not be buffered."
             )
         }
         return response.entity as ByteArrayInputStream
     }
 
-    /**
-     * List all instances of [AuditTrailRegel] for a specific [EnkelvoudigInformatieObject].
-     *
-     * @param enkelvoudigInformatieobjectUUID UUID of [EnkelvoudigInformatieObject].
-     * @return List of [AuditTrailRegel] instances.
-     */
     fun listAuditTrail(enkelvoudigInformatieobjectUUID: UUID): List<AuditTrailRegel> =
         drcClient.listAuditTrail(enkelvoudigInformatieobjectUUID)
 
-    /**
-     * List instances of [EnkelvoudigInformatieObject] filtered by [EnkelvoudigInformatieobjectListParameters].
-     *
-     * @param filter [EnkelvoudigInformatieobjectListParameters].
-     * @return List of [EnkelvoudigInformatieObject] instances.
-     */
     fun listEnkelvoudigInformatieObjecten(
         filter: EnkelvoudigInformatieobjectListParameters
     ): Results<EnkelvoudigInformatieObject> = drcClient.enkelvoudigInformatieobjectList(filter)

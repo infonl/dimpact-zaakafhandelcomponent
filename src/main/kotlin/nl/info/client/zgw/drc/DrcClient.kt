@@ -68,7 +68,7 @@ interface DrcClient {
     @Path("enkelvoudiginformatieobjecten/{uuid}")
     fun enkelvoudigInformatieobjectReadVersie(
         @PathParam("uuid") uuid: UUID,
-        @QueryParam("versie") versie: Int?
+        @QueryParam("versie") versie: Int
     ): EnkelvoudigInformatieObject
 
     @GET
@@ -81,7 +81,7 @@ interface DrcClient {
     @Path("enkelvoudiginformatieobjecten/{uuid}/download")
     fun enkelvoudigInformatieobjectDownloadVersie(
         @PathParam("uuid") uuid: UUID,
-        @QueryParam("versie") versie: Int?
+        @QueryParam("versie") versie: Int
     ): Response
 
     @PATCH
