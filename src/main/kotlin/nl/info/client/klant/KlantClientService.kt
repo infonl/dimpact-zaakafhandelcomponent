@@ -6,6 +6,7 @@ package nl.info.client.klant
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.VESTIGING
@@ -14,9 +15,15 @@ import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.KVK_NUMMER
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.VESTIGINGSNUMMER
 import nl.info.client.klanten.model.generated.DigitaalAdres
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.KlantcontactForeignKey
+import nl.info.client.klanten.model.generated.Onderwerpobject
+import nl.info.client.klanten.model.generated.Onderwerpobjectidentificator
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum.EMAIL
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum.TELEFOONNUMMER
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.util.UUID
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -29,6 +36,9 @@ class KlantClientService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(KlantClientService::class.java.name)
         private const val DEFAULT_PAGE_SIZE = 100
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "zaak"
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "open-zaak"
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "uuid"
     }
 
     /**
@@ -103,4 +113,48 @@ class KlantClientService @Inject constructor(
             pageSize = DEFAULT_PAGE_SIZE,
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.betrokkenen ?: emptyList()
+
+    private fun findKlantcontactForProductaanvraag(kenmerk: String) =
+        klantClient.klantcontactList(
+            page = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
+            onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+        ).getResults().firstOrNull()
+
+    private fun findDigitalAddressesForBetrokkene(betrokkeneUuid: String) =
+        klantClient.digitaalAdresList(
+            page = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
+            verstrektDoorBetrokkeneUuid = betrokkeneUuid
+        ).getResults()
+
+    fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
+        findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
+            klantcontact.hadBetrokkenen.firstOrNull()?.let { betrokkene ->
+                val digitaalAdresList = findDigitalAddressesForBetrokkene(betrokkene.uuid.toString())
+                return ProductaanvraagSpecificContactDetails(
+                    klantcontact.uuid,
+                    email = digitaalAdresList.filter { it.soortDigitaalAdres == EMAIL }.map { it.adres }.firstOrNull(),
+                    phone = digitaalAdresList.filter { it.soortDigitaalAdres == TELEFOONNUMMER }.map { it.adres }
+                        .firstOrNull()
+                )
+            }
+            return null
+        }
+
+    fun linkProductaanvraagSpecificContactDetailsToZaak(
+        productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails,
+        zaakUuid: UUID
+    ) {
+        val onderwerpobject = Onderwerpobject().apply {
+            klantcontact = KlantcontactForeignKey().apply { uuid = productaanvraagSpecificContactDetails.klantcontactUuid }
+            onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
+                objectId = zaakUuid.toString()
+                codeObjecttype = ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE
+                codeRegister = ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER
+                codeSoortObjectId = ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID
+            }
+        }
+        klantClient.onderwerpobjectCreate(onderwerpobject)
+    }
 }

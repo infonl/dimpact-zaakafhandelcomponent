@@ -7,12 +7,18 @@ package nl.info.client.klant
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum
 import nl.info.client.klanten.model.generated.CodeRegisterEnum
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
+import nl.info.client.klanten.model.generated.Onderwerpobject
+import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import java.util.UUID
 
 class KlantClientServiceTest : BehaviorSpec({
@@ -181,7 +187,7 @@ class KlantClientServiceTest : BehaviorSpec({
             )
             val paginatedExpandPartijList = createPaginatedExpandPartijList(
                 expandPartijen = listOf(
-                    // first partij does have the requested vestingsnummer but is linked
+                    // first partij does have the requested vestigingsnummer but is linked
                     // to a partij with a different KVK number and also has different digital addresses
                     createExpandPartij(
                         expand = createExpandPartijAllOfExpand(
@@ -204,7 +210,7 @@ class KlantClientServiceTest : BehaviorSpec({
                             )
                         )
                     ),
-                    // first partij has the requested vestingsnummer and is linked
+                    // first partij has the requested vestigingsnummer and is linked
                     // to a partij with the requested KVK number
                     createExpandPartij(
                         expand = createExpandPartijAllOfExpand(
@@ -368,6 +374,255 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return an empty list") {
                     result.shouldBeEmpty()
+                }
+            }
+        }
+    }
+
+    Context("Finding productaanvraag-specific contact details") {
+        Given("No klantcontact exists for the given kenmerk") {
+            val kenmerk = "fakeKenmerk"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(emptyList())
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact exists for the given kenmerk but has no betrokkenen") {
+            val kenmerk = "fakeKenmerk"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(
+                listOf(createKlantcontact(hadBetrokkenen = emptyList()))
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has both an email and phone digital address") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val email = "test@example.com"
+            val phone = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(
+                    createDigitalAddress(address = email, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                    createDigitalAddress(address = phone, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                )
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return the contact details with email and phone") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.email shouldBe email
+                    result?.phone shouldBe phone
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has only an email digital address") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val email = "test@example.com"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(createDigitalAddress(address = email, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return the contact details with email and no phone") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.email shouldBe email
+                    result?.phone.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has only a phone digital address") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val phone = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(createDigitalAddress(address = phone, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return the contact details with phone and no email") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.email.shouldBeNull()
+                    result?.phone shouldBe phone
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has multiple digital addresses of the same type") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val firstEmail = "first@example.com"
+            val secondEmail = "second@example.com"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(
+                    createDigitalAddress(address = firstEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                    createDigitalAddress(address = secondEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                )
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return the contact details with only the first email and no phone") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.email shouldBe firstEmail
+                    result?.phone.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has no digital addresses") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(emptyList())
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return the contact details with no email and no phone") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.email.shouldBeNull()
+                    result?.phone.shouldBeNull()
+                }
+            }
+        }
+    }
+
+    Context("Linking productaanvraag-specific contact details to a zaak") {
+        Given("A productaanvraag-specific contact details and a zaak UUID") {
+            val klantcontactUuid = UUID.randomUUID()
+            val zaakUuid = UUID.randomUUID()
+            val contactDetails = ProductaanvraagSpecificContactDetails(
+                klantcontactUuid = klantcontactUuid,
+                email = "test@example.com",
+                phone = "0612345678"
+            )
+            val onderwerpobjectSlot = slot<Onderwerpobject>()
+            every { klantClient.onderwerpobjectCreate(capture(onderwerpobjectSlot)) } returns Onderwerpobject()
+
+            When("the contact details are linked to the zaak") {
+                klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, zaakUuid)
+
+                Then("onderwerpobjectCreate is called with the correct klantcontact UUID and zaak identificator") {
+                    val captured = onderwerpobjectSlot.captured
+                    captured.klantcontact.uuid shouldBe klantcontactUuid
+                    captured.onderwerpobjectidentificator.objectId shouldBe zaakUuid.toString()
+                    captured.onderwerpobjectidentificator.codeObjecttype shouldBe "zaak"
+                    captured.onderwerpobjectidentificator.codeRegister shouldBe "open-zaak"
+                    captured.onderwerpobjectidentificator.codeSoortObjectId shouldBe "uuid"
                 }
             }
         }
