@@ -22,7 +22,7 @@ keycloak:
 gemeente:
   code: "9999"
   naam: "Testgemeente"
-  mail: "info@testgemeente.local"
+  mail: "info@example.com"
 
 mail:
   smtp:

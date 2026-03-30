@@ -175,7 +175,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "RT_ReferenceTable_Values": "Post",
                         "ZK_Result": "Verleend",
                         "ZK_Status": "Afgerond",
-                        "TF_EMAIL_TO": "shared-team-dimpact@info.nl"
+                        "TF_EMAIL_TO": "test-2@example.com"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
@@ -201,7 +201,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
 
             And("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
-                    url = "${ItestConfiguration.GREENMAIL_API_URI}/user/shared-team-dimpact@info.nl/messages/",
+                    url = "${ItestConfiguration.GREENMAIL_API_URI}/user/test-2@example.com/messages/",
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
                 receivedMailsResponse.code shouldBe HttpURLConnection.HTTP_OK
