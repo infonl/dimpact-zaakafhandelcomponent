@@ -79,6 +79,7 @@
                   <mat-icon
                     outlined
                     color="warn"
+                    class="cursor-default"
                     matTooltip="{{
                       'bpmn.process-definition.chip.onvolledig' | translate
                     }}"
@@ -88,16 +89,25 @@
                   <mat-icon outlined color="primary">check_circle</mat-icon>
                 }
 
-                <button
-                  mat-icon-button
-                  title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="node.definition.details?.inUse"
-                  (click)="
-                    $event.stopPropagation(); deleteProcessDefinition(node)
+                <span
+                  [class.cursor-default]="node.definition.details?.inUse"
+                  [matTooltip]="
+                    node.definition.details?.inUse
+                      ? ('bpmn.process-definition.button.delete.definition.in-use'
+                        | translate)
+                      : ('actie.verwijderen' | translate)
                   "
                 >
-                  <mat-icon>delete</mat-icon>
-                </button>
+                  <button
+                    mat-icon-button
+                    [disabled]="node.definition.details?.inUse"
+                    (click)="
+                      $event.stopPropagation(); deleteProcessDefinition(node)
+                    "
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </span>
               </div>
               <div [hidden]="expandedKey !== node.key">
                 <ng-container matTreeNodeOutlet></ng-container>
