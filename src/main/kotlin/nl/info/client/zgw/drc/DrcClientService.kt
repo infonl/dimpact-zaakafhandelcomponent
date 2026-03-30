@@ -49,8 +49,9 @@ class DrcClientService @Inject constructor(
     ): EnkelvoudigInformatieObject =
         drcClient.enkelvoudigInformatieobjectReadVersie(uuid = enkelvoudigInformatieobjectUUID, versie = version)
 
-    fun deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID) =
+    fun deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID) {
         drcClient.enkelvoudigInformatieobjectDelete(enkelvoudigInformatieobjectUUID)
+    }
 
     fun updateEnkelvoudigInformatieobject(
         enkelvoudigInformatieobjectUUID: UUID,
