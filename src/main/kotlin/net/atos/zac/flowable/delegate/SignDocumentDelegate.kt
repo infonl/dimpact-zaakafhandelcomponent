@@ -16,7 +16,7 @@ import java.util.UUID
 import java.util.logging.Logger
 
 /**
- * Flowable BPMN delegate to sign a document.
+ * Flowable BPMN delegate to sign one or multiple documents.
  *
  * This class may be used in existing BPMN process definitions, so be careful renaming or moving it to another package
  * because that will break all zaken and tasks that were created with (previous versions of) the related BPMN process.
