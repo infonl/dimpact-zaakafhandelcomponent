@@ -42,11 +42,13 @@ class SignDocumentDelegate : AbstractDelegate() {
         val documentsToSign = flowableHelper.zaakVariabelenService.readZaakdata(zaakUuid)
             .filter { (key, _) -> key.startsWith(zaakDataKey) }
             .values
+            .asSequence()
             .filterIsInstance<List<*>>()
             .flatten()
             .filterIsInstance<String>()
             .map { UUID.fromString(it) }
             .distinct()
+            .toList()
 
         LOG.fine(
             "Found ${documentsToSign.size} document(s) to sign " +
