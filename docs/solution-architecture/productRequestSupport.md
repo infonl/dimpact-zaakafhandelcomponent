@@ -39,7 +39,7 @@ After receiving the notification of creating a new Product Request, the followin
       3. If both CMMN and BPMN are defined for the same Product Request type, CMMN takes precedence: the CMMN Case is started, and the BPMN mapping is ignored (a warning is logged).
 
       For both CMMN and BPMN processes, ZAC checks in Open Klant if it can find a Klantcontact linked to the Product Request form.
-      It there is one, it will use the first linked email address in Digitaal Adres for email communication. It will then also
+      If there is one, it will use the first linked email address in Digitaal Adres for email communication. It will then also
       link the klantcontact to the newly created zaak.
       In case of CMMN, it will try to send a confirmation mail (if configured) to either the request specific email address
       or to the email address linked to the initiator of the zaak.
