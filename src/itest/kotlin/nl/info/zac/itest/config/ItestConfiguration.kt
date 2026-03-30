@@ -325,6 +325,13 @@ object ItestConfiguration {
         "4f9da4cd-a910-4f85-98ca-adb33e215f43"
     )
 
+    val ZAAKTYPE_BPMN_TEST_3_UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
+    const val ZAAKTYPE_BPMN_TEST_3_DESCRIPTION = "BPMN test zaaktype 3"
+    const val ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE = "bpmn-test-3-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+        "c1d2e3f4-5678-9abc-def0-1234567890ab"
+    )
+
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
@@ -338,6 +345,13 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH = "bpmn/user-management/userGroupSelection.json"
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
+
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
+    const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
+    const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
+    const val BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME = "Summary of selected documents to sign"
 
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"

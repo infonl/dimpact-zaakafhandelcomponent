@@ -1,0 +1,88 @@
+{
+  "_id": "69c10a4874118608158900d8",
+  "title": "SelectDocumentsForm",
+  "name": "selectDocumentsForm",
+  "path": "selectdocumentsform",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "access": [
+    { "type": "create_own", "roles": [] },
+    { "type": "create_all", "roles": [] },
+    { "type": "read_own", "roles": [] },
+    {
+      "type": "read_all",
+      "roles": [
+        "69b8041eba894df4e13fe8ce",
+        "69b8041fba894df4e13fe8dc",
+        "69b8041fba894df4e13fe8e0"
+      ]
+    },
+    { "type": "update_own", "roles": [] },
+    { "type": "update_all", "roles": [] },
+    { "type": "delete_own", "roles": [] },
+    { "type": "delete_all", "roles": [] },
+    { "type": "team_read", "roles": [] },
+    { "type": "team_write", "roles": [] },
+    { "type": "team_admin", "roles": [] }
+  ],
+  "submissionAccess": [
+    { "type": "create_own", "roles": [] },
+    { "type": "create_all", "roles": [] },
+    { "type": "read_own", "roles": [] },
+    { "type": "read_all", "roles": [] },
+    { "type": "update_own", "roles": [] },
+    { "type": "update_all", "roles": [] },
+    { "type": "delete_own", "roles": [] },
+    { "type": "delete_all", "roles": [] },
+    { "type": "team_read", "roles": [] },
+    { "type": "team_write", "roles": [] },
+    { "type": "team_admin", "roles": [] }
+  ],
+  "owner": "6965029d3b500ad321a98eeb",
+  "components": [
+    {
+      "label": "Documents",
+      "type": "select",
+      "key": "ZAAK_Documenten_Ondertekenen_Selectie",
+      "input": true,
+      "widget": "choicesjs",
+      "multiple": true,
+      "refreshOn": "data",
+      "dataSrc": "custom",
+      "placeholder": "Select one or more documents",
+      "customOptions": {
+        "choicesOptions": {
+          "removeItemButton": true,
+          "placeholder": true,
+          "searchEnabled": true,
+          "shouldSort": false
+        }
+      },
+      "validate": { "required": true },
+      "attributes": { "ZAC_TYPE": "ZAC_documenten" },
+      "tableView": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "project": "69b8041dba894df4e13fe8b7",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "esign": {},
+  "created": "2026-03-23T09:39:20.121Z",
+  "modified": "2026-03-23T09:40:17.259Z",
+  "machineName": "lhiktnkytwkdzlp:selectDocumentsForm",
+  "plan": "trial"
+}

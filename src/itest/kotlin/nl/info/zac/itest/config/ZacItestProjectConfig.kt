@@ -16,6 +16,10 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
@@ -50,6 +54,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -308,7 +316,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     private fun createBpmnProcessDefinitions() {
         arrayOf(
             BPMN_TEST_PROCESS_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH,
+            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
@@ -339,6 +348,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
                 BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
                 BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+            ),
+            BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH,
+                BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
             ),
         ).forEach { (processDefinitionKey, formResourcePaths) ->
             formResourcePaths.forEach { formResourcePath ->
@@ -442,6 +455,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             defaultBehandelaarId = BEHANDELAAR_1.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE,
             nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_3_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_3_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            defaultBehandelaarId = BEHANDELAAR_1.username,
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
