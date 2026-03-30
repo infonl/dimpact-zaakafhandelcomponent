@@ -1100,8 +1100,10 @@
   "bpmn.process-definition.card.task-forms.table.tooltip.missing": "Form not yet uploaded",
   "bpmn.process-definition.card.task-forms.title.tooltip": "One or more forms have not yet been uploaded. Upload the required forms to complete this process definition.",
   "bpmn.process-definition.card.task-forms.orphaned.title": "Unused forms",
-  "bpmn.process-definition.card.task-forms.orphaned.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. Remove the unused forms.",
+  "bpmn.process-definition.card.task-forms.orphaned.title.tooltip": "One or more forms have been uploaded that are not used in this process definition. These can be deleted.",
   "bpmn.process-definition.button.upload.definition": "Add BPMN process definition",
-  "bpmn.process-definition.button.upload.task-forms": "Add form",
-  "bpmn.process-definition.button.delete.task-forms.orphaned": "Delete forms"
+  "bpmn.process-definition.definition-row.button.delete.in-use": "This process definition is in use and cannot be deleted.",
+  "bpmn.process-definition.task-forms.button.upload.title": "Upload forms",
+  "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Delete forms",
+  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "This form is in use and cannot be deleted. However, a new form with the same name can be uploaded to modify the form."
 }

@@ -60,7 +60,9 @@
           </h3>
         </div>
         <button mat-raised-button color="primary" (click)="uploadBpmnForm()">
-          {{ "bpmn.process-definition.button.upload.task-forms" | translate }}
+          {{
+            "bpmn.process-definition.task-forms.button.upload.title" | translate
+          }}
         </button>
       </div>
       @if (showMissingWarning()) {
@@ -140,15 +142,23 @@
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
               @if (row.uploaded) {
-                <button
-                  mat-icon-button
-                  id="delete"
-                  title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="processDefinition().details?.inUse"
-                  (click)="deleteBpmnForm(row.formKey)"
+                <span
+                  [matTooltip]="
+                    processDefinition().details?.inUse
+                      ? ('bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use'
+                        | translate)
+                      : ('actie.verwijderen' | translate)
+                  "
                 >
-                  <mat-icon>delete</mat-icon>
-                </button>
+                  <button
+                    mat-icon-button
+                    id="delete"
+                    [disabled]="processDefinition().details?.inUse"
+                    (click)="deleteBpmnForm(row.formKey)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </span>
               }
             </td>
           </ng-container>
@@ -182,7 +192,7 @@
         </span>
         <button mat-raised-button (click)="deleteAllOrphanedForms()">
           {{
-            "bpmn.process-definition.button.delete.task-forms.orphaned"
+            "bpmn.process-definition.task-forms.orphaned.button.delete.title"
               | translate
           }}
         </button>

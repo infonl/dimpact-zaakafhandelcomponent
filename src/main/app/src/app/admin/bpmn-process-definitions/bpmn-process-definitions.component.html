@@ -75,29 +75,39 @@
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
 
-                @if (!hasAllFormsUploaded(node)) {
-                  <mat-icon
-                    outlined
-                    color="warn"
-                    matTooltip="{{
-                      'bpmn.process-definition.chip.onvolledig' | translate
-                    }}"
-                    >error</mat-icon
-                  >
-                } @else {
-                  <mat-icon outlined color="primary">check_circle</mat-icon>
-                }
-
-                <button
-                  mat-icon-button
-                  title="{{ 'actie.verwijderen' | translate }}"
-                  [disabled]="node.definition.details?.inUse"
-                  (click)="
-                    $event.stopPropagation(); deleteProcessDefinition(node)
+                <mat-icon
+                  outlined
+                  class="cursor-default"
+                  [color]="hasAllFormsUploaded(node) ? 'primary' : 'warn'"
+                  [matTooltip]="
+                    !hasAllFormsUploaded(node)
+                      ? ('bpmn.process-definition.chip.onvolledig' | translate)
+                      : ''
                   "
+                  (click)="$event.stopPropagation()"
+                  >{{
+                    hasAllFormsUploaded(node) ? "check_circle" : "error"
+                  }}</mat-icon
                 >
-                  <mat-icon>delete</mat-icon>
-                </button>
+
+                <span
+                  [class.cursor-default]="node.definition.details?.inUse"
+                  [matTooltip]="
+                    node.definition.details?.inUse
+                      ? ('bpmn.process-definition.definition-row.button.delete.in-use'
+                        | translate)
+                      : ('actie.verwijderen' | translate)
+                  "
+                  (click)="$event.stopPropagation()"
+                >
+                  <button
+                    mat-icon-button
+                    [disabled]="node.definition.details?.inUse"
+                    (click)="deleteProcessDefinition(node)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </span>
               </div>
               <div [hidden]="expandedKey !== node.key">
                 <ng-container matTreeNodeOutlet></ng-container>
