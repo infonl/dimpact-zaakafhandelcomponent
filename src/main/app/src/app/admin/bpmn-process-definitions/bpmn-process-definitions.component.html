@@ -83,10 +83,17 @@
                     matTooltip="{{
                       'bpmn.process-definition.chip.onvolledig' | translate
                     }}"
+                    (click)="$event.stopPropagation()"
                     >error</mat-icon
                   >
                 } @else {
-                  <mat-icon outlined color="primary">check_circle</mat-icon>
+                  <mat-icon
+                    outlined
+                    color="primary"
+                    class="cursor-default"
+                    (click)="$event.stopPropagation()"
+                    >check_circle</mat-icon
+                  >
                 }
 
                 <span
@@ -97,13 +104,12 @@
                         | translate)
                       : ('actie.verwijderen' | translate)
                   "
+                  (click)="$event.stopPropagation()"
                 >
                   <button
                     mat-icon-button
                     [disabled]="node.definition.details?.inUse"
-                    (click)="
-                      $event.stopPropagation(); deleteProcessDefinition(node)
-                    "
+                    (click)="deleteProcessDefinition(node)"
                   >
                     <mat-icon>delete</mat-icon>
                   </button>
