@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
@@ -31,6 +30,7 @@ import nl.info.client.kvk.util.validateKvKVestigingsnummer
 import nl.info.client.kvk.util.validateKvkNummer
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService

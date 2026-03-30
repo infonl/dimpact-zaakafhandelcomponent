@@ -15,10 +15,10 @@ import io.mockk.unmockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService

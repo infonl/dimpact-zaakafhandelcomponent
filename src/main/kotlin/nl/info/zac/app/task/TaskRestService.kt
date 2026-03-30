@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.event.EventingService
@@ -42,6 +41,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid

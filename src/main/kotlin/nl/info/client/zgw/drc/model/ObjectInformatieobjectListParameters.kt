@@ -1,41 +1,28 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.drc.model;
+package nl.info.client.zgw.drc.model
 
-import java.net.URI;
+import jakarta.ws.rs.QueryParam
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.net.URI
 
-import jakarta.ws.rs.QueryParam;
-
-public class ObjectInformatieobjectListParameters {
+@NoArgConstructor
+@AllOpen
+class ObjectInformatieobjectListParameters {
 
     /**
      * URL-referentie naar het gerelateerde OBJECT (in deze of een andere API).
      */
     @QueryParam("object")
-    private URI object;
+    var objectUri: URI? = null
 
     /**
      * URL-referentie naar het INFORMATIEOBJECT.
      */
     @QueryParam("informatieobject")
-    private URI informatieobject;
-
-    public URI getObject() {
-        return object;
-    }
-
-    public void setObject(URI object) {
-        this.object = object;
-    }
-
-    public URI getInformatieobject() {
-        return informatieobject;
-    }
-
-    public void setInformatieobject(URI informatieobject) {
-        this.informatieobject = informatieobject;
-    }
+    var informatieobject: URI? = null
 }

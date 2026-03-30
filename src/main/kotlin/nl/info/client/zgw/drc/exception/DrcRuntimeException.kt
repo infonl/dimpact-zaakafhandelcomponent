@@ -1,14 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.drc.exception;
+package nl.info.client.zgw.drc.exception
 
-import nl.info.client.zgw.shared.exception.ZgwRuntimeException;
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 
-public class DrcRuntimeException extends ZgwRuntimeException {
-    public DrcRuntimeException(final String message) {
-        super(message);
-    }
-}
+class DrcRuntimeException(message: String) : ZgwRuntimeException(message)
