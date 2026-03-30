@@ -70,7 +70,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "version": 1,
                     "details": {
                       "inUse": true,
-                      "documentation": "BPMN Process definition used in ZAC Integration tests",
+                      "documentation": "Simple BPMN process definition to test various functionalities. Used in ZAC integration tests.",
                       "forms": [
                         {
                           "formKey": "summaryForm",
