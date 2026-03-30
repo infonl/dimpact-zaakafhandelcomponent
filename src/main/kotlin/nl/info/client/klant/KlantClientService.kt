@@ -36,6 +36,9 @@ class KlantClientService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(KlantClientService::class.java.name)
         private const val DEFAULT_PAGE_SIZE = 100
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "zaak"
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "open-zaak"
+        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "uuid"
     }
 
     /**
@@ -143,14 +146,13 @@ class KlantClientService @Inject constructor(
         productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails,
         zaakUuid: UUID
     ) {
-        if (productaanvraagSpecificContactDetails.klantcontactUuid == null) return
         val onderwerpobject = Onderwerpobject().apply {
             klantcontact = KlantcontactForeignKey().apply { uuid = productaanvraagSpecificContactDetails.klantcontactUuid }
             onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
                 objectId = zaakUuid.toString()
-                codeObjecttype = "zaak"
-                codeRegister = "open-zaak"
-                codeSoortObjectId = "uuid"
+                codeObjecttype = ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE
+                codeRegister = ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER
+                codeSoortObjectId = ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID
             }
         }
         klantClient.onderwerpobjectCreate(onderwerpobject)

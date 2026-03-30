@@ -1297,7 +1297,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "OF-B3CARZ"
+          "kenmerk": "testKenmerkAlternativeEmailAddress1"
         },
         "type": "productaanvraag-type-1",
         "aanvraaggegevens": {
@@ -1349,7 +1349,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "OF-B4CATZ"
+          "kenmerk": "testKenmerkAlternativeEmailAddress2"
         },
         "type": "productaanvraag-type-1",
         "aanvraaggegevens": {

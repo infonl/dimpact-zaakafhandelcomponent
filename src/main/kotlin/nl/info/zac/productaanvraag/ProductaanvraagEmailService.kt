@@ -50,22 +50,20 @@ class ProductaanvraagEmailService @Inject constructor(
     ) {
         LOG.fine {
             "Attempting to send automatic confirmation of receipt email for zaak with identification '${zaak.identificatie}' " +
-                "and zaaktype '${zaak.zaaktype}' to zaak initiator."
+                "and zaaktype '${zaak.zaaktype}'."
         }
         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.takeIf { it.enabled }?.let { zaaktypeCmmnEmailParameters ->
             productaanvraagSpecificEmailAddress?.let { to ->
                 sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
-                return
-            }
-            betrokkene?.let {
+            } ?: betrokkene?.let {
                 extractBetrokkeneEmail(it)?.let { to ->
                     sendConfirmationOfReceiptMail(zaaktypeCmmnEmailParameters, to, zaak)
-                    return
                 }
-            }
-            LOG.fine {
-                "No email address found for initiator of zaak with identification: '${zaak.identificatie}' " +
-                    "and zaaktype '${zaak.zaaktype}'. Skipping automatic email confirmation."
+            } ?: {
+                LOG.fine {
+                    "No email address found for zaak with identification: '${zaak.identificatie}' " +
+                        "and zaaktype '${zaak.zaaktype}'. Skipping automatic email confirmation."
+                }
             }
         }
     }

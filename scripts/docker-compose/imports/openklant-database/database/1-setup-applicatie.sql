@@ -67,11 +67,11 @@ INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, be
 
 -- add onderwerpobject to klantcontact to test product request with request specific email address
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
-    VALUES(1, 'OF-B3CARZ', '6e374d6d-e54d-4c29-ab02-e9da8fed122a', 3, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
+    VALUES(1, 'testKenmerkAlternativeEmailAddress1', '6e374d6d-e54d-4c29-ab02-e9da8fed122a', 3, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
 -- add onderwerpobject to klantcontact to test product request with request specific email address
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
-    VALUES(2, 'OF-B4CATZ', '4c63e96a-feb6-4df6-922b-9a8585a9cce7', 4, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
+    VALUES(2, 'testKenmerkAlternativeEmailAddress2', '4c63e96a-feb6-4df6-922b-9a8585a9cce7', 4, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
 -- add email and telephone number digital addresses to the persoon partij
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
