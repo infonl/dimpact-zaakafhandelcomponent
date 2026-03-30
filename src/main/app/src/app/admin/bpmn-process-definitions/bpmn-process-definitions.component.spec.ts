@@ -162,8 +162,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
   describe("status icon", () => {
     it("should not toggle the node when the status icon is clicked", () => {
-      const icon: HTMLElement =
-        fixture.nativeElement.querySelector(".tree-group-row mat-icon.cursor-default");
+      const icon: HTMLElement = fixture.nativeElement.querySelector(
+        ".tree-group-row mat-icon.cursor-default",
+      );
       icon.click();
       expect(component["expandedKey"]).toBeNull();
     });
