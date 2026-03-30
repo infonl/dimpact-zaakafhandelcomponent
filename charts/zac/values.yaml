@@ -296,6 +296,8 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
+  # -- Resource limits and requests for the init-solr-zac-core init container
+  resources: {}
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -313,7 +315,7 @@ opa:
     repository: openpolicyagent/opa
     tag: "1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24"
     pullPolicy: IfNotPresent
-  # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
+  # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
   autoscaling:
     enabled: false
   replicas: 1
@@ -424,6 +426,8 @@ solr-operator:
       storageClassName: managed-csi
       # -- solr storage size
       size: 1Gi
+    # -- resource limits and requests for solr in solrcloud
+    resources: {}
     # -- tolerations for solr in solrcloud
     tolerations: []
     # -- topologySpreadConstraints for solr in solrcloud
@@ -498,6 +502,8 @@ solr-operator:
         storageClassName: managed-csi
         # -- zookeeper storage size
         size: 1Gi
+      # -- resource limits and requests for zookeeper
+      resources: {}
       # -- tolerations for zookeeper
       tolerations: []
       # -- topologySpreadConstraints for zookeeper
