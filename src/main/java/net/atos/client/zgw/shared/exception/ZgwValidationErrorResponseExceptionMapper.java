@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.zgw.shared.model.ValidationZgwError;
+import net.atos.client.zgw.shared.model.ZgwValidationError;
 
 /**
  * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to {@link ZgwValidationErrorException}s.
@@ -26,6 +26,6 @@ public class ZgwValidationErrorResponseExceptionMapper implements ResponseExcept
 
     @Override
     public ZgwValidationErrorException toThrowable(final Response response) {
-        return new ZgwValidationErrorException(response.readEntity(ValidationZgwError.class));
+        return new ZgwValidationErrorException(response.readEntity(ZgwValidationError.class));
     }
 }
