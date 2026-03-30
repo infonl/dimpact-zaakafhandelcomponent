@@ -15,6 +15,12 @@ import org.flowable.engine.delegate.DelegateExecution
 import java.util.UUID
 import java.util.logging.Logger
 
+/**
+ * Flowable BPMN delegate to sign a document.
+ *
+ * This class may be used in existing BPMN process definitions, so be careful renaming or moving it to another package
+ * because that will break all zaken and tasks that were created with (previous versions of) the related BPMN process.
+ */
 class SignDocumentDelegate : AbstractDelegate() {
 
     // Set by Flowable. Can be either FixedValue or JuelExpression. Defaults to DEFAULT_DOCUMENTEN_KEY if not set.
