@@ -1102,7 +1102,8 @@
   "bpmn.process-definition.card.task-forms.orphaned.title": "Formulieren (niet gekoppeld aan procesdefinitie)",
   "bpmn.process-definition.card.task-forms.orphaned.title.tooltip": "Er zijn één of meerdere formulieren geüpload die niet gebruikt worden in deze procesdefinitie. Deze kunnen verwijderd worden.",
   "bpmn.process-definition.button.upload.definition": "BPMN-procesdefinitie toevoegen",
-  "bpmn.process-definition.button.upload.task-forms": "Formulieren uploaden",
-  "bpmn.process-definition.button.delete.definition.in-use": "Deze procesdefinitie is in gebruik en kan niet worden verwijderd.",
-  "bpmn.process-definition.button.delete.task-forms.orphaned": "Formulieren verwijderen"
+  "bpmn.process-definition.definition-row.button.delete.in-use": "Deze procesdefinitie is in gebruik en kan niet worden verwijderd.",
+  "bpmn.process-definition.task-forms.button.upload.title": "Formulieren uploaden",
+  "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Formulieren verwijderen",
+  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen."
 }
