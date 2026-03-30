@@ -297,7 +297,10 @@ topologySpreadConstraints:
 initContainer:
   enabled: true
   # -- Resource limits and requests for the init-solr-zac-core init container
-  resources: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:

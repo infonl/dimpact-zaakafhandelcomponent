@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.203](https://img.shields.io/badge/Version-1.0.203-informational?style=flat-square) ![AppVersion: 4.5](https://img.shields.io/badge/AppVersion-4.5-informational?style=flat-square)
+![Version: 1.0.204](https://img.shields.io/badge/Version-1.0.204-informational?style=flat-square) ![AppVersion: 4.5](https://img.shields.io/badge/AppVersion-4.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -94,7 +94,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
-| initContainer.resources | object | `{}` | Resource limits and requests for the init-solr-zac-core init container |
+| initContainer.resources | object | `{"requests":{"cpu":"50m","memory":"256Mi"}}` | Resource limits and requests for the init-solr-zac-core init container |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
