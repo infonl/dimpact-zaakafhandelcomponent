@@ -119,7 +119,6 @@ class DrcClientService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest
     )
 
-    fun createGebruiksrechten(gebruiksrechten: Gebruiksrechten) {
+    fun createGebruiksrechten(gebruiksrechten: Gebruiksrechten) =
         drcClient.gebruiksrechtenCreate(gebruiksrechten)
-    }
 }
