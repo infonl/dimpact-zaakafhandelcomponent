@@ -17,20 +17,14 @@ import net.atos.client.zgw.shared.model.audit.documenten.GebuiksrechtenWijziging
 import net.atos.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging;
 
 public enum ObjectType {
-    /** http://open-zaak/documenten/api/v1/enkelvoudiginformatieobjecten/{uuid} */
     ENKELVOUDIG_INFORMATIEOBJECT("/documenten/api/v1/enkelvoudiginformatieobjecten/", EnkelvoudigInformatieobjectWijziging.class),
 
-    /** http://open-zaak/documenten/api/v1/gebruiksrechten/{uuid} */
     GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebuiksrechtenWijziging.class),
 
-    /** http://open-zaak/documenten/api/v1/objectinformatieobjecten/{uuid} */
     OBJECT_INFORMATIEOBJECT("documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging.class),
 
-
-    /** http://open-zaak.default/besluiten/api/v1/besluit/{uuid} */
     BESLUIT("/besluiten/api/v1/besluiten", BesluitWijziging.class),
 
-    /** http://open-zaak.default/besluiten/api/v1/besluitinformatieobjecten/{uuid} */
     BESLUIT_INFORMATIEOBJECT("/besluiten/api/v1/besluitinformatieobjecten", BesluitInformatieobjectWijziging.class);
 
     private final String url;
