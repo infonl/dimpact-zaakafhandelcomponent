@@ -75,26 +75,20 @@
                 </button>
                 <div class="flex-1">{{ node.name }}</div>
 
-                @if (!hasAllFormsUploaded(node)) {
-                  <mat-icon
-                    outlined
-                    color="warn"
-                    class="cursor-default"
-                    matTooltip="{{
-                      'bpmn.process-definition.chip.onvolledig' | translate
-                    }}"
-                    (click)="$event.stopPropagation()"
-                    >error</mat-icon
-                  >
-                } @else {
-                  <mat-icon
-                    outlined
-                    color="primary"
-                    class="cursor-default"
-                    (click)="$event.stopPropagation()"
-                    >check_circle</mat-icon
-                  >
-                }
+                <mat-icon
+                  outlined
+                  class="cursor-default"
+                  [color]="hasAllFormsUploaded(node) ? 'primary' : 'warn'"
+                  [matTooltip]="
+                    !hasAllFormsUploaded(node)
+                      ? ('bpmn.process-definition.chip.onvolledig' | translate)
+                      : ''
+                  "
+                  (click)="$event.stopPropagation()"
+                  >{{
+                    hasAllFormsUploaded(node) ? "check_circle" : "error"
+                  }}</mat-icon
+                >
 
                 <span
                   [class.cursor-default]="node.definition.details?.inUse"
