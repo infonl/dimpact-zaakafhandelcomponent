@@ -94,6 +94,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
+| initContainer.resources | object | `{}` | Resource limits and requests for the init-solr-zac-core init container |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -218,7 +219,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.15.0-static@sha256:3913aa7982d7c096c1996eca99d3360930723668fd62ccc3f6ebd37257d1fc84"` |  |
+| opa.image.tag | string | `"1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -316,6 +317,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
+| solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
@@ -342,6 +344,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"` | zookeeper image tag |
 | solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
+| solr-operator.zookeeper-operator.zookeeper.resources | object | `{}` | resource limits and requests for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |
