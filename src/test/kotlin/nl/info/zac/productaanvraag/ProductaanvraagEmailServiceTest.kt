@@ -51,8 +51,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        val receiverEmail = "receiver@server.com"
-        val otherEmail = "other@server.com"
+        val receiverEmail = "receiver@example.com"
+        val otherEmail = "other@example.com"
         val digitalAddresses = listOf(
             createDigitalAddress(
                 address = otherEmail,
@@ -120,7 +120,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnEmailParameters = automaticEmailConfirmation
         )
-        val receiverEmail = "receiver@server.com"
+        val receiverEmail = "receiver@example.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
             soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
@@ -175,8 +175,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val betrokkene = createBetrokkene(inBsn = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        val receiverEmail = "receiver@server.com"
-        val otherEmail = "other@server.com"
+        val receiverEmail = "receiver@example.com"
+        val otherEmail = "other@example.com"
         val digitalAddresses = listOf(
             createDigitalAddress(
                 address = otherEmail,
@@ -254,7 +254,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val betrokkene = createBetrokkene(inBsn = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        val receiverEmail = "receiver@server.com"
+        val receiverEmail = "receiver@example.com"
         val digitalAddress = createDigitalAddress(
             address = receiverEmail,
             soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
@@ -324,8 +324,8 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
-        val firstEmail = "first@server.com"
-        val secondEmail = "second@server.com"
+        val firstEmail = "first@example.com"
+        val secondEmail = "second@example.com"
         val digitalAddresses = listOf(
             createDigitalAddress(
                 address = firstEmail,

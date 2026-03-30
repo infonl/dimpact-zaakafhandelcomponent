@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakZoekObject } from "../../../zoeken/model/zaken/zaak-zoek-object";
+import { MaterialModule } from "../../material/material.module";
 import { IndicatieItem } from "../../model/indicatie-item";
 import { GeneratedType } from "../../utils/generated-types";
 import { IndicatiesComponent } from "../indicaties.component";
@@ -14,7 +16,8 @@ import { IndicatiesComponent } from "../indicaties.component";
   selector: "zac-zaak-indicaties",
   templateUrl: "../indicaties.component.html",
   styleUrls: ["../indicaties.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, MaterialModule, TranslateModule],
 })
 export class ZaakIndicatiesComponent
   extends IndicatiesComponent
@@ -33,7 +36,7 @@ export class ZaakIndicatiesComponent
     this.loadIndicaties();
   }
 
-  loadIndicaties(): void {
+  private loadIndicaties(): void {
     this.indicaties = [];
     const indicaties =
       this.zaak?.indicaties ?? this.zaakZoekObject?.indicaties ?? [];

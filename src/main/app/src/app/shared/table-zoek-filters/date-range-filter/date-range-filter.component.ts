@@ -12,34 +12,21 @@ import {
   Output,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { MAT_DATE_FORMATS, MatNativeDateModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { DatumRange } from "../../../zoeken/model/datum-range";
-
-const NL_DATE_FORMATS = {
-  parse: { dateInput: null },
-  display: {
-    dateInput: { day: "numeric", month: "numeric", year: "numeric" },
-    monthYearLabel: { year: "numeric", month: "short" },
-    dateA11yLabel: { year: "numeric", month: "long", day: "numeric" },
-    monthYearA11yLabel: { year: "numeric", month: "long" },
-  },
-};
 
 @Component({
   selector: "zac-date-range-filter",
   templateUrl: "./date-range-filter.component.html",
   styleUrls: ["./date-range-filter.component.less"],
   standalone: true,
-  providers: [{ provide: MAT_DATE_FORMATS, useValue: NL_DATE_FORMATS }],
   imports: [
     NgIf,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
   ],
 })

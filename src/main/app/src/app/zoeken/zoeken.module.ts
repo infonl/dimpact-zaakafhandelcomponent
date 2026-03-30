@@ -23,24 +23,19 @@ import { ZaakBetrokkeneFilterComponent } from "./zoek/filters/zaak-betrokkene-fi
 import { ZoekComponent } from "./zoek/zoek.component";
 
 @NgModule({
-  declarations: [
-    ZoekComponent,
-    MultiFacetFilterComponent,
-    ZoekObjectLinkComponent,
-    DateFilterComponent,
-    ZaakZoekObjectComponent,
-    TaakZoekObjectComponent,
-    DocumentZoekObjectComponent,
-    ZaakBetrokkeneFilterComponent,
-    KlantZoekDialog,
-  ],
+  declarations: [ZoekComponent, ZaakBetrokkeneFilterComponent, KlantZoekDialog],
   exports: [ZoekComponent],
   imports: [
     SharedModule,
     KlantenModule,
     RouterLink,
-    RouterLink,
     InformatieObjectIndicatiesComponent,
+    ZoekObjectLinkComponent,
+    ZaakZoekObjectComponent,
+    TaakZoekObjectComponent,
+    DocumentZoekObjectComponent,
+    MultiFacetFilterComponent,
+    DateFilterComponent,
     BAGModule,
     PipesModule,
   ],

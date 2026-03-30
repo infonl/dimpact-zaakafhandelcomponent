@@ -22,8 +22,8 @@ import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
-import net.atos.zac.documenten.model.OntkoppeldDocument
+import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService

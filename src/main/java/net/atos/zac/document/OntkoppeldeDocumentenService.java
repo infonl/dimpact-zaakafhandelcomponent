@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.documenten;
+package net.atos.zac.document;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
@@ -27,9 +27,9 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.zac.documenten.model.OntkoppeldDocument;
-import net.atos.zac.documenten.model.OntkoppeldDocumentListParameters;
-import net.atos.zac.documenten.model.OntkoppeldeDocumentenResultaat;
+import net.atos.zac.document.model.OntkoppeldDocument;
+import net.atos.zac.document.model.OntkoppeldDocumentListParameters;
+import net.atos.zac.document.model.OntkoppeldeDocumentenResultaat;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;

@@ -125,12 +125,23 @@ export class BpmnProcessDefinitionsComponent
 
   private uploadBpmnFile(file: File) {
     readFileContent(file)
-      .then((content) => {
-        this.uploadMutation.mutate({ content, filename: file.name });
-      })
-      .catch((error) => {
-        this.foutAfhandelingService.foutAfhandelen(error);
-      });
+      .then((content) =>
+        this.uploadMutation.mutate(
+          { content, filename: file.name },
+          {
+            onSuccess: () => {
+              this.utilService.openSnackbar(
+                "msg.bpmn.process-definition.upload.success",
+                { naam: file.name },
+              );
+              // expand the newly uploaded definition by its expected key (filename without .bpmn)
+              // the mutation-level onSuccess already refetches the list
+              this.expandedKey = file.name.replace(/\.bpmn$/i, "");
+            },
+          },
+        ),
+      )
+      .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
   }
 
   protected deleteProcessDefinition(processDefinition: {
@@ -140,7 +151,7 @@ export class BpmnProcessDefinitionsComponent
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "msg.bpmn-procesdefinitie.verwijderen.bevestigen",
+          key: "msg.bpmn.process-definition.delete.confirm",
           args: { naam: processDefinition.name },
         }),
       })
@@ -150,7 +161,7 @@ export class BpmnProcessDefinitionsComponent
           this.deleteMutation.mutate(processDefinition.key, {
             onSuccess: () => {
               this.utilService.openSnackbar(
-                "msg.bpmn-procesdefinitie.verwijderen.uitgevoerd",
+                "msg.bpmn.process-definition.deleted",
                 { naam: processDefinition.name },
               );
               void this.processDefinitionsQuery.refetch();

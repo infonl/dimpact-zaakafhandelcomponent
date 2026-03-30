@@ -3,8 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
+import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "@total-typescript/shoehorn";
@@ -72,6 +77,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   let utilService: jest.Mocked<UtilService>;
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -113,6 +119,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     });
     fixture.detectChanges();
     await fixture.whenStable();
+    loader = TestbedHarnessEnvironment.loader(fixture);
 
     const internalDialog = (component as unknown as { dialog: MatDialog })
       .dialog;
@@ -139,9 +146,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   describe("inUse indicator", () => {
-    it("should not show inUse message when inUse is false", () => {
-      const inUseSpans: NodeList = fixture.nativeElement.querySelectorAll(
-        "span.icon-align mat-icon[color=primary]",
+    it("should not show inUse message when inUse is false", async () => {
+      const inUseSpans = await loader.getAllHarnesses(
+        MatIconHarness.with({
+          selector: "div.explanation mat-icon[color=primary]",
+        }),
       );
       expect(inUseSpans.length).toBe(0);
     });
@@ -158,16 +167,16 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       await fixture.whenStable();
 
       const inUseIcon = fixture.nativeElement.querySelector(
-        "span.icon-align mat-icon[color=primary]",
+        "div.explanation mat-icon[color=primary]",
       );
       expect(inUseIcon).not.toBeNull();
     });
   });
 
   describe("missing forms warning", () => {
-    it("should show warning icon when there are missing forms", () => {
-      const warnIcons: NodeList = fixture.nativeElement.querySelectorAll(
-        'mat-icon[color="warn"]',
+    it("should show warning icon when there are missing forms", async () => {
+      const warnIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ selector: 'mat-icon[color="warn"]' }),
       );
       expect(warnIcons.length).toBeGreaterThan(0);
     });
@@ -186,24 +195,24 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const warnIconsInHeader: NodeList =
-        fixture.nativeElement.querySelectorAll(
-          '.icon-align mat-icon[color="warn"]',
-        );
+      const warnIconsInHeader = await loader.getAllHarnesses(
+        MatIconHarness.with({
+          selector: '.explanation mat-icon[color="warn"]',
+        }),
+      );
       expect(warnIconsInHeader.length).toBe(0);
     });
   });
 
   describe("forms table", () => {
-    it("should render a row for each form", () => {
-      const rows: NodeList =
-        fixture.nativeElement.querySelectorAll("tr[mat-row]");
+    it("should render a row for each form", async () => {
+      const rows = await loader.getAllHarnesses(MatRowHarness);
       expect(rows.length).toBe(2);
     });
 
-    it("should show check_circle icon for uploaded forms", () => {
-      const checkIcons: NodeList = fixture.nativeElement.querySelectorAll(
-        'mat-icon[color="primary"]',
+    it("should show check_circle icon for uploaded forms", async () => {
+      const checkIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ selector: 'mat-icon[color="primary"]' }),
       );
       expect(checkIcons.length).toBeGreaterThan(0);
     });
@@ -235,8 +244,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const rows: NodeList =
-        fixture.nativeElement.querySelectorAll("tr[mat-row]");
+      const rows = await loader.getAllHarnesses(MatRowHarness);
       expect(rows.length).toBe(0);
     });
 
@@ -262,9 +270,10 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       expect(deleteBtn.disabled).toBe(false);
     });
 
-    it("should only render a delete button for uploaded forms", () => {
-      const deleteButtons: NodeList =
-        fixture.nativeElement.querySelectorAll("button#delete");
+    it("should only render a delete button for uploaded forms", async () => {
+      const deleteButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ selector: "button#delete" }),
+      );
       // Only the one uploaded form should have a delete button
       expect(deleteButtons.length).toBe(1);
     });
@@ -317,8 +326,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "test-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "test-form.json" },
+        "msg.bpmn.task-forms.upload.success",
+        { namen: "test-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -399,8 +408,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         { filename: "dropped-form.json", content: fileContent },
       );
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.uploaden.uitgevoerd",
-        { naam: "dropped-form.json" },
+        "msg.bpmn.task-forms.upload.success",
+        { namen: "dropped-form.json" },
       );
       jest.runAllTimers();
       expect(emitSpy).toHaveBeenCalled();
@@ -426,7 +435,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
       const dialogData = dialogOpenSpy.mock.calls[0][1].data;
       expect(dialogData._melding.key).toBe(
-        "msg.bpmn-formulier.verwijderen.bevestigen",
+        "msg.bpmn.task-forms.delete.confirm",
       );
       expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
     });
@@ -448,8 +457,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteBpmnForm"]("form-uploaded");
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
-        { naam: "form-uploaded" },
+        "msg.bpmn.task-forms.deleted",
+        { namen: "form-uploaded" },
       );
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -464,24 +473,38 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     });
   });
 
-  describe("deleteOrphanedForm", () => {
-    it("should call deleteProcessDefinitionForm with the correct key and form name", () => {
-      component["deleteOrphanedForm"]("orphan-form");
+  describe("deleteAllOrphanedForms", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput(
+        "processDefinition",
+        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+          ...baseProcessDefinition,
+          details: {
+            ...baseProcessDefinition.details,
+            orphanedForms: [orphanedForm],
+          },
+        }),
+      );
+      fixture.detectChanges();
+    });
+
+    it("should call deleteProcessDefinitionForm for each orphaned form", () => {
+      component["deleteAllOrphanedForms"]();
 
       expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
         "test-key",
-        "orphan-form",
+        "form-orphaned",
       );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged after deletion", () => {
+    it("should show snackbar and emit bpmnFormListChanged after all deletions", () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
-      component["deleteOrphanedForm"]("orphan-form");
+      component["deleteAllOrphanedForms"]();
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn-formulier.verwijderen.uitgevoerd",
-        { naam: "orphan-form" },
+        "msg.bpmn.task-forms.deleted",
+        { namen: "form-orphaned" },
       );
       expect(emitSpy).toHaveBeenCalled();
     });
@@ -507,37 +530,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const chips: NodeList =
-        fixture.nativeElement.querySelectorAll("mat-chip");
-      expect(chips.length).toBe(1);
       expect(fixture.nativeElement.textContent).toContain("form-orphaned");
-    });
-
-    it("should call deleteOrphanedForm when a chip's remove button is clicked", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            orphanedForms: [orphanedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const deleteOrphanedSpy = jest.spyOn(
-        component as BpmnProcessDefinitionItemComponent & {
-          deleteOrphanedForm: (key: string) => void;
-        },
-        "deleteOrphanedForm",
-      );
-      const removeButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector("button[matChipRemove]");
-      removeButton.click();
-
-      expect(deleteOrphanedSpy).toHaveBeenCalledWith("form-orphaned");
     });
   });
 });

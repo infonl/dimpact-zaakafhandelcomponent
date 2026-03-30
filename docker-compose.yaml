@@ -262,7 +262,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.14.1-static@sha256:5c1a4f535f83ebaf271f51095bc5ac8848519bc84ae3cc7ad81edceca71a4e0a
+    image: openpolicyagent/opa:1.15.0-static@sha256:3913aa7982d7c096c1996eca99d3360930723668fd62ccc3f6ebd37257d1fc84
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -366,7 +366,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.14.1@sha256:d94bd6ac314a57aceeb6dacc3f27bc59f9083b49f365aa79105abb345f94e573
+    image: openpolicyagent/opa:1.15.0@sha256:4dfa5ac186e3a54d52c2cd76bef8fd70b8656896796c21bc76994d74b756d317
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -426,7 +426,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:12.4.1@sha256:e932bd6ed0e026595b08483cd0141e5103e1ab7ff8604839ff899b8dc54cabcb
+    image: grafana/grafana:12.4.2@sha256:83749231c3835e390a3144e5e940203e42b9589761f20ef3169c716e734ad505
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana

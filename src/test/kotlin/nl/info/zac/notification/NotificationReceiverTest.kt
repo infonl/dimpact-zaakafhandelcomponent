@@ -17,8 +17,8 @@ import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
-import net.atos.zac.documenten.InboxDocumentenService
-import net.atos.zac.documenten.model.InboxDocument
+import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.model.InboxDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -41,7 +41,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
-    val inboxDocumentenService = mockk<InboxDocumentenService>()
+    val inboxDocumentService = mockk<InboxDocumentService>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val cmmnService = mockk<CMMNService>()
@@ -54,7 +54,7 @@ class NotificationReceiverTest : BehaviorSpec({
         eventingService = eventingService,
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
-        inboxDocumentenService = inboxDocumentenService,
+        inboxDocumentService = inboxDocumentService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
@@ -261,7 +261,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { indexingService.addOrUpdateInformatieobject(informatieobjectUUID) } just Runs
-        every { inboxDocumentenService.create(informatieobjectUUID) } returns mockk<InboxDocument>()
+        every { inboxDocumentService.create(informatieobjectUUID) } returns mockk<InboxDocument>()
 
         When("the notification is handled") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)

@@ -48,13 +48,9 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    FacetFilterComponent,
     DialogComponent,
     ColumnPickerComponent,
     DocumentViewerComponent,
-    BesluitIndicatiesComponent,
-    PersoonIndicatiesComponent,
-    ZaakIndicatiesComponent,
     ZaakdataComponent,
   ],
   imports: [
@@ -67,6 +63,7 @@ import { VersionComponent } from "./version/version.component";
     ZacNarrowMatCheckboxDirective,
     ToggleFilterComponent,
     TekstFilterComponent,
+    FacetFilterComponent,
     ConfirmDialogComponent,
     SideNavComponent,
     VersionComponent,
@@ -82,6 +79,9 @@ import { VersionComponent } from "./version/version.component";
     EmptyPipe,
     ReadMoreComponent,
     DateRangeFilterComponent,
+    BesluitIndicatiesComponent,
+    PersoonIndicatiesComponent,
+    ZaakIndicatiesComponent,
   ],
   exports: [
     CommonModule,

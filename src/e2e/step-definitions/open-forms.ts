@@ -8,11 +8,11 @@ import path from "path";
 import { CustomWorld } from "support/worlds/world";
 import uniqid from "uniqid";
 import { z } from "zod";
-import { profiles } from "../support/indienen-aansprakelijkstelling-door-derden/profiles";
+import { profiles } from "../support/open-forms/profiles";
+import { ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS } from "../support/time-constants";
 
 export const profilesSchema = z.enum(["Alice"]);
 
-const ONE_MINUTE_IN_MS = 60_000;
 Given(
   "Resident {string} fills in the indienen-aansprakelijkheid-behandelen open-forms form",
   { timeout: ONE_MINUTE_IN_MS },
@@ -26,16 +26,20 @@ Given(
     this.testStorage.set("open-forms-testid", id);
 
     const firstNameInput = this.page.getByLabel("Voornaam").nth(0);
-
     const firstLetterInput = this.page.getByLabel("Voorletter(s)").nth(0);
-
     const infixInput = this.page.getByLabel("Tussenvoegsel(s)").nth(0);
-
     const lastNameInput = this.page.getByLabel("Achternaam").nth(0);
 
     await this.page.goto(
       `${this.worldParameters.urls.openForms}/indienen-aansprakelijkstelling-door-derden-behandelen-2/startpagina`,
     );
+
+    const cookieConsentButton = this.page.getByRole("button", {
+      name: "Alles toestaan",
+    });
+    await this.page.addLocatorHandler(cookieConsentButton, async () => {
+      await cookieConsentButton.click();
+    });
 
     await this.page.getByRole("button", { name: "Formulier starten" }).click();
 
@@ -43,12 +47,11 @@ Given(
     await firstNameInput.fill(
       profile.personalDetails.firstName + `:e2eid=${id}`,
     );
-
     await firstLetterInput.fill(profile.personalDetails.initials);
-
     await infixInput.fill(profile.personalDetails.prefix);
-
     await lastNameInput.fill(profile.personalDetails.lastName);
+    // wait a bit before submitting this form tab because otherwise the entered data is sometimes not submitted (timing issue in Open Forms)
+    await this.page.waitForTimeout(1000);
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
     // Incident details
@@ -64,8 +67,6 @@ Given(
     // "Waren er getuigen aanwezig?"
     await this.page.getByLabel("nee", { exact: true }).check();
     await this.page.getByLabel("ja, digitaal bij deze melding").check();
-    await this.page.getByRole("combobox").nth(1).click();
-    await this.page.getByRole("option", { name: "Enschede" }).click();
     await this.page.getByLabel("Straat").fill("teststraat");
     await this.page
       .getByLabel("Nadere omschrijving van de")
@@ -95,46 +96,11 @@ Given(
     await this.page.getByLabel("AllRisk").check();
     await this.page.getByRole("button", { name: "Volgende" }).click();
 
-    // Witness details
-    await this.page
-      .getByLabel("Achternaam")
-      .fill(profile.witnessDetails[0].lastName);
-    await this.page
-      .getByLabel("Tussenvoegsels")
-      .fill(profile.witnessDetails[0].prefix ?? "");
-    await this.page
-      .getByLabel("Voornamen")
-      .fill(profile.witnessDetails[0].firstName ?? "");
-    await this.page
-      .getByPlaceholder("____ __")
-      .fill(profile.witnessDetails[0].postalCode ?? "");
-    await this.page
-      .getByLabel("Huisnummer")
-      .fill(profile.witnessDetails[0].houseNumber ?? "");
-    await this.page.getByRole("button", { name: "Volgende" }).click();
-
-    // Documents
-    await this.page
-      .locator("a[aria-label=\"selecteer een 'Foto'-bestand\"]")
-      .click();
-
-    const fileInput = await this.page.locator('input[type="file"]');
-
+    const fileInput = this.page.locator('input[type="file"]').first();
     const filePath = path.join(__dirname, profile.documents.photo);
     await fileInput.setInputFiles(filePath);
-
-    const loader = await this.page.getByText("Bezig met uploaden...");
-    await this.expect(loader).toHaveCount(0);
-
-    await this.page
-      .locator("a[aria-label=\"selecteer een 'Factuur of offerte'-bestand\"]")
-      .click();
-
-    const fileInput2 = await this.page.locator('input[type="file"]');
-    const filePath2 = path.join(__dirname, profile.documents.invoice);
-    await fileInput2.setInputFiles(filePath2);
-    const loader2 = await this.page.getByText("Bezig met uploaden...");
-    await this.expect(loader2).toHaveCount(0);
+    // wait a bit until file has been uploaded
+    await this.page.waitForTimeout(ONE_SECOND_IN_MS);
 
     await this.page.getByRole("button", { name: "Volgende" }).click();
     await this.page
