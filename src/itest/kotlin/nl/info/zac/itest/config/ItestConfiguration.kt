@@ -112,7 +112,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 40
+    const val ROLTYPE_COUNT = 42
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -326,6 +326,7 @@ object ItestConfiguration {
     )
 
     val ZAAKTYPE_BPMN_TEST_3_UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
+    const val ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE = "bpmn-test-zaaktype-3"
     const val ZAAKTYPE_BPMN_TEST_3_DESCRIPTION = "BPMN test zaaktype 3"
     const val ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE = "bpmn-test-3-productaanvraagtype"
     val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(

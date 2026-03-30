@@ -11,6 +11,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
@@ -19,6 +20,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection
@@ -44,6 +48,17 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_2_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
+        }
+    """.trimIndent()
+    val bpmnZaakType3 = """
+        {
+            "id": 3,
+            "zaaktypeUuid": "${ZAAKTYPE_BPMN_TEST_3_UUID}",
+            "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_3_DESCRIPTION}",
+            "bpmnProcessDefinitionKey": "${BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY}",
+            "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE}",
             "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
@@ -84,7 +99,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3]"
             }
         }
     }
