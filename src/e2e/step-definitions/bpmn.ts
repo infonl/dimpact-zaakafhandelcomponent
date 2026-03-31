@@ -101,7 +101,7 @@ When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-      await this.page.waitForTimeout(5000)
+    await this.page.waitForTimeout(5000);
     await this.page.reload();
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.waitForURL(this.page.url());
@@ -178,6 +178,7 @@ When(
   "{string} submits the filled-in form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.keyboard.press("Escape");
     await this.page.getByRole("button").filter({ hasText: "Indienen" }).click();
   },
 );
@@ -207,7 +208,9 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    await expect(this.page.getByRole("cell", { name: "Select documents to sign" })).toBeVisible({
+    await expect(
+      this.page.getByRole("cell", { name: "Select documents to sign" }),
+    ).toBeVisible({
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(
@@ -308,10 +311,14 @@ Then(
 );
 
 Then(
-  "{string} sees the sign documents form",
+  "{string} sees the select documents to sign form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-      await this.page.getByLabel("Documents").isVisible();
+    await expect(
+      this.page.getByRole("searchbox", {
+        name: "Select one or more documents",
+      }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
@@ -323,12 +330,12 @@ When(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-      await this.page
-          .getByRole("searchbox", { name: "Select one or more documents" })
-          .fill("");
-      await this.page
-          .getByRole("option", { name: documentName, exact: true })
-          .click();
+    await this.page
+      .getByRole("searchbox", { name: "Select one or more documents" })
+      .click();
+    await this.page
+      .getByRole("option", { name: documentName, exact: true })
+      .click();
   },
 );
 
@@ -352,7 +359,7 @@ When(
   "{string} confirms the signing of the documents",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-      await this.page.getByRole("button", { name: "Sign" }).click();
+    await this.page.getByRole("button", { name: "Sign" }).click();
   },
 );
 

@@ -52,7 +52,7 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the active task
-    Then "Bob" sees the sign documents form
+    Then "Bob" sees the select documents to sign form
     When "Bob" selects document "file A" for signing
     And "Bob" selects document "file B" for signing
     And "Bob" submits the filled-in form
@@ -80,4 +80,3 @@ Feature: BPMN
     And "Bob" confirms the data in the form
     When Employee "Bob" is on the newly created zaak with status "Afgerond"
     Then "Bob" sees the zaak result is set to "Verleend"
-
