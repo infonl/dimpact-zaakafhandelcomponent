@@ -30,7 +30,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
-import { readFileContent } from "./file.helper";
+import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 
 interface BpmnProcessDefinitionGroupNode {
   name: string;
@@ -125,8 +125,9 @@ export class BpmnProcessDefinitionsComponent
 
   private uploadBpmnFile(file: File) {
     readFileContent(file)
-      .then((content) =>
-        this.uploadMutation.mutate(
+      .then((content) => {
+        const processKey = extractBpmnProcessKey(content);
+        return this.uploadMutation.mutate(
           { content, filename: file.name },
           {
             onSuccess: () => {
@@ -134,13 +135,12 @@ export class BpmnProcessDefinitionsComponent
                 "msg.bpmn.process-definition.upload.success",
                 { naam: file.name },
               );
-              // expand the newly uploaded definition by its expected key (filename without .bpmn)
               // the mutation-level onSuccess already refetches the list
-              this.expandedKey = file.name.replace(/\.bpmn$/i, "");
+              this.expandedKey = processKey;
             },
           },
-        ),
-      )
+        );
+      })
       .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
   }
 
