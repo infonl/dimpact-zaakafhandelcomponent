@@ -68,6 +68,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
+import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -96,6 +97,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
+    val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
@@ -131,6 +133,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
+        productaanvraagDocumentService = productaanvraagDocumentService,
         restDecisionConverter = restDecisionConverter,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
