@@ -443,6 +443,9 @@ solr-operator:
             technology: solr-cloud
         matchLabelKeys:
           - controller-revision-hash
+    # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
+    # Override only if custom startup timing is needed.
+    startupProbe: {}
     # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
     # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
     # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
