@@ -143,6 +143,15 @@ This makes the code more concise and easier to read.
 ### Use `https` for dummy URLs
 When you encounter placeholder or test URLs in code or documentation, use `https://` instead of `http://` to follow best practices for secure URLs.
 
+### Use variable names that are the same as their type where possible
+When you see a variable declaration where the variable name is different from its type, rename the variable to match the type. For example, if you have `val user: User`, rename it to `val user: User` instead of `val u: User` or `val usr: User`. This improves readability and makes it clear what the variable represents.
+This includes exceptions.
+For example `catch (e: Exception)` should be `catch (exception: Exception)`.
+
+### Avoid the use of `requireNotNull`
+ When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
+This can improve the robustness of the code and prevent potential crashes.
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)

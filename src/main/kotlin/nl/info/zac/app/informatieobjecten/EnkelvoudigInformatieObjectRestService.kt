@@ -323,14 +323,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("/informatieobject/{uuid}/{versie}/preview")
-    fun preview(@PathParam("uuid") uuid: UUID?, @PathParam("versie") versie: Int?): Response {
-        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(requireNotNull(uuid))
+    fun preview(@PathParam("uuid") uuid: UUID, @PathParam("versie") version: Int?): Response {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
         return try {
-            val inhoud = versie?.let {
+            val inhoud = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
-                    requireNotNull(uuid),
-                    versie
+                    enkelvoudigInformatieobjectUUID = uuid,
+                    version = version
                 )
             } ?: drcClientService.downloadEnkelvoudigInformatieobject(requireNotNull(uuid))
             Response.ok(inhoud)
@@ -339,8 +339,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
                 )
                 .header("Content-Type", enkelvoudigInformatieObject.formaat).build()
-        } catch (e: IOException) {
-            throw RuntimeException(e)
+        } catch (iOException: IOException) {
+            throw RuntimeException(iOException)
         }
     }
 
@@ -423,12 +423,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<HistoryLine> {
-        val nonNullUuid = requireNotNull(uuid)
+    fun listInformatieobjectHistory(@PathParam("uuid") informatieobjectUUID: UUID): List<HistoryLine> {
         assertPolicy(
-            policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(nonNullUuid)).lezen
+            policyService.readDocumentRechten(
+                drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
+            ).lezen
         )
-        return drcClientService.listAuditTrail(nonNullUuid)
+        return drcClientService.listAuditTrail(informatieobjectUUID)
             .let(zaakHistoryLineConverter::convert)
     }
 
