@@ -47,7 +47,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     capture(createdZaakInformatieobjectSlot),
-                    beschrijving
+                    any()
                 )
             } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
 
@@ -60,7 +60,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                     }
                     createdZaakInformatieobjectSlot.captured.run {
                         zaak shouldBe zaakUrl
-                        beschrijving shouldBe beschrijving
+                        beschrijving shouldBe "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                         informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
                         titel shouldBe enkelvoudigInformatieobjecten[1].titel
                     }
