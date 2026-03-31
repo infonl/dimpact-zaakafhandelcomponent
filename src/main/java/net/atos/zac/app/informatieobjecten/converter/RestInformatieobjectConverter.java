@@ -24,7 +24,6 @@ import jakarta.inject.Inject;
 import org.eclipse.jetty.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 
-import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
@@ -32,6 +31,7 @@ import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObject
 import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
 import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
 import nl.info.client.zgw.brc.BrcClientService;
+import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;

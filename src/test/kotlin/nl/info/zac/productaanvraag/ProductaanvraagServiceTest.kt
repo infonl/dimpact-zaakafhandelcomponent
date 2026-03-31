@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
@@ -30,6 +29,7 @@ import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates

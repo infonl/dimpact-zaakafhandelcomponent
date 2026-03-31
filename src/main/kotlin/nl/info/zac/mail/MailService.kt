@@ -23,8 +23,8 @@ import jakarta.inject.Inject
 import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.util.MediaTypes
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum

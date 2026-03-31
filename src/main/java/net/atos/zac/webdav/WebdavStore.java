@@ -24,7 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.drc.DrcClientService;
+import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
 import nl.info.webdav.ITransaction;

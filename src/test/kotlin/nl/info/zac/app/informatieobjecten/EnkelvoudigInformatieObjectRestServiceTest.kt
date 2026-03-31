@@ -17,7 +17,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
@@ -25,6 +24,7 @@ import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
