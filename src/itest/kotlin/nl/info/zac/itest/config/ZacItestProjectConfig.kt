@@ -82,6 +82,7 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
+import java.nio.file.Files
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -230,11 +231,16 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
+        // Create a temporary empty env file so Docker Compose does not load any local .env file,
+        // which could override variables required by the integration tests.
+        val emptyEnvFile = Files.createTempFile("zac-itest", ".env").toFile().also { it.deleteOnExit() }
+
         return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
-                "--profile itest"
+                "--profile itest",
+                "--env-file ${emptyEnvFile.absolutePath}"
             )
             .withLogConsumer(
                 "solr",
