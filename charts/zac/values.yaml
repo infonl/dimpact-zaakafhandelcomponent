@@ -443,6 +443,20 @@ solr-operator:
             technology: solr-cloud
         matchLabelKeys:
           - controller-revision-hash
+    # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
+    # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
+    # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
+    # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
+    livenessProbe:
+      httpGet:
+        path: /solr/admin/info/health
+        port: 8983
+      failureThreshold: 6
+      periodSeconds: 20
+      timeoutSeconds: 1
+    # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
+    # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
+    readinessProbe: {}
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
