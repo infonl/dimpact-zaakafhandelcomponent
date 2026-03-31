@@ -176,8 +176,9 @@ abstract class ZaaktypeConfiguration {
         val completionParameters = zaaktypeCompletionParameters ?: mutableSetOf<ZaaktypeCompletionParameters>().also {
             zaaktypeCompletionParameters = it
         }
+        val desiredParameters = newZaaktypeCompletionParameters.toHashSet()
         newZaaktypeCompletionParameters.forEach { setZaakbeeindigParameter(it) }
-        completionParameters.removeIf { it !in newZaaktypeCompletionParameters.toHashSet() }
+        completionParameters.removeIf { it !in desiredParameters }
     }
 
     private fun setZaakbeeindigParameter(param: ZaaktypeCompletionParameters) {
