@@ -44,7 +44,7 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
      * Adds all betrokkenen that are present in the provided productaanvraag to the zaak for the set
      * of provided role types, [Betrokkene.rolOmschrijvingGeneriek] or [Betrokkene.roltypeOmschrijving], but only for those
      * role types which are defined in the zaaktype of the specified zaak.
-     * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR]].
+     * An exception is made for betrokkenen of role type (behandelaar)[Betrokkene.RolOmschrijvingGeneriek.BEHANDELAAR].
      * Behandelaar betrokkenen cannot be set from a productaanvraag.
      *
      * For all supported role types except for (initiator)[Betrokkene.RolOmschrijvingGeneriek.INITIATOR] there can be

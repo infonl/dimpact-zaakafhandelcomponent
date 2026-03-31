@@ -31,7 +31,7 @@ class ProductaanvraagDocumentService @Inject constructor(
         private const val AANVRAAG_PDF_TITEL = "Aanvraag PDF"
         private const val AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak"
         private const val ZAAK_INFORMATIEOBJECT_REDEN =
-            "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+            "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
     }
 
     fun pairProductaanvraagWithZaak(productaanvraag: ModelObject, zaakUrl: URI) {
