@@ -63,8 +63,10 @@ data-source add \
 
 # Configure JSON log output format for structured logging.
 # This enables log aggregation tools to parse and index log messages including any added log context.
+# Note: `exception-output-type` is intentionally not set.
+# Setting it to any value (`formatted`, `detailed`, or `detailed-and-formatted`) results in WildFly silently dropping all log records containing exceptions.
+# The default behaviour already includes exception details in the JSON output.
 /subsystem=logging/json-formatter=JSON:add( \
-    exception-output-type=formatted, \
     pretty-print=false, \
     meta-data={ \
         "service"=>"zac" \
