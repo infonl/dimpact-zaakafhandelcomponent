@@ -140,6 +140,9 @@ fun add(a: Int, b: Int): Int = a + b
 ```
 This makes the code more concise and easier to read.
 
+### Use `https` for dummy URLs
+When you encounter placeholder or test URLs in code or documentation, use `https://` instead of `http://` to follow best practices for secure URLs.
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)

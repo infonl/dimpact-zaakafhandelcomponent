@@ -8,10 +8,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -21,6 +19,7 @@ import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.createGebruiksrechten
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
@@ -602,12 +601,13 @@ class ZgwApiServiceTest : BehaviorSpec({
                 creatiedatum = today
             )
             val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val gebruiksrechten = createGebruiksrechten()
             val gebruiksrechtenSlot = slot<Gebruiksrechten>()
             val zaakInformatieObjectSlot = slot<ZaakInformatieobject>()
             every {
                 drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
             } returns enkelvoudigInformatieObject
-            every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } just Runs
+            every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } returns gebruiksrechten
             every { zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectSlot)) } returns zaakInformatieobject
 
             When("a ZaakInformatieobject is created") {
