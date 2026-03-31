@@ -15,7 +15,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
@@ -23,6 +22,7 @@ import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentCo
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.document.model.OntkoppeldDocument
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter

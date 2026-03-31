@@ -11,12 +11,12 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid

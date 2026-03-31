@@ -11,12 +11,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.extractUuid
