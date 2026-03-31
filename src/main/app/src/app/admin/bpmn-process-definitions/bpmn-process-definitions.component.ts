@@ -33,8 +33,8 @@ import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
-import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
+import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
 import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 
 interface BpmnProcessDefinitionGroupNode {
@@ -64,7 +64,8 @@ export class BpmnProcessDefinitionsComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChildren(BpmnNodeRowDirective) nodeRows!: QueryList<BpmnNodeRowDirective>;
+  @ViewChildren(BpmnNodeRowDirective)
+  nodeRows!: QueryList<BpmnNodeRowDirective>;
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
 
