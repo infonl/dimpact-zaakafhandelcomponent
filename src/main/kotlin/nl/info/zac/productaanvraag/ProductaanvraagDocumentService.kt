@@ -40,6 +40,10 @@ class ProductaanvraagDocumentService @Inject constructor(
     }
 
     fun pairAanvraagPDFWithZaak(productaanvraag: ProductaanvraagDimpact, zaakUrl: URI) {
+        if (productaanvraag.pdf == null) {
+            LOG.info { "No PDF found in productaanvraag to link to the zaak" }
+            return
+        }
         ZaakInformatieobject().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
