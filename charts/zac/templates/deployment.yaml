@@ -35,6 +35,8 @@ spec:
       - name: init-solr-zac-core
         image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
         imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+        resources:
+          {{- toYaml .Values.initContainer.resources | nindent 10 }}
         {{- if .Values.solr.url }}
         command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
         {{- else }}
@@ -120,6 +122,8 @@ spec:
             - --server
             - --addr=0.0.0.0:8181
             - --ignore=.*  # exclude hidden dirs created by Kubernetes
+          resources:
+            {{- toYaml .Values.opa.resources | nindent 12 }}
           livenessProbe:
             httpGet:
               scheme: HTTP
