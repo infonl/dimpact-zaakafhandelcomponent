@@ -17,7 +17,6 @@ import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -31,7 +30,6 @@ import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
@@ -59,7 +57,6 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
-import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -81,11 +78,19 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val configurationService = mockk<ConfigurationService>()
     val klantClientService = mockk<KlantClientService>()
+    val productaanvraagBetrokkeneService = ProductaanvraagBetrokkeneService(
+        ztcClientService = ztcClientService,
+        zrcClientService = zrcClientService
+    )
+    val productaanvraagDocumentService = ProductaanvraagDocumentService(
+        drcClientService = drcClientService,
+        zrcClientService = zrcClientService
+    )
+
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        drcClientService = drcClientService,
         ztcClientService = ztcClientService,
         identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
@@ -97,7 +102,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         bpmnService = bpmnService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
         configurationService = configurationService,
-        klantClientService = klantClientService
+        klantClientService = klantClientService,
+        productaanvraagBetrokkeneService = productaanvraagBetrokkeneService,
+        productaanvraagDocumentService = productaanvraagDocumentService
     )
 
     beforeEach {
@@ -306,7 +313,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -458,7 +465,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -595,7 +602,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -653,7 +660,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
@@ -701,12 +707,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-            every {
-                zrcClientService.createZaakInformatieobject(
-                    any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
-                )
-            } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolTypeInitiator)
             every {
@@ -802,7 +802,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -903,7 +903,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -985,7 +985,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -1166,7 +1166,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 every {
                     zrcClientService.createZaakInformatieobject(
                         any(),
-                        "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                        "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                     )
                 } returns createdZaakInformatieobject
                 every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -1528,7 +1528,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
@@ -1801,49 +1801,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 And("a BPMN process is started") {
                     verify(exactly = 1) {
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
-                    }
-                }
-            }
-        }
-    }
-
-    Context("Pair bijlagen with zaak") {
-        Given("a list of bijlage URIs and a zaak URI") {
-            val bijlageURIs = listOf(URI("fakeURI1"), URI("fakeURI2"))
-            val enkelvoudigInformatieobjecten = listOf(
-                createEnkelvoudigInformatieObject(),
-                createEnkelvoudigInformatieObject()
-            )
-            val zaakInformatieobjecten = listOf(
-                createZaakInformatieobjectForCreatesAndUpdates(),
-                createZaakInformatieobjectForCreatesAndUpdates()
-            )
-            val zaakUrl = URI("fakeZaakUrl")
-            val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
-            val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
-            bijlageURIs.forEachIndexed { index, uri ->
-                every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
-                every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
-            }
-            every {
-                zrcClientService.createZaakInformatieobject(
-                    capture(createdZaakInformatieobjectSlot),
-                    beschrijving
-                )
-            } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
-
-            When("the bijlagen are paired with the zaak") {
-                productaanvraagService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
-
-                Then("for every bijlage a zaakInformatieobject should be created") {
-                    verify(exactly = 2) {
-                        zrcClientService.createZaakInformatieobject(any(), any())
-                    }
-                    createdZaakInformatieobjectSlot.captured.run {
-                        zaak shouldBe zaakUrl
-                        beschrijving shouldBe beschrijving
-                        informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
-                        titel shouldBe enkelvoudigInformatieobjecten[1].titel
                     }
                 }
             }
