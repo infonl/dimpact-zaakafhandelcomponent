@@ -101,6 +101,7 @@ When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+      await this.page.waitForTimeout(5000)
     await this.page.reload();
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.waitForURL(this.page.url());
@@ -332,7 +333,7 @@ When(
 );
 
 Then(
-  "{string} sees {string} documents in the documents list",
+  "{string} sees {string} documents in the to be signed list",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
@@ -356,23 +357,22 @@ When(
 );
 
 Then(
-  "{string} sees that the documents are signed",
-  { timeout: TWO_MINUTES_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // TODO: verify redirect to zaak-detail page
-  },
-);
-
-Then(
-  "{string} sees document {string} has status {string}",
+  "{string} sees document {string} has been signed",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
-    user: z.infer<typeof worldUsers>,
+    _user: z.infer<typeof worldUsers>,
     documentName: string,
-    status: string,
   ) {
-    // TODO: in the documents table on the zaak-detail page,
-    // find the row for documentName and assert it shows the expected status
+    const documentRow = this.page.locator("tr").filter({
+      has: this.page.locator("td.mat-column-titel").filter({
+        hasText: documentName,
+      }),
+    });
+    await expect(
+      documentRow.locator("mat-chip-option").filter({
+        has: this.page.locator("mat-icon", { hasText: "fact_check" }),
+      }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );

@@ -57,15 +57,15 @@ Feature: BPMN
     And "Bob" selects document "file B" for signing
     And "Bob" submits the filled-in form
 
-  Scenario: Bob verifies and signs the selected documents
+  Scenario: Bob verifies the documents to sign and confirms signing
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the active task
-    Then "Bob" sees "2" documents in the documents list
+    Then "Bob" sees "2" documents in the to be signed list
     When "Bob" confirms the signing of the documents
     When Employee "Bob" is on the newly created zaak
-    And "Bob" sees document "file A" has status "Ondertekend"
-    And "Bob" sees document "file B" has status "Ondertekend"
+    And "Bob" sees document "file A" has been signed
+    And "Bob" sees document "file B" has been signed
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
