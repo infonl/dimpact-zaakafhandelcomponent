@@ -11,7 +11,9 @@ import {
   inject,
   Injector,
   OnInit,
+  QueryList,
   ViewChild,
+  ViewChildren,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
@@ -31,6 +33,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
+import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
 import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 
@@ -50,6 +53,7 @@ type Node =
   styleUrls: ["./bpmn-process-definitions.component.less"],
   imports: [
     SharedModule,
+    BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,
   ],
@@ -60,6 +64,7 @@ export class BpmnProcessDefinitionsComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChildren(BpmnNodeRowDirective) nodeRows!: QueryList<BpmnNodeRowDirective>;
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
 
@@ -87,7 +92,6 @@ export class BpmnProcessDefinitionsComponent
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
-  private readonly elementRef = inject(ElementRef);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly injector = inject(Injector);
 
@@ -143,9 +147,12 @@ export class BpmnProcessDefinitionsComponent
               this.expandedKey = processKey;
               afterNextRender(
                 () =>
-                  this.elementRef.nativeElement
-                    .querySelector(`[id="bpmn-node-${processKey}"]`)
-                    ?.scrollIntoView({ behavior: "smooth", block: "nearest" }),
+                  this.nodeRows
+                    .find((row) => row.key() === processKey)
+                    ?.el.nativeElement.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                    }),
                 { injector: this.injector },
               );
             },
