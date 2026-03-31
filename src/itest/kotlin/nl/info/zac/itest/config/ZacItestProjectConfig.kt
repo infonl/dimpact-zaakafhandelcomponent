@@ -141,6 +141,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         )
     }
 
+    private var emptyEnvFile: File? = null
+
     /**
      * Set a random order seed so that the tests run is reproducible.
      */
@@ -201,30 +203,34 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
-        if (skipDockerComposeStart) {
-            logger.warn {
-                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+        try {
+            if (skipDockerComposeStart) {
+                logger.warn {
+                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                }
+                return
             }
-            return
-        }
-        if (skipContainerCleanup) {
-            logger.warn {
-                "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+            if (skipContainerCleanup) {
+                logger.warn {
+                    "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                }
+                Runtime.getRuntime().halt(0)
             }
-            Runtime.getRuntime().halt(0)
-        }
 
-        // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
-            logger.info { "Stopping ZAC Docker container" }
-            zacContainer.dockerClient
-                .stopContainerCmd(zacContainer.containerId)
-                .withTimeout(30.seconds.inWholeSeconds.toInt())
-                .exec()
-            logger.info { "Stopped ZAC Docker container" }
+            // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
+            dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
+                logger.info { "Stopping ZAC Docker container" }
+                zacContainer.dockerClient
+                    .stopContainerCmd(zacContainer.containerId)
+                    .withTimeout(30.seconds.inWholeSeconds.toInt())
+                    .exec()
+                logger.info { "Stopped ZAC Docker container" }
+            }
+            // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
+            dockerComposeContainer.withOptions("--profile itest").stop()
+        } finally {
+            emptyEnvFile?.delete()
         }
-        // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
-        dockerComposeContainer.withOptions("--profile itest").stop()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -233,14 +239,15 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
         // Create a temporary empty env file so Docker Compose does not load any local .env file,
         // which could override variables required by the integration tests.
-        val emptyEnvFile = Files.createTempFile("zac-itest", ".env").toFile().also { it.deleteOnExit() }
+        val envFile = Files.createTempFile("zac-itest", ".env").toFile()
+        emptyEnvFile = envFile
 
         return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
                 "--profile itest",
-                "--env-file ${emptyEnvFile.absolutePath}"
+                "--env-file ${envFile.absolutePath}"
             )
             .withLogConsumer(
                 "solr",
