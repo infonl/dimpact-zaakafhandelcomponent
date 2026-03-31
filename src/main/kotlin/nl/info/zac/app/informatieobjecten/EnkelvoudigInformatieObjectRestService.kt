@@ -21,7 +21,6 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -40,6 +39,7 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -323,24 +323,24 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("/informatieobject/{uuid}/{versie}/preview")
-    fun preview(@PathParam("uuid") uuid: UUID?, @PathParam("versie") versie: Int?): Response {
+    fun preview(@PathParam("uuid") uuid: UUID, @PathParam("versie") version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
         return try {
-            val inhoud = versie?.let {
+            val inhoud = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
-                    uuid,
-                    versie
+                    enkelvoudigInformatieobjectUUID = uuid,
+                    version = version
                 )
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            } ?: drcClientService.downloadEnkelvoudigInformatieobject(requireNotNull(uuid))
             Response.ok(inhoud)
                 .header(
                     "Content-Disposition",
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
                 )
                 .header("Content-Type", enkelvoudigInformatieObject.formaat).build()
-        } catch (e: IOException) {
-            throw RuntimeException(e)
+        } catch (iOException: IOException) {
+            throw RuntimeException(iOException)
         }
     }
 
@@ -423,14 +423,15 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @GET
     @Path("informatieobject/{uuid}/historie")
-    fun listHistorie(@PathParam("uuid") uuid: UUID?): List<HistoryLine> = uuid
-        .apply {
-            assertPolicy(
-                policyService.readDocumentRechten(drcClientService.readEnkelvoudigInformatieobject(uuid)).lezen
-            )
-        }
-        .let(drcClientService::listAuditTrail)
-        .let(zaakHistoryLineConverter::convert)
+    fun listInformatieobjectHistory(@PathParam("uuid") informatieobjectUUID: UUID): List<HistoryLine> {
+        assertPolicy(
+            policyService.readDocumentRechten(
+                drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
+            ).lezen
+        )
+        return drcClientService.listAuditTrail(informatieobjectUUID)
+            .let(zaakHistoryLineConverter::convert)
+    }
 
     @GET
     @Path("informatieobject/{informatieObjectUuid}/zaakidentificaties")

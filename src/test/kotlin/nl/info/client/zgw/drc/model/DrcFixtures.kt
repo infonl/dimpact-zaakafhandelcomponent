@@ -8,6 +8,7 @@ import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -21,10 +22,10 @@ import java.util.UUID
 @Suppress("LongParameterList")
 fun createEnkelvoudigInformatieObject(
     uuid: UUID = UUID.randomUUID(),
-    url: URI = URI("http://example.com/$uuid"),
+    url: URI = URI("https://example.com/$uuid"),
     versie: Int = 1234,
     beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
-    inhoud: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    inhoud: URI = URI("https://example.com/${UUID.randomUUID()}"),
     locked: Boolean = false,
     bestandsdelen: List<BestandsDeel> = emptyList(),
     indicatieGebruiksrecht: Boolean? = null,
@@ -32,7 +33,7 @@ fun createEnkelvoudigInformatieObject(
     status: StatusEnum = StatusEnum.IN_BEWERKING,
     ontvangstdatum: LocalDate? = null,
     formaat: String = "fakeformaat",
-    informatieObjectType: URI = URI("http://example.com/informatieobjecttype/${UUID.randomUUID()}"),
+    informatieObjectType: URI = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}"),
     bestandsomvang: Int = 1234,
     title: String = "fakeTitle",
     ondertekening: Ondertekening? = null,
@@ -58,7 +59,7 @@ fun createEnkelvoudigInformatieObject(
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(
-    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
     titel: String = "fakeTitle",
@@ -72,7 +73,7 @@ fun createEnkelvoudigInformatieObjectCreateLockRequest(
 }
 
 fun createEnkelvoudigInformatieObjectWithLockRequest(
-    url: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bronorganisatie: String = "123456789",
     creatiedatum: LocalDate = LocalDate.now(),
     titel: String = "fakeTitle",
@@ -88,6 +89,19 @@ fun createEnkelvoudigInformatieObjectWithLockRequest(
 fun createLockEnkelvoudigInformatieObject(
     lock: String = "fakeLock"
 ) = LockEnkelvoudigInformatieObject(lock)
+
+fun createGebruiksrechten(
+    url: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    informatieobject: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    startdatum: OffsetDateTime = OffsetDateTime.now(),
+    einddatum: OffsetDateTime? = null,
+    omschrijvingVoorwaarden: String = "fakeOmschrijvingVoorwaarden"
+) = Gebruiksrechten(url).apply {
+    this.informatieobject = informatieobject
+    this.startdatum = startdatum
+    this.einddatum = einddatum
+    this.omschrijvingVoorwaarden = omschrijvingVoorwaarden
+}
 
 fun createOndertekening(
     type: SoortEnum = SoortEnum.DIGITAAL,

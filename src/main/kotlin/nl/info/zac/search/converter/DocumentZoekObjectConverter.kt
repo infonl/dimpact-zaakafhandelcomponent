@@ -5,10 +5,10 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService

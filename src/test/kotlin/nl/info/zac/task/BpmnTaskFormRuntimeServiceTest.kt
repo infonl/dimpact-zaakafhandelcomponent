@@ -13,10 +13,10 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.json.Json
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.model.createOpschorting
