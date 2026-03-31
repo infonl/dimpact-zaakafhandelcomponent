@@ -1,23 +1,7 @@
 {
-  "_id": "69c10a29741186081588feed",
-  "title": "signDocumentForm",
-  "name": "signDocumentForm",
-  "path": "signdocumentform",
-  "type": "form",
   "display": "form",
-  "tags": [],
-  "access": [
-    {
-      "type": "read_all",
-      "roles": [
-        "69b8041eba894df4e13fe8ce",
-        "69b8041fba894df4e13fe8dc",
-        "69b8041fba894df4e13fe8e0"
-      ]
-    }
-  ],
-  "submissionAccess": [],
-  "owner": "6965029d3b500ad321a98eeb",
+  "name": "signDocumentForm",
+  "title": "signDocumentForm",
   "components": [
     {
       "label": "Document(s) to sign",
@@ -47,18 +31,5 @@
       "input": true,
       "tableView": false
     }
-  ],
-  "pdfComponents": [],
-  "settings": {},
-  "properties": {},
-  "project": "69b8041dba894df4e13fe8b7",
-  "controller": "",
-  "revisions": "",
-  "submissionRevisions": "",
-  "_vid": 0,
-  "esign": {},
-  "created": "2026-03-23T09:38:49.237Z",
-  "modified": "2026-03-23T09:38:49.240Z",
-  "machineName": "lhiktnkytwkdzlp:signDocumentForm",
-  "plan": "trial"
+  ]
 }

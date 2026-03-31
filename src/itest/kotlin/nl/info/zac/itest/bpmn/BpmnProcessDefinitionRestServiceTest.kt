@@ -39,7 +39,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "version": 1
                   },
                   {
-                    "key": "signDocumentProcess",
+                    "key": "signDocumentsProcess",
                     "name": "Sign Documents Process",
                     "version": 1
                   },
@@ -92,7 +92,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     }
                   },
                   {
-                    "key": "signDocumentProcess",
+                    "key": "signDocumentsProcess",
                     "name": "Sign Documents Process",
                     "version": 1,
                     "details": {

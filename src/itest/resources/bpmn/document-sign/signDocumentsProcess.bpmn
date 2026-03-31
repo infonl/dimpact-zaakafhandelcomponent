@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test" exporter="Flowable Design" exporterVersion="2025.1.03" design:palette="flowable-work-process-palette">
-  <process id="signDocumentProcess" name="Sign Documents Process" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
+  <process id="signDocumentsProcess" name="Sign Documents Process" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2026-01-12T14:00:44.279Z]]></design:creationdate>
@@ -60,8 +60,8 @@
       </extensionElements>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_signDocumentProcess">
-    <bpmndi:BPMNPlane bpmnElement="signDocumentProcess" id="BPMNPlane_signDocumentProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_signDocumentsProcess">
+    <bpmndi:BPMNPlane bpmnElement="signDocumentsProcess" id="BPMNPlane_signDocumentsProcess">
       <bpmndi:BPMNShape bpmnElement="FormTask_1" id="BPMNShape_FormTask_1">
         <omgdc:Bounds height="113.0" width="141.0" x="773.2225227135092" y="219.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
