@@ -82,11 +82,11 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
-import java.nio.file.Files
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
+import java.nio.file.Files
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
