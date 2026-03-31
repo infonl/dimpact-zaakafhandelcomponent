@@ -65,7 +65,7 @@
               *matTreeNodeDef="let node; when: hasChild"
               class="group"
             >
-              <div class="tree-group-row" (click)="toggleNode(node)">
+              <div class="tree-group-row" [id]="'bpmn-node-' + node.key" (click)="toggleNode(node)">
                 <button mat-icon-button>
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{

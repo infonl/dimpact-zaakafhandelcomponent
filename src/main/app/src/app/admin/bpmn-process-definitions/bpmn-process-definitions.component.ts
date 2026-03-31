@@ -4,10 +4,12 @@
  */
 
 import {
+  afterNextRender,
   Component,
   computed,
   ElementRef,
   inject,
+  Injector,
   OnInit,
   ViewChild,
 } from "@angular/core";
@@ -85,7 +87,9 @@ export class BpmnProcessDefinitionsComponent
 
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
+  private readonly elementRef = inject(ElementRef);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly injector = inject(Injector);
 
   private readonly uploadMutation = injectMutation(() => ({
     ...this.bpmnService.uploadProcessDefinitionQuery(),
@@ -137,6 +141,13 @@ export class BpmnProcessDefinitionsComponent
               );
               // the mutation-level onSuccess already refetches the list
               this.expandedKey = processKey;
+              afterNextRender(
+                () =>
+                  this.elementRef.nativeElement
+                    .querySelector(`[id="bpmn-node-${processKey}"]`)
+                    ?.scrollIntoView({ behavior: "smooth", block: "nearest" }),
+                { injector: this.injector },
+              );
             },
           },
         );
