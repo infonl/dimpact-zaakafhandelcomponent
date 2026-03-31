@@ -22,8 +22,8 @@ import java.util.zip.ZipOutputStream;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
+import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 

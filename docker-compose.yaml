@@ -191,6 +191,8 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     ports:
       - "8010:8000"
     environment: &objects-env
@@ -235,6 +237,8 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
     command: sh init/init.sh
@@ -262,7 +266,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.0-static@sha256:3913aa7982d7c096c1996eca99d3360930723668fd62ccc3f6ebd37257d1fc84
+    image: openpolicyagent/opa:1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -366,7 +370,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.0@sha256:4dfa5ac186e3a54d52c2cd76bef8fd70b8656896796c21bc76994d74b756d317
+    image: openpolicyagent/opa:1.15.1@sha256:c3e940a236811f34a9bdf1b98e1a441db7f1ef81151a0bb4a9706467a11c8cd9
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -375,7 +379,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
@@ -594,6 +598,8 @@ services:
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
@@ -639,6 +645,8 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
@@ -652,6 +660,8 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
@@ -666,6 +676,8 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
     depends_on:

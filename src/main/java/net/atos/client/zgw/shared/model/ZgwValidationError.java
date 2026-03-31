@@ -15,14 +15,14 @@ import jakarta.json.bind.annotation.JsonbProperty;
  * ZGW error indicating a validation error.
  * The structure of these errors comply to the <a href="https://datatracker.ietf.org/doc/html/rfc7807">Problem Details Standard</a>.
  */
-public class ValidationZgwError extends ZgwError {
+public class ZgwValidationError extends ZgwError {
     @Serial
     private static final long serialVersionUID = 79823432543535L;
 
     private final List<FieldValidationError> invalidParams;
 
     @JsonbCreator
-    public ValidationZgwError(
+    public ZgwValidationError(
             @JsonbProperty("type") final URI type,
             @JsonbProperty("code") final String code,
             @JsonbProperty("title") final String title,

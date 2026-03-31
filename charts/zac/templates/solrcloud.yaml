@@ -27,6 +27,10 @@ spec:
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (index .Values "solr-operator").solr.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   busyBoxImage:
     pullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.busyBoxImage.repository }}
@@ -68,6 +72,10 @@ spec:
         {{- end }}
         {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.topologySpreadConstraints }}
         topologySpreadConstraints:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with (index (index .Values "solr-operator") "zookeeper-operator").zookeeper.resources }}
+        resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
       image:

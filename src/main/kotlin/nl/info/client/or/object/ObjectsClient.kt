@@ -11,10 +11,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
-import net.atos.client.or.shared.exception.FoutExceptionMapper
-import net.atos.client.or.shared.exception.ORRuntimeResponseExceptionMapper
-import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper
 import nl.info.client.or.objects.model.generated.ModelObject
+import nl.info.client.or.shared.exception.ORErrorExceptionMapper
+import nl.info.client.or.shared.exception.ORRuntimeResponseExceptionMapper
+import nl.info.client.or.shared.exception.ORValidationErrorExceptionMapper
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
@@ -22,8 +22,8 @@ import java.util.UUID
 
 @RegisterRestClient(configKey = "Objects-API-Client")
 @RegisterClientHeaders(ObjectsClientHeadersFactory::class)
-@RegisterProvider(FoutExceptionMapper::class)
-@RegisterProvider(ValidatieFoutExceptionMapper::class)
+@RegisterProvider(ORErrorExceptionMapper::class)
+@RegisterProvider(ORValidationErrorExceptionMapper::class)
 @RegisterProvider(ORRuntimeResponseExceptionMapper::class)
 @Produces(APPLICATION_JSON)
 @Path("api/v2")

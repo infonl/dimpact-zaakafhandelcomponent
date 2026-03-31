@@ -17,7 +17,6 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
@@ -27,6 +26,7 @@ import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
