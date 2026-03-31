@@ -660,7 +660,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
