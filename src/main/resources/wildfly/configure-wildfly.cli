@@ -61,6 +61,17 @@ data-source add \
 
 # Logging configuration
 
+# Configure JSON log output format for structured logging.
+# This enables log aggregation tools to parse and index log messages including any added log context.
+/subsystem=logging/json-formatter=JSON:add( \
+    exception-output-type=formatted, \
+    pretty-print=false, \
+    meta-data={ \
+        "service"=>"zac" \
+    } \
+)
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=JSON)
+
 # Suppress 'SRCFG01008: The value jakarta.ejb.EJBException has been converted by a Boolean Converter to "false"' WARN log messages
 # These warnings are a known quirk from SmallRye Config when running in WildFly with MicroProfile REST Client and do not indicate a problem in our code.
 /subsystem=logging/logger=io.smallrye.config:add(level=ERROR)
