@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test" exporter="Flowable Design" exporterVersion="2025.1.03" design:palette="flowable-work-process-palette">
+  <process id="signDocumentsProcess" name="Sign Documents Process" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
+    <extensionElements>
+      <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
+      <design:creationdate><![CDATA[2026-01-12T14:00:44.279Z]]></design:creationdate>
+      <design:modificationdate><![CDATA[2026-03-23T13:44:00.506Z]]></design:modificationdate>
+    </extensionElements>
+    <userTask id="FormTask_1" name="Summary of selected documents to sign" flowable:assignee="${initiator}" flowable:formKey="signDocumentForm" flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[signDocumentForm]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+        <design:stencilid><![CDATA[FormTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="ServiceTask_3" name="Sign selected documents" flowable:class="net.atos.zac.flowable.delegate.SignDocumentDelegate">
+      <extensionElements>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+    <userTask id="FormTask_5" name="Select documents to sign" flowable:assignee="${initiator}" flowable:formKey="selectDocumentsForm" flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[selectDocumentsForm]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+        <design:stencilid><![CDATA[FormTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </userTask>
+    <startEvent id="startnoneevent1" flowable:initiator="initiator" flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:work-form-field-validation><![CDATA[false]]></flowable:work-form-field-validation>
+        <design:stencilid><![CDATA[StartNoneEvent]]></design:stencilid>
+      </extensionElements>
+    </startEvent>
+    <endEvent id="EndNoneEvent_5">
+      <extensionElements>
+        <design:stencilid><![CDATA[EndNoneEvent]]></design:stencilid>
+      </extensionElements>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_4" sourceRef="FormTask_1" targetRef="ServiceTask_3">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_6" sourceRef="ServiceTask_3" targetRef="EndNoneEvent_5">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_7" sourceRef="FormTask_5" targetRef="FormTask_1">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_2" sourceRef="startnoneevent1" targetRef="FormTask_5">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_signDocumentsProcess">
+    <bpmndi:BPMNPlane bpmnElement="signDocumentsProcess" id="BPMNPlane_signDocumentsProcess">
+      <bpmndi:BPMNShape bpmnElement="FormTask_1" id="BPMNShape_FormTask_1">
+        <omgdc:Bounds height="113.0" width="141.0" x="773.2225227135092" y="219.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_3" id="BPMNShape_ServiceTask_3">
+        <omgdc:Bounds height="80.0" width="100.0" x="1038.709353600315" y="236.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="FormTask_5" id="BPMNShape_FormTask_5">
+        <omgdc:Bounds height="80.0" width="100.0" x="571.4754769391099" y="236.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startnoneevent1" id="BPMNShape_startnoneevent1">
+        <omgdc:Bounds height="30.0" width="30.0" x="424.0" y="261.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="EndNoneEvent_5" id="BPMNShape_EndNoneEvent_5">
+        <omgdc:Bounds height="28.0" width="28.0" x="1237.368450968518" y="262.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_6" id="BPMNEdge_SequenceFlow_6" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
+        <omgdi:waypoint x="1138.709353600315" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1237.368450968518" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_7" id="BPMNEdge_SequenceFlow_7" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="71.0" flowable:targetDockerY="57.0">
+        <omgdi:waypoint x="671.4754769391099" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="773.2225227135092" y="275.99999999999994"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_4" id="BPMNEdge_SequenceFlow_4" flowable:sourceDockerX="71.0" flowable:sourceDockerY="57.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="914.2225227135092" y="275.99999999999994"></omgdi:waypoint>
+        <omgdi:waypoint x="1038.709353600315" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_2" id="BPMNEdge_SequenceFlow_2" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="454.0" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="571.4754769391099" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,37 @@
+{
+  "display": "form",
+  "name": "selectDocumentsForm",
+  "title": "SelectDocumentsForm",
+  "components": [
+    {
+      "label": "Documents",
+      "type": "select",
+      "key": "ZAAK_Documenten_Ondertekenen_Selectie",
+      "input": true,
+      "widget": "choicesjs",
+      "multiple": true,
+      "refreshOn": "data",
+      "dataSrc": "custom",
+      "placeholder": "Select one or more documents",
+      "customOptions": {
+        "choicesOptions": {
+          "removeItemButton": true,
+          "placeholder": true,
+          "searchEnabled": true,
+          "shouldSort": false
+        }
+      },
+      "validate": { "required": true },
+      "attributes": { "ZAC_TYPE": "ZAC_documenten" },
+      "tableView": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}
