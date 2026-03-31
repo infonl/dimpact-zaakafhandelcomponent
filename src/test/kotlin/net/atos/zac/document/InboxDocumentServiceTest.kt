@@ -14,8 +14,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.EntityManager
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.document.model.InboxDocument
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import java.time.LocalDate

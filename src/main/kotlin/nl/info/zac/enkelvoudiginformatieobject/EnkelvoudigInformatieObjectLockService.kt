@@ -10,7 +10,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -55,7 +55,7 @@ class EnkelvoudigInformatieObjectLockService @Inject constructor(
     @Transactional(REQUIRED)
     fun deleteLock(informationObjectUUID: UUID) =
         findLock(informationObjectUUID)?.let { lock ->
-            drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, lock.lock)
+            drcClientService.unlockEnkelvoudigInformatieobject(informationObjectUUID, requireNotNull(lock.lock))
             entityManager.remove(lock)
             entityManager.flush()
         }

@@ -19,7 +19,6 @@ import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -29,6 +28,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VER
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
