@@ -128,6 +128,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -171,6 +172,7 @@ class ZaakRestService @Inject constructor(
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
+    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaakConverter: RestZaakConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
@@ -1212,9 +1214,9 @@ class ZaakRestService @Inject constructor(
         val productaanvraag = productaanvraagService.getProductaanvraag(
             productaanvraagObject
         )
-        productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
-        productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
-        productaanvraagService.pairBijlagenWithZaak(
+        productaanvraagDocumentService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
+        productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
+        productaanvraagDocumentService.pairBijlagenWithZaak(
             productaanvraag.bijlagen,
             zaak.url
         )

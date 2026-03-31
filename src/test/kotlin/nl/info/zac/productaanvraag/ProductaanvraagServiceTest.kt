@@ -81,11 +81,19 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val configurationService = mockk<ConfigurationService>()
     val klantClientService = mockk<KlantClientService>()
+    val productaanvraagBetrokkeneService = ProductaanvraagBetrokkeneService(
+        ztcClientService = ztcClientService,
+        zrcClientService = zrcClientService
+    )
+    val productaanvraagDocumentService = ProductaanvraagDocumentService(
+        drcClientService = drcClientService,
+        zrcClientService = zrcClientService
+    )
+
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        drcClientService = drcClientService,
         ztcClientService = ztcClientService,
         identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
@@ -97,7 +105,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         bpmnService = bpmnService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
         configurationService = configurationService,
-        klantClientService = klantClientService
+        klantClientService = klantClientService,
+        productaanvraagBetrokkeneService = productaanvraagBetrokkeneService,
+        productaanvraagDocumentService = productaanvraagDocumentService
     )
 
     beforeEach {
@@ -1833,7 +1843,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
 
             When("the bijlagen are paired with the zaak") {
-                productaanvraagService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
+                productaanvraagDocumentService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
 
                 Then("for every bijlage a zaakInformatieobject should be created") {
                     verify(exactly = 2) {
