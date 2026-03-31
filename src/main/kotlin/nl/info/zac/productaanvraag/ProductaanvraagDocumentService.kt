@@ -26,7 +26,7 @@ class ProductaanvraagDocumentService @Inject constructor(
     private val zrcClientService: ZrcClientService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(ProductaanvraagService::class.java.name)
+        private val LOG = Logger.getLogger(ProductaanvraagDocumentService::class.java.name)
 
         private const val AANVRAAG_PDF_TITEL = "Aanvraag PDF"
         private const val AANVRAAG_PDF_BESCHRIJVING = "PDF document met de aanvraag gegevens van de zaak"
