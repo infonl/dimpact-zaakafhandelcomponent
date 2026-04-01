@@ -19,6 +19,7 @@ import nl.info.client.klanten.model.generated.CodeRegisterEnum
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import java.util.UUID
 
 class KlantClientServiceTest : BehaviorSpec({
@@ -386,7 +387,10 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(emptyList())
 
@@ -405,7 +409,10 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(
                 listOf(createKlantcontact(hadBetrokkenen = emptyList()))
@@ -426,13 +433,16 @@ class KlantClientServiceTest : BehaviorSpec({
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
-            val email = "test@example.com"
-            val phone = "0612345678"
+            val emailAddress = "test@example.com"
+            val telephoneNumber = "0612345678"
             every {
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
@@ -443,8 +453,8 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedDigitaalAdresList(
                 listOf(
-                    createDigitalAddress(address = email, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                    createDigitalAddress(address = phone, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                    createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                    createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
                 )
             )
 
@@ -453,8 +463,8 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return the contact details with email and phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.email shouldBe email
-                    result?.phone shouldBe phone
+                    result?.contactDetails?.emailAddress shouldBe emailAddress
+                    result?.contactDetails?.telephoneNumber shouldBe telephoneNumber
                 }
             }
         }
@@ -465,12 +475,15 @@ class KlantClientServiceTest : BehaviorSpec({
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
-            val email = "test@example.com"
+            val emailAddress = "test@example.com"
             every {
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
@@ -480,7 +493,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
                 )
             } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = email, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
+                listOf(createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
             )
 
             When("productaanvraag-specific contact details are requested") {
@@ -488,8 +501,8 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return the contact details with email and no phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.email shouldBe email
-                    result?.phone.shouldBeNull()
+                    result?.contactDetails?.emailAddress shouldBe emailAddress
+                    result?.contactDetails?.telephoneNumber.shouldBeNull()
                 }
             }
         }
@@ -500,12 +513,15 @@ class KlantClientServiceTest : BehaviorSpec({
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
-            val phone = "0612345678"
+            val telephoneNumber = "0612345678"
             every {
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
@@ -515,7 +531,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
                 )
             } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = phone, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
+                listOf(createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
             )
 
             When("productaanvraag-specific contact details are requested") {
@@ -523,8 +539,8 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return the contact details with phone and no email") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.email.shouldBeNull()
-                    result?.phone shouldBe phone
+                    result?.contactDetails?.emailAddress.shouldBeNull()
+                    result?.contactDetails?.telephoneNumber shouldBe telephoneNumber
                 }
             }
         }
@@ -541,7 +557,10 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
@@ -562,8 +581,8 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return the contact details with only the first email and no phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.email shouldBe firstEmail
-                    result?.phone.shouldBeNull()
+                    result?.contactDetails?.emailAddress shouldBe firstEmail
+                    result?.contactDetails?.telephoneNumber.shouldBeNull()
                 }
             }
         }
@@ -578,7 +597,10 @@ class KlantClientServiceTest : BehaviorSpec({
                 klantClient.klantcontactList(
                     page = 1,
                     pageSize = 100,
-                    onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
@@ -594,8 +616,8 @@ class KlantClientServiceTest : BehaviorSpec({
 
                 Then("it should return the contact details with no email and no phone") {
                     result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.email.shouldBeNull()
-                    result?.phone.shouldBeNull()
+                    result?.contactDetails?.emailAddress.shouldBeNull()
+                    result?.contactDetails?.telephoneNumber.shouldBeNull()
                 }
             }
         }
@@ -607,8 +629,10 @@ class KlantClientServiceTest : BehaviorSpec({
             val zaakUuid = UUID.randomUUID()
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = klantcontactUuid,
-                email = "test@example.com",
-                phone = "0612345678"
+                contactDetails = ContactDetails(
+                    emailAddress = "test@example.com",
+                    telephoneNumber = "0612345678"
+                )
             )
             val onderwerpobjectSlot = slot<Onderwerpobject>()
             every { klantClient.onderwerpobjectCreate(capture(onderwerpobjectSlot)) } returns Onderwerpobject()
