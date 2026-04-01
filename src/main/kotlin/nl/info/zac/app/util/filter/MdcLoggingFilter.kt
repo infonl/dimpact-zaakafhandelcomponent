@@ -155,9 +155,9 @@ class MdcLoggingFilter() : ContainerRequestFilter, ContainerResponseFilter {
     }
 
     private fun removeMdc(key: String) {
-        if (loggerProvider != null) {
-            loggerProvider.removeMdc(key)
-        } else {
+        loggerProvider?.run {
+            this.removeMdc(key)
+        } ?: run {
             MDC.remove(key)
         }
     }
@@ -166,10 +166,10 @@ class MdcLoggingFilter() : ContainerRequestFilter, ContainerResponseFilter {
      * Helper to put a key-value pair into MDC if the value is not null.
      */
     private fun putMdc(key: String, value: String?) {
-        if (value != null) {
-            if (loggerProvider != null) {
-                loggerProvider.putMdc(key, value)
-            } else {
+        value?.run {
+           loggerProvider?.run {
+                this.putMdc(key, value)
+            } ?: {
                 MDC.put(key, value)
             }
         }
