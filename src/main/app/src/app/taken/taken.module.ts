@@ -27,7 +27,6 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     TakenMijnComponent,
     TakenVerdelenDialogComponent,
     TakenVrijgevenDialogComponent,
-    TaakEditComponent,
   ],
   imports: [
     SharedModule,
@@ -38,6 +37,7 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     GebruikersvoorkeurenModule,
     FormioWrapperComponent,
     MimetypeToExtensionPipe,
+    TaakEditComponent,
   ],
 })
 export class TakenModule {}
