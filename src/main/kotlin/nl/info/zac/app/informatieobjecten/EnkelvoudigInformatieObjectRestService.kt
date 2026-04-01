@@ -299,9 +299,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val zaak = documentVerwijderenGegevens.zaakUuid?.let(zrcClientService::readZaak)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).verwijderen)
         zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
-            enkelvoudigInformatieobject,
-            documentVerwijderenGegevens.zaakUuid,
-            documentVerwijderenGegevens.reden
+            enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+            zaakUUID = documentVerwijderenGegevens.zaakUuid,
+            reason = documentVerwijderenGegevens.reden
         )
 
         // In geval van een ontkoppeld document
