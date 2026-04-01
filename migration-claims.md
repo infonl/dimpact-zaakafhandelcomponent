@@ -34,8 +34,8 @@
 - [x] TaakEditComponent
 - [ ] IdentityComponent
 - [ ] ZoekopdrachtComponent
-- [ ] SignaleringenSettingsComponent
-- [ ] FoutAfhandelingComponent
+- [x] SignaleringenSettingsComponent
+- [x] FoutAfhandelingComponent
 
 ## Dax
 
