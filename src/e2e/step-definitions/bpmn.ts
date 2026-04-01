@@ -101,6 +101,7 @@ When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.waitForTimeout(5000);
     await this.page.reload();
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.waitForURL(this.page.url());
@@ -177,6 +178,7 @@ When(
   "{string} submits the filled-in form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.keyboard.press("Escape");
     await this.page.getByRole("button").filter({ hasText: "Indienen" }).click();
   },
 );
@@ -198,7 +200,7 @@ Then(
 );
 
 Then(
-  "{string} sees that the summary task is started with group {string} and user {string}",
+  "{string} sees that the select documents to sign task is started with group {string} and user {string}",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
@@ -206,7 +208,9 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    await expect(this.page.getByRole("cell", { name: "Summary" })).toBeVisible({
+    await expect(
+      this.page.getByRole("cell", { name: "Select documents to sign" }),
+    ).toBeVisible({
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(
@@ -303,5 +307,79 @@ Then(
       this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
     ).toHaveValue(userName);
     await this.page.getByRole("button").filter({ hasText: "close" }).click();
+  },
+);
+
+Then(
+  "{string} sees the select documents to sign form",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await expect(
+      this.page.getByRole("searchbox", {
+        name: "Select one or more documents",
+      }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+When(
+  "{string} selects document {string} for signing",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    documentName: string,
+  ) {
+    await this.page
+      .getByRole("searchbox", { name: "Select one or more documents" })
+      .click();
+    await this.page
+      .getByRole("option", { name: documentName, exact: true })
+      .click();
+  },
+);
+
+Then(
+  "{string} sees {int} documents in the to be signed list",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    expectedCount: number,
+  ) {
+    await expect(
+      this.page.getByRole("option", { name: UUID_V4_REGEX }),
+    ).toHaveCount(expectedCount, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+  },
+);
+
+When(
+  "{string} confirms the signing of the documents",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.getByRole("button", { name: "Sign" }).click();
+  },
+);
+
+Then(
+  "{string} sees document {string} has been signed",
+  { timeout: TWO_MINUTES_IN_MS },
+  async function (
+    this: CustomWorld,
+    _user: z.infer<typeof worldUsers>,
+    documentName: string,
+  ) {
+    const documentRow = this.page.locator("tr").filter({
+      has: this.page.locator("td.mat-column-titel").filter({
+        hasText: documentName,
+      }),
+    });
+    await expect(
+      documentRow.locator("mat-chip-option").filter({
+        has: this.page.locator("mat-icon", { hasText: "fact_check" }),
+      }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );

@@ -12,16 +12,36 @@ permissions:
   packages: write
 
 jobs:
-  clean:
+  # Remove all untagged (orphaned) container image versions
+  clean-untagged:
     runs-on: ubuntu-24.04
-    name: Delete ZAC Docker Images older than 8 weeks
+    name: Delete untagged Docker images
     steps:
-      - uses: snok/container-retention-policy@3b0972b2276b171b212f8c4efbca59ebba26eceb # v3.0.1
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         with:
-          account: infonl
+          owner: infonl
+          package-name: zaakafhandelcomponent
+          package-type: container
+          delete-only-untagged-versions: true
+          min-versions-to-keep: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          image-names: "zaakafhandelcomponent"
-          image-tags: "!latest"
-          cut-off: 8weeks
-          keep-n-most-recent: 10
-          dry-run: false
+
+  # Delete old tagged images but keep the 10 most recent, while always preserving:
+  #   - 'latest'
+  #   - minor version tags          (e.g. v2.2)
+  #   - patch-zero version tags     (e.g. v2.2.0)
+  #   - version tags with a suffix  (e.g. v2.3.3-1)
+  # This means regular patch releases like v2.3.1, v2.3.2 and build artifacts
+  # like main-12345 are eligible for cleanup.
+  clean-tagged:
+    runs-on: ubuntu-24.04
+    name: Delete old Docker images, keep minor release versions
+    steps:
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          owner: infonl
+          package-name: zaakafhandelcomponent
+          package-type: container
+          min-versions-to-keep: 10
+          ignore-versions: '^(latest|v\d+\.\d+(\.0|\.\d+-\S+)?)$'
+          token: ${{ secrets.GITHUB_TOKEN }}

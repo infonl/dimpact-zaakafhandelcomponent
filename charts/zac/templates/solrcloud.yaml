@@ -31,6 +31,18 @@ spec:
       resources:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (index .Values "solr-operator").solr.startupProbe }}
+      startupProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.livenessProbe }}
+      livenessProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "solr-operator").solr.readinessProbe }}
+      readinessProbe:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   busyBoxImage:
     pullPolicy: {{ (index .Values "solr-operator").solr.busyBoxImage.pullPolicy }}
     repository: {{ (index .Values "solr-operator").solr.busyBoxImage.repository }}
