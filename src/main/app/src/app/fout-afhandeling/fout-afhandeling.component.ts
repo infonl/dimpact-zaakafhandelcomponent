@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { AsyncPipe, NgFor } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { TranslateModule } from "@ngx-translate/core";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
 import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
@@ -11,12 +15,13 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
   selector: "zac-fout-afhandeling",
   templateUrl: "./fout-afhandeling.component.html",
   styleUrls: ["./fout-afhandeling.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [AsyncPipe, NgFor, MatCardModule, MatIconModule, TranslateModule],
 })
 export class FoutAfhandelingComponent implements OnInit {
-  bericht: string | null = null;
-  foutmelding: string | null = null;
-  serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
+  protected bericht: string | null = null;
+  protected foutmelding: string | null = null;
+  protected serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
 
   constructor(
     private readonly foutAfhandelingService: FoutAfhandelingService,
