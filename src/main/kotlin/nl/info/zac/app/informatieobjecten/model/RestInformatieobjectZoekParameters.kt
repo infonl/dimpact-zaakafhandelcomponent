@@ -5,14 +5,15 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
-class RestInformatieobjectZoekParameters {
-    var informatieobjectUUIDs: List<UUID>? = null
-
-    var zaakUUID: UUID? = null
-
-    var besluittypeUUID: UUID? = null
-
+@NoArgConstructor
+@AllOpen
+data class RestInformatieobjectZoekParameters(
+    var informatieobjectUUIDs: List<UUID>? = null,
+    var zaakUUID: UUID? = null,
+    var besluittypeUUID: UUID? = null,
     var gekoppeldeZaakDocumenten: Boolean = false
-}
+)

@@ -6,17 +6,43 @@
 package nl.info.zac.app.informatieobjecten.model
 
 import jakarta.ws.rs.FormParam
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-class RestFileUpload {
+@NoArgConstructor
+@AllOpen
+data class RestFileUpload(
     @field:FormParam("file")
-    var file: ByteArray? = null
+    var file: ByteArray? = null,
 
     @field:FormParam("filesize")
-    var fileSize: Long = 0
+    var fileSize: Long = 0,
 
     @field:FormParam("filename")
-    var filename: String? = null
+    var filename: String? = null,
 
     @field:FormParam("type")
     var type: String? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as RestFileUpload
+
+        if (fileSize != other.fileSize) return false
+        if (!file.contentEquals(other.file)) return false
+        if (filename != other.filename) return false
+        if (type != other.type) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = fileSize.hashCode()
+        result = 31 * result + (file?.contentHashCode() ?: 0)
+        result = 31 * result + (filename?.hashCode() ?: 0)
+        result = 31 * result + (type?.hashCode() ?: 0)
+        return result
+    }
 }

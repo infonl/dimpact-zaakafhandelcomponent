@@ -6,7 +6,9 @@ package nl.info.zac.app.informatieobjecten.model
 
 import jakarta.ws.rs.FormParam
 import nl.info.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudigInformatieFileUploadForm
+import nl.info.zac.util.AllOpen
 
+@AllOpen
 @ValidRestEnkelvoudigInformatieFileUploadForm
 abstract class RestEnkelvoudigInformatieFileUpload {
     // this can be empty when adding a new version in which only the metadata changes

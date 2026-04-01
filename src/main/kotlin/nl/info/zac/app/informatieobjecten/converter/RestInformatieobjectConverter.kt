@@ -21,9 +21,9 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.identity.model.toRestUser
-import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
 import nl.info.zac.app.informatieobjecten.model.toRestOndertekening
 import nl.info.zac.app.policy.model.toRestDocumentRechten

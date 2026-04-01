@@ -5,10 +5,13 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
-class RestDocumentVerwijderenGegevens {
-    var zaakUuid: UUID? = null
-
+@NoArgConstructor
+@AllOpen
+data class RestDocumentVerwijderenGegevens(
+    var zaakUuid: UUID? = null,
     var reden: String? = null
-}
+)

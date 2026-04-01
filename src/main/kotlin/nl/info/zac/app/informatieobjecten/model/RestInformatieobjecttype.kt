@@ -7,12 +7,9 @@ package nl.info.zac.app.informatieobjecten.model
 
 import java.util.UUID
 
-class RestInformatieobjecttype {
-    var uuid: UUID? = null
-
-    var omschrijving: String? = null
-
-    var vertrouwelijkheidaanduiding: String? = null
-
+data class RestInformatieobjecttype(
+    var uuid: UUID? = null,
+    var omschrijving: String? = null,
+    var vertrouwelijkheidaanduiding: String? = null,
     var concept: Boolean = false
-}
+)

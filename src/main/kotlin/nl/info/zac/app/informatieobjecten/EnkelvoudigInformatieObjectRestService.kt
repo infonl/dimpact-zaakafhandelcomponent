@@ -43,11 +43,11 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverte
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
-import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.policy.model.toRestZaakRechten

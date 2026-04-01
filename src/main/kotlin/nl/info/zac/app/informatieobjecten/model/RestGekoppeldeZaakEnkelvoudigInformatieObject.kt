@@ -6,8 +6,13 @@
 package nl.info.zac.app.informatieobjecten.model
 
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
+// Cannot be a data class because Kotlin does not allow data classes to extend other data classes
+@NoArgConstructor
+@AllOpen
 class RestGekoppeldeZaakEnkelvoudigInformatieObject : RestEnkelvoudigInformatieobject() {
     var relatieType: RelatieType? = null
 
