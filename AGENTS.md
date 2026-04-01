@@ -166,6 +166,10 @@ PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 ### Follow the Kotlin Coding Conventions
 Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
 This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
+Rename existing classes to comply with the following Kotlin code convention:
+When using an acronym as part of a declaration name, follow these rules:
+    - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
+    - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
 
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
