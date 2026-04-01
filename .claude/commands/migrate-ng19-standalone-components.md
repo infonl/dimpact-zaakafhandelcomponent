@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 34 done — 118 remaining** (2026-03-26)
+**Progress: 35 done — 117 remaining** (2026-04-01)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -254,6 +254,11 @@ Solves PZ-XXXXX
 - Access modifiers: `selected`, `getFilters()`, `isVertaalbaar()`, `change()` → `protected`; `VERTAALBARE_FACETTEN` → `protected Record<string, string>`
 - **Pattern**: `MatSelectHarness` + `(await select.host()).getAttribute("id")` to assert on Material component attributes without querySelector
 
+### ✅ `taken/taak-edit/taak-edit.component.ts` (2026-04-01)
+- `imports: [ReactiveFormsModule, MatToolbarModule, MatIconModule, MatButtonModule, MatDividerModule, TranslateModule, MaterialFormBuilderModule]`
+- Access modifiers: formSubmit() implicit public → protected
+- **Pattern**: uses signal inputs (input.required<T>()); MaterialFormBuilderModule covers all zac-* form children
+
 ### ✅ `shared/material/narrow-checkbox.directive.ts` (fix) + `zoeken/zoek/filters/multi-facet-filter/multi-facet-filter.component.ts` (2026-03-26) — Marcel Batch 7
 - `ZacNarrowMatCheckboxDirective`: prior PR removed `standalone: false` but never added `standalone: true`; also already moved to `imports[]`/`exports[]` in `shared.module.ts` — only fix needed was adding explicit `standalone: true`
 - `MultiFacetFilterComponent` `imports: [NgIf, NgFor, LowerCasePipe, ReactiveFormsModule, MatCardModule, MatCheckboxModule, MatIconModule, TranslateModule, ZacNarrowMatCheckboxDirective, ReadMoreComponent]`
@@ -265,7 +270,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `KlantZoekDialog` → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
+`TakenVrijgevenDialogComponent`
 
 ---
 
