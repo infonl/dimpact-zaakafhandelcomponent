@@ -32,8 +32,8 @@
 ### In progress
 - [x] FacetFilterComponent
 - [x] TaakEditComponent
-- [ ] IdentityComponent
-- [ ] ZoekopdrachtComponent
+- [x] IdentityComponent
+- [x] ZoekopdrachtComponent
 - [x] SignaleringenSettingsComponent
 - [x] FoutAfhandelingComponent
 
