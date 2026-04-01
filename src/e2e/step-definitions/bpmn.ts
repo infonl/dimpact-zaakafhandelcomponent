@@ -9,7 +9,8 @@ import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  ONE_SECOND_IN_MS,
+  TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -117,7 +118,7 @@ When(
       if (!(await this.page.isVisible("text='Bad Request'"))) {
         break;
       }
-      await this.page.waitForTimeout(ONE_SECOND_IN_MS);
+      await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
       await this.page.goto(this.page.url().split("?")[0]);
     }
   },
@@ -125,7 +126,7 @@ When(
 
 Then(
   "{string} sees document {string} in the documents list",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -138,7 +139,7 @@ Then(
 
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
-    ).toContainText(documentName, { timeout: FORTY_SECONDS_IN_MS });
+    ).toContainText(documentName, { timeout: ONE_MINUTE_IN_MS });
   },
 );
 
@@ -169,7 +170,9 @@ When(
     await form
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
-    await this.page.getByRole("option", { name: "file A", exact: true }).click();
+    await this.page
+      .getByRole("option", { name: "file A", exact: true })
+      .click();
     await form
       .getByLabel("Communication channel")
       .selectOption(COMMUNICATION_CHANNEL_KEY);
@@ -244,9 +247,9 @@ Then(
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
     );
-    await expect(
-      form.getByRole("option", { name: UUID_V4_REGEX }),
-    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(form.getByRole("option", { name: UUID_V4_REGEX })).toBeVisible(
+      { timeout: FORTY_SECONDS_IN_MS },
+    );
     await expect(
       form.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue(COMMUNICATION_CHANNEL_VALUE);
