@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import net.atos.client.or.shared.exception.ValidatieFoutExceptionMapper;
 import net.atos.client.zgw.shared.model.ZgwError;
 
 /**
@@ -21,7 +20,7 @@ import net.atos.client.zgw.shared.model.ZgwError;
  * <p>
  * These responses are expected to have a JSON payload according to
  * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
- * 400 (Bad Request) status codes are handled by {@link ValidatieFoutExceptionMapper}
+ * 400 (Bad Request) status codes are handled by {@link ZgwValidationErrorResponseExceptionMapper}
  */
 public class ZgwErrorExceptionMapper implements ResponseExceptionMapper<ZgwErrorException> {
 

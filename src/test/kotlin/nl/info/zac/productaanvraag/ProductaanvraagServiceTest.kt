@@ -15,21 +15,21 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.model.createRandomKvkNumber
 import nl.info.client.kvk.model.createRandomVestigingsNumber
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.or.`object`.model.createObjectRecord
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
@@ -57,7 +57,6 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
-import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -78,11 +77,20 @@ class ProductaanvraagServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val configurationService = mockk<ConfigurationService>()
+    val klantClientService = mockk<KlantClientService>()
+    val productaanvraagBetrokkeneService = ProductaanvraagBetrokkeneService(
+        ztcClientService = ztcClientService,
+        zrcClientService = zrcClientService
+    )
+    val productaanvraagDocumentService = ProductaanvraagDocumentService(
+        drcClientService = drcClientService,
+        zrcClientService = zrcClientService
+    )
+
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
-        drcClientService = drcClientService,
         ztcClientService = ztcClientService,
         identityService = identityService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
@@ -93,7 +101,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         cmmnService = cmmnService,
         bpmnService = bpmnService,
         zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-        configurationService = configurationService
+        configurationService = configurationService,
+        klantClientService = klantClientService,
+        productaanvraagBetrokkeneService = productaanvraagBetrokkeneService,
+        productaanvraagDocumentService = productaanvraagDocumentService
     )
 
     beforeEach {
@@ -286,6 +297,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             val roleToBeCreated = slot<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -301,7 +313,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -310,6 +322,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
+                    null,
                     zaaktypeCmmnConfiguration
                 )
             } just runs
@@ -364,6 +377,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
                             any<Betrokkene>(),
+                            null,
                             zaaktypeCmmnConfiguration
                         )
                     }
@@ -435,6 +449,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -450,7 +465,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -461,6 +476,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
+                    null,
                     zaaktypeCmmnConfiguration
                 )
             } just runs
@@ -570,6 +586,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -585,7 +602,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
@@ -643,7 +660,6 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(
@@ -678,6 +694,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakToBeCreated = slot<Zaak>()
             val roleToBeCreated = mutableListOf<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -690,18 +707,13 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zgwApiService.createZaak(capture(zaakToBeCreated)) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-            every {
-                zrcClientService.createZaakInformatieobject(
-                    any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
-                )
-            } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.INITIATOR) } returns listOf(rolTypeInitiator)
             every {
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
+                    null,
                     zaaktypeCmmnConfiguration
                 )
             } just runs
@@ -774,6 +786,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -789,7 +802,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -799,6 +812,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
                     any<Betrokkene>(),
+                    null,
                     zaaktypeCmmnConfiguration
                 )
             } just runs
@@ -873,6 +887,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -888,7 +903,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -954,6 +969,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -969,7 +985,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -1111,6 +1127,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val rolesToBeCreated = mutableListOf<Rol<*>>()
             val zaakToBeCreated = slot<Zaak>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -1149,7 +1166,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 every {
                     zrcClientService.createZaakInformatieobject(
                         any(),
-                        "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                        "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                     )
                 } returns createdZaakInformatieobject
                 every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
@@ -1247,19 +1264,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
             val createdZaak = createZaak()
-            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val groupId = "fakeGroupId"
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 groupId = groupId
-            )
-            val group = createGroup(
-                id = groupId,
-                name = "Fake Group",
-            )
-            val behandelaarRolType = createRolType(
-                zaakTypeUri = zaakType.url,
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
             val formulierBron = createBron()
             val productAanvraagORObject = createORObject(
@@ -1285,15 +1293,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
             every { zgwApiService.createZaak(any()) } returns createdZaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
-            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
-            every {
-                zrcClientService.createZaakInformatieobject(any(), any())
-            } throws RuntimeException("Failed to create zaakinformatieobject!")
+            every { zrcClientService.createZaakobject(any()) } throws RuntimeException("Failed to create zaakobject!")
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
-            every { identityService.readGroup(groupId) } returns group
-            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns behandelaarRolType
-            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1313,14 +1315,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zrcClientService.createZaakobject(any())
                     }
                 }
-                And("the zaak should be assigned to the group") {
-                    verify(exactly = 1) {
-                        zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
-                    }
-                }
                 And("automatic reply email should not be sent") {
                     verify(exactly = 0) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                            any(),
                             any(),
                             any(),
                             any()
@@ -1515,6 +1513,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val zaakDataSlot = slot<Map<String, Any>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -1529,7 +1528,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 zrcClientService.createZaakInformatieobject(
                     any(),
-                    "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
+                    "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                 )
             } returns createdZaakInformatieobject
             every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", capture(zaakDataSlot)) } just Runs
@@ -1575,6 +1574,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             any(),
                             any(),
+                            any(),
                             any()
                         )
                     }
@@ -1610,6 +1610,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
 
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productAanvraagType
@@ -1641,45 +1642,165 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("Pair bijlagen with zaak") {
-        Given("a list of bijlage URIs and a zaak URI") {
-            val bijlageURIs = listOf(URI("fakeURI1"), URI("fakeURI2"))
-            val enkelvoudigInformatieobjecten = listOf(
-                createEnkelvoudigInformatieObject(),
-                createEnkelvoudigInformatieObject()
+        Given(
+            """
+            A productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
+            and for which application-specific contact details are available
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val zaakTypeUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val specificEmail = "specific@example.com"
+            val contactDetails = ProductaanvraagSpecificContactDetails(
+                klantcontactUuid = UUID.randomUUID(),
+                email = specificEmail,
+                phone = null
             )
-            val zaakInformatieobjecten = listOf(
-                createZaakInformatieobjectForCreatesAndUpdates(),
-                createZaakInformatieobjectForCreatesAndUpdates()
-            )
-            val zaakUrl = URI("fakeZaakUrl")
-            val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
-            val beschrijving = "Document toegevoegd tijdens het starten van de van de zaak vanuit een product aanvraag"
-            bijlageURIs.forEachIndexed { index, uri ->
-                every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
-                every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
-            }
-            every {
-                zrcClientService.createZaakInformatieobject(
-                    capture(createdZaakInformatieobjectSlot),
-                    beschrijving
+            val zaakType = createZaakType()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "pdf" to zaakType.informatieobjecttypen[0]
+                    )
                 )
-            } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns contactDetails
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns listOf(zaaktypeCmmnConfiguration)
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
+            every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
 
-            When("the bijlagen are paired with the zaak") {
-                productaanvraagService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
+            When("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("for every bijlage a zaakInformatieobject should be created") {
-                    verify(exactly = 2) {
-                        zrcClientService.createZaakInformatieobject(any(), any())
+                Then("the application-specific contact details are linked to the zaak") {
+                    verify(exactly = 1) {
+                        klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(
+                            contactDetails,
+                            createdZaak.uuid
+                        )
                     }
-                    createdZaakInformatieobjectSlot.captured.run {
-                        zaak shouldBe zaakUrl
-                        beschrijving shouldBe beschrijving
-                        informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
-                        titel shouldBe enkelvoudigInformatieobjecten[1].titel
+                }
+                And("the confirmation email is sent using the application-specific email address") {
+                    verify(exactly = 1) {
+                        productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                            createdZaak,
+                            any(),
+                            specificEmail,
+                            zaaktypeCmmnConfiguration
+                        )
+                    }
+                }
+            }
+        }
+
+        Given(
+            """
+            A productaanvraag-dimpact object registration object with no matching zaaktypeCmmnConfiguration,
+            a BPMN definition for the productaanvraagtype, and application-specific contact details
+            """
+        ) {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val productAanvraagType = "productaanvraag"
+            val zaakType = createZaakType()
+            val zaakTypeUUID = zaakType.url.extractUuid()
+            val createdZaak = createZaak()
+            val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
+            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val contactDetails = ProductaanvraagSpecificContactDetails(
+                klantcontactUuid = UUID.randomUUID(),
+                email = "specific@example.com",
+                phone = null
+            )
+            val groupName = "fakeGroup"
+            val group = createGroup(id = groupName, name = "Fake Group")
+            val behandelaarRolType = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            val bpmnConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUuid = zaakTypeUUID,
+                groupName = groupName,
+                bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
+            )
+            val formulierBron = createBron()
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to formulierBron,
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "pdf" to zaakType.informatieobjecttypen[0]
+                    )
+                )
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns contactDetails
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns bpmnConfiguration
+            every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
+            every { zgwApiService.createZaak(any()) } returns createdZaak
+            every { zrcClientService.createZaakobject(any()) } returns createdZaakobjectProductAanvraag
+            every { zrcClientService.createZaakInformatieobject(any(), any()) } returns createdZaakInformatieobject
+            every { bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any()) } just Runs
+            every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { identityService.readGroup(groupName) } returns group
+            every {
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns behandelaarRolType
+            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
+            every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
+
+            When("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                Then("the application-specific contact details are linked to the zaak") {
+                    verify(exactly = 1) {
+                        klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(
+                            contactDetails,
+                            createdZaak.uuid
+                        )
+                    }
+                }
+                And("no CMMN process is started") {
+                    verify(exactly = 0) {
+                        cmmnService.startCase(any(), any(), any(), any())
+                    }
+                }
+                And("a BPMN process is started") {
+                    verify(exactly = 1) {
+                        bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }
                 }
             }

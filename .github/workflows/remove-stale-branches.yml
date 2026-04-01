@@ -24,7 +24,7 @@ jobs:
         id: deleted_branches
         with:
           github_token: ${{ github.token }}
-          last_commit_age_days: 100
+          last_commit_age_days: 14
           dry_run: yes
           ignore_suffix: _keep_me
 
@@ -77,7 +77,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "I will only alert for an unprotected branch that has been abandonded for over a 100 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it."
+                    "text": "I will only alert for an unprotected branch that has been abandoned for over a 14 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it."
                   }
                 ]
               },

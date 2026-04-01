@@ -9,10 +9,10 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.15.0-static
+- **openpolicyagent/opa**: 1.15.1-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
-- **kontextwork-converter**: 1.8.2
-- **otel/opentelemetry-collector-contrib**: 0.148.0
+- **kontextwork-converter**: 1.8.3
+- **otel/opentelemetry-collector-contrib**: 0.149.0
 - **grafana/tempo**: 2.10.3
 - **prom/prometheus**: v3.10.0
 - **grafana/grafana**: 12.4.2

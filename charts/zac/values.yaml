@@ -296,6 +296,11 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
+  # -- Resource limits and requests for the init-solr-zac-core init container
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -311,9 +316,9 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.15.0-static@sha256:3913aa7982d7c096c1996eca99d3360930723668fd62ccc3f6ebd37257d1fc84"
+    tag: "1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24"
     pullPolicy: IfNotPresent
-  # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
+  # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
   autoscaling:
     enabled: false
   replicas: 1
@@ -424,6 +429,8 @@ solr-operator:
       storageClassName: managed-csi
       # -- solr storage size
       size: 1Gi
+    # -- resource limits and requests for solr in solrcloud
+    resources: {}
     # -- tolerations for solr in solrcloud
     tolerations: []
     # -- topologySpreadConstraints for solr in solrcloud
@@ -436,6 +443,23 @@ solr-operator:
             technology: solr-cloud
         matchLabelKeys:
           - controller-revision-hash
+    # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
+    # Override only if custom startup timing is needed.
+    startupProbe: {}
+    # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
+    # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
+    # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
+    # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
+    livenessProbe:
+      httpGet:
+        path: /solr/admin/info/health
+        port: 8983
+      failureThreshold: 6
+      periodSeconds: 20
+      timeoutSeconds: 1
+    # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
+    # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
+    readinessProbe: {}
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -498,6 +522,8 @@ solr-operator:
         storageClassName: managed-csi
         # -- zookeeper storage size
         size: 1Gi
+      # -- resource limits and requests for zookeeper
+      resources: {}
       # -- tolerations for zookeeper
       tolerations: []
       # -- topologySpreadConstraints for zookeeper
@@ -518,7 +544,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f"
+    tag: "1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -558,7 +584,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.148.0@sha256:8164eab2e6bca9c9b0837a8d2f118a6618489008a839db7f9d6510e66be3923c"
+    tag: "0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46"
   presets:
     clusterMetrics:
       enabled: false

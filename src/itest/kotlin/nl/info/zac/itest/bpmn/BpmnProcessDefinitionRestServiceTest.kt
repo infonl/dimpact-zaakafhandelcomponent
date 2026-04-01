@@ -32,10 +32,15 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
-                 [  
+                 [
                   {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
+                    "version": 1
+                  },
+                  {
+                    "key": "signDocumentsProcess",
+                    "name": "Sign Documents Process",
                     "version": 1
                   },
                   {
@@ -43,7 +48,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "name": "User Management",
                     "version": 1
                   }
-                ]  
+                ]
                 """.trimIndent()
             }
         }
@@ -63,14 +68,14 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
-                 [  
+                 [
                   {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1,
                     "details": {
                       "inUse": true,
-                      "documentation": "BPMN Process definition used in ZAC Integration tests",
+                      "documentation": "Simple BPMN process definition to test various functionalities. Used in ZAC integration tests.",
                       "forms": [
                         {
                           "formKey": "summaryForm",
@@ -80,6 +85,27 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                         {
                           "formKey": "testForm",
                           "title": "Test form",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
+                  },
+                  {
+                    "key": "signDocumentsProcess",
+                    "name": "Sign Documents Process",
+                    "version": 1,
+                    "details": {
+                      "inUse": true,
+                      "forms": [
+                        {
+                          "formKey": "signDocumentForm",
+                          "title": "signDocumentForm",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "selectDocumentsForm",
+                          "title": "SelectDocumentsForm",
                           "uploaded": true
                         }
                       ],
@@ -122,7 +148,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                       "orphanedForms": []
                     }
                   }
-                ]  
+                ]
                 """.trimIndent()
             }
         }

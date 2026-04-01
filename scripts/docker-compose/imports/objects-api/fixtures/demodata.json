@@ -274,6 +274,26 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 38,
+    "fields": {
+      "uuid": "5658d286-9a84-4cde-b9af-6771bd599a06",
+      "object_type": 4,
+      "created_on": "2026-03-24T12:16:12.567Z",
+      "modified_on": "2026-03-24T12:16:12.575Z"
+    }
+  },
+  {
+    "model": "core.object",
+    "pk": 39,
+    "fields": {
+      "uuid": "a3278b18-0562-48cd-ab9b-ee05f2d433bb",
+      "object_type": 4,
+      "created_on": "2026-03-25T12:16:12.567Z",
+      "modified_on": "2026-03-25T12:16:12.575Z"
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -1265,6 +1285,115 @@
       "geometry": null,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 49,
+    "fields": {
+      "index": 1,
+      "object": 38,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "testKenmerkAlternativeEmailAddress1"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "overig": {
+            "foto": [],
+            "andereDocumenten": []
+          },
+          "initiator": {
+            "initiator_bsn": "",
+            "customerProfile": [
+              {
+                "type": "email",
+                "address": "test-alternative-1@example.com",
+                "preferenceUpdate": "useOnlyOnce"
+              },
+              {
+                "type": "phoneNumber",
+                "address": "",
+                "preferenceUpdate": "useOnlyOnce"
+              }
+            ]
+          }
+        },
+        "taal": "nld",
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag-alternative-email",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving-alternative-email",
+          "toelichting": "fakeZaakToelichting-alternative-email"
+        },
+        "betrokkenen": []
+      },
+      "start_at": "1973-01-01",
+      "end_at": null,
+      "registration_at": "1973-01-01",
+      "correct": null,
+      "geometry": null,
+      "created_on": "2026-03-24T12:16:12.567Z",
+      "modified_on": "2026-03-24T12:16:12.575Z"
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 50,
+    "fields": {
+      "index": 1,
+      "object": 39,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "testKenmerkAlternativeEmailAddress2"
+        },
+        "type": "productaanvraag-type-1",
+        "aanvraaggegevens": {
+          "overig": {
+            "foto": [],
+            "andereDocumenten": []
+          },
+          "initiator": {
+            "initiator_bsn": "",
+            "customerProfile": [
+              {
+                "type": "email",
+                "address": "test-alternative-2@example.com",
+                "preferenceUpdate": "useOnlyOnce"
+              },
+              {
+                "type": "phoneNumber",
+                "address": "",
+                "preferenceUpdate": "useOnlyOnce"
+              }
+            ]
+          }
+        },
+        "taal": "nld",
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag-alternative-email-2",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving-alternative-email-2",
+          "toelichting": "fakeZaakToelichting-alternative-email-2"
+        },
+        "betrokkenen": [
+          {
+            "inpBsn": "999991838",
+            "rolOmschrijvingGeneriek": "initiator"
+          }
+        ]
+      },
+      "start_at": "1974-01-01",
+      "end_at": null,
+      "registration_at": "1974-01-01",
+      "correct": null,
+      "geometry": null,
+      "created_on": "2026-03-24T12:16:12.567Z",
+      "modified_on": "2026-03-24T12:16:12.575Z"
     }
   },
   {

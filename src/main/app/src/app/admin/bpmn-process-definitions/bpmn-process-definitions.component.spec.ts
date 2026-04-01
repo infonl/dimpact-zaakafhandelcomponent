@@ -22,7 +22,7 @@ import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions.component";
-import { readFileContent } from "./file.helper";
+import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 
 jest.mock("./file.helper");
 
@@ -157,6 +157,16 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       expect(fixture.nativeElement.textContent).toContain(
         "msg.geen.gegevens.gevonden",
       );
+    });
+  });
+
+  describe("status icon", () => {
+    it("should not toggle the node when the status icon is clicked", () => {
+      const icon: HTMLElement = fixture.nativeElement.querySelector(
+        ".tree-group-row mat-icon.cursor-default",
+      );
+      icon.click();
+      expect(component["expandedKey"]).toBeNull();
     });
   });
 
@@ -415,9 +425,10 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   });
 
   describe("uploadBpmnFile onSuccess", () => {
-    async function triggerOnSuccess(filename: string) {
-      const fileContent = "<bpmn/>";
+    async function triggerOnSuccess(processKey: string, filename: string) {
+      const fileContent = `<definitions><process id="${processKey}"></process></definitions>`;
       (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+      (extractBpmnProcessKey as jest.Mock).mockReturnValue(processKey);
 
       const mutateMock = jest.fn();
       Object.defineProperty(component, "uploadMutation", {
@@ -437,21 +448,16 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     }
 
     it("should show a snackbar with the filename after successful upload", async () => {
-      await triggerOnSuccess("key-a.bpmn");
+      await triggerOnSuccess("key-a", "key-a.bpmn");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.process-definition.upload.success",
         { naam: "key-a.bpmn" },
       );
     });
 
-    it("should expand the uploaded definition after successful upload", async () => {
-      await triggerOnSuccess("key-a.bpmn");
-      expect(component["expandedKey"]).toBe("key-a");
-    });
-
-    it("should strip .bpmn extension case-insensitively when setting expandedKey", async () => {
-      await triggerOnSuccess("MY-PROCESS.BPMN");
-      expect(component["expandedKey"]).toBe("MY-PROCESS");
+    it("should expand the uploaded definition using the process key from the BPMN content", async () => {
+      await triggerOnSuccess("my-process-key", "different-filename.bpmn");
+      expect(component["expandedKey"]).toBe("my-process-key");
     });
   });
 });

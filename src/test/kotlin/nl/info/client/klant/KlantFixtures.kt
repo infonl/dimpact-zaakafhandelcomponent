@@ -15,7 +15,10 @@ import nl.info.client.klanten.model.generated.DigitaalAdresForeignKey
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.klanten.model.generated.ExpandPartij
 import nl.info.client.klanten.model.generated.ExpandPartijAllOfExpand
+import nl.info.client.klanten.model.generated.Klantcontact
+import nl.info.client.klanten.model.generated.PaginatedDigitaalAdresList
 import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
+import nl.info.client.klanten.model.generated.PaginatedKlantcontactList
 import nl.info.client.klanten.model.generated.PartijForeignKey
 import nl.info.client.klanten.model.generated.PartijIdentificator
 import nl.info.client.klanten.model.generated.PartijIdentificatorForeignkey
@@ -121,6 +124,33 @@ fun createPartijIdentificatorForeignkey(
     uuid: UUID = UUID.randomUUID()
 ) = PartijIdentificatorForeignkey(uri).apply {
     this.uuid = uuid
+}
+
+fun createBetrokkeneForeignKey(
+    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("https://example.com/fakeUri")
+) = BetrokkeneForeignKey(uri).apply {
+    this.uuid = uuid
+}
+
+fun createKlantcontact(
+    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("https://example.com/fakeUri"),
+    hadBetrokkenen: List<BetrokkeneForeignKey> = listOf(createBetrokkeneForeignKey())
+) = Klantcontact(uuid, uri, emptyList(), emptyList(), emptyList(), hadBetrokkenen, emptyList())
+
+fun createPaginatedKlantcontactList(
+    klantcontacten: List<Klantcontact> = listOf(createKlantcontact())
+) = PaginatedKlantcontactList().apply {
+    this.results = klantcontacten
+    this.count = klantcontacten.size
+}
+
+fun createPaginatedDigitaalAdresList(
+    digitaleAdressen: List<DigitaalAdres> = listOf(createDigitalAddress())
+) = PaginatedDigitaalAdresList().apply {
+    this.results = digitaleAdressen
+    this.count = digitaleAdressen.size
 }
 
 fun createPartijIdentificatorGroepType(
