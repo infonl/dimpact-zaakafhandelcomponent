@@ -46,7 +46,7 @@ class KlantClientService @Inject constructor(
         private const val OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "public_registration_reference"
     }
 
-    fun Onderwerpobject.createZaakOnderwerpobject(klantcontactUuid: UUID, zaakUuid: UUID) =
+    private fun createZaakOnderwerpobject(klantcontactUuid: UUID, zaakUuid: UUID) =
         Onderwerpobject().apply {
             klantcontact = KlantcontactForeignKey().apply { uuid = klantcontactUuid }
             onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
@@ -183,7 +183,7 @@ class KlantClientService @Inject constructor(
         zaakUuid: UUID
     ) {
         klantClient.onderwerpobjectCreate(
-            Onderwerpobject().createZaakOnderwerpobject(
+            createZaakOnderwerpobject(
                 productaanvraagSpecificContactDetails.klantcontactUuid,
                 zaakUuid
             )

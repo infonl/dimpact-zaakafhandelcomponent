@@ -22,6 +22,7 @@ import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import java.util.UUID
 
+@Suppress("LargeClass")
 class KlantClientServiceTest : BehaviorSpec({
     val klantClient = mockk<KlantClient>()
     val klantClientService = KlantClientService(klantClient)
@@ -618,6 +619,199 @@ class KlantClientServiceTest : BehaviorSpec({
                     result?.klantcontactUuid shouldBe klantcontactUuid
                     result?.contactDetails?.emailAddress.shouldBeNull()
                     result?.contactDetails?.telephoneNumber.shouldBeNull()
+                }
+            }
+        }
+    }
+
+    Context("Finding zaak-specific contact details") {
+        Given("No klantcontact exists for the given zaak UUID") {
+            val zaakUuid = UUID.randomUUID()
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(emptyList())
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact exists for the given zaak UUID but has no betrokkenen") {
+            val zaakUuid = UUID.randomUUID()
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(
+                listOf(createKlantcontact(hadBetrokkenen = emptyList()))
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has both an email and phone digital address") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val emailAddress = "test@example.com"
+            val telephoneNumber = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(
+                    createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                    createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                )
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return the contact details with email and phone") {
+                    result?.emailAddress shouldBe emailAddress
+                    result?.telephoneNumber shouldBe telephoneNumber
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has only an email digital address") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val emailAddress = "test@example.com"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return the contact details with email and no phone") {
+                    result?.emailAddress shouldBe emailAddress
+                    result?.telephoneNumber.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has only a phone digital address") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val telephoneNumber = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(
+                listOf(createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return the contact details with phone and no email") {
+                    result?.emailAddress.shouldBeNull()
+                    result?.telephoneNumber shouldBe telephoneNumber
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has no digital addresses") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.digitaalAdresList(
+                    page = 1,
+                    pageSize = 100,
+                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                )
+            } returns createPaginatedDigitaalAdresList(emptyList())
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return the contact details with no email and no phone") {
+                    result?.emailAddress.shouldBeNull()
+                    result?.telephoneNumber.shouldBeNull()
                 }
             }
         }
