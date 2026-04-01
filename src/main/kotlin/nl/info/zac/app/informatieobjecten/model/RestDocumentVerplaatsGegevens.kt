@@ -7,7 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import java.util.UUID
 
-class RESTDocumentVerplaatsGegevens {
+class RestDocumentVerplaatsGegevens {
     companion object {
         const val INBOX_DOCUMENTEN = "inbox-documenten"
         const val ONTKOPPELDE_DOCUMENTEN = "ontkoppelde-documenten"

@@ -7,7 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import jakarta.ws.rs.FormParam
 
-class RESTFileUpload {
+class RestFileUpload {
     @field:FormParam("file")
     var file: ByteArray? = null
 

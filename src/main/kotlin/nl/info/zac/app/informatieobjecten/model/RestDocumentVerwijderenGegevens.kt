@@ -7,7 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import java.util.UUID
 
-class RESTDocumentVerwijderenGegevens {
+class RestDocumentVerwijderenGegevens {
     var zaakUuid: UUID? = null
 
     var reden: String? = null

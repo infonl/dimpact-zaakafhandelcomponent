@@ -21,7 +21,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.identity.model.toRestUser
-import nl.info.zac.app.informatieobjecten.model.RESTFileUpload
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
@@ -189,7 +189,7 @@ class RestInformatieobjectConverter @Inject constructor(
         return enkelvoudigInformatieobjectWithInhoud
     }
 
-    fun convert(documentData: RestTaskDocumentData, bestand: RESTFileUpload): EnkelvoudigInformatieObjectCreateLockRequest {
+    fun convert(documentData: RestTaskDocumentData, bestand: RestFileUpload): EnkelvoudigInformatieObjectCreateLockRequest {
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest()
         enkelvoudigInformatieobjectWithInhoud.bronorganisatie = configurationService.readBronOrganisatie()
         enkelvoudigInformatieobjectWithInhoud.creatiedatum = LocalDate.now()

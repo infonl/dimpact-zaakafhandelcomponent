@@ -7,7 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import java.util.UUID
 
-class RESTInformatieobjectZoekParameters {
+class RestInformatieobjectZoekParameters {
     var informatieobjectUUIDs: List<UUID>? = null
 
     var zaakUUID: UUID? = null

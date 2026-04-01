@@ -41,9 +41,9 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import nl.info.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
-import nl.info.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
-import nl.info.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
@@ -129,7 +129,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @PUT
     @Path("informatieobjectenList")
     fun listEnkelvoudigInformatieobjecten(
-        zoekParameters: RESTInformatieobjectZoekParameters
+        zoekParameters: RestInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
         return zoekParameters.informatieobjectUUIDs?.let {
@@ -209,7 +209,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("informatieobject/verplaats")
-    fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RESTDocumentVerplaatsGegevens) {
+    fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RestDocumentVerplaatsGegevens) {
         val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID!!
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
@@ -292,7 +292,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}")
     fun deleteEnkelvoudigInformatieObject(
         @PathParam("uuid") uuid: UUID,
-        documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
+        documentVerwijderenGegevens: RestDocumentVerwijderenGegevens
     ) {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         val zaak = documentVerwijderenGegevens.zaakUuid?.let(zrcClientService::readZaak)

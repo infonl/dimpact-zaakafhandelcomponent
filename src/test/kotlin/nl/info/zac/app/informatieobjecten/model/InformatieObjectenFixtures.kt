@@ -54,7 +54,7 @@ fun createRestFileUpload(
     fileSize: Long = 123L,
     filename: String = "fakeFilename",
     type: String = "fakeType"
-) = RESTFileUpload().apply {
+) = RestFileUpload().apply {
     this.file = file
     this.filename = filename
     this.fileSize = fileSize
@@ -97,7 +97,7 @@ fun createRestInformatieobjectZoekParameters(
     zaakUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     gekoppeldeZaakDocumenten: Boolean = false
-) = RESTInformatieobjectZoekParameters().apply {
+) = RestInformatieobjectZoekParameters().apply {
     this.informatieobjectUUIDs = informatieobjectUUIDs
     this.zaakUUID = zaakUuid
     this.besluittypeUUID = besluittypeUuid
