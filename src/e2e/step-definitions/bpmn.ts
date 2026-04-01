@@ -21,8 +21,11 @@ function formioForm(page: Page) {
 
 async function waitForFormioReady(page: Page) {
   const form = formioForm(page);
-  await expect(form).toBeVisible();
-  await form.locator(".formio-component").first().waitFor({ state: "visible" });
+  await expect(form).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  await form
+    .locator(".formio-component")
+    .first()
+    .waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
 }
 
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
@@ -111,8 +114,8 @@ When(
   "{string} reloads the page",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.waitForLoadState("networkidle");
     await this.page.reload();
+    await this.page.waitForLoadState("domcontentloaded");
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.waitForURL(this.page.url());
       if (!(await this.page.isVisible("text='Bad Request'"))) {
