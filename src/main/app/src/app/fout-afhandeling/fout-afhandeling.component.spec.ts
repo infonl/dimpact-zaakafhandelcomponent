@@ -10,8 +10,8 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
-import { FoutAfhandelingService } from "./fout-afhandeling.service";
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
+import { FoutAfhandelingService } from "./fout-afhandeling.service";
 
 describe(FoutAfhandelingComponent.name, () => {
   let fixture: ComponentFixture<FoutAfhandelingComponent>;
@@ -21,7 +21,11 @@ describe(FoutAfhandelingComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FoutAfhandelingComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        FoutAfhandelingComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
 

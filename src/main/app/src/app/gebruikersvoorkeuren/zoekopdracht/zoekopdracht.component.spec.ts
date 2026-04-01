@@ -83,14 +83,12 @@ describe(ZoekopdrachtComponent.name, () => {
     jest
       .spyOn(service, "removeZoekopdrachtActief")
       .mockReturnValue(of(undefined) as never);
-    jest.spyOn(dialog, "open").mockReturnValue(
-      ({
-        afterClosed: () => of(null),
-      }) satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-    );
+    jest.spyOn(dialog, "open").mockReturnValue({
+      afterClosed: () => of(null),
+    } satisfies Pick<
+      MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+      "afterClosed"
+    > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
 
     fixture = TestBed.createComponent(ZoekopdrachtComponent);
     component = fixture.componentInstance;
@@ -288,14 +286,12 @@ describe(ZoekopdrachtComponent.name, () => {
     });
 
     it("reloads zoekopdrachten when save dialog closes with truthy result", () => {
-      (dialog.open as jest.Mock).mockReturnValue(
-        ({
-          afterClosed: () => of(true),
-        }) satisfies Pick<
-          MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-          "afterClosed"
-        > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-      );
+      (dialog.open as jest.Mock).mockReturnValue({
+        afterClosed: () => of(true),
+      } satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
 
       component["saveSearch"]();
 
@@ -303,14 +299,12 @@ describe(ZoekopdrachtComponent.name, () => {
     });
 
     it("does not reload zoekopdrachten when save dialog closes with falsy result", () => {
-      (dialog.open as jest.Mock).mockReturnValue(
-        ({
-          afterClosed: () => of(null),
-        }) satisfies Pick<
-          MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-          "afterClosed"
-        > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-      );
+      (dialog.open as jest.Mock).mockReturnValue({
+        afterClosed: () => of(null),
+      } satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
 
       component["saveSearch"]();
 

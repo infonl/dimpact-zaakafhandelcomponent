@@ -21,7 +21,8 @@ import { FoutAfhandelingService } from "./fout-afhandeling.service";
 export class FoutAfhandelingComponent implements OnInit {
   protected bericht: string | null = null;
   protected foutmelding: string | null = null;
-  protected serverErrorTexts = this.referentieTabelService.listServerErrorTexts();
+  protected serverErrorTexts =
+    this.referentieTabelService.listServerErrorTexts();
 
   constructor(
     private readonly foutAfhandelingService: FoutAfhandelingService,

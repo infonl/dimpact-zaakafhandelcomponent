@@ -14,8 +14,8 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { IdentityService } from "./identity.service";
 import { IdentityComponent } from "./identity.component";
+import { IdentityService } from "./identity.service";
 
 const makeLoggedInUser = (
   fields: Partial<GeneratedType<"RestLoggedInUser">> = {},

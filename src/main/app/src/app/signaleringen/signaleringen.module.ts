@@ -9,6 +9,10 @@ import { SignaleringenRoutingModule } from "./signaleringen-routing.module";
 import { SignaleringenSettingsComponent } from "./signaleringen-settings/signaleringen-settings.component";
 
 @NgModule({
-  imports: [SharedModule, SignaleringenRoutingModule, SignaleringenSettingsComponent],
+  imports: [
+    SharedModule,
+    SignaleringenRoutingModule,
+    SignaleringenSettingsComponent,
+  ],
 })
 export class SignaleringenModule {}

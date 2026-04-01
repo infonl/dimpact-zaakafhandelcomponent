@@ -16,11 +16,23 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
   templateUrl: "./signaleringen-settings.component.html",
   styleUrls: ["./signaleringen-settings.component.less"],
   standalone: true,
-  imports: [NgClass, NgFor, NgIf, MatTableModule, MatCheckboxModule, TranslateModule],
+  imports: [
+    NgClass,
+    NgFor,
+    NgIf,
+    MatTableModule,
+    MatCheckboxModule,
+    TranslateModule,
+  ],
 })
 export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   protected isLoadingResults = true;
-  protected readonly columns = ["subjecttype", "type", "dashboard", "mail"] as const;
+  protected readonly columns = [
+    "subjecttype",
+    "type",
+    "dashboard",
+    "mail",
+  ] as const;
   protected dataSource = new MatTableDataSource<
     GeneratedType<"RestSignaleringInstellingen">
   >();

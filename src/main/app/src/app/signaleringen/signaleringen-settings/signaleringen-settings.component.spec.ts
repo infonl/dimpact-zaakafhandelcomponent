@@ -76,9 +76,8 @@ describe(SignaleringenSettingsComponent.name, () => {
   });
 
   it("shows loading shade while data is loading", () => {
-    const wrapper = fixture.debugElement.query(
-      By.css(".table-wrapper"),
-    ).nativeElement as HTMLElement;
+    const wrapper = fixture.debugElement.query(By.css(".table-wrapper"))
+      .nativeElement as HTMLElement;
     expect(wrapper.classList).toContain("table-loading-shade");
   });
 
@@ -87,9 +86,8 @@ describe(SignaleringenSettingsComponent.name, () => {
     listSubject.complete();
     fixture.detectChanges();
 
-    const wrapper = fixture.debugElement.query(
-      By.css(".table-wrapper"),
-    ).nativeElement as HTMLElement;
+    const wrapper = fixture.debugElement.query(By.css(".table-wrapper"))
+      .nativeElement as HTMLElement;
     expect(wrapper.classList).not.toContain("table-loading-shade");
   });
 
@@ -179,10 +177,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     listSubject.complete();
     fixture.detectChanges();
 
-    jest.spyOn(
-      component as SignaleringenSettingsComponent,
-      "changed" as never,
-    );
+    jest.spyOn(component as SignaleringenSettingsComponent, "changed" as never);
 
     const checkboxInput = fixture.debugElement.query(
       By.css("[id='ZAAK_OP_NAAM_dashboard_checkbox'] input"),
