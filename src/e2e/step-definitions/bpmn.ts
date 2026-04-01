@@ -340,16 +340,16 @@ When(
 );
 
 Then(
-  "{string} sees {string} documents in the to be signed list",
+  "{string} sees {int} documents in the to be signed list",
   { timeout: TWO_MINUTES_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
-    expectedCount: string,
+    expectedCount: number,
   ) {
     await expect(
       this.page.getByRole("option", { name: UUID_V4_REGEX }),
-    ).toHaveCount(parseInt(expectedCount), {
+    ).toHaveCount(expectedCount, {
       timeout: FORTY_SECONDS_IN_MS,
     });
   },
