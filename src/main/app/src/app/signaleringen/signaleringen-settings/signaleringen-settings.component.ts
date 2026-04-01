@@ -30,11 +30,11 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     private readonly utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.utilService.setTitle("title.signaleringen.settings");
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.service.list().subscribe((instellingen) => {
       this.dataSource.data = instellingen;
       this.isLoadingResults = false;
@@ -48,7 +48,7 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
       "dashboard" | "mail"
     >,
     checked: boolean,
-  ): void {
+  ) {
     this.utilService.setLoading(true);
     row[column] = checked;
     this.service.put(row).subscribe(() => {
