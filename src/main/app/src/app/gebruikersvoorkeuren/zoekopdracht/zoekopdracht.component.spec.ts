@@ -33,11 +33,11 @@ const makeZoekopdracht = (
     actief: false,
     werklijstID: "MIJN_ZAKEN",
     ...fields,
-  }) as Partial<GeneratedType<"RESTZoekopdracht">> as unknown as GeneratedType<"RESTZoekopdracht">;
+  }) as Partial<
+    GeneratedType<"RESTZoekopdracht">
+  > as unknown as GeneratedType<"RESTZoekopdracht">;
 
-const makeZoekFilters = (
-  fields: Partial<ZoekFilters> = {},
-): ZoekFilters => ({
+const makeZoekFilters = (fields: Partial<ZoekFilters> = {}): ZoekFilters => ({
   filtersType: "ZoekParameters",
   zoeken: {},
   filters: {},
@@ -76,7 +76,10 @@ describe(ZoekopdrachtComponent.name, () => {
     dialogMock = {
       open: jest.fn().mockReturnValue({
         afterClosed: () => of(null),
-      } satisfies Pick<MatDialogRef<ZoekopdrachtSaveDialogComponent>, "afterClosed">),
+      } satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      >),
     };
 
     await TestBed.configureTestingModule({
@@ -108,8 +111,8 @@ describe(ZoekopdrachtComponent.name, () => {
 
   describe("when no saved searches exist", () => {
     it("shows a disabled filter button when no active filters", () => {
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const btn = nativeEl.querySelector<HTMLButtonElement>(
+      const nativeElement = fixture.nativeElement as HTMLElement;
+      const btn = nativeElement.querySelector<HTMLButtonElement>(
         "#clearZoekopdrachtButton1",
       );
       expect(btn?.disabled).toBe(true);
@@ -140,8 +143,8 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveFilters"] = true;
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const btn = nativeEl.querySelector<HTMLButtonElement>(
+      const nativeElement = fixture.nativeElement as HTMLElement;
+      const btn = nativeElement.querySelector<HTMLButtonElement>(
         "#clearZoekopdrachtButton1",
       );
       expect(btn?.disabled).toBe(false);
@@ -175,21 +178,25 @@ describe(ZoekopdrachtComponent.name, () => {
     });
 
     it("shows selecteer button when no active search and no active filters", async () => {
-      const nativeEl = fixture.nativeElement as HTMLElement;
+      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeEl.querySelector("#selecteerZoekopdrachtButton"),
+        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
       ).not.toBeNull();
-      expect(nativeEl.querySelector("#clearZoekopdrachtButton2")).toBeNull();
+      expect(
+        nativeElement.querySelector("#clearZoekopdrachtButton2"),
+      ).toBeNull();
     });
 
     it("hides selecteer button and shows clear button when actieveZoekopdracht is set", async () => {
       component["actieveZoekopdracht"] = makeZoekopdracht({ naam: "Actief" });
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      expect(nativeEl.querySelector("#selecteerZoekopdrachtButton")).toBeNull();
+      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeEl.querySelector("#clearZoekopdrachtButton2"),
+        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
+      ).toBeNull();
+      expect(
+        nativeElement.querySelector("#clearZoekopdrachtButton2"),
       ).not.toBeNull();
     });
 
@@ -197,10 +204,12 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveFilters"] = true;
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      expect(nativeEl.querySelector("#selecteerZoekopdrachtButton")).toBeNull();
+      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeEl.querySelector("#clearZoekopdrachtButton2"),
+        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
+      ).toBeNull();
+      expect(
+        nativeElement.querySelector("#clearZoekopdrachtButton2"),
       ).not.toBeNull();
     });
 
@@ -247,8 +256,8 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveZoekopdracht"] = null;
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const btn = nativeEl.querySelector<HTMLButtonElement>(
+      const nativeElement = fixture.nativeElement as HTMLElement;
+      const btn = nativeElement.querySelector<HTMLButtonElement>(
         "#saveZoekopdrachtButton",
       );
       expect(btn?.disabled).toBe(false);
@@ -258,8 +267,8 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveZoekopdracht"] = makeZoekopdracht();
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const btn = nativeEl.querySelector<HTMLButtonElement>(
+      const nativeElement = fixture.nativeElement as HTMLElement;
+      const btn = nativeElement.querySelector<HTMLButtonElement>(
         "#saveZoekopdrachtButton",
       );
       expect(btn?.disabled).toBe(true);
@@ -283,7 +292,10 @@ describe(ZoekopdrachtComponent.name, () => {
     it("reloads zoekopdrachten when save dialog closes with truthy result", () => {
       (dialogMock.open as jest.Mock).mockReturnValue({
         afterClosed: () => of(true),
-      } satisfies Pick<MatDialogRef<ZoekopdrachtSaveDialogComponent>, "afterClosed">);
+      } satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      >);
 
       component["saveSearch"]();
 
@@ -293,7 +305,10 @@ describe(ZoekopdrachtComponent.name, () => {
     it("does not reload zoekopdrachten when save dialog closes with falsy result", () => {
       (dialogMock.open as jest.Mock).mockReturnValue({
         afterClosed: () => of(null),
-      } satisfies Pick<MatDialogRef<ZoekopdrachtSaveDialogComponent>, "afterClosed">);
+      } satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      >);
 
       component["saveSearch"]();
 

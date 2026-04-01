@@ -27,7 +27,9 @@ const makeLoggedInUser = (
     functionalRoles: [],
     applicationRoles: {},
     ...fields,
-  }) as Partial<GeneratedType<"RestLoggedInUser">> as unknown as GeneratedType<"RestLoggedInUser">;
+  }) as Partial<
+    GeneratedType<"RestLoggedInUser">
+  > as unknown as GeneratedType<"RestLoggedInUser">;
 
 describe(IdentityComponent.name, () => {
   let fixture: ComponentFixture<IdentityComponent>;
@@ -145,8 +147,8 @@ describe(IdentityComponent.name, () => {
   it("renders group code elements inside the Groepen list", async () => {
     setup(makeLoggedInUser({ groupIds: ["my-group"] }));
 
-    const nativeEl = fixture.nativeElement as Element;
-    const codeElements = nativeEl.querySelectorAll("code");
+    const nativeElement = fixture.nativeElement as Element;
+    const codeElements = nativeElement.querySelectorAll("code");
     const texts = Array.from(codeElements).map((el) =>
       (el as HTMLElement).textContent?.trim(),
     );
@@ -156,8 +158,8 @@ describe(IdentityComponent.name, () => {
   it("renders role code elements inside the Rollen list", async () => {
     setup(makeLoggedInUser({ functionalRoles: ["ROLE_ADMIN"] }));
 
-    const nativeEl = fixture.nativeElement as Element;
-    const codeElements = nativeEl.querySelectorAll("code");
+    const nativeElement = fixture.nativeElement as Element;
+    const codeElements = nativeElement.querySelectorAll("code");
     const texts = Array.from(codeElements).map((el) =>
       (el as HTMLElement).textContent?.trim(),
     );
