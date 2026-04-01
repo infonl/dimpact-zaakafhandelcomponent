@@ -164,8 +164,7 @@ class KlantClientService @Inject constructor(
 
     fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
-            val contactDetails = findSpecificContactDetails(klantcontact)
-            contactDetails?.let {
+            findSpecificContactDetails(klantcontact)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
