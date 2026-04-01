@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 34 done — 118 remaining** (2026-03-26)
+**Progress: 38 done — 114 remaining** (2026-04-01)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -115,6 +115,26 @@ Solves PZ-XXXXX
 ---
 
 ## Completed
+
+### ✅ `identity/identity.component.ts` (2026-04-01)
+- `imports: [MatCardModule, MatListModule, MatDividerModule, TranslateModule, NgFor, NgIf, AsyncPipe]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: tiny module with only MaterialModule as non-standalone import; signal inputs used
+
+### ✅ `gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component.ts` (2026-04-01)
+- `imports: [NgIf, NgFor, NgClass, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslateModule, ReadMoreComponent]`
+- Access modifiers: `actieveZoekopdracht`, `zoekopdrachten`, `actieveFilters` → `protected`; internal helpers → `private`
+- **Pattern**: `ReadMoreComponent` already standalone — import directly; `MatMenuModule` covers `mat-menu` + `[matMenuTriggerFor]`
+
+### ✅ `signaleringen/signaleringen-settings/signaleringen-settings.component.ts` (2026-04-01)
+- `imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslateModule, AsyncPipe, DatePipe]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: mat-table with simple module (SharedModule + routing only); 16 tests
+
+### ✅ `fout-afhandeling/fout-afhandeling.component.ts` (2026-04-01)
+- `imports: [MatCardModule, MatExpansionModule, MatButtonModule, MatIconModule, TranslateModule, NgIf, NgFor, AsyncPipe]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: error-page component; only declaration in its module; minimal service dependencies
 
 ### ✅ `shared/version/version.component.ts` (2026-03-16)
 - `imports: [NgIf, MatChipsModule, MatTooltipModule, MatIconModule, MatCardModule, DatumPipe, TranslateModule]`
@@ -265,7 +285,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `KlantZoekDialog` → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
+`taken.module.ts` remaining: `TakenVrijgevenDialogComponent`, `TakenMijnComponent`, `TakenVerdelenDialogComponent`, `TakenWerkvoorraadComponent` (sequential — all share same module). Or pick 4 more non-conflicting targets from different modules for parallel run.
 
 ---
 

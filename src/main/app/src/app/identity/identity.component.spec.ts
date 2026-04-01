@@ -146,7 +146,7 @@ describe(IdentityComponent.name, () => {
     setup(makeLoggedInUser({ groupIds: ["my-group"] }));
 
     const nativeEl = fixture.nativeElement as Element;
-    const codeElements = nativeEl.querySelectorAll("mat-list-item code");
+    const codeElements = nativeEl.querySelectorAll("code");
     const texts = Array.from(codeElements).map((el) =>
       (el as HTMLElement).textContent?.trim(),
     );
@@ -157,7 +157,7 @@ describe(IdentityComponent.name, () => {
     setup(makeLoggedInUser({ functionalRoles: ["ROLE_ADMIN"] }));
 
     const nativeEl = fixture.nativeElement as Element;
-    const codeElements = nativeEl.querySelectorAll("mat-list-item code");
+    const codeElements = nativeEl.querySelectorAll("code");
     const texts = Array.from(codeElements).map((el) =>
       (el as HTMLElement).textContent?.trim(),
     );

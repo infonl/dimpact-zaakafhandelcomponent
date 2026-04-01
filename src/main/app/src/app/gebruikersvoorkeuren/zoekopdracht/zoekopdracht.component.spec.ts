@@ -9,6 +9,7 @@ import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatMenuHarness } from "@angular/material/menu/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -114,25 +115,25 @@ describe(ZoekopdrachtComponent.name, () => {
       expect(btn?.disabled).toBe(true);
     });
 
-    it("shows filter_alt icon without the clear overlay", () => {
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const icons = nativeEl.querySelectorAll<HTMLElement>(
-        "#clearZoekopdrachtButton1 mat-icon",
+    it("shows filter_alt icon without the clear overlay", async () => {
+      const icons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "filter_alt" }),
       );
-      // Only one icon (filter_alt) should render when no active filters
       expect(icons).toHaveLength(1);
+      const clearIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "filter_alt_off" }),
+      );
+      expect(clearIcons).toHaveLength(0);
     });
 
-    it("renders the clear overlay icon when actieveFilters is true", () => {
+    it("renders the clear overlay icon when actieveFilters is true", async () => {
       component["actieveFilters"] = true;
       fixture.detectChanges();
 
-      const nativeEl = fixture.nativeElement as HTMLElement;
-      const icons = nativeEl.querySelectorAll<HTMLElement>(
-        "#clearZoekopdrachtButton1 mat-icon",
+      const clearIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "filter_alt_off" }),
       );
-      // filter_alt + filter_alt_off
-      expect(icons).toHaveLength(2);
+      expect(clearIcons).toHaveLength(1);
     });
 
     it("enables the filter button when actieveFilters is true", () => {
