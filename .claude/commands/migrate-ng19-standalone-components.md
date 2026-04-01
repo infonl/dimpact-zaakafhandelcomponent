@@ -34,6 +34,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | **SPDX header** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. |
 | **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
 | **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
+| **No `: void` return types** | Never write `: void` on methods (component `.ts` and spec `.ts`). TypeScript infers `void` — the annotation is redundant. Remove any existing `: void` annotations in files you touch. |
 
 ---
 

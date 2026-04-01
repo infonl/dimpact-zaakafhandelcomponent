@@ -120,11 +120,13 @@ TASK: Write a spec file at {COMPONENT_SPEC_PATH}, then self-review it.
 6. SPDX: `2026 INFO.nl` only if INFO.nl is completely absent from the existing header.
 7. Cover ≥90% of template behaviours. Do NOT add a checklist comment block to the spec.
 8. No `any`, no `as any`, no NO_ERRORS_SCHEMA, no querySelectorAll for Material components (use harnesses).
+9. No `: void` return type annotations — remove any existing ones in files you touch.
 9. describe(ClassName.name, ...) — class name reference, not a string literal.
 
 --- SELF-REVIEW CHECKLIST ---
 After writing, verify every item:
 [ ] No `any` / `as any` / eslint-disable no-explicit-any
+[ ] No `: void` return type annotations (remove any found in touched files)
 [ ] describe(ClassName.name, ...) — class reference
 [ ] No trivial smoke tests
 [ ] No NO_ERRORS_SCHEMA
@@ -196,6 +198,7 @@ TASK: Migrate {COMPONENT_CLASS} to standalone, then self-review.
 [ ] standalone: true present
 [ ] imports[] covers all template dependencies
 [ ] No `any` / `as any` in any touched file
+[ ] No `: void` return type annotations in any touched file
 [ ] Access modifiers correct
 [ ] @Input({ required: true }) for required inputs
 [ ] SPDX correct
