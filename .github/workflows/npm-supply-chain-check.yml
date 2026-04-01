@@ -1,0 +1,78 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: NPM Supply Chain Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/main/app/package.json"
+      - "src/main/app/package-lock.json"
+      - "src/e2e/package.json"
+      - "src/e2e/package-lock.json"
+  push:
+    branches: [main]
+    paths:
+      - "src/main/app/package.json"
+      - "src/main/app/package-lock.json"
+      - "src/e2e/package.json"
+      - "src/e2e/package-lock.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-supply-chain-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lockfile-lint:
+    name: Lockfile Lint
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - name: main-app
+            working-directory: src/main/app
+          - name: e2e
+            working-directory: src/e2e
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate lockfile integrity (${{ matrix.name }})
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          echo "Validating package-lock.json integrity for ${{ matrix.name }}..."
+          npx lockfile-lint --path package-lock.json --type npm --allowed-hosts npm --validate-https --validate-integrity
+
+  audit-signatures:
+    name: Audit Signatures
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - name: main-app
+            working-directory: src/main/app
+          - name: e2e
+            working-directory: src/e2e
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies (${{ matrix.name }})
+        working-directory: ${{ matrix.working-directory }}
+        run: npm ci --ignore-scripts
+
+      - name: Verify npm package signatures (${{ matrix.name }})
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          echo "Verifying npm registry signatures for ${{ matrix.name }}..."
+          npm audit signatures

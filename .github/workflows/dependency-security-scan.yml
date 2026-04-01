@@ -50,7 +50,7 @@ jobs:
         working-directory: src/main/app
         run: |
           echo "🔍 Running security audit for main application..."
-          npm install
+          npm ci --ignore-scripts
 
           npm audit --json > audit-results.json || true
 

@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: cd src/e2e && npm ci
+        run: cd src/e2e && npm ci --ignore-scripts
       - name: Install Playwright Browsers
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
