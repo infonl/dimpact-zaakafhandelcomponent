@@ -4,7 +4,7 @@
  */
 
 import { Given, Then, When } from "@cucumber/cucumber";
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
@@ -13,6 +13,16 @@ import {
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+
+function formioForm(page: Page) {
+  return page.locator("zac-formio-wrapper");
+}
+
+async function waitForFormioReady(page: Page) {
+  const form = formioForm(page);
+  await expect(form).toBeVisible();
+  await form.locator("input, select, button").first().waitFor({ state: "visible" });
+}
 
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
 const UUID_V4_REGEX =
@@ -44,18 +54,16 @@ Then(
   "{string} sees the form associated with the task",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await expect(this.page.getByLabel("Group")).toBeVisible();
-    await expect(this.page.getByLabel("User")).toBeVisible();
-    await expect(this.page.getByLabel("Template")).toBeVisible();
+    await waitForFormioReady(this.page);
+    const form = formioForm(this.page);
+    await expect(form.getByLabel("Group")).toBeVisible();
+    await expect(form.getByLabel("User")).toBeVisible();
+    await expect(form.getByLabel("Template")).toBeVisible();
+    await expect(form.getByRole("button", { name: "Create" })).toBeVisible();
     await expect(
-      this.page.getByRole("button", { name: "Create" }),
+      form.getByRole("searchbox", { name: "Select one or more documents" }),
     ).toBeVisible();
-    await expect(
-      this.page.getByRole("searchbox", {
-        name: "Select one or more documents",
-      }),
-    ).toBeVisible();
-    await expect(this.page.getByLabel("Communication channel")).toBeVisible();
+    await expect(form.getByLabel("Communication channel")).toBeVisible();
   },
 );
 
@@ -68,10 +76,11 @@ Given(
     fileName: string,
   ) {
     // BPMN form: create a document
-    await this.page
+    const form = formioForm(this.page);
+    await form
       .getByLabel("Template")
       .selectOption("Data Test", { timeout: FORTY_SECONDS_IN_MS });
-    await this.page.getByRole("button", { name: "Create" }).click();
+    await form.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
     await this.page.getByRole("textbox", { name: "Titel" }).click();
@@ -101,7 +110,7 @@ When(
   "{string} reloads the page",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.waitForTimeout(5000);
+    await this.page.waitForLoadState("networkidle");
     await this.page.reload();
     for (let attempt = 0; attempt < PAGE_RELOAD_RETRIES; attempt++) {
       await this.page.waitForURL(this.page.url());
@@ -122,10 +131,9 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await this.page
-      .getByRole("searchbox", {
-        name: "Select one or more documents",
-      })
+    const form = formioForm(this.page);
+    await form
+      .getByRole("searchbox", { name: "Select one or more documents" })
       .fill(documentName);
 
     await expect(
@@ -138,12 +146,13 @@ Then(
   "{string} sees the desired form fields values",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await expect(this.page.getByLabel("Group")).toContainText(
-      beheerdersGroupName,
-      { timeout: FORTY_SECONDS_IN_MS },
-    );
-    await this.page.getByLabel("Communication channel").press("ArrowDown");
-    await expect(this.page.getByLabel("Communication channel")).toContainText(
+    await waitForFormioReady(this.page);
+    const form = formioForm(this.page);
+    await expect(form.getByLabel("Group")).toContainText(beheerdersGroupName, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await form.getByLabel("Communication channel").press("ArrowDown");
+    await expect(form.getByLabel("Communication channel")).toContainText(
       "E-mail",
       { timeout: FORTY_SECONDS_IN_MS },
     );
@@ -154,23 +163,18 @@ When(
   "{string} fills all mandatory form fields",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByLabel("Group").selectOption(beheerdersGroupName);
-
-    await this.page.getByLabel("User").click();
-    await this.page.getByLabel("User").selectOption(beheerderUser);
-    await this.page
+    const form = formioForm(this.page);
+    await form.getByLabel("Group").selectOption(beheerdersGroupName);
+    await form.getByLabel("User").selectOption(beheerderUser);
+    await form
       .getByRole("searchbox", { name: "Select one or more documents" })
       .fill("");
-    await this.page
-      .getByRole("option", { name: "file A", exact: true })
-      .click();
-    await this.page
+    await this.page.getByRole("option", { name: "file A", exact: true }).click();
+    await form
       .getByLabel("Communication channel")
       .selectOption(COMMUNICATION_CHANNEL_KEY);
-    await this.page.getByLabel("Select result").click();
-    await this.page.getByLabel("Select result").selectOption(RESULT_VALUE);
-    await this.page.getByLabel("Select status").click();
-    await this.page.getByLabel("Select status").selectOption(STATUS_VALUE);
+    await form.getByLabel("Select result").selectOption(RESULT_VALUE);
+    await form.getByLabel("Select status").selectOption(STATUS_VALUE);
   },
 );
 
@@ -179,7 +183,10 @@ When(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.keyboard.press("Escape");
-    await this.page.getByRole("button").filter({ hasText: "Indienen" }).click();
+    await formioForm(this.page)
+      .getByRole("button")
+      .filter({ hasText: "Indienen" })
+      .click();
   },
 );
 
@@ -229,25 +236,25 @@ Then(
   "{string} sees that the summary form contains all filled-in data",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await expect(this.page.getByRole("textbox", { name: "Group" })).toHaveValue(
+    await waitForFormioReady(this.page);
+    const form = formioForm(this.page);
+    await expect(form.getByRole("textbox", { name: "Group" })).toHaveValue(
       beheerdersGroupId,
     );
-    await expect(this.page.getByRole("textbox", { name: "User" })).toHaveValue(
+    await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
     );
     await expect(
       this.page.getByRole("option", { name: UUID_V4_REGEX }),
-    ).toBeVisible({
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
-      this.page.getByRole("textbox", { name: "Reference table value" }),
+      form.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue(COMMUNICATION_CHANNEL_VALUE);
     await expect(
-      this.page.getByRole("textbox", { name: "Zaak Result" }),
+      form.getByRole("textbox", { name: "Zaak Result" }),
     ).toHaveValue(RESULT_VALUE);
     await expect(
-      this.page.getByRole("textbox", { name: "Zaak Status" }),
+      form.getByRole("textbox", { name: "Zaak Status" }),
     ).toHaveValue(STATUS_VALUE);
   },
 );
@@ -256,7 +263,9 @@ When(
   "{string} confirms the data in the form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByRole("button", { name: "Confirm" }).click();
+    await formioForm(this.page)
+      .getByRole("button", { name: "Confirm" })
+      .click();
   },
 );
 
@@ -314,8 +323,9 @@ Then(
   "{string} sees the select documents to sign form",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await waitForFormioReady(this.page);
     await expect(
-      this.page.getByRole("searchbox", {
+      formioForm(this.page).getByRole("searchbox", {
         name: "Select one or more documents",
       }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
@@ -330,7 +340,8 @@ When(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await this.page
+    const form = formioForm(this.page);
+    await form
       .getByRole("searchbox", { name: "Select one or more documents" })
       .click();
     await this.page
@@ -359,7 +370,7 @@ When(
   "{string} confirms the signing of the documents",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.getByRole("button", { name: "Sign" }).click();
+    await formioForm(this.page).getByRole("button", { name: "Sign" }).click();
   },
 );
 

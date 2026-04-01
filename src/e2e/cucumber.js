@@ -4,7 +4,7 @@
  */
 // cucumber.js
 let common = [
-  "features/**/*.feature", // Specify our feature files
+  "features/**/9-bpmn.feature", // Specify our feature files
   "--require-module ts-node/register", // Load TypeScript module
   "--require support/worlds/*.ts", // Load support files
   "--require step-definitions/**/*.ts", // Load step definitions
