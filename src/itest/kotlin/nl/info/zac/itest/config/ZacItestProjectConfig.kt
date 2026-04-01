@@ -218,7 +218,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
 
             // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-            dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
+            dockerComposeContainer.getContainerByServiceName(
+                ZAC_CONTAINER_SERVICE_NAME
+            ).getOrNull()?.let { zacContainer ->
                 logger.info { "Stopping ZAC Docker container" }
                 zacContainer.dockerClient
                     .stopContainerCmd(zacContainer.containerId)
