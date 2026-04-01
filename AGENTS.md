@@ -122,7 +122,14 @@ All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
  * SPDX-License-Identifier: EUPL-1.2+
  */
 ```
-Replace `<YEAR>` with the current year.
+Replace `<YEAR>` with the current year. So for example, if the current year is 2030, it should be:
+```
+/*
+ * SPDX-FileCopyrightText: 2030 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+ ```
+
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year. 
