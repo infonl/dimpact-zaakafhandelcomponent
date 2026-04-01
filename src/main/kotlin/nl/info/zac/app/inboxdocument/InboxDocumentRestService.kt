@@ -14,10 +14,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.model.InboxDocument
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter

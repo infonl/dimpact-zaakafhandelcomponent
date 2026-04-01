@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -45,6 +44,7 @@ import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -128,6 +128,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
@@ -171,6 +172,7 @@ class ZaakRestService @Inject constructor(
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
+    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
     private val restDecisionConverter: RestDecisionConverter,
     private val restZaakConverter: RestZaakConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
@@ -1212,9 +1214,9 @@ class ZaakRestService @Inject constructor(
         val productaanvraag = productaanvraagService.getProductaanvraag(
             productaanvraagObject
         )
-        productaanvraagService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
-        productaanvraagService.pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
-        productaanvraagService.pairBijlagenWithZaak(
+        productaanvraagDocumentService.pairProductaanvraagWithZaak(productaanvraagObject, zaak.url)
+        productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraag, zaak.url)
+        productaanvraagDocumentService.pairBijlagenWithZaak(
             productaanvraag.bijlagen,
             zaak.url
         )

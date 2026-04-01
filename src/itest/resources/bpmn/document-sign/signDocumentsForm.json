@@ -1,0 +1,35 @@
+{
+  "display": "form",
+  "name": "signDocumentForm",
+  "title": "signDocumentForm",
+  "components": [
+    {
+      "label": "Document(s) to sign",
+      "widget": "choicesjs",
+      "tableView": true,
+      "validateWhenHidden": false,
+      "key": "ZAAK_Documenten_Ondertekenen_Selectie",
+      "type": "select",
+      "input": true,
+      "dataSrc": "custom",
+      "multiple": true,
+      "customOptions": {
+        "choicesOptions": {
+          "removeItemButton": true,
+          "placeholder": false,
+          "searchEnabled": true,
+          "shouldSort": false
+        }
+      },
+      "disabled": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

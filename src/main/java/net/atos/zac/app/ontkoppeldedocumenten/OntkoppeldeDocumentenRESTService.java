@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.jetty.http.HttpStatus;
 
-import net.atos.client.zgw.drc.DrcClientService;
 import net.atos.client.zgw.shared.exception.ZgwErrorException;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter;
@@ -38,6 +37,7 @@ import net.atos.zac.document.OntkoppeldeDocumentenService;
 import net.atos.zac.document.model.OntkoppeldDocument;
 import net.atos.zac.document.model.OntkoppeldDocumentListParameters;
 import net.atos.zac.document.model.OntkoppeldeDocumentenResultaat;
+import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.app.identity.converter.RestUserConverter;

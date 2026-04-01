@@ -11,3 +11,8 @@ export function readFileContent(file: File): Promise<string> {
     reader.readAsText(file);
   });
 }
+
+export function extractBpmnProcessKey(content: string): string | null {
+  const doc = new DOMParser().parseFromString(content, "application/xml");
+  return doc.querySelector("process")?.getAttribute("id") ?? null;
+}

@@ -4,12 +4,16 @@
  */
 
 import {
+  afterNextRender,
   Component,
   computed,
   ElementRef,
   inject,
+  Injector,
   OnInit,
+  QueryList,
   ViewChild,
+  ViewChildren,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
@@ -30,7 +34,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
-import { readFileContent } from "./file.helper";
+import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
+import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 
 interface BpmnProcessDefinitionGroupNode {
   name: string;
@@ -48,6 +53,7 @@ type Node =
   styleUrls: ["./bpmn-process-definitions.component.less"],
   imports: [
     SharedModule,
+    BpmnNodeRowDirective,
     BpmnProcessDefinitionItemComponent,
     FileDragAndDropDirective,
   ],
@@ -58,6 +64,8 @@ export class BpmnProcessDefinitionsComponent
 {
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChildren(BpmnNodeRowDirective)
+  nodeRows!: QueryList<BpmnNodeRowDirective>;
   @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
   bpmnProcessDefinitionFileInput!: ElementRef;
 
@@ -86,6 +94,7 @@ export class BpmnProcessDefinitionsComponent
   private readonly dialog = inject(MatDialog);
   private readonly bpmnService = inject(BpmnService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly injector = inject(Injector);
 
   private readonly uploadMutation = injectMutation(() => ({
     ...this.bpmnService.uploadProcessDefinitionQuery(),
@@ -125,8 +134,9 @@ export class BpmnProcessDefinitionsComponent
 
   private uploadBpmnFile(file: File) {
     readFileContent(file)
-      .then((content) =>
-        this.uploadMutation.mutate(
+      .then((content) => {
+        const processKey = extractBpmnProcessKey(content);
+        return this.uploadMutation.mutate(
           { content, filename: file.name },
           {
             onSuccess: () => {
@@ -134,13 +144,22 @@ export class BpmnProcessDefinitionsComponent
                 "msg.bpmn.process-definition.upload.success",
                 { naam: file.name },
               );
-              // expand the newly uploaded definition by its expected key (filename without .bpmn)
               // the mutation-level onSuccess already refetches the list
-              this.expandedKey = file.name.replace(/\.bpmn$/i, "");
+              this.expandedKey = processKey;
+              afterNextRender(
+                () =>
+                  this.nodeRows
+                    .find((row) => row.key() === processKey)
+                    ?.el.nativeElement.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                    }),
+                { injector: this.injector },
+              );
             },
           },
-        ),
-      )
+        );
+      })
       .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
   }
 
