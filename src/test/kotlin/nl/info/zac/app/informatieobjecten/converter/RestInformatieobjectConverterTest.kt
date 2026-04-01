@@ -164,9 +164,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             brcClientService.isInformatieObjectGekoppeldAanBesluit(enkelvoudigInformatieObject.url)
         } returns true
         every {
-            configurationService.findTaal(any())
-        } returns null
-        every {
             ztcClientService.readInformatieobjecttype(any<URI>())
         } returns createInformatieObjectType()
 

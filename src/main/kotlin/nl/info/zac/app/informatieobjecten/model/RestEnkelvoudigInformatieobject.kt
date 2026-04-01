@@ -5,6 +5,7 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.FormParam
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -92,6 +93,7 @@ open class RestEnkelvoudigInformatieobject : RestEnkelvoudigInformatieFileUpload
     var gelockedDoor: RestUser? = null
 
     @field:FormParam("isBesluitDocument")
+    @get:JsonbProperty("isBesluitDocument")
     var isBesluitDocument: Boolean = false
 
     @field:FormParam("rechten")

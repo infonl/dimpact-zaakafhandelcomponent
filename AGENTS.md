@@ -171,6 +171,15 @@ When using an acronym as part of a declaration name, follow these rules:
     - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
     - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
 
+### Prefer Kotlin data classes for simple data holders
+When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
+use a Kotlin `data class`.
+When used by dependency injection frameworks, such as is the case in REST services, ensure that the data class has the following annotations:
+```
+@NoArgConstructor
+@AllOpen
+```
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.

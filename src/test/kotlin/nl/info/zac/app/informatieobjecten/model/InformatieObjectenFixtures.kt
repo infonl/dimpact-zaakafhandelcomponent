@@ -15,12 +15,12 @@ fun createRestDocumentVerzendGegevens(
     verzenddatum: LocalDate = LocalDate.now(),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
     toelichting: String = "fakeToelichting",
-) = RestDocumentVerzendGegevens().apply {
-    this.zaakUuid = zaakUuid
-    this.verzenddatum = verzenddatum
-    this.informatieobjecten = informatieobjecten
-    this.toelichting = toelichting
-}
+) = RestDocumentVerzendGegevens(
+    zaakUuid = zaakUuid,
+    verzenddatum = verzenddatum,
+    informatieobjecten = informatieobjecten,
+    toelichting = toelichting
+)
 
 @Suppress("LongParameterList")
 fun createRestEnkelvoudigInformatieobject(

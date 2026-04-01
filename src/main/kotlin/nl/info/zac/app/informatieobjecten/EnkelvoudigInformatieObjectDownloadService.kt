@@ -58,6 +58,7 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
             zipOutputStream.write(getInformatieObjectInhoud(informatieobject.url.extractUuid()))
             zipOutputStream.closeEntry()
         } catch (ioException: IOException) {
+            // TODO: custom exception
             throw RuntimeException(ioException)
         }
         return pad
@@ -81,7 +82,11 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         return "$zaakId/$subfolder/${bestandsnaamExtensie[0]}-${enkelvoudigInformatieobject.identificatie}.${bestandsnaamExtensie[1]}"
     }
 
-    private fun samenvattingAddInformatieObject(pad: String, samenvatting: MutableMap<String, MutableMap<String, MutableList<String>>>) {
+    // TODO: refactor, get rid of mutables and getOrPuts..
+    private fun samenvattingAddInformatieObject(
+        pad: String,
+        samenvatting: MutableMap<String, MutableMap<String, MutableList<String>>>
+    ) {
         val padDelen = pad.split("/")
         val zaakId = padDelen[0]
         val richting = padDelen[1]

@@ -106,7 +106,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { enkelvoudigInformatieObject ->
                 zaakUUID?.let(zrcClientService::readZaak).let {
                     restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, it)
-                } ?: restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+                }
             }
 
     @GET
@@ -169,9 +169,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @POST
     @Path("informatieobjecten/verzenden")
     fun sendDocument(restDocumentVerzendGegevens: RestDocumentVerzendGegevens) {
-        val informatieobjecten = restDocumentVerzendGegevens.informatieobjecten!!
+        val informatieobjecten = restDocumentVerzendGegevens.informatieobjecten
             .map(drcClientService::readEnkelvoudigInformatieobject)
-        val zaak = zrcClientService.readZaak(restDocumentVerzendGegevens.zaakUuid!!)
+        val zaak = zrcClientService.readZaak(restDocumentVerzendGegevens.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).wijzigen)
         informatieobjecten.forEach { assertPolicy(isVerzendenToegestaan(it)) }
         informatieobjecten.forEach {
