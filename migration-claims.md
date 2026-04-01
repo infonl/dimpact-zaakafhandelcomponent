@@ -31,6 +31,7 @@
 
 ### In progress
 - [x] FacetFilterComponent
+- [ ] TaakEditComponent
 
 ## Dax
 
