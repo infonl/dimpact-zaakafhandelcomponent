@@ -83,11 +83,44 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 26 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
 
 ### Spec conventions
-- Service mocking priority: **1)** real service + `jest.spyOn` **2)** `let mock: Pick<Service, 'method'>` + `useValue: mock` **3)** inline `useValue: { ... } satisfies Pick<...>`
-- Never `useValue: { prop }` without a type annotation
+
+#### Service mocking — ALWAYS use `TestBed.inject()` + `jest.spyOn`
+**Never use `{ provide: Service, useValue: mockObject }`** for services that are `providedIn: 'root'` (which is nearly all services in this project).
+
+**Correct pattern:**
+```typescript
+providers: [provideHttpClient(), provideRouter([])],  // add what the service tree needs
+// ...
+service = TestBed.inject(MyService);
+jest.spyOn(service, "myMethod").mockReturnValue(of(result));
+// expectations:
+expect(service.myMethod).toHaveBeenCalledWith(expected);
+```
+
+**For `Observable<never>` return types** (e.g. DELETE/PUT endpoints that return 204):
+```typescript
+jest.spyOn(service, "deleteItem").mockReturnValue(of(undefined) as never);
+// `of(undefined) as never` emits once (triggers subscribe callbacks) AND satisfies the type
+```
+
+**For property-only services** (no methods to spy on — e.g. `FoutAfhandelingService.foutmelding`):
+```typescript
+foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+foutAfhandelingService.foutmelding = "Test fout";  // set directly before createComponent
+```
+
+**Common providers needed:**
+- `provideHttpClient()` — for any service using `ZacHttpClient`
+- `provideRouter([])` — for any service using `Router` (e.g. `UtilService`, `FoutAfhandelingService`)
+- `provideQueryClient(testQueryClient)` — for TanStack Query (import `testQueryClient` from `setupJest.ts`)
+
+**`useValue` is only acceptable** for Angular built-in tokens (`MAT_DIALOG_DATA`, `LOCALE_ID`) or complex dependencies you cannot inject differently.
+
+---
+
 - `WritableSignal` in mocks → `signal(value)`, not `jest.fn()`
 - TanStack Query → `provideQueryClient(testQueryClient)` from `setupJest.ts`
-- Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
+- Describe-scope order: `fixture` → `loader` → services; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.

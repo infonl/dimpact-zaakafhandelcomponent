@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of, Subject } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
@@ -23,30 +25,40 @@ const makeInstelling = (
     dashboard: false,
     mail: false,
     ...fields,
-  }) as Partial<GeneratedType<"RestSignaleringInstellingen">> as unknown as GeneratedType<"RestSignaleringInstellingen">;
+  }) as Partial<
+    GeneratedType<"RestSignaleringInstellingen">
+  > as unknown as GeneratedType<"RestSignaleringInstellingen">;
 
 describe(SignaleringenSettingsComponent.name, () => {
   let fixture: ComponentFixture<SignaleringenSettingsComponent>;
   let component: SignaleringenSettingsComponent;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "setLoading">;
-  let signaleringenServiceMock: Pick<SignaleringenSettingsService, "list" | "put">;
+  let utilService: UtilService;
+  let signaleringenService: SignaleringenSettingsService;
   let listSubject: Subject<GeneratedType<"RestSignaleringInstellingen">[]>;
 
   beforeEach(async () => {
     listSubject = new Subject();
-    utilServiceMock = { setTitle: jest.fn(), setLoading: jest.fn() };
-    signaleringenServiceMock = {
-      list: jest.fn().mockReturnValue(listSubject.asObservable()),
-      put: jest.fn().mockReturnValue(of(null)),
-    };
 
     await TestBed.configureTestingModule({
-      imports: [SignaleringenSettingsComponent, NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [
-        { provide: UtilService, useValue: utilServiceMock },
-        { provide: SignaleringenSettingsService, useValue: signaleringenServiceMock },
+      imports: [
+        SignaleringenSettingsComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
       ],
+      providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
+
+    utilService = TestBed.inject(UtilService);
+    signaleringenService = TestBed.inject(SignaleringenSettingsService);
+
+    jest.spyOn(utilService, "setTitle").mockImplementation(() => {});
+    jest.spyOn(utilService, "setLoading").mockImplementation(() => {});
+    jest
+      .spyOn(signaleringenService, "list")
+      .mockReturnValue(listSubject.asObservable() as never);
+    jest
+      .spyOn(signaleringenService, "put")
+      .mockReturnValue(of(makeInstelling()) as never);
 
     fixture = TestBed.createComponent(SignaleringenSettingsComponent);
     component = fixture.componentInstance;
@@ -54,13 +66,13 @@ describe(SignaleringenSettingsComponent.name, () => {
   });
 
   it("calls setTitle with signaleringen settings key on init", () => {
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
+    expect(utilService.setTitle).toHaveBeenCalledWith(
       "title.signaleringen.settings",
     );
   });
 
   it("calls service.list on init", () => {
-    expect(signaleringenServiceMock.list).toHaveBeenCalled();
+    expect(signaleringenService.list).toHaveBeenCalled();
   });
 
   it("shows loading shade while data is loading", () => {
@@ -109,7 +121,9 @@ describe(SignaleringenSettingsComponent.name, () => {
   });
 
   it("renders translated text for subjecttype and type columns", () => {
-    listSubject.next([makeInstelling({ type: "ZAAK_OP_NAAM", subjecttype: "ZAAK" })]);
+    listSubject.next([
+      makeInstelling({ type: "ZAAK_OP_NAAM", subjecttype: "ZAAK" }),
+    ]);
     listSubject.complete();
     fixture.detectChanges();
 
@@ -165,7 +179,10 @@ describe(SignaleringenSettingsComponent.name, () => {
     listSubject.complete();
     fixture.detectChanges();
 
-    jest.spyOn(component as SignaleringenSettingsComponent, "changed" as never);
+    jest.spyOn(
+      component as SignaleringenSettingsComponent,
+      "changed" as never,
+    );
 
     const checkboxInput = fixture.debugElement.query(
       By.css("[id='ZAAK_OP_NAAM_dashboard_checkbox'] input"),
@@ -180,15 +197,15 @@ describe(SignaleringenSettingsComponent.name, () => {
     const row = makeInstelling({ dashboard: false });
     component["changed"](row, "dashboard", true);
 
-    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
-    expect(signaleringenServiceMock.put).toHaveBeenCalledWith(row);
+    expect(utilService.setLoading).toHaveBeenCalledWith(true);
+    expect(signaleringenService.put).toHaveBeenCalledWith(row);
   });
 
   it("calls setLoading(false) after put completes", () => {
     const row = makeInstelling({ dashboard: false });
     component["changed"](row, "dashboard", true);
 
-    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
+    expect(utilService.setLoading).toHaveBeenCalledWith(false);
   });
 
   it("mutates row column value when changed is called", () => {
@@ -203,18 +220,22 @@ describe(SignaleringenSettingsComponent.name, () => {
     listSubject.complete();
     fixture.detectChanges();
 
-    const noDataCell = fixture.debugElement.query(By.css("tr[mat-no-data-row] td, td[colspan]"));
-    // The *matNoDataRow may not render synchronously; verify via dataSource instead
     expect(component["dataSource"].data).toHaveLength(0);
-    expect(signaleringenServiceMock.list).toHaveBeenCalled();
+    expect(signaleringenService.list).toHaveBeenCalled();
   });
 
   it("does not render checkboxes for subjecttype and type columns", () => {
-    listSubject.next([makeInstelling({ type: "ZAAK_OP_NAAM", subjecttype: "ZAAK", dashboard: true, mail: true })]);
+    listSubject.next([
+      makeInstelling({
+        type: "ZAAK_OP_NAAM",
+        subjecttype: "ZAAK",
+        dashboard: true,
+        mail: true,
+      }),
+    ]);
     listSubject.complete();
     fixture.detectChanges();
 
-    // There should be exactly 2 checkboxes (dashboard + mail), not 4
     const checkboxes = fixture.debugElement.queryAll(By.css("mat-checkbox"));
     expect(checkboxes).toHaveLength(2);
   });

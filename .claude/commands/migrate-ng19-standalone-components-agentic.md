@@ -110,7 +110,7 @@ TASK: Write a spec file at {COMPONENT_SPEC_PATH}, then self-review it.
 1. TestBed: declarations: [{COMPONENT_CLASS}], imports: [NoopAnimationsModule, TranslateModule.forRoot()]
    Component is still standalone: false — use declarations[], NOT imports[].
    Add standalone child component imports to imports[] as needed.
-2. Mock services with Pick<Service, 'method'> pattern. Use provideRouter([]) if RouterLink used.
+2. Mock services with `TestBed.inject()` + `jest.spyOn()`. Add `provideHttpClient()` for ZacHttpClient-based services, `provideRouter([])` for Router-based services. NEVER use `{ provide: Service, useValue: mockObject }` for `providedIn: 'root'` services. For `Observable<never>` returns (DELETE/PUT 204): use `of(undefined) as never`.
 3. Every test asserts meaningful behaviour — no it("should create", ...).
 4. Named factory helpers:
      const makeX = (fields: Partial<T> = {}): T =>
@@ -136,7 +136,9 @@ After writing, verify every item:
 [ ] SPDX header correct
 [ ] ≥90% template behaviours covered (no comment block)
 [ ] declarations[] used (not imports[])
-[ ] Service mocks typed with Pick<...>
+[ ] Services mocked via TestBed.inject() + jest.spyOn() — NOT useValue: mockObject (unless MAT_DIALOG_DATA or similar token)
+[ ] provideHttpClient() added if any service uses ZacHttpClient
+[ ] provideRouter([]) added if any service uses Router
 
 Fix any violations before returning.
 

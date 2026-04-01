@@ -5,6 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideHttpClient } from "@angular/common/http";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -53,34 +54,12 @@ describe(ZoekopdrachtComponent.name, () => {
   let fixture: ComponentFixture<ZoekopdrachtComponent>;
   let loader: HarnessLoader;
   let component: ZoekopdrachtComponent;
-  let serviceMock: Pick<
-    GebruikersvoorkeurenService,
-    | "listZoekOpdrachten"
-    | "deleteZoekOpdrachten"
-    | "setZoekopdrachtActief"
-    | "removeZoekopdrachtActief"
-  >;
-  let dialogMock: Pick<MatDialog, "open">;
+  let service: GebruikersvoorkeurenService;
+  let dialog: MatDialog;
   let filtersChanged: EventEmitter<void>;
 
   beforeEach(async () => {
     filtersChanged = new EventEmitter<void>();
-
-    serviceMock = {
-      listZoekOpdrachten: jest.fn().mockReturnValue(of([])),
-      deleteZoekOpdrachten: jest.fn().mockReturnValue(of(null)),
-      setZoekopdrachtActief: jest.fn().mockReturnValue(of(null)),
-      removeZoekopdrachtActief: jest.fn().mockReturnValue(of(null)),
-    };
-
-    dialogMock = {
-      open: jest.fn().mockReturnValue({
-        afterClosed: () => of(null),
-      } satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      >),
-    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -88,11 +67,30 @@ describe(ZoekopdrachtComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [
-        { provide: GebruikersvoorkeurenService, useValue: serviceMock },
-        { provide: MatDialog, useValue: dialogMock },
-      ],
+      providers: [provideHttpClient()],
     }).compileComponents();
+
+    service = TestBed.inject(GebruikersvoorkeurenService);
+    dialog = TestBed.inject(MatDialog);
+
+    jest.spyOn(service, "listZoekOpdrachten").mockReturnValue(of([]));
+    jest
+      .spyOn(service, "deleteZoekOpdrachten")
+      .mockReturnValue(of(undefined) as never);
+    jest
+      .spyOn(service, "setZoekopdrachtActief")
+      .mockReturnValue(of(undefined) as never);
+    jest
+      .spyOn(service, "removeZoekopdrachtActief")
+      .mockReturnValue(of(undefined) as never);
+    jest.spyOn(dialog, "open").mockReturnValue(
+      ({
+        afterClosed: () => of(null),
+      }) satisfies Pick<
+        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+        "afterClosed"
+      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+    );
 
     fixture = TestBed.createComponent(ZoekopdrachtComponent);
     component = fixture.componentInstance;
@@ -159,7 +157,7 @@ describe(ZoekopdrachtComponent.name, () => {
       );
       await btn.click();
 
-      expect(serviceMock.removeZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
       );
     });
@@ -239,7 +237,7 @@ describe(ZoekopdrachtComponent.name, () => {
       const [item] = await menu.getItems();
       await item.click();
 
-      expect(serviceMock.setZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(service.setZoekopdrachtActief).toHaveBeenCalledWith(
         expect.objectContaining({ id: 42 }),
       );
       expect(emitted).toHaveLength(1);
@@ -279,7 +277,7 @@ describe(ZoekopdrachtComponent.name, () => {
         MatButtonHarness.with({ selector: "#saveZoekopdrachtButton" }),
       );
       await btn.click();
-      expect(dialogMock.open).toHaveBeenCalledWith(
+      expect(dialog.open).toHaveBeenCalledWith(
         ZoekopdrachtSaveDialogComponent,
         expect.objectContaining({
           data: expect.objectContaining({
@@ -290,30 +288,33 @@ describe(ZoekopdrachtComponent.name, () => {
     });
 
     it("reloads zoekopdrachten when save dialog closes with truthy result", () => {
-      (dialogMock.open as jest.Mock).mockReturnValue({
-        afterClosed: () => of(true),
-      } satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      >);
+      (dialog.open as jest.Mock).mockReturnValue(
+        ({
+          afterClosed: () => of(true),
+        }) satisfies Pick<
+          MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+          "afterClosed"
+        > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+      );
 
       component["saveSearch"]();
 
-      expect(serviceMock.listZoekOpdrachten).toHaveBeenCalledTimes(2); // once on init, once after dialog
+      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(2);
     });
 
     it("does not reload zoekopdrachten when save dialog closes with falsy result", () => {
-      (dialogMock.open as jest.Mock).mockReturnValue({
-        afterClosed: () => of(null),
-      } satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      >);
+      (dialog.open as jest.Mock).mockReturnValue(
+        ({
+          afterClosed: () => of(null),
+        }) satisfies Pick<
+          MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+          "afterClosed"
+        > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+      );
 
       component["saveSearch"]();
 
-      // Only initial load from ngOnInit
-      expect(serviceMock.listZoekOpdrachten).toHaveBeenCalledTimes(1);
+      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -330,15 +331,14 @@ describe(ZoekopdrachtComponent.name, () => {
       component["deleteZoekopdracht"](event, zoek);
 
       expect(stopSpy).toHaveBeenCalled();
-      expect(serviceMock.deleteZoekOpdrachten).toHaveBeenCalledWith(7);
+      expect(service.deleteZoekOpdrachten).toHaveBeenCalledWith(7);
     });
 
     it("reloads zoekopdrachten after deletion", () => {
       const zoek = makeZoekopdracht({ id: 7 });
       component["deleteZoekopdracht"](new MouseEvent("click"), zoek);
 
-      // Once on init, once after delete
-      expect(serviceMock.listZoekOpdrachten).toHaveBeenCalledTimes(2);
+      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -351,7 +351,7 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveZoekopdracht"] = makeZoekopdracht();
       component["clearActief"]();
       expect(component["actieveZoekopdracht"]).toBeNull();
-      expect(serviceMock.removeZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
       );
     });
@@ -385,11 +385,8 @@ describe(ZoekopdrachtComponent.name, () => {
   describe("ngOnInit", () => {
     it("sets actieveZoekopdracht to the search marked as actief after load", async () => {
       const actief = makeZoekopdracht({ id: 3, actief: true });
-      (serviceMock.listZoekOpdrachten as jest.Mock).mockReturnValue(
-        of([actief]),
-      );
+      (service.listZoekOpdrachten as jest.Mock).mockReturnValue(of([actief]));
 
-      // Re-init by calling ngOnInit manually (subscription already set up)
       component["loadZoekopdrachten"]();
 
       expect(component["actieveZoekopdracht"]).toEqual(
@@ -399,9 +396,7 @@ describe(ZoekopdrachtComponent.name, () => {
 
     it("emits the active zoekopdracht on load when one is marked actief", () => {
       const actief = makeZoekopdracht({ id: 5, actief: true });
-      (serviceMock.listZoekOpdrachten as jest.Mock).mockReturnValue(
-        of([actief]),
-      );
+      (service.listZoekOpdrachten as jest.Mock).mockReturnValue(of([actief]));
 
       const emitted: GeneratedType<"RESTZoekopdracht">[] = [];
       component.zoekopdracht.subscribe((v) => emitted.push(v));

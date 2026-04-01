@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "../admin/referentie-tabel.service";
@@ -14,26 +16,29 @@ import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 describe(FoutAfhandelingComponent.name, () => {
   let fixture: ComponentFixture<FoutAfhandelingComponent>;
   let component: FoutAfhandelingComponent;
-  let foutAfhandelingServiceMock: Pick<FoutAfhandelingService, "foutmelding" | "bericht">;
-  let referentieTabelServiceMock: Pick<ReferentieTabelService, "listServerErrorTexts">;
+  let foutAfhandelingService: FoutAfhandelingService;
+  let referentieTabelService: ReferentieTabelService;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FoutAfhandelingComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideRouter([])],
+    }).compileComponents();
+
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    referentieTabelService = TestBed.inject(ReferentieTabelService);
+  });
 
   const setup = (
     foutmelding: string,
     bericht: string,
     serverErrorTexts: string[],
   ) => {
-    foutAfhandelingServiceMock = { foutmelding, bericht };
-    referentieTabelServiceMock = {
-      listServerErrorTexts: jest.fn().mockReturnValue(of(serverErrorTexts)),
-    };
-
-    TestBed.configureTestingModule({
-      imports: [FoutAfhandelingComponent, NoopAnimationsModule, TranslateModule.forRoot()],
-      providers: [
-        { provide: FoutAfhandelingService, useValue: foutAfhandelingServiceMock },
-        { provide: ReferentieTabelService, useValue: referentieTabelServiceMock },
-      ],
-    });
+    foutAfhandelingService.foutmelding = foutmelding;
+    foutAfhandelingService.bericht = bericht;
+    jest
+      .spyOn(referentieTabelService, "listServerErrorTexts")
+      .mockReturnValue(of(serverErrorTexts) as never);
 
     fixture = TestBed.createComponent(FoutAfhandelingComponent);
     component = fixture.componentInstance;
@@ -43,38 +48,44 @@ describe(FoutAfhandelingComponent.name, () => {
   it("displays foutmelding in heading when set", () => {
     setup("Er is een fout opgetreden", "", []);
 
-    const heading = fixture.nativeElement.querySelector("h2");
-    expect(heading.textContent).toContain("Er is een fout opgetreden");
+    const heading = (fixture.nativeElement as HTMLElement).querySelector("h2");
+    expect(heading?.textContent).toContain("Er is een fout opgetreden");
   });
 
   it("falls back to default translation key in heading when foutmelding is empty", () => {
     setup("", "", []);
 
-    // TranslateModule.forRoot() returns the key itself as translation value
-    const heading = fixture.nativeElement.querySelector("h2");
-    expect(heading.textContent).toContain("error-card.title.default");
+    const heading = (fixture.nativeElement as HTMLElement).querySelector("h2");
+    expect(heading?.textContent).toContain("error-card.title.default");
   });
 
   it("shows bericht paragraph when bericht is non-empty", () => {
     setup("", "Neem contact op met de beheerder", []);
 
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
+    const nativeElement = fixture.nativeElement as HTMLElement;
+    const paragraphs = nativeElement.querySelectorAll("p");
     const berichtTexts = Array.from(paragraphs).map((p) => p.textContent ?? "");
-    expect(berichtTexts.some((t) => t.includes("Neem contact op met de beheerder"))).toBe(true);
+    expect(
+      berichtTexts.some((t) => t.includes("Neem contact op met de beheerder")),
+    ).toBe(true);
   });
 
   it("does not show bericht paragraph when bericht is empty", () => {
     setup("Fout", "", []);
 
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
+    const nativeElement = fixture.nativeElement as HTMLElement;
+    const paragraphs = nativeElement.querySelectorAll("p");
     expect(paragraphs.length).toBe(0);
   });
 
   it("shows server error text paragraphs when serverErrorTexts emits values", () => {
     setup("", "", ["Server onbeschikbaar", "Probeer het later"]);
 
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
-    const texts = Array.from(paragraphs).map((p) => p.textContent?.trim() ?? "");
+    const nativeElement = fixture.nativeElement as HTMLElement;
+    const paragraphs = nativeElement.querySelectorAll("p");
+    const texts = Array.from(paragraphs).map(
+      (p) => p.textContent?.trim() ?? "",
+    );
     expect(texts).toContain("Server onbeschikbaar");
     expect(texts).toContain("Probeer het later");
   });
@@ -82,7 +93,8 @@ describe(FoutAfhandelingComponent.name, () => {
   it("does not show server error text paragraphs when serverErrorTexts emits empty array", () => {
     setup("", "", []);
 
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
+    const nativeElement = fixture.nativeElement as HTMLElement;
+    const paragraphs = nativeElement.querySelectorAll("p");
     expect(paragraphs.length).toBe(0);
   });
 
@@ -96,6 +108,6 @@ describe(FoutAfhandelingComponent.name, () => {
   it("calls listServerErrorTexts on ReferentieTabelService", () => {
     setup("", "", []);
 
-    expect(referentieTabelServiceMock.listServerErrorTexts).toHaveBeenCalled();
+    expect(referentieTabelService.listServerErrorTexts).toHaveBeenCalled();
   });
 });
