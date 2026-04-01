@@ -17,7 +17,6 @@ import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -78,7 +77,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
+            ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid!!)
         } returns providedInformatieObjectType
         every { configurationService.readBronOrganisatie() } returns "123443210"
 
@@ -102,7 +101,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     // status should always be DEFINITIEF
                     status shouldBe StatusEnum.DEFINITIEF
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.valueOf(
-                        restTaakDocumentData.documentType.vertrouwelijkheidaanduiding
+                        restTaakDocumentData.documentType.vertrouwelijkheidaanduiding!!
                     )
                 }
             }
@@ -123,7 +122,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val providedInformatieObjectType = createInformatieObjectType()
 
         every {
-            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID)
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID!!)
         } returns providedInformatieObjectType
         every { configurationService.readBronOrganisatie() } returns "123443210"
 
@@ -142,8 +141,8 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
                     formaat shouldBe restFileUpload.type
                     bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
-                    status.name shouldBe restEnkelvoudigInformatieobject.status.name
-                    vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.uppercase()
+                    status.name shouldBe restEnkelvoudigInformatieobject.status!!.name
+                    vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding!!.uppercase()
                 }
             }
         }
@@ -268,7 +267,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         )
 
         every {
-            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobjectVersieGegevens.informatieobjectTypeUUID)
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobjectVersieGegevens.informatieobjectTypeUUID!!)
         } returns informatieobjectType
 
         When("this object is converted") {
@@ -278,8 +277,8 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             Then("the obejct is correctly converted to a 'enkelvoudiginformatieobject with lock request'") {
                 with(enkelvoudigInformatieObjectWithLockRequest) {
                     bestandsnaam shouldBe restEnkelvoudigInformatieobjectVersieGegevens.bestandsnaam
-                    bestandsomvang shouldBe restEnkelvoudigInformatieobjectVersieGegevens.file.size
-                    inhoud shouldBe Base64.getEncoder().encodeToString(restEnkelvoudigInformatieobjectVersieGegevens.file)
+                    bestandsomvang shouldBe restEnkelvoudigInformatieobjectVersieGegevens.file!!.size
+                    inhoud shouldBe Base64.getEncoder().encodeToString(restEnkelvoudigInformatieobjectVersieGegevens.file!!)
                     informatieobjecttype shouldBe informatieobjectType.url
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }

@@ -2,23 +2,19 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.informatieobjecten.model.validation;
+package nl.info.zac.app.informatieobjecten.model.validation
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload
 
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload;
+class ValidRestEnkelvoudigInformatieFileUploadFormValidator :
+    ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RestEnkelvoudigInformatieFileUpload> {
 
-
-public class ValidRestEnkelvoudigInformatieFileUploadFormValidator implements
-                                                                   ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RestEnkelvoudigInformatieFileUpload> {
-
-    @Override
-    public boolean isValid(RestEnkelvoudigInformatieFileUpload value, ConstraintValidatorContext context) {
+    override fun isValid(value: RestEnkelvoudigInformatieFileUpload, context: ConstraintValidatorContext?): Boolean {
         if (value.bestandsnaam != null) {
-            return value.file != null && value.file.length != 0;
+            return value.file != null && value.file!!.isNotEmpty()
         }
-
-        return true;
+        return true
     }
 }

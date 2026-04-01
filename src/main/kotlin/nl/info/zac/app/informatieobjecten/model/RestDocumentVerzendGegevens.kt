@@ -1,20 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDate
+import java.util.UUID
 
-public class RestDocumentVerzendGegevens {
-    public UUID zaakUuid;
+class RestDocumentVerzendGegevens {
+    var zaakUuid: UUID? = null
 
-    public LocalDate verzenddatum;
+    var verzenddatum: LocalDate? = null
 
-    public List<UUID> informatieobjecten;
+    var informatieobjecten: List<UUID>? = null
 
-    public String toelichting;
+    var toelichting: String? = null
 }

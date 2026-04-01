@@ -1,20 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.util.List;
-import java.util.UUID;
+import java.util.UUID
 
-public class RESTInformatieobjectZoekParameters {
+class RESTInformatieobjectZoekParameters {
+    var informatieobjectUUIDs: List<UUID>? = null
 
-    public List<UUID> informatieobjectUUIDs;
+    var zaakUUID: UUID? = null
 
-    public UUID zaakUUID;
+    var besluittypeUUID: UUID? = null
 
-    public UUID besluittypeUUID;
-
-    public boolean gekoppeldeZaakDocumenten;
+    var gekoppeldeZaakDocumenten: Boolean = false
 }

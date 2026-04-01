@@ -1,19 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.util.UUID;
+import nl.info.zac.app.zaak.model.RelatieType
+import java.util.UUID
 
-import nl.info.zac.app.zaak.model.RelatieType;
+class RestGekoppeldeZaakEnkelvoudigInformatieObject : RestEnkelvoudigInformatieobject() {
+    var relatieType: RelatieType? = null
 
-public class RestGekoppeldeZaakEnkelvoudigInformatieObject extends RestEnkelvoudigInformatieobject {
+    var zaakIdentificatie: String? = null
 
-    public RelatieType relatieType;
-
-    public String zaakIdentificatie;
-
-    public UUID zaakUUID;
+    var zaakUUID: UUID? = null
 }

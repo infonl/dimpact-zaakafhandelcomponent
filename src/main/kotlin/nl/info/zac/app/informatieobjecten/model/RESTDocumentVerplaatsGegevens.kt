@@ -1,30 +1,25 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.util.UUID;
+import java.util.UUID
 
-public class RESTDocumentVerplaatsGegevens {
-
-    public final String INBOX_DOCUMENTEN = "inbox-documenten";
-
-    public final String ONTKOPPELDE_DOCUMENTEN = "ontkoppelde-documenten";
-
-    public UUID documentUUID;
-
-    public String bron;
-
-    public String nieuweZaakID;
-
-    public boolean vanuitInboxDocumenten() {
-        return INBOX_DOCUMENTEN.equals(bron);
+class RESTDocumentVerplaatsGegevens {
+    companion object {
+        const val INBOX_DOCUMENTEN = "inbox-documenten"
+        const val ONTKOPPELDE_DOCUMENTEN = "ontkoppelde-documenten"
     }
 
-    public boolean vanuitOntkoppeldeDocumenten() {
-        return ONTKOPPELDE_DOCUMENTEN.equals(bron);
-    }
+    var documentUUID: UUID? = null
 
+    var bron: String? = null
+
+    var nieuweZaakID: String? = null
+
+    fun vanuitInboxDocumenten() = INBOX_DOCUMENTEN == bron
+
+    fun vanuitOntkoppeldeDocumenten() = ONTKOPPELDE_DOCUMENTEN == bron
 }

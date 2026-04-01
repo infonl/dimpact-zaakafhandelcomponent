@@ -1,15 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.util.UUID;
+import java.util.UUID
 
-public class RESTDocumentVerwijderenGegevens {
+class RESTDocumentVerwijderenGegevens {
+    var zaakUuid: UUID? = null
 
-    public UUID zaakUuid;
-
-    public String reden;
+    var reden: String? = null
 }

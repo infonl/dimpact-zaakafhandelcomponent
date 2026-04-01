@@ -5,12 +5,6 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
-import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
-import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import java.time.LocalDate

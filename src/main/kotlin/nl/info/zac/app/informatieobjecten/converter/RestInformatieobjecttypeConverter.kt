@@ -1,47 +1,35 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.converter;
+package nl.info.zac.app.informatieobjecten.converter
 
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+import jakarta.inject.Inject
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
+import java.net.URI
 
-import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
+class RestInformatieobjecttypeConverter @Inject constructor(
+    private val ztcClientService: ZtcClientService
+) {
+    companion object {
+        fun convert(type: InformatieObjectType) = RestInformatieobjecttype().apply {
+            uuid = type.url.extractUuid()
+            concept = type.concept
+            omschrijving = type.omschrijving
+            // we use the uppercase version of this enum in the ZAC backend API
+            vertrouwelijkheidaanduiding = type.vertrouwelijkheidaanduiding.name
+        }
 
-import jakarta.inject.Inject;
-
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype;
-import nl.info.client.zgw.ztc.ZtcClientService;
-import nl.info.client.zgw.ztc.model.generated.InformatieObjectType;
-
-public class RestInformatieobjecttypeConverter {
-
-    @Inject
-    private ZtcClientService ztcClientService;
-
-    public static RestInformatieobjecttype convert(final InformatieObjectType type) {
-        final RestInformatieobjecttype restType = new RestInformatieobjecttype();
-        restType.uuid = extractUuid(type.getUrl());
-        restType.concept = type.getConcept();
-        restType.omschrijving = type.getOmschrijving();
-        // we use the uppercase version of this enum in the ZAC backend API
-        restType.vertrouwelijkheidaanduiding = type.getVertrouwelijkheidaanduiding().name();
-        return restType;
+        fun convert(informatieobjecttypen: List<InformatieObjectType>): List<RestInformatieobjecttype> =
+            informatieobjecttypen.map { convert(it) }
     }
 
-    public static List<RestInformatieobjecttype> convert(final List<InformatieObjectType> informatieobjecttypen) {
-        return informatieobjecttypen.stream()
-                .map(RestInformatieobjecttypeConverter::convert)
-                .collect(Collectors.toList());
-    }
-
-    public List<RestInformatieobjecttype> convertFromUris(final List<URI> informatieobjecttypeUris) {
-        return informatieobjecttypeUris.stream()
-                .map(ztcClientService::readInformatieobjecttype)
-                .map(RestInformatieobjecttypeConverter::convert)
-                .collect(Collectors.toList());
-    }
+    fun convertFromUris(informatieobjecttypeUris: List<URI>): List<RestInformatieobjecttype> =
+        informatieobjecttypeUris
+            .map { ztcClientService.readInformatieobjecttype(it) }
+            .map { convert(it) }
 }

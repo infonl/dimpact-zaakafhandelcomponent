@@ -17,9 +17,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
@@ -40,6 +37,8 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
@@ -294,7 +293,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every {
-            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid!!)
         } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -325,7 +324,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     drcClientService.readEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens.uuid
+                        restEnkelvoudigInformatieObjectVersieGegevens.uuid!!
                     )
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         enkelvoudigInformatieObject.url.extractUuid(),
@@ -436,7 +435,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(deelzaak.url) } returns deelzaak
         every { zrcClientService.listZaakinformatieobjecten(deelzaak) } returns emptyList()
         every {
-            ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID)
+            ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID!!)
         } returns besluitType
         every { loggedInUserInstance.get() } returns loggedInUser
 

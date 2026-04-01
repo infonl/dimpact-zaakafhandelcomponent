@@ -2,29 +2,24 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.informatieobjecten.model.validation;
+package nl.info.zac.app.informatieobjecten.model.validation
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.CLASS
+import kotlin.reflect.KClass
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-
-@Documented
-@Target(TYPE)
+@MustBeDocumented
+@Target(CLASS)
 @Retention(RUNTIME)
-@Constraint(validatedBy = {ValidRestEnkelvoudigInformatieFileUploadFormValidator.class})
-public @interface ValidRestEnkelvoudigInformatieFileUploadForm {
-
-    String INVALID_FILE_UPLOAD_FORM = "Uploaded file is empty";
-
-    String message() default INVALID_FILE_UPLOAD_FORM;
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
+@Constraint(validatedBy = [ValidRestEnkelvoudigInformatieFileUploadFormValidator::class])
+annotation class ValidRestEnkelvoudigInformatieFileUploadForm(
+    val message: String = INVALID_FILE_UPLOAD_FORM,
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
+) {
+    companion object {
+        const val INVALID_FILE_UPLOAD_FORM = "Uploaded file is empty"
+    }
 }

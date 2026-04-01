@@ -163,6 +163,10 @@ This can improve the robustness of the code and prevent potential crashes.
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 
+### Follow the Kotlin Coding Conventions
+Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
+This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.

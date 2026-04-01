@@ -1,57 +1,55 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.time.LocalDate;
-import java.util.UUID;
+import jakarta.validation.constraints.NotNull
+import jakarta.ws.rs.FormParam
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.zac.app.configuration.model.RestTaal
+import java.time.LocalDate
+import java.util.UUID
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.FormParam;
+class RestEnkelvoudigInformatieObjectVersieGegevens : RestEnkelvoudigInformatieFileUpload() {
+    @field:FormParam("uuid")
+    var uuid: UUID? = null
 
-import nl.info.client.zgw.drc.model.generated.StatusEnum;
-import nl.info.zac.app.configuration.model.RestTaal;
+    @field:FormParam("zaakUuid")
+    var zaakUuid: UUID? = null
 
-public class RestEnkelvoudigInformatieObjectVersieGegevens extends RestEnkelvoudigInformatieFileUpload {
+    @field:FormParam("titel")
+    var titel: String? = null
 
-    @FormParam("uuid")
-    public UUID uuid;
+    @field:FormParam("vertrouwelijkheidaanduiding")
+    var vertrouwelijkheidaanduiding: String? = null
 
-    @FormParam("zaakUuid")
-    public UUID zaakUuid;
+    @field:FormParam("auteur")
+    var auteur: String? = null
 
-    @FormParam("titel")
-    public String titel;
+    @field:FormParam("status")
+    var status: StatusEnum? = null
 
-    @FormParam("vertrouwelijkheidaanduiding")
-    public String vertrouwelijkheidaanduiding;
+    @field:FormParam("taal")
+    var taal: RestTaal? = null
 
-    @FormParam("auteur")
-    public String auteur;
+    @field:FormParam("formaat")
+    var formaat: String? = null
 
-    @FormParam("status")
-    public StatusEnum status;
+    @field:FormParam("beschrijving")
+    var beschrijving: String? = null
 
-    @FormParam("taal")
-    public RestTaal taal;
+    @field:FormParam("verzenddatum")
+    var verzenddatum: LocalDate? = null
 
-    @FormParam("formaat")
-    public String formaat;
+    @field:FormParam("ontvangstdatum")
+    var ontvangstdatum: LocalDate? = null
 
-    @FormParam("beschrijving")
-    public String beschrijving;
+    @field:FormParam("toelichting")
+    var toelichting: String? = null
 
-    @FormParam("verzenddatum")
-    public LocalDate verzenddatum;
-
-    @FormParam("ontvangstdatum")
-    public LocalDate ontvangstdatum;
-
-    @FormParam("toelichting")
-    public String toelichting;
-
-    @NotNull @FormParam("informatieobjectTypeUUID")
-    public UUID informatieobjectTypeUUID;
+    @field:NotNull
+    @field:FormParam("informatieobjectTypeUUID")
+    var informatieobjectTypeUUID: UUID? = null
 }

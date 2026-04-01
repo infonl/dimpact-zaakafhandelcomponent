@@ -2,19 +2,17 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import jakarta.ws.rs.FormParam;
-
-import net.atos.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudigInformatieFileUploadForm;
+import jakarta.ws.rs.FormParam
+import nl.info.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudigInformatieFileUploadForm
 
 @ValidRestEnkelvoudigInformatieFileUploadForm
-public abstract class RestEnkelvoudigInformatieFileUpload {
-
+abstract class RestEnkelvoudigInformatieFileUpload {
     // this can be empty when adding a new version in which only the metadata changes
-    @FormParam("file")
-    public byte[] file;
+    @field:FormParam("file")
+    var file: ByteArray? = null
 
-    @FormParam("bestandsnaam")
-    public String bestandsnaam;
+    @field:FormParam("bestandsnaam")
+    var bestandsnaam: String? = null
 }

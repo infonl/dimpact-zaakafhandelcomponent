@@ -1,23 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.FormParam
 
-public class RESTFileUpload {
+class RESTFileUpload {
+    @field:FormParam("file")
+    var file: ByteArray? = null
 
-    @FormParam("file")
-    public byte[] file;
+    @field:FormParam("filesize")
+    var fileSize: Long = 0
 
-    @FormParam("filesize")
-    public long fileSize;
+    @field:FormParam("filename")
+    var filename: String? = null
 
-    @FormParam("filename")
-    public String filename;
-
-    @FormParam("type")
-    public String type;
+    @field:FormParam("type")
+    var type: String? = null
 }

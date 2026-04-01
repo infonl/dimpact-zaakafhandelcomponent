@@ -2,405 +2,352 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.informatieobjecten.converter;
+package nl.info.zac.app.informatieobjecten.converter
 
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.zac.app.configuration.model.RestTaalKt.toRestTaal;
-import static nl.info.zac.app.identity.model.RestUserKt.toRestUser;
-import static nl.info.zac.app.informatieobjecten.model.RestOndertekeningKt.toRestOndertekening;
-import static nl.info.zac.app.policy.model.RestDocumentRechtenKt.toRestDocumentRechten;
-import static nl.info.zac.identity.model.UserKt.getFullName;
-import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
+import jakarta.enterprise.inject.Instance
+import jakarta.inject.Inject
+import net.atos.client.zgw.shared.exception.ZgwErrorException
+import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.configuration.model.toRestTaal
+import nl.info.zac.app.identity.model.toRestUser
+import nl.info.zac.app.informatieobjecten.model.RESTFileUpload
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
+import nl.info.zac.app.informatieobjecten.model.toRestOndertekening
+import nl.info.zac.app.policy.model.toRestDocumentRechten
+import nl.info.zac.app.task.model.RestTaskDocumentData
+import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
+import nl.info.zac.identity.IdentityService
+import nl.info.zac.identity.model.getFullName
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.util.toBase64String
+import org.eclipse.jetty.http.HttpStatus
+import java.time.LocalDate
+import java.util.UUID
+import java.util.logging.Logger
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-
-import org.eclipse.jetty.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;
-
-import net.atos.client.zgw.shared.exception.ZgwErrorException;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload;
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens;
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject;
-import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject;
-import nl.info.client.zgw.brc.BrcClientService;
-import nl.info.client.zgw.drc.DrcClientService;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import nl.info.client.zgw.drc.model.generated.StatusEnum;
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
-import nl.info.client.zgw.zrc.ZrcClientService;
-import nl.info.client.zgw.zrc.model.generated.Zaak;
-import nl.info.client.zgw.ztc.ZtcClientService;
-import nl.info.zac.app.task.model.RestTaskDocumentData;
-import nl.info.zac.app.zaak.model.RelatieType;
-import nl.info.zac.authentication.LoggedInUser;
-import nl.info.zac.configuration.ConfigurationService;
-import nl.info.zac.configuration.model.Taal;
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
-import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
-import nl.info.zac.identity.IdentityService;
-import nl.info.zac.policy.PolicyService;
-import nl.info.zac.policy.output.DocumentRechten;
-
-public class RestInformatieobjectConverter {
-    private static final Logger LOG = Logger.getLogger(RestInformatieobjectConverter.class.getName());
-
-    private BrcClientService brcClientService;
-    private ConfigurationService configurationService;
-    private DrcClientService drcClientService;
-    private EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService;
-    private IdentityService identityService;
-    private Instance<LoggedInUser> loggedInUserInstance;
-    private PolicyService policyService;
-    private ZrcClientService zrcClientService;
-    private ZtcClientService ztcClientService;
-
-    /**
-     * No-arg constructor for CDI.
-     */
-    public RestInformatieobjectConverter() {
+@Suppress("LongParameterList", "TooManyFunctions")
+class RestInformatieobjectConverter @Inject constructor(
+    private val brcClientService: BrcClientService,
+    private val configurationService: ConfigurationService,
+    private val drcClientService: DrcClientService,
+    private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
+    private val identityService: IdentityService,
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val policyService: PolicyService,
+    private val zrcClientService: ZrcClientService,
+    private val ztcClientService: ZtcClientService
+) {
+    companion object {
+        private val LOG = Logger.getLogger(RestInformatieobjectConverter::class.java.name)
     }
 
-    @Inject
-    public RestInformatieobjectConverter(
-            BrcClientService brcClientService,
-            ConfigurationService configurationService,
-            DrcClientService drcClientService,
-            EnkelvoudigInformatieObjectLockService enkelvoudigInformatieObjectLockService,
-            IdentityService identityService,
-            Instance<LoggedInUser> loggedInUserInstance,
-            PolicyService policyService,
-            ZrcClientService zrcClientService,
-            ZtcClientService ztcClientService
-    ) {
-        this.ztcClientService = ztcClientService;
-        this.drcClientService = drcClientService;
-        this.brcClientService = brcClientService;
-        this.zrcClientService = zrcClientService;
-        this.loggedInUserInstance = loggedInUserInstance;
-        this.enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService;
-        this.identityService = identityService;
-        this.policyService = policyService;
-        this.configurationService = configurationService;
+    fun convertToREST(zaakInformatieobjecten: List<ZaakInformatieobject>): List<RestEnkelvoudigInformatieobject> =
+        zaakInformatieobjecten.map { convertToREST(it) }
+
+    fun convertToREST(zaakInformatieObject: ZaakInformatieobject): RestEnkelvoudigInformatieobject {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
+            zaakInformatieObject.informatieobject
+        )
+        val zaak = zrcClientService.readZaak(zaakInformatieObject.zaakUUID)
+        return convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = zaak)
     }
 
-    public List<RestEnkelvoudigInformatieobject> convertToREST(
-            final List<ZaakInformatieobject> zaakInformatieobjecten
-    ) {
-        return zaakInformatieobjecten.stream().map(this::convertToREST).toList();
-    }
+    fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): RestEnkelvoudigInformatieobject =
+        convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = null)
 
-    public RestEnkelvoudigInformatieobject convertToREST(final ZaakInformatieobject zaakInformatieObject) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-                zaakInformatieObject.getInformatieobject()
-        );
-        final Zaak zaak = zrcClientService.readZaak(zaakInformatieObject.getZaakUUID());
-        return convertToREST(enkelvoudigInformatieObject, zaak);
-    }
-
-    public RestEnkelvoudigInformatieobject convertToREST(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieObject
-    ) {
-        return convertToREST(enkelvoudigInformatieObject, null);
-    }
-
-    public RestEnkelvoudigInformatieobject convertToREST(
-            final EnkelvoudigInformatieObject enkelvoudigInformatieObject,
-            final Zaak zaak
-    ) {
-        final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
-        final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
-        final DocumentRechten documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
-        final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject = new RestEnkelvoudigInformatieobject();
-        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
-        restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = toRestDocumentRechten(documentRechten);
+    fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject, zaak: Zaak?): RestEnkelvoudigInformatieobject {
+        val enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid()
+        val lock = if (enkelvoudigInformatieObject.locked) {
+            enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
+        } else {
+            null
+        }
+        val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
+        restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.identificatie
+        restEnkelvoudigInformatieobject.rechten = documentRechten.toRestDocumentRechten()
         restEnkelvoudigInformatieobject.isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
-                enkelvoudigInformatieObject.getUrl()
-        );
-        if (documentRechten.getLezen()) {
-            convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
-            if (
-                enkelvoudigInformatieObject.getOndertekening() != null &&
-                enkelvoudigInformatieObject.getOndertekening().getSoort() != null &&
-                enkelvoudigInformatieObject.getOndertekening().getDatum() != null
-            ) {
-                restEnkelvoudigInformatieobject.ondertekening = toRestOndertekening(enkelvoudigInformatieObject.getOndertekening());
+            enkelvoudigInformatieObject.url
+        )
+        if (documentRechten.lezen) {
+            convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObject = enkelvoudigInformatieObject,
+                lock = lock,
+                restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
+            )
+            val ondertekening = enkelvoudigInformatieObject.ondertekening
+            if (ondertekening != null && ondertekening.soort != null && ondertekening.datum != null) {
+                restEnkelvoudigInformatieobject.ondertekening = ondertekening.toRestOndertekening()
             }
         } else {
-            restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getIdentificatie();
+            restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.identificatie
         }
-        return restEnkelvoudigInformatieobject;
+        return restEnkelvoudigInformatieobject
     }
 
-    private void convertEnkelvoudigInformatieObject(
-            EnkelvoudigInformatieObject enkelvoudigInformatieObject,
-            EnkelvoudigInformatieObjectLock lock,
-            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
+    private fun convertEnkelvoudigInformatieObject(
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
+        lock: EnkelvoudigInformatieObjectLock?,
+        restEnkelvoudigInformatieobject: RestEnkelvoudigInformatieobject
     ) {
-        restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getTitel();
-        if (enkelvoudigInformatieObject.getBronorganisatie() != null) {
-            restEnkelvoudigInformatieobject.bronorganisatie = enkelvoudigInformatieObject.getBronorganisatie()
-                    .equals(configurationService.readBronOrganisatie()) ? null : enkelvoudigInformatieObject.getBronorganisatie();
+        restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.titel
+        if (enkelvoudigInformatieObject.bronorganisatie != null) {
+            restEnkelvoudigInformatieobject.bronorganisatie =
+                if (enkelvoudigInformatieObject.bronorganisatie == configurationService.readBronOrganisatie()) {
+                    null
+                } else {
+                    enkelvoudigInformatieObject.bronorganisatie
+                }
         }
-        restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.getCreatiedatum();
-        if (enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding() != null) {
+        restEnkelvoudigInformatieobject.creatiedatum = enkelvoudigInformatieObject.creatiedatum
+        if (enkelvoudigInformatieObject.vertrouwelijkheidaanduiding != null) {
             // we use the uppercase version of this enum in the ZAC backend API
-            restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding = enkelvoudigInformatieObject.getVertrouwelijkheidaanduiding()
-                    .name();
+            restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding =
+                enkelvoudigInformatieObject.vertrouwelijkheidaanduiding.name
         }
-        restEnkelvoudigInformatieobject.auteur = enkelvoudigInformatieObject.getAuteur();
-        if (enkelvoudigInformatieObject.getStatus() != null) {
-            restEnkelvoudigInformatieobject.status = enkelvoudigInformatieObject.getStatus();
+        restEnkelvoudigInformatieobject.auteur = enkelvoudigInformatieObject.auteur
+        if (enkelvoudigInformatieObject.status != null) {
+            restEnkelvoudigInformatieobject.status = enkelvoudigInformatieObject.status
         }
-        restEnkelvoudigInformatieobject.formaat = enkelvoudigInformatieObject.getFormaat();
+        restEnkelvoudigInformatieobject.formaat = enkelvoudigInformatieObject.formaat
 
-        final Taal taal = configurationService.findTaal(enkelvoudigInformatieObject.getTaal());
+        val taal = enkelvoudigInformatieObject.taal?.let { configurationService.findTaal(it) }
         if (taal != null) {
-            restEnkelvoudigInformatieobject.taal = taal.naam;
+            restEnkelvoudigInformatieobject.taal = taal.naam
         }
 
-        restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.getVersie();
-        restEnkelvoudigInformatieobject.registratiedatumTijd = enkelvoudigInformatieObject.getBeginRegistratie().toZonedDateTime();
-        restEnkelvoudigInformatieobject.bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam();
-        if (enkelvoudigInformatieObject.getLink() != null) {
-            restEnkelvoudigInformatieobject.link = enkelvoudigInformatieObject.getLink().toString();
+        restEnkelvoudigInformatieobject.versie = enkelvoudigInformatieObject.versie
+        restEnkelvoudigInformatieobject.registratiedatumTijd = enkelvoudigInformatieObject.beginRegistratie.toZonedDateTime()
+        restEnkelvoudigInformatieobject.bestandsnaam = enkelvoudigInformatieObject.bestandsnaam
+        if (enkelvoudigInformatieObject.link != null) {
+            restEnkelvoudigInformatieobject.link = enkelvoudigInformatieObject.link.toString()
         }
-        restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.getBeschrijving();
-        restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.getOntvangstdatum();
-        restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.getVerzenddatum();
+        restEnkelvoudigInformatieobject.beschrijving = enkelvoudigInformatieObject.beschrijving
+        restEnkelvoudigInformatieobject.ontvangstdatum = enkelvoudigInformatieObject.ontvangstdatum
+        restEnkelvoudigInformatieobject.verzenddatum = enkelvoudigInformatieObject.verzenddatum
         if (lock != null) {
-            restEnkelvoudigInformatieobject.gelockedDoor = toRestUser(identityService.readUser(lock.getUserId()));
+            restEnkelvoudigInformatieobject.gelockedDoor = identityService.readUser(lock.userId!!).toRestUser()
         }
-        restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.getBestandsomvang() != null ?
-                enkelvoudigInformatieObject.getBestandsomvang().longValue() : 0;
-        restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService.readInformatieobjecttype(
-                enkelvoudigInformatieObject.getInformatieobjecttype()).getOmschrijving();
-        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = extractUuid(enkelvoudigInformatieObject
-                .getInformatieobjecttype());
+        restEnkelvoudigInformatieobject.bestandsomvang = enkelvoudigInformatieObject.bestandsomvang?.toLong() ?: 0
+        restEnkelvoudigInformatieobject.informatieobjectTypeOmschrijving = ztcClientService
+            .readInformatieobjecttype(enkelvoudigInformatieObject.informatieobjecttype).omschrijving
+        restEnkelvoudigInformatieobject.informatieobjectTypeUUID = enkelvoudigInformatieObject.informatieobjecttype.extractUuid()
     }
 
-    public EnkelvoudigInformatieObjectCreateLockRequest convertEnkelvoudigInformatieObject(
-            final RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
-    ) {
-        final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
-                restEnkelvoudigInformatieobject
-        );
-        enkelvoudigInformatieObjectCreateLockRequest.setInhoud(toBase64String(restEnkelvoudigInformatieobject.file));
-        enkelvoudigInformatieObjectCreateLockRequest.setBestandsomvang(restEnkelvoudigInformatieobject.file.length);
-        enkelvoudigInformatieObjectCreateLockRequest.setFormaat(restEnkelvoudigInformatieobject.formaat);
-        return enkelvoudigInformatieObjectCreateLockRequest;
+    fun convertEnkelvoudigInformatieObject(
+        restEnkelvoudigInformatieobject: RestEnkelvoudigInformatieobject
+    ): EnkelvoudigInformatieObjectCreateLockRequest {
+        val enkelvoudigInformatieObjectCreateLockRequest = buildEnkelvoudigInformatieObjectData(
+            restEnkelvoudigInformatieobject
+        )
+        enkelvoudigInformatieObjectCreateLockRequest.inhoud = restEnkelvoudigInformatieobject.file!!.toBase64String()
+        enkelvoudigInformatieObjectCreateLockRequest.bestandsomvang = restEnkelvoudigInformatieobject.file!!.size
+        enkelvoudigInformatieObjectCreateLockRequest.formaat = restEnkelvoudigInformatieobject.formaat
+        return enkelvoudigInformatieObjectCreateLockRequest
     }
 
-    @NotNull
-    private EnkelvoudigInformatieObjectCreateLockRequest buildEnkelvoudigInformatieObjectData(
-            RestEnkelvoudigInformatieobject restEnkelvoudigInformatieobject
-    ) {
-        final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configurationService.readBronOrganisatie());
-        enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(restEnkelvoudigInformatieobject.creatiedatum);
-        enkelvoudigInformatieobjectWithInhoud.setTitel(restEnkelvoudigInformatieobject.titel);
-        enkelvoudigInformatieobjectWithInhoud.setAuteur(restEnkelvoudigInformatieobject.auteur);
-        enkelvoudigInformatieobjectWithInhoud.setTaal(restEnkelvoudigInformatieobject.taal);
-        enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID).getUrl()
-        );
-        enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(restEnkelvoudigInformatieobject.bestandsnaam);
-        enkelvoudigInformatieobjectWithInhoud.setBeschrijving(restEnkelvoudigInformatieobject.beschrijving);
-        enkelvoudigInformatieobjectWithInhoud.setStatus(restEnkelvoudigInformatieobject.status);
-        enkelvoudigInformatieobjectWithInhoud.setVerzenddatum(restEnkelvoudigInformatieobject.verzenddatum);
-        enkelvoudigInformatieobjectWithInhoud.setOntvangstdatum(restEnkelvoudigInformatieobject.ontvangstdatum);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                VertrouwelijkheidaanduidingEnum.valueOf(
-                        // the values of the enums generated by OpenAPI Generator are the
-                        // uppercase variants of the strings used in the APIs
-                        restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding.toUpperCase()
-                )
-        );
-        return enkelvoudigInformatieobjectWithInhoud;
+    private fun buildEnkelvoudigInformatieObjectData(
+        restEnkelvoudigInformatieobject: RestEnkelvoudigInformatieobject
+    ): EnkelvoudigInformatieObjectCreateLockRequest {
+        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest()
+        enkelvoudigInformatieobjectWithInhoud.bronorganisatie = configurationService.readBronOrganisatie()
+        enkelvoudigInformatieobjectWithInhoud.creatiedatum = restEnkelvoudigInformatieobject.creatiedatum
+        enkelvoudigInformatieobjectWithInhoud.titel = restEnkelvoudigInformatieobject.titel
+        enkelvoudigInformatieobjectWithInhoud.auteur = restEnkelvoudigInformatieobject.auteur
+        enkelvoudigInformatieobjectWithInhoud.taal = restEnkelvoudigInformatieobject.taal
+        enkelvoudigInformatieobjectWithInhoud.informatieobjecttype =
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobject.informatieobjectTypeUUID!!).url
+        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = restEnkelvoudigInformatieobject.bestandsnaam
+        enkelvoudigInformatieobjectWithInhoud.beschrijving = restEnkelvoudigInformatieobject.beschrijving
+        enkelvoudigInformatieobjectWithInhoud.status = restEnkelvoudigInformatieobject.status
+        enkelvoudigInformatieobjectWithInhoud.verzenddatum = restEnkelvoudigInformatieobject.verzenddatum
+        enkelvoudigInformatieobjectWithInhoud.ontvangstdatum = restEnkelvoudigInformatieobject.ontvangstdatum
+        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
+            VertrouwelijkheidaanduidingEnum.valueOf(
+                // the values of the enums generated by OpenAPI Generator are the
+                // uppercase variants of the strings used in the APIs
+                restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding!!.uppercase()
+            )
+        return enkelvoudigInformatieobjectWithInhoud
     }
 
-    public EnkelvoudigInformatieObjectCreateLockRequest convert(
-            final RestTaskDocumentData documentData,
-            final RESTFileUpload bestand
-    ) {
-        final EnkelvoudigInformatieObjectCreateLockRequest enkelvoudigInformatieobjectWithInhoud = new EnkelvoudigInformatieObjectCreateLockRequest();
-        enkelvoudigInformatieobjectWithInhoud.setBronorganisatie(configurationService.readBronOrganisatie());
-        enkelvoudigInformatieobjectWithInhoud.setCreatiedatum(LocalDate.now());
-        enkelvoudigInformatieobjectWithInhoud.setTitel(documentData.getDocumentTitel());
-        enkelvoudigInformatieobjectWithInhoud.setAuteur(getFullName(loggedInUserInstance.get()));
-        enkelvoudigInformatieobjectWithInhoud.setTaal(ConfigurationService.TAAL_NEDERLANDS);
-        enkelvoudigInformatieobjectWithInhoud.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(documentData.getDocumentType().uuid).getUrl()
-        );
-        enkelvoudigInformatieobjectWithInhoud.setInhoud(toBase64String(bestand.file));
-        enkelvoudigInformatieobjectWithInhoud.setFormaat(bestand.type);
-        enkelvoudigInformatieobjectWithInhoud.setBestandsnaam(bestand.filename);
-        enkelvoudigInformatieobjectWithInhoud.setStatus(StatusEnum.DEFINITIEF);
-        enkelvoudigInformatieobjectWithInhoud.setVertrouwelijkheidaanduiding(
-                VertrouwelijkheidaanduidingEnum.valueOf(documentData.getDocumentType().vertrouwelijkheidaanduiding)
-        );
-        return enkelvoudigInformatieobjectWithInhoud;
+    fun convert(documentData: RestTaskDocumentData, bestand: RESTFileUpload): EnkelvoudigInformatieObjectCreateLockRequest {
+        val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest()
+        enkelvoudigInformatieobjectWithInhoud.bronorganisatie = configurationService.readBronOrganisatie()
+        enkelvoudigInformatieobjectWithInhoud.creatiedatum = LocalDate.now()
+        enkelvoudigInformatieobjectWithInhoud.titel = documentData.documentTitel
+        enkelvoudigInformatieobjectWithInhoud.auteur = loggedInUserInstance.get().getFullName()
+        enkelvoudigInformatieobjectWithInhoud.taal = ConfigurationService.TAAL_NEDERLANDS
+        enkelvoudigInformatieobjectWithInhoud.informatieobjecttype =
+            ztcClientService.readInformatieobjecttype(documentData.documentType.uuid!!).url
+        enkelvoudigInformatieobjectWithInhoud.inhoud = bestand.file!!.toBase64String()
+        enkelvoudigInformatieobjectWithInhoud.formaat = bestand.type
+        enkelvoudigInformatieobjectWithInhoud.bestandsnaam = bestand.filename
+        enkelvoudigInformatieobjectWithInhoud.status = StatusEnum.DEFINITIEF
+        enkelvoudigInformatieobjectWithInhoud.vertrouwelijkheidaanduiding =
+            VertrouwelijkheidaanduidingEnum.valueOf(documentData.documentType.vertrouwelijkheidaanduiding!!)
+        return enkelvoudigInformatieobjectWithInhoud
     }
 
-
-    public RestEnkelvoudigInformatieObjectVersieGegevens convertToRestEnkelvoudigInformatieObjectVersieGegevens(
-            final EnkelvoudigInformatieObject informatieobject
-    ) {
-        final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens = new RestEnkelvoudigInformatieObjectVersieGegevens();
-
-        restEnkelvoudigInformatieObjectVersieGegevens.uuid = extractUuid(informatieobject.getUrl());
-
-        if (informatieobject.getStatus() != null) {
-            restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.getStatus();
+    fun convertToRestEnkelvoudigInformatieObjectVersieGegevens(
+        informatieobject: EnkelvoudigInformatieObject
+    ): RestEnkelvoudigInformatieObjectVersieGegevens {
+        val restEnkelvoudigInformatieObjectVersieGegevens = RestEnkelvoudigInformatieObjectVersieGegevens()
+        restEnkelvoudigInformatieObjectVersieGegevens.uuid = informatieobject.url.extractUuid()
+        if (informatieobject.status != null) {
+            restEnkelvoudigInformatieObjectVersieGegevens.status = informatieobject.status
         }
-        if (informatieobject.getVertrouwelijkheidaanduiding() != null) {
+        if (informatieobject.vertrouwelijkheidaanduiding != null) {
             // we use the uppercase version of this enum in the ZAC backend API
-            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding = informatieobject.getVertrouwelijkheidaanduiding()
-                    .name();
+            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding =
+                informatieobject.vertrouwelijkheidaanduiding.name
         }
-
-        restEnkelvoudigInformatieObjectVersieGegevens.beschrijving = informatieobject.getBeschrijving();
-        restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum = informatieobject.getVerzenddatum();
-        restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum = informatieobject.getOntvangstdatum();
-        restEnkelvoudigInformatieObjectVersieGegevens.titel = informatieobject.getTitel();
-        restEnkelvoudigInformatieObjectVersieGegevens.auteur = informatieobject.getAuteur();
-        final Taal taal = configurationService.findTaal(informatieobject.getTaal());
+        restEnkelvoudigInformatieObjectVersieGegevens.beschrijving = informatieobject.beschrijving
+        restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum = informatieobject.verzenddatum
+        restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum = informatieobject.ontvangstdatum
+        restEnkelvoudigInformatieObjectVersieGegevens.titel = informatieobject.titel
+        restEnkelvoudigInformatieObjectVersieGegevens.auteur = informatieobject.auteur
+        val taal = configurationService.findTaal(informatieobject.taal)
         if (taal != null) {
-            restEnkelvoudigInformatieObjectVersieGegevens.taal = toRestTaal(taal);
+            restEnkelvoudigInformatieObjectVersieGegevens.taal = taal.toRestTaal()
         }
-        restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.getInhoud().toString();
-        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = extractUuid(informatieobject
-                .getInformatieobjecttype());
-
-        return restEnkelvoudigInformatieObjectVersieGegevens;
+        restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.inhoud.toString()
+        restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = informatieobject.informatieobjecttype.extractUuid()
+        return restEnkelvoudigInformatieObjectVersieGegevens
     }
 
-    public EnkelvoudigInformatieObjectWithLockRequest convert(
-            final RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
-    ) {
-        final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockData(
-                restEnkelvoudigInformatieObjectVersieGegevens);
-        if (
-            restEnkelvoudigInformatieObjectVersieGegevens.file != null &&
-            restEnkelvoudigInformatieObjectVersieGegevens.file.length > 0 &&
-            restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null &&
-            restEnkelvoudigInformatieObjectVersieGegevens.formaat != null
-        ) {
-            enkelvoudigInformatieObjectWithLockRequest.setInhoud(toBase64String(restEnkelvoudigInformatieObjectVersieGegevens.file));
-            enkelvoudigInformatieObjectWithLockRequest.setBestandsnaam(restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam);
-            enkelvoudigInformatieObjectWithLockRequest.setBestandsomvang(restEnkelvoudigInformatieObjectVersieGegevens.file.length);
-            enkelvoudigInformatieObjectWithLockRequest.setFormaat(restEnkelvoudigInformatieObjectVersieGegevens.formaat);
+    @Suppress("MaxLineLength")
+    fun convert(
+        restEnkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens
+    ): EnkelvoudigInformatieObjectWithLockRequest {
+        val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockData(
+            restEnkelvoudigInformatieObjectVersieGegevens
+        )
+        if (hasFileContent(restEnkelvoudigInformatieObjectVersieGegevens)) {
+            enkelvoudigInformatieObjectWithLockRequest.inhoud = restEnkelvoudigInformatieObjectVersieGegevens.file!!.toBase64String()
+            enkelvoudigInformatieObjectWithLockRequest.bestandsnaam = restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam
+            enkelvoudigInformatieObjectWithLockRequest.bestandsomvang = restEnkelvoudigInformatieObjectVersieGegevens.file!!.size
+            enkelvoudigInformatieObjectWithLockRequest.formaat = restEnkelvoudigInformatieObjectVersieGegevens.formaat
         }
-
-        enkelvoudigInformatieObjectWithLockRequest.setInformatieobjecttype(
-                ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID).getUrl()
-        );
-
-        return enkelvoudigInformatieObjectWithLockRequest;
+        enkelvoudigInformatieObjectWithLockRequest.informatieobjecttype =
+            ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID!!).url
+        return enkelvoudigInformatieObjectWithLockRequest
     }
 
-    private static EnkelvoudigInformatieObjectWithLockRequest createEnkelvoudigInformatieObjectWithLockData(
-            RestEnkelvoudigInformatieObjectVersieGegevens restEnkelvoudigInformatieObjectVersieGegevens
-    ) {
-        final EnkelvoudigInformatieObjectWithLockRequest enkelvoudigInformatieObjectWithLockData = new EnkelvoudigInformatieObjectWithLockRequest();
-
+    private fun createEnkelvoudigInformatieObjectWithLockData(
+        restEnkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens
+    ): EnkelvoudigInformatieObjectWithLockRequest {
+        val enkelvoudigInformatieObjectWithLockData = EnkelvoudigInformatieObjectWithLockRequest()
         if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
-            enkelvoudigInformatieObjectWithLockData.setStatus(restEnkelvoudigInformatieObjectVersieGegevens.status);
+            enkelvoudigInformatieObjectWithLockData.status = restEnkelvoudigInformatieObjectVersieGegevens.status
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
-            enkelvoudigInformatieObjectWithLockData.setVertrouwelijkheidaanduiding(
-                    // convert this enum to uppercase in case the client sends it in lowercase
-                    VertrouwelijkheidaanduidingEnum.valueOf(restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
-                            .toUpperCase())
-            );
+            enkelvoudigInformatieObjectWithLockData.vertrouwelijkheidaanduiding =
+                // convert this enum to uppercase in case the client sends it in lowercase
+                VertrouwelijkheidaanduidingEnum.valueOf(
+                    restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding!!.uppercase()
+                )
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
-            enkelvoudigInformatieObjectWithLockData.setBeschrijving(restEnkelvoudigInformatieObjectVersieGegevens.beschrijving);
+            enkelvoudigInformatieObjectWithLockData.beschrijving = restEnkelvoudigInformatieObjectVersieGegevens.beschrijving
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setVerzenddatum(restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum);
+            enkelvoudigInformatieObjectWithLockData.verzenddatum = restEnkelvoudigInformatieObjectVersieGegevens.verzenddatum
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum != null) {
-            enkelvoudigInformatieObjectWithLockData.setOntvangstdatum(restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum);
+            enkelvoudigInformatieObjectWithLockData.ontvangstdatum = restEnkelvoudigInformatieObjectVersieGegevens.ontvangstdatum
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.titel != null) {
-            enkelvoudigInformatieObjectWithLockData.setTitel(restEnkelvoudigInformatieObjectVersieGegevens.titel);
+            enkelvoudigInformatieObjectWithLockData.titel = restEnkelvoudigInformatieObjectVersieGegevens.titel
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.taal != null) {
-            enkelvoudigInformatieObjectWithLockData.setTaal(restEnkelvoudigInformatieObjectVersieGegevens.taal.getCode());
+            enkelvoudigInformatieObjectWithLockData.taal = restEnkelvoudigInformatieObjectVersieGegevens.taal!!.code
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.auteur != null) {
-            enkelvoudigInformatieObjectWithLockData.setAuteur(restEnkelvoudigInformatieObjectVersieGegevens.auteur);
+            enkelvoudigInformatieObjectWithLockData.auteur = restEnkelvoudigInformatieObjectVersieGegevens.auteur
         }
         if (restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam != null) {
-            enkelvoudigInformatieObjectWithLockData.setBestandsnaam((restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam));
+            enkelvoudigInformatieObjectWithLockData.bestandsnaam = restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam
         }
-        return enkelvoudigInformatieObjectWithLockData;
+        return enkelvoudigInformatieObjectWithLockData
     }
 
-    public List<RestEnkelvoudigInformatieobject> convertUUIDsToREST(
-            final List<UUID> enkelvoudigInformatieobjectUUIDs,
-            final Zaak zaak
-    ) {
-        return enkelvoudigInformatieobjectUUIDs.stream()
-                .map(enkelvoudigInformatieobjectUUID -> {
-                    try {
-                        return convertToREST(
-                                drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID),
-                                zaak
-                        );
-                    } catch (ZgwErrorException e) {
-                        if (e.getZgwError().getStatus() != HttpStatus.NOT_FOUND_404) {
-                            throw e;
-                        }
-                        LOG.severe(() -> "Document niet gevonden: %s".formatted(enkelvoudigInformatieobjectUUID));
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
-    }
+    fun convertUUIDsToREST(enkelvoudigInformatieobjectUUIDs: List<UUID>, zaak: Zaak?): List<RestEnkelvoudigInformatieobject> =
+        enkelvoudigInformatieobjectUUIDs.mapNotNull { enkelvoudigInformatieobjectUUID ->
+            try {
+                convertToREST(
+                    enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
+                        enkelvoudigInformatieobjectUUID
+                    ),
+                    zaak = zaak
+                )
+            } catch (zgwErrorException: ZgwErrorException) {
+                if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
+                    throw zgwErrorException
+                }
+                LOG.severe { "Document niet gevonden: $enkelvoudigInformatieobjectUUID" }
+                null
+            }
+        }
 
-    public RestGekoppeldeZaakEnkelvoudigInformatieObject convertToREST(
-            final ZaakInformatieobject zaakInformatieObject,
-            final RelatieType relatieType,
-            final Zaak zaak
-    ) {
-        final EnkelvoudigInformatieObject enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-                zaakInformatieObject.getInformatieobject());
-        final UUID enkelvoudigInformatieObjectUUID = extractUuid(enkelvoudigInformatieObject.getUrl());
-        final EnkelvoudigInformatieObjectLock lock = enkelvoudigInformatieObject.getLocked() ?
-                enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) : null;
-        final DocumentRechten documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak);
-        final RestGekoppeldeZaakEnkelvoudigInformatieObject restEnkelvoudigInformatieobject = new RestGekoppeldeZaakEnkelvoudigInformatieObject();
-        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID;
-        restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.getIdentificatie();
-        restEnkelvoudigInformatieobject.rechten = toRestDocumentRechten(documentRechten);
-        if (documentRechten.getLezen()) {
-            convertEnkelvoudigInformatieObject(enkelvoudigInformatieObject, lock, restEnkelvoudigInformatieobject);
-            restEnkelvoudigInformatieobject.relatieType = relatieType;
-            restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.getIdentificatie();
-            restEnkelvoudigInformatieobject.zaakUUID = zaak.getUuid();
+    fun convertToREST(
+        zaakInformatieObject: ZaakInformatieobject,
+        relatieType: RelatieType,
+        zaak: Zaak
+    ): RestGekoppeldeZaakEnkelvoudigInformatieObject {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
+            zaakInformatieObject.informatieobject
+        )
+        val enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid()
+        val lock = if (enkelvoudigInformatieObject.locked) {
+            enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
         } else {
-            restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.getIdentificatie();
+            null
         }
-        return restEnkelvoudigInformatieobject;
+        val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
+        val restEnkelvoudigInformatieobject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
+        restEnkelvoudigInformatieobject.uuid = enkelvoudigInformatieObjectUUID
+        restEnkelvoudigInformatieobject.identificatie = enkelvoudigInformatieObject.identificatie
+        restEnkelvoudigInformatieobject.rechten = documentRechten.toRestDocumentRechten()
+        if (documentRechten.lezen) {
+            convertEnkelvoudigInformatieObject(
+                enkelvoudigInformatieObject = enkelvoudigInformatieObject,
+                lock = lock,
+                restEnkelvoudigInformatieobject = restEnkelvoudigInformatieobject
+            )
+            restEnkelvoudigInformatieobject.relatieType = relatieType
+            restEnkelvoudigInformatieobject.zaakIdentificatie = zaak.identificatie
+            restEnkelvoudigInformatieobject.zaakUUID = zaak.uuid
+        } else {
+            restEnkelvoudigInformatieobject.titel = enkelvoudigInformatieObject.identificatie
+        }
+        return restEnkelvoudigInformatieobject
     }
 
-    public List<RestEnkelvoudigInformatieobject> convertInformatieobjectenToREST(
-            final List<EnkelvoudigInformatieObject> informatieobjecten
-    ) {
-        return informatieobjecten.stream().map(this::convertToREST).toList();
-    }
+    fun convertInformatieobjectenToREST(informatieobjecten: List<EnkelvoudigInformatieObject>): List<RestEnkelvoudigInformatieobject> =
+        informatieobjecten.map { convertToREST(it) }
+
+    private fun hasFileContent(versieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens) =
+        versieGegevens.file != null &&
+            versieGegevens.file!!.isNotEmpty() &&
+            versieGegevens.bestandsnaam != null &&
+            versieGegevens.formaat != null
 }

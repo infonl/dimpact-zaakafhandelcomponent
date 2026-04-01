@@ -1,18 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.informatieobjecten.model;
+package nl.info.zac.app.informatieobjecten.model
 
-import java.util.UUID;
+import java.util.UUID
 
-public class RestInformatieobjecttype {
-    public UUID uuid;
+class RestInformatieobjecttype {
+    var uuid: UUID? = null
 
-    public String omschrijving;
+    var omschrijving: String? = null
 
-    public String vertrouwelijkheidaanduiding;
+    var vertrouwelijkheidaanduiding: String? = null
 
-    public boolean concept;
+    var concept: Boolean = false
 }
