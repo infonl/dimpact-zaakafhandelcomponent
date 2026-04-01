@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.206](https://img.shields.io/badge/Version-1.0.206-informational?style=flat-square) ![AppVersion: 4.5](https://img.shields.io/badge/AppVersion-4.5-informational?style=flat-square)
+![Version: 1.0.207](https://img.shields.io/badge/Version-1.0.207-informational?style=flat-square) ![AppVersion: 4.5](https://img.shields.io/badge/AppVersion-4.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -314,10 +314,13 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
+| solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
+| solr-operator.solr.readinessProbe | object | `{}` | readinessProbe override for solr in solrcloud. The Solr Operator already defaults to /solr/admin/info/health for readiness. Override only if custom thresholds are needed. |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
 | solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
+| solr-operator.solr.startupProbe | object | `{}` | startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system. Override only if custom startup timing is needed. |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
