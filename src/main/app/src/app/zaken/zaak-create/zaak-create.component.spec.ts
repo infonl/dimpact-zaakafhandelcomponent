@@ -23,7 +23,7 @@ import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { BpmnService } from "src/app/admin/bpmn.service";
 import { ZacInput } from "src/app/shared/form/input/input";

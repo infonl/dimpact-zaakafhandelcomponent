@@ -17,7 +17,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";

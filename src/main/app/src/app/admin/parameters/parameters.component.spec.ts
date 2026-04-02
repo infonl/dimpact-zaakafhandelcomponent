@@ -10,7 +10,7 @@ import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";

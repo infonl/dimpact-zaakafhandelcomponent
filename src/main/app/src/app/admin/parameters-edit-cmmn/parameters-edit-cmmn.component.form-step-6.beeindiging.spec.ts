@@ -10,7 +10,7 @@ import { MatCheckboxChange } from "@angular/material/checkbox";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";

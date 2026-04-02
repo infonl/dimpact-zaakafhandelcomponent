@@ -14,7 +14,7 @@ import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { Response } from "../../shared/http/http-client";

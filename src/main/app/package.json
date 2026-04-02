@@ -66,7 +66,6 @@
     "@angular/cli": "19.2.23",
     "@angular/compiler-cli": "19.2.20",
     "@angular/language-service": "19.2.20",
-    "@total-typescript/shoehorn": "0.1.2",
     "@types/jest": "29.5.14",
     "@types/node": "22.19.15",
     "@typescript-eslint/eslint-plugin": "8.57.2",

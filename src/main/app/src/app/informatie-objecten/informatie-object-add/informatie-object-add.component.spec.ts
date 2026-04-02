@@ -28,7 +28,7 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import moment from "moment";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../../setupJest";

@@ -20,7 +20,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import moment from "moment";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";

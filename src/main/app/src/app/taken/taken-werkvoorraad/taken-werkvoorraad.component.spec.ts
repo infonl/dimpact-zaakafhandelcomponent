@@ -13,7 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";

@@ -11,7 +11,7 @@ import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,

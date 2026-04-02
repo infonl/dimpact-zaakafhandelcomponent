@@ -13,7 +13,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "src/app/shared/material/material.module";

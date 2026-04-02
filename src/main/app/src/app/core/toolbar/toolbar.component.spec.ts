@@ -21,7 +21,7 @@ import {
   injectMutation,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { mockMutationFn, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";

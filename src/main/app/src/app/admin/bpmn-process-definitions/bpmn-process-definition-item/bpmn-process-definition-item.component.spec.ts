@@ -12,7 +12,7 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";

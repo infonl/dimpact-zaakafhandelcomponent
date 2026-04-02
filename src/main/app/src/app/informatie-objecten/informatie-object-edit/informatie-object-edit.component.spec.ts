@@ -21,7 +21,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import moment from "moment";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";

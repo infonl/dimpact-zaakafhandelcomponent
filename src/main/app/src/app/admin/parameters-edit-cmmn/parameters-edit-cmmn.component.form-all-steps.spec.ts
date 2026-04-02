@@ -13,7 +13,7 @@ import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";

@@ -14,7 +14,7 @@ import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";

@@ -20,7 +20,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
