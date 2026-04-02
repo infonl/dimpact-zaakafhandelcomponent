@@ -78,8 +78,20 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
             enkelvoudigInformatieobject.verzenddatum != null -> RICHTING_UITGAAND
             else -> RICHTING_INTERN
         }
-        val bestandsnaamExtensie = enkelvoudigInformatieobject.bestandsnaam.split(".")
-        return "$zaakId/$subfolder/${bestandsnaamExtensie[0]}-${enkelvoudigInformatieobject.identificatie}.${bestandsnaamExtensie[1]}"
+        val bestandsnaam = enkelvoudigInformatieobject.bestandsnaam
+        val baseName = bestandsnaam.substringBeforeLast(".")
+        val extension = bestandsnaam.substringAfterLast(".", "")
+
+        val naamMetIdentificatie = when {
+            baseName.isNotEmpty() -> "$baseName-${enkelvoudigInformatieobject.identificatie}"
+            else -> "-${enkelvoudigInformatieobject.identificatie}"
+        }
+
+        return if (extension.isNotEmpty()) {
+            "$zaakId/$subfolder/$naamMetIdentificatie.$extension"
+        } else {
+            "$zaakId/$subfolder/$naamMetIdentificatie"
+        }
     }
 
     private fun samenvattingAddInformatieObject(
