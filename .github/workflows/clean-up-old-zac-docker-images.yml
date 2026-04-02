@@ -43,5 +43,5 @@ jobs:
           package-name: zaakafhandelcomponent
           package-type: container
           min-versions-to-keep: 10
-          ignore-versions: '^(latest|v\d+\.\d+(\.0|\.\d+-\S+)?)$'
+          ignore-versions: '^(latest|v?\d+\.\d+(\.0|\.\d+-\S+)?)$'
           token: ${{ secrets.GITHUB_TOKEN }}
