@@ -57,6 +57,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 5 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
 | 6 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
 | 7 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
+| 7b | **Log pre-existing bugs** — while reading the component, note any logic bugs you spot (error paths not handled, null-checks that always evaluate the same way, duplicate subscriptions, etc.). Do NOT fix them. Add them to `## Known Pre-existing Bugs` at the bottom of this file so they can be addressed in a separate ticket. | — |
 | 8 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
 | 9 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
 | 10 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
@@ -151,9 +152,9 @@ Solves PZ-XXXXX
 ## Completed
 
 ### ✅ `identity/identity.component.ts` (2026-04-01)
-- `imports: [MatCardModule, MatListModule, MatDividerModule, TranslateModule, NgFor, NgIf, AsyncPipe]`
+- `imports: [MatCardModule, MatListModule]`
 - Access modifiers: template-visible members → `protected`
-- **Pattern**: tiny module with only MaterialModule as non-standalone import; signal inputs used
+- **Pattern**: identity overview component using Material card/list; signal inputs used
 
 ### ✅ `gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component.ts` (2026-04-01)
 - `imports: [NgIf, NgFor, NgClass, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslateModule, ReadMoreComponent]`
@@ -161,12 +162,12 @@ Solves PZ-XXXXX
 - **Pattern**: `ReadMoreComponent` already standalone — import directly; `MatMenuModule` covers `mat-menu` + `[matMenuTriggerFor]`
 
 ### ✅ `signaleringen/signaleringen-settings/signaleringen-settings.component.ts` (2026-04-01)
-- `imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslateModule, AsyncPipe, DatePipe]`
+- `imports: [NgClass, NgFor, NgIf, MatTableModule, MatCheckboxModule, TranslateModule]`
 - Access modifiers: template-visible members → `protected`
 - **Pattern**: mat-table with simple module (SharedModule + routing only); 16 tests
 
 ### ✅ `fout-afhandeling/fout-afhandeling.component.ts` (2026-04-01)
-- `imports: [MatCardModule, MatExpansionModule, MatButtonModule, MatIconModule, TranslateModule, NgIf, NgFor, AsyncPipe]`
+- `imports: [AsyncPipe, NgFor, MatCardModule, MatIconModule, TranslateModule]`
 - Access modifiers: template-visible members → `protected`
 - **Pattern**: error-page component; only declaration in its module; minimal service dependencies
 
@@ -363,3 +364,15 @@ Do **not** go hunting for these in files you are not already migrating. Only fix
 | Pattern | Why it is wrong | Fix |
 |---|---|---|
 | `ngOnChanges` re-assigns `@Input` from `changes.x?.currentValue` | Angular sets `@Input` fields before calling `ngOnChanges`. Re-assigning is redundant when the input _did_ change, and **destructive** (sets to `undefined`) when it _did not_. Only the side-effect call (e.g. `loadIndicaties()`) belongs in `ngOnChanges`. | Remove the re-assignment lines; keep only the side-effect call. Drop `SimpleChanges` from the parameter if it is no longer used. |
+
+---
+
+## Known Pre-existing Bugs
+
+Bugs spotted during migration but **not fixed** — scope is standalone migration only, no logic changes to minimise regression risk. Raise separate tickets for these.
+
+| Component | Bug | Found in batch |
+|---|---|---|
+| `ZoekopdrachtComponent` | `clearActief()` sets `actieveZoekopdracht = null` then immediately checks `if (emit && this.actieveZoekopdracht)` — always `false`. The `@Output() zoekopdracht` never emits when clearing; consumers are never notified. Output type should also include `null`. | batch-4 |
+| `SignaleringenSettingsComponent` | `changed()` calls `setLoading(true)` but only calls `setLoading(false)` in the success callback of `put()`. On HTTP error the loading spinner stays stuck forever. Should use `finalize(() => setLoading(false))`. | batch-4 |
+| `FoutAfhandelingComponent` | Template uses `serverErrorTexts \| async` twice (in `@if` and `*ngFor`), creating two separate HTTP subscriptions and triggering duplicate requests. Should use `shareReplay(1)` or an `@let` binding. | batch-4 |

@@ -174,12 +174,15 @@ describe(ZoekopdrachtComponent.name, () => {
     });
 
     it("shows selecteer button when no active search and no active filters", async () => {
-      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
+        ),
       ).not.toBeNull();
       expect(
-        nativeElement.querySelector("#clearZoekopdrachtButton2"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
+        ),
       ).toBeNull();
     });
 
@@ -187,25 +190,31 @@ describe(ZoekopdrachtComponent.name, () => {
       component["actieveZoekopdracht"] = makeZoekopdracht({ naam: "Actief" });
       fixture.detectChanges();
 
-      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
+        ),
       ).toBeNull();
       expect(
-        nativeElement.querySelector("#clearZoekopdrachtButton2"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
+        ),
       ).not.toBeNull();
     });
 
-    it("hides selecteer button and shows clear button when actieveFilters is true", () => {
+    it("hides selecteer button and shows clear button when actieveFilters is true", async () => {
       component["actieveFilters"] = true;
       fixture.detectChanges();
 
-      const nativeElement = fixture.nativeElement as HTMLElement;
       expect(
-        nativeElement.querySelector("#selecteerZoekopdrachtButton"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
+        ),
       ).toBeNull();
       expect(
-        nativeElement.querySelector("#clearZoekopdrachtButton2"),
+        await loader.getHarnessOrNull(
+          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
+        ),
       ).not.toBeNull();
     });
 
