@@ -12,7 +12,7 @@ cd ./src/e2e
 
 if [ "$SKIP_INSTALL" != "true" ]; then
   echo "Install dependencies ..."
-  npm ci
+  npm ci --ignore-scripts
 
   echo "Install Playwright Browsers ..."
   npx playwright install --with-deps

@@ -13,7 +13,7 @@ Given("I am on the ZAC login page", async ({ page }) => {
 
 Given("I log out of the system", async ({ page }) => {
   await page.getByRole("button", { name: "Gebruikers profiel" }).click();
-  await page.getByRole("menuitem", { name: "Log out" }).click();
+  await page.getByRole("menuitem", { name: "Sign out" }).click();
 });
 
 When(

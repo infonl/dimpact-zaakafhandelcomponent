@@ -407,7 +407,7 @@ class ProductaanvraagService @Inject constructor(
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak = zaak,
                 betrokkene = this,
-                productaanvraagSpecificEmailAddress = productaanvraagSpecificContactDetails?.email,
+                productaanvraagSpecificEmailAddress = productaanvraagSpecificContactDetails?.contactDetails?.emailAddress,
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
         }

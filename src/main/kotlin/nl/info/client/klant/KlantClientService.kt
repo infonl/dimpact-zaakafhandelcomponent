@@ -15,11 +15,12 @@ import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.KVK_NUMMER
 import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum.VESTIGINGSNUMMER
 import nl.info.client.klanten.model.generated.DigitaalAdres
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.Klantcontact
 import nl.info.client.klanten.model.generated.KlantcontactForeignKey
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.Onderwerpobjectidentificator
-import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum.EMAIL
-import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum.TELEFOONNUMMER
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
+import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -29,6 +30,7 @@ import java.util.logging.Logger
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class KlantClientService @Inject constructor(
     @RestClient
     private val klantClient: KlantClient
@@ -36,10 +38,24 @@ class KlantClientService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(KlantClientService::class.java.name)
         private const val DEFAULT_PAGE_SIZE = 100
-        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "zaak"
-        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "open-zaak"
-        private const val ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "uuid"
+        private const val OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "zaak"
+        private const val OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "open-zaak"
+        private const val OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "uuid"
+        private const val OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE = "formulierinzending"
+        private const val OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER = "Open Formulieren"
+        private const val OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID = "public_registration_reference"
     }
+
+    private fun createZaakOnderwerpobject(klantcontactUuid: UUID, zaakUuid: UUID) =
+        Onderwerpobject().apply {
+            klantcontact = KlantcontactForeignKey().apply { uuid = klantcontactUuid }
+            onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
+                objectId = zaakUuid.toString()
+                codeObjecttype = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE
+                codeRegister = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER
+                codeSoortObjectId = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID
+            }
+        }
 
     /**
      * Finds digital addresses (i.e. 'contact details') in the Klantinteracties API for a 'vestiging'
@@ -118,7 +134,20 @@ class KlantClientService @Inject constructor(
         klantClient.klantcontactList(
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,
-            onderwerpObjectOnderwerpObjectIdentificatorObjectId = kenmerk
+            onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE,
+            onderwerpobjectOnderwerpobjectidentificatorCodeRegister = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER,
+            onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID,
+            onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+        ).getResults().firstOrNull()
+
+    private fun findKlantcontactForZaak(zaakUuid: UUID) =
+        klantClient.klantcontactList(
+            page = 1,
+            pageSize = DEFAULT_PAGE_SIZE,
+            onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE,
+            onderwerpobjectOnderwerpobjectidentificatorCodeRegister = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER,
+            onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = OPEN_ZAAK_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID,
+            onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
     private fun findDigitalAddressesForBetrokkene(betrokkeneUuid: String) =
@@ -128,33 +157,35 @@ class KlantClientService @Inject constructor(
             verstrektDoorBetrokkeneUuid = betrokkeneUuid
         ).getResults()
 
+    private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? =
+        klantcontact.hadBetrokkenen.firstOrNull()?.let {
+            findDigitalAddressesForBetrokkene(it.uuid.toString()).toContactDetails()
+        }
+
     fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
-            klantcontact.hadBetrokkenen.firstOrNull()?.let { betrokkene ->
-                val digitaalAdresList = findDigitalAddressesForBetrokkene(betrokkene.uuid.toString())
-                return ProductaanvraagSpecificContactDetails(
-                    klantcontact.uuid,
-                    email = digitaalAdresList.filter { it.soortDigitaalAdres == EMAIL }.map { it.adres }.firstOrNull(),
-                    phone = digitaalAdresList.filter { it.soortDigitaalAdres == TELEFOONNUMMER }.map { it.adres }
-                        .firstOrNull()
+            findPreferredContactDetails(klantcontact)?.let { contactDetails ->
+                ProductaanvraagSpecificContactDetails(
+                    klantcontactUuid = klantcontact.uuid,
+                    contactDetails = contactDetails
                 )
             }
-            return null
+        }
+
+    fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
+        findKlantcontactForZaak(zaakUuid)?.let {
+            findPreferredContactDetails(it)
         }
 
     fun linkProductaanvraagSpecificContactDetailsToZaak(
         productaanvraagSpecificContactDetails: ProductaanvraagSpecificContactDetails,
         zaakUuid: UUID
     ) {
-        val onderwerpobject = Onderwerpobject().apply {
-            klantcontact = KlantcontactForeignKey().apply { uuid = productaanvraagSpecificContactDetails.klantcontactUuid }
-            onderwerpobjectidentificator = Onderwerpobjectidentificator().apply {
-                objectId = zaakUuid.toString()
-                codeObjecttype = ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE
-                codeRegister = ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER
-                codeSoortObjectId = ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID
-            }
-        }
-        klantClient.onderwerpobjectCreate(onderwerpobject)
+        klantClient.onderwerpobjectCreate(
+            createZaakOnderwerpobject(
+                productaanvraagSpecificContactDetails.klantcontactUuid,
+                zaakUuid
+            )
+        )
     }
 }
