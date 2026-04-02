@@ -50,6 +50,7 @@ import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInf
 import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
+import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
@@ -253,7 +254,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map(ztcClientService::readInformatieobjecttype)
             .filter { it.isNuGeldig() }
-            .let(RestInformatieobjecttypeConverter::convert)
+            .map { it.toRestInformatieobjecttype() }
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")

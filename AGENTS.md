@@ -190,6 +190,37 @@ val user = createUser(firstName = "John", lastName = "Doe", age = 30)
 ```
 This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
 
+### Prefer concise lambda syntax in Kotlin
+When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
+```kotlin// Before
+val sum = numbers.map { number -> number * 2 }.sum()
+// After
+val sum = numbers.map { it * 2 }.sum()
+```
+This makes the code more concise and easier to read.
+
+### Use method references in Kotlin
+When you have a lambda function that simply calls another function, use a method reference to make the code more concise. For example:
+```kotlin// Before
+val param.map { someFunction(it) }
+// After
+val param.map(::someFunction)
+```
+
+### Use .apply for object configuration in Kotlin
+When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
+```kotlin// Before
+val user = User()
+user.firstName = "John"
+user.lastName = "Doe"
+// After
+val user = User().apply {
+    firstName = "John"
+    lastName = "Doe"
+}
+```
+This allows you to initialize the object in a more fluent way.
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.

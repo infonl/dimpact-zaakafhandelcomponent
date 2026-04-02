@@ -122,6 +122,23 @@ to this
 // Kotlin: someMethod(x = x, y = y, z = z)
 ```
 
+**m) Add extension functions** — if the original Java class had static utility methods that operate on instances of a class, consider converting them to Kotlin extension functions for better discoverability and idiomatic usage. For example:
+```javapublic class NoteConverter {
+    public static NoteDto toDto(Note note) { ... }
+    public static Note fromDto(NoteDto dto) { ... }
+}
+```
+could be converted to:
+```kotlinobject NoteConverter {
+    fun Note.toDto(): NoteDto { ... }
+    fun NoteDto.fromDto(): Note { ... }
+}
+```
+This allows callers to use the conversion methods in a more natural way:
+```kotlinval noteDto = note.toDto()
+val note = noteDto.fromDto()
+```
+
 ## Step 7 — Update all call sites
 
 Search for all files that still import the old package:

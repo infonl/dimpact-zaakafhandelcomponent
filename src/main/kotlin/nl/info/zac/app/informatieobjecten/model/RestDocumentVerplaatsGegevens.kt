@@ -12,9 +12,9 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RestDocumentVerplaatsGegevens(
-    var documentUUID: UUID? = null,
-    var bron: String? = null,
-    var nieuweZaakID: String? = null
+    var documentUUID: UUID,
+    var bron: String,
+    var nieuweZaakID: String
 ) {
     companion object {
         const val INBOX_DOCUMENTEN = "inbox-documenten"
