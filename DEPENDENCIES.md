@@ -5,7 +5,7 @@ This document lists the Docker images and versions that the corresponding versio
 ## Core Dependencies
 
 - **postgres**: 17.9
-- **keycloak**: 26.5.6
+- **keycloak**: 26.5.7
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
 - **solr**: 9.10.1-slim
