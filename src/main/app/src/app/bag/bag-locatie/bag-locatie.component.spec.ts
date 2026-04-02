@@ -60,7 +60,6 @@ import { BagLocatieComponent } from "./bag-locatie.component";
 
 describe(BagLocatieComponent.name, () => {
   let fixture: ComponentFixture<BagLocatieComponent>;
-  let component: BagLocatieComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -68,11 +67,12 @@ describe(BagLocatieComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(BagLocatieComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it("renders the map container", () => {
-    expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector(".open-layers-map"),
+    ).not.toBeNull();
   });
 });

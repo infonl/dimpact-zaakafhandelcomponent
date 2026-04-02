@@ -101,7 +101,6 @@ describe(ZacFile.name, () => {
       fixture.detectChanges();
     });
 
-
     it("should display the form field", async () => {
       const formField = await loader.getHarness(MatFormFieldHarness);
       expect(formField).toBeTruthy();

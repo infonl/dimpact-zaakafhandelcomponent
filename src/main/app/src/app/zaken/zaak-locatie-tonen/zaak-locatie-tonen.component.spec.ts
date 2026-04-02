@@ -82,9 +82,7 @@ describe(LocatieTonenComponent.name, () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), LocatieTonenComponent],
-      providers: [
-        { provide: LocationService, useValue: mockLocationService },
-      ],
+      providers: [{ provide: LocationService, useValue: mockLocationService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LocatieTonenComponent);
@@ -98,6 +96,8 @@ describe(LocatieTonenComponent.name, () => {
   });
 
   it("renders the map container", () => {
-    expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector(".open-layers-map"),
+    ).not.toBeNull();
   });
 });

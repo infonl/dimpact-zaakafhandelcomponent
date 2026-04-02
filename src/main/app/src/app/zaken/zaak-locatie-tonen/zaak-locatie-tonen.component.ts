@@ -12,7 +12,6 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import * as control from "ol/control.js";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
@@ -31,6 +30,7 @@ import {
   AddressResult,
   LocationService,
 } from "../../shared/location/location.service";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryType } from "../model/geometryType";
 

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -14,7 +15,6 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import {
   MatAutocompleteModule,
@@ -30,8 +30,6 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { LocationPipe } from "../../shared/pipes/location.pipe";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import * as control from "ol/control.js";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
@@ -53,6 +51,8 @@ import {
   LocationService,
   SuggestResult,
 } from "../../shared/location/location.service";
+import { LocationPipe } from "../../shared/pipes/location.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryGegevens } from "../model/geometry-gegevens";
 import { GeometryType } from "../model/geometryType";

@@ -162,7 +162,6 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Component initialization", () => {
-
     it("should display form fields", async () => {
       const formFields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(formFields.length).toBeGreaterThanOrEqual(11);

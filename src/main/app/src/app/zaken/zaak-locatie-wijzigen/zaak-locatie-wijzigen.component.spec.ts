@@ -23,7 +23,11 @@ jest.mock("ol/geom.js", () => ({
 jest.mock("ol/index.js", () => ({
   Map: jest.fn(() => ({
     setTarget: jest.fn(),
-    getView: jest.fn(() => ({ fit: jest.fn(), getZoom: jest.fn(() => 8), setCenter: jest.fn() })),
+    getView: jest.fn(() => ({
+      fit: jest.fn(),
+      getZoom: jest.fn(() => 8),
+      setCenter: jest.fn(),
+    })),
     getSize: jest.fn(),
     addInteraction: jest.fn(),
     on: jest.fn(),
@@ -91,10 +95,7 @@ describe(CaseLocationEditComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        CaseLocationEditComponent,
-        TranslateModule.forRoot(),
-      ],
+      imports: [CaseLocationEditComponent, TranslateModule.forRoot()],
       providers: [
         { provide: LocationService, useValue: mockLocationService },
         { provide: ZakenService, useValue: mockZakenService },
@@ -114,7 +115,9 @@ describe(CaseLocationEditComponent.name, () => {
   });
 
   it("renders the map container", () => {
-    expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector(".open-layers-map"),
+    ).not.toBeNull();
   });
 
   it("enables the reason control on init when zaak has no geometry", () => {
