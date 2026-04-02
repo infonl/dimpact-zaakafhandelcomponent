@@ -83,10 +83,6 @@ describe(ZacHtmlEditor.name, () => {
       fixture.detectChanges();
     });
 
-    it("should create", () => {
-      expect(component).toBeTruthy();
-    });
-
     it("should display the editor", () => {
       const editorElement = fixture.nativeElement.querySelector("ngx-editor");
       expect(editorElement).toBeTruthy();

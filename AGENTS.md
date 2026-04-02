@@ -102,6 +102,12 @@ ZAC connects to: Open Zaak (ZGW APIs), Open Klant, Open Notificaties, HaalCentra
 
 Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+### Angular Component Specs (Frontend Tests)
+- **No `NO_ERRORS_SCHEMA`** — never use it in specs; use real imports so the compiler catches missing declarations
+- **No `any`** — no `any`, `as any`, or `eslint-disable no-explicit-any` anywhere in specs or components
+- Standalone components declare all template dependencies in their `imports` array — import the component under test directly, no `NO_ERRORS_SCHEMA` needed
+- Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
+
 ### Kotest (Backend Tests)
 Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
 ```kotlin

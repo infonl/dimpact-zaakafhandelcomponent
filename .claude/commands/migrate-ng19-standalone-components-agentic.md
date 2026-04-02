@@ -9,6 +9,12 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 **Migration rules source of truth:** `.claude/commands/migrate-ng19-standalone-components.md`
 **Collaboration claims branch:** `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`
 
+> **Every agent spawned in this pipeline MUST read these two files before doing any work:**
+> 1. `AGENTS.md` — shared project-wide rules (no `any`, no `NO_ERRORS_SCHEMA`, SPDX headers, commit conventions, etc.)
+> 2. `.claude/commands/migrate-ng19-standalone-components.md` — migration-specific rules and patterns
+>
+> Rules in `AGENTS.md` take precedence and apply to all code and specs produced.
+
 ---
 
 ## ⛔ Human Gates — NEVER skip, NEVER auto-proceed past these
@@ -27,6 +33,7 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 Launch a **general-purpose** agent:
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md
 Run from repo root: gh pr list --limit 20 --json title,headRefName
@@ -98,6 +105,7 @@ git checkout -b temp/standalone-migration
 Launch a **general-purpose** agent (substitute paths):
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Read:
 - {COMPONENT_TS_PATH}
@@ -110,7 +118,7 @@ TASK: Write a spec file at {COMPONENT_SPEC_PATH}, then self-review it.
 1. TestBed: declarations: [{COMPONENT_CLASS}], imports: [NoopAnimationsModule, TranslateModule.forRoot()]
    Component is still standalone: false — use declarations[], NOT imports[].
    Add standalone child component imports to imports[] as needed.
-2. Mock services with Pick<Service, 'method'> pattern. Use provideRouter([]) if RouterLink used.
+2. Mock services with `TestBed.inject()` + `jest.spyOn()`. Add `provideHttpClient()` for ZacHttpClient-based services, `provideRouter([])` for Router-based services. NEVER use `{ provide: Service, useValue: mockObject }` for `providedIn: 'root'` services. For `Observable<never>` returns (DELETE/PUT 204): use `of(undefined) as never`.
 3. Every test asserts meaningful behaviour — no it("should create", ...).
 4. Named factory helpers:
      const makeX = (fields: Partial<T> = {}): T =>
@@ -120,11 +128,13 @@ TASK: Write a spec file at {COMPONENT_SPEC_PATH}, then self-review it.
 6. SPDX: `2026 INFO.nl` only if INFO.nl is completely absent from the existing header.
 7. Cover ≥90% of template behaviours. Do NOT add a checklist comment block to the spec.
 8. No `any`, no `as any`, no NO_ERRORS_SCHEMA, no querySelectorAll for Material components (use harnesses).
+9. No `: void` return type annotations — remove any existing ones in files you touch.
 9. describe(ClassName.name, ...) — class name reference, not a string literal.
 
 --- SELF-REVIEW CHECKLIST ---
 After writing, verify every item:
 [ ] No `any` / `as any` / eslint-disable no-explicit-any
+[ ] No `: void` return type annotations (remove any found in touched files)
 [ ] describe(ClassName.name, ...) — class reference
 [ ] No trivial smoke tests
 [ ] No NO_ERRORS_SCHEMA
@@ -134,7 +144,9 @@ After writing, verify every item:
 [ ] SPDX header correct
 [ ] ≥90% template behaviours covered (no comment block)
 [ ] declarations[] used (not imports[])
-[ ] Service mocks typed with Pick<...>
+[ ] Services mocked via TestBed.inject() + jest.spyOn() — NOT useValue: mockObject (unless MAT_DIALOG_DATA or similar token)
+[ ] provideHttpClient() added if any service uses ZacHttpClient
+[ ] provideRouter([]) added if any service uses Router
 
 Fix any violations before returning.
 
@@ -162,6 +174,7 @@ Proceed automatically once green.
 Launch a **general-purpose** agent (substitute paths):
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Read:
 - {COMPONENT_TS_PATH}
@@ -196,6 +209,7 @@ TASK: Migrate {COMPONENT_CLASS} to standalone, then self-review.
 [ ] standalone: true present
 [ ] imports[] covers all template dependencies
 [ ] No `any` / `as any` in any touched file
+[ ] No `: void` return type annotations in any touched file
 [ ] Access modifiers correct
 [ ] @Input({ required: true }) for required inputs
 [ ] SPDX correct
@@ -272,6 +286,7 @@ Launch a **general-purpose** agent:
 ```
 Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
 
+Read AGENTS.md.
 Read .claude/commands/migrate-ng19-standalone-components.md.
 
 Run from src/main/app/:

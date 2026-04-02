@@ -160,10 +160,6 @@ describe(InformatieObjectEditComponent.name, () => {
   });
 
   describe("Component initialization", () => {
-    it("should create", () => {
-      expect(component).toBeTruthy();
-    });
-
     it("should display form fields", async () => {
       const formFields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(formFields.length).toBeGreaterThan(0);

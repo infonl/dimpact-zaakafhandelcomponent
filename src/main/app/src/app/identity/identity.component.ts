@@ -4,12 +4,15 @@
  */
 
 import { Component, computed, inject } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
+import { MatListModule } from "@angular/material/list";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "./identity.service";
 
 @Component({
   templateUrl: "./identity.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [MatCardModule, MatListModule],
 })
 export class IdentityComponent {
   private readonly identityService = inject(IdentityService);
