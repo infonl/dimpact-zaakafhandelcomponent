@@ -28,10 +28,10 @@ import {
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "../../../core/service/util.service";
-import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { BAGService } from "../../bag.service";
+import { UtilService } from "../../core/service/util.service";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { BAGService } from "../bag.service";
 
 @Component({
   selector: "zac-bag-zoek",
@@ -66,7 +66,13 @@ export class BagZoekComponent {
     GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
   >();
   protected loading = false;
-  protected columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
+  protected columns: string[] = [
+    "expand",
+    "id",
+    "type",
+    "omschrijving",
+    "acties",
+  ];
 
   constructor(
     private bagService: BAGService,
