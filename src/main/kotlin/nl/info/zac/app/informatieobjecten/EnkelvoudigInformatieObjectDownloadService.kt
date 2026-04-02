@@ -18,7 +18,6 @@ import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-@Suppress("TooGenericExceptionThrown")
 class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService
@@ -129,7 +128,10 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
             zipOutputStream.write(stringBuilder.toString().toByteArray())
             zipOutputStream.closeEntry()
         } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
+            throw EnkelvoudigInformatieObjectDownloadException(
+                "Failed to add samenvatting to zip outputStream",
+                ioException
+            )
         }
     }
 }

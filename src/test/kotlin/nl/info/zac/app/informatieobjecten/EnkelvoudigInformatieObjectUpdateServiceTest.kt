@@ -315,11 +315,12 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
             When("ondertekenEnkelvoudigInformatieObject is called") {
+                val today = LocalDate.now()
                 enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
 
                 Then("the ondertekening is set to DIGITAAL with today's date") {
                     requestSlot.captured.ondertekening!!.soort shouldBe SoortEnum.DIGITAAL
-                    requestSlot.captured.ondertekening!!.datum shouldBe LocalDate.now()
+                    requestSlot.captured.ondertekening!!.datum shouldBe today
                 }
                 And("the status is set to DEFINITIEF") {
                     requestSlot.captured.status shouldBe StatusEnum.DEFINITIEF
