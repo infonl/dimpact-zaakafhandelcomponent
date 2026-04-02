@@ -117,12 +117,7 @@ describe(CaseLocationEditComponent.name, () => {
     expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
   });
 
-  it("disables the reason control when location matches the case geometry", () => {
-    // markerLocatie$ starts as null; zaak.zaakgeometrie is undefined → isSameGeometry returns false → reasonControl is enabled
-    // When they are the same (both null/undefined type match default branch → false), the control stays enabled.
-    // Setting location to undefined explicitly via resetLocation path: markerLocatie$.next(null) and zaak has no geometry
-    // → isSameGeometry(null, undefined) → false → reasonControl.enable() is called.
-    // The control is therefore enabled after init when zaak has no zaakgeometrie.
+  it("enables the reason control on init when zaak has no geometry", () => {
     expect(component["reasonControl"].enabled).toBe(true);
   });
 });
