@@ -44,9 +44,11 @@
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
 
-### Bundle size — claimed (~420 KB gzipped savings on initial load)
-Standalone + lazy-load the three OpenLayers/proj4 map components:
-- [ ] `bag/bag-locatie/bag-locatie.component.ts`
+### Bundle size — in progress
+Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
+- [x] `shared/pipes/empty.pipe.ts` — made standalone (enabler for BagZoekComponent)
+- [x] `bag/zoek/bag-zoek/bag-zoek.component.ts` — made standalone (enabler for BAGModule lazy load)
+- [x] `bag/bag-locatie/bag-locatie.component.ts` — lazy-loaded via BAGModule `loadChildren`
 - [ ] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
 - [ ] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
