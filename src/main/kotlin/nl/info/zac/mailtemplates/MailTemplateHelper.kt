@@ -55,7 +55,7 @@ class MailTemplateHelper @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekesssssnd"
+        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
         private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\{ZAAKDATA:([^}]+)}""")
     }
 
