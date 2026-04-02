@@ -86,19 +86,10 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         pad: String,
         samenvatting: MutableMap<String, MutableMap<String, MutableList<String>>>
     ) {
-        val padDelen = pad.split("/")
-        val zaakId = padDelen[0]
-        val richting = padDelen[1]
-        val bestandsnaam = padDelen[2]
-
-        // Voeg zaak toe aan samenvatting als deze nog niet bestaat
+        val (zaakId, richting, bestandsnaam) = pad.split("/")
         samenvatting.getOrPut(zaakId) { mutableMapOf() }
-
-        // Voeg richting toe aan samenvatting als deze nog niet bestaat
-        samenvatting[zaakId]!!.getOrPut(richting) { mutableListOf() }
-
-        // Voeg informatieobject toe
-        samenvatting[zaakId]!![richting]!!.add(bestandsnaam)
+            .getOrPut(richting) { mutableListOf() }
+            .add(bestandsnaam)
     }
 
     private fun zipAddSamenvatting(samenvatting: Map<String, Map<String, List<String>>>, zipOutputStream: ZipOutputStream) {
