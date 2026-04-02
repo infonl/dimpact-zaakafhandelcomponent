@@ -37,6 +37,13 @@
 - [x] SignaleringenSettingsComponent
 - [x] FoutAfhandelingComponent
 
+### Batch 6 — claimed
+- [ ] KlantContactmomentenTabelComponent
+- [ ] ZaakBetrokkeneFilterComponent
+- [ ] PersoonsgegevensComponent
+- [ ] OntvangstbevestigingComponent
+- [ ] TakenVrijgevenDialogComponent
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
