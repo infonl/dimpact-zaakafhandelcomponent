@@ -31,7 +31,7 @@ data class RestFileUpload(
         other as RestFileUpload
 
         if (fileSize != other.fileSize) return false
-        if (!file.contentEquals(other.file)) return false
+        if (!java.util.Arrays.equals(file, other.file)) return false
         if (filename != other.filename) return false
         if (type != other.type) return false
 
