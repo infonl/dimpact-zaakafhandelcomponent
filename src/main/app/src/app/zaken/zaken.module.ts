@@ -64,10 +64,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakVerlengenDialogComponent,
     ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
-    CaseLocationEditComponent,
     ZaakLinkComponent,
     NotitiesComponent,
-    LocatieTonenComponent,
     ZaakDocumentenComponent,
   ],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
@@ -85,6 +83,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     InformatieObjectIndicatiesComponent,
     KlantKoppelComponent,
     MimetypeToExtensionPipe,
+    CaseLocationEditComponent,
+    LocatieTonenComponent,
   ],
 })
 export class ZakenModule {}

@@ -14,9 +14,24 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from "@angular/material/autocomplete";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
+import { LocationPipe } from "../../shared/pipes/location.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import * as control from "ol/control.js";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
@@ -47,7 +62,26 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-case-location-edit",
   templateUrl: "./zaak-locatie-wijzigen.component.html",
   styleUrls: ["./zaak-locatie-wijzigen.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    AsyncPipe,
+    LocationPipe,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatToolbarModule,
+    NgClass,
+    NgFor,
+    NgIf,
+    ReactiveFormsModule,
+    StaticTextComponent,
+    TranslateModule,
+  ],
 })
 export class CaseLocationEditComponent
   implements OnInit, AfterViewInit, OnDestroy

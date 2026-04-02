@@ -9,6 +9,12 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 **Migration rules source of truth:** `.claude/commands/migrate-ng19-standalone-components.md`
 **Collaboration claims branch:** `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`
 
+> **Every agent spawned in this pipeline MUST read these two files before doing any work:**
+> 1. `AGENTS.md` — shared project-wide rules (no `any`, no `NO_ERRORS_SCHEMA`, SPDX headers, commit conventions, etc.)
+> 2. `.claude/commands/migrate-ng19-standalone-components.md` — migration-specific rules and patterns
+>
+> Rules in `AGENTS.md` take precedence and apply to all code and specs produced.
+
 ---
 
 ## ⛔ Human Gates — NEVER skip, NEVER auto-proceed past these
@@ -27,6 +33,7 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 Launch a **general-purpose** agent:
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md
 Run from repo root: gh pr list --limit 20 --json title,headRefName
@@ -98,6 +105,7 @@ git checkout -b temp/standalone-migration
 Launch a **general-purpose** agent (substitute paths):
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Read:
 - {COMPONENT_TS_PATH}
@@ -162,6 +170,7 @@ Proceed automatically once green.
 Launch a **general-purpose** agent (substitute paths):
 
 ```
+Read AGENTS.md.
 Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
 Read:
 - {COMPONENT_TS_PATH}
@@ -272,6 +281,7 @@ Launch a **general-purpose** agent:
 ```
 Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
 
+Read AGENTS.md.
 Read .claude/commands/migrate-ng19-standalone-components.md.
 
 Run from src/main/app/:
