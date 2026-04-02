@@ -311,7 +311,9 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get().id } returns userId
             every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
             every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
-            every { drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any()) } returns enkelvoudigInformatieObject
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
+            } returns enkelvoudigInformatieObject
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
             When("ondertekenEnkelvoudigInformatieObject is called") {
