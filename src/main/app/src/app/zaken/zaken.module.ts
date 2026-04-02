@@ -5,7 +5,7 @@
 
 import { NgModule } from "@angular/core";
 
-import { BagZoekComponent } from "../bag/zoek/bag-zoek/bag-zoek.component";
+import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { KlantenModule } from "../klanten/klanten.module";
