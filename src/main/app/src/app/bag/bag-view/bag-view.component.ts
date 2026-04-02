@@ -51,7 +51,7 @@ export class BAGViewComponent implements OnInit {
       switch (bagObject.bagObjectType) {
         case "ADRES":
           this.adres = bagObject;
-          this.geometrie = this.adres.geometry;
+          this.geometrie = this.adres.geometry ?? undefined;
           break;
         case "ADRESSEERBAAR_OBJECT":
           break; // (Nog) geen zelfstandige entiteit
@@ -60,7 +60,7 @@ export class BAGViewComponent implements OnInit {
           break;
         case "PAND":
           this.pand = bagObject;
-          this.geometrie = this.pand.geometry;
+          this.geometrie = this.pand.geometry ?? undefined;
           break;
         case "OPENBARE_RUIMTE":
           this.openbareRuimte = bagObject;
