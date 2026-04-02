@@ -24,7 +24,7 @@ const routes: Routes = [
   {
     path: "bag-objecten",
     loadChildren: () =>
-      import("./bag/bag.routes").then((m) => m.BAG_ROUTES),
+      import("./bag/bag.routes").then((module) => module.BAG_ROUTES),
   },
 ];
 
