@@ -6,9 +6,7 @@
 package nl.info.zac.app.informatieobjecten.converter
 
 import jakarta.inject.Inject
-import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import java.net.URI
