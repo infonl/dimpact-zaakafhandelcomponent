@@ -6,6 +6,7 @@ package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -46,6 +47,7 @@ class MailTemplateHelper @Inject constructor(
     private var configurationService: ConfigurationService,
     private val identityService: IdentityService,
     private val kvkClientService: KvkClientService,
+    private val zaakVariabelenService: ZaakVariabelenService,
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
@@ -53,7 +55,8 @@ class MailTemplateHelper @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
+        private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekesssssnd"
+        private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\{ZAAKDATA:([^}]+)}""")
     }
 
     fun resolveGemeenteVariable(text: String): String =
@@ -168,6 +171,17 @@ class MailTemplateHelper @Inject constructor(
             )
         }
         return resolvedTekst
+    }
+
+    fun resolveZaakdataVariables(text: String, zaak: Zaak): String {
+        if (!text.contains("{ZAAKDATA:")) return text
+        val zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
+        return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
+            val key = matchResult.groupValues[1]
+            val value = zaakdata[key]?.toString()
+            if (value.isNullOrBlank()) REPLACEMENT_FOR_UNKNOWN_NAME
+            else StringEscapeUtils.escapeHtml4(value)
+        }
     }
 
     fun resolveEnkelvoudigInformatieObjectVariables(

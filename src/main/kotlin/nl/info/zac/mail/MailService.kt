@@ -270,5 +270,7 @@ class MailService @Inject constructor(
             mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {
             mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
+        }.let {
+            mailTemplateHelper.resolveZaakdataVariables(it, bronnen.zaak ?: return@let it)
         }
 }
