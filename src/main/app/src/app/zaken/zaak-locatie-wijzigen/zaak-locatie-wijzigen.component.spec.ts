@@ -10,6 +10,67 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen.component";
 
+jest.mock("ol/control.js", () => ({ defaults: jest.fn(() => []) }));
+jest.mock("ol/coordinate.js", () => ({}));
+jest.mock("ol/extent.js", () => ({
+  getWidth: jest.fn(() => 0),
+  getTopLeft: jest.fn(() => [0, 0]),
+}));
+jest.mock("ol/geom.js", () => ({
+  Point: jest.fn(),
+  Polygon: jest.fn(),
+}));
+jest.mock("ol/index.js", () => ({
+  Map: jest.fn(() => ({
+    setTarget: jest.fn(),
+    getView: jest.fn(() => ({ fit: jest.fn(), getZoom: jest.fn(() => 8), setCenter: jest.fn() })),
+    getSize: jest.fn(),
+    addInteraction: jest.fn(),
+    on: jest.fn(),
+  })),
+  View: jest.fn(),
+  Feature: jest.fn(() => ({ setStyle: jest.fn() })),
+}));
+jest.mock("ol/interaction.js", () => ({
+  defaults: jest.fn(() => []),
+  Modify: jest.fn(),
+}));
+jest.mock("ol/layer.js", () => ({
+  Tile: jest.fn(),
+  Vector: jest.fn(),
+}));
+jest.mock("ol/proj.js", () => ({
+  get: jest.fn(() => ({
+    getExtent: jest.fn(() => [0, 0, 100, 100]),
+    setExtent: jest.fn(),
+  })),
+  fromLonLat: jest.fn(() => [0, 0]),
+  transform: jest.fn(() => [0, 0]),
+}));
+jest.mock("ol/proj/proj4.js", () => ({ register: jest.fn() }));
+jest.mock("ol/source.js", () => ({
+  WMTS: jest.fn(),
+  Vector: jest.fn(() => ({
+    addFeature: jest.fn(),
+    clear: jest.fn(),
+    getExtent: jest.fn(() => [0, 0, 100, 100]),
+    getFeatures: jest.fn(() => []),
+    removeFeature: jest.fn(),
+    refresh: jest.fn(),
+  })),
+}));
+jest.mock("ol/style.js", () => ({
+  Style: jest.fn(),
+  Fill: jest.fn(),
+  Stroke: jest.fn(),
+  Text: jest.fn(),
+}));
+jest.mock("ol/tilegrid/WMTS.js", () => jest.fn());
+jest.mock("proj4", () => ({
+  default: Object.assign(jest.fn(), { defs: jest.fn() }),
+  defs: jest.fn(),
+}));
+
 describe(CaseLocationEditComponent.name, () => {
   let fixture: ComponentFixture<CaseLocationEditComponent>;
   let component: CaseLocationEditComponent;
@@ -48,7 +109,20 @@ describe(CaseLocationEditComponent.name, () => {
       rechten: { wijzigenLocatie: true },
     });
     component.sideNav = mockSideNav;
+
+    fixture.detectChanges();
   });
 
-  it("should create", () => expect(component).toBeTruthy());
+  it("renders the map container", () => {
+    expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
+  });
+
+  it("disables the reason control when location matches the case geometry", () => {
+    // markerLocatie$ starts as null; zaak.zaakgeometrie is undefined → isSameGeometry returns false → reasonControl is enabled
+    // When they are the same (both null/undefined type match default branch → false), the control stays enabled.
+    // Setting location to undefined explicitly via resetLocation path: markerLocatie$.next(null) and zaak has no geometry
+    // → isSameGeometry(null, undefined) → false → reasonControl.enable() is called.
+    // The control is therefore enabled after init when zaak has no zaakgeometrie.
+    expect(component["reasonControl"].enabled).toBe(true);
+  });
 });

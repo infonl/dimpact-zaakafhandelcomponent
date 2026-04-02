@@ -72,7 +72,7 @@ describe(BagLocatieComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
-    expect(component).toBeTruthy();
+  it("renders the map container", () => {
+    expect(fixture.nativeElement.querySelector(".open-layers-map")).not.toBeNull();
   });
 });
