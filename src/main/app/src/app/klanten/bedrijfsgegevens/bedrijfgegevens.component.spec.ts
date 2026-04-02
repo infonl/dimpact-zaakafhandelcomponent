@@ -19,7 +19,7 @@ import {
   provideTanStackQuery,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";

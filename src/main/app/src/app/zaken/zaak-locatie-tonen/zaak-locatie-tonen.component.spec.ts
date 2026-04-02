@@ -3,7 +3,7 @@
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { LocationService } from "../../shared/location/location.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen.component";

@@ -10,7 +10,7 @@ import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { SmartDocumentsFormItemComponent } from "./smart-documents-form-item.component";
 

@@ -17,13 +17,12 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -235,25 +234,11 @@ describe(InformatieObjectEditComponent.name, () => {
   });
 
   describe("Form interactions", () => {
-    it.skip("should update titel input when file is selected", async () => {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(mockFile);
-
-      const inputDebugEl = fixture.debugElement.query(
-        By.css("input[type=file]"),
-      );
-      inputDebugEl.nativeElement.files = dataTransfer.files;
-      inputDebugEl.nativeElement.dispatchEvent(new InputEvent("change"));
-
+    it("should update titel input when file is selected", () => {
+      component["form"].controls.bestand.setValue(mockFile);
       fixture.detectChanges();
 
-      // Check that the titel input is updated
-      const titleInput = await loader.getHarness(
-        MatInputHarness.with({ placeholder: "titel" }),
-      );
-
-      const value = await titleInput.getValue();
-      expect(value).toBe("test-file");
+      expect(component["form"].controls.titel.value).toBe("test-file");
     });
 
     it("should disable verzenddatum and status when ontvangstdatum is set", async () => {

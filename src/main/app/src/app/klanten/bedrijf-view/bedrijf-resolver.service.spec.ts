@@ -11,11 +11,11 @@ import { TestBed } from "@angular/core/testing";
 import { convertToParamMap } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import {
   KVK_LENGTH,
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
+import { fromPartial } from "src/test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";

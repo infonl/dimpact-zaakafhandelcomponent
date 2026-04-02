@@ -4,7 +4,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { LocationService } from "../../shared/location/location.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";

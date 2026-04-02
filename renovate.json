@@ -394,6 +394,13 @@
   ],
   "packageRules": [
     {
+      "matchPackageNames": ["jest-junit", "cucumber-html-reporter"],
+      "abandonmentThreshold": null,
+      "description": [
+        "These packages have low release cadence but are actively maintained (recent commits). Renovate's 12-month release threshold is a false positive here."
+      ]
+    },
+    {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
         "/^wildfly/",

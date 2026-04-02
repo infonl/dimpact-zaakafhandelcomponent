@@ -5,7 +5,7 @@
 
 import { AbstractControl, FormControl } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { CustomValidators } from "./customValidators";
 
 describe(CustomValidators.name, () => {
