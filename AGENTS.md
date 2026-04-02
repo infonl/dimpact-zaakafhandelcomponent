@@ -23,7 +23,7 @@ The project uses Gradle for build automation and has a strong emphasis on type s
 
 ### Frontend (in `src/main/app/`)
 ```bash
-npm install                         # Install dependencies
+npm ci --ignore-scripts              # Install dependencies
 npm run build                       # Production build
 npm run dev                         # Dev server with HMR
 ```

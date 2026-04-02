@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: src/main/app
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Check for ignore-errors directive in PR description
         id: ignore-errors
