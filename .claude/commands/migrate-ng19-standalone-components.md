@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 38 done — 114 remaining** (2026-04-01)
+**Progress: 44 done — 108 remaining** (2026-04-02)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -316,6 +316,18 @@ Solves PZ-XXXXX
 - **Spec pattern**: `setup()` helper outside `describe` + `beforeEach` only configures TestBed; avoids re-calling `ngOnInit` across tests
 - **Spec pattern**: `makeFilter` default param `= {}` avoids redundant `makeFilter({ values: [] })` at call sites
 - **Spec pattern**: `toEqual(["ZAAK"])` replaces `toHaveLength(1)` + `toContain` + `not.toContain` triple
+
+---
+
+### ✅ `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts` (2026-04-02)
+- `imports: [NgIf, ReactiveFormsModule, RouterLink, TranslateModule, MatCardModule, MatSlideToggleModule, MatTableModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatIconModule, EmptyPipe, DatumPipe, TekstFilterComponent, FacetFilterComponent, DateRangeFilterComponent]`
+- Access modifiers: paginator/sort → private; dataSource/columns/filterColumns/isLoadingResults/zoekParameters/zoekResultaat/inclusiefAfgerondeZaken/filtersChanged → protected; init → private
+- **Pattern**: fixed pre-existing ngOnChanges bug (removed SimpleChanges re-assignment of @Input)
+
+### ✅ `bag/bag-view/bag-view.component.ts` (2026-04-02)
+- `imports: [NgIf, MatCardModule, MatSidenavModule, TranslateModule, StaticTextComponent, BagZakenTabelComponent, BagLocatieComponent]`
+- Access modifiers: all fields already protected, constructor params already private readonly
+- **Pattern**: last component in BAGModule — module now has empty declarations[]
 
 ---
 
