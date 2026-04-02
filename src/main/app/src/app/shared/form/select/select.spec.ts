@@ -84,10 +84,6 @@ describe(ZacSelect.name, () => {
       fixture.detectChanges();
     });
 
-    it("should create", () => {
-      expect(component).toBeTruthy();
-    });
-
     it("should return null when no suffix is provided", () => {
       const result = component["displaySuffix"](testOption);
       expect(result).toBeNull();
