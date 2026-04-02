@@ -10,14 +10,9 @@ import { BAGViewComponent } from "./bag-view/bag-view.component";
 
 const routes: Routes = [
   {
-    path: "bag-objecten",
-    children: [
-      {
-        path: ":type/:id",
-        component: BAGViewComponent,
-        resolve: { bagObject: BAGResolverService },
-      },
-    ],
+    path: ":type/:id",
+    component: BAGViewComponent,
+    resolve: { bagObject: BAGResolverService },
   },
 ];
 

@@ -9,11 +9,9 @@ import { BagLocatieComponent } from "./bag-locatie/bag-locatie.component";
 import { BAGRoutingModule } from "./bag-routing.module";
 import { BAGViewComponent } from "./bag-view/bag-view.component";
 import { BagZakenTabelComponent } from "./bag-zaken-tabel/bag-zaken-tabel.component";
-import { BagZoekComponent } from "./zoek/bag-zoek/bag-zoek.component";
 
 @NgModule({
-  declarations: [BagZoekComponent, BAGViewComponent, BagZakenTabelComponent],
-  exports: [BagZoekComponent],
+  declarations: [BAGViewComponent, BagZakenTabelComponent],
   imports: [BAGRoutingModule, SharedModule, BagLocatieComponent],
 })
 export class BAGModule {}

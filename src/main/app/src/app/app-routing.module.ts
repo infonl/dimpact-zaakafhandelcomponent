@@ -21,6 +21,11 @@ const routes: Routes = [
     loadChildren: () =>
       import("./admin/admin.routes").then((module) => module.ADMIN_ROUTES),
   },
+  {
+    path: "bag-objecten",
+    loadChildren: () =>
+      import("./bag/bag.module").then((module) => module.BAGModule),
+  },
 ];
 
 @NgModule({
