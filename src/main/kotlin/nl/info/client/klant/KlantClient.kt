@@ -48,8 +48,20 @@ interface KlantClient {
     @Produces(MediaType.APPLICATION_JSON)
     fun klantcontactList(
         @QueryParam(
+            "onderwerpobject__onderwerpobjectidentificatorCodeObjecttype"
+        ) onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype:
+        String? = null,
+        @QueryParam(
+            "onderwerpobject__onderwerpobjectidentificatorCodeRegister"
+        ) onderwerpobjectOnderwerpobjectidentificatorCodeRegister:
+        String? = null,
+        @QueryParam(
+            "onderwerpobject__onderwerpobjectidentificatorCodeSoortObjectId"
+        ) onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId:
+        String? = null,
+        @QueryParam(
             "onderwerpobject__onderwerpobjectidentificatorObjectId"
-        ) onderwerpObjectOnderwerpObjectIdentificatorObjectId:
+        ) onderwerpobjectOnderwerpobjectidentificatorObjectId:
         String? = null,
         @QueryParam("page") page: Int? = null,
         @QueryParam("pageSize") pageSize: Int? = null,

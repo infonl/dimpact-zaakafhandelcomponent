@@ -48,6 +48,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
@@ -1656,8 +1657,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val specificEmail = "specific@example.com"
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = UUID.randomUUID(),
-                email = specificEmail,
-                phone = null
+                contactDetails = ContactDetails(
+                    emailAddress = specificEmail,
+                    telephoneNumber = null,
+                )
             )
             val zaakType = createZaakType()
             val createdZaak = createZaak()
@@ -1734,8 +1737,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = UUID.randomUUID(),
-                email = "specific@example.com",
-                phone = null
+                contactDetails = ContactDetails(
+                    emailAddress = "specific@example.com",
+                    telephoneNumber = null,
+                )
             )
             val groupName = "fakeGroup"
             val group = createGroup(id = groupName, name = "Fake Group")
