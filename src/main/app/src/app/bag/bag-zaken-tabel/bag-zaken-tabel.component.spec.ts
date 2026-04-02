@@ -24,7 +24,9 @@ const makeZoekResultaat = (
     resultaten: [],
     filters: {},
     ...fields,
-  }) as Partial<ZoekResultaat<ZaakZoekObject>> as unknown as ZoekResultaat<ZaakZoekObject>;
+  }) as Partial<
+    ZoekResultaat<ZaakZoekObject>
+  > as unknown as ZoekResultaat<ZaakZoekObject>;
 
 describe(BagZakenTabelComponent.name, () => {
   let component: BagZakenTabelComponent;
@@ -57,7 +59,9 @@ describe(BagZakenTabelComponent.name, () => {
     zoekenService = TestBed.inject(ZoekenService);
     jest
       .spyOn(zoekenService, "list")
-      .mockReturnValue(of(makeZoekResultaat()) as ReturnType<ZoekenService["list"]>);
+      .mockReturnValue(
+        of(makeZoekResultaat()) as ReturnType<ZoekenService["list"]>,
+      );
 
     fixture = TestBed.createComponent(BagZakenTabelComponent);
     component = fixture.componentInstance;

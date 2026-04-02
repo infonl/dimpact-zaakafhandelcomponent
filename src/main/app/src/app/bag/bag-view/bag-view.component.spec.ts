@@ -3,19 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { MatNativeDateModule } from "@angular/material/core";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { provideHttpClient } from "@angular/common/http";
-import { provideRouter } from "@angular/router";
+import { UtilService } from "../../core/service/util.service";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
 import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { UtilService } from "../../core/service/util.service";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGViewComponent } from "./bag-view.component";
 
 const makeBAGObject = (
@@ -26,7 +25,9 @@ const makeBAGObject = (
     bagObjectType: "ADRES",
     omschrijving: "Test omschrijving",
     ...fields,
-  }) as Partial<GeneratedType<"RESTBAGObject">> as unknown as GeneratedType<"RESTBAGObject">;
+  }) as Partial<
+    GeneratedType<"RESTBAGObject">
+  > as unknown as GeneratedType<"RESTBAGObject">;
 
 describe(BAGViewComponent.name, () => {
   let fixture: ComponentFixture<BAGViewComponent>;
@@ -136,7 +137,9 @@ describe(BAGViewComponent.name, () => {
     });
 
     it("sets the openbareRuimte property", () => {
-      expect(component["openbareRuimte"]?.identificatie).toBe("0363300000002244");
+      expect(component["openbareRuimte"]?.identificatie).toBe(
+        "0363300000002244",
+      );
     });
 
     it("calls utilService.setTitle with bagobjectgegevens", () => {
@@ -155,7 +158,9 @@ describe(BAGViewComponent.name, () => {
     });
 
     it("sets the nummeraanduiding property", () => {
-      expect(component["nummeraanduiding"]?.identificatie).toBe("0363200000218908");
+      expect(component["nummeraanduiding"]?.identificatie).toBe(
+        "0363200000218908",
+      );
     });
 
     it("calls utilService.setTitle with bagobjectgegevens", () => {

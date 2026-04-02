@@ -5,15 +5,15 @@
 
 import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
 import { MatCardModule } from "@angular/material/card";
 import { MatSidenavModule } from "@angular/material/sidenav";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
+import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
 
 @Component({
   templateUrl: "./bag-view.component.html",

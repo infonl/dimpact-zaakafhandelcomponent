@@ -12,8 +12,8 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { BAGService } from "../../bag.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
 
 const makeBagObject = (
@@ -32,7 +32,11 @@ describe(BagZoekComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BagZoekComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        BagZoekComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
 
@@ -174,7 +178,9 @@ describe(BagZoekComponent.name, () => {
         component["expandable"](
           makeBagObject({
             bagObjectType: "ADRES",
-            nummeraanduiding: fromPartial({ identificatie: "0363200000400021" }),
+            nummeraanduiding: fromPartial({
+              identificatie: "0363200000400021",
+            }),
           } as Partial<GeneratedType<"RESTBAGAdres">>),
         ),
       ).toBeTruthy();
