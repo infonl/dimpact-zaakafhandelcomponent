@@ -9,8 +9,8 @@ import java.time.LocalDate
 import java.util.Locale
 
 data class RestOndertekening(
-    var soort: String,
-    var datum: LocalDate
+    val soort: String,
+    val datum: LocalDate
 )
 
 fun Ondertekening.toRestOndertekening() = RestOndertekening(

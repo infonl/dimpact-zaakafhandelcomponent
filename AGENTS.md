@@ -169,6 +169,64 @@ This can improve the robustness of the code and prevent potential crashes.
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 
+### Follow the Kotlin Coding Conventions
+Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
+This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
+Rename existing classes to comply with the following Kotlin code convention:
+When using an acronym as part of a declaration name, follow these rules:
+    - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
+    - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+
+### Prefer Kotlin data classes for simple data holders
+When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
+use a Kotlin `data class`.
+When used by dependency injection frameworks, such as is the case in REST services, ensure that the data class has the following annotations:
+```
+@NoArgConstructor
+@AllOpen
+```
+
+### Use named parameters in Kotlin
+When calling a Kotlin function that has multiple parameters, especially if they are of the same type, use named parameters to improve readability. For example:
+```kotlin
+// Before
+val user = createUser("John", "Doe", 30)
+// After
+val user = createUser(firstName = "John", lastName = "Doe", age = 30)
+```
+This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
+
+### Prefer concise lambda syntax in Kotlin
+When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
+```kotlin// Before
+val sum = numbers.map { number -> number * 2 }.sum()
+// After
+val sum = numbers.map { it * 2 }.sum()
+```
+This makes the code more concise and easier to read.
+
+### Use method references in Kotlin
+When you have a lambda function that simply calls another function, use a method reference to make the code more concise. For example:
+```kotlin// Before
+val param.map { someFunction(it) }
+// After
+val param.map(::someFunction)
+```
+
+### Use .apply for object configuration in Kotlin
+When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
+```kotlin// Before
+val user = User()
+user.firstName = "John"
+user.lastName = "Doe"
+// After
+val user = User().apply {
+    firstName = "John"
+    lastName = "Doe"
+}
+```
+This allows you to initialize the object in a more fluent way.
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.
