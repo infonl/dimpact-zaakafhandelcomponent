@@ -157,14 +157,14 @@ class KlantClientService @Inject constructor(
             verstrektDoorBetrokkeneUuid = betrokkeneUuid
         ).getResults()
 
-    private fun findSpecificContactDetails(klantcontact: Klantcontact): ContactDetails? =
+    private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? =
         klantcontact.hadBetrokkenen.firstOrNull()?.let {
             findDigitalAddressesForBetrokkene(it.uuid.toString()).toContactDetails()
         }
 
     fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
-            findSpecificContactDetails(klantcontact)?.let { contactDetails ->
+            findPreferredContactDetails(klantcontact)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
@@ -174,7 +174,7 @@ class KlantClientService @Inject constructor(
 
     fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
         findKlantcontactForZaak(zaakUuid)?.let {
-            findSpecificContactDetails(it)
+            findPreferredContactDetails(it)
         }
 
     fun linkProductaanvraagSpecificContactDetailsToZaak(
