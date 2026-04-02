@@ -3,15 +3,31 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { MatCardModule } from "@angular/material/card";
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
+import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
 
 @Component({
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatCardModule,
+    MatSidenavModule,
+    TranslateModule,
+    StaticTextComponent,
+    BagZakenTabelComponent,
+    BagLocatieComponent,
+  ],
 })
 export class BAGViewComponent implements OnInit {
   protected bagIdentificatie!: string;
@@ -27,7 +43,7 @@ export class BAGViewComponent implements OnInit {
     private readonly activatedRoute: ActivatedRoute,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.utilService.setTitle("bagobjectgegevens");
     this.activatedRoute.data.subscribe((data) => {
       const bagObject: GeneratedType<"RESTBAGObject"> = data.bagObject;
