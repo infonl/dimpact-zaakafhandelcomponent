@@ -89,7 +89,7 @@ describe(IdentityComponent.name, () => {
 
     const cards = await loader.getAllHarnesses(MatCardHarness);
     expect(await cards[0].getTitleText()).toBe("Groepen");
-    // No list items should appear for the empty groups list
+
     const allItems = await loader.getAllHarnesses(MatListItemHarness);
     expect(allItems).toHaveLength(0);
   });
@@ -114,7 +114,7 @@ describe(IdentityComponent.name, () => {
     );
 
     const cards = await loader.getAllHarnesses(MatCardHarness);
-    // First two are Groepen and Rollen; remaining are per zaaktype
+
     const zaakTypeCards = cards.slice(2);
     expect(zaakTypeCards).toHaveLength(2);
     expect(await zaakTypeCards[0].getTitleText()).toBe("zaaktype-A");
@@ -125,14 +125,14 @@ describe(IdentityComponent.name, () => {
     setup(makeLoggedInUser({ applicationRoles: {} }));
 
     const cards = await loader.getAllHarnesses(MatCardHarness);
-    expect(cards).toHaveLength(2); // only Groepen and Rollen
+    expect(cards).toHaveLength(2);
   });
 
   it("renders no zaaktype cards when applicationRoles is null", async () => {
     setup(makeLoggedInUser({ applicationRoles: null }));
 
     const cards = await loader.getAllHarnesses(MatCardHarness);
-    expect(cards).toHaveLength(2); // only Groepen and Rollen
+    expect(cards).toHaveLength(2);
   });
 
   it("renders the h1 heading for Rollen per zaaktype", async () => {
