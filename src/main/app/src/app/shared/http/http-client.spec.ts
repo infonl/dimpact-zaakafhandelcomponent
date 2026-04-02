@@ -13,7 +13,7 @@ import {
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import { expectType } from "ts-expect";
+import { expectTypeOf } from "expect-type";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { NullableIfOptional } from "../utils/generated-types";
@@ -56,9 +56,9 @@ describe(HttpClient.name, () => {
           path: { zaakUuid: "123" },
         })
         .subscribe((data) => {
-          expectType<
+          expectTypeOf(data as typeof testData).toExtend<
             paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"]
-          >(data as typeof testData);
+          >();
 
           expect(data).toEqual(testData);
           done();
@@ -127,9 +127,9 @@ describe(HttpClient.name, () => {
           path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" },
         })
         .subscribe((data) => {
-          expectType<paths[typeof path]["put"]["responses"]["204"]["content"]>(
-            data,
-          );
+          expectTypeOf(data).toExtend<
+            paths[typeof path]["put"]["responses"]["204"]["content"]
+          >();
           expect(data).toBe(true);
           done();
         });
@@ -151,11 +151,11 @@ describe(HttpClient.name, () => {
           path: { uuid: "123" },
         })
         .subscribe((data) => {
-          expectType<
+          expectTypeOf(data).toExtend<
             NullableIfOptional<
               paths[typeof path]["patch"]["responses"]["200"]["content"]["application/json"]
             >
-          >(data);
+          >();
           expect(data).toEqual(testData);
           done();
         });
@@ -176,9 +176,9 @@ describe(HttpClient.name, () => {
           path: { id: 123 },
         })
         .subscribe((data) => {
-          expectType<
+          expectTypeOf(data).toExtend<
             paths[typeof path]["delete"]["responses"]["204"]["content"]
-          >(data);
+          >();
           expect(data).toBe(true);
           done();
         });
