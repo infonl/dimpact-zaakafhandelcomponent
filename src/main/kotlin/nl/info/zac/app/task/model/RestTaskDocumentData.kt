@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.task.model
 
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

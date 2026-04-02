@@ -174,7 +174,7 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Form interactions", () => {
-    it("should have creatiedatum prefilled with todays and disable verzenddatum and status when ontvangstdatum is set", async () => {
+    it("should have creatiedatum prefilled with today and disable verzenddatum and status when ontvangstdatum is set", async () => {
       const [creatiedatum] = await loader.getAllHarnesses(
         MatDatepickerInputHarness,
       );

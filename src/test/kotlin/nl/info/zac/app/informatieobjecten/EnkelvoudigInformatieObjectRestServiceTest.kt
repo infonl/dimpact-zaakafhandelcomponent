@@ -17,13 +17,12 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
+import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
@@ -38,19 +37,25 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
+import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
+import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
+import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createDocumentRechten
@@ -62,6 +67,7 @@ import java.io.IOException
 import java.net.URI
 import java.util.UUID
 
+@Suppress("LargeClass")
 class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectDownloadService = mockk<EnkelvoudigInformatieObjectDownloadService>()
@@ -294,7 +300,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every {
-            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid)
+            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid!!)
         } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -325,7 +331,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     drcClientService.readEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens.uuid
+                        restEnkelvoudigInformatieObjectVersieGegevens.uuid!!
                     )
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         enkelvoudigInformatieObject.url.extractUuid(),
@@ -436,7 +442,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(deelzaak.url) } returns deelzaak
         every { zrcClientService.listZaakinformatieobjecten(deelzaak) } returns emptyList()
         every {
-            ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID)
+            ztcClientService.readBesluittype(restInformatieobjectZoekParameters.besluittypeUUID!!)
         } returns besluitType
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -519,7 +525,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 val response = RestExceptionMapper().toResponse(exception)
                 response.status shouldBe 400
                 val entity = response.entity as String
-                entity shouldContain """"message":"msg.error.convert.not.possible""""
+                entity shouldContain """"message":"msg.error.enkelvoudiginformatieobject.conversion.failed""""
             }
         }
     }
@@ -710,6 +716,422 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("it should throw a exception") {
                 exception.cause.shouldBeInstanceOf<IOException>()
                 exception.cause?.message shouldBe "Failed to retrieve content"
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject and a zaak UUID") {
+        val uuid = UUID.randomUUID()
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+        } returns restEnkelvoudigInformatieobject
+
+        When("readEnkelvoudigInformatieobject is called with a zaak UUID") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, zaakUUID)
+
+            Then("the REST representation is returned with zaak context") {
+                result shouldBe restEnkelvoudigInformatieobject
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject and no zaak UUID") {
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+        } returns restEnkelvoudigInformatieobject
+
+        When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
+
+            Then("the REST representation is returned without zaak context") {
+                result shouldBe restEnkelvoudigInformatieobject
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject at current version 1234 and a requested older version 1") {
+        val uuid = UUID.randomUUID()
+        val currentVersionEio = createEnkelvoudigInformatieObject(uuid = uuid)
+        val olderVersionEio = createEnkelvoudigInformatieObject(uuid = uuid)
+        val restOlderEio = createRestEnkelvoudigInformatieobject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns currentVersionEio
+        every { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, 1) } returns olderVersionEio
+        every { restInformatieobjectConverter.convertToREST(olderVersionEio) } returns restOlderEio
+
+        When("readEnkelvoudigInformatieobjectVersion is called with an older version") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1)
+
+            Then("the older version is fetched and returned") {
+                result shouldBe restOlderEio
+                verify(exactly = 1) { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, 1) }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject at current version 1234 and a requested version 1234") {
+        val uuid = UUID.randomUUID()
+        val currentVersionEio = createEnkelvoudigInformatieObject(uuid = uuid)
+        val restEio = createRestEnkelvoudigInformatieobject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns currentVersionEio
+        every { restInformatieobjectConverter.convertToREST(currentVersionEio) } returns restEio
+
+        When("readEnkelvoudigInformatieobjectVersion is called with the current version") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1234)
+
+            Then("the current version is returned directly without fetching an older version") {
+                result shouldBe restEio
+                verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
+            }
+        }
+    }
+
+    Given("A zaak with a DEFINITIEF informatieobject eligible for verzending") {
+        val zaakUuid = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUuid)
+        val eioUuid = UUID.randomUUID()
+        val eioUri = URI("https://example.com/$eioUuid")
+        val eio = createEnkelvoudigInformatieObject(
+            uuid = eioUuid,
+            status = StatusEnum.DEFINITIEF,
+            vertrouwelijkheidaanduiding = nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum.OPENBAAR,
+            ontvangstdatum = null,
+            formaat = "application/pdf"
+        )
+        val zaakInformatieobjectList = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = eioUuid)
+        )
+        val restEio = createRestEnkelvoudigInformatieobject()
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
+        every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjectList
+        every { drcClientService.readEnkelvoudigInformatieobject(eioUri) } returns eio
+        every { restInformatieobjectConverter.convertToREST(eio, zaak) } returns restEio
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("listEnkelvoudigInformatieobjectenVoorVerzenden is called") {
+            val result = enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjectenVoorVerzenden(zaakUuid)
+
+            Then("the eligible informatieobjecten are returned") {
+                result shouldBe listOf(restEio)
+            }
+        }
+    }
+
+    Given("A zaaktype with informatieobjecttypen") {
+        val zaakTypeUuid = UUID.randomUUID()
+        val informatieobjecttypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
+        val zaakType = createZaakType(informatieObjectTypen = listOf(informatieobjecttypeUri))
+        val restInformatieobjecttype = createRestInformatieobjecttype()
+
+        every { ztcClientService.readZaaktype(zaakTypeUuid) } returns zaakType
+        every {
+            restInformatieobjecttypeConverter.convertFromUris(listOf(informatieobjecttypeUri))
+        } returns listOf(restInformatieobjecttype)
+
+        When("listInformatieobjecttypes is called") {
+            val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypes(zaakTypeUuid)
+
+            Then("the informatieobjecttypen are returned") {
+                result shouldBe listOf(restInformatieobjecttype)
+            }
+        }
+    }
+
+    Given("A zaak informatieobject UUID linking to an enkelvoudig informatieobject") {
+        val zaakInformatieobjectUUID = UUID.randomUUID()
+        val eioUuid = UUID.randomUUID()
+        val eioUri = URI("https://example.com/$eioUuid")
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = eioUuid)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val restEio = createRestEnkelvoudigInformatieobject()
+
+        every { zrcClientService.readZaakinformatieobject(zaakInformatieobjectUUID) } returns zaakInformatieobject
+        every { drcClientService.readEnkelvoudigInformatieobject(eioUri) } returns enkelvoudigInformatieObject
+        every { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject) } returns restEio
+
+        When("readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID is called") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
+                zaakInformatieobjectUUID
+            )
+
+            Then("the enkelvoudig informatieobject is returned") {
+                result shouldBe restEio
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak, and the user has permission to delete it") {
+        val uuid = UUID.randomUUID()
+        val zaakUuid = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUuid)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val reden = "fakeReden"
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
+        every {
+            zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(enkelvoudigInformatieObject, zaakUuid, reden)
+        } just Runs
+
+        When("deleteEnkelvoudigInformatieObject is called with a zaak UUID") {
+            enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
+                uuid,
+                RestDocumentVerwijderenGegevens(zaakUuid = zaakUuid, reden = reden)
+            )
+
+            Then("the informatieobject is removed from the zaak via the API") {
+                verify(exactly = 1) {
+                    zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
+                        enkelvoudigInformatieObject,
+                        zaakUuid,
+                        reden
+                    )
+                }
+            }
+        }
+    }
+
+    Given("An ontkoppeld document and the user has permission to delete it") {
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
+        every { ontkoppeldeDocumentenService.delete(uuid) } just Runs
+
+        When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
+            enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
+                uuid,
+                RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
+            )
+
+            Then("the ontkoppeld document is deleted") {
+                verify(exactly = 1) { ontkoppeldeDocumentenService.delete(uuid) }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject that the user can download, with a specific version") {
+        val uuid = UUID.randomUUID()
+        val version = 2
+        val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
+
+        When("readFileWithVersion is called") {
+            val response = enkelvoudigInformatieObjectRestService.readFileWithVersion(uuid, version)
+
+            Then("the specific version is downloaded and returned") {
+                response.status shouldBe 200
+                response.headers["Content-Disposition"]!!.first() shouldBe
+                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                response.entity shouldBe byteArrayInputStream
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject that the user can preview with a specific version") {
+        val uuid = UUID.randomUUID()
+        val version = 3
+        val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
+
+        When("preview is called with a version") {
+            val response = enkelvoudigInformatieObjectRestService.preview(uuid, version)
+
+            Then("the specific version is returned inline") {
+                response.status shouldBe 200
+                response.headers["Content-Disposition"]!!.first() shouldBe
+                    """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                response.headers["Content-Type"]!!.first() shouldBe enkelvoudigInformatieObject.formaat
+                verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject that the user can preview without a version") {
+        val uuid = UUID.randomUUID()
+        val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
+
+        When("preview is called without a version") {
+            val response = enkelvoudigInformatieObjectRestService.preview(uuid, null)
+
+            Then("the current version is returned inline") {
+                response.status shouldBe 200
+                verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(any(), any()) }
+            }
+        }
+    }
+
+    Given("Multiple enkelvoudig informatieobjecten that the user can download as a zip") {
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val eio1 = createEnkelvoudigInformatieObject(uuid = uuid1)
+        val eio2 = createEnkelvoudigInformatieObject(uuid = uuid2)
+        val streamingOutput = mockk<StreamingOutput>()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid1) } returns eio1
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid2) } returns eio2
+        every { policyService.readDocumentRechten(eio1) } returns createDocumentRechten()
+        every { policyService.readDocumentRechten(eio2) } returns createDocumentRechten()
+        every { enkelvoudigInformatieObjectDownloadService.getZipStreamOutput(listOf(eio1, eio2)) } returns streamingOutput
+
+        When("readFilesAsZip is called") {
+            val response = enkelvoudigInformatieObjectRestService.readFilesAsZip(
+                listOf(uuid1.toString(), uuid2.toString())
+            )
+
+            Then("a zip response is returned") {
+                response.status shouldBe 200
+                response.entity shouldBe streamingOutput
+            }
+        }
+    }
+
+    Given("An unlocked enkelvoudig informatieobject and the user has permission to lock it") {
+        val uuid = UUID.randomUUID()
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(locked = false)
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechten(vergrendelen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) } returns mockk()
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        When("lockDocument is called") {
+            val response = enkelvoudigInformatieObjectRestService.lockDocument(uuid, zaakUUID)
+
+            Then("the document is locked and a 200 response is returned") {
+                response.status shouldBe 200
+                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) }
+            }
+        }
+    }
+
+    Given("A locked enkelvoudig informatieobject and the user has permission to unlock it") {
+        val uuid = UUID.randomUUID()
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(locked = true)
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechten(ontgrendelen = true)
+        every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        When("unlockDocument is called") {
+            val response = enkelvoudigInformatieObjectRestService.unlockDocument(uuid, zaakUUID)
+
+            Then("the document is unlocked and a 200 response is returned") {
+                response.status shouldBe 200
+                verify(exactly = 1) { enkelvoudigInformatieObjectLockService.deleteLock(uuid) }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject that the user can view its history") {
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val historyLines = listOf<HistoryLine>()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { drcClientService.listAuditTrail(uuid) } returns emptyList()
+        every { zaakHistoryLineConverter.convert(any()) } returns historyLines
+
+        When("listInformatieobjectHistory is called") {
+            val result = enkelvoudigInformatieObjectRestService.listInformatieobjectHistory(uuid)
+
+            Then("the audit trail is converted and returned") {
+                result shouldBe historyLines
+                verify(exactly = 1) { drcClientService.listAuditTrail(uuid) }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak") {
+        val informatieobjectUuid = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaak = createZaak(identificatie = "ZAAK-2024-999")
+
+        every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUri) } returns zaak
+
+        When("listZaakIdentificatiesForInformatieobject is called") {
+            val result = enkelvoudigInformatieObjectRestService.listZaakIdentificatiesForInformatieobject(
+                informatieobjectUuid
+            )
+
+            Then("the zaak identificaties are returned") {
+                result shouldBe listOf("ZAAK-2024-999")
+            }
+        }
+    }
+
+    Given("An unsigned enkelvoudig informatieobject and the user has permission to sign it") {
+        val uuid = UUID.randomUUID()
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechten(ondertekenen = true)
+        every { enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        When("ondertekenInformatieObject is called") {
+            val response = enkelvoudigInformatieObjectRestService.ondertekenInformatieObject(uuid, zaakUUID)
+
+            Then("the document is signed and a 200 response is returned") {
+                response.status shouldBe 200
+                verify(exactly = 1) {
+                    enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
+                }
             }
         }
     }

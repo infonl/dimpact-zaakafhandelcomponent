@@ -24,8 +24,6 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -48,6 +46,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
 import nl.info.zac.app.task.model.RestTask
@@ -295,7 +295,7 @@ class TaskRestService @Inject constructor(
     fun uploadFile(
         @PathParam("field") field: String,
         @PathParam("uuid") uuid: UUID,
-        @MultipartForm data: RESTFileUpload
+        @MultipartForm data: RestFileUpload
     ): Response {
         httpSession.get().setAttribute("_FILE__${uuid}__$field", data)
         return Response.ok("\"Success\"").build()
@@ -338,7 +338,7 @@ class TaskRestService @Inject constructor(
                             )
                             val enkelvoudigInformatieObjectCreateLockRequest = restInformatieobjectConverter.convert(
                                 restTaskDocumentData,
-                                uploadedFile as RESTFileUpload
+                                uploadedFile as RestFileUpload
                             )
                             val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
                                 zaak,
