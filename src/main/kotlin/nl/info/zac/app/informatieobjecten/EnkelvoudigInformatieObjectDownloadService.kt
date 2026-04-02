@@ -7,11 +7,11 @@ package nl.info.zac.app.informatieobjecten
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectDownloadException
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.util.UUID
@@ -58,8 +58,10 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
             zipOutputStream.write(getInformatieObjectInhoud(informatieobject.url.extractUuid()))
             zipOutputStream.closeEntry()
         } catch (ioException: IOException) {
-            // TODO: custom exception
-            throw RuntimeException(ioException)
+            throw EnkelvoudigInformatieObjectDownloadException(
+                "Failed to add enkelvoudiginformatieobject with identification '${informatieobject.identificatie}' to zip outputStream",
+                ioException
+            )
         }
         return pad
     }
@@ -68,9 +70,7 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         drcClientService.downloadEnkelvoudigInformatieobject(uuid).readBytes()
 
     private fun getInformatieObjectZipPath(enkelvoudigInformatieobject: EnkelvoudigInformatieObject): String {
-        val zaakInformatieObjectenList: List<ZaakInformatieobject> = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
+        val zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)
         val zaakUri = zaakInformatieObjectenList.first().zaak
         val zaakId = zrcClientService.readZaak(zaakUri).identificatie
         val subfolder = when {
@@ -82,7 +82,6 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         return "$zaakId/$subfolder/${bestandsnaamExtensie[0]}-${enkelvoudigInformatieobject.identificatie}.${bestandsnaamExtensie[1]}"
     }
 
-    // TODO: refactor, get rid of mutables and getOrPuts..
     private fun samenvattingAddInformatieObject(
         pad: String,
         samenvatting: MutableMap<String, MutableMap<String, MutableList<String>>>
