@@ -44,6 +44,12 @@
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
 
+### Bundle size — claimed (~420 KB gzipped savings on initial load)
+Standalone + lazy-load the three OpenLayers/proj4 map components:
+- [ ] `bag/bag-locatie/bag-locatie.component.ts`
+- [ ] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
+- [ ] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
