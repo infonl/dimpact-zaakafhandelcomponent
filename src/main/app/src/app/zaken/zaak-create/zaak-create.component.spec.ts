@@ -23,10 +23,10 @@ import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "src/test-helpers";
 import { of } from "rxjs";
 import { BpmnService } from "src/app/admin/bpmn.service";
 import { ZacInput } from "src/app/shared/form/input/input";
+import { fromPartial } from "src/test-helpers";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
