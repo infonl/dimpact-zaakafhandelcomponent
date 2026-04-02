@@ -150,7 +150,9 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     expect(
       await loader.getHarnessOrNull(
-        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
+        MatCheckboxHarness.with({
+          selector: "#ZAAK_OP_NAAM_dashboard_checkbox",
+        }),
       ),
     ).not.toBeNull();
   });
@@ -174,7 +176,9 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     expect(
       await loader.getHarnessOrNull(
-        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
+        MatCheckboxHarness.with({
+          selector: "#ZAAK_OP_NAAM_dashboard_checkbox",
+        }),
       ),
     ).toBeNull();
   });
