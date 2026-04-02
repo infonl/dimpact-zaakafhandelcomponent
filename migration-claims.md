@@ -50,7 +50,7 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `bag/zoek/bag-zoek/bag-zoek.component.ts` — made standalone (enabler for BAGModule lazy load)
 - [x] `bag/bag-locatie/bag-locatie.component.ts` — lazy-loaded via BAGModule `loadChildren`
 - [x] `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts`
-- [ ] `bag/bag-view/bag-view.component.ts`
+- [x] `bag/bag-view/bag-view.component.ts`
 - [ ] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
 - [ ] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
