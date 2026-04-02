@@ -70,7 +70,9 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
             And("the update is called with a PDF request containing the correct fields") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        uuid, any(), "Geconverteerd naar PDF"
+                        uuid,
+                        any(),
+                        "Geconverteerd naar PDF"
                     )
                 }
                 with(requestSlot.captured) {

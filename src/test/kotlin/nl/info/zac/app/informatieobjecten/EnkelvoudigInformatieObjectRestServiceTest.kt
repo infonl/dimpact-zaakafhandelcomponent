@@ -729,7 +729,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
-        every { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) } returns restEnkelvoudigInformatieobject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+        } returns restEnkelvoudigInformatieobject
 
         When("readEnkelvoudigInformatieobject is called with a zaak UUID") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, zaakUUID)
@@ -746,7 +748,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null) } returns restEnkelvoudigInformatieobject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+        } returns restEnkelvoudigInformatieobject
 
         When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
@@ -807,7 +811,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             ontvangstdatum = null,
             formaat = "application/pdf"
         )
-        val zaakInformatieobjectList = listOf(createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = eioUuid))
+        val zaakInformatieobjectList = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = eioUuid)
+        )
         val restEio = createRestEnkelvoudigInformatieobject()
         val loggedInUser = createLoggedInUser()
 
@@ -892,7 +898,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the informatieobject is removed from the zaak via the API") {
                 verify(exactly = 1) {
-                    zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(enkelvoudigInformatieObject, zaakUuid, reden)
+                    zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
+                        enkelvoudigInformatieObject,
+                        zaakUuid,
+                        reden
+                    )
                 }
             }
         }
