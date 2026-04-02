@@ -3,8 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -31,6 +34,7 @@ const makeInstelling = (
 
 describe(SignaleringenSettingsComponent.name, () => {
   let fixture: ComponentFixture<SignaleringenSettingsComponent>;
+  let loader: HarnessLoader;
   let component: SignaleringenSettingsComponent;
   let utilService: UtilService;
   let signaleringenService: SignaleringenSettingsService;
@@ -62,6 +66,7 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     fixture = TestBed.createComponent(SignaleringenSettingsComponent);
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
   });
 
@@ -138,40 +143,43 @@ describe(SignaleringenSettingsComponent.name, () => {
     );
   });
 
-  it("renders a checkbox for the dashboard column", () => {
+  it("renders a checkbox for the dashboard column", async () => {
     listSubject.next([makeInstelling({ dashboard: true })]);
     listSubject.complete();
     fixture.detectChanges();
 
-    const checkbox = fixture.debugElement.query(
-      By.css("[id='ZAAK_OP_NAAM_dashboard_checkbox']"),
-    );
-    expect(checkbox).not.toBeNull();
+    expect(
+      await loader.getHarnessOrNull(
+        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
+      ),
+    ).not.toBeNull();
   });
 
-  it("renders a checkbox for the mail column", () => {
+  it("renders a checkbox for the mail column", async () => {
     listSubject.next([makeInstelling({ mail: true })]);
     listSubject.complete();
     fixture.detectChanges();
 
-    const checkbox = fixture.debugElement.query(
-      By.css("[id='ZAAK_OP_NAAM_mail_checkbox']"),
-    );
-    expect(checkbox).not.toBeNull();
+    expect(
+      await loader.getHarnessOrNull(
+        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_mail_checkbox" }),
+      ),
+    ).not.toBeNull();
   });
 
-  it("does not render a checkbox when column value is null", () => {
+  it("does not render a checkbox when column value is null", async () => {
     listSubject.next([makeInstelling({ dashboard: null })]);
     listSubject.complete();
     fixture.detectChanges();
 
-    const checkbox = fixture.debugElement.query(
-      By.css("[id='ZAAK_OP_NAAM_dashboard_checkbox']"),
-    );
-    expect(checkbox).toBeNull();
+    expect(
+      await loader.getHarnessOrNull(
+        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
+      ),
+    ).toBeNull();
   });
 
-  it("calls changed with correct args when checkbox changes", () => {
+  it("calls changed with correct args when checkbox changes", async () => {
     const row = makeInstelling({ dashboard: false });
     listSubject.next([row]);
     listSubject.complete();
@@ -179,11 +187,10 @@ describe(SignaleringenSettingsComponent.name, () => {
 
     jest.spyOn(component as SignaleringenSettingsComponent, "changed" as never);
 
-    const checkboxInput = fixture.debugElement.query(
-      By.css("[id='ZAAK_OP_NAAM_dashboard_checkbox'] input"),
-    ).nativeElement as HTMLInputElement;
-    checkboxInput.click();
-    fixture.detectChanges();
+    const checkbox = await loader.getHarness(
+      MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
+    );
+    await checkbox.toggle();
 
     expect(component["changed"]).toHaveBeenCalled();
   });
@@ -219,7 +226,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     expect(signaleringenService.list).toHaveBeenCalled();
   });
 
-  it("does not render checkboxes for subjecttype and type columns", () => {
+  it("does not render checkboxes for subjecttype and type columns", async () => {
     listSubject.next([
       makeInstelling({
         type: "ZAAK_OP_NAAM",
@@ -231,7 +238,7 @@ describe(SignaleringenSettingsComponent.name, () => {
     listSubject.complete();
     fixture.detectChanges();
 
-    const checkboxes = fixture.debugElement.queryAll(By.css("mat-checkbox"));
+    const checkboxes = await loader.getAllHarnesses(MatCheckboxHarness);
     expect(checkboxes).toHaveLength(2);
   });
 });
