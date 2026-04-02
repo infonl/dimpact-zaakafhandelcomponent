@@ -231,7 +231,7 @@ class RestInformatieobjectConverter @Inject constructor(
         if (taal != null) {
             restEnkelvoudigInformatieObjectVersieGegevens.taal = taal.toRestTaal()
         }
-        restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.inhoud.toString()
+        restEnkelvoudigInformatieObjectVersieGegevens.bestandsnaam = informatieobject.bestandsnaam
         restEnkelvoudigInformatieObjectVersieGegevens.informatieobjectTypeUUID = informatieobject.informatieobjecttype.extractUuid()
         return restEnkelvoudigInformatieObjectVersieGegevens
     }
