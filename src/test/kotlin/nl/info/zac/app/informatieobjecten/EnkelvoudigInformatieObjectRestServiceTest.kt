@@ -7,6 +7,7 @@ package nl.info.zac.app.informatieobjecten
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -47,6 +48,7 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConv
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -68,6 +70,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -1226,6 +1229,81 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             Then("the document is moved from the source zaak to the target zaak") {
                 verify(exactly = 1) {
                     zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak)
+                }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak where the user has read access") {
+        val uuid = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaak = createZaak(
+            zaaktypeUri = zaakTypeUri,
+            startDate = LocalDate.of(2024, 1, 1),
+            einddatumGepland = LocalDate.of(2024, 12, 31),
+            identificatie = "ZAAK-2024-READ"
+        )
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+
+        When("listZaakInformatieobjecten is called") {
+            val result = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+
+            Then("the result contains enriched zaak data because the user can read the zaak") {
+                result shouldHaveSize 1
+                with(result.first()) {
+                    zaakIdentificatie shouldBe "ZAAK-2024-READ"
+                    zaakStartDatum shouldBe LocalDate.of(2024, 1, 1)
+                    zaakEinddatumGepland shouldBe LocalDate.of(2024, 12, 31)
+                    zaaktypeOmschrijving shouldBe zaakType.getOmschrijving()
+                    zaakRechten.lezen shouldBe true
+                    zaakStatus shouldBe null  // createZaak() has no status by default
+                }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak where the user does not have read access") {
+        val uuid = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaak = createZaak(zaaktypeUri = zaakTypeUri, startDate = LocalDate.of(2024, 6, 1), identificatie = "ZAAK-2024-NOACCESS")
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
+
+        When("listZaakInformatieobjecten is called") {
+            val result = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+
+            Then("sensitive zaak fields are null because the user cannot read the zaak") {
+                result shouldHaveSize 1
+                with(result.first()) {
+                    zaakIdentificatie shouldBe "ZAAK-2024-NOACCESS"
+                    zaakStartDatum shouldBe null
+                    zaakEinddatumGepland shouldBe null
+                    zaaktypeOmschrijving shouldBe null
+                    zaakRechten.lezen shouldBe false
+                    zaakStatus shouldBe null
                 }
             }
         }
