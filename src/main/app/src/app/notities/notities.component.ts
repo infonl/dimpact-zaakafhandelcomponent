@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { NgFor, NgIf } from "@angular/common";
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
@@ -13,7 +14,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { IdentityService } from "../identity/identity.service";
 import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -61,7 +61,7 @@ export class NotitiesComponent implements OnInit {
     private notitieService: NotitieService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.haalNotitiesOp();
   }
 

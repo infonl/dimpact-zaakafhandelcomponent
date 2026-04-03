@@ -31,7 +31,11 @@ describe(NotitiesComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotitiesComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        NotitiesComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

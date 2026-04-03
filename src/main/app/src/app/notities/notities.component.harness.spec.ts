@@ -67,7 +67,11 @@ describe("NotitiesComponent harness", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        TestHostComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

@@ -41,7 +41,7 @@ const makeTaak = (id: string): TaakZoekObject =>
   ({
     id,
     zaakUuid: `zaak-${id}`,
-  } as Partial<TaakZoekObject> as unknown as TaakZoekObject);
+  }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
 
 const makeDialogData = (
   taken: TaakZoekObject[],
@@ -100,7 +100,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
 
     it("should show plural title with task count", () => {
       const spans = fixture.nativeElement.querySelectorAll(
-        "mat-toolbar span.flex-grow-1",
+        "span.flex-grow-1",
       );
       expect(spans.length).toBe(1);
       expect((spans[0] as HTMLElement).textContent?.trim()).toContain(
@@ -139,6 +139,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
         reden: "test-reden",
         screenEventResourceId: "screen-event-1",
       });
+      req.flush({});
     });
 
     it("should close the dialog with form data after successful mutation", async () => {
@@ -157,9 +158,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       await button.click();
       await new Promise(requestAnimationFrame);
 
-      httpTestingController
-        .expectOne("/rest/taken/lijst/verdelen")
-        .flush({});
+      httpTestingController.expectOne("/rest/taken/lijst/verdelen").flush({});
       await sleep();
 
       expect(dialogRef.close).toHaveBeenCalledWith(formData);
@@ -175,7 +174,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
 
     it("should show singular title", () => {
       const spans = fixture.nativeElement.querySelectorAll(
-        "mat-toolbar span.flex-grow-1",
+        "span.flex-grow-1",
       );
       expect(spans.length).toBe(1);
       expect((spans[0] as HTMLElement).textContent?.trim()).toContain(
