@@ -68,6 +68,7 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 
 ### Batch 3 — done (branch: `temp/standalone-migration`)
 - [x] `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts`
+- [x] `notities/notities.component.ts`
 
 ## Colleague
 
