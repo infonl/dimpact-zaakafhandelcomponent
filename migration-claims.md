@@ -66,6 +66,9 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `fout-afhandeling/dialog/fout-dialog.component.ts`
 - [x] `fout-afhandeling/dialog/actie-onmogelijk-dialog.component.ts`
 
+### Batch 3 — in progress
+- [ ] `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
