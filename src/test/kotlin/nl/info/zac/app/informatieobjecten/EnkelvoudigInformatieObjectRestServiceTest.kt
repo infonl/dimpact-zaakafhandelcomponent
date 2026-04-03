@@ -1138,7 +1138,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns createZaakRechten(wijzigen = true)
         every { ontkoppeldDoc.id } returns 42L
         every { ontkoppeldeDocumentenService.read(documentUUID) } returns ontkoppeldDoc
-        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any()) } just Runs
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { ontkoppeldeDocumentenService.delete(42L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
@@ -1152,7 +1153,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the document is linked to the target zaak and removed from ontkoppelde-documenten") {
                 verify(exactly = 1) {
-                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any())
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
                 verify(exactly = 1) { ontkoppeldeDocumentenService.delete(42L) }
             }
@@ -1178,7 +1179,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns createZaakRechten(wijzigen = true)
         every { inboxDoc.id } returns 99L
         every { inboxDocumentService.read(documentUUID) } returns inboxDoc
-        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any()) } just Runs
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.INBOX_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { inboxDocumentService.delete(99L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
@@ -1192,7 +1194,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the document is linked to the target zaak and removed from inbox-documenten") {
                 verify(exactly = 1) {
-                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any())
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
                 verify(exactly = 1) { inboxDocumentService.delete(99L) }
             }
@@ -1443,6 +1445,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             )
         ) { testCase ->
+            // Each test case re-stubs the converter with a real RestEnkelvoudigInformatieobject
+            // built from the fixture, so getIndicaties() executes against real field values.
             val restEio = createRestEnkelvoudigInformatieobject(
                 gelockedDoor = testCase.gelockedDoor,
                 ondertekening = testCase.ondertekening,
