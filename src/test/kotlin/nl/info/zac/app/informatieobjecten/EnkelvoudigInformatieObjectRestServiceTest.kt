@@ -1529,4 +1529,82 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("An enkelvoudig informatieobject returned by readEnkelvoudigInformatieobject with various indicator flags") {
+        data class TestCase(
+            val gelockedDoor: RestUser? = null,
+            val ondertekening: RestOndertekening? = null,
+            val indicatieGebruiksrecht: Boolean = false,
+            val isBesluitDocument: Boolean = false,
+            val verzenddatum: LocalDate? = null,
+            val expectedIndicaties: Set<DocumentIndicatie>
+        )
+
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+
+        withData(
+            nameFn = { "expected indicaties: ${it.expectedIndicaties}" },
+            listOf(
+                TestCase(
+                    expectedIndicaties = emptySet()
+                ),
+                TestCase(
+                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    expectedIndicaties = setOf(DocumentIndicatie.VERGRENDELD)
+                ),
+                TestCase(
+                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
+                    expectedIndicaties = setOf(DocumentIndicatie.ONDERTEKEND)
+                ),
+                TestCase(
+                    indicatieGebruiksrecht = true,
+                    expectedIndicaties = setOf(DocumentIndicatie.GEBRUIKSRECHT)
+                ),
+                TestCase(
+                    isBesluitDocument = true,
+                    expectedIndicaties = setOf(DocumentIndicatie.BESLUIT)
+                ),
+                TestCase(
+                    verzenddatum = LocalDate.of(2026, 1, 1),
+                    expectedIndicaties = setOf(DocumentIndicatie.VERZONDEN)
+                ),
+                TestCase(
+                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
+                    indicatieGebruiksrecht = true,
+                    isBesluitDocument = true,
+                    verzenddatum = LocalDate.of(2026, 1, 1),
+                    expectedIndicaties = setOf(
+                        DocumentIndicatie.VERGRENDELD,
+                        DocumentIndicatie.ONDERTEKEND,
+                        DocumentIndicatie.GEBRUIKSRECHT,
+                        DocumentIndicatie.BESLUIT,
+                        DocumentIndicatie.VERZONDEN
+                    )
+                )
+            )
+        ) { testCase ->
+            val restEio = createRestEnkelvoudigInformatieobject(
+                gelockedDoor = testCase.gelockedDoor,
+                ondertekening = testCase.ondertekening,
+                indicatieGebruiksrecht = testCase.indicatieGebruiksrecht,
+                isBesluitDocument = testCase.isBesluitDocument,
+                verzenddatum = testCase.verzenddatum
+            )
+            every {
+                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+            } returns restEio
+
+            When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+                val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
+
+                Then("getIndicaties() reflects the document's indicator flags") {
+                    result.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
+                }
+            }
+        }
+    }
 })
