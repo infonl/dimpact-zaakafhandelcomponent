@@ -1203,15 +1203,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("A document linked to a source zaak and the user has permission to move it to another zaak") {
         val documentUUID = UUID.randomUUID()
-        val sourceZaakID = "ZAAK-SOURCE-001"
-        val nieuweZaakID = "ZAAK-TARGET-003"
+        val sourceZaakID = "fakeSourceZaakID"
+        val targetZaakID = "fakeSourceZaakID"
         val informatieobject = createEnkelvoudigInformatieObject()
         val sourceZaak = createZaak(identificatie = sourceZaakID)
-        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val targetZaak = createZaak(identificatie = targetZaakID)
         val loggedInUser = createLoggedInUser()
 
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
-        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every { zrcClientService.readZaakByID(targetZaakID) } returns targetZaak
         every {
             policyService.readDocumentRechten(informatieobject, targetZaak)
         } returns createDocumentRechten(verplaatsen = true)
@@ -1227,7 +1227,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 RestDocumentVerplaatsGegevens(
                     documentUUID = documentUUID,
                     bron = sourceZaakID,
-                    nieuweZaakID = nieuweZaakID
+                    nieuweZaakID = targetZaakID
                 )
             )
 
@@ -1245,11 +1245,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val startDate = LocalDate.of(2024, 1, 1)
+        val plannedEndDate = LocalDate.of(2024, 12, 31)
         val zaak = createZaak(
             zaaktypeUri = zaakTypeUri,
-            startDate = LocalDate.of(2024, 1, 1),
-            einddatumGepland = LocalDate.of(2024, 12, 31),
-            identificatie = "ZAAK-2024-READ"
+            startDate = startDate,
+            einddatumGepland = plannedEndDate,
+            identificatie = "faakZaakID"
         )
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
@@ -1263,14 +1265,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
 
         When("listZaakInformatieobjecten is called") {
-            val result = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+            val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
 
             Then("the result contains enriched zaak data because the user can read the zaak") {
-                result shouldHaveSize 1
-                with(result.first()) {
-                    zaakIdentificatie shouldBe "ZAAK-2024-READ"
-                    zaakStartDatum shouldBe LocalDate.of(2024, 1, 1)
-                    zaakEinddatumGepland shouldBe LocalDate.of(2024, 12, 31)
+                restZaakInformatieobjects shouldHaveSize 1
+                with(restZaakInformatieobjects.first()) {
+                    zaakIdentificatie shouldBe "faakZaakID"
+                    zaakStartDatum shouldBe startDate
+                    zaakEinddatumGepland shouldBe plannedEndDate
                     zaaktypeOmschrijving shouldBe zaakType.getOmschrijving()
                     zaakRechten.lezen shouldBe true
                     zaakStatus shouldBe null // createZaak() has no status by default
@@ -1302,11 +1304,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
 
         When("listZaakInformatieobjecten is called") {
-            val result = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+            val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
 
             Then("sensitive zaak fields are null because the user cannot read the zaak") {
-                result shouldHaveSize 1
-                with(result.first()) {
+                restZaakInformatieobjects shouldHaveSize 1
+                with(restZaakInformatieobjects.first()) {
                     zaakIdentificatie shouldBe "ZAAK-2024-NOACCESS"
                     zaakStartDatum shouldBe null
                     zaakEinddatumGepland shouldBe null
@@ -1361,11 +1363,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(invalidTypeUri) } returns invalidType
 
         When("listInformatieobjecttypesForZaak is called") {
-            val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
 
             Then("only the currently valid informatieobjecttype is returned") {
-                result shouldHaveSize 1
-                result.first().omschrijving shouldBe "validType"
+                restInformatieobjecttypes shouldHaveSize 1
+                restInformatieobjecttypes.first().omschrijving shouldBe "validType"
             }
         }
     }
@@ -1380,10 +1382,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
 
         When("listInformatieobjecttypesForZaak is called") {
-            val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
 
             Then("an empty list is returned") {
-                result shouldBe emptyList()
+                restInformatieobjecttypes shouldBe emptyList()
             }
         }
     }
@@ -1447,7 +1449,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         ) { testCase ->
             // Each test case re-stubs the converter with a real RestEnkelvoudigInformatieobject
             // built from the fixture, so getIndicaties() executes against real field values.
-            val restEio = createRestEnkelvoudigInformatieobject(
+            val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
                 gelockedDoor = testCase.gelockedDoor,
                 ondertekening = testCase.ondertekening,
                 indicatieGebruiksrecht = testCase.indicatieGebruiksrecht,
@@ -1456,13 +1458,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
             every {
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
-            } returns restEio
+            } returns restEnkelvoudigInformatieobject
 
             When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
-                val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
+                val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
 
                 Then("getIndicaties() reflects the document's indicator flags") {
-                    result.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
+                    enkelvoudigInformatieobject.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
                 }
             }
         }
