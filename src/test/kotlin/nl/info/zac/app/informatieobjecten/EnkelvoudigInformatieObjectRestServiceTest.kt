@@ -1204,7 +1204,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     Given("A document linked to a source zaak and the user has permission to move it to another zaak") {
         val documentUUID = UUID.randomUUID()
         val sourceZaakID = "fakeSourceZaakID"
-        val targetZaakID = "fakeSourceZaakID"
+        val targetZaakID = "fakeTargetZaakID"
         val informatieobject = createEnkelvoudigInformatieObject()
         val sourceZaak = createZaak(identificatie = sourceZaakID)
         val targetZaak = createZaak(identificatie = targetZaakID)
