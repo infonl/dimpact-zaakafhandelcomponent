@@ -1334,4 +1334,48 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A zaak with one currently valid and one expired informatieobjecttype") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val validTypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
+        val invalidTypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
+        val zaak = createZaak(zaaktypeUri = zaakTypeUri)
+        val zaakType = createZaakType(informatieObjectTypen = listOf(validTypeUri, invalidTypeUri))
+        val validType = createInformatieObjectType(uri = validTypeUri, omschrijving = "validType")
+        val invalidType = createInformatieObjectType(uri = invalidTypeUri, omschrijving = "invalidType")
+            .apply { this.eindeGeldigheid = LocalDate.now().minusDays(1) }
+
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(validTypeUri) } returns validType
+        every { ztcClientService.readInformatieobjecttype(invalidTypeUri) } returns invalidType
+
+        When("listInformatieobjecttypesForZaak is called") {
+            val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+
+            Then("only the currently valid informatieobjecttype is returned") {
+                result shouldHaveSize 1
+                result.first().omschrijving shouldBe "validType"
+            }
+        }
+    }
+
+    Given("A zaak with no informatieobjecttypen") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val zaak = createZaak(zaaktypeUri = zaakTypeUri)
+        val zaakType = createZaakType(informatieObjectTypen = emptyList())
+
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+
+        When("listInformatieobjecttypesForZaak is called") {
+            val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+
+            Then("an empty list is returned") {
+                result shouldBe emptyList()
+            }
+        }
+    }
 })
