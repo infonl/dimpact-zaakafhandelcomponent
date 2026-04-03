@@ -1,7 +1,7 @@
 # Design: Unit tests for three untested service functions in `EnkelvoudigInformatieObjectRestService`
 
 **Date:** 2026-04-03
-**Scope:** Add unit test coverage for three functions in `EnkelvoudigInformatieObjectRestService` that currently have no tests.
+**Scope:** Add unit test coverage for three untested service functions in `EnkelvoudigInformatieObjectRestService`, plus parameterized `getIndicaties()` assertions exercised through a service call.
 
 ## Subject under test
 
@@ -36,7 +36,7 @@ Returns all informatieobjecttypen currently valid for a given zaak, filtered by 
 
 Extend the existing `src/test/kotlin/nl/info/zac/app/informatieobjecten/EnkelvoudigInformatieObjectRestServiceTest.kt`. No new file is created.
 
-## Test cases (7 `Given` blocks, appended in order)
+## Test cases (8 `Given` blocks, appended in order)
 
 ### `verplaatsEnkelvoudigInformatieobject` — 3 blocks
 
@@ -70,10 +70,21 @@ Extend the existing `src/test/kotlin/nl/info/zac/app/informatieobjecten/Enkelvou
 **Block 7:** Zaak with no informatieobjecttypen
 - Verifies: empty list returned
 
+### `getIndicaties()` via `readEnkelvoudigInformatieobject` — 1 parameterized block
+
+**Block 8:** `readEnkelvoudigInformatieobject` returns documents with various indicator flag combinations
+- Uses `withData` with the same 7 test cases as the indicator design (empty, each of the 5 individual flags, all combined)
+- The converter mock returns a real `RestEnkelvoudigInformatieobject` constructed via `createRestEnkelvoudigInformatieobject(...)` with the relevant indicator fields set — not a MockK mock — so `getIndicaties()` executes against real field values
+- Asserts `result.getIndicaties().toSet() shouldBe expectedIndicaties` on the object returned by the service call
+- This exercises both the service wiring (read document → convert → return) and the model's `getIndicaties()` logic in a realistic call path
+
+The `TestCase` data class and test case list follow the same structure as the parameterized design, using `gelockedDoor`, `ondertekening`, `indicatieGebruiksrecht`, `isBesluitDocument`, and `verzenddatum` fixture parameters plus an `expectedIndicaties: Set<DocumentIndicatie>` field.
+
 ## Fixtures
 
 - `createZaak`, `createZaakType`, `createInformatieObjectType`, `createEnkelvoudigInformatieObject`, `createZaakInformatieobjectForCreatesAndUpdates`, `createDocumentRechten`, `createLoggedInUser` — all already used in the test file
 - `createZaakRechten`, `createZaakRechtenAllDeny` — already imported
+- `createRestEnkelvoudigInformatieobject` — already imported; Block 8 uses it with indicator-field parameters to produce a real model object (not a mock) as the converter return value
 - `ontkoppeldeDocumentenService.read()` returns an `OntkoppeldDocument` — use `mockk<OntkoppeldDocument>()` with a stubbed `id` field
 - `inboxDocumentService.read()` returns an `InboxDocument` — use `mockk<InboxDocument>()` with a stubbed `id` field
 - For `isNuGeldig()` filtering: create one type with `einddatum` in the future (valid) and one with `einddatum` in the past (invalid), or use existing fixture parameters if available
