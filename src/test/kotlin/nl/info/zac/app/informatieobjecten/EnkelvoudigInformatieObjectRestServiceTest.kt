@@ -20,6 +20,8 @@ import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.model.InboxDocument
+import net.atos.zac.document.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEvent
@@ -43,6 +45,7 @@ import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
@@ -1106,6 +1109,124 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             Then("the zaak identificaties are returned") {
                 result shouldBe listOf("ZAAK-2024-999")
+            }
+        }
+    }
+
+    Given("A document in ontkoppelde-documenten and the user has permission to move it") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-001"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val ontkoppeldDoc = mockk<OntkoppeldDocument>()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { ontkoppeldDoc.id } returns 42L
+        every { ontkoppeldeDocumentenService.read(documentUUID) } returns ontkoppeldDoc
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any()) } just Runs
+        every { ontkoppeldeDocumentenService.delete(42L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN,
+                    nieuweZaakID = nieuweZaakID
+                )
+            )
+
+            Then("the document is linked to the target zaak and removed from ontkoppelde-documenten") {
+                verify(exactly = 1) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any())
+                }
+                verify(exactly = 1) { ontkoppeldeDocumentenService.delete(42L) }
+            }
+        }
+    }
+
+    Given("A document in inbox-documenten and the user has permission to move it") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-002"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val inboxDoc = mockk<InboxDocument>()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { inboxDoc.id } returns 99L
+        every { inboxDocumentService.read(documentUUID) } returns inboxDoc
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any()) } just Runs
+        every { inboxDocumentService.delete(99L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = RestDocumentVerplaatsGegevens.INBOX_DOCUMENTEN,
+                    nieuweZaakID = nieuweZaakID
+                )
+            )
+
+            Then("the document is linked to the target zaak and removed from inbox-documenten") {
+                verify(exactly = 1) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, any())
+                }
+                verify(exactly = 1) { inboxDocumentService.delete(99L) }
+            }
+        }
+    }
+
+    Given("A document linked to a source zaak and the user has permission to move it to another zaak") {
+        val documentUUID = UUID.randomUUID()
+        val sourceZaakID = "ZAAK-SOURCE-001"
+        val nieuweZaakID = "ZAAK-TARGET-003"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val sourceZaak = createZaak(identificatie = sourceZaakID)
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { zrcClientService.readZaakByID(sourceZaakID) } returns sourceZaak
+        every { zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron being a zaak ID") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = sourceZaakID,
+                    nieuweZaakID = nieuweZaakID
+                )
+            )
+
+            Then("the document is moved from the source zaak to the target zaak") {
+                verify(exactly = 1) {
+                    zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak)
+                }
             }
         }
     }
