@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -10,19 +11,48 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, Validators } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
 import { MatDrawer, MatSidenav } from "@angular/material/sidenav";
-import { MatTable, MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import {
+  MatTable,
+  MatTableDataSource,
+  MatTableModule,
+} from "@angular/material/table";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
-import { UtilService } from "../../../core/service/util.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { BAGService } from "../../bag.service";
+import { TranslateModule } from "@ngx-translate/core";
+import { UtilService } from "../../core/service/util.service";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { BAGService } from "../bag.service";
 
 @Component({
   selector: "zac-bag-zoek",
   templateUrl: "./bag-zoek.component.html",
   styleUrls: ["./bag-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    EmptyPipe,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSortModule,
+    MatTableModule,
+    MatToolbarModule,
+    ReactiveFormsModule,
+    TranslateModule,
+  ],
 })
 export class BagZoekComponent {
   @Output() bagObject = new EventEmitter<GeneratedType<"RESTBAGObject">>();
@@ -30,13 +60,19 @@ export class BagZoekComponent {
     | GeneratedType<"RESTBAGObject">[]
     | FormControl<GeneratedType<"RESTBAGObject">[] | null> = [];
   @Input({ required: true }) sideNav!: MatSidenav | MatDrawer;
-  @ViewChild(MatTable) table!: MatTable<GeneratedType<"RESTBAGObject">>;
-  trefwoorden = new FormControl("", [Validators.maxLength(255)]);
-  bagObjecten = new MatTableDataSource<
+  @ViewChild(MatTable) private table!: MatTable<GeneratedType<"RESTBAGObject">>;
+  protected trefwoorden = new FormControl("", [Validators.maxLength(255)]);
+  protected bagObjecten = new MatTableDataSource<
     GeneratedType<"RESTBAGObject"> | GeneratedType<"RESTBAGAdres">
   >();
-  loading = false;
-  columns: string[] = ["expand", "id", "type", "omschrijving", "acties"];
+  protected loading = false;
+  protected columns: string[] = [
+    "expand",
+    "id",
+    "type",
+    "omschrijving",
+    "acties",
+  ];
 
   constructor(
     private bagService: BAGService,
@@ -44,7 +80,7 @@ export class BagZoekComponent {
     private router: Router,
   ) {}
 
-  zoek(): void {
+  protected zoek() {
     this.bagObjecten.data = [];
     if (this.trefwoorden.value) {
       this.loading = true;
@@ -62,7 +98,7 @@ export class BagZoekComponent {
     }
   }
 
-  selectBagObject(bagObject: GeneratedType<"RESTBAGObject">): void {
+  protected selectBagObject(bagObject: GeneratedType<"RESTBAGObject">) {
     if (this.gekoppeldeBagObjecten instanceof FormControl) {
       this.gekoppeldeBagObjecten.setValue([
         ...(this.gekoppeldeBagObjecten.value ?? []),
@@ -74,7 +110,7 @@ export class BagZoekComponent {
     this.bagObject.emit(bagObject);
   }
 
-  expandable(bagObject: GeneratedType<"RESTBAGObject">) {
+  protected expandable(bagObject: GeneratedType<"RESTBAGObject">) {
     if (bagObject.bagObjectType !== "ADRES") {
       return false;
     }
@@ -88,7 +124,7 @@ export class BagZoekComponent {
     );
   }
 
-  expand(
+  protected expand(
     bagObject: GeneratedType<"RESTBAGObject" | "RESTBAGAdres"> & {
       expanded: boolean;
     },
@@ -134,7 +170,7 @@ export class BagZoekComponent {
     this.table.renderRows();
   }
 
-  reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
+  protected reedsGekoppeld(row: GeneratedType<"RESTBAGObject">): boolean {
     const objects =
       this.gekoppeldeBagObjecten instanceof FormControl
         ? (this.gekoppeldeBagObjecten.value ?? [])
@@ -146,7 +182,7 @@ export class BagZoekComponent {
     );
   }
 
-  openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">): void {
+  protected openBagTonenPagina(bagObject: GeneratedType<"RESTBAGObject">) {
     this.sideNav?.close();
     this.router.navigate([
       "/bag-objecten",
@@ -155,7 +191,7 @@ export class BagZoekComponent {
     ]);
   }
 
-  wissen() {
+  protected wissen() {
     this.trefwoorden.reset();
     this.bagObjecten.data = [];
   }

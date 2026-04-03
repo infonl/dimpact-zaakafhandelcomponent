@@ -5,7 +5,7 @@
 
 import { NgModule } from "@angular/core";
 
-import { BAGModule } from "../bag/bag.module";
+import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
 import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { KlantenModule } from "../klanten/klanten.module";
@@ -78,7 +78,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     MailModule,
     ZoekenModule,
     GebruikersvoorkeurenModule,
-    BAGModule,
+    BagZoekComponent,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     KlantKoppelComponent,

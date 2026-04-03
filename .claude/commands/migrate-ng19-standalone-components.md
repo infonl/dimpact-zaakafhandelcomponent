@@ -332,6 +332,18 @@ Solves PZ-XXXXX
 
 ---
 
+### ✅ `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts` (2026-04-02)
+- `imports: [NgIf, ReactiveFormsModule, RouterLink, TranslateModule, MatCardModule, MatSlideToggleModule, MatTableModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatIconModule, EmptyPipe, DatumPipe, TekstFilterComponent, FacetFilterComponent, DateRangeFilterComponent]`
+- Access modifiers: paginator/sort → private; dataSource/columns/filterColumns/isLoadingResults/zoekParameters/zoekResultaat/inclusiefAfgerondeZaken/filtersChanged → protected; init → private
+- **Pattern**: fixed pre-existing ngOnChanges bug (removed SimpleChanges re-assignment of @Input)
+
+### ✅ `bag/bag-view/bag-view.component.ts` (2026-04-02)
+- `imports: [NgIf, MatCardModule, MatSidenavModule, TranslateModule, StaticTextComponent, BagZakenTabelComponent, BagLocatieComponent]`
+- Access modifiers: all fields already protected, constructor params already private readonly
+- **Pattern**: last component in BAGModule — module now has empty declarations[]
+
+---
+
 ## Next Target
 `taken.module.ts` remaining: `TakenVrijgevenDialogComponent` (Marcel Batch 6), `TakenMijnComponent`, `TakenWerkvoorraadComponent`. `TakenWerkvoorraad` blocked on `TakenVrijgevenDialog` being standalone first. Good next picks: `core/toolbar` (complex, defer), `klanten/*` dialogs with specs, `zaken/*` dialogs.
 
