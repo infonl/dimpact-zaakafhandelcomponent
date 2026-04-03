@@ -3,51 +3,35 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { of } from "rxjs";
-
-import { ComponentHarness, HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { of } from "rxjs";
 import { testQueryClient } from "../../../setupJest";
 import { IdentityService } from "../identity/identity.service";
-import { MaterialModule } from "../shared/material/material.module";
-import { PipesModule } from "../shared/pipes/pipes.module";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
 
 @Component({
-  template: `<zac-notities></zac-notities>`,
-  standalone: false,
+  template: `<zac-notities zaakUuid="test-uuid"></zac-notities>`,
+  standalone: true,
+  imports: [NotitiesComponent],
 })
 class TestHostComponent {}
 
 const currentUser: GeneratedType<"RestLoggedInUser"> = {
   id: "currentUser",
   naam: "test",
-};
-
-const mockIdentityService = {
-  readLoggedInUser: () => of(currentUser),
-};
-
-const mockNotitieService = {
-  listNotities: () => of([]),
-  updateNotitie: (notitie: GeneratedType<"RestNote">) => of(notitie),
-};
-
-const mockTranslateService = {
-  get: (key: unknown) => of(key),
-  onTranslationChange: of({}),
-  onLangChange: of({}),
-  onFallbackLangChange: of({}),
-  getCurrentLang: () => of("nl"),
-  getFallbackLang: () => of("en"),
 };
 
 class NotitiesHarness extends ComponentHarness {
@@ -77,26 +61,31 @@ class NotitiesHarness extends ComponentHarness {
   }
 }
 
-describe("NotitiesComponent Harness with Host Wrapper", () => {
+describe("NotitiesComponent harness", () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TestHostComponent, NotitiesComponent],
-      imports: [
-        TranslateModule.forRoot(),
-        MaterialModule,
-        PipesModule,
-        NoopAnimationsModule,
-      ],
+      imports: [TestHostComponent, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        { provide: IdentityService, useValue: mockIdentityService },
-        { provide: NotitieService, useValue: mockNotitieService },
-        { provide: TranslateService, useValue: mockTranslateService },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
+
+    const identityService = TestBed.inject(IdentityService);
+    testQueryClient.setQueryData(
+      identityService.readLoggedInUser().queryKey,
+      currentUser,
+    );
+
+    const notitieService = TestBed.inject(NotitieService);
+    jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
+    jest
+      .spyOn(notitieService, "updateNotitie")
+      .mockImplementation((notitie) => of(notitie));
 
     fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();

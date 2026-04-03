@@ -97,11 +97,11 @@ describe(ZaakViewComponent.name, () => {
       declarations: [
         ZaakViewComponent,
         ZaakDocumentenComponent,
-        NotitiesComponent,
         PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,
@@ -269,15 +269,15 @@ describe(ZaakViewComponent.name, () => {
     it.each([
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
+          einddatum: null,
+          einddatumGepland: null,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
         1,
       ],
       [
         {
-          einddatum: undefined,
+          einddatum: null,
           einddatumGepland: yesterdayDate,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
@@ -285,23 +285,23 @@ describe(ZaakViewComponent.name, () => {
       ],
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
+          einddatum: null,
+          einddatumGepland: null,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
         1,
       ],
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
-          uiterlijkeEinddatumAfdoening: undefined,
+          einddatum: null,
+          einddatumGepland: null,
+          uiterlijkeEinddatumAfdoening: null,
         },
         0,
       ],
       [
         {
-          einddatum: undefined,
+          einddatum: null,
           einddatumGepland: tomorrowDate,
           uiterlijkeEinddatumAfdoening: tomorrowDate,
         },
