@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 44 done — 108 remaining** (2026-04-02)
+**Progress: 40 done — 112 remaining** (2026-04-03)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -150,6 +150,19 @@ Solves PZ-XXXXX
 ---
 
 ## Completed
+
+### ✅ `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts` (2026-04-03) — Dax Batch 3
+- `imports: [NgIf, ReactiveFormsModule, MatToolbarModule, MatIconModule, MatDialogTitle, MatDialogContent, MatDividerModule, MatButtonModule, TranslateModule, MaterialFormBuilderModule]`
+- Access modifiers: `close()`, `verdeel()` → `protected`; `users` already `protected`
+- **Pattern**: Dialog opened via `MatDialog.open()` — standalone component does NOT need to be in module `declarations[]` or `imports[]`; only the TypeScript import is needed for the type reference
+- **Pattern**: `setup()` helper with `makeDialogData()` + `makeTaak()` factories enables separate `describe` blocks for different data scenarios (multiple taken, single taak, empty)
+
+### ✅ `notities/notities.component.ts` (2026-04-03) — Dax Batch 3
+- `imports: [NgIf, NgFor, MatButtonModule, MatIconModule, MatBadgeModule, MatCardModule, MatFormFieldModule, MatInputModule, CdkTextareaAutosize, TranslateModule, DatumPipe]`
+- Access modifiers: `notities`, `showNotes`, `geselecteerdeNotitieId`, `maxLengteTextArea` → `protected`; template methods → `protected`; `haalNotitiesOp()` → `private`
+- **Pattern**: Harness spec `TestHostComponent` becomes `standalone: true, imports: [NotitiesComponent]`; TestBed switches from `declarations: [TestHostComponent, Component]` to `imports: [TestHostComponent]`
+- **Pattern**: `zaak-view.component.spec.ts` had `NotitiesComponent` in `declarations[]` → moved to `imports[]`; fixed pre-existing `undefined` → `null` for `string | null` typed fields
+- **Pattern**: `CdkTextareaAutosize` from `@angular/cdk/text-field` required for `cdkTextareaAutosize` / `cdkAutosizeMinRows` / `cdkAutosizeMaxRows` directives
 
 ### ✅ `identity/identity.component.ts` (2026-04-01)
 - `imports: [MatCardModule, MatListModule]`
@@ -332,7 +345,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`taken.module.ts` remaining: `TakenVrijgevenDialogComponent`, `TakenMijnComponent`, `TakenVerdelenDialogComponent`, `TakenWerkvoorraadComponent` (sequential — all share same module). Or pick 4 more non-conflicting targets from different modules for parallel run.
+`taken.module.ts` remaining: `TakenVrijgevenDialogComponent` (Marcel Batch 6), `TakenMijnComponent`, `TakenWerkvoorraadComponent`. `TakenWerkvoorraad` blocked on `TakenVrijgevenDialog` being standalone first. Good next picks: `core/toolbar` (complex, defer), `klanten/*` dialogs with specs, `zaken/*` dialogs.
 
 ---
 
