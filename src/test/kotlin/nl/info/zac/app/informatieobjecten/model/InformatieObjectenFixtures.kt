@@ -7,6 +7,7 @@ package nl.info.zac.app.informatieobjecten.model
 
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.identity.model.RestUser
 import java.time.LocalDate
 import java.util.UUID
 
@@ -34,7 +35,11 @@ fun createRestEnkelvoudigInformatieobject(
     file: ByteArray = "fakeFile".toByteArray(),
     bestandsNaam: String = "fakeFilename",
     formaat: String = "fakeType",
-    indicatieGebruiksrecht: Boolean? = null
+    indicatieGebruiksrecht: Boolean = false,
+    gelockedDoor: RestUser? = null,
+    ondertekening: RestOndertekening? = null,
+    isBesluitDocument: Boolean = false,
+    verzenddatum: LocalDate? = null
 ) = RestEnkelvoudigInformatieobject(
     uuid = uuid,
     status = status,
@@ -44,7 +49,11 @@ fun createRestEnkelvoudigInformatieobject(
     taal = taal,
     informatieobjectTypeUUID = informatieobjectTypeUUID,
     formaat = formaat,
-    indicatieGebruiksrecht = indicatieGebruiksrecht ?: false
+    indicatieGebruiksrecht = indicatieGebruiksrecht,
+    gelockedDoor = gelockedDoor,
+    ondertekening = ondertekening,
+    isBesluitDocument = isBesluitDocument,
+    verzenddatum = verzenddatum
 ).also {
     it.file = file
     it.bestandsnaam = bestandsNaam
