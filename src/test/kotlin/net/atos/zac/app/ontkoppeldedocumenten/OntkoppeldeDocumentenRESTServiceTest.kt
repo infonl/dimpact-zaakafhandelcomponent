@@ -287,5 +287,35 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("a valid request with ontkoppeldDoor filter returned from the database") {
+            val werklijstRechten = createWerklijstRechten(inbox = true)
+            val listParameters = mockk<OntkoppeldDocumentListParameters>()
+            val restListParameters = RESTOntkoppeldDocumentListParameters()
+            val document = createOntkoppeldDocument()
+            val informatieObject = createEnkelvoudigInformatieObject()
+            val restDocument = RESTOntkoppeldDocument()
+            val dbUserIds = listOf("user1", "user2")
+            val convertedUsers = listOf(createRestUser(id = "user1", name = "User One"), createRestUser(id = "user2", name = "User Two"))
+            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, dbUserIds)
+            every { policyService.readWerklijstRechten() } returns werklijstRechten
+            every { listParametersConverter.convert(restListParameters) } returns listParameters
+            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } returns informatieObject
+            every {
+                ontkoppeldDocumentConverter.convert(listOf(document), any())
+            } returns listOf(restDocument)
+            every { with(userConverter) { dbUserIds.convertUserIds() } } returns convertedUsers
+
+            When("the list endpoint is called") {
+                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+
+                Then("filterOntkoppeldDoor is populated from the database filter via userConverter") {
+                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe convertedUsers
+                }
+            }
+        }
     }
 })
