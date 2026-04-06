@@ -33,7 +33,7 @@ import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
 import net.atos.zac.document.model.InboxDocumentListParameters
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
-import nl.info.zac.model.createInboxDocument
+import net.atos.zac.document.model.createInboxDocument
 import java.util.Optional
 ```
 
