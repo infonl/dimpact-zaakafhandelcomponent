@@ -125,7 +125,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       .linkDocumentToCase({
         documentUUID: this.getDocumentUUID(),
         bron: this.source,
-        nieuweZaakID: row.identificatie,
+        nieuweZaakID: row.identificatie ?? "",
       })
       .subscribe({
         next: () => {
@@ -148,12 +148,13 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       });
   }
 
-  private getDocumentUUID() {
+  private getDocumentUUID(): string {
     if (!this.infoObject) return "";
-    if ("uuid" in this.infoObject) return this.infoObject.uuid;
-    if ("documentUUID" in this.infoObject) return this.infoObject.documentUUID;
+    if ("uuid" in this.infoObject) return this.infoObject.uuid ?? "";
+    if ("documentUUID" in this.infoObject)
+      return this.infoObject.documentUUID ?? "";
     if ("enkelvoudiginformatieobjectUUID" in this.infoObject)
-      return this.infoObject.enkelvoudiginformatieobjectUUID;
+      return this.infoObject.enkelvoudiginformatieobjectUUID ?? "";
     return "";
   }
 
