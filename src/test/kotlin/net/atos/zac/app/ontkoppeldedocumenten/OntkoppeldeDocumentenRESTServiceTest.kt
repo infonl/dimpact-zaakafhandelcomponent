@@ -261,7 +261,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         Given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
             val listParameters = mockk<OntkoppeldDocumentListParameters>()
-            val requestUser = createRestUser(id = "user1", name = "User One")
+            val requestUser = createRestUser(id = "fakeUserId1", name = "fakeUserName1")
             val restListParameters = RESTOntkoppeldDocumentListParameters().apply {
                 ontkoppeldDoor = requestUser
             }
@@ -295,10 +295,10 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
             val document = createOntkoppeldDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
             val restDocument = RESTOntkoppeldDocument()
-            val dbUserIds = listOf("user1", "user2")
+            val dbUserIds = listOf("fakeUserId1", "fakeUserId2")
             val convertedUsers = listOf(
-                createRestUser(id = "user1", name = "User One"),
-                createRestUser(id = "user2", name = "User Two")
+                createRestUser(id = "fakeUserId1", name = "fakeUserName1"),
+                createRestUser(id = "fakeUserId2", name = "fakeUserName2")
             )
             val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten

@@ -62,22 +62,6 @@ class InboxDocumentRestService @Inject constructor(
         )
     }
 
-    private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
-        try {
-            val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                inboxDocument.enkelvoudiginformatieobjectUUID
-            )
-            return informatieobject.getInformatieobjecttype().extractUuid()
-        } catch (notFoundException: NotFoundException) {
-            LOG.log(Level.WARNING, notFoundException) {
-                "Error reading EnkelvoudigInformatieobject for InboxDocument with id '${inboxDocument.id}' " +
-                    "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
-                    "Error: ${notFoundException.message}"
-            }
-        }
-        return null
-    }
-
     @DELETE
     @Path("{id}")
     fun deleteInboxDocument(@PathParam("id") id: Long) {
@@ -87,7 +71,7 @@ class InboxDocumentRestService @Inject constructor(
             return // reeds verwijderd
         }
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
+            inboxDocument.get().enkelvoudiginformatieobjectUUID
         )
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
@@ -101,9 +85,25 @@ class InboxDocumentRestService @Inject constructor(
             }
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
-                inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
+                inboxDocument.get().enkelvoudiginformatieobjectUUID
             )
         }
         inboxDocumentService.delete(id)
+    }
+
+    private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
+        try {
+            val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                inboxDocument.enkelvoudiginformatieobjectUUID
+            )
+            return informatieobject.getInformatieobjecttype().extractUuid()
+        } catch (notFoundException: NotFoundException) {
+            LOG.log(Level.WARNING, notFoundException) {
+                "Error reading EnkelvoudigInformatieobject for InboxDocument with id '${inboxDocument.id}' " +
+                        "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
+                        "Error: ${notFoundException.message}"
+            }
+        }
+        return null
     }
 }

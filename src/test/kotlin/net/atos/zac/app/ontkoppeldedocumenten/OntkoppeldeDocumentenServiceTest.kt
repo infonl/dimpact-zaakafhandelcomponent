@@ -29,52 +29,54 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a valid EnkelvoudigInformatieObject for a given Zaak") {
-        val documentUuid = UUID.randomUUID()
-        val identificatie = "DOC-456"
-        val creatiedatum = LocalDate.now()
-        val titel = "Ontkoppeld Document"
-        val bestandsnaam = "ontkoppeld.pdf"
-        val reden = "Test reden"
-        val userId = "user-123"
-        val zaak = createZaak(identificatie = "ZAAK-789")
+    Context("Creating an detached document") {
+        Given("a valid EnkelvoudigInformatieObject for a given Zaak") {
+            val documentUuid = UUID.randomUUID()
+            val identificatie = "DOC-456"
+            val creatiedatum = LocalDate.now()
+            val titel = "Ontkoppeld Document"
+            val bestandsnaam = "ontkoppeld.pdf"
+            val reden = "Test reden"
+            val userId = "user-123"
+            val zaak = createZaak(identificatie = "ZAAK-789")
 
-        val informatieobject = createEnkelvoudigInformatieObject(
-            uuid = documentUuid
-        ).apply {
-            setIdentificatie(identificatie)
-            setCreatiedatum(creatiedatum)
-            setTitel(titel)
-            setBestandsnaam(bestandsnaam)
-        }
-
-        val entityManager = mockk<EntityManager>(relaxed = true) {
-            every { persist(any<OntkoppeldDocument>()) } just Runs
-        }
-        val loggedInUserInstance = mockk<Instance<LoggedInUser>> {
-            every { get() } returns mockk<LoggedInUser> {
-                every { id } returns userId
+            val informatieobject = createEnkelvoudigInformatieObject(
+                uuid = documentUuid
+            ).apply {
+                setIdentificatie(identificatie)
+                setCreatiedatum(creatiedatum)
+                setTitel(titel)
+                setBestandsnaam(bestandsnaam)
             }
-        }
 
-        val ontkoppeldeDocumentenService = OntkoppeldeDocumentenService(
-            entityManager,
-            loggedInUserInstance
-        )
+            val entityManager = mockk<EntityManager>(relaxed = true) {
+                every { persist(any<OntkoppeldDocument>()) } just Runs
+            }
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>> {
+                every { get() } returns mockk<LoggedInUser> {
+                    every { id } returns userId
+                }
+            }
 
-        When("the ontkoppelde documenten create is invoked") {
-            val result = ontkoppeldeDocumentenService.create(informatieobject, zaak, reden)
+            val ontkoppeldeDocumentenService = OntkoppeldeDocumentenService(
+                entityManager,
+                loggedInUserInstance
+            )
 
-            Then("an OntkoppeldDocument is created and stored") {
-                result.documentUUID shouldBe documentUuid
-                result.documentID shouldBe identificatie
-                result.creatiedatum shouldBe creatiedatum
-                result.titel shouldBe titel
-                result.bestandsnaam shouldBe bestandsnaam
-                result.ontkoppeldDoor shouldBe userId
-                result.zaakID shouldBe zaak.identificatie
-                result.reden shouldBe reden
-                result.ontkoppeldOp shouldNotBe null
+            When("the ontkoppelde documenten create is invoked") {
+                val result = ontkoppeldeDocumentenService.create(informatieobject, zaak, reden)
+
+                Then("an OntkoppeldDocument is created and stored") {
+                    result.documentUUID shouldBe documentUuid
+                    result.documentID shouldBe identificatie
+                    result.creatiedatum shouldBe creatiedatum
+                    result.titel shouldBe titel
+                    result.bestandsnaam shouldBe bestandsnaam
+                    result.ontkoppeldDoor shouldBe userId
+                    result.zaakID shouldBe zaak.identificatie
+                    result.reden shouldBe reden
+                    result.ontkoppeldOp shouldNotBe null
+                }
             }
         }
     }
