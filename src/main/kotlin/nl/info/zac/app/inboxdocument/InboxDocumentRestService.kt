@@ -100,8 +100,8 @@ class InboxDocumentRestService @Inject constructor(
         } catch (notFoundException: NotFoundException) {
             LOG.log(Level.WARNING, notFoundException) {
                 "Error reading EnkelvoudigInformatieobject for InboxDocument with id '${inboxDocument.id}' " +
-                        "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
-                        "Error: ${notFoundException.message}"
+                    "and enkelvoudiginformatieobjectUUID '${inboxDocument.enkelvoudiginformatieobjectUUID}' " +
+                    "Error: ${notFoundException.message}"
             }
         }
         return null

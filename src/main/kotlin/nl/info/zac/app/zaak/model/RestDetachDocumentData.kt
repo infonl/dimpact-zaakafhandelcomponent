@@ -10,7 +10,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTDocumentOntkoppelGegevens(
+data class RestDetachDocumentData(
     var zaakUUID: UUID,
 
     var documentUUID: UUID,

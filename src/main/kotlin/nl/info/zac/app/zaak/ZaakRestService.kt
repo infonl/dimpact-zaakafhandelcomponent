@@ -32,7 +32,7 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINAT
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
-import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
@@ -78,7 +78,6 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
-import nl.info.zac.app.zaak.model.RESTDocumentOntkoppelGegevens
 import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
@@ -96,6 +95,7 @@ import nl.info.zac.app.zaak.model.RestDecisionChangeData
 import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.RestDecisionType
 import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
+import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
@@ -168,7 +168,7 @@ class ZaakRestService @Inject constructor(
     private val indexingService: IndexingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val objectsClientService: ObjectsClientService,
-    private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
@@ -452,10 +452,10 @@ class ZaakRestService @Inject constructor(
 
     @PUT
     @Path("zaakinformatieobjecten/ontkoppel")
-    fun ontkoppelInformatieObject(restDocumentOntkoppelGegevens: RESTDocumentOntkoppelGegevens) {
-        val zaak = zrcClientService.readZaak(restDocumentOntkoppelGegevens.zaakUUID)
+    fun detachZaakinformatieobject(restDetachDocumentData: RestDetachDocumentData) {
+        val zaak = zrcClientService.readZaak(restDetachDocumentData.zaakUUID)
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            restDocumentOntkoppelGegevens.documentUUID
+            restDetachDocumentData.documentUUID
         )
         assertPolicy(policyService.readDocumentRechten(informatieobject, zaak).ontkoppelen)
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
@@ -466,14 +466,14 @@ class ZaakRestService @Inject constructor(
         )
         if (zaakInformatieobjecten.isEmpty()) {
             throw NotFoundException(
-                "Geen ZaakInformatieobject gevonden voor Zaak: '${restDocumentOntkoppelGegevens.zaakUUID}' " +
-                    "en InformatieObject: '${restDocumentOntkoppelGegevens.documentUUID}'"
+                "Geen ZaakInformatieobject gevonden voor Zaak: '${restDetachDocumentData.zaakUUID}' " +
+                    "en InformatieObject: '${restDetachDocumentData.documentUUID}'"
             )
         }
         zaakInformatieobjecten.forEach {
             zrcClientService.deleteZaakInformatieobject(
                 it.uuid,
-                restDocumentOntkoppelGegevens.reden,
+                restDetachDocumentData.reden,
                 "Ontkoppeld"
             )
         }
@@ -481,7 +481,7 @@ class ZaakRestService @Inject constructor(
         // Solr index and add it to the list of 'ontkoppelde documenten'
         if (zrcClientService.listZaakinformatieobjecten(informatieobject).isEmpty()) {
             indexingService.removeInformatieobject(informatieobject.url.extractUuid())
-            ontkoppeldeDocumentenService.create(informatieobject, zaak, restDocumentOntkoppelGegevens.reden)
+            detachedDocumentService.create(informatieobject, zaak, restDetachDocumentData.reden)
         }
     }
 

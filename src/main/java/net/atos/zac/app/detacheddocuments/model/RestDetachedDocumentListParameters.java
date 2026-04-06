@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten.model;
+package net.atos.zac.app.detacheddocuments.model;
 
 import net.atos.zac.app.shared.RESTListParameters;
 import nl.info.zac.app.identity.model.RestUser;
 import nl.info.zac.app.search.model.RestDatumRange;
 
-public class RESTOntkoppeldDocumentListParameters extends RESTListParameters {
+public class RestDetachedDocumentListParameters extends RESTListParameters {
     public String titel;
 
     public String reden;

@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.model
+package nl.info.zac.enkelvoudiginformatieobject.model
 
-import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import java.util.UUID
 
 fun createEnkelvoudigInformatieObjectLock(

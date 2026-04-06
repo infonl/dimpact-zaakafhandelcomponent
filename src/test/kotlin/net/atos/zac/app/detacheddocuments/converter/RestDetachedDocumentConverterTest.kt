@@ -3,39 +3,38 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten.converter
+package net.atos.zac.app.detacheddocuments.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.document.model.OntkoppeldDocument
+import net.atos.zac.document.model.DetachedDocument
+import net.atos.zac.document.model.createDetachedDocument
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
-import nl.info.zac.model.createOntkoppeldDocument
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
-class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
-
+class RestDetachedDocumentConverterTest : BehaviorSpec({
     val userConverter = mockk<RestUserConverter>()
     val lockService = mockk<EnkelvoudigInformatieObjectLockService>()
 
-    val converter = RESTOntkoppeldDocumentConverter(userConverter, lockService)
+    val converter = RestDetachedDocumentConverter(userConverter, lockService)
 
     beforeEach {
         checkUnnecessaryStub()
     }
 
-    Given("a valid OntkoppeldDocument and informatieobjectTypeUUID") {
+    Given("a valid detached document and informatieobjectTypeUUID") {
         val uuid = UUID.randomUUID()
         val informatieobjectTypeUUID = UUID.randomUUID()
         val userId = "user-123"
-        val ontkoppeldDocument = createOntkoppeldDocument(
+        val detachedDocument = createDetachedDocument(
             uuid = uuid,
             userId = userId
         )
@@ -48,30 +47,30 @@ class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
         every { userConverter.convertUserId(userId) } returns convertedUser
         every { lockService.findLock(uuid) } returns lock
 
-        When("RESTOntkoppeldDocumentConverter is invoked") {
-            val result = converter.convert(ontkoppeldDocument, informatieobjectTypeUUID)
+        When("convert is invoked") {
+            val result = converter.convert(detachedDocument, informatieobjectTypeUUID)
 
-            Then("the resulting RESTOntkoppeldDocument should end up with same values") {
+            Then("the result should have the expected values") {
                 result.id shouldBe 1L
                 result.documentUUID shouldBe uuid
                 result.documentID shouldBe "DOC-456"
                 result.informatieobjectTypeUUID shouldBe informatieobjectTypeUUID
                 result.titel shouldBe "fakeTitel"
                 result.zaakID shouldBe "ZAAK-001"
-                result.creatiedatum shouldBe ontkoppeldDocument.creatiedatum
+                result.creatiedatum shouldBe detachedDocument.creatiedatum
                 result.bestandsnaam shouldBe "test.pdf"
                 result.ontkoppeldDoor shouldBe convertedUser
-                result.ontkoppeldOp shouldBe ontkoppeldDocument.ontkoppeldOp
+                result.ontkoppeldOp shouldBe detachedDocument.ontkoppeldOp
                 result.reden shouldBe "fakeReason"
                 result.isVergrendeld shouldBe true
             }
         }
     }
 
-    Given("the document is not locked") {
+    Given("a detached document that is not locked") {
         val uuid = UUID.randomUUID()
         val userId = "user-456"
-        val ontkoppeldDocument = OntkoppeldDocument().apply {
+        val detachedDocument = DetachedDocument().apply {
             id = 2L
             documentUUID = uuid
             documentID = "DOC-789"
@@ -89,10 +88,10 @@ class RESTOntkoppeldDocumentConverterTest : BehaviorSpec({
         every { userConverter.convertUserId(userId) } returns convertedUser
         every { lockService.findLock(uuid) } returns null
 
-        When("RESTOntkoppeldDocumentConverter is invoked") {
-            val result = converter.convert(ontkoppeldDocument, UUID.randomUUID())
+        When("convert is invoked") {
+            val result = converter.convert(detachedDocument, UUID.randomUUID())
 
-            Then("isVergrendeld should be false") {
+            Then("isVergrendeld should be false in the result") {
                 result.isVergrendeld shouldBe false
             }
         }

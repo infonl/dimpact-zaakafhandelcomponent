@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten
+package net.atos.zac.app.detacheddocuments
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,22 +18,22 @@ import io.mockk.verify
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
-import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
-import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument
-import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentListParameters
-import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentResultaat
-import net.atos.zac.document.OntkoppeldeDocumentenService
-import net.atos.zac.document.model.OntkoppeldDocument
-import net.atos.zac.document.model.OntkoppeldDocumentListParameters
-import net.atos.zac.document.model.OntkoppeldeDocumentenResultaat
+import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
+import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentListParametersConverter
+import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
+import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
+import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
+import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.model.DetachedDocument
+import net.atos.zac.document.model.DetachedDocumentListParameters
+import net.atos.zac.document.model.DetachedDocumentResult
+import net.atos.zac.document.model.createDetachedDocument
 import nl.info.client.zgw.drc.DrcClientService
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
-import nl.info.zac.model.createOntkoppeldDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
@@ -41,19 +41,19 @@ import java.net.URI
 import java.util.Optional
 import java.util.UUID
 
-class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+class DetachedDocumentRestServiceTest : BehaviorSpec({
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val ontkoppeldDocumentConverter = mockk<RESTOntkoppeldDocumentConverter>()
-    val listParametersConverter = mockk<RESTOntkoppeldDocumentListParametersConverter>()
+    val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
+    val listParametersConverter = mockk<RestDetachedDocumentListParametersConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
-    val ontkoppeldeDocumentenRESTService = OntkoppeldeDocumentenRESTService(
-        ontkoppeldeDocumentenService,
+    val detachedDocumentRestService = DetachedDocumentRestService(
+        detachedDocumentService,
         drcClientService,
         zrcClientService,
-        ontkoppeldDocumentConverter,
+        restDetachedDocumentConverter,
         listParametersConverter,
         userConverter,
         policyService
@@ -63,7 +63,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context ("Deleting detached documents") {
+    Context("Deleting detached documents") {
         Given("an id that doesn't belong to a document in the database") {
             val id: Long = 1
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
@@ -71,11 +71,11 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                ontkoppeldeDocumentenService.find(id)
+                detachedDocumentService.find(id)
             } returns Optional.empty()
 
             When("the delete endpoint is called with that id") {
-                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(id)
+                detachedDocumentRestService.deleteDetachedDocument(id)
 
                 Then("there are no exceptions") {
                 }
@@ -84,28 +84,28 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
         Given("a document that exists in the database but results in a 404 from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = OntkoppeldDocument()
+            val document = DetachedDocument()
             document.documentUUID = UUID.randomUUID()
             document.id = 1
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                ontkoppeldeDocumentenService.find(document.id)
+                detachedDocumentService.find(document.id)
             } returns Optional.of(document)
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
             every {
-                ontkoppeldeDocumentenService.delete(document.id)
+                detachedDocumentService.delete(document.id)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
-                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
+                detachedDocumentRestService.deleteDetachedDocument(document.id)
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        ontkoppeldeDocumentenService.delete(document.id)
+                        detachedDocumentService.delete(document.id)
                     }
                 }
             }
@@ -113,14 +113,14 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
         Given("a document that exists in the database but results in a non-404 error from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = OntkoppeldDocument()
+            val document = DetachedDocument()
             document.documentUUID = UUID.randomUUID()
             document.id = 1
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                ontkoppeldeDocumentenService.find(document.id)
+                detachedDocumentService.find(document.id)
             } returns Optional.of(document)
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
@@ -128,7 +128,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
             When("the delete endpoint is called with the id of that document") {
                 val exception =
-                    shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
+                    shouldThrow<ZgwErrorException> { detachedDocumentRestService.deleteDetachedDocument(document.id) }
 
                 Then("the exception from OpenZaak is rethrown") {
                     exception.zgwError.status shouldBe 400
@@ -138,7 +138,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
         Given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = OntkoppeldDocument()
+            val document = DetachedDocument()
             document.documentUUID = UUID.randomUUID()
             document.id = 1
             val informatieObject = EnkelvoudigInformatieObject()
@@ -148,7 +148,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                ontkoppeldeDocumentenService.find(document.id)
+                detachedDocumentService.find(document.id)
             } returns Optional.of(document)
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
@@ -160,7 +160,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
             When("the delete endpoint is called with the id of that document") {
                 val exception =
                     shouldThrow<IllegalStateException> {
-                        ontkoppeldeDocumentenRESTService.deleteDetachedDocument(
+                        detachedDocumentRestService.deleteDetachedDocument(
                             document.id
                         )
                     }
@@ -171,9 +171,11 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak") {
+        Given(
+            "a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak"
+        ) {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = OntkoppeldDocument()
+            val document = DetachedDocument()
             document.documentUUID = UUID.randomUUID()
             document.id = 1
             val informatieObject = EnkelvoudigInformatieObject()
@@ -183,7 +185,7 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                ontkoppeldeDocumentenService.find(document.id)
+                detachedDocumentService.find(document.id)
             } returns Optional.of(document)
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
@@ -195,15 +197,15 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 zrcClientService.listZaakinformatieobjecten(informatieObject)
             } returns mutableListOf()
             every {
-                ontkoppeldeDocumentenService.delete(document.id)
+                detachedDocumentService.delete(document.id)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
-                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
+                detachedDocumentRestService.deleteDetachedDocument(document.id)
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        ontkoppeldeDocumentenService.delete(document.id)
+                        detachedDocumentService.delete(document.id)
                     }
                 }
             }
@@ -219,8 +221,8 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
             When("the list endpoint is called") {
                 val exception = shouldThrow<PolicyException> {
-                    ontkoppeldeDocumentenRESTService.listDetachedDocuments(
-                        RESTOntkoppeldDocumentListParameters()
+                    detachedDocumentRestService.listDetachedDocuments(
+                        RestDetachedDocumentListParameters()
                     )
                 }
 
@@ -232,91 +234,91 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
         Given("a valid request with no ontkoppeldDoor filter in request or database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<OntkoppeldDocumentListParameters>()
-            val restListParameters = RESTOntkoppeldDocumentListParameters()
-            val document = createOntkoppeldDocument()
+            val listParameters = mockk<DetachedDocumentListParameters>()
+            val restListParameters = RestDetachedDocumentListParameters()
+            val detachedDocument = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
-            val restDocument = RESTOntkoppeldDocument()
-            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, emptyList())
+            val restDocument = RestDetachedDocument()
+            val resultaat = DetachedDocumentResult(listOf(detachedDocument), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
             every {
-                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+                drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
             every {
-                ontkoppeldDocumentConverter.convert(listOf(document), any())
+                restDetachedDocumentConverter.convert(listOf(detachedDocument), any())
             } returns listOf(restDocument)
 
             When("the list endpoint is called") {
-                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+                val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
                 Then("the result is returned with an empty filterOntkoppeldDoor") {
                     result shouldNotBe null
-                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe emptyList()
+                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe emptyList()
                 }
             }
         }
 
         Given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<OntkoppeldDocumentListParameters>()
+            val listParameters = mockk<DetachedDocumentListParameters>()
             val requestUser = createRestUser(id = "fakeUserId1", name = "fakeUserName1")
-            val restListParameters = RESTOntkoppeldDocumentListParameters().apply {
+            val restListParameters = RestDetachedDocumentListParameters().apply {
                 ontkoppeldDoor = requestUser
             }
-            val document = createOntkoppeldDocument()
+            val document = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
-            val restDocument = RESTOntkoppeldDocument()
-            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, emptyList())
+            val restDocument = RestDetachedDocument()
+            val resultaat = DetachedDocumentResult(listOf(document), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                ontkoppeldDocumentConverter.convert(listOf(document), any())
+                restDetachedDocumentConverter.convert(listOf(document), any())
             } returns listOf(restDocument)
 
             When("the list endpoint is called") {
-                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+                val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
                 Then("filterOntkoppeldDoor contains the user from the request") {
-                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe listOf(requestUser)
+                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe listOf(requestUser)
                 }
             }
         }
 
         Given("a valid request with ontkoppeldDoor filter returned from the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<OntkoppeldDocumentListParameters>()
-            val restListParameters = RESTOntkoppeldDocumentListParameters()
-            val document = createOntkoppeldDocument()
+            val listParameters = mockk<DetachedDocumentListParameters>()
+            val restListParameters = RestDetachedDocumentListParameters()
+            val document = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
-            val restDocument = RESTOntkoppeldDocument()
+            val restDocument = RestDetachedDocument()
             val dbUserIds = listOf("fakeUserId1", "fakeUserId2")
             val convertedUsers = listOf(
                 createRestUser(id = "fakeUserId1", name = "fakeUserName1"),
                 createRestUser(id = "fakeUserId2", name = "fakeUserName2")
             )
-            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, dbUserIds)
+            val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
             every {
-                ontkoppeldDocumentConverter.convert(listOf(document), any())
+                restDetachedDocumentConverter.convert(listOf(document), any())
             } returns listOf(restDocument)
             every { with(userConverter) { dbUserIds.convertUserIds() } } returns convertedUsers
 
             When("the list endpoint is called") {
-                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+                val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
                 Then("filterOntkoppeldDoor is populated from the database filter via userConverter") {
-                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe convertedUsers
+                    (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe convertedUsers
                 }
             }
         }

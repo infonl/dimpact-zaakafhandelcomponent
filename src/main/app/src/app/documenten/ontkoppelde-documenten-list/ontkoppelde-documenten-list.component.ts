@@ -46,9 +46,7 @@ export class OntkoppeldeDocumentenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   isLoadingResults = true;
-  dataSource = new MatTableDataSource<
-    GeneratedType<"RESTOntkoppeldDocument">
-  >();
+  dataSource = new MatTableDataSource<GeneratedType<"RestDetachedDocument">>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
@@ -79,12 +77,12 @@ export class OntkoppeldeDocumentenListComponent
   } = {
     sort: "ontkoppeldOp",
     order: "desc",
-    filtersType: "OntkoppeldDocumentListParameters",
+    filtersType: "DetachedDocumentListParameters",
   };
   filterOntkoppeldDoor: GeneratedType<"RestUser">[] = [];
   filterChange = new EventEmitter<void>();
   clearZoekopdracht = new EventEmitter<void>();
-  selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument"> | null =
+  selectedInformationObject: GeneratedType<"RestDetachedDocument"> | null =
     null;
 
   constructor(
@@ -135,9 +133,7 @@ export class OntkoppeldeDocumentenListComponent
       });
   }
 
-  openDrawer(
-    selectedInformationObject: GeneratedType<"RESTOntkoppeldDocument">,
-  ) {
+  openDrawer(selectedInformationObject: GeneratedType<"RestDetachedDocument">) {
     this.selectedInformationObject = selectedInformationObject;
     void this.actionsSidenav.open();
   }
@@ -153,29 +149,27 @@ export class OntkoppeldeDocumentenListComponent
     );
   }
 
-  getDownloadURL(ontkoppeldDocument: GeneratedType<"RESTOntkoppeldDocument">) {
-    if (!ontkoppeldDocument.documentUUID) return null;
-    return this.infoService.getDownloadURL(ontkoppeldDocument.documentUUID);
+  getDownloadURL(detachedDocument: GeneratedType<"RestDetachedDocument">) {
+    if (!detachedDocument.documentUUID) return null;
+    return this.infoService.getDownloadURL(detachedDocument.documentUUID);
   }
 
-  documentVerwijderen(
-    ontkoppeldDocument: GeneratedType<"RESTOntkoppeldDocument">,
-  ) {
+  documentVerwijderen(detachedDocument: GeneratedType<"RestDetachedDocument">) {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
             key: "msg.document.verwijderen.bevestigen",
-            args: { document: ontkoppeldDocument.titel },
+            args: { document: detachedDocument.titel },
           },
-          this.ontkoppeldeDocumentenService.delete(ontkoppeldDocument.id!),
+          this.ontkoppeldeDocumentenService.delete(detachedDocument.id!),
         ),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: ontkoppeldDocument.titel,
+            document: detachedDocument.titel,
           });
           this.filterChange.emit();
         }
@@ -221,7 +215,7 @@ export class OntkoppeldeDocumentenListComponent
     return {
       sort: "ontkoppeldOp",
       order: "desc",
-      filtersType: "OntkoppeldDocumentListParameters",
+      filtersType: "DetachedDocumentListParameters",
     } satisfies typeof this.listParametersSort;
   }
 

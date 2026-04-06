@@ -9,7 +9,7 @@ import { DatumRange } from "../../zoeken/model/datum-range";
 export type ZoekFilters = {
   readonly filtersType:
     | "ZoekParameters"
-    | "OntkoppeldDocumentListParameters"
+    | "DetachedDocumentListParameters"
     | "InboxDocumentListParameters";
   zoeken?: Record<string, unknown>;
   filters?: Record<string, undefined | { values: Array<unknown> }>;

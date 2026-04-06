@@ -50,7 +50,9 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
             every { entityManager.persist(any<InboxDocument>()) } just Runs
 
-            When("the Inbox Document Service retrieves creates a Document from the EnkelvoudigInformatieObject's UUID") {
+            When(
+                "the Inbox Document Service retrieves creates a Document from the EnkelvoudigInformatieObject's UUID"
+            ) {
                 val result = inboxDocumentService.create(uuid)
 
                 Then("the Service should have stored an Inbox Document") {

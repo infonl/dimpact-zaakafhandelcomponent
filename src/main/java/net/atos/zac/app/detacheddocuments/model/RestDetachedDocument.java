@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten.model;
+package net.atos.zac.app.detacheddocuments.model;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import nl.info.zac.app.identity.model.RestUser;
 
-public class RESTOntkoppeldDocument {
+public class RestDetachedDocument {
 
     public long id;
 

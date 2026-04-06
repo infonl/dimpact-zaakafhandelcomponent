@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten
+package net.atos.zac.app.detacheddocuments
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -18,18 +18,24 @@ import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.OntkoppeldeDocumentenService
-import net.atos.zac.document.model.OntkoppeldDocument
-import net.atos.zac.document.model.OntkoppeldDocumentListParameters
+import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.model.DetachedDocument
+import net.atos.zac.document.model.DetachedDocumentListParameters
+import net.atos.zac.document.model.createDetachedDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.model.createOntkoppeldDocument
 import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
-class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
+class DetachedDocumentServiceTest : BehaviorSpec({
+    val entityManager = mockk<EntityManager>(relaxed = true)
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val detachedDocumentService = DetachedDocumentService(
+        entityManager,
+        loggedInUserInstance
+    )
 
     beforeEach {
         checkUnnecessaryStub()
@@ -55,24 +61,15 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
                 setBestandsnaam(bestandsnaam)
             }
 
-            val entityManager = mockk<EntityManager>(relaxed = true) {
-                every { persist(any<OntkoppeldDocument>()) } just Runs
+            every { entityManager.persist(any<DetachedDocument>()) } just Runs
+            every { loggedInUserInstance.get() } returns mockk<LoggedInUser> {
+                every { id } returns userId
             }
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>> {
-                every { get() } returns mockk<LoggedInUser> {
-                    every { id } returns userId
-                }
-            }
-
-            val ontkoppeldeDocumentenService = OntkoppeldeDocumentenService(
-                entityManager,
-                loggedInUserInstance
-            )
 
             When("the ontkoppelde documenten create is invoked") {
-                val result = ontkoppeldeDocumentenService.create(informatieobject, zaak, reden)
+                val result = detachedDocumentService.create(informatieobject, zaak, reden)
 
-                Then("an OntkoppeldDocument is created and stored") {
+                Then("a detached document is created and stored") {
                     result.documentUUID shouldBe documentUuid
                     result.documentID shouldBe identificatie
                     result.creatiedatum shouldBe creatiedatum
@@ -90,19 +87,16 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
     Context("Reading a detached document by UUID") {
         Given("an existing detached document with a known UUID") {
             val targetUuid = UUID.randomUUID()
-            val document = createOntkoppeldDocument(uuid = targetUuid)
-            val entityManager = mockk<EntityManager>(relaxed = true)
-            val typedQuery = mockk<TypedQuery<OntkoppeldDocument>> {
-                every { getSingleResult() } returns document
+            val detachedDocument = createDetachedDocument(uuid = targetUuid)
+            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
+                every { getSingleResult() } returns detachedDocument
             }
             every {
-                entityManager.createQuery(any<CriteriaQuery<OntkoppeldDocument>>())
+                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
             } returns typedQuery
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
 
             When("read is called with that UUID") {
-                val result = service.read(targetUuid)
+                val result = detachedDocumentService.read(targetUuid)
 
                 Then("the document with that UUID is returned") {
                     result.documentUUID shouldBe targetUuid
@@ -113,15 +107,12 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
 
     Context("Finding a detached document by Long ID") {
         Given("an existing detached document with a known Long ID") {
-            val document = createOntkoppeldDocument()
-            val entityManager = mockk<EntityManager>(relaxed = true) {
-                every { find(OntkoppeldDocument::class.java, document.id) } returns document
-            }
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+            val document = createDetachedDocument()
+
+            every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("find is called with that ID") {
-                val result = service.find(document.id)
+                val result = detachedDocumentService.find(document.id)
 
                 Then("an Optional containing the document is returned") {
                     result shouldBe Optional.of(document)
@@ -131,14 +122,10 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
 
         Given("no document exists for a given Long ID") {
             val id = 999L
-            val entityManager = mockk<EntityManager>(relaxed = true) {
-                every { find(OntkoppeldDocument::class.java, id) } returns null
-            }
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+            every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
             When("find is called with that ID") {
-                val result = service.find(id)
+                val result = detachedDocumentService.find(id)
 
                 Then("an empty Optional is returned") {
                     result shouldBe Optional.empty()
@@ -149,19 +136,13 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
 
     Context("Getting a result set of detached documents") {
         Given("a relaxed entity manager and empty list parameters") {
-            val entityManager = mockk<EntityManager>(relaxed = true)
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { getSingleResult() } returns null
             }
-            // Due to JVM type erasure, any<CriteriaQuery<Long>>() matches all createQuery() calls
-            // (for OntkoppeldDocument, Long, and String queries). The relaxed mock returns emptyList()
-            // for getResultList() and null for getSingleResult(), exercising the null-count branch.
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
 
             When("getResultaat is called") {
-                val result = service.getResultaat(OntkoppeldDocumentListParameters())
+                val result = detachedDocumentService.getResultaat(DetachedDocumentListParameters())
 
                 Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
                     result.items shouldBe emptyList()
@@ -174,15 +155,12 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
 
     Context("Deleting a detached document by Long ID") {
         Given("an existing detached document with a known Long ID") {
-            val document = createOntkoppeldDocument()
-            val entityManager = mockk<EntityManager>(relaxed = true) {
-                every { find(OntkoppeldDocument::class.java, document.id) } returns document
-            }
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+            val document = createDetachedDocument()
+
+            every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                service.delete(document.id)
+                detachedDocumentService.delete(document.id)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
@@ -192,14 +170,11 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
 
         Given("no document exists for a given Long ID") {
             val id = 999L
-            val entityManager = mockk<EntityManager>(relaxed = true) {
-                every { find(OntkoppeldDocument::class.java, id) } returns null
-            }
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
             When("delete is called with that ID") {
-                service.delete(id)
+                detachedDocumentService.delete(id)
 
                 Then("no document is removed from the entity manager") {
                     verify(exactly = 0) { entityManager.remove(any()) }
@@ -211,19 +186,17 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
     Context("Deleting a detached document by UUID") {
         Given("an existing detached document with a known UUID") {
             val targetUuid = UUID.randomUUID()
-            val document = createOntkoppeldDocument(uuid = targetUuid)
-            val entityManager = mockk<EntityManager>(relaxed = true)
-            val typedQuery = mockk<TypedQuery<OntkoppeldDocument>> {
+            val document = createDetachedDocument(uuid = targetUuid)
+            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
                 every { getSingleResult() } returns document
             }
+
             every {
-                entityManager.createQuery(any<CriteriaQuery<OntkoppeldDocument>>())
+                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
             } returns typedQuery
-            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
 
             When("delete is called with that UUID") {
-                service.delete(targetUuid)
+                detachedDocumentService.delete(targetUuid)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }

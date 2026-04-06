@@ -20,10 +20,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.model.DetachedDocument
 import net.atos.zac.document.model.InboxDocument
-import net.atos.zac.document.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEvent
@@ -86,7 +86,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val inboxDocumentService = mockk<InboxDocumentService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
@@ -101,7 +101,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         zgwApiService = zgwApiService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         inboxDocumentService = inboxDocumentService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
         eventingService = eventingService,
@@ -923,7 +923,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
-        every { ontkoppeldeDocumentenService.delete(uuid) } just Runs
+        every { detachedDocumentService.delete(uuid) } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
@@ -932,7 +932,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
 
             Then("the ontkoppeld document is deleted") {
-                verify(exactly = 1) { ontkoppeldeDocumentenService.delete(uuid) }
+                verify(exactly = 1) { detachedDocumentService.delete(uuid) }
             }
         }
     }
@@ -1124,7 +1124,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val nieuweZaakID = "ZAAK-TARGET-001"
         val informatieobject = createEnkelvoudigInformatieObject()
         val targetZaak = createZaak(identificatie = nieuweZaakID)
-        val ontkoppeldDoc = mockk<OntkoppeldDocument>()
+        val ontkoppeldDoc = mockk<DetachedDocument>()
         val loggedInUser = createLoggedInUser()
 
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
@@ -1137,10 +1137,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             policyService.readZaakRechten(targetZaak, loggedInUser)
         } returns createZaakRechten(wijzigen = true)
         every { ontkoppeldDoc.id } returns 42L
-        every { ontkoppeldeDocumentenService.read(documentUUID) } returns ontkoppeldDoc
+        every { detachedDocumentService.read(documentUUID) } returns ontkoppeldDoc
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
-        every { ontkoppeldeDocumentenService.delete(42L) } just Runs
+        every { detachedDocumentService.delete(42L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
@@ -1155,7 +1155,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
-                verify(exactly = 1) { ontkoppeldeDocumentenService.delete(42L) }
+                verify(exactly = 1) { detachedDocumentService.delete(42L) }
             }
         }
     }
@@ -1363,7 +1363,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(invalidTypeUri) } returns invalidType
 
         When("listInformatieobjecttypesForZaak is called") {
-            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
+                zaakUUID
+            )
 
             Then("only the currently valid informatieobjecttype is returned") {
                 restInformatieobjecttypes shouldHaveSize 1
@@ -1382,7 +1384,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
 
         When("listInformatieobjecttypesForZaak is called") {
-            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(zaakUUID)
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
+                zaakUUID
+            )
 
             Then("an empty list is returned") {
                 restInformatieobjecttypes shouldBe emptyList()
@@ -1461,7 +1465,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             } returns restEnkelvoudigInformatieobject
 
             When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
-                val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
+                val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(
+                    uuid,
+                    null
+                )
 
                 Then("getIndicaties() reflects the document's indicator flags") {
                     enkelvoudigInformatieobject.getIndicaties().toSet() shouldBe testCase.expectedIndicaties

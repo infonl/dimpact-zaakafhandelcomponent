@@ -77,7 +77,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid!!)
+            ztcClientService.readInformatieobjecttype(restTaakDocumentData.documentType.uuid)
         } returns providedInformatieObjectType
         every { configurationService.readBronOrganisatie() } returns "123443210"
 

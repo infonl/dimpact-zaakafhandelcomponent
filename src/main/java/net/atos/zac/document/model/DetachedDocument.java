@@ -24,24 +24,24 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(schema = SCHEMA, name = "ontkoppeld_document")
 @SequenceGenerator(schema = SCHEMA, name = "sq_ontkoppeld_document", sequenceName = "sq_ontkoppeld_document", allocationSize = 1)
-public class OntkoppeldDocument {
+public class DetachedDocument {
 
-    /** Naam van property: {@link OntkoppeldDocument#titel} */
+    /** Naam van property: {@link #titel} */
     public static final String TITEL_PROPERTY_NAME = "titel";
 
-    /** Naam van property: {@link OntkoppeldDocument#creatiedatum} */
+    /** Naam van property: {@link #creatiedatum} */
     public static final String CREATIEDATUM_PROPERTY_NAME = "creatiedatum";
 
-    /** Naam van property: {@link OntkoppeldDocument#zaakID} */
+    /** Naam van property: {@link #zaakID} */
     public static final String ZAAK_ID_PROPERTY_NAME = "zaakID";
 
-    /** Naam van property: {@link OntkoppeldDocument#ontkoppeldDoor} */
+    /** Naam van property: {@link #ontkoppeldDoor} */
     public static final String ONTKOPPELD_DOOR_PROPERTY_NAME = "ontkoppeldDoor";
 
-    /** Naam van property: {@link OntkoppeldDocument#ontkoppeldOp} */
+    /** Naam van property: {@link #ontkoppeldOp} */
     public static final String ONTKOPPELD_OP_PROPERTY_NAME = "ontkoppeldOp";
 
-    /** Naam van property: {@link OntkoppeldDocument#reden} */
+    /** Naam van property: {@link #reden} */
     public static final String REDEN_PROPERTY_NAME = "reden";
 
     @Id
