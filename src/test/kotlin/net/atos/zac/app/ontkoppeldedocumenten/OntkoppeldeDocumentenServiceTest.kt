@@ -171,4 +171,40 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Deleting a detached document by Long ID") {
+        Given("an existing detached document with a known Long ID") {
+            val document = createOntkoppeldDocument()
+            val entityManager = mockk<EntityManager>(relaxed = true) {
+                every { find(OntkoppeldDocument::class.java, document.id) } returns document
+            }
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("delete is called with that ID") {
+                service.delete(document.id)
+
+                Then("the document is removed from the entity manager") {
+                    verify { entityManager.remove(document) }
+                }
+            }
+        }
+
+        Given("no document exists for a given Long ID") {
+            val id = 999L
+            val entityManager = mockk<EntityManager>(relaxed = true) {
+                every { find(OntkoppeldDocument::class.java, id) } returns null
+            }
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("delete is called with that ID") {
+                service.delete(id)
+
+                Then("no document is removed from the entity manager") {
+                    verify(exactly = 0) { entityManager.remove(any()) }
+                }
+            }
+        }
+    }
 })
