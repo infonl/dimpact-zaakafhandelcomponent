@@ -169,4 +169,23 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Counting inbox documents") {
+        Given("a relaxed entity manager and empty list parameters") {
+            val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
+                every { getSingleResult() } returns null
+            }
+            // Due to JVM type erasure, any<CriteriaQuery<Long>>() matches all createQuery() calls.
+            // The relaxed TypedQuery handles getResultList() calls with emptyList() by default.
+            every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
+
+            When("count is called with empty list parameters") {
+                val result = inboxDocumentService.count(InboxDocumentListParameters())
+
+                Then("zero is returned when the count query returns null") {
+                    result shouldBe 0
+                }
+            }
+        }
+    }
 })
