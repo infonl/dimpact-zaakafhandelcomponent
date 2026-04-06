@@ -5,6 +5,7 @@
 
 package net.atos.zac.document
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -14,11 +15,17 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.EntityManager
+import jakarta.persistence.TypedQuery
+import jakarta.persistence.criteria.CriteriaQuery
 import net.atos.zac.document.model.InboxDocument
+import net.atos.zac.document.model.InboxDocumentListParameters
+import net.atos.zac.document.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import java.time.LocalDate
+import java.util.Optional
 import java.util.UUID
 
 class InboxDocumentServiceTest : BehaviorSpec({
@@ -62,6 +69,34 @@ class InboxDocumentServiceTest : BehaviorSpec({
                     result.creatiedatum shouldBe creatiedatum
                     result.titel shouldBe titel
                     result.bestandsnaam shouldBe bestandsnaam
+                }
+            }
+        }
+    }
+
+    Context("Finding an inbox document by Long ID") {
+        Given("an inbox document exists with a known Long ID") {
+            val document = createInboxDocument()
+            every { entityManager.find(InboxDocument::class.java, document.id) } returns document
+
+            When("find is called with that ID") {
+                val result = inboxDocumentService.find(document.id)
+
+                Then("an Optional containing the document is returned") {
+                    result shouldBe Optional.of(document)
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given Long ID") {
+            val id = 999L
+            every { entityManager.find(InboxDocument::class.java, id) } returns null
+
+            When("find is called with that ID") {
+                val result = inboxDocumentService.find(id)
+
+                Then("an empty Optional is returned") {
+                    result shouldBe Optional.empty()
                 }
             }
         }
