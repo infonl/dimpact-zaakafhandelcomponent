@@ -101,4 +101,38 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Finding an inbox document by UUID") {
+        Given("an inbox document exists with a known UUID") {
+            val document = createInboxDocument()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns listOf(document)
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("find is called with that UUID") {
+                val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID)
+
+                Then("an Optional containing the document is returned") {
+                    result shouldBe Optional.of(document)
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given UUID") {
+            val unknownUuid = UUID.randomUUID()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns emptyList()
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("find is called with that UUID") {
+                val result = inboxDocumentService.find(unknownUuid)
+
+                Then("an empty Optional is returned") {
+                    result shouldBe Optional.empty()
+                }
+            }
+        }
+    }
 })
