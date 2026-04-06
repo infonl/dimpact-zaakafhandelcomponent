@@ -89,7 +89,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
             val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { getSingleResult() } returns detachedDocument
+                every { getResultList() } returns listOf(detachedDocument)
             }
             every {
                 entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
@@ -100,6 +100,24 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
                 Then("the document with that UUID is returned") {
                     result.documentUUID shouldBe targetUuid
+                }
+            }
+        }
+
+        Given("no detached document for a certain UUID") {
+            val targetUuid = UUID.randomUUID()
+            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
+                every { getResultList() } returns emptyList()
+            }
+            every {
+                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
+            } returns typedQuery
+
+            When("read is called with that UUID") {
+                val result = detachedDocumentService.read(targetUuid)
+
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }

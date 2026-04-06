@@ -306,8 +306,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 reason = documentVerwijderenGegevens.reden
             )
         } else {
+            // not a document that that was linked to a zaak
             // delete a detached document record, if it exists for this enkelvoudiginformatieobject
             detachedDocumentService.delete(uuid)
+            // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
+            inboxDocumentService.delete(uuid)
         }
     }
 

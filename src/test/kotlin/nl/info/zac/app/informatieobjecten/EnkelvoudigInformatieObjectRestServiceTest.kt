@@ -917,13 +917,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An ontkoppeld document and the user has permission to delete it") {
+    Given("An enkelvoudig informatieobject not linked to a zaak, and the user has permission to delete it") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { detachedDocumentService.delete(uuid) } just Runs
+        every { inboxDocumentService.delete(uuid) } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
@@ -931,8 +932,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
             )
 
-            Then("the ontkoppeld document is deleted") {
+            Then("the related ontkoppeld document is deleted if it exists") {
                 verify(exactly = 1) { detachedDocumentService.delete(uuid) }
+            }
+
+            And("the related inbox document is deleted if it exists") {
+                verify(exactly = 1) { inboxDocumentService.delete(uuid) }
             }
         }
     }

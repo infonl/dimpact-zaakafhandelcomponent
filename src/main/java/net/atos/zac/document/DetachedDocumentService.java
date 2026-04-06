@@ -85,12 +85,23 @@ public class DetachedDocumentService {
                 getOntkoppeldDoor(listParameters));
     }
 
+    /**
+     * Returns the detach document for the provided enkelvoudiginformatieobject UUID, if it exists,
+     * or null otherwise.
+     *
+     * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
+     * @return the detached document, or null if no detached document exists for the enkelvoudiginformatieobject UUID
+     */
     public DetachedDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<DetachedDocument> query = builder.createQuery(DetachedDocument.class);
         final Root<DetachedDocument> root = query.from(DetachedDocument.class);
         query.select(root).where(builder.equal(root.get("documentUUID"), enkelvoudiginformatieobjectUUID));
-        return entityManager.createQuery(query).getSingleResult();
+        if (!entityManager.createQuery(query).getResultList().isEmpty()) {
+            return entityManager.createQuery(query).getSingleResult();
+        } else {
+            return null;
+        }
     }
 
     public Optional<DetachedDocument> find(final long id) {
