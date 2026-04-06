@@ -296,7 +296,10 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
             val informatieObject = createEnkelvoudigInformatieObject()
             val restDocument = RESTOntkoppeldDocument()
             val dbUserIds = listOf("user1", "user2")
-            val convertedUsers = listOf(createRestUser(id = "user1", name = "User One"), createRestUser(id = "user2", name = "User Two"))
+            val convertedUsers = listOf(
+                createRestUser(id = "user1", name = "User One"),
+                createRestUser(id = "user2", name = "User Two")
+            )
             val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
