@@ -279,4 +279,38 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Deleting an inbox document by UUID") {
+        Given("an inbox document exists with a known UUID") {
+            val document = createInboxDocument()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns listOf(document)
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("delete is called with that UUID") {
+                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID)
+
+                Then("the document is removed from the entity manager") {
+                    verify { entityManager.remove(document) }
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given UUID") {
+            val unknownUuid = UUID.randomUUID()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns emptyList()
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("delete is called with that UUID") {
+                inboxDocumentService.delete(unknownUuid)
+
+                Then("no document is removed from the entity manager") {
+                    verify(exactly = 0) { entityManager.remove(any()) }
+                }
+            }
+        }
+    }
 })
