@@ -135,4 +135,38 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Reading an inbox document by UUID") {
+        Given("an inbox document exists with a known UUID") {
+            val document = createInboxDocument()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns listOf(document)
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("read is called with that UUID") {
+                val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID)
+
+                Then("the document is returned") {
+                    result shouldBe document
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given UUID") {
+            val unknownUuid = UUID.randomUUID()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns emptyList()
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("read is called with that UUID") {
+                val thrown = shouldThrow<RuntimeException> { inboxDocumentService.read(unknownUuid) }
+
+                Then("a RuntimeException is thrown") {
+                    thrown.message shouldBe "InboxDocument with uuid '$unknownUuid' not found."
+                }
+            }
+        }
+    }
 })
