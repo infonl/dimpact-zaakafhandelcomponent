@@ -108,7 +108,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       })
       .subscribe({
         next: (result) => {
-          this.cases.data = result.resultaten;
+          this.cases.data =
+            result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[];
           this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
