@@ -110,4 +110,40 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Finding a detached document by Long ID") {
+        Given("an existing detached document with a known Long ID") {
+            val document = createOntkoppeldDocument()
+            val entityManager = mockk<EntityManager>(relaxed = true) {
+                every { find(OntkoppeldDocument::class.java, document.id) } returns document
+            }
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("find is called with that ID") {
+                val result = service.find(document.id)
+
+                Then("an Optional containing the document is returned") {
+                    result shouldBe Optional.of(document)
+                }
+            }
+        }
+
+        Given("no document exists for a given Long ID") {
+            val id = 999L
+            val entityManager = mockk<EntityManager>(relaxed = true) {
+                every { find(OntkoppeldDocument::class.java, id) } returns null
+            }
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("find is called with that ID") {
+                val result = service.find(id)
+
+                Then("an empty Optional is returned") {
+                    result shouldBe Optional.empty()
+                }
+            }
+        }
+    }
 })
