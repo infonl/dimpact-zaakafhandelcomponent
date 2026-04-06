@@ -207,4 +207,28 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Deleting a detached document by UUID") {
+        Given("an existing detached document with a known UUID") {
+            val targetUuid = UUID.randomUUID()
+            val document = createOntkoppeldDocument(uuid = targetUuid)
+            val entityManager = mockk<EntityManager>(relaxed = true)
+            val typedQuery = mockk<TypedQuery<OntkoppeldDocument>> {
+                every { getSingleResult() } returns document
+            }
+            every {
+                entityManager.createQuery(any<CriteriaQuery<OntkoppeldDocument>>())
+            } returns typedQuery
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("delete is called with that UUID") {
+                service.delete(targetUuid)
+
+                Then("the document is removed from the entity manager") {
+                    verify { entityManager.remove(document) }
+                }
+            }
+        }
+    }
 })
