@@ -32,6 +32,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.model.createOntkoppeldDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -253,6 +254,36 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
                 Then("the result is returned with an empty filterOntkoppeldDoor") {
                     result shouldNotBe null
                     (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
+            val werklijstRechten = createWerklijstRechten(inbox = true)
+            val listParameters = mockk<OntkoppeldDocumentListParameters>()
+            val requestUser = createRestUser(id = "user1", name = "User One")
+            val restListParameters = RESTOntkoppeldDocumentListParameters().apply {
+                ontkoppeldDoor = requestUser
+            }
+            val document = createOntkoppeldDocument()
+            val informatieObject = createEnkelvoudigInformatieObject()
+            val restDocument = RESTOntkoppeldDocument()
+            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, emptyList())
+            every { policyService.readWerklijstRechten() } returns werklijstRechten
+            every { listParametersConverter.convert(restListParameters) } returns listParameters
+            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } returns informatieObject
+            every {
+                ontkoppeldDocumentConverter.convert(listOf(document), any())
+            } returns listOf(restDocument)
+
+            When("the list endpoint is called") {
+                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+
+                Then("filterOntkoppeldDoor contains the user from the request") {
+                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe listOf(requestUser)
                 }
             }
         }
