@@ -188,4 +188,22 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Listing inbox documents") {
+        Given("inbox documents exist in the database") {
+            val document = createInboxDocument()
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns listOf(document)
+            }
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("list is called with empty list parameters") {
+                val result = inboxDocumentService.list(InboxDocumentListParameters())
+
+                Then("the list of inbox documents is returned") {
+                    result shouldBe listOf(document)
+                }
+            }
+        }
+    }
 })
