@@ -234,4 +234,49 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Deleting an inbox document by ZaakInformatieobject UUID") {
+        Given("an inbox document exists linked to a ZaakInformatieobject UUID") {
+            val zioUuid = UUID.randomUUID()
+            val eioUuid = UUID.randomUUID()
+            val document = createInboxDocument(uuid = eioUuid)
+            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
+                informatieobjectUUID = eioUuid
+            )
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns listOf(document)
+            }
+            every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("deleteForZaakinformatieobject is called with the ZaakInformatieobject UUID") {
+                inboxDocumentService.deleteForZaakinformatieobject(zioUuid)
+
+                Then("the document is removed from the entity manager") {
+                    verify { entityManager.remove(document) }
+                }
+            }
+        }
+
+        Given("no inbox document exists linked to a ZaakInformatieobject UUID") {
+            val zioUuid = UUID.randomUUID()
+            val eioUuid = UUID.randomUUID()
+            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
+                informatieobjectUUID = eioUuid
+            )
+            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
+                every { getResultList() } returns emptyList()
+            }
+            every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
+            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+
+            When("deleteForZaakinformatieobject is called with the ZaakInformatieobject UUID") {
+                inboxDocumentService.deleteForZaakinformatieobject(zioUuid)
+
+                Then("no document is removed from the entity manager") {
+                    verify(exactly = 0) { entityManager.remove(any()) }
+                }
+            }
+        }
+    }
 })
