@@ -20,13 +20,19 @@ import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
+import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument
 import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentListParameters
+import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentResultaat
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.document.model.OntkoppeldDocument
+import net.atos.zac.document.model.OntkoppeldDocumentListParameters
+import net.atos.zac.document.model.OntkoppeldeDocumentenResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.model.createOntkoppeldDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
@@ -219,6 +225,34 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
 
                 Then("a PolicyException is thrown") {
                     exception shouldNotBe null
+                }
+            }
+        }
+
+        Given("a valid request with no ontkoppeldDoor filter in request or database") {
+            val werklijstRechten = createWerklijstRechten(inbox = true)
+            val listParameters = mockk<OntkoppeldDocumentListParameters>()
+            val restListParameters = RESTOntkoppeldDocumentListParameters()
+            val document = createOntkoppeldDocument()
+            val informatieObject = createEnkelvoudigInformatieObject()
+            val restDocument = RESTOntkoppeldDocument()
+            val resultaat = OntkoppeldeDocumentenResultaat(listOf(document), 1L, emptyList())
+            every { policyService.readWerklijstRechten() } returns werklijstRechten
+            every { listParametersConverter.convert(restListParameters) } returns listParameters
+            every { ontkoppeldeDocumentenService.getResultaat(listParameters) } returns resultaat
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } returns informatieObject
+            every {
+                ontkoppeldDocumentConverter.convert(listOf(document), any())
+            } returns listOf(restDocument)
+
+            When("the list endpoint is called") {
+                val result = ontkoppeldeDocumentenRESTService.listDetachedDocuments(restListParameters)
+
+                Then("the result is returned with an empty filterOntkoppeldDoor") {
+                    result shouldNotBe null
+                    (result as RESTOntkoppeldDocumentResultaat).filterOntkoppeldDoor shouldBe emptyList()
                 }
             }
         }
