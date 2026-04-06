@@ -20,6 +20,7 @@ import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentConverter
 import net.atos.zac.app.ontkoppeldedocumenten.converter.RESTOntkoppeldDocumentListParametersConverter
+import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentListParameters
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.document.model.OntkoppeldDocument
 import nl.info.client.zgw.drc.DrcClientService
@@ -27,6 +28,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import java.net.URI
 import java.util.Optional
@@ -54,146 +56,169 @@ class OntkoppeldeDocumentenRESTServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("an id that doesn't belong to a document in the database") {
-        val id: Long = 1
-        val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-        every {
-            policyService.readWerklijstRechten()
-        } returns werklijstRechten
-        every {
-            ontkoppeldeDocumentenService.find(id)
-        } returns Optional.empty()
+    Context ("Deleting detached documents") {
+        Given("an id that doesn't belong to a document in the database") {
+            val id: Long = 1
+            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
+            every {
+                ontkoppeldeDocumentenService.find(id)
+            } returns Optional.empty()
 
-        When("the delete endpoint is called with that id") {
-            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(id)
+            When("the delete endpoint is called with that id") {
+                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(id)
 
-            Then("there are no exceptions") {
+                Then("there are no exceptions") {
+                }
             }
         }
-    }
 
-    Given("a document that exists in the database but results in a 404 from OpenZaak") {
-        val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-        val document = OntkoppeldDocument()
-        document.documentUUID = UUID.randomUUID()
-        document.id = 1
-        every {
-            policyService.readWerklijstRechten()
-        } returns werklijstRechten
-        every {
-            ontkoppeldeDocumentenService.find(document.id)
-        } returns Optional.of(document)
-        every {
-            drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
-        every {
-            ontkoppeldeDocumentenService.delete(document.id)
-        } just runs
+        Given("a document that exists in the database but results in a 404 from OpenZaak") {
+            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            val document = OntkoppeldDocument()
+            document.documentUUID = UUID.randomUUID()
+            document.id = 1
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
+            every {
+                ontkoppeldeDocumentenService.find(document.id)
+            } returns Optional.of(document)
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
+            every {
+                ontkoppeldeDocumentenService.delete(document.id)
+            } just runs
 
-        When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
+            When("the delete endpoint is called with the id of that document") {
+                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
 
-            Then("the document is deleted") {
-                verify(exactly = 1) {
-                    ontkoppeldeDocumentenService.delete(document.id)
+                Then("the document is deleted") {
+                    verify(exactly = 1) {
+                        ontkoppeldeDocumentenService.delete(document.id)
+                    }
+                }
+            }
+        }
+
+        Given("a document that exists in the database but results in a non-404 error from OpenZaak") {
+            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            val document = OntkoppeldDocument()
+            document.documentUUID = UUID.randomUUID()
+            document.id = 1
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
+            every {
+                ontkoppeldeDocumentenService.find(document.id)
+            } returns Optional.of(document)
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
+
+            When("the delete endpoint is called with the id of that document") {
+                val exception =
+                    shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
+
+                Then("the exception from OpenZaak is rethrown") {
+                    exception.zgwError.status shouldBe 400
+                }
+            }
+        }
+
+        Given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
+            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            val document = OntkoppeldDocument()
+            document.documentUUID = UUID.randomUUID()
+            document.id = 1
+            val informatieObject = EnkelvoudigInformatieObject()
+            val zaakInformatieObject = ZaakInformatieobject()
+            zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
+            every {
+                ontkoppeldeDocumentenService.find(document.id)
+            } returns Optional.of(document)
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } returns informatieObject
+            every {
+                zrcClientService.listZaakinformatieobjecten(informatieObject)
+            } returns mutableListOf(zaakInformatieObject)
+
+            When("the delete endpoint is called with the id of that document") {
+                val exception =
+                    shouldThrow<IllegalStateException> {
+                        ontkoppeldeDocumentenRESTService.deleteDetachedDocument(
+                            document.id
+                        )
+                    }
+
+                Then("the an IllegalStateException should be thrown") {
+                    exception shouldNotBe null
+                }
+            }
+        }
+
+        Given("a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak") {
+            val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
+            val document = OntkoppeldDocument()
+            document.documentUUID = UUID.randomUUID()
+            document.id = 1
+            val informatieObject = EnkelvoudigInformatieObject()
+            val zaakInformatieObject = ZaakInformatieobject()
+            zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
+            every {
+                ontkoppeldeDocumentenService.find(document.id)
+            } returns Optional.of(document)
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
+            } returns informatieObject
+            every {
+                drcClientService.deleteEnkelvoudigInformatieobject(document.documentUUID)
+            } just runs
+            every {
+                zrcClientService.listZaakinformatieobjecten(informatieObject)
+            } returns mutableListOf()
+            every {
+                ontkoppeldeDocumentenService.delete(document.id)
+            } just runs
+
+            When("the delete endpoint is called with the id of that document") {
+                ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
+
+                Then("the document is deleted") {
+                    verify(exactly = 1) {
+                        ontkoppeldeDocumentenService.delete(document.id)
+                    }
                 }
             }
         }
     }
 
-    Given("a document that exists in the database but results in a non-404 error from OpenZaak") {
-        val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-        val document = OntkoppeldDocument()
-        document.documentUUID = UUID.randomUUID()
-        document.id = 1
-        every {
-            policyService.readWerklijstRechten()
-        } returns werklijstRechten
-        every {
-            ontkoppeldeDocumentenService.find(document.id)
-        } returns Optional.of(document)
-        every {
-            drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
+    Context("Listing detached documents") {
+        Given("access to the inbox is denied") {
+            val werklijstRechten = createWerklijstRechten(inbox = false)
+            every {
+                policyService.readWerklijstRechten()
+            } returns werklijstRechten
 
-        When("the delete endpoint is called with the id of that document") {
-            val exception =
-                shouldThrow<ZgwErrorException> { ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id) }
-
-            Then("the exception from OpenZaak is rethrown") {
-                exception.zgwError.status shouldBe 400
-            }
-        }
-    }
-
-    Given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
-        val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-        val document = OntkoppeldDocument()
-        document.documentUUID = UUID.randomUUID()
-        document.id = 1
-        val informatieObject = EnkelvoudigInformatieObject()
-        val zaakInformatieObject = ZaakInformatieobject()
-        zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
-        every {
-            policyService.readWerklijstRechten()
-        } returns werklijstRechten
-        every {
-            ontkoppeldeDocumentenService.find(document.id)
-        } returns Optional.of(document)
-        every {
-            drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } returns informatieObject
-        every {
-            zrcClientService.listZaakinformatieobjecten(informatieObject)
-        } returns mutableListOf(zaakInformatieObject)
-
-        When("the delete endpoint is called with the id of that document") {
-            val exception =
-                shouldThrow<IllegalStateException> {
-                    ontkoppeldeDocumentenRESTService.deleteDetachedDocument(
-                        document.id
+            When("the list endpoint is called") {
+                val exception = shouldThrow<PolicyException> {
+                    ontkoppeldeDocumentenRESTService.listDetachedDocuments(
+                        RESTOntkoppeldDocumentListParameters()
                     )
                 }
 
-            Then("the an IllegalStateException should be thrown") {
-                exception shouldNotBe null
-            }
-        }
-    }
-
-    Given("a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak") {
-        val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-        val document = OntkoppeldDocument()
-        document.documentUUID = UUID.randomUUID()
-        document.id = 1
-        val informatieObject = EnkelvoudigInformatieObject()
-        val zaakInformatieObject = ZaakInformatieobject()
-        zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
-        every {
-            policyService.readWerklijstRechten()
-        } returns werklijstRechten
-        every {
-            ontkoppeldeDocumentenService.find(document.id)
-        } returns Optional.of(document)
-        every {
-            drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
-        } returns informatieObject
-        every {
-            drcClientService.deleteEnkelvoudigInformatieobject(document.documentUUID)
-        } just runs
-        every {
-            zrcClientService.listZaakinformatieobjecten(informatieObject)
-        } returns mutableListOf()
-        every {
-            ontkoppeldeDocumentenService.delete(document.id)
-        } just runs
-
-        When("the delete endpoint is called with the id of that document") {
-            ontkoppeldeDocumentenRESTService.deleteDetachedDocument(document.id)
-
-            Then("the document is deleted") {
-                verify(exactly = 1) {
-                    ontkoppeldeDocumentenService.delete(document.id)
+                Then("a PolicyException is thrown") {
+                    exception shouldNotBe null
                 }
             }
         }
