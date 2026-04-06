@@ -1,5 +1,4 @@
 {
-  "plansDirectory": ".claude/plans",
-  "env": { "ENABLE_LSP_TOOL": "1" }
+  "plansDirectory": ".claude/plans"
 }
 
