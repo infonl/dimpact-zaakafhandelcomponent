@@ -89,7 +89,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
             val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { getResultList() } returns listOf(detachedDocument)
+                every { resultList } returns listOf(detachedDocument)
             }
             every {
                 entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
@@ -155,7 +155,8 @@ class DetachedDocumentServiceTest : BehaviorSpec({
     Context("Getting a result set of detached documents") {
         Given("a relaxed entity manager and empty list parameters") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
-                every { getSingleResult() } returns null
+                every { resultList } returns emptyList()
+                every { singleResult } returns 0L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
@@ -206,7 +207,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val targetUuid = UUID.randomUUID()
             val document = createDetachedDocument(uuid = targetUuid)
             val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { getSingleResult() } returns document
+                every { resultList } returns listOf(document)
             }
 
             every {

@@ -81,8 +81,11 @@ public class DetachedDocumentService {
     }
 
     public DetachedDocumentResult getResultaat(final DetachedDocumentListParameters listParameters) {
-        return new DetachedDocumentResult(list(listParameters), count(listParameters),
-                getOntkoppeldDoor(listParameters));
+        return new DetachedDocumentResult(
+                list(listParameters),
+                count(listParameters),
+                getOntkoppeldDoor(listParameters)
+        );
     }
 
     /**
@@ -97,8 +100,9 @@ public class DetachedDocumentService {
         final CriteriaQuery<DetachedDocument> query = builder.createQuery(DetachedDocument.class);
         final Root<DetachedDocument> root = query.from(DetachedDocument.class);
         query.select(root).where(builder.equal(root.get("documentUUID"), enkelvoudiginformatieobjectUUID));
-        if (!entityManager.createQuery(query).getResultList().isEmpty()) {
-            return entityManager.createQuery(query).getSingleResult();
+        final List<DetachedDocument> resultList = entityManager.createQuery(query).getResultList();
+        if (!resultList.isEmpty()) {
+            return resultList.getFirst();
         } else {
             return null;
         }
