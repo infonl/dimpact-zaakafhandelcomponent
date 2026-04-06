@@ -1,6 +1,6 @@
 # docs/superpowers
 
-AI-assisted development artifacts generated with [Claude Code](https://claude.com/claude-code) and the [Superpowers](https://github.com/ejfox/superpowers-mcp) skill set.
+AI-assisted development artifacts generated with [Claude Code](https://claude.com/claude-code) and the [Superpowers](https://github.com/obra/superpowers) skill set.
 
 ## Directory structure
 
