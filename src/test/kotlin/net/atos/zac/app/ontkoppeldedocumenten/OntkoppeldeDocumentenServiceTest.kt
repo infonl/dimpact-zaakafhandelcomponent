@@ -13,14 +13,20 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
+import jakarta.persistence.TypedQuery
+import jakarta.persistence.criteria.CriteriaQuery
 import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.document.model.OntkoppeldDocument
+import net.atos.zac.document.model.OntkoppeldDocumentListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.model.createOntkoppeldDocument
 import java.time.LocalDate
+import java.util.Optional
 import java.util.UUID
 
 class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
@@ -76,6 +82,30 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
                     result.zaakID shouldBe zaak.identificatie
                     result.reden shouldBe reden
                     result.ontkoppeldOp shouldNotBe null
+                }
+            }
+        }
+    }
+
+    Context("Reading a detached document by UUID") {
+        Given("an existing detached document with a known UUID") {
+            val targetUuid = UUID.randomUUID()
+            val document = createOntkoppeldDocument(uuid = targetUuid)
+            val entityManager = mockk<EntityManager>(relaxed = true)
+            val typedQuery = mockk<TypedQuery<OntkoppeldDocument>> {
+                every { getSingleResult() } returns document
+            }
+            every {
+                entityManager.createQuery(any<CriteriaQuery<OntkoppeldDocument>>())
+            } returns typedQuery
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("read is called with that UUID") {
+                val result = service.read(targetUuid)
+
+                Then("the document with that UUID is returned") {
+                    result.documentUUID shouldBe targetUuid
                 }
             }
         }
