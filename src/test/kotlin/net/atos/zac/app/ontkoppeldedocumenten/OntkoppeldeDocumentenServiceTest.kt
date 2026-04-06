@@ -146,4 +146,29 @@ class OntkoppeldeDocumentenServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Getting a result set of detached documents") {
+        Given("a relaxed entity manager and empty list parameters") {
+            val entityManager = mockk<EntityManager>(relaxed = true)
+            val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
+                every { getSingleResult() } returns null
+            }
+            // Due to JVM type erasure, any<CriteriaQuery<Long>>() matches all createQuery() calls
+            // (for OntkoppeldDocument, Long, and String queries). The relaxed mock returns emptyList()
+            // for getResultList() and null for getSingleResult(), exercising the null-count branch.
+            every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
+            val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+            val service = OntkoppeldeDocumentenService(entityManager, loggedInUserInstance)
+
+            When("getResultaat is called") {
+                val result = service.getResultaat(OntkoppeldDocumentListParameters())
+
+                Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
+                    result.items shouldBe emptyList()
+                    result.count shouldBe 0L
+                    result.ontkoppeldDoorFilter shouldBe emptyList()
+                }
+            }
+        }
+    }
 })
