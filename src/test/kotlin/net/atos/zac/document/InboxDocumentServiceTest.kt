@@ -206,4 +206,32 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Context("Deleting an inbox document by Long ID") {
+        Given("an inbox document exists with a known Long ID") {
+            val document = createInboxDocument()
+            every { entityManager.find(InboxDocument::class.java, document.id) } returns document
+
+            When("delete is called with that ID") {
+                inboxDocumentService.delete(document.id)
+
+                Then("the document is removed from the entity manager") {
+                    verify { entityManager.remove(document) }
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given Long ID") {
+            val id = 999L
+            every { entityManager.find(InboxDocument::class.java, id) } returns null
+
+            When("delete is called with that ID") {
+                inboxDocumentService.delete(id)
+
+                Then("no document is removed from the entity manager") {
+                    verify(exactly = 0) { entityManager.remove(any()) }
+                }
+            }
+        }
+    }
 })
