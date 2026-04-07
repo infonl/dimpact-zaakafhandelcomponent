@@ -210,7 +210,7 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*otel/opentelemetry-collector\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*otel/opentelemetry-collector-contrib\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "otel/opentelemetry-collector-contrib",
@@ -329,6 +329,17 @@
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "npm install --no-save lockfile-lint@(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "lockfile-lint",
+      "datasourceTemplate": "npm"
     },
     {
       "customType": "regex",

@@ -6,7 +6,10 @@ package nl.info.zac.flowable.bpmn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -22,15 +25,23 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import org.flowable.bpmn.model.BpmnModel
+import org.flowable.bpmn.model.ExtensionElement
+import org.flowable.bpmn.model.Process
+import org.flowable.bpmn.model.UserTask
 import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
 import org.flowable.engine.RuntimeService
+import org.flowable.engine.repository.Deployment
+import org.flowable.engine.repository.DeploymentQuery
 import org.flowable.engine.runtime.ProcessInstance
 import org.flowable.engine.runtime.ProcessInstanceBuilder
 import java.net.URI
+import java.time.ZonedDateTime
+import java.util.Date
 import java.util.UUID
 
 class BpmnServiceTest : BehaviorSpec({
@@ -39,15 +50,17 @@ class BpmnServiceTest : BehaviorSpec({
     val historyService = mockk<HistoryService>()
     val processEngine = mockk<ProcessEngine>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
+    val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
     val bpmnService = BpmnService(
         repositoryService,
         runtimeService,
         historyService,
         processEngine,
-        zaaktypeBpmnConfigurationBeheerService
+        zaaktypeBpmnConfigurationBeheerService,
+        bpmnProcessDefinitionTaskFormService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -147,7 +160,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
         When("finding the process definition for the zaaktype") {
-            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
             }
 
@@ -176,7 +189,7 @@ class BpmnServiceTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns null
 
         When("reading the process definition by process definition key") {
-            val exception = shouldThrow<ProcessDefinitionNotFoundException> {
+            val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             }
 
@@ -373,6 +386,214 @@ class BpmnServiceTest : BehaviorSpec({
 
             Then("false is returned") {
                 result shouldBe false
+            }
+        }
+    }
+
+    Context("Getting process definition metadata") {
+        Given(
+            "A process definition with full metadata including documentation, modification date, form keys and upload date"
+        ) {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val modificationDateStr = "2026-01-15T10:00:00+01:00"
+            val modificationDate = ZonedDateTime.parse(modificationDateStr)
+            val deploymentTime = Date()
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns modificationDateStr
+
+            val userTask1 = mockk<UserTask>()
+            every { userTask1.formKey } returns "form1"
+            val userTask2 = mockk<UserTask>()
+            every { userTask2.formKey } returns "form2"
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Test documentation"
+            every { process.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
+            every { process.flowElements } returns listOf(userTask1, userTask2)
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deployment = mockk<Deployment>()
+            every { deployment.deploymentTime } returns deploymentTime
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns deployment
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("all metadata fields are populated correctly") {
+                    result.documentation shouldBe "Test documentation"
+                    result.modificationDate shouldBe modificationDate
+                    result.uploadDate shouldNotBe null
+                    result.formKeys shouldBe listOf("form1", "form2")
+                }
+            }
+        }
+
+        Given("A process definition with an empty process list") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val deploymentTime = Date()
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns emptyList()
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deployment = mockk<Deployment>()
+            every { deployment.deploymentTime } returns deploymentTime
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns deployment
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("documentation and modification date are null and form keys is empty") {
+                    result.documentation shouldBe null
+                    result.modificationDate shouldBe null
+                    result.uploadDate shouldNotBe null
+                    result.formKeys.shouldBeEmpty()
+                }
+            }
+        }
+
+        Given("A process definition whose deployment cannot be found") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns emptyMap()
+            every { process.flowElements } returns emptyList()
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("upload date is null") {
+                    result.uploadDate shouldBe null
+                }
+            }
+        }
+
+        Given("A process definition with multiple processes") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+            val modificationDateStr = "2026-03-01T09:00:00+01:00"
+            val modificationDate = ZonedDateTime.parse(modificationDateStr)
+
+            val extensionElement = mockk<ExtensionElement>()
+            every { extensionElement.elementText } returns modificationDateStr
+
+            val userTask1 = mockk<UserTask>()
+            every { userTask1.formKey } returns "form-from-process-1"
+
+            val userTask2 = mockk<UserTask>()
+            every { userTask2.formKey } returns "form-from-process-2"
+
+            val firstProcess = mockk<Process>()
+            every { firstProcess.documentation } returns "First process documentation"
+            every { firstProcess.extensionElements } returns mapOf("modificationdate" to listOf(extensionElement))
+            every { firstProcess.flowElements } returns listOf(userTask1)
+
+            val secondProcess = mockk<Process>()
+            every { secondProcess.flowElements } returns listOf(userTask2)
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(firstProcess, secondProcess)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then(
+                    "documentation and modification date come only from the first process and form keys are collected from all processes"
+                ) {
+                    result.documentation shouldBe "First process documentation"
+                    result.modificationDate shouldBe modificationDate
+                    result.formKeys shouldBe listOf("form-from-process-1", "form-from-process-2")
+                }
+            }
+        }
+
+        Given("A process definition with a process that has no modificationDate extension element") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val process = mockk<Process>()
+            every { process.documentation } returns "Some documentation"
+            every { process.extensionElements } returns emptyMap()
+            every { process.flowElements } returns emptyList()
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("modification date is null") {
+                    result.modificationDate shouldBe null
+                }
+            }
+        }
+
+        Given("A process definition with user tasks where some have no form key") {
+            val deploymentId = "fakeDeploymentId"
+            val processDefinition = createProcessDefinition(deploymentId = deploymentId)
+
+            val userTaskWithFormKey = mockk<UserTask>()
+            every { userTaskWithFormKey.formKey } returns "someForm"
+
+            val userTaskWithoutFormKey = mockk<UserTask>()
+            every { userTaskWithoutFormKey.formKey } returns null
+
+            val process = mockk<Process>()
+            every { process.documentation } returns null
+            every { process.extensionElements } returns emptyMap()
+            every { process.flowElements } returns listOf(userTaskWithFormKey, userTaskWithoutFormKey)
+
+            val bpmnModel = mockk<BpmnModel>()
+            every { bpmnModel.processes } returns listOf(process)
+            every { repositoryService.getBpmnModel(processDefinition.id) } returns bpmnModel
+
+            val deploymentQuery = mockk<DeploymentQuery>()
+            every { repositoryService.createDeploymentQuery() } returns deploymentQuery
+            every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
+            every { deploymentQuery.singleResult() } returns null
+
+            When("getting the process definition metadata") {
+                val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
+
+                Then("only user tasks with form keys are included in the form keys list") {
+                    result.formKeys shouldHaveSize 1
+                    result.formKeys[0] shouldBe "someForm"
+                }
             }
         }
     }

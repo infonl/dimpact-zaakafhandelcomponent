@@ -8,7 +8,6 @@ import { NavigationService } from "./navigation.service";
 
 @Directive({
   selector: "[zacBackButton]",
-  standalone: false,
 })
 export class BackButtonDirective {
   constructor(private navigation: NavigationService) {}

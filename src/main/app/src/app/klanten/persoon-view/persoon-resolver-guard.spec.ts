@@ -4,7 +4,7 @@
  */
 
 import { UrlSegment } from "@angular/router";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { PersoonResolverGuard } from "./persoon-resolver-guard";
 
 describe(PersoonResolverGuard.name, () => {

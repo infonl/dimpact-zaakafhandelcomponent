@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test" exporter="Flowable Design" exporterVersion="2025.1.03" design:palette="flowable-work-process-palette">
   <process id="itProcessDefinition" name="Integration Tests BPMN Process Definition" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
-    <documentation>BPMN Process definition used in ZAC Integration tests</documentation>
+    <documentation>Simple BPMN process definition to test various functionalities. Used in ZAC integration tests.</documentation>
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2025-09-02T14:21:57.393Z]]></design:creationdate>
@@ -30,13 +30,13 @@
     <serviceTask id="ServiceTask_358" name="Send email" flowable:class="net.atos.zac.flowable.delegate.SendEmailDelegate">
       <extensionElements>
         <flowable:field name="from">
-          <flowable:string><![CDATA[team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[test-1@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="to">
-          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[test-2@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="replyTo">
-          <flowable:string><![CDATA[shared-team-dimpact@info.nl]]></flowable:string>
+          <flowable:string><![CDATA[test-2@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>

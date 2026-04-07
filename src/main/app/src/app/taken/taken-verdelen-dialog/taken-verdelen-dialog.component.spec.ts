@@ -14,151 +14,179 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder } from "@angular/forms";
+import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatToolbarHarness } from "@angular/material/toolbar/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { TakenService } from "../taken.service";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
 
-describe(TakenVerdelenDialogComponent.name, () => {
-  let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
-  let component: TakenVerdelenDialogComponent;
-  let loader: HarnessLoader;
-  let httpTestingController: HttpTestingController;
-  let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
+const mockGroup: GeneratedType<"RestGroup"> = {
+  id: "group-1",
+  naam: "Test Group",
+};
 
-  const dialogData: {
-    taken: TaakZoekObject[];
-    screenEventResourceId: string;
-  } = {
-    taken: [
-      {
-        id: "taak-1",
-        zaakUuid: "zaak-1",
-      } as TaakZoekObject,
-      {
-        id: "taak-2",
-        zaakUuid: "zaak-2",
-      } as TaakZoekObject,
+const mockUser: GeneratedType<"RestUser"> = {
+  id: "user-1",
+  naam: "Test User",
+};
+
+const makeTaak = (id: string): TaakZoekObject =>
+  ({
+    id,
+    zaakUuid: `zaak-${id}`,
+  }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
+
+const makeDialogData = (
+  taken: TaakZoekObject[],
+  screenEventResourceId = "screen-event-1",
+) => ({ taken, screenEventResourceId });
+
+async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
+  const dialogRef = {
+    close: jest.fn(),
+  } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
+
+  await TestBed.configureTestingModule({
+    imports: [
+      TakenVerdelenDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
     ],
-    screenEventResourceId: "screen-event-1",
-  };
+    providers: [
+      provideExperimentalZonelessChangeDetection(),
+      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClientTesting(),
+      provideTanStackQuery(testQueryClient),
+      { provide: MAT_DIALOG_DATA, useValue: data },
+      { provide: MatDialogRef, useValue: dialogRef },
+    ],
+  }).compileComponents();
 
-  const mockGroup: GeneratedType<"RestGroup"> = {
-    id: "group-1",
-    naam: "Test Group",
-  };
+  const identityService = TestBed.inject(IdentityService);
+  jest.spyOn(identityService, "listGroups").mockReturnValue(of([mockGroup]));
+  jest
+    .spyOn(identityService, "listUsersInGroup")
+    .mockReturnValue(of([mockUser]));
 
-  const mockUser: GeneratedType<"RestUser"> = {
-    id: "user-1",
-    naam: "Test User",
-  };
+  const fixture = TestBed.createComponent(TakenVerdelenDialogComponent);
+  const component = fixture.componentInstance;
+  const loader = TestbedHarnessEnvironment.loader(fixture);
+  const httpTestingController = TestBed.inject(HttpTestingController);
 
-  beforeEach(async () => {
-    dialogRef = {
-      close: jest.fn(),
-    } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
+  fixture.detectChanges();
 
-    await TestBed.configureTestingModule({
-      declarations: [TakenVerdelenDialogComponent],
-      imports: [
-        TranslateModule.forRoot(),
-        MaterialModule,
-        MaterialFormBuilderModule,
-      ],
-      providers: [
-        IdentityService,
-        FormBuilder,
-        TakenService,
-        provideExperimentalZonelessChangeDetection(),
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideTanStackQuery(testQueryClient),
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: dialogData,
-        },
-        {
-          provide: MatDialogRef,
-          useValue: dialogRef,
-        },
-      ],
-    }).compileComponents();
+  return { fixture, component, loader, httpTestingController, dialogRef };
+}
 
-    const identiyService = TestBed.inject(IdentityService);
-    jest.spyOn(identiyService, "listGroups").mockReturnValue(of([mockGroup]));
-    jest
-      .spyOn(identiyService, "listUsersInGroup")
-      .mockReturnValue(of([mockUser]));
+describe(TakenVerdelenDialogComponent.name, () => {
+  describe("with multiple taken", () => {
+    let component: TakenVerdelenDialogComponent;
+    let loader: HarnessLoader;
+    let httpTestingController: HttpTestingController;
+    let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
 
-    fixture = TestBed.createComponent(TakenVerdelenDialogComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    httpTestingController = TestBed.inject(HttpTestingController);
+    beforeEach(async () => {
+      ({ component, loader, httpTestingController, dialogRef } = await setup(
+        makeDialogData([makeTaak("1"), makeTaak("2")]),
+      ));
+    });
 
-    fixture.detectChanges();
+    it("should show plural title with task count", async () => {
+      const toolbar = await loader.getHarness(MatToolbarHarness);
+      expect(await (await toolbar.host()).text()).toContain(
+        "msg.verdelen.taken",
+      );
+    });
+
+    it("should close dialog with false when close button is clicked", () => {
+      component["close"]();
+      expect(dialogRef.close).toHaveBeenCalledWith(false);
+    });
+
+    it("should send the form data on request", async () => {
+      component["form"].patchValue({
+        groep: mockGroup,
+        medewerker: mockUser,
+        reden: "test-reden",
+      });
+      component["form"].markAsDirty();
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.verdelen/i }),
+      );
+      await button.click();
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
+      expect(req.request.method).toBe("PUT");
+      expect(req.request.body).toEqual({
+        taken: [
+          { zaakUuid: "zaak-1", taakId: "1" },
+          { zaakUuid: "zaak-2", taakId: "2" },
+        ],
+        groepId: mockGroup.id,
+        behandelaarGebruikersnaam: mockUser.id,
+        reden: "test-reden",
+        screenEventResourceId: "screen-event-1",
+      });
+      req.flush({});
+    });
+
+    it("should close the dialog with form data after successful mutation", async () => {
+      const formData = {
+        groep: mockGroup,
+        medewerker: mockUser,
+        reden: "test-reden",
+      };
+
+      component["form"].patchValue(formData);
+      component["form"].markAsDirty();
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.verdelen/i }),
+      );
+      await button.click();
+      await new Promise(requestAnimationFrame);
+
+      httpTestingController.expectOne("/rest/taken/lijst/verdelen").flush({});
+      await sleep();
+
+      expect(dialogRef.close).toHaveBeenCalledWith(formData);
+    });
   });
 
-  it("should send the form data on request", async () => {
-    component["form"].patchValue({
-      groep: mockGroup,
-      medewerker: mockUser,
-      reden: "test-reden",
+  describe("with single taak", () => {
+    let loader: HarnessLoader;
+
+    beforeEach(async () => {
+      ({ loader } = await setup(makeDialogData([makeTaak("1")])));
     });
-    component["form"].markAsDirty();
 
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.verdelen/i }),
-    );
-    await button.click();
-    await new Promise(requestAnimationFrame);
-
-    const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
-
-    expect(req.request.method).toBe("PUT");
-    expect(req.request.body).toEqual({
-      taken: dialogData.taken.map((taak) => ({
-        zaakUuid: taak.zaakUuid,
-        taakId: taak.id!,
-      })),
-      groepId: mockGroup.id,
-      behandelaarGebruikersnaam: mockUser.id,
-      reden: "test-reden",
-      screenEventResourceId: dialogData.screenEventResourceId,
+    it("should show singular title", async () => {
+      const toolbar = await loader.getHarness(MatToolbarHarness);
+      expect(await (await toolbar.host()).text()).toContain(
+        "msg.verdelen.taak",
+      );
     });
   });
 
-  it("should close the dialog with form data after successful mutation", async () => {
-    const formData = {
-      groep: mockGroup,
-      medewerker: mockUser,
-      reden: "test-reden",
-    };
+  describe("with no taken", () => {
+    let component: TakenVerdelenDialogComponent;
 
-    component["form"].patchValue(formData);
-    component["form"].markAsDirty();
+    beforeEach(async () => {
+      ({ component } = await setup(makeDialogData([])));
+    });
 
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie.verdelen/i }),
-    );
-    await button.click();
-    await new Promise(requestAnimationFrame);
-
-    const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
-    req.flush({});
-
-    await sleep();
-
-    expect(dialogRef.close).toHaveBeenCalledWith(formData);
+    it("should disable form when taken list is empty", () => {
+      expect(component["form"].disabled).toBe(true);
+    });
   });
 });

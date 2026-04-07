@@ -18,19 +18,19 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
-import net.atos.client.or.`object`.ObjectsClientService
-import net.atos.client.or.`object`.model.createORObject
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.documenten.OntkoppeldeDocumentenService
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
+import nl.info.client.or.`object`.ObjectsClientService
+import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
@@ -75,6 +75,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createOverigeRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.productaanvraag.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
@@ -100,10 +101,11 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
+    val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
     val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
@@ -135,10 +137,11 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
+        productaanvraagDocumentService = productaanvraagDocumentService,
         restDecisionConverter = restDecisionConverter,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
@@ -207,18 +210,18 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
             productaanvraagService.getProductaanvraag(objectRegistratieObject)
         } returns productaanvraagDimpact
-        every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
+        every { productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
         every {
-            productaanvraagService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
+            productaanvraagDocumentService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
         } just runs
         every {
-            productaanvraagService.pairProductaanvraagWithZaak(
+            productaanvraagDocumentService.pairProductaanvraagWithZaak(
                 objectRegistratieObject,
                 zaak.url
             )
@@ -353,22 +356,22 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             bpmnService.startProcess(zaak, zaakType, zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey, zaakData)
         } just runs
         every {
-            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
+            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag!!.id)
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag?.productaanvraagObjectUUID)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
             productaanvraagService.getProductaanvraag(objectRegistratieObject)
         } returns productaanvraagDimpact
-        every { productaanvraagService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
+        every { productaanvraagDocumentService.pairAanvraagPDFWithZaak(productaanvraagDimpact, zaak.url) } just runs
         every {
-            productaanvraagService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
+            productaanvraagDocumentService.pairBijlagenWithZaak(productaanvraagDimpact.bijlagen, zaak.url)
         } just runs
         every {
-            productaanvraagService.pairProductaanvraagWithZaak(
+            productaanvraagDocumentService.pairProductaanvraagWithZaak(
                 objectRegistratieObject,
                 zaak.url
             )

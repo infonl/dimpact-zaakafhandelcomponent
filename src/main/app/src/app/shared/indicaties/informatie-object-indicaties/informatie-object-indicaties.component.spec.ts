@@ -84,7 +84,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
   it("should have empty indicaties when no inputs are provided", () => {
     component.ngOnChanges({} as SimpleChanges);
 
-    expect(component.indicaties).toHaveLength(0);
+    expect(component["indicaties"]).toHaveLength(0);
   });
 
   it.each(indicatieMetadata)(
@@ -98,10 +98,10 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
         ),
       });
 
-      expect(component.indicaties).toHaveLength(1);
-      expect(component.indicaties[0].naam).toBe(indicatie);
-      expect(component.indicaties[0].icon).toBe(expectedIcon);
-      expect(component.indicaties[0].primary).toBe(expectedPrimary);
+      expect(component["indicaties"]).toHaveLength(1);
+      expect(component["indicaties"][0].naam).toBe(indicatie);
+      expect(component["indicaties"][0].icon).toBe(expectedIcon);
+      expect(component["indicaties"][0].primary).toBe(expectedPrimary);
     },
   );
 
@@ -116,10 +116,10 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
         ),
       });
 
-      expect(component.indicaties).toHaveLength(1);
-      expect(component.indicaties[0].naam).toBe(indicatie);
-      expect(component.indicaties[0].icon).toBe(expectedIcon);
-      expect(component.indicaties[0].primary).toBe(expectedPrimary);
+      expect(component["indicaties"]).toHaveLength(1);
+      expect(component["indicaties"][0].naam).toBe(indicatie);
+      expect(component["indicaties"][0].icon).toBe(expectedIcon);
+      expect(component["indicaties"][0].primary).toBe(expectedPrimary);
     },
   );
 
@@ -132,7 +132,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       "msg.document.vergrendeld",
     );
   });
@@ -146,7 +146,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       "msg.document.vergrendeld",
     );
   });
@@ -160,7 +160,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       `Digitaal-${datumPipe.transform("2024-01-15")}`,
     );
   });
@@ -174,7 +174,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       `Analoog-${datumPipe.transform("2024-03-10")}`,
     );
   });
@@ -188,7 +188,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe("msg.document.besluit");
+    expect(component["indicaties"][0].toelichting).toBe("msg.document.besluit");
   });
 
   it("GEBRUIKSRECHT document: toelichting is leeg", () => {
@@ -200,7 +200,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe("");
+    expect(component["indicaties"][0].toelichting).toBe("");
   });
 
   it("VERZONDEN document: toelichting bevat geformatteerde verzenddatum", () => {
@@ -212,7 +212,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       datumPipe.transform("2024-01-20"),
     );
   });
@@ -226,7 +226,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties[0].toelichting).toBe(
+    expect(component["indicaties"][0].toelichting).toBe(
       datumPipe.transform("2024-03-15"),
     );
   });
@@ -243,7 +243,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties.map((i) => i.naam)).toEqual([
+    expect(component["indicaties"].map((i) => i.naam)).toEqual([
       "VERGRENDELD",
       "ONDERTEKEND",
       "BESLUIT",
@@ -261,7 +261,7 @@ describe(InformatieObjectIndicatiesComponent.name, () => {
       ),
     });
 
-    expect(component.indicaties).toHaveLength(0);
+    expect(component["indicaties"]).toHaveLength(0);
     expect(console.warn).toHaveBeenCalledWith(
       expect.stringContaining("ONBEKEND"),
     );

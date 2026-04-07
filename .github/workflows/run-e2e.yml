@@ -23,7 +23,7 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
       - name: login to azure and allow pssessions
-        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        uses: azure/login@532459ea530d8321f2fb9bb10d1e0bcf23869a43 # v3.0.0
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
           enable-AzPSSession: true
@@ -32,17 +32,17 @@ jobs:
           my_ip=$(curl https://api.ipify.org)
           echo "my_ip=$my_ip" >> $GITHUB_ENV
       - name: add ip to nsg
-        uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # v2.2.0
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
         with:
           azcliversion: latest
           inlineScript: |
             az network nsg rule create -g zac-infra --nsg-name k8s-test-nsg -n allow_github_runner --priority 295 --source-address-prefixes ${{ env.my_ip }} --destination-port-ranges '*' --direction Inbound --access allow --protocol '*' --destination-address-prefixes '*'
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - name: Install dependencies
-        run: cd src/e2e && npm ci
+        run: cd src/e2e && npm ci --ignore-scripts
       - name: Install Playwright Browsers
         run: cd src/e2e && npx playwright install --with-deps
       - name: Run your tests
@@ -87,11 +87,11 @@ jobs:
           keep_files: true # retains files that are not part of the current publish
       - name: Notify Slack
         if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
-        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3.19.0
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
-          status: custom
-          fields: workflow,job,status
-          custom_payload: |
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
             {
               "text": ":performing_arts: Playwright Tests Update",
               "attachments": [
@@ -130,7 +130,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
                       }
                     },
                     {
@@ -142,7 +142,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Report"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
                         },
                         {
                           "type": "button",
@@ -166,12 +166,9 @@ jobs:
                 }
               ]
             }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: remove nsg rule by name
         if: always()
-        uses: azure/cli@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # v2.2.0
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
         with:
           azcliversion: latest
           inlineScript: |

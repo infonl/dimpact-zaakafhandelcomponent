@@ -57,4 +57,10 @@ fix-permissions.sh
 ### Docker ###
 .DS_store
 
+### Claude ###
+.claude/settings.local.json
+
 .kiro
+
+### Worktrees ###
+.worktrees/

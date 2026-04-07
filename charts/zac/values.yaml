@@ -296,6 +296,11 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
+  # -- Resource limits and requests for the init-solr-zac-core init container
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
 
 # Open Policy Agent (OPA) configuration, prefilled resources values are the minimum recommended
 opa:
@@ -311,9 +316,9 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.14.0-static@sha256:4b5c7816092b88b3e40656f63f48ccab3577e011dd5b67d2a3f8c0de9869f9d2"
+    tag: "1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24"
     pullPolicy: IfNotPresent
-  # The settings below will be ignored when running as a sidecar (the zac values will be used instead)
+  # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
   autoscaling:
     enabled: false
   replicas: 1
@@ -385,7 +390,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:ba8e26a0e4dc1178f2c90ff8c4090e1ca351bf8f38b2be3052de194e7e2ad291
+      tag: 1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -395,7 +400,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
+      tag: 9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -424,6 +429,8 @@ solr-operator:
       storageClassName: managed-csi
       # -- solr storage size
       size: 1Gi
+    # -- resource limits and requests for solr in solrcloud
+    resources: {}
     # -- tolerations for solr in solrcloud
     tolerations: []
     # -- topologySpreadConstraints for solr in solrcloud
@@ -436,6 +443,23 @@ solr-operator:
             technology: solr-cloud
         matchLabelKeys:
           - controller-revision-hash
+    # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
+    # Override only if custom startup timing is needed.
+    startupProbe: {}
+    # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
+    # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
+    # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
+    # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
+    livenessProbe:
+      httpGet:
+        path: /solr/admin/info/health
+        port: 8983
+      failureThreshold: 6
+      periodSeconds: 20
+      timeoutSeconds: 1
+    # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
+    # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
+    readinessProbe: {}
   # -- tolerations for solr-operator
   tolerations: []
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
@@ -498,6 +522,8 @@ solr-operator:
         storageClassName: managed-csi
         # -- zookeeper storage size
         size: 1Gi
+      # -- resource limits and requests for zookeeper
+      resources: {}
       # -- tolerations for zookeeper
       tolerations: []
       # -- topologySpreadConstraints for zookeeper
@@ -518,7 +544,7 @@ office_converter:
   # url: ""
   image:
     repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f"
+    tag: "1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -558,7 +584,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.146.1@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c"
+    tag: "0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46"
   presets:
     clusterMetrics:
       enabled: false
@@ -589,7 +615,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.5@sha256:79f2c2c26124360d69d12078d36f9bf129fffe6eabe146ed3689b523fdf39a17
+    tag: 1.29.5@sha256:bd68c793125e39123d1fdf3c0e9b7d4218667b9db049ed46b1b71aa4cb4493ef
   service:
     type: ClusterIP
     port: 80

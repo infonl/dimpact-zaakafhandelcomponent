@@ -131,7 +131,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion contains the address details, separated with NBSP") {
-                restPersoon.verblijfplaats shouldBe "street name 11 number description a"
+                restPersoon.verblijfplaats shouldBe "street\u00A0name\u00A011\u00A0number\u00A0description\u00A0a"
             }
         }
     }
@@ -153,7 +153,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion contains the address details, separated with NBSP") {
-                restPersoon.verblijfplaats shouldBe "first line, Far away"
+                restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
             }
         }
     }
@@ -329,7 +329,7 @@ class RestPersoonTest : BehaviorSpec({
             val restPersoon = persoon.toRestPersoon()
 
             Then("conversion contains the country description") {
-                restPersoon.verblijfplaats shouldBe "first line, Far away"
+                restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
             }
         }
     }

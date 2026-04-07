@@ -12,15 +12,19 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.client.zgw.drc.model.generated.SoortEnum
+import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -28,9 +32,10 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createTaakRechten
+import java.time.LocalDate
 import java.util.UUID
 
 class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
@@ -238,6 +243,99 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         enkelvoudigInformatieObjectLockService.createLock(any(), any())
                         enkelvoudigInformatieObjectLockService.deleteLock(any())
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Sending an enkelvoudig informatie object") {
+        val uuid = UUID.randomUUID()
+        val verzenddatum = LocalDate.now()
+        val userId = "fakeUserId"
+
+        Given("A UUID, verzenddatum and a toelichting") {
+            val toelichting = "fakeToelichting"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
+            every { loggedInUserInstance.get().id } returns userId
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
+            } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            When("verzendEnkelvoudigInformatieObject is called") {
+                enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
+                    uuid,
+                    verzenddatum,
+                    toelichting
+                )
+
+                Then("the verzenddatum is set in the request") {
+                    requestSlot.captured.verzenddatum shouldBe verzenddatum
+                }
+                And("the toelichting is prefixed with 'Per post'") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post: $toelichting")
+                    }
+                }
+            }
+        }
+
+        Given("A UUID, verzenddatum and no toelichting") {
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            every { loggedInUserInstance.get().id } returns userId
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every { drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), any()) } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            When("verzendEnkelvoudigInformatieObject is called with null toelichting") {
+                enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(uuid, verzenddatum, null)
+
+                Then("the toelichting is just the prefix without a colon") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post")
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Signing an enkelvoudig informatie object") {
+        val uuid = UUID.randomUUID()
+        val userId = "fakeUserId"
+
+        Given("A UUID of an unsigned document") {
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+            val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
+            every { loggedInUserInstance.get().id } returns userId
+            every { enkelvoudigInformatieObjectLockService.findLock(uuid) } returns null
+            every { enkelvoudigInformatieObjectLockService.createLock(uuid, userId) } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(uuid, capture(requestSlot), any())
+            } returns enkelvoudigInformatieObject
+            every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
+
+            When("ondertekenEnkelvoudigInformatieObject is called") {
+                val today = LocalDate.now()
+                enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
+
+                Then("the ondertekening is set to DIGITAAL with today's date") {
+                    requestSlot.captured.ondertekening!!.soort shouldBe SoortEnum.DIGITAAL
+                    requestSlot.captured.ondertekening!!.datum shouldBe today
+                }
+                And("the status is set to DEFINITIEF") {
+                    requestSlot.captured.status shouldBe StatusEnum.DEFINITIEF
+                }
+                And("the toelichting is 'Door ondertekenen'") {
+                    verify(exactly = 1) {
+                        drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Door ondertekenen")
                     }
                 }
             }

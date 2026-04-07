@@ -1,0 +1,217 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Dimpact, 2025 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
+import { ConfiguratieService } from "../../configuratie/configuratie.service";
+import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "../../shared/confirm-dialog/confirm-dialog.component";
+import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
+import { SharedModule } from "../../shared/shared.module";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { AdminComponent } from "../admin/admin.component";
+import { BpmnService } from "../bpmn.service";
+import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item/bpmn-process-definition-item.component";
+import { BpmnNodeRowDirective } from "./bpmn-process-definitions.directive";
+import { extractBpmnProcessKey, readFileContent } from "./file.helper";
+
+interface BpmnProcessDefinitionGroupNode {
+  name: string;
+  key: string;
+  definition: GeneratedType<"RestBpmnProcessDefinition">;
+}
+
+type Node =
+  | BpmnProcessDefinitionGroupNode
+  | GeneratedType<"RestBpmnProcessDefinition">;
+
+@Component({
+  standalone: true,
+  templateUrl: "./bpmn-process-definitions.component.html",
+  styleUrls: ["./bpmn-process-definitions.component.less"],
+  imports: [
+    SharedModule,
+    BpmnNodeRowDirective,
+    BpmnProcessDefinitionItemComponent,
+    FileDragAndDropDirective,
+  ],
+})
+export class BpmnProcessDefinitionsComponent
+  extends AdminComponent
+  implements OnInit
+{
+  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
+  @ViewChildren(BpmnNodeRowDirective)
+  nodeRows!: QueryList<BpmnNodeRowDirective>;
+  @ViewChild("bpmnProcessDefinitionFileInput", { static: false })
+  bpmnProcessDefinitionFileInput!: ElementRef;
+
+  protected readonly processDefinitionsQuery = injectQuery(() =>
+    this.bpmnService.listProcessDefinitionsQuery(true),
+  );
+
+  protected readonly data = computed(() =>
+    this.buildTreeData(this.processDefinitionsQuery.data() ?? []),
+  );
+
+  protected expandedKey: string | null = null;
+
+  protected toggleNode(node: BpmnProcessDefinitionGroupNode) {
+    this.expandedKey = this.expandedKey === node.key ? null : node.key;
+  }
+
+  childrenAccessor = (node: Node) =>
+    "definition" in node
+      ? [(node as BpmnProcessDefinitionGroupNode).definition]
+      : [];
+
+  hasChild = (_: number, node: Node): node is BpmnProcessDefinitionGroupNode =>
+    "definition" in node;
+
+  private readonly dialog = inject(MatDialog);
+  private readonly bpmnService = inject(BpmnService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly injector = inject(Injector);
+
+  private readonly uploadMutation = injectMutation(() => ({
+    ...this.bpmnService.uploadProcessDefinitionQuery(),
+    onSuccess: () => void this.processDefinitionsQuery.refetch(),
+  }));
+
+  private readonly deleteMutation = injectMutation(() => ({
+    mutationFn: (key: string) => this.bpmnService.deleteProcessDefinition(key),
+  }));
+
+  constructor() {
+    super(inject(UtilService), inject(ConfiguratieService));
+  }
+
+  ngOnInit() {
+    this.setupMenu("title.bpmn-procesdefinities");
+  }
+
+  protected selectBpmnProcessDefinitionFile() {
+    this.bpmnProcessDefinitionFileInput.nativeElement.click();
+  }
+
+  protected bpmnProcessDefinitionFileSelected(event: Event) {
+    if (event.target instanceof HTMLInputElement) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (file) this.uploadBpmnFile(file);
+    }
+  }
+
+  protected bpmnProcessDefinitionFileDropped(files: FileList) {
+    const file = Array.from(files).find((file) =>
+      file.name.toLowerCase().endsWith(".bpmn"),
+    );
+    if (file) this.uploadBpmnFile(file);
+  }
+
+  private uploadBpmnFile(file: File) {
+    readFileContent(file)
+      .then((content) => {
+        const processKey = extractBpmnProcessKey(content);
+        return this.uploadMutation.mutate(
+          { content, filename: file.name },
+          {
+            onSuccess: () => {
+              this.utilService.openSnackbar(
+                "msg.bpmn.process-definition.upload.success",
+                { naam: file.name },
+              );
+              // the mutation-level onSuccess already refetches the list
+              this.expandedKey = processKey;
+              afterNextRender(
+                () =>
+                  this.nodeRows
+                    .find((row) => row.key() === processKey)
+                    ?.el.nativeElement.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                    }),
+                { injector: this.injector },
+              );
+            },
+          },
+        );
+      })
+      .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
+  }
+
+  protected deleteProcessDefinition(processDefinition: {
+    key: string;
+    name: string;
+  }) {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: new ConfirmDialogData({
+          key: "msg.bpmn.process-definition.delete.confirm",
+          args: { naam: processDefinition.name },
+        }),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.deleteMutation.mutate(processDefinition.key, {
+            onSuccess: () => {
+              this.utilService.openSnackbar(
+                "msg.bpmn.process-definition.deleted",
+                { naam: processDefinition.name },
+              );
+              void this.processDefinitionsQuery.refetch();
+            },
+          });
+        }
+      });
+  }
+
+  protected refreshDefinitions() {
+    void this.processDefinitionsQuery.refetch();
+  }
+
+  protected asProcessDefinition(
+    node: Node,
+  ): GeneratedType<"RestBpmnProcessDefinition"> {
+    return node as GeneratedType<"RestBpmnProcessDefinition">;
+  }
+
+  protected hasAllFormsUploaded(node: BpmnProcessDefinitionGroupNode): boolean {
+    const forms = node.definition.details?.forms ?? [];
+    return forms.length > 0 && forms.every((form) => form.uploaded);
+  }
+
+  private buildTreeData(
+    definitions: GeneratedType<"RestBpmnProcessDefinition">[],
+  ): BpmnProcessDefinitionGroupNode[] {
+    return definitions.map((def) => ({
+      name: def.name,
+      key: def.key,
+      definition: def,
+    }));
+  }
+}

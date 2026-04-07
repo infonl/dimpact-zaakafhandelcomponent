@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 2 # Need previous commit to detect changes
 
       - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -50,7 +50,7 @@ jobs:
         working-directory: src/main/app
         run: |
           echo "🔍 Running security audit for main application..."
-          npm install
+          npm ci --ignore-scripts
 
           npm audit --json > audit-results.json || true
 
@@ -103,7 +103,7 @@ jobs:
           echo "🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload npm audit SARIF results (main app)
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         if: always() && hashFiles('src/main/app/npm-audit-main.sarif') != ''
         with:
           sarif_file: src/main/app/npm-audit-main.sarif
@@ -136,15 +136,15 @@ jobs:
           cache: "gradle"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Update OWASP dependency database
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          ./gradlew dependencyCheckUpdate --no-configuration-cache -DdependencyCheck.connectionTimeout=2400000 || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
@@ -225,7 +225,7 @@ jobs:
           EOF
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif
@@ -260,11 +260,11 @@ jobs:
           fi
 
       - name: Notify Slack
-        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3.19.0
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
-          status: custom
-          fields: workflow,job,status
-          custom_payload: |
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
             {
               "text": ":shield: Supply Chain Security Scan Complete",
               "attachments": [
@@ -303,6 +303,3 @@ jobs:
                 }
               ]
             }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

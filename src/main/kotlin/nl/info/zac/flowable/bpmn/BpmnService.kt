@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 Dimpact, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.flowable.bpmn
@@ -12,9 +12,12 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.flowable.bpmn.exception.ProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
+import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionMetadata
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.flowable.bpmn.model.ExtensionElement
+import org.flowable.bpmn.model.UserTask
 import org.flowable.engine.HistoryService
 import org.flowable.engine.ProcessEngine
 import org.flowable.engine.RepositoryService
@@ -23,6 +26,7 @@ import org.flowable.engine.repository.Deployment
 import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.runtime.ProcessInstance
 import java.io.InputStream
+import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -36,7 +40,8 @@ class BpmnService @Inject constructor(
     private val runtimeService: RuntimeService,
     private val historyService: HistoryService,
     private val processEngine: ProcessEngine,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
+    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
@@ -68,7 +73,7 @@ class BpmnService @Inject constructor(
 
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
-    fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String?): ProcessDefinition? =
+    fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)
             .active()
@@ -77,7 +82,7 @@ class BpmnService @Inject constructor(
 
     fun readProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition =
         findProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
-            ?: throw ProcessDefinitionNotFoundException(
+            ?: throw BpmnProcessDefinitionNotFoundException(
                 "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             )
 
@@ -113,21 +118,23 @@ class BpmnService @Inject constructor(
             .enableDuplicateFiltering()
             .deploy()
 
-    fun deleteProcessDefinition(processDefinitionKey: String) =
+    fun deleteProcessDefinition(processDefinitionKey: String) {
         repositoryService.createDeploymentQuery()
             .processDefinitionKey(processDefinitionKey)
             .list()
             .forEach { repositoryService.deleteDeployment(it.id, true) }
+        bpmnProcessDefinitionTaskFormService.deleteAllFormsForProcessDefinition(processDefinitionKey)
+    }
 
     /**
      * Returns the BPMN process definition for the given zaaktype UUID
      *
      * @param zaaktypeUUID UUID of the zaaktype for which the process definition is requested
-     * @throws ProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
+     * @throws BpmnProcessDefinitionNotFoundException if no process definition is found for the given zaaktype UUID
      */
     fun findProcessDefinitionForZaaktype(zaaktypeUUID: UUID) =
         zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
-            ?: throw ProcessDefinitionNotFoundException("Process definition not found for zaaktype UUID $zaaktypeUUID")
+            ?: throw BpmnProcessDefinitionNotFoundException("No BPMN process definition found for zaaktype with UUID: '$zaaktypeUUID'")
 
     /**
      * Returns a process instance for the given zaak UUID or null if no process instance is found.
@@ -190,4 +197,48 @@ class BpmnService @Inject constructor(
      */
     fun isProcessDefinitionInUse(processDefinitionKey: String) =
         hasProcessInstances(processDefinitionKey) || hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
+
+    fun getProcessDefinitionMetadata(processDefinition: ProcessDefinition): BpmnProcessDefinitionMetadata {
+        var documentation: String? = null
+        var modificationDate: ZonedDateTime? = null
+        val formKeys: MutableList<String> = mutableListOf()
+        val bpmnModel = repositoryService.getBpmnModel(processDefinition.id)
+
+        // Fill metadata based on the first process
+        bpmnModel.processes.firstOrNull()?.let { first ->
+            documentation = first.documentation
+            modificationDate = getModificationDate(first.extensionElements)
+        }
+        // Find all user tasks with form keys
+        bpmnModel.processes.forEach { process ->
+            process.flowElements
+                .filterIsInstance<UserTask>()
+                .forEach { userTask ->
+                    userTask.formKey?.let { formKey ->
+                        formKeys.add(formKey)
+                    }
+                }
+        }
+        return BpmnProcessDefinitionMetadata(
+            documentation,
+            modificationDate,
+            getUploadDate(processDefinition.deploymentId),
+            formKeys,
+        )
+    }
+
+    private fun getModificationDate(extensionElements: Map<String, List<ExtensionElement>>): ZonedDateTime? {
+        return extensionElements["modificationdate"]
+            ?.firstOrNull()
+            ?.elementText
+            ?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
+    }
+
+    private fun getUploadDate(deploymentId: String): ZonedDateTime? {
+        return repositoryService.createDeploymentQuery()
+            .deploymentId(deploymentId)
+            .singleResult()
+            ?.deploymentTime
+            ?.let { ZonedDateTime.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()) }
+    }
 }

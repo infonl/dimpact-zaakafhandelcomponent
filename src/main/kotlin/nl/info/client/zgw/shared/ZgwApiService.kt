@@ -6,13 +6,13 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.drc.DrcClientService
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
@@ -254,12 +254,12 @@ class ZgwApiService @Inject constructor(
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
      * @param zaakUUID UUID of a [Zaak]
-     * @param toelichting Explanation why the [EnkelvoudigInformatieObject] is to be removed; may be null.
+     * @param reason Explanation why the [EnkelvoudigInformatieObject] is to be removed; may be null.
      */
     fun removeEnkelvoudigInformatieObjectFromZaak(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
         zaakUUID: UUID,
-        toelichting: String?
+        reason: String?
     ) {
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
@@ -267,7 +267,7 @@ class ZgwApiService @Inject constructor(
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
-            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, ZAAK_OBJECT_DELETION_PREFIX) }
+            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, reason, ZAAK_OBJECT_DELETION_PREFIX) }
 
         // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {

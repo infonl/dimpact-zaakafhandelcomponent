@@ -5,16 +5,26 @@
 
 import { Component, Input } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
+import { TranslateModule } from "@ngx-translate/core";
+import { DatumPipe } from "../../../shared/pipes/datum.pipe";
+import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
+import { ZoekObjectLinkComponent } from "../zoek-object-link/zoek-object-link.component";
 import { ZoekObjectComponent } from "../zoek-object/zoek-object-component";
 
 @Component({
   selector: "zac-taak-zoek-object",
   styleUrls: ["../zoek-object/zoek-object.component.less"],
   templateUrl: "./taak-zoek-object.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ZoekObjectLinkComponent,
+    StaticTextComponent,
+    DatumPipe,
+    TranslateModule,
+  ],
 })
 export class TaakZoekObjectComponent extends ZoekObjectComponent {
-  @Input() taak: TaakZoekObject;
-  @Input() sideNav: MatSidenav;
+  @Input({ required: true }) taak!: TaakZoekObject;
+  @Input({ required: true }) sideNav!: MatSidenav;
 }

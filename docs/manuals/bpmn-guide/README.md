@@ -1,6 +1,4 @@
-# BPMN guide (BETA)
-
-:fire: The functionality described below is still "Beta". Beta software may contain errors or inaccuracies and may not function as well as regular releases. :fire:
+# BPMN guide
 
 ## ZAC and BPMN
 ZAC uses [Flowable](https://www.flowable.com/) as embedded process automation engine to support BPMN processes. 
@@ -10,6 +8,11 @@ Forms that provide input for user tasks in BPMN processes are implemented using 
 To create a BPMN process definition, you can:
 * use Flowable [web editor](https://trial.flowable.com/design)
 * start with our integration tests [process](../../../src/itest/resources/bpmn/itProcessDefinition.bpmn)
+
+## Use of quotes
+Please make sure that you use straight quotes (') in expressions. Sometimes your system will use
+[smart (curly) quotes](https://practicaltypography.com/straight-and-curly-quotes.html) which will
+not parse correctly.
 
 ### Requirements
 
@@ -87,6 +90,7 @@ The following functionality is supported by the BPMN process definition:
   * listing attached documents
   * listing available SmartDocuments templates
   * creating documents
+  * signing documents
 * Listing reference table data
 * Process data
 
@@ -507,6 +511,42 @@ The template name should be snake-case (`Data Test` becomes `Data_Test`).
   "attributes": {
     "ZAC_TYPE": "ZAC_documenten"
   }
+}
+```
+
+#### Signing documents
+To automatically sign one or more documents as part of a process:
+* create a user task with a form that lets the user select documents to sign (see form field below)
+* create a service task after the user task
+* set class `net.atos.zac.flowable.delegate.SignDocumentDelegate`
+* optionally add a field:
+  * `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Ondertekenen_Selectie` if not set)
+
+The delegate will sign all documents the user selected in the form. Documents that are already signed will be skipped automatically.
+
+The form field for selecting documents to sign:
+```json
+{
+  "label": "Documents",
+  "type": "select",
+  "key": "ZAAK_Documenten_Ondertekenen_Selectie",
+  "input": true,
+  "widget": "choicesjs",
+  "multiple": true,
+  "refreshOn": "data",
+  "dataSrc": "custom",
+  "placeholder": "Select one or more documents",
+  "customOptions": {
+    "choicesOptions": {
+      "removeItemButton": true,
+      "placeholder": true,
+      "searchEnabled": true,
+      "shouldSort": false
+    }
+  },
+  "validate": { "required": true },
+  "attributes": { "ZAC_TYPE": "ZAC_documenten" },
+  "tableView": true
 }
 ```
 

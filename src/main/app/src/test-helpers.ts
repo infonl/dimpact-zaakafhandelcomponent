@@ -6,6 +6,13 @@
 
 import { OnChanges, SimpleChange, SimpleChanges } from "@angular/core";
 
+type DeepPartial<T> = T extends object
+  ? { [P in keyof T]?: DeepPartial<T[P]> }
+  : T;
+
+export const fromPartial = <T,>(partial: DeepPartial<NoInfer<T>>): T =>
+  partial as T;
+
 export function updateComponentInputs<T extends OnChanges>(
   component: T,
   changes: Partial<T>,

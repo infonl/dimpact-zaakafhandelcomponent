@@ -7,7 +7,7 @@ package net.atos.client.zgw.shared.exception;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import net.atos.client.zgw.shared.model.ValidationZgwError;
+import net.atos.client.zgw.shared.model.ZgwValidationError;
 import nl.info.zac.exception.InputValidationFailedException;
 
 /**
@@ -15,13 +15,13 @@ import nl.info.zac.exception.InputValidationFailedException;
  */
 public class ZgwValidationErrorException extends InputValidationFailedException {
 
-    private final ValidationZgwError validatieFout;
+    private final ZgwValidationError validatieFout;
 
-    public ZgwValidationErrorException(final ValidationZgwError validationZgwError) {
-        this.validatieFout = validationZgwError;
+    public ZgwValidationErrorException(final ZgwValidationError zgwValidationError) {
+        this.validatieFout = zgwValidationError;
     }
 
-    public ValidationZgwError getValidatieFout() {
+    public ZgwValidationError getValidatieFout() {
         return validatieFout;
     }
 

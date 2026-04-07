@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -10,22 +11,32 @@ import {
   OnChanges,
   Output,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 
 @Component({
   selector: "zac-date-range-filter",
   templateUrl: "./date-range-filter.component.html",
   styleUrls: ["./date-range-filter.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatIconModule,
+  ],
 })
 export class DateRangeFilterComponent implements OnChanges {
-  @Input() range: DatumRange;
-  @Input() label: string;
+  @Input({ required: true }) range!: DatumRange;
+  @Input() label!: string;
   @Output() changed = new EventEmitter<DatumRange>();
 
-  dateVan = new FormControl<Date>(null);
-  dateTM = new FormControl<Date>(null);
+  protected dateVan = new FormControl<Date | null>(null);
+  protected dateTM = new FormControl<Date | null>(null);
 
   ngOnChanges(): void {
     if (!this.range) {
@@ -35,7 +46,7 @@ export class DateRangeFilterComponent implements OnChanges {
     this.dateTM.setValue(this.range.tot);
   }
 
-  clearDate($event: MouseEvent): void {
+  protected clearDate($event: MouseEvent): void {
     $event.stopPropagation();
     this.dateVan.setValue(null);
     this.dateTM.setValue(null);
@@ -44,7 +55,7 @@ export class DateRangeFilterComponent implements OnChanges {
     this.changed.emit(this.range);
   }
 
-  change(): void {
+  protected change(): void {
     this.range.van = this.dateVan.value;
     this.range.tot = this.dateTM.value;
     if (this.hasRange()) {
@@ -52,7 +63,7 @@ export class DateRangeFilterComponent implements OnChanges {
     }
   }
 
-  hasRange(): boolean {
+  protected hasRange(): boolean {
     if (this.range) {
       return this.range.van != null && this.range.tot != null;
     }

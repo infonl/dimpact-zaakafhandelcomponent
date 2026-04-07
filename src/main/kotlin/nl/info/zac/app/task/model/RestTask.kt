@@ -5,7 +5,6 @@
 package nl.info.zac.app.task.model
 
 import jakarta.json.JsonObject
-import net.atos.zac.app.formulieren.model.RESTFormulierDefinitie
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.policy.model.RestTaakRechten
@@ -52,12 +51,6 @@ data class RestTask(
      * Deze worden enkel gebruikt door taken welke handmatig worden gestart vanuit een CMMN model
      */
     var formulierDefinitieId: String? = null,
-
-    /**
-     * Definitie van een via de user interface gebouwd formulier.
-     * Deze worden enkel gebruikt voor het afhandelen van taken welke automatische worden gestart vanuit een BPMN proces.
-     */
-    var formulierDefinitie: RESTFormulierDefinitie? = null,
 
     var formioFormulier: JsonObject? = null,
 

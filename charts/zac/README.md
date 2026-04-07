@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.193](https://img.shields.io/badge/Version-1.0.193-informational?style=flat-square) ![AppVersion: 4.3](https://img.shields.io/badge/AppVersion-4.3-informational?style=flat-square)
+![Version: 1.0.210](https://img.shields.io/badge/Version-1.0.210-informational?style=flat-square) ![AppVersion: 4.6](https://img.shields.io/badge/AppVersion-4.6-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.146.1 |
+| @opentelemetry | opentelemetry-collector | 0.147.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -94,6 +94,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
+| initContainer.resources | object | `{"requests":{"cpu":"50m","memory":"256Mi"}}` | Resource limits and requests for the init-solr-zac-core init container |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -167,7 +168,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.5@sha256:79f2c2c26124360d69d12078d36f9bf129fffe6eabe146ed3689b523fdf39a17"` |  |
+| nginx.image.tag | string | `"1.29.5@sha256:bd68c793125e39123d1fdf3c0e9b7d4218667b9db049ed46b1b71aa4cb4493ef"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -198,7 +199,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f"` |  |
+| office_converter.image.tag | string | `"1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -218,7 +219,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.14.0-static@sha256:4b5c7816092b88b3e40656f63f48ccab3577e011dd5b67d2a3f8c0de9869f9d2"` |  |
+| opa.image.tag | string | `"1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -244,7 +245,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.146.1@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c"` |  |
+| opentelemetry-collector.image.tag | string | `"0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -303,19 +304,23 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:ba8e26a0e4dc1178f2c90ff8c4090e1ca351bf8f38b2be3052de194e7e2ad291"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
+| solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
 | solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
+| solr-operator.solr.readinessProbe | object | `{}` | readinessProbe override for solr in solrcloud. The Solr Operator already defaults to /solr/admin/info/health for readiness. Override only if custom thresholds are needed. |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
+| solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
+| solr-operator.solr.startupProbe | object | `{}` | startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system. Override only if custom startup timing is needed. |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
@@ -342,6 +347,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"` | zookeeper image tag |
 | solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
+| solr-operator.zookeeper-operator.zookeeper.resources | object | `{}` | resource limits and requests for zookeeper |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |

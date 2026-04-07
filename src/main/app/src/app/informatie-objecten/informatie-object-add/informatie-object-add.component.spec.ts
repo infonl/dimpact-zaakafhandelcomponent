@@ -28,9 +28,9 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import moment from "moment";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -162,10 +162,6 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Component initialization", () => {
-    it("should create", () => {
-      expect(component).toBeTruthy();
-    });
-
     it("should display form fields", async () => {
       const formFields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(formFields.length).toBeGreaterThanOrEqual(11);
@@ -178,7 +174,7 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Form interactions", () => {
-    it("should have creatiedatum prefilled with todays and disable verzenddatum and status when ontvangstdatum is set", async () => {
+    it("should have creatiedatum prefilled with today and disable verzenddatum and status when ontvangstdatum is set", async () => {
       const [creatiedatum] = await loader.getAllHarnesses(
         MatDatepickerInputHarness,
       );

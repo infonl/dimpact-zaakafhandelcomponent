@@ -12,6 +12,12 @@ import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
 
+/**
+ * Flowable BPMN delegate to send an e-mail.
+ *
+ * This class may be used in existing BPMN process definitions, so be careful renaming or moving it to another package
+ * because that will break all zaken and tasks that were created with (previous versions of) the related BPMN process.
+ */
 @Suppress("LongParameterList")
 class SendEmailDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression

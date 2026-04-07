@@ -40,6 +40,20 @@ fun createAdressering(
     this.land = land
 }
 
+fun createNaamPersoon(
+    initials: String = "fakeFirstLetters",
+    firstNames: String = "fakeFirstName",
+    surname: String = "fakeLastName",
+    prefix: String? = "fakePrefix",
+    fullName: String = "fakeFullName",
+) = NaamPersoon().apply {
+    this.voorletters = initials
+    this.voornamen = firstNames
+    this.geslachtsnaam = surname
+    this.voorvoegsel = prefix
+    this.volledigeNaam = fullName
+}
+
 @Suppress("LongParameterList")
 fun createPersoon(
     bsn: String = "123456789",

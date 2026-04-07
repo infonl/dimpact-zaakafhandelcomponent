@@ -16,6 +16,10 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
@@ -50,6 +54,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -78,6 +86,7 @@ import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
+import java.nio.file.Files
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
@@ -131,6 +140,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "ZAC_INTERNAL_ENDPOINTS_API_KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
         )
     }
+
+    private var emptyEnvFile: File? = null
 
     /**
      * Set a random order seed so that the tests run is reproducible.
@@ -192,41 +203,53 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun afterProject() {
-        if (skipDockerComposeStart) {
-            logger.warn {
-                "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+        try {
+            if (skipDockerComposeStart) {
+                logger.warn {
+                    "$DO_NOT_START_DOCKER_COMPOSE_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                }
+                return
             }
-            return
-        }
-        if (skipContainerCleanup) {
-            logger.warn {
-                "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+            if (skipContainerCleanup) {
+                logger.warn {
+                    "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                }
+                Runtime.getRuntime().halt(0)
             }
-            Runtime.getRuntime().halt(0)
-        }
 
-        // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-        dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()?.let { zacContainer ->
-            logger.info { "Stopping ZAC Docker container" }
-            zacContainer.dockerClient
-                .stopContainerCmd(zacContainer.containerId)
-                .withTimeout(30.seconds.inWholeSeconds.toInt())
-                .exec()
-            logger.info { "Stopped ZAC Docker container" }
+            // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
+            dockerComposeContainer.getContainerByServiceName(
+                ZAC_CONTAINER_SERVICE_NAME
+            ).getOrNull()?.let { zacContainer ->
+                logger.info { "Stopping ZAC Docker container" }
+                zacContainer.dockerClient
+                    .stopContainerCmd(zacContainer.containerId)
+                    .withTimeout(30.seconds.inWholeSeconds.toInt())
+                    .exec()
+                logger.info { "Stopped ZAC Docker container" }
+            }
+            // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
+            dockerComposeContainer.withOptions("--profile itest").stop()
+        } finally {
+            emptyEnvFile?.delete()
         }
-        // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
-        dockerComposeContainer.withOptions("--profile itest").stop()
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
+        // Create a temporary empty env file so Docker Compose does not load any local .env file,
+        // which could override variables required by the integration tests.
+        val envFile = Files.createTempFile("zac-itest", ".env").toFile()
+        emptyEnvFile = envFile
+
         return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
-                "--profile itest"
+                "--profile itest",
+                "--env-file ${envFile.absolutePath}"
             )
             .withLogConsumer(
                 "solr",
@@ -308,7 +331,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     private fun createBpmnProcessDefinitions() {
         arrayOf(
             BPMN_TEST_PROCESS_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH,
+            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
@@ -328,28 +352,38 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     }
 
     private fun createBpmnProcessTaskForms() {
-        arrayOf(
-            BPMN_TEST_FORM_RESOURCE_PATH,
-            BPMN_SUMMARY_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
-            BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
-        ).forEach {
-            itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/formio-formulieren",
-                requestBodyAsString = """
+        mapOf(
+            BPMN_TEST_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_TEST_FORM_RESOURCE_PATH,
+                BPMN_SUMMARY_FORM_RESOURCE_PATH
+            ),
+            BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_TEST_USER_MANAGEMENT_DEFAULT_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_HARDCODED_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH,
+                BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH
+            ),
+            BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH,
+                BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
+            ),
+        ).forEach { (processDefinitionKey, formResourcePaths) ->
+            formResourcePaths.forEach { formResourcePath ->
+                itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/bpmn-process-definitions/$processDefinitionKey/forms",
+                    requestBodyAsString = """
                     {
-                        "filename": "$it",
-                        "content": "${readResourceFile(it)}"
+                        "filename": "$formResourcePath",
+                        "content": "${readResourceFile(formResourcePath)}"
                     }
-                """.trimIndent(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE
-            ).let { response ->
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_CREATED
+                    """.trimIndent(),
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                ).let { response ->
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_CREATED
+                }
             }
         }
     }
@@ -436,6 +470,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             defaultBehandelaarId = BEHANDELAAR_1.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE,
             nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_3_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_3_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            defaultBehandelaarId = BEHANDELAAR_1.username,
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }

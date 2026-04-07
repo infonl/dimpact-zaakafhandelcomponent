@@ -24,9 +24,6 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -38,17 +35,19 @@ import net.atos.zac.flowable.task.TaakVariabelenService.isZaakHervatten
 import net.atos.zac.flowable.task.TaakVariabelenService.readSignatures
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
 import nl.info.zac.app.task.model.RestTask
@@ -68,6 +67,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -108,7 +108,7 @@ class TaskRestService @Inject constructor(
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
-    private val formulierRuntimeService: FormulierRuntimeService,
+    private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
 
     /**
@@ -140,11 +140,8 @@ class TaskRestService @Inject constructor(
             deleteSignaleringen(task)
             val restTask = restTaskConverter.convert(task)
             if (TaskUtil.isOpen(task)) {
-                restTask.formulierDefinitie?.let {
-                    formulierRuntimeService.renderFormulierDefinitie(restTask)
-                }
                 restTask.formioFormulier?.let {
-                    restTask.formioFormulier = formulierRuntimeService.renderFormioFormulier(restTask)
+                    restTask.formioFormulier = bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
                     addZaakdata(restTask)
                 }
             }
@@ -244,11 +241,9 @@ class TaskRestService @Inject constructor(
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
-        val updatedTask = if (restTask.formulierDefinitie != null || restTask.formioFormulier != null) {
-            formulierRuntimeService.submit(restTask, task, zaak)
-        } else {
-            processHardCodedFormTask(restTask, zaak)
-        }
+        val updatedTask = restTask.formioFormulier?.let {
+            bpmnTaskFormRuntimeService.submit(restTask, task, zaak)
+        } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
             indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
@@ -300,7 +295,7 @@ class TaskRestService @Inject constructor(
     fun uploadFile(
         @PathParam("field") field: String,
         @PathParam("uuid") uuid: UUID,
-        @MultipartForm data: RESTFileUpload
+        @MultipartForm data: RestFileUpload
     ): Response {
         httpSession.get().setAttribute("_FILE__${uuid}__$field", data)
         return Response.ok("\"Success\"").build()
@@ -343,7 +338,7 @@ class TaskRestService @Inject constructor(
                             )
                             val enkelvoudigInformatieObjectCreateLockRequest = restInformatieobjectConverter.convert(
                                 restTaskDocumentData,
-                                uploadedFile as RESTFileUpload
+                                uploadedFile as RestFileUpload
                             )
                             val zaakInformatieobject = zgwApiService.createZaakInformatieobjectForZaak(
                                 zaak,

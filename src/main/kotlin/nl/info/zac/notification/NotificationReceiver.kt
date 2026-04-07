@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.documenten.InboxDocumentenService
+import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -55,7 +55,7 @@ class NotificationReceiver @Inject constructor(
     private val eventingService: EventingService,
     private val productaanvraagService: ProductaanvraagService,
     private val indexingService: IndexingService,
-    private val inboxDocumentenService: InboxDocumentenService,
+    private val inboxDocumentService: InboxDocumentService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -274,10 +274,10 @@ class NotificationReceiver @Inject constructor(
         try {
             if (notification.action == Action.CREATE) {
                 when (notification.resource) {
-                    Resource.INFORMATIEOBJECT -> inboxDocumentenService.create(
+                    Resource.INFORMATIEOBJECT -> inboxDocumentService.create(
                         notification.resourceUrl.extractUuid()
                     )
-                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentenService.delete(
+                    Resource.ZAAKINFORMATIEOBJECT -> inboxDocumentService.deleteForZaakinformatieobject(
                         notification.resourceUrl.extractUuid()
                     )
                     else -> {}

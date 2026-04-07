@@ -6,13 +6,14 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDividerHarness } from "@angular/material/divider/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
+import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { MaterialModule } from "../material/material.module";
 import { ButtonMenuItem } from "./menu-item/button-menu-item";
 import { HrefMenuItem } from "./menu-item/href-menu-item";
 import { LinkMenuItem } from "./menu-item/link-menu-item";
@@ -32,11 +33,10 @@ describe(SideNavComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [SideNavComponent],
       imports: [
+        SideNavComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MaterialModule,
         RouterModule.forRoot([]),
       ],
     })
@@ -74,7 +74,7 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
 
-      const dividers = fixture.nativeElement.querySelectorAll("mat-divider");
+      const dividers = await loader.getAllHarnesses(MatDividerHarness);
       expect(dividers.length).toBe(1);
     });
 
@@ -165,7 +165,7 @@ describe(SideNavComponent.name, () => {
       expect(anchor.getAttribute("href")).toBe(downloadUrl);
     });
 
-    it("should render multiple menu items of different types", () => {
+    it("should render multiple menu items of different types", async () => {
       const menuItems: MenuItem[] = [
         {
           type: MenuItemType.HEADER,
@@ -181,14 +181,19 @@ describe(SideNavComponent.name, () => {
       fixture.detectChanges();
 
       const headers = fixture.nativeElement.querySelectorAll("h3");
-      const links = fixture.nativeElement.querySelectorAll("a[mat-list-item]");
-      const buttons = fixture.nativeElement.querySelectorAll(
-        "button[mat-list-item]",
+      const links = await loader.getAllHarnesses(MatNavListItemHarness);
+
+      const linkTexts = await Promise.all(links.map((item) => item.getText()));
+      const matchingLinks = linkTexts.filter(
+        (text) => text.includes("test.link") || text.includes("test.href"),
+      );
+      const matchingButtons = linkTexts.filter((text) =>
+        text.includes("test.button"),
       );
 
       expect(headers.length).toBe(1);
-      expect(links.length).toBe(2); // Link + Href
-      expect(buttons.length).toBe(1);
+      expect(matchingLinks.length).toBe(2); // Link + Href
+      expect(matchingButtons.length).toBe(1);
     });
   });
 
@@ -252,7 +257,9 @@ describe(SideNavComponent.name, () => {
       fixture.componentRef.setInput("menu", [headerItem]);
       fixture.detectChanges();
 
-      const headerIcons = fixture.nativeElement.querySelectorAll("h3 mat-icon");
+      const headerIcons = await loader.getAllHarnesses(
+        MatIconHarness.with({ selector: "h3 mat-icon" }),
+      );
       expect(headerIcons.length).toBe(1);
     });
 

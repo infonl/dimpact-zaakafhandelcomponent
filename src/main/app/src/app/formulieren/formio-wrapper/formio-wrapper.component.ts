@@ -19,25 +19,39 @@ import {
 } from "@angular/core";
 import {
   ExtendedComponentSchema,
+  FormioAppConfig,
+  FormioBaseComponent,
   FormioComponent,
   FormioHookOptions,
+  FormioModule,
 } from "@formio/angular";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
+import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 
 @Component({
   selector: "zac-formio-wrapper",
   templateUrl: "./formio-wrapper.component.html",
   styleUrl: "./formio-wrapper.component.less",
   encapsulation: ViewEncapsulation.ShadowDom,
-  standalone: false,
+  standalone: true,
+  imports: [FormioModule],
+  providers: [
+    {
+      provide: FormioAppConfig,
+      useValue: {
+        appUrl: window.location.origin,
+        apiUrl: window.location.origin,
+      },
+    },
+  ],
 })
 export class FormioWrapperComponent implements OnInit, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
-  @Output() formSubmit = new EventEmitter<object>();
-  @Output() formChange = new EventEmitter<{ data: unknown }>();
+  @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
+  @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
 
@@ -112,13 +126,29 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit(event: object) {
-    this.formSubmit.emit(event);
+    this.formSubmit.emit(event as FormioSubmitEvent);
     this.submissionDone.emit(true);
   }
 
   onChange(event: object) {
     // Filter out form.io change events that do not contain data
-    if ("data" in event && event.data) this.formChange.emit(event);
+    if ("data" in event && event.data)
+      this.formChange.emit(event as FormioChangeEvent);
+  }
+
+  onFormioReady(formioBaseComponent: FormioBaseComponent) {
+    const isDutch = navigator.language.toLowerCase().startsWith("nl") ?? false;
+    if (!formioBaseComponent.formio) {
+      console.error(
+        "Cannot load NL translations: formio instance is not available",
+      );
+      return;
+    }
+    formioBaseComponent.formio.addLanguage(
+      "nl",
+      FORMIO_NL_TRANSLATIONS,
+      isDutch,
+    );
   }
 
   onCustomEvent(event: FormioCustomEvent) {
@@ -134,6 +164,11 @@ export interface FormioCustomEvent {
   component: ExtendedComponentSchema;
   data: Record<string, string>;
   event?: Event;
+}
+
+export interface FormioSubmitEvent {
+  data: Record<string, string>;
+  state: string;
 }
 
 export interface FormioChangeEvent {

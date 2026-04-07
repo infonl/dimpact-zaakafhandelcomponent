@@ -169,7 +169,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: paths-filter
         with:
           # the field below incorrectly results in a schema validation. see: https://github.com/dorny/paths-filter/issues/225
@@ -178,13 +178,36 @@ jobs:
           filters: |
             changes-requiring-build:
               - '**'
+              - '!*.sh'
+              - '!.github/CODEOWNERS'
               - '!**/*.md'
               - '!**/*.pdf'
               - '!**/*.png'
               - '!charts/**'
               - '!docs/**'
-              - '!*.sh'
-              - '!.github/CODEOWNERS'
+              - '!src/e2e/**'
+
+  spotless-check:
+    runs-on: ubuntu-24.04
+    needs: [paths-filter]
+    if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+            java-version: ${{ env.JAVA_VERSION }}
+            distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+
+      - name: Spotless
+        run: ./gradlew spotlessCheck
 
   build:
     runs-on: ubuntu-24.04
@@ -219,10 +242,10 @@ jobs:
           cache: 'maven'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
       # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
@@ -236,21 +259,21 @@ jobs:
           fi
 
       - name: Cache Gradle build artefacts
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built frontend artefacts
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             src/main/app/dist/zaakafhandelcomponent
@@ -258,7 +281,7 @@ jobs:
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built ZAC JAR
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             target/zaakafhandelcomponent.jar
@@ -282,24 +305,24 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             build
           key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore built frontend artefacts
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             build
           key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore generated Java clients
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             src/generated
@@ -323,7 +346,7 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         if: ${{ github.event_name != 'merge_group' && !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -331,7 +354,7 @@ jobs:
 
       - name: Upload backend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
@@ -339,16 +362,14 @@ jobs:
 
       - name: Upload frontend unit test coverage report to Codecov
         if: ${{ github.event_name != 'merge_group' }}
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
           directory: ./src/main/app/coverage
 
   build-docker-image-and-run-itests:
-    needs: [build, paths-filter, validate-input, determine-version]
-    # Do not run in the merge queue and do not run if the paths-filter step defines it to skip
-    # but always run for the main branch
+    needs: [build, paths-filter, determine-version]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -364,7 +385,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: authenticate with docker hub
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -376,20 +397,20 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       - name: Restore built ZAC JAR
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             target/zaakafhandelcomponent.jar
           key: zac-jar-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Build Docker image
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -411,7 +432,7 @@ jobs:
             itest --info
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -440,7 +461,7 @@ jobs:
             itest --info
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -457,7 +478,7 @@ jobs:
       # JaCoCo requires our Java class files to be able to generate a report
       # so restore the Gradle build artefacts from the cache
       - name: Restore Gradle build artefacts
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             build
@@ -467,7 +488,7 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           flags: integrationtests
         env:
@@ -479,7 +500,7 @@ jobs:
 
       - name: Cache ZAC Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-        uses: actions/cache/save@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -495,14 +516,14 @@ jobs:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Docker Image
-        uses: actions/cache/restore@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: docker-image.tar
           key: docker-image-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
@@ -544,7 +565,7 @@ jobs:
           cat DEPENDENCIES.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Create or update GitHub release
-        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.NEXT_VERSION_TAG }}

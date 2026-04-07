@@ -5,7 +5,8 @@
 
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
-import { forkJoin, map } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { forkJoin, from, map } from "rxjs";
 import { ConfiguratieService } from "../configuratie/configuratie.service";
 import { BpmnService } from "./bpmn.service";
 import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
@@ -18,6 +19,7 @@ export class ZaakafhandelParametersResolver {
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
     private readonly bpmnService: BpmnService,
     private readonly configuratieService: ConfiguratieService,
+    private readonly queryClient: QueryClient,
   ) {}
 
   resolve(route: ActivatedRouteSnapshot) {
@@ -34,7 +36,11 @@ export class ZaakafhandelParametersResolver {
         this.zaakafhandelParametersService.readZaakafhandelparameters(uuid),
       bpmnProcessConfigurations:
         this.zaakafhandelParametersService.getZaaktypeBpmnConfiguration(),
-      bpmnProcessDefinitions: this.bpmnService.listProcessDefinitions(),
+      bpmnProcessDefinitions: from(
+        this.queryClient.fetchQuery(
+          this.bpmnService.listProcessDefinitionsQuery(false),
+        ),
+      ),
       featureFlagPabcIntegration:
         this.configuratieService.readFeatureFlagPabcIntegration(),
     }).pipe(

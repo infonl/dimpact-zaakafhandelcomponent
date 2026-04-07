@@ -7,16 +7,14 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../setupJest";
 import { IdentityService } from "../identity/identity.service";
-import { MaterialModule } from "../shared/material/material.module";
-import { PipesModule } from "../shared/pipes/pipes.module";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
 import { NotitieService } from "./notities.service";
@@ -26,32 +24,21 @@ const currentUser: GeneratedType<"RestLoggedInUser"> = {
   naam: "test",
 };
 
-const mockTranslateService = {
-  get(key: unknown) {
-    return of(key);
-  },
-  onTranslationChange: of({}),
-  onLangChange: of({}),
-  onFallbackLangChange: of({}),
-};
-
-describe("NotitiesComponent", () => {
+describe(NotitiesComponent.name, () => {
   let component: NotitiesComponent;
   let fixture: ComponentFixture<NotitiesComponent>;
+  let notitieService: NotitieService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NotitiesComponent],
       imports: [
-        TranslateModule,
-        MaterialModule,
-        PipesModule,
+        NotitiesComponent,
         NoopAnimationsModule,
+        TranslateModule.forRoot(),
       ],
       providers: [
-        IdentityService,
-        { provide: TranslateService, useValue: mockTranslateService },
         provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
@@ -62,21 +49,21 @@ describe("NotitiesComponent", () => {
       currentUser,
     );
 
-    const notitieService = TestBed.inject(NotitieService);
+    notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
     jest
       .spyOn(notitieService, "updateNotitie")
-      .mockImplementation((notitie) => {
-        return of(notitie);
-      });
+      .mockImplementation((notitie) => of(notitie));
+
     fixture = TestBed.createComponent(NotitiesComponent);
     component = fixture.componentInstance;
+    component.zaakUuid = "test-zaak-uuid";
     component.notitieRechten = { lezen: true, wijzigen: true };
     fixture.detectChanges();
   });
 
-  it("should create", () => {
-    expect(component).toBeTruthy();
+  it("should load notities on init", () => {
+    expect(notitieService.listNotities).toHaveBeenCalledWith("test-zaak-uuid");
   });
 
   it("should set new text and current username on notitie edit", () => {
@@ -85,9 +72,18 @@ describe("NotitiesComponent", () => {
       tekst: "some text",
       gebruikersnaamMedewerker: "some other user",
     };
-    const someOtherText = "some other text";
-    component.updateNotitie(notitie, someOtherText);
+    component["updateNotitie"](notitie, "some other text");
     expect(notitie.gebruikersnaamMedewerker).toEqual(currentUser.id);
-    expect(notitie.tekst).toEqual(someOtherText);
+    expect(notitie.tekst).toEqual("some other text");
+  });
+
+  it("should not call updateNotitie service when tekst is empty", () => {
+    const notitie: GeneratedType<"RestNote"> = {
+      zaakUUID: "some-uuid",
+      tekst: "some text",
+      gebruikersnaamMedewerker: "some user",
+    };
+    component["updateNotitie"](notitie, "");
+    expect(notitieService.updateNotitie).not.toHaveBeenCalled();
   });
 });

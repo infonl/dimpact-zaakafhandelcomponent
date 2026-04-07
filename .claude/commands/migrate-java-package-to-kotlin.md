@@ -18,11 +18,34 @@ Read every `.java` file in the source directory (including sub-directories). Not
 - Existing sub-packages (these map to sub-directories in the target)
 - Any test files in `src/test/java/` or `src/test/kotlin/` that import the old package
 
-## Step 2 — Create target directories
+## Step 2 — Inspect and add unit tests
+
+Check whether the converted classes have adequate unit test coverage:
+
+1. Look for existing tests in `src/test/java/` and `src/test/kotlin/` that cover the migrated package.
+2. For each converted class, verify there is at least one test class covering its public methods and key behaviours.
+3. If a class has no test coverage, or only a few trivial cases, write a new Kotlin test class in `src/test/kotlin/nl/info/<subpath>/` following the conventions of nearby test files.
+4. Common gaps to check:
+    - Service methods with branching logic (if/when, null paths)
+    - Exception-throwing paths
+    - Adapter/converter round-trip correctness
+    - Enum `fromValue` / companion factory methods
+
+Write idiomatic Kotlin tests (JUnit 5 + Mockk or the framework already used in the module). Do **not** add tests for trivial getters or delegating one-liners that provide no value.
+
+## Step 3 — Run tests
+
+```bash
+./gradlew test
+./gradlew itest
+```
+Fix any failing tests.
+
+## Step 4 — Create target directories
 
 Create the full target directory tree (mirroring all sub-directories found).
 
-## Step 3 — Rename commit (history anchor)
+## Step 5 — Rename commit (history anchor)
 
 For every `.java` file found, run `git mv <old-path> <new-path>` changing:
 - Path prefix: `src/main/java/net/atos/` → `src/main/kotlin/nl/info/`
@@ -35,11 +58,11 @@ chore: rename $ARGUMENTS Java files to .kt for Kotlin conversion
 
 At this point the `.kt` files still contain Java source — that is intentional and temporary.
 
-## Step 4 — Convert each file to Kotlin
+## Step 6 — Convert each file to Kotlin
 
 Edit every `.kt` file in the target directory. Apply these transformations:
 
-**a) SPDX header** — preserve existing holders/years and add the current year and `INFO.nl`, for example:
+**a) SPDX header** — preserve existing holders/years and, only if `INFO.nl` is not already mentioned in the SPDX header, add the current year and `INFO.nl`, for example:
 ```kotlin
 /*
  * SPDX-FileCopyrightText: <original holders/years>, <CURRENT_YEAR> INFO.nl
@@ -99,7 +122,24 @@ to this
 // Kotlin: someMethod(x = x, y = y, z = z)
 ```
 
-## Step 5 — Update all call sites
+**m) Add extension functions** — if the original Java class had static utility methods that operate on instances of a class, consider converting them to Kotlin extension functions for better discoverability and idiomatic usage. For example:
+```javapublic class NoteConverter {
+    public static NoteDto toDto(Note note) { ... }
+    public static Note fromDto(NoteDto dto) { ... }
+}
+```
+could be converted to:
+```kotlinobject NoteConverter {
+    fun Note.toDto(): NoteDto { ... }
+    fun NoteDto.fromDto(): Note { ... }
+}
+```
+This allows callers to use the conversion methods in a more natural way:
+```kotlinval noteDto = note.toDto()
+val note = noteDto.fromDto()
+```
+
+## Step 7 — Update all call sites
 
 Search for all files that still import the old package:
 ```bash
@@ -107,7 +147,7 @@ grep -r "import net\.atos\." src/ --include="*.java" --include="*.kt" -l
 ```
 Update imports in every found file (Java callers use the same `nl.info.*` import).
 
-## Step 6 — Verify and fix compilation
+## Step 8 — Verify and fix compilation
 
 Run:
 ```bash
@@ -115,14 +155,14 @@ Run:
 ```
 Fix any type errors (common: nullable/non-null mismatches, missing `@Suppress` annotations).
 
-## Step 7 — Format and lint
+## Step 9 — Format and lint
 
 ```bash
 ./gradlew spotlessApply detektApply
 ```
 Fix any remaining Detekt violations — the most common in API interfaces is `LongParameterList`, which should be suppressed with `@Suppress("LongParameterList")` since the parameter count is dictated by the external API contract.
 
-## Step 8 — Run tests
+## Step 10 — Run tests again
 
 ```bash
 ./gradlew test
@@ -130,7 +170,7 @@ Fix any remaining Detekt violations — the most common in API interfaces is `Lo
 ```
 Fix any failing tests.
 
-## Step 9 — Conversion commit
+## Step 11 — Conversion commit
 
 Stage all changes and commit:
 ```
@@ -140,7 +180,7 @@ Moves all classes from $ARGUMENTS to <target-package>
 and converts Java syntax to idiomatic Kotlin.
 ```
 
-## Step 10 — Verify git history
+## Step 12 — Verify git history
 
 ```bash
 git log --oneline --follow -- src/main/kotlin/nl/info/<path>/<MainClass>.kt

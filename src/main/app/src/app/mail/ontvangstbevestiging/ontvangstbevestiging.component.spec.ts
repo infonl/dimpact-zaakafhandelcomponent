@@ -21,9 +21,9 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -68,13 +68,13 @@ describe(OntvangstbevestigingComponent.name, () => {
     fromPartial<GeneratedType<"RestZaakAfzender">>({
       defaultMail: true,
       id: 1,
-      mail: "beheerder-test-1@team-dimpact.info.nl",
+      mail: "beheerder-test-1@example.com",
       speciaal: true,
       suffix: "gegevens.mail.afzender.MEDEWERKER",
     }),
     fromPartial<GeneratedType<"RestZaakAfzender">>({
       defaultMail: false,
-      mail: "gemeente-adorp-test@team-dimpact.info.nl",
+      mail: "gemeente-adorp-test@example.com",
       speciaal: true,
       suffix: "gegevens.mail.afzender.GEMEENTE",
     }),

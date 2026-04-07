@@ -19,8 +19,6 @@ import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -28,8 +26,8 @@ import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_DOCUMENTEN_VERZENDEN_POST
 import net.atos.zac.flowable.task.TaakVariabelenService.TAAK_DATA_VERZENDDATUM
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
-import net.atos.zac.formulieren.FormulierRuntimeService
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createOndertekening
 import nl.info.client.zgw.drc.model.generated.SoortEnum
@@ -39,6 +37,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -61,6 +60,7 @@ import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
+import nl.info.zac.task.BpmnTaskFormRuntimeService
 import nl.info.zac.task.TaskService
 import org.flowable.task.api.history.HistoricTaskInstance
 import java.net.URI
@@ -87,7 +87,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val taskService = mockk<TaskService>()
-    val formulierRuntimeService = mockk<FormulierRuntimeService>()
+    val bpmnTaskFormRuntimeService = mockk<BpmnTaskFormRuntimeService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val testDispatcher = StandardTestDispatcher()
     val taskRestService = TaskRestService(
@@ -108,7 +108,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taakHistorieConverter = taakHistorieConverter,
         zgwApiService = zgwApiService,
         taskService = taskService,
-        formulierRuntimeService = formulierRuntimeService,
+        bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
         dispatcher = testDispatcher
     )
@@ -501,7 +501,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { flowableTaskService.readTask(taskId) } returns taskInfo
             every { policyService.readTaakRechten(taskInfo).lezen } returns true
             every { restTaskConverter.convert(taskInfo) } returns restTask
-            every { formulierRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
+            every { bpmnTaskFormRuntimeService.renderFormioFormulier(restTask) } returns restTask.formioFormulier
             every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf(
                 "fakeKey" to "fakeValue"
             )
@@ -515,7 +515,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         signaleringService.deleteSignaleringen(any())
                     }
                     verify(exactly = 1) {
-                        formulierRuntimeService.renderFormioFormulier(restTask)
+                        bpmnTaskFormRuntimeService.renderFormioFormulier(restTask)
                     }
                 }
             }

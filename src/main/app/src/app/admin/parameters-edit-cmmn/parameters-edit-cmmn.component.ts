@@ -19,15 +19,31 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import {
+  MatCheckboxChange,
+  MatCheckboxModule,
+} from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSelectChange } from "@angular/material/select";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatRadioModule } from "@angular/material/radio";
+import { MatSelectChange, MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatStepperModule } from "@angular/material/stepper";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { forkJoin, Subject, Subscription, takeUntil } from "rxjs";
 import {
   ConfirmDialogComponent,
@@ -36,26 +52,67 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { getBeschikbareMailtemplateKoppelingen } from "../model/mail-utils";
 import {
-  ZaakProcessDefinition,
-  ZaakProcessSelect,
-} from "../model/parameters/zaak-process-definition-type";
+  ProcessModelMethod,
+  ProcessModelMethodSelection,
+} from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
+
+/**
+ * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
+ * are optional. This is needed because:
+ * - The "niet ontvankelijk" row has no zaakbeeindigReden (only a resultaattype)
+ * - Newly added redenen start without a resultaattype (user must pick one)
+ *
+ * In opslaan(), normal parameters are guaranteed to have both fields set by form validation
+ * before being pushed to the backend as GeneratedType<"RestZaakbeeindigParameter">.
+ */
+type RestPristineZaakbeeindigParameterFormData = Omit<
+  GeneratedType<"RestZaakbeeindigParameter">,
+  "zaakbeeindigReden" | "resultaattype"
+> & {
+  zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
+  resultaattype?: GeneratedType<"RestResultaattype"> | null;
+};
 
 @Component({
   selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameters-edit-cmmn.component.html",
   styleUrls: ["./parameters-edit-cmmn.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatStepperModule,
+    MatTableModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+    SharedModule,
+    SmartDocumentsFormComponent,
+  ],
 })
 export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   @Input({ required: false }) selectedIndexStart: number = 0;
-  @Output() switchProcessDefinition = new EventEmitter<ZaakProcessDefinition>();
+  @Output() switchModellingMethod =
+    new EventEmitter<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
   smartDocsFormGroup!: SmartDocumentsFormComponent;
@@ -99,8 +156,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   humanTaskParameters: GeneratedType<"RESTHumanTaskParameters">[] = [];
   userEventListenerParameters: GeneratedType<"RESTUserEventListenerParameter">[] =
     [];
-  zaakbeeindigParameters: GeneratedType<"RestZaakbeeindigParameter">[] = [];
-  selection = new SelectionModel<GeneratedType<"RestZaakbeeindigParameter">>(
+  zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] = [];
+  selection = new SelectionModel<RestPristineZaakbeeindigParameterFormData>(
     true,
   );
   zaakAfzenders: string[] = [];
@@ -109,9 +166,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   >();
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
-  protected readonly zaakProcessDefinitionOptions: Array<{
+  protected readonly modellingMethodOptions: Array<{
     label: string;
-    value: ZaakProcessSelect;
+    value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
     { label: "BPMN", value: "BPMN" },
@@ -119,8 +176,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected cmmnBpmnFormGroup = this.formBuilder.group({
     options: this.formBuilder.control<{
-      label: ZaakProcessSelect;
-      value: ZaakProcessSelect;
+      label: ProcessModelMethod;
+      value: ProcessModelMethod;
     }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
@@ -243,8 +300,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         ? this.parameters.afrondenMail
         : "BESCHIKBAAR_UIT";
       this.userEventListenerParameters =
-        this.parameters.userEventListenerParameters;
-      this.humanTaskParameters = this.parameters.humanTaskParameters;
+        this.parameters.userEventListenerParameters ?? [];
+      this.humanTaskParameters =
+        (this.parameters
+          .humanTaskParameters as GeneratedType<"RESTHumanTaskParameters">[]) ??
+        [];
 
       forkJoin([
         zaakafhandelParametersService.listFormulierDefinities(),
@@ -292,12 +352,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
     this.cmmnBpmnFormGroup.controls.options.valueChanges.subscribe((value) => {
       if (value?.value === "BPMN" && this.isDirty()) {
-        this.confirmProcessDefinitionSwitch();
+        this.confirmModellingMethodSwitch();
         return;
       }
-      this.switchProcessDefinition.emit({
-        type: value?.value || "SELECT-PROCESS-DEFINITION",
-      });
+      this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
   }
 
@@ -514,7 +572,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       { validators: this.afzenderValidator },
     );
     this.mailtemplateKoppelingen.forEach((beschikbareKoppeling) => {
-      const mailtemplate = this.parameters.mailtemplateKoppelingen.find(
+      const mailtemplate = this.parameters.mailtemplateKoppelingen!.find(
         (mailtemplateKoppeling) =>
           mailtemplateKoppeling.mailtemplate?.mail === beschikbareKoppeling,
       )?.mailtemplate;
@@ -579,19 +637,19 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private createBrpDoelbindingForm() {
     this.brpProtocoleringFormGroup = this.formBuilder.group({
       raadpleegWaarde: [
-        this.parameters.brpDoelbindingen.raadpleegWaarde ?? "",
+        this.parameters.brpDoelbindingen!.raadpleegWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       zoekWaarde: [
-        this.parameters.brpDoelbindingen.zoekWaarde ?? "",
+        this.parameters.brpDoelbindingen!.zoekWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
       ],
       verwerkingregisterWaarde: [
-        this.parameters.brpDoelbindingen.verwerkingregisterWaarde ?? "",
+        this.parameters.brpDoelbindingen!.verwerkingregisterWaarde ?? "",
         this.betrokkeneKoppelingen.controls.brpKoppelen.value
           ? [Validators.required]
           : [],
@@ -620,32 +678,34 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         "TAAK_ONTVANGSTBEVESTIGING",
       ).find(
         ({ mailTemplateNaam }) =>
-          mailTemplateNaam === automaticEmailConfirmation.templateName,
+          mailTemplateNaam === automaticEmailConfirmation!.templateName,
       ),
       emailSender: this.replyTos.find(
-        ({ mail }) => mail === automaticEmailConfirmation.emailSender,
+        ({ mail }) => mail === automaticEmailConfirmation!.emailSender,
       ),
       emailReply: this.replyTos.find(
-        ({ mail }) => mail === automaticEmailConfirmation.emailReply,
+        ({ mail }) => mail === automaticEmailConfirmation!.emailReply,
       ),
-      enabled: automaticEmailConfirmation.enabled ?? false,
+      enabled: automaticEmailConfirmation!.enabled ?? false,
     });
   }
 
   private createSmartDocumentsEnabledForm() {
     this.smartDocumentsEnabledForm = this.formBuilder.group({
       enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
-    });
+    }) as FormGroup<{
+      enabledForZaaktype: FormControl<boolean | null | undefined>;
+    }>;
   }
 
   protected isZaaknietontvankelijkParameter(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ) {
     return parameter.zaakbeeindigReden === undefined;
   }
 
   private addZaakbeeindigParameter(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     this.zaakbeeindigParameters.push(parameter);
     this.zaakbeeindigFormGroup.addControl(
@@ -658,7 +718,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private getZaaknietontvankelijkParameter(
     zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">,
   ) {
-    const parameter: GeneratedType<"RestZaakbeeindigParameter"> = {
+    const parameter: RestPristineZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,
     };
     this.selection.select(parameter);
@@ -668,8 +728,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private getZaakbeeindigParameter(
     reden: GeneratedType<"RestZaakbeeindigReden">,
   ) {
-    let parameter: GeneratedType<"RestZaakbeeindigParameter"> | null = null;
-    for (const item of this.parameters.zaakbeeindigParameters) {
+    let parameter: RestPristineZaakbeeindigParameterFormData | null = null;
+    for (const item of this.parameters.zaakbeeindigParameters ?? []) {
       if (this.compareObject(item.zaakbeeindigReden, reden)) {
         parameter = item;
         this.selection.select(parameter);
@@ -684,7 +744,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private updateZaakbeeindigForm(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ) {
     const control = this.getZaakbeeindigControl(parameter, "beeindigResultaat");
     if (this.selection.isSelected(parameter)) {
@@ -697,7 +757,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected changeSelection(
     $event: MatCheckboxChange,
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
   ): void {
     if ($event) {
       this.selection.toggle(parameter);
@@ -707,7 +767,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   private initZaakAfzenders() {
     let i = 0;
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders!) {
       (zaakAfzender as { index: number }).index = i++;
       this.addZaakAfzenderControl(zaakAfzender);
     }
@@ -716,8 +776,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private loadZaakAfzenders() {
-    this.zaakAfzendersDataSource.data = this.parameters.zaakAfzenders
-      .slice()
+    this.zaakAfzendersDataSource.data = this.parameters
+      .zaakAfzenders!.slice()
       .sort((a, b) => {
         return a.speciaal !== b.speciaal
           ? a.speciaal
@@ -736,13 +796,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         replyTo: undefined,
         index: 0,
       };
-    for (const bestaand of this.parameters.zaakAfzenders) {
+    for (const bestaand of this.parameters.zaakAfzenders!) {
       if (zaakAfzender.index <= (bestaand as { index: number }).index) {
         zaakAfzender.index = (bestaand as { index: number }).index + 1;
       }
     }
     this.addZaakAfzenderControl(zaakAfzender);
-    this.parameters.zaakAfzenders.push(zaakAfzender);
+    this.parameters.zaakAfzenders!.push(zaakAfzender);
     this.loadZaakAfzenders();
     this.removeAfzender(afzender);
     this.mailFormGroup.markAsTouched();
@@ -750,17 +810,17 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected updateZaakAfzenders(afzender: string): void {
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders!) {
       zaakAfzender.defaultMail = zaakAfzender.mail === afzender;
     }
     this.mailFormGroup.updateValueAndValidity({ emitEvent: false });
   }
 
   protected removeZaakAfzender(afzender: string): void {
-    for (let i = 0; i < this.parameters.zaakAfzenders.length; i++) {
-      const zaakAfzender = this.parameters.zaakAfzenders[i];
+    for (let i = 0; i < this.parameters.zaakAfzenders!.length; i++) {
+      const zaakAfzender = this.parameters.zaakAfzenders![i];
       if (zaakAfzender.mail === afzender) {
-        this.parameters.zaakAfzenders.splice(i, 1);
+        this.parameters.zaakAfzenders!.splice(i, 1);
       }
     }
     this.loadZaakAfzenders();
@@ -787,7 +847,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private initAfzenders() {
-    for (const zaakAfzender of this.parameters.zaakAfzenders) {
+    for (const zaakAfzender of this.parameters.zaakAfzenders!) {
       if (zaakAfzender.mail) {
         this.removeAfzender(zaakAfzender.mail);
       }
@@ -813,7 +873,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   protected getZaakbeeindigControl(
-    parameter: GeneratedType<"RestZaakbeeindigParameter">,
+    parameter: RestPristineZaakbeeindigParameterFormData,
     field: string,
   ) {
     return this.zaakbeeindigFormGroup.get(
@@ -869,7 +929,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         "doorlooptijd",
       ).value;
       const bestaandeHumanTaskParameter =
-        this.parameters.humanTaskParameters.find(
+        this.parameters.humanTaskParameters!.find(
           ({ planItemDefinition }) =>
             planItemDefinition?.id === param.planItemDefinition?.id,
         );
@@ -934,12 +994,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           param,
           "beeindigResultaat",
         )?.value;
-        this.parameters.zaakbeeindigParameters.push(param);
+        this.parameters.zaakbeeindigParameters!.push(
+          param as GeneratedType<"RestZaakbeeindigParameter">,
+        );
       }
     });
 
     const index: string[] = [];
-    for (const afzender of this.parameters.zaakAfzenders) {
+    for (const afzender of this.parameters.zaakAfzenders!) {
       if (afzender.mail) {
         index[(afzender as { index: number }).index] = afzender.mail;
       }
@@ -984,7 +1046,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
             "msg.zaakafhandelparameters.opgeslagen",
           );
           this.parameters = data;
-          for (const afzender of this.parameters.zaakAfzenders) {
+          for (const afzender of this.parameters.zaakAfzenders!) {
             for (let i = 0; i < index.length; i++) {
               if (index[i] === afzender.mail) {
                 (
@@ -1056,20 +1118,18 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       : replyTo.mail;
   }
 
-  confirmProcessDefinitionSwitch() {
+  confirmModellingMethodSwitch() {
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData({
-          key: "zaps.step.proces-definitie.bevestig-switch.msg",
+          key: "zaps.step.proces-model-methode.bevestig-switch.msg",
           args: { process: "CMMN" },
         }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.switchProcessDefinition.emit({
-            type: "BPMN",
-          });
+          this.switchModellingMethod.emit({ type: "BPMN" });
         } else {
           this.cmmnBpmnFormGroup.controls.options.patchValue(
             { value: "CMMN", label: "CMMN" },

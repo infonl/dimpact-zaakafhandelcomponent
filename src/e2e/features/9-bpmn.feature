@@ -46,7 +46,26 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started with group "Beheerders elk domein - new IAM" and user "Beheerder 1 New IAM"
+    Then "Bob" sees that the select documents to sign task is started with group "Beheerders elk domein - new IAM" and user "Beheerder 1 New IAM"
+
+  Scenario: Bob opens and fills in the sign documents form
+    Given "Bob" is logged in to zac
+    And Employee "Bob" is on the newly created zaak
+    When "Bob" opens the active task
+    Then "Bob" sees the select documents to sign form
+    When "Bob" selects document "file A" for signing
+    And "Bob" selects document "file B" for signing
+    And "Bob" submits the filled-in form
+
+  Scenario: Bob verifies the documents to sign and confirms signing
+    Given "Bob" is logged in to zac
+    And Employee "Bob" is on the newly created zaak
+    When "Bob" opens the active task
+    Then "Bob" sees 2 documents in the to be signed list
+    When "Bob" confirms the signing of the documents
+    When Employee "Bob" is on the newly created zaak
+    And "Bob" sees document "file A" has been signed
+    And "Bob" sees document "file B" has been signed
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac

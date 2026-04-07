@@ -14,8 +14,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import { of, ReplaySubject } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -77,11 +77,11 @@ describe(InformatieObjectViewComponent.name, () => {
     await TestBed.configureTestingModule({
       declarations: [
         InformatieObjectViewComponent,
-        SideNavComponent,
-        StaticTextComponent,
         InformatieObjectEditComponent,
       ],
       imports: [
+        SideNavComponent,
+        StaticTextComponent,
         MaterialModule,
         InformatieObjectIndicatiesComponent,
         TranslateModule.forRoot(),

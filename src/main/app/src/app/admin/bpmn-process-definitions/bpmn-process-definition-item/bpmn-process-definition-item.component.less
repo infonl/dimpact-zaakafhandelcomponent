@@ -1,0 +1,97 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.truncate() {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.process-definition-item {
+  padding: 10px 60px;
+  border-top: 1px solid #d8d8d8;
+
+  mat-card {
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-weight: 500;
+  }
+
+  table {
+    table-layout: fixed;
+  }
+
+  .explanation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0 16px;
+
+    button {
+      white-space: nowrap;
+    }
+
+    mat-icon {
+      flex-shrink: 0;
+      min-width: 24px;
+      width: 24px;
+    }
+  }
+
+  td.mat-column-index,
+  th.mat-column-index,
+  td.mat-column-uploaded,
+  th.mat-column-uploaded {
+    width: 36px;
+    padding-right: 8px;
+  }
+
+  td.mat-column-uploaded {
+    vertical-align: middle;
+
+    mat-icon {
+      vertical-align: middle;
+    }
+  }
+
+  th.mat-column-formKey,
+  td.mat-column-formKey {
+    width: 33%;
+
+    &:is(td) {
+      .truncate();
+
+      &.not-uploaded {
+        color: gray;
+      }
+    }
+  }
+
+  th.mat-column-title,
+  td.mat-column-title {
+    &:is(td) {
+      .truncate();
+
+      &.not-uploaded {
+        color: gray;
+      }
+    }
+  }
+
+  td.mat-column-actions,
+  th.mat-column-actions {
+    text-align: right;
+    padding: 0;
+    width: 48px;
+  }
+
+  mat-expansion-panel p {
+    text-align: initial;
+    font-size: initial;
+    font-style: normal;
+  }
+}

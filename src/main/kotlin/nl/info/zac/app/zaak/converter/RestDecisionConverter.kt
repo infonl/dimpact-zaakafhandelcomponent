@@ -5,15 +5,15 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.drc.DrcClientService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.zaak.model.RestDecision
 import nl.info.zac.app.zaak.model.RestDecisionCreateData
 import nl.info.zac.app.zaak.model.toRestDecisionType

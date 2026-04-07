@@ -6,7 +6,6 @@ package nl.info.zac.app.task.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.app.formulieren.converter.toRESTFormulierDefinitie
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskData
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskInformation
@@ -15,14 +14,13 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.formulieren.FormulierDefinitieService
 import net.atos.zac.util.time.DateTimeConverterUtil
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.RestTask
-import nl.info.zac.formio.FormioService
+import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.policy.PolicyService
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
@@ -35,8 +33,7 @@ class RestTaskConverter @Inject constructor(
     private val medewerkerConverter: RestUserConverter,
     private val policyService: PolicyService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val formulierDefinitieService: FormulierDefinitieService,
-    private val formioService: FormioService,
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
 ) {
     fun convert(tasks: List<TaskInfo>) = tasks.map(::convert)
 
@@ -101,13 +98,10 @@ class RestTaskConverter @Inject constructor(
                 taskInfo.taskDefinitionKey
             )
         } else {
-            formulierDefinitieService.findFormulierDefinitie(taskInfo.formKey).let {
-                if (it != null) {
-                    restTask.formulierDefinitie = it.toRESTFormulierDefinitie(true)
-                } else {
-                    restTask.formioFormulier = formioService.readFormioFormulier(taskInfo.formKey)
-                }
-            }
+            restTask.formioFormulier = bpmnProcessDefinitionTaskFormService.readForm(
+                taskInfo.processDefinitionId,
+                taskInfo.formKey
+            )
         }
         return restTask
     }

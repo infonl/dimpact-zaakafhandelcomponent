@@ -20,7 +20,7 @@ import jakarta.mail.Message
 import jakarta.mail.MessagingException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
-import net.atos.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.shared.ZgwApiService

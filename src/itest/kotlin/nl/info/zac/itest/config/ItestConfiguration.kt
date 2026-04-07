@@ -67,10 +67,14 @@ object ItestConfiguration {
     const val KVK_MOCK_BASE_URI = "http://kvk-wiremock:8080"
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
+    const val OBJECT_PRODUCTAANVRAAG_3_UUID = "5658d286-9a84-4cde-b9af-6771bd599a06"
+    const val OBJECT_PRODUCTAANVRAAG_4_UUID = "a3278b18-0562-48cd-ab9b-ee05f2d433bb"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
+    const val OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK = "testKenmerkAlternativeEmailAddress1"
+    const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testKenmerkAlternativeEmailAddress2"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
@@ -112,7 +116,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 40
+    const val ROLTYPE_COUNT = 42
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -133,7 +137,8 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
-        "Street # 38 & House # 10, Baghdad, Park Al-Sadoum, Hay Al-Nidhal 103, Irak"
+        "Street\u00A0#\u00A038\u00A0&\u00A0House\u00A0#\u00A010,\u00A0Baghdad," +
+            "\u00A0Park\u00A0Al-Sadoum,\u00A0Hay\u00A0Al-Nidhal\u00A0103,\u00A0Irak"
     const val TEST_PDF_FILE_NAME = "fäkeTestDocument.pdf"
     const val TEST_TXT_FILE_NAME = "tëstTextDocument.txt"
     const val TEST_TXT_CONVERTED_TO_PDF_FILE_NAME = "tëstTextDocument.pdf"
@@ -200,6 +205,16 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
+
+    const val ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION = "ZAAK-1973-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email"
+    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting-alternative-email"
+    const val ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL = "test-alternative-1@example.com"
+
+    const val ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION = "ZAAK-1974-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email-2"
+    const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-alternative-email-2"
+    const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL = "test-alternative-2@example.com"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
@@ -324,6 +339,14 @@ object ItestConfiguration {
         "4f9da4cd-a910-4f85-98ca-adb33e215f43"
     )
 
+    val ZAAKTYPE_BPMN_TEST_3_UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
+    const val ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE = "bpmn-test-zaaktype-3"
+    const val ZAAKTYPE_BPMN_TEST_3_DESCRIPTION = "BPMN test zaaktype 3"
+    const val ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE = "bpmn-test-3-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+        "c1d2e3f4-5678-9abc-def0-1234567890ab"
+    )
+
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
@@ -338,10 +361,15 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentsProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
+    const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
+    const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
+    const val BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME = "Summary of selected documents to sign"
+
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
-    const val BPMN_TEST_FORM_NAME = "Test form"
-    const val BPMN_SUMMARY_FORM_NAME = "Summary form"
 
     const val BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME = "Zaak defaults"
     const val BPMN_USER_MANAGEMENT_HARDCODED_TASK_NAME = "Hard coded"

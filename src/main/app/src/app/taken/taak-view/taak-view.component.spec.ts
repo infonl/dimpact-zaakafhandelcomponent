@@ -21,9 +21,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { fromPartial } from "@total-typescript/shoehorn";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -68,7 +68,6 @@ describe(TaakViewComponent.name, () => {
     },
     status: "TOEGEKEND",
     taakdata: {},
-    formulierDefinitie: undefined,
     formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
     tabellen: {},
     taakdocumenten: [],
@@ -101,13 +100,10 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        TaakViewComponent,
-        ZaakVerkortComponent,
+      declarations: [TaakViewComponent, ZaakVerkortComponent],
+      imports: [
         SideNavComponent,
         StaticTextComponent,
-      ],
-      imports: [
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
@@ -286,9 +282,9 @@ describe(TaakViewComponent.name, () => {
       "smartDocuments = %o",
       async ({ enabledGlobally, enabledForZaaktype, expectButtons }) => {
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledGlobally =
-          enabledGlobally;
+          enabledGlobally as boolean;
         zaak.zaaktype.zaakafhandelparameters!.smartDocuments.enabledForZaaktype =
-          enabledForZaaktype;
+          enabledForZaaktype as boolean;
 
         jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
 

@@ -34,7 +34,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
 })
 export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   @Input() infoObject?: GeneratedType<
-    | "RESTOntkoppeldDocument"
+    | "RestDetachedDocument"
     | "RestInboxDocument"
     | "RestEnkelvoudigInformatieobject"
   > | null = null;
@@ -108,7 +108,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       })
       .subscribe({
         next: (result) => {
-          this.cases.data = result.resultaten;
+          this.cases.data =
+            result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[];
           this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
@@ -125,7 +126,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       .linkDocumentToCase({
         documentUUID: this.getDocumentUUID(),
         bron: this.source,
-        nieuweZaakID: row.identificatie,
+        nieuweZaakID: row.identificatie ?? "",
       })
       .subscribe({
         next: () => {
@@ -148,12 +149,13 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
       });
   }
 
-  private getDocumentUUID() {
+  private getDocumentUUID(): string {
     if (!this.infoObject) return "";
-    if ("uuid" in this.infoObject) return this.infoObject.uuid;
-    if ("documentUUID" in this.infoObject) return this.infoObject.documentUUID;
+    if ("uuid" in this.infoObject) return this.infoObject.uuid ?? "";
+    if ("documentUUID" in this.infoObject)
+      return this.infoObject.documentUUID ?? "";
     if ("enkelvoudiginformatieobjectUUID" in this.infoObject)
-      return this.infoObject.enkelvoudiginformatieobjectUUID;
+      return this.infoObject.enkelvoudiginformatieobjectUUID ?? "";
     return "";
   }
 

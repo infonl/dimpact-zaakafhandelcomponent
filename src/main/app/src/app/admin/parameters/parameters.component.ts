@@ -3,15 +3,32 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { MatSelectChange } from "@angular/material/select";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSelectChange, MatSelectModule } from "@angular/material/select";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ClientMatcher } from "../../shared/dynamic-table/filter/clientMatcher";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -21,26 +38,47 @@ import { ZaakafhandelParametersListParameters } from "./zaakafhandel-parameters-
 @Component({
   templateUrl: "./parameters.component.html",
   styleUrls: ["./parameters.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    RouterLink,
+    TranslateModule,
+    MatSidenavModule,
+    MatCardModule,
+    MatTableModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatIconModule,
+    MatButtonModule,
+    SideNavComponent,
+    ToggleFilterComponent,
+    DateRangeFilterComponent,
+    ReadMoreComponent,
+    DatumPipe,
+    EmptyPipe,
+  ],
 })
 export class ParametersComponent
   extends AdminComponent
   implements OnInit, AfterViewInit
 {
-  @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
-  @ViewChild("parametersSort") parametersSort!: MatSort;
+  @ViewChild("sideNavContainer")
+  protected sideNavContainer!: MatSidenavContainer;
+  @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
+  @ViewChild("parametersSort") private parametersSort!: MatSort;
 
-  filterParameters!: ZaakafhandelParametersListParameters;
-  parameters = new MatTableDataSource<
+  protected filterParameters!: ZaakafhandelParametersListParameters;
+  protected parameters = new MatTableDataSource<
     GeneratedType<"RestZaakafhandelParameters">
   >();
-  loading = false;
+  protected loading = false;
 
   private storedParameterFilters = "parameterFilters";
 
-  zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
-  caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
+  protected zaaktypes: GeneratedType<"RestZaaktypeOverzicht">[] = [];
+  protected caseDefinitions: GeneratedType<"RESTCaseDefinition">[] = [];
 
   constructor(
     public readonly utilService: UtilService,
@@ -152,7 +190,7 @@ export class ParametersComponent
     };
   }
 
-  applyFilter(options?: {
+  protected applyFilter(options?: {
     event: ToggleSwitchOptions | MatSelectChange | string | number | undefined;
     filter?: keyof ZaakafhandelParametersListParameters;
   }) {
@@ -196,13 +234,14 @@ export class ParametersComponent
       });
   }
 
-  compareZaaktype = (
+  protected compareZaaktype = (
     zaaktype1?: GeneratedType<"RestZaaktype">,
     zaaktype2?: GeneratedType<"RestZaaktype">,
   ) => {
     return zaaktype1?.identificatie === zaaktype2?.identificatie;
   };
-  compareCaseDefinition = (
+
+  protected compareCaseDefinition = (
     caseDefinition1?: GeneratedType<"RESTCaseDefinition">,
     caseDefinition2?: GeneratedType<"RESTCaseDefinition">,
   ) => {

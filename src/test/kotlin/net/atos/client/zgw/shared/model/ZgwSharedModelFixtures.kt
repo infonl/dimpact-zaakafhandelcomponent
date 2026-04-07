@@ -15,7 +15,7 @@ fun createValidationZgwError(
     detail: String = "fakeDetail",
     instance: URI = URI("https://localhost:8080/validation-error-instance"),
     invalidParams: List<FieldValidationError> = listOf(createFieldValidationError())
-) = ValidationZgwError(
+) = ZgwValidationError(
     type,
     code,
     title,

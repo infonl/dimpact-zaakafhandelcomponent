@@ -9,32 +9,32 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
+import { ProcessModelMethodSelection } from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditBpmnComponent } from "./parameters-edit-bpmn.component";
 
 describe(ParametersEditBpmnComponent.name, () => {
   let fixture: ComponentFixture<ParametersEditBpmnComponent>;
+  let component: ParametersEditBpmnComponent;
   let zaakafhandelParametersService: ZaakafhandelParametersService;
   let referentieTabelService: ReferentieTabelService;
   let identityService: IdentityService;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
   let loader: HarnessLoader;
   let utilService: UtilService;
 
@@ -62,14 +62,18 @@ describe(ParametersEditBpmnComponent.name, () => {
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
-      inUse: true,
+      details: {
+        inUse: true,
+      },
     },
     {
       id: "RestBpmnProcessDefinition-2",
       key: "itProcessDefinition-2",
       name: "BPMN Process Definition - 2",
       version: 1,
-      inUse: true,
+      details: {
+        inUse: true,
+      },
     },
   ];
 
@@ -85,16 +89,11 @@ describe(ParametersEditBpmnComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        ParametersEditBpmnComponent,
-        SideNavComponent,
-        StaticTextComponent,
-      ],
       imports: [
+        ParametersEditBpmnComponent,
+        StaticTextComponent,
         TranslateModule.forRoot(),
         MaterialModule,
-        RouterModule,
-        PipesModule,
         MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
@@ -112,7 +111,7 @@ describe(ParametersEditBpmnComponent.name, () => {
                 isSavedZaakafhandelParameters: true,
               },
             }),
-          },
+          } satisfies Pick<ActivatedRoute, "data">,
         },
       ],
     }).compileComponents();
@@ -121,15 +120,6 @@ describe(ParametersEditBpmnComponent.name, () => {
       ZaakafhandelParametersService,
     );
     jest
-      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listReplyTos")
-      .mockReturnValue(of([]));
-    jest
       .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
       .mockReturnValue(of([]));
     jest
@@ -137,11 +127,6 @@ describe(ParametersEditBpmnComponent.name, () => {
       .mockReturnValue(of([]));
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listReferentieTabellen")
-      .mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listAfzenders").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listBrpViewValues")
       .mockReturnValue(of([]));
@@ -172,17 +157,13 @@ describe(ParametersEditBpmnComponent.name, () => {
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "compare").mockReturnValue(true);
 
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    jest
-      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-      .mockReturnValue(of([]));
-
     const configuratieService = TestBed.inject(ConfiguratieService);
     jest
       .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
       .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditBpmnComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -202,6 +183,53 @@ describe(ParametersEditBpmnComponent.name, () => {
 
       const value = await groupField.getValueText();
       expect(value).toBe("test-group");
+    });
+  });
+
+  describe("opslaan", () => {
+    it("should disable opslaan when the form is invalid", async () => {
+      expect(component["algemeenFormGroup"].controls.bpmnDefinition.value).toBe(
+        null,
+      );
+      expect(component["algemeenFormGroup"].invalid).toBe(true);
+
+      const opslaanButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.opslaan/ }),
+      );
+      expect(await opslaanButton.isDisabled()).toBe(true);
+    });
+  });
+
+  describe("switchModellingMethod", () => {
+    it("should emit CMMN when selected and form is not dirty", () => {
+      const emitted: ProcessModelMethodSelection[] = [];
+      fixture.componentInstance.switchModellingMethod.subscribe((v) =>
+        emitted.push(v),
+      );
+
+      component["cmmnBpmnFormGroup"].enable({ emitEvent: false });
+      component["cmmnBpmnFormGroup"].controls.options.setValue({
+        value: "CMMN",
+        label: "CMMN",
+      });
+
+      expect(emitted).toEqual([{ type: "CMMN" }]);
+    });
+
+    it("should open confirm dialog when CMMN selected while form is dirty", () => {
+      const dialog = fixture.debugElement.injector.get(MatDialog);
+      jest.spyOn(dialog, "open").mockReturnValue({
+        afterClosed: () => of(false),
+      } as ReturnType<MatDialog["open"]>);
+
+      component["cmmnBpmnFormGroup"].enable({ emitEvent: false });
+      component["algemeenFormGroup"].markAsDirty();
+      component["cmmnBpmnFormGroup"].controls.options.setValue({
+        value: "CMMN",
+        label: "CMMN",
+      });
+
+      expect(dialog.open).toHaveBeenCalled();
     });
   });
 });

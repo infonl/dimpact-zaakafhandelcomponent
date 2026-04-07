@@ -7,14 +7,15 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import fs from "fs";
 import { PDFParse } from "pdf-parse";
 import { z } from "zod";
+import {
+  FIFTEEN_SECONDS_IN_MS,
+  ONE_MINUTE_IN_MS,
+  TEN_SECONDS_IN_MS,
+  TWO_MINUTES_IN_MS,
+} from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
-
-const ONE_MINUTE_IN_MS = 60_000;
-const TWO_MINUTES_IN_MS = 120_000;
-const FIFTEEN_SECONDS_IN_MS = 15_000;
-const TEN_SECONDS_IN_MS = 10_000;
 
 const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
 const TEST_PERSON_HENDRIKA_JANSE_NAME = "Héndrika Janse";

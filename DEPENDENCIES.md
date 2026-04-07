@@ -4,27 +4,27 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Core Dependencies
 
-- **postgres**: 17.8
-- **keycloak**: 26.5.4
+- **postgres**: 17.9
+- **keycloak**: 26.5.7
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.14.0-static
-- **brp-api/personen-mock**: 2.7.0-202511050738
-- **kontextwork-converter**: 1.8.2
-- **otel/opentelemetry-collector-contrib**: 0.145.0
-- **grafana/tempo**: 2.10.1
-- **prom/prometheus**: v3.10.0
-- **grafana/grafana**: 12.4.0
+- **openpolicyagent/opa**: 1.15.1-static
+- **brp-api/personen-mock**: 2.7.0-202603230846
+- **kontextwork-converter**: 1.8.3
+- **otel/opentelemetry-collector-contrib**: 0.149.0
+- **grafana/tempo**: 2.10.3
+- **prom/prometheus**: v3.11.0
+- **grafana/grafana**: 12.4.2
 - **greenmail/standalone**: 2.1.8
-- **rabbitmq**: 4.2.4-alpine
+- **rabbitmq**: 4.2.5-alpine
 - **nginxinc/nginx-unprivileged**: 1.29.5
 
 ## Common Ground components
 
 - **open-zaak**: 1.26.0
 - **objects-api**: 3.3.1
-- **open-klant**: 2.13.0
+- **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
 - **pabc-migrations**: 1.0.0

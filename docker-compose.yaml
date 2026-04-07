@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
     ports:
       - "54326:5432"
     healthcheck:
@@ -20,7 +20,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.4@sha256:ae8efb0d218d8921334b03a2dbee7069a0b868240691c50a3ffc9f42fabba8b4
+    image: quay.io/keycloak/keycloak:26.5.7@sha256:45ae20191531eb608ddb0b775d012b40d3e4f942697f3214694887dd7c108d13
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -191,6 +191,8 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     ports:
       - "8010:8000"
     environment: &objects-env
@@ -235,6 +237,8 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
     command: sh init/init.sh
@@ -247,7 +251,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:fa9c8ca91e639b75f17307dcd88fafd4a567c3de51d1b0c7ee317e1c4c2a55d6
+    image: solr:9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
     ports:
       - "8983:8983"
     volumes:
@@ -262,13 +266,13 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.14.0-static@sha256:4b5c7816092b88b3e40656f63f48ccab3577e011dd5b67d2a3f8c0de9869f9d2
+    image: openpolicyagent/opa:1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
 
   brp-personen-wiremock:
-    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
     volumes:
       - ./scripts/docker-compose/imports/brp-personen-wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
@@ -279,7 +283,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202511050738@sha256:91cb8678ac8fb9bb1b872d8a95a17104c67b99bd54e44c39310a94af4410ce54
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202603230846@sha256:7bf8c2ea61cc39d363711b4b43537680a84f5ba9a795dabc1bd7d497072233ea
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -287,7 +291,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
     ports:
       - "54325:5432"
     healthcheck:
@@ -304,7 +308,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: maykinmedia/open-klant:2.13.0@sha256:8701150e979a20a9bd9a3d31ed8337253035950a2d8fac4dcc113f81b4deee6f
+    image: maykinmedia/open-klant:2.14.0@sha256:8ac6eafe5738fc2a27316abe7bc3532e5d41f955269a577d10e95c0d7be87a59
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
@@ -330,7 +334,7 @@ services:
         condition: service_started
 
   smartdocuments-wiremock:
-    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/smartdocuments-wiremock/mappings:/home/wiremock/mappings
@@ -341,7 +345,7 @@ services:
     profiles: [ "itest" ]
 
   kvk-wiremock:
-    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/kvk-wiremock/mappings:/home/wiremock/mappings
@@ -354,7 +358,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   bag-wiremock.local:
-    image: wiremock/wiremock:3.13.2@sha256:27c4b74404f58ceedc6899f73abdfe228d8f80d5efa4d8bd42d6c155558b677c
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
     volumes:
       # these WireMock mappings are used by the ZAC integration tests
       - ./scripts/docker-compose/imports/bag-wiremock/mappings:/home/wiremock/mappings
@@ -366,7 +370,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.14.0@sha256:62291ed15ab6525f67214519c7ac199d18c4385283b52f8d5f93e87b1d74bdac
+    image: openpolicyagent/opa:1.15.1@sha256:c3e940a236811f34a9bdf1b98e1a441db7f1ef81151a0bb4a9706467a11c8cd9
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -375,7 +379,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.2@sha256:b23ffd1ee842f824c92d64e3f46e798750337407177395413da102912da36f7f
+    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
@@ -383,7 +387,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.146.1@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c
+    image: otel/opentelemetry-collector-contrib:0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -399,7 +403,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.1@sha256:9371af1b75b4e057eb77f22dc4dd4d9176cd6985e29f181527be6723b7f29c41
+    image: grafana/tempo:2.10.3@sha256:cac9de2ac9f6da8efca5b64b690a7cb8c786a0c49cac7b4517dd1b0089a6c703
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -413,7 +417,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.10.0@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
+    image: prom/prometheus:v3.11.0@sha256:dda13e28bf95a5e5ca5b8ed56852006094c1c8e8871d9c9dbeed30aa6e55271f
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -426,7 +430,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:12.4.0@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20
+    image: grafana/grafana:12.4.2@sha256:83749231c3835e390a3144e5e940203e42b9589761f20ef3169c716e734ad505
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -463,7 +467,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.4-alpine@sha256:09fbd90e09ca0f12f0c4c40a069147412f7be25245cad774d9df5684b03a031e
+    image: rabbitmq:4.2.5-alpine@sha256:53e51f8469ef13d0a1a2b03c0d36dcf4efbf13089f552440ec5620ca07f2c64e
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -594,6 +598,8 @@ services:
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
       # We should be able to switch off 2FA with:
@@ -639,6 +645,8 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
@@ -652,6 +660,8 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
     healthcheck:
@@ -666,6 +676,8 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
     depends_on:
@@ -674,7 +686,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.29.5@sha256:79f2c2c26124360d69d12078d36f9bf129fffe6eabe146ed3689b523fdf39a17
+    image: nginxinc/nginx-unprivileged:1.29.5@sha256:bd68c793125e39123d1fdf3c0e9b7d4218667b9db049ed46b1b71aa4cb4493ef
     ports:
       - "8005:8080"
     volumes:
@@ -685,7 +697,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
     ports:
       - "54329:5432"
     environment:
@@ -739,7 +751,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.8@sha256:1eada89ec2521ae0f61125f6bdaf83bbbf88a43fecda48d112a83bb92df75c36
+    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
     ports:
       - "54320:5432"
     healthcheck:

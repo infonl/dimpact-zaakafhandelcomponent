@@ -7,7 +7,7 @@
              targetNamespace="http://flowable.org/test" exporter="Flowable Design" exporterVersion="2025.1.03"
              design:palette="flowable-work-process-palette">
     <process id="suspendResume" name="Suspend &amp; Resume" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
-        <documentation>BPMN Process sample definition for Suspend &amp; Resume functionality</documentation>
+        <documentation>Simple BPMN process definition for zaak suspend and resume functionality. Used in ZAC integration tests.</documentation>
         <extensionElements>
             <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
             <design:creationdate><![CDATA[2025-12-09T16:21:38.494Z]]></design:creationdate>

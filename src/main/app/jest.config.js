@@ -14,6 +14,9 @@ module.exports = {
   moduleNameMapper: {
     "^src/(.*)$": "<rootDir>/src/$1",
   },
+  transformIgnorePatterns: [
+    "node_modules/(?!(.*\\.mjs$|@angular/common/locales/.*\\.js$|ol/|rbush/|quickselect/|earcut/|quick-lru/|geotiff/))",
+  ],
   reporters: [
     "default",
     ["github-actions", { silent: false }],

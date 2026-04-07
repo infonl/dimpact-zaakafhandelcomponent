@@ -24,7 +24,7 @@ jobs:
         id: deleted_branches
         with:
           github_token: ${{ github.token }}
-          last_commit_age_days: 100
+          last_commit_age_days: 14
           dry_run: yes
           ignore_suffix: _keep_me
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Send slack message with branches that can be deleted
         if: steps.deleted_branches.outputs.deleted_branches != '[]'
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
         with:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -77,7 +77,7 @@ jobs:
                 "elements": [
                   {
                     "type": "mrkdwn",
-                    "text": "I will only alert for an unprotected branch that has been abandonded for over a 100 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it."
+                    "text": "I will only alert for an unprotected branch that has been abandoned for over a 14 days and without an open PR. If you want to keep a branch you might consider to add a `_keep_me` suffix to the branch name so I will ignore it."
                   }
                 ]
               },
