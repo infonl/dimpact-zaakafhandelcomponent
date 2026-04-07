@@ -13,9 +13,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.model.InboxDocumentListParameters
-import net.atos.zac.document.model.createInboxDocument
+import net.atos.zac.document.inboxdocument.InboxDocumentService
+import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters
+import net.atos.zac.document.inboxdocument.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

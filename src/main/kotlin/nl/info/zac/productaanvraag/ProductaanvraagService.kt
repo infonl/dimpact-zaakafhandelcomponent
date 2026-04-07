@@ -11,7 +11,7 @@ import jakarta.json.bind.JsonbConfig
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.inboxdocument.InboxDocumentService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService

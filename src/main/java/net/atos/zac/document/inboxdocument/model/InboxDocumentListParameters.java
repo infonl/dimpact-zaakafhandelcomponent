@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.document.model;
+package net.atos.zac.document.inboxdocument.model;
 
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.ListParameters;

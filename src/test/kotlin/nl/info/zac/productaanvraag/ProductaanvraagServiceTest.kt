@@ -18,7 +18,7 @@ import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.InboxDocumentService
+import net.atos.zac.document.inboxdocument.InboxDocumentService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag

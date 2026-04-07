@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.document;
+package net.atos.zac.document.inboxdocument;
 
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
@@ -26,8 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.document.model.InboxDocument;
-import net.atos.zac.document.model.InboxDocumentListParameters;
+import net.atos.zac.document.inboxdocument.model.InboxDocument;
+import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;

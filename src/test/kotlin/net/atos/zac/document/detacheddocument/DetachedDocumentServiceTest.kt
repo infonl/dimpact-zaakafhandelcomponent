@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.app.detacheddocuments
+package net.atos.zac.document.detacheddocument
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -19,9 +18,9 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
 import net.atos.zac.document.DetachedDocumentService
-import net.atos.zac.document.model.DetachedDocument
-import net.atos.zac.document.model.DetachedDocumentListParameters
-import net.atos.zac.document.model.createDetachedDocument
+import net.atos.zac.document.detacheddocument.model.DetachedDocument
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.authentication.LoggedInUser

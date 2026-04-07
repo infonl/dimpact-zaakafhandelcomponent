@@ -11,8 +11,8 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.zac.document.model.InboxDocument
-import net.atos.zac.document.model.createInboxDocument
+import net.atos.zac.document.inboxdocument.model.InboxDocument
+import net.atos.zac.document.inboxdocument.model.createInboxDocument
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocument
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
 import java.time.LocalDate

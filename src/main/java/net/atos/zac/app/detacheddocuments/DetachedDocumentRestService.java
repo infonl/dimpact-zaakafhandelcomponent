@@ -34,9 +34,9 @@ import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParamete
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult;
 import net.atos.zac.app.shared.RESTResultaat;
 import net.atos.zac.document.DetachedDocumentService;
-import net.atos.zac.document.model.DetachedDocument;
-import net.atos.zac.document.model.DetachedDocumentListParameters;
-import net.atos.zac.document.model.DetachedDocumentResult;
+import net.atos.zac.document.detacheddocument.model.DetachedDocument;
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;

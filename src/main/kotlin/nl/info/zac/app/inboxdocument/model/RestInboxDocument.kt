@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.inboxdocument.model
 
-import net.atos.zac.document.model.InboxDocument
+import net.atos.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate

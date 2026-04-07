@@ -27,9 +27,9 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.zac.document.model.DetachedDocument;
-import net.atos.zac.document.model.DetachedDocumentListParameters;
-import net.atos.zac.document.model.DetachedDocumentResult;
+import net.atos.zac.document.detacheddocument.model.DetachedDocument;
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;

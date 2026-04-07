@@ -2,8 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.document
+package net.atos.zac.document.inboxdocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -17,9 +16,9 @@ import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.model.InboxDocument
-import net.atos.zac.document.model.InboxDocumentListParameters
-import net.atos.zac.document.model.createInboxDocument
+import net.atos.zac.document.inboxdocument.model.InboxDocument
+import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters
+import net.atos.zac.document.inboxdocument.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates

@@ -5,7 +5,7 @@
 package nl.info.zac.app.inboxdocument.converter
 
 import net.atos.zac.app.shared.RESTListParametersConverter
-import net.atos.zac.document.model.InboxDocumentListParameters
+import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.util.AllOpen
