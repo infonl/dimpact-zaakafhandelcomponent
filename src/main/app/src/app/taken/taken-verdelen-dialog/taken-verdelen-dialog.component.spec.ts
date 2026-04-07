@@ -14,9 +14,10 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
@@ -87,23 +88,20 @@ async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
 
 describe(TakenVerdelenDialogComponent.name, () => {
   describe("with multiple taken", () => {
-    let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
     let component: TakenVerdelenDialogComponent;
     let loader: HarnessLoader;
     let httpTestingController: HttpTestingController;
     let dialogRef: MatDialogRef<TakenVerdelenDialogComponent>;
 
     beforeEach(async () => {
-      ({ fixture, component, loader, httpTestingController, dialogRef } =
-        await setup(makeDialogData([makeTaak("1"), makeTaak("2")])));
+      ({ component, loader, httpTestingController, dialogRef } = await setup(
+        makeDialogData([makeTaak("1"), makeTaak("2")]),
+      ));
     });
 
-    it("should show plural title with task count", () => {
-      const spans = fixture.nativeElement.querySelectorAll(
-        "span.flex-grow-1",
-      );
-      expect(spans.length).toBe(1);
-      expect((spans[0] as HTMLElement).textContent?.trim()).toContain(
+    it("should show plural title with task count", async () => {
+      const toolbar = await loader.getHarness(MatToolbarHarness);
+      expect(await (await toolbar.host()).text()).toContain(
         "msg.verdelen.taken",
       );
     });
@@ -166,20 +164,15 @@ describe(TakenVerdelenDialogComponent.name, () => {
   });
 
   describe("with single taak", () => {
-    let fixture: ComponentFixture<TakenVerdelenDialogComponent>;
+    let loader: HarnessLoader;
 
     beforeEach(async () => {
-      ({ fixture } = await setup(makeDialogData([makeTaak("1")])));
+      ({ loader } = await setup(makeDialogData([makeTaak("1")])));
     });
 
-    it("should show singular title", () => {
-      const spans = fixture.nativeElement.querySelectorAll(
-        "span.flex-grow-1",
-      );
-      expect(spans.length).toBe(1);
-      expect((spans[0] as HTMLElement).textContent?.trim()).toContain(
-        "msg.verdelen.taak",
-      );
+    it("should show singular title", async () => {
+      const toolbar = await loader.getHarness(MatToolbarHarness);
+      expect(await (await toolbar.host()).text()).toContain("msg.verdelen.taak");
     });
   });
 
