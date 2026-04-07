@@ -70,7 +70,7 @@ class InboxDocumentRestService @Inject constructor(
     fun deleteInboxDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val inboxDocument = inboxDocumentService.find(id)
-        if (inboxDocument.isEmpty()) {
+        if (inboxDocument.isEmpty) {
             return // reeds verwijderd
         }
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
