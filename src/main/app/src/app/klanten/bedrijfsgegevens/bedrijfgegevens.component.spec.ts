@@ -117,20 +117,27 @@ describe(BedrijfsgegevensComponent.name, () => {
         "zaak",
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
-          rechten: { toevoegenInitiatorBedrijf: true, verwijderenInitiator: false },
+          rechten: {
+            toevoegenInitiatorBedrijf: true,
+            verwijderenInitiator: false,
+          },
         }),
       );
       fixture.detectChanges();
 
       const button = await loader.getHarnessOrNull(
-        MatButtonHarness.with({ selector: '[title="actie.initiator.wijzigen"]' }),
+        MatButtonHarness.with({
+          selector: '[title="actie.initiator.wijzigen"]',
+        }),
       );
       expect(button).toBeTruthy();
     });
 
     it("should not show the edit button when toevoegenInitiatorBedrijf is false", async () => {
       const button = await loader.getHarnessOrNull(
-        MatButtonHarness.with({ selector: '[title="actie.initiator.wijzigen"]' }),
+        MatButtonHarness.with({
+          selector: '[title="actie.initiator.wijzigen"]',
+        }),
       );
       expect(button).toBeNull();
     });
@@ -140,7 +147,10 @@ describe(BedrijfsgegevensComponent.name, () => {
         "zaak",
         fromPartial<GeneratedType<"RestZaak">>({
           ...testZaak,
-          rechten: { toevoegenInitiatorBedrijf: false, verwijderenInitiator: true },
+          rechten: {
+            toevoegenInitiatorBedrijf: false,
+            verwijderenInitiator: true,
+          },
         }),
       );
       fixture.detectChanges();
@@ -179,7 +189,9 @@ describe(BedrijfsgegevensComponent.name, () => {
 
     it("should show the visit link", async () => {
       const link = await loader.getHarnessOrNull(
-        MatButtonHarness.with({ selector: 'a[title="actie.bedrijf.bekijken"]' }),
+        MatButtonHarness.with({
+          selector: 'a[title="actie.bedrijf.bekijken"]',
+        }),
       );
       expect(link).toBeTruthy();
     });
