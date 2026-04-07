@@ -30,7 +30,5 @@ class RestInboxDocumentListParametersConverter :
         }
     }
 
-    override fun getListParameters(): InboxDocumentListParameters {
-        return InboxDocumentListParameters()
-    }
+    override fun getListParameters() = InboxDocumentListParameters()
 }
