@@ -113,7 +113,7 @@ describe(PersoonsgegevensComponent.name, () => {
     expect(fixture.nativeElement.querySelector("mat-icon")).toBeTruthy();
   });
 
-  describe("zaakSpecificContactDetails prefails persoon contact info", () => {
+  describe("zaakSpecificContactDetails prevails over persoon contact info", () => {
     const personWithContactInfo: GeneratedType<"RestPersoon"> = {
       temporaryPersonId: randomUUID(),
       indicaties: [],
