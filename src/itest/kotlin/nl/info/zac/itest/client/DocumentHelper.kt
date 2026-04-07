@@ -103,7 +103,7 @@ class DocumentHelper(
         }
     }
 
-    private fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {
+    fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(
