@@ -76,11 +76,11 @@ describe("HumanTaskDoComponent", () => {
     fixture = TestBed.createComponent(HumanTaskDoComponent);
 
     component = fixture.componentInstance;
-    component.planItem = fromPartial({
+    component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
       type: "HUMAN_TASK",
       formulierDefinitie: "ADVIES",
     });
-    component.zaak = fromPartial({
+    component.zaak = fromPartial<GeneratedType<"RestZaak">>({
       zaaktype: {
         uuid: "test-zaaktype-uuid",
       },
@@ -101,6 +101,33 @@ describe("HumanTaskDoComponent", () => {
 
       const fields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(fields).toHaveLength(2); // `Group` and `User` inputs
+    });
+
+    it("should pre-select the group and load users when planItem.groepId matches a group", async () => {
+      const listUsersInGroupSpy = jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockReturnValue(of([]));
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+        groepId: "1",
+      });
+
+      await component.ngOnInit();
+
+      expect(listUsersInGroupSpy).toHaveBeenCalledWith("1");
+    });
+
+    it("should not pre-select a group when planItem.groepId is not set", async () => {
+      const listUsersInGroupSpy = jest.spyOn(identityService, "listUsersInGroup");
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+      });
+
+      await component.ngOnInit();
+
+      expect(listUsersInGroupSpy).not.toHaveBeenCalled();
     });
   });
 

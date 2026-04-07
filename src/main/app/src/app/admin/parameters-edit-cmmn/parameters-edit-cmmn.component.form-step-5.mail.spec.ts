@@ -149,6 +149,14 @@ describe("Mailgegevens form step", () => {
       ]),
     );
     jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          { id: "test-group-id", naam: "test-group" },
+          { id: "test-group-id-2", naam: "test-group-2" },
+        ]),
+      );
+    jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValueOnce(
         of([
@@ -172,8 +180,8 @@ describe("Mailgegevens form step", () => {
       .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
-    await fixture.whenStable();
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it("should be invalid when no default afzender is set", () => {

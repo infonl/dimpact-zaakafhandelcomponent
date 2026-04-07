@@ -157,6 +157,14 @@ describe("Acties form step", () => {
       ]),
     );
     jest
+      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+      .mockReturnValue(
+        of([
+          { id: "test-group-id", naam: "test-group" },
+          { id: "test-group-id-2", naam: "test-group-2" },
+        ]),
+      );
+    jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValueOnce(
         of([
@@ -180,8 +188,8 @@ describe("Acties form step", () => {
       .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
-    await fixture.whenStable();
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it("should create a toelichting control for each userEventListenerParameter", () => {

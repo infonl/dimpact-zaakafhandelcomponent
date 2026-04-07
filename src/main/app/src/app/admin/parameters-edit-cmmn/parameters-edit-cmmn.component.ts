@@ -287,7 +287,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       }
 
       this.parameters = data.parameters.zaakafhandelParameters;
-        console.log("LOADED")
       this.groepen = this.identityService.listBehandelaarGroupsForZaaktype(
         this.parameters.zaaktype.uuid ?? "",
       );
