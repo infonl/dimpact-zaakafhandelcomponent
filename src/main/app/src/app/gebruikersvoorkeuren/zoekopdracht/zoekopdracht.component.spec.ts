@@ -432,17 +432,17 @@ describe(ZoekopdrachtComponent.name, () => {
       expect(component["heeftActieveFilters"]()).toBe(false);
     });
 
-    it("returns true for OntkoppeldDocumentListParameters when zaakID is set", () => {
+    it("returns true for DetachedDocumentListParameters when zaakID is set", () => {
       component.zoekFilters = makeZoekFilters({
-        filtersType: "OntkoppeldDocumentListParameters",
+        filtersType: "DetachedDocumentListParameters",
         zaakID: "ZAAK-001",
       });
       expect(component["heeftActieveFilters"]()).toBe(true);
     });
 
-    it("returns false for OntkoppeldDocumentListParameters when no fields set", () => {
+    it("returns false for DetachedDocumentListParameters when no fields set", () => {
       component.zoekFilters = makeZoekFilters({
-        filtersType: "OntkoppeldDocumentListParameters",
+        filtersType: "DetachedDocumentListParameters",
       });
       expect(component["heeftActieveFilters"]()).toBe(false);
     });

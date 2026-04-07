@@ -19,7 +19,7 @@ class UserInputTest : BehaviorSpec({
 
             Then("no exception is thrown") {
                 input.user.id shouldBeEqual user.id
-                input.user.rollen!! shouldBeEqual user.roles
+                input.user.rollen shouldBeEqual user.roles
                 input.user.zaaktypen!! shouldBeEqual user.geautoriseerdeZaaktypen!!
             }
         }

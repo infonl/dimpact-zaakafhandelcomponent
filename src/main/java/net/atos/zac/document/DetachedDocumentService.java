@@ -27,9 +27,9 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
 import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.zac.document.model.OntkoppeldDocument;
-import net.atos.zac.document.model.OntkoppeldDocumentListParameters;
-import net.atos.zac.document.model.OntkoppeldeDocumentenResultaat;
+import net.atos.zac.document.model.DetachedDocument;
+import net.atos.zac.document.model.DetachedDocumentListParameters;
+import net.atos.zac.document.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.authentication.LoggedInUser;
@@ -38,7 +38,7 @@ import nl.info.zac.shared.model.SorteerRichting;
 
 @ApplicationScoped
 @Transactional
-public class OntkoppeldeDocumentenService {
+public class DetachedDocumentService {
 
     private static final String LIKE = "%%%s%%";
 
@@ -46,12 +46,12 @@ public class OntkoppeldeDocumentenService {
     private Instance<LoggedInUser> loggedInUserInstance;
 
     @SuppressWarnings("unused")
-    public OntkoppeldeDocumentenService() {
+    public DetachedDocumentService() {
         // Default constructor for CDI
     }
 
     @Inject
-    public OntkoppeldeDocumentenService(
+    public DetachedDocumentService(
             final EntityManager entityManager,
             final Instance<LoggedInUser> loggedInUserInstance
     ) {
@@ -60,48 +60,63 @@ public class OntkoppeldeDocumentenService {
     }
 
 
-    public OntkoppeldDocument create(
+    public DetachedDocument create(
             final EnkelvoudigInformatieObject informatieobject,
             final Zaak zaak,
             final String reden
     ) {
-        final OntkoppeldDocument ontkoppeldDocument = new OntkoppeldDocument();
-        ontkoppeldDocument.setDocumentID(informatieobject.getIdentificatie());
-        ontkoppeldDocument.setDocumentUUID(extractUuid(informatieobject.getUrl()));
-        ontkoppeldDocument.setCreatiedatum(informatieobject.getCreatiedatum());
-        ontkoppeldDocument.setTitel(informatieobject.getTitel());
-        ontkoppeldDocument.setBestandsnaam(informatieobject.getBestandsnaam());
-        ontkoppeldDocument.setOntkoppeldOp(ZonedDateTime.now());
-        ontkoppeldDocument.setOntkoppeldDoor(loggedInUserInstance.get().getId());
-        ontkoppeldDocument.setZaakID(zaak.getIdentificatie());
-        ontkoppeldDocument.setReden(reden);
-        valideerObject(ontkoppeldDocument);
-        entityManager.persist(ontkoppeldDocument);
-        return ontkoppeldDocument;
+        final DetachedDocument detachedDocument = new DetachedDocument();
+        detachedDocument.setDocumentID(informatieobject.getIdentificatie());
+        detachedDocument.setDocumentUUID(extractUuid(informatieobject.getUrl()));
+        detachedDocument.setCreatiedatum(informatieobject.getCreatiedatum());
+        detachedDocument.setTitel(informatieobject.getTitel());
+        detachedDocument.setBestandsnaam(informatieobject.getBestandsnaam());
+        detachedDocument.setOntkoppeldOp(ZonedDateTime.now());
+        detachedDocument.setOntkoppeldDoor(loggedInUserInstance.get().getId());
+        detachedDocument.setZaakID(zaak.getIdentificatie());
+        detachedDocument.setReden(reden);
+        valideerObject(detachedDocument);
+        entityManager.persist(detachedDocument);
+        return detachedDocument;
     }
 
-    public OntkoppeldeDocumentenResultaat getResultaat(final OntkoppeldDocumentListParameters listParameters) {
-        return new OntkoppeldeDocumentenResultaat(list(listParameters), count(listParameters),
-                getOntkoppeldDoor(listParameters));
+    public DetachedDocumentResult getResultaat(final DetachedDocumentListParameters listParameters) {
+        return new DetachedDocumentResult(
+                list(listParameters),
+                count(listParameters),
+                getOntkoppeldDoor(listParameters)
+        );
     }
 
-    public OntkoppeldDocument read(final UUID enkelvoudiginformatieobjectUUID) {
+    /**
+     * Returns the detach document for the provided enkelvoudiginformatieobject UUID, if it exists,
+     * or null otherwise.
+     *
+     * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
+     * @return the detached document, or null if no detached document exists for the enkelvoudiginformatieobject UUID
+     */
+    public DetachedDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<OntkoppeldDocument> query = builder.createQuery(OntkoppeldDocument.class);
-        final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
+        final CriteriaQuery<DetachedDocument> query = builder.createQuery(DetachedDocument.class);
+        final Root<DetachedDocument> root = query.from(DetachedDocument.class);
         query.select(root).where(builder.equal(root.get("documentUUID"), enkelvoudiginformatieobjectUUID));
-        return entityManager.createQuery(query).getSingleResult();
+        final List<DetachedDocument> resultList = entityManager.createQuery(query).getResultList();
+        if (!resultList.isEmpty()) {
+            return resultList.getFirst();
+        } else {
+            return null;
+        }
     }
 
-    public Optional<OntkoppeldDocument> find(final long id) {
-        final var ontkoppeldDocument = entityManager.find(OntkoppeldDocument.class, id);
-        return ontkoppeldDocument != null ? Optional.of(ontkoppeldDocument) : Optional.empty();
+    public Optional<DetachedDocument> find(final long id) {
+        final var detachedDocument = entityManager.find(DetachedDocument.class, id);
+        return detachedDocument != null ? Optional.of(detachedDocument) : Optional.empty();
     }
 
-    private int count(final OntkoppeldDocumentListParameters listParameters) {
+    private int count(final DetachedDocumentListParameters listParameters) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> query = builder.createQuery(Long.class);
-        final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
+        final Root<DetachedDocument> root = query.from(DetachedDocument.class);
         query.select(builder.count(root));
         query.where(getWhere(listParameters, root));
         final Long result = entityManager.createQuery(query).getSingleResult();
@@ -111,10 +126,10 @@ public class OntkoppeldeDocumentenService {
         return result.intValue();
     }
 
-    private List<OntkoppeldDocument> list(final OntkoppeldDocumentListParameters listParameters) {
+    private List<DetachedDocument> list(final DetachedDocumentListParameters listParameters) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<OntkoppeldDocument> query = builder.createQuery(OntkoppeldDocument.class);
-        final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
+        final CriteriaQuery<DetachedDocument> query = builder.createQuery(DetachedDocument.class);
+        final Root<DetachedDocument> root = query.from(DetachedDocument.class);
         if (listParameters.getSorting() != null) {
             if (listParameters.getSorting().getDirection() == SorteerRichting.ASCENDING) {
                 query.orderBy(builder.asc(root.get(listParameters.getSorting().getField())));
@@ -123,7 +138,7 @@ public class OntkoppeldeDocumentenService {
             }
         }
         query.where(getWhere(listParameters, root));
-        final TypedQuery<OntkoppeldDocument> emQuery = entityManager.createQuery(query);
+        final TypedQuery<DetachedDocument> emQuery = entityManager.createQuery(query);
         if (listParameters.getPaging() != null) {
             emQuery.setFirstResult(listParameters.getPaging().getFirstResult());
             emQuery.setMaxResults(listParameters.getPaging().getMaxResults());
@@ -131,52 +146,52 @@ public class OntkoppeldeDocumentenService {
         return emQuery.getResultList();
     }
 
-    private List<String> getOntkoppeldDoor(final OntkoppeldDocumentListParameters listParameters) {
+    private List<String> getOntkoppeldDoor(final DetachedDocumentListParameters listParameters) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<String> query = builder.createQuery(String.class);
-        final Root<OntkoppeldDocument> root = query.from(OntkoppeldDocument.class);
-        query.select(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR_PROPERTY_NAME)).distinct(true);
+        final Root<DetachedDocument> root = query.from(DetachedDocument.class);
+        query.select(root.get(DetachedDocument.ONTKOPPELD_DOOR_PROPERTY_NAME)).distinct(true);
         query.where(getWhere(listParameters, root));
         return entityManager.createQuery(query).getResultList();
     }
 
     public void delete(final Long id) {
-        find(id).ifPresent(ontkoppeldDocument -> entityManager.remove(ontkoppeldDocument));
+        find(id).ifPresent(detachedDocument -> entityManager.remove(detachedDocument));
     }
 
     public void delete(final UUID uuid) {
-        final OntkoppeldDocument ontkoppeldDocument = read(uuid);
-        if (ontkoppeldDocument != null) {
-            entityManager.remove(ontkoppeldDocument);
+        final DetachedDocument detachedDocument = read(uuid);
+        if (detachedDocument != null) {
+            entityManager.remove(detachedDocument);
         }
     }
 
     private Predicate getWhere(
-            final OntkoppeldDocumentListParameters listParameters,
-            final Root<OntkoppeldDocument> root
+            final DetachedDocumentListParameters listParameters,
+            final Root<DetachedDocument> root
     ) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.isNotBlank(listParameters.getZaakID())) {
             predicates.add(
-                    builder.like(root.get(OntkoppeldDocument.ZAAK_ID_PROPERTY_NAME), LIKE.formatted(listParameters.getZaakID())));
+                    builder.like(root.get(DetachedDocument.ZAAK_ID_PROPERTY_NAME), LIKE.formatted(listParameters.getZaakID())));
         }
         if (StringUtils.isNotBlank(listParameters.getTitel())) {
             String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.TITEL_PROPERTY_NAME)), titel));
+            predicates.add(builder.like(builder.lower(root.get(DetachedDocument.TITEL_PROPERTY_NAME)), titel));
         }
         if (StringUtils.isNotBlank(listParameters.getReden())) {
             String reden = LIKE.formatted(listParameters.getReden().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(OntkoppeldDocument.REDEN_PROPERTY_NAME)), reden));
+            predicates.add(builder.like(builder.lower(root.get(DetachedDocument.REDEN_PROPERTY_NAME)), reden));
         }
 
         if (StringUtils.isNotBlank(listParameters.getOntkoppeldDoor())) {
             predicates.add(
-                    builder.equal(root.get(OntkoppeldDocument.ONTKOPPELD_DOOR_PROPERTY_NAME), listParameters.getOntkoppeldDoor()));
+                    builder.equal(root.get(DetachedDocument.ONTKOPPELD_DOOR_PROPERTY_NAME), listParameters.getOntkoppeldDoor()));
         }
-        addDatumRangePredicates(listParameters.getCreatiedatum(), OntkoppeldDocument.CREATIEDATUM_PROPERTY_NAME, predicates, root,
+        addDatumRangePredicates(listParameters.getCreatiedatum(), DetachedDocument.CREATIEDATUM_PROPERTY_NAME, predicates, root,
                 builder);
-        addDatumRangePredicates(listParameters.getOntkoppeldOp(), OntkoppeldDocument.ONTKOPPELD_OP_PROPERTY_NAME, predicates, root,
+        addDatumRangePredicates(listParameters.getOntkoppeldOp(), DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME, predicates, root,
                 builder);
 
         return builder.and(predicates.toArray(new Predicate[0]));
@@ -187,7 +202,7 @@ public class OntkoppeldeDocumentenService {
             final DatumRange datumRange,
             final String veld,
             final List<Predicate> predicates,
-            final Root<OntkoppeldDocument> root,
+            final Root<DetachedDocument> root,
             final CriteriaBuilder builder
     ) {
         if (datumRange != null) {

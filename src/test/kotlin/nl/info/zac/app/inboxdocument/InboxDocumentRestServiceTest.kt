@@ -15,13 +15,13 @@ import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.document.model.InboxDocumentListParameters
+import net.atos.zac.document.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
-import nl.info.zac.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten

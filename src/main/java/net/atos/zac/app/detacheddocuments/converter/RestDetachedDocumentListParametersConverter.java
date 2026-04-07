@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten.converter;
+package net.atos.zac.app.detacheddocuments.converter;
 
-import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocumentListParameters;
+import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
-import net.atos.zac.document.model.OntkoppeldDocumentListParameters;
+import net.atos.zac.document.model.DetachedDocumentListParameters;
 import nl.info.zac.search.model.DatumRange;
 
-public class RESTOntkoppeldDocumentListParametersConverter extends
-                                                           RESTListParametersConverter<OntkoppeldDocumentListParameters, RESTOntkoppeldDocumentListParameters> {
+public class RestDetachedDocumentListParametersConverter extends
+                                                         RESTListParametersConverter<DetachedDocumentListParameters, RestDetachedDocumentListParameters> {
 
     @Override
     protected void doConvert(
-            final OntkoppeldDocumentListParameters listParameters,
-            final RESTOntkoppeldDocumentListParameters restListParameters
+            final DetachedDocumentListParameters listParameters,
+            final RestDetachedDocumentListParameters restListParameters
     ) {
         listParameters.setReden(restListParameters.reden);
         listParameters.setTitel(restListParameters.titel);
@@ -39,7 +39,7 @@ public class RESTOntkoppeldDocumentListParametersConverter extends
     }
 
     @Override
-    protected OntkoppeldDocumentListParameters getListParameters() {
-        return new OntkoppeldDocumentListParameters();
+    protected DetachedDocumentListParameters getListParameters() {
+        return new DetachedDocumentListParameters();
     }
 }

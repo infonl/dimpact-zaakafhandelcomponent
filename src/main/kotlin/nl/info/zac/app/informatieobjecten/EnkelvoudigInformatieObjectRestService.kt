@@ -22,8 +22,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
@@ -41,6 +41,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
@@ -80,7 +81,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val zgwApiService: ZgwApiService,
-    private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val inboxDocumentService: InboxDocumentService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
@@ -211,30 +212,36 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @POST
     @Path("informatieobject/verplaats")
     fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RestDocumentVerplaatsGegevens) {
-        val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID!!
+        val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         )
-        val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID!!)
+        val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID)
         assertPolicy(
             policyService.readDocumentRechten(informatieobject, targetZaak).verplaatsen &&
                 policyService.readZaakRechten(targetZaak, loggedInUserInstance.get()).wijzigen
         )
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
-            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> ontkoppeldeDocumentenService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
-                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                ontkoppeldeDocumentenService.delete(it.id)
+            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
+                val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
+                if (detachedDocument != null) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
+                    detachedDocumentService.delete(detachedDocument.id)
+                } else {
+                    throw DetachedDocumentNotFoundException(
+                        "Detached document with enkelvoudiginformatieobject UUID '$enkelvoudigInformatieobjectUUID' not found"
+                    )
+                }
             }
-            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
+            documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
+                val inboxDocument = inboxDocumentService.read(
+                    enkelvoudigInformatieobjectUUID
+                )
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocumentService.delete(it.id)
+                inboxDocumentService.delete(inboxDocument.id)
             }
-            else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron!!).let {
+            else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
             }
         }
@@ -306,8 +313,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 reason = documentVerwijderenGegevens.reden
             )
         } else {
-            // In geval van een ontkoppeld document
-            ontkoppeldeDocumentenService.delete(uuid)
+            // not a document that that was linked to a zaak
+            // delete a detached document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
+            detachedDocumentService.delete(uuid)
+            // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
+            inboxDocumentService.delete(uuid)
         }
     }
 

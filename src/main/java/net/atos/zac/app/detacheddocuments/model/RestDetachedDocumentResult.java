@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.ontkoppeldedocumenten.model;
+package net.atos.zac.app.detacheddocuments.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,11 +12,11 @@ import java.util.List;
 import net.atos.zac.app.shared.RESTResultaat;
 import nl.info.zac.app.identity.model.RestUser;
 
-public class RESTOntkoppeldDocumentResultaat extends RESTResultaat<RESTOntkoppeldDocument> {
+public class RestDetachedDocumentResult extends RESTResultaat<RestDetachedDocument> {
 
     public List<RestUser> filterOntkoppeldDoor = new ArrayList<>();
 
-    public RESTOntkoppeldDocumentResultaat(final Collection<RESTOntkoppeldDocument> resultaten, final long aantalTotaal) {
+    public RestDetachedDocumentResult(final Collection<RestDetachedDocument> resultaten, final long aantalTotaal) {
         super(resultaten, aantalTotaal);
     }
 }

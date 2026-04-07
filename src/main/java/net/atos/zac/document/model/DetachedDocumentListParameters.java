@@ -9,7 +9,7 @@ import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.ListParameters;
 
 
-public class OntkoppeldDocumentListParameters extends ListParameters {
+public class DetachedDocumentListParameters extends ListParameters {
 
     private String titel;
 
@@ -23,7 +23,7 @@ public class OntkoppeldDocumentListParameters extends ListParameters {
 
     private String reden;
 
-    public OntkoppeldDocumentListParameters() {
+    public DetachedDocumentListParameters() {
         super();
     }
 

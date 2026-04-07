@@ -55,11 +55,43 @@ class InboxDocumentRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
         val inboxDocuments = inboxDocumentService.list(listParameters)
-        val informationObjectTypeUUIDs = inboxDocuments.stream().map(::getInformatieobjectTypeUUID).toList()
+        // the list of informatie object type UUIDs has the same length as the inbox documents, and can contain null\
+        // values if the enkelvoudiginformatieobject for a specific inbox document could not be found
+        val informatieobjectTypeUUIDs = inboxDocuments.map(::getInformatieobjectTypeUUID).toList()
+        val restInboxDocuments = inboxDocuments.toRestInboxDocuments(informatieobjectTypeUUIDs)
         return RESTResultaat<RestInboxDocument>(
-            inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
+            restInboxDocuments,
             inboxDocumentService.count(listParameters).toLong()
         )
+    }
+
+    @DELETE
+    @Path("{id}")
+    fun deleteInboxDocument(@PathParam("id") id: Long) {
+        assertPolicy(policyService.readWerklijstRechten().inbox)
+        val inboxDocument = inboxDocumentService.find(id)
+        if (inboxDocument.isEmpty()) {
+            return // reeds verwijderd
+        }
+        val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+            inboxDocument.get().enkelvoudiginformatieobjectUUID
+        )
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+            enkelvoudigInformatieobject
+        )
+        if (!zaakInformatieobjecten.isEmpty()) {
+            val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
+            LOG.log(Level.WARNING) {
+                "Deleted InboxDocument but not the informatieobject. " +
+                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
+                    "to zaak '$zaakUuid'."
+            }
+        } else {
+            drcClientService.deleteEnkelvoudigInformatieobject(
+                inboxDocument.get().enkelvoudiginformatieobjectUUID
+            )
+        }
+        inboxDocumentService.delete(id)
     }
 
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
@@ -76,34 +108,5 @@ class InboxDocumentRestService @Inject constructor(
             }
         }
         return null
-    }
-
-    @DELETE
-    @Path("{id}")
-    fun deleteInboxDocument(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
-        val inboxDocument = inboxDocumentService.find(id)
-        if (inboxDocument.isEmpty()) {
-            return // reeds verwijderd
-        }
-        val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
-        )
-        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
-        if (!zaakInformatieobjecten.isEmpty()) {
-            val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
-            LOG.log(Level.WARNING) {
-                "Deleted InboxDocument but not the informatieobject. " +
-                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
-                    "to zaak '$zaakUuid'."
-            }
-        } else {
-            drcClientService.deleteEnkelvoudigInformatieobject(
-                inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
-            )
-        }
-        inboxDocumentService.delete(id)
     }
 }

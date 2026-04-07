@@ -9,11 +9,11 @@ import java.util.List;
 
 import nl.info.zac.shared.model.Resultaat;
 
-public class OntkoppeldeDocumentenResultaat extends Resultaat<OntkoppeldDocument> {
+public class DetachedDocumentResult extends Resultaat<DetachedDocument> {
 
     private final List<String> ontkoppeldDoorFilter;
 
-    public OntkoppeldeDocumentenResultaat(final List<OntkoppeldDocument> items, final long count, final List<String> ontkoppeldDoorFilter) {
+    public DetachedDocumentResult(final List<DetachedDocument> items, final long count, final List<String> ontkoppeldDoorFilter) {
         super(items, count);
         this.ontkoppeldDoorFilter = ontkoppeldDoorFilter;
     }

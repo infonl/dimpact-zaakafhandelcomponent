@@ -139,7 +139,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     switch (this.zoekFilters.filtersType) {
       case "ZoekParameters":
         return hasActiveSearchFilters(this.zoekFilters);
-      case "OntkoppeldDocumentListParameters":
+      case "DetachedDocumentListParameters":
         if (this.zoekFilters.zaakID) return true;
         if (this.zoekFilters.ontkoppeldDoor) return true;
         if (this.zoekFilters.ontkoppeldOp?.van) return true;

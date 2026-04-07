@@ -112,12 +112,26 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
-    Given("some state") {
-        When("action occurs") {
-            Then("expected result") { ... }
+    Context("A function in the service under test") {
+        Given("some state") {
+            When("action occurs") {
+                Then("expected result") { ... }
+            }
         }
     }
 })
+```
+
+### Use `fakeXXX` for test values where possible
+
+For example, instead of:
+```kotlin
+createRestUser(id = "user1", name = "User One")
+```
+
+use:
+```kotlin
+createRestUser(id = "fakeUserId1", name = "fakeUserName1")
 ```
 
 ### SPDX License Headers

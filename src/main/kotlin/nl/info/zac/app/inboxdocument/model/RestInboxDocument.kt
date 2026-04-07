@@ -38,7 +38,7 @@ fun List<InboxDocument>.toRestInboxDocuments(
 ): List<RestInboxDocument> {
     val list: MutableList<RestInboxDocument> = ArrayList()
     for (index in this.indices) {
-        // Skip documents for which we don't have an informatieobjectTypeUUID
+        // skip documents for which no informatieobjectTypeUUID was provided
         informatieobjectTypeUUIDs[index]?.let {
             list.add(this[index].toRestInboxDocument(it))
         }

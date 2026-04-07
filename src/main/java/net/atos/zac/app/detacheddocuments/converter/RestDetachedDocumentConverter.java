@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.ontkoppeldedocumenten.converter;
+package net.atos.zac.app.detacheddocuments.converter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,24 +10,24 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.app.ontkoppeldedocumenten.model.RESTOntkoppeldDocument;
-import net.atos.zac.document.model.OntkoppeldDocument;
+import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
+import net.atos.zac.document.model.DetachedDocument;
 import nl.info.zac.app.identity.converter.RestUserConverter;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 
-public class RESTOntkoppeldDocumentConverter {
+public class RestDetachedDocumentConverter {
 
     private RestUserConverter userConverter;
     private EnkelvoudigInformatieObjectLockService lockService;
 
     @SuppressWarnings("unused")
-    public RESTOntkoppeldDocumentConverter() {
+    public RestDetachedDocumentConverter() {
         // Default constructor for CDI
     }
 
     @Inject
-    public RESTOntkoppeldDocumentConverter(
+    public RestDetachedDocumentConverter(
             final RestUserConverter userConverter,
             final EnkelvoudigInformatieObjectLockService lockService
     ) {
@@ -35,8 +35,8 @@ public class RESTOntkoppeldDocumentConverter {
         this.lockService = lockService;
     }
 
-    public RESTOntkoppeldDocument convert(final OntkoppeldDocument document, final UUID informatieobjectTypeUUID) {
-        final RESTOntkoppeldDocument restDocument = new RESTOntkoppeldDocument();
+    public RestDetachedDocument convert(final DetachedDocument document, final UUID informatieobjectTypeUUID) {
+        final RestDetachedDocument restDocument = new RestDetachedDocument();
         restDocument.id = document.getId();
         restDocument.documentUUID = document.getDocumentUUID();
         restDocument.documentID = document.getDocumentID();
@@ -53,11 +53,11 @@ public class RESTOntkoppeldDocumentConverter {
         return restDocument;
     }
 
-    public List<RESTOntkoppeldDocument> convert(
-            final List<OntkoppeldDocument> documenten,
+    public List<RestDetachedDocument> convert(
+            final List<DetachedDocument> documenten,
             final List<UUID> informatieobjectTypeUUIDs
     ) {
-        List<RESTOntkoppeldDocument> list = new ArrayList<>();
+        List<RestDetachedDocument> list = new ArrayList<>();
         for (int index = 0; index < documenten.size(); index++) {
             list.add(convert(
                     documenten.get(index),
