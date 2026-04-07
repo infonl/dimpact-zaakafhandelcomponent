@@ -172,7 +172,9 @@ describe(TakenVerdelenDialogComponent.name, () => {
 
     it("should show singular title", async () => {
       const toolbar = await loader.getHarness(MatToolbarHarness);
-      expect(await (await toolbar.host()).text()).toContain("msg.verdelen.taak");
+      expect(await (await toolbar.host()).text()).toContain(
+        "msg.verdelen.taak",
+      );
     });
   });
 
