@@ -7,7 +7,7 @@ package net.atos.zac.app.detacheddocuments.converter;
 
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
-import net.atos.zac.document.model.DetachedDocumentListParameters;
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
 import nl.info.zac.search.model.DatumRange;
 
 public class RestDetachedDocumentListParametersConverter extends

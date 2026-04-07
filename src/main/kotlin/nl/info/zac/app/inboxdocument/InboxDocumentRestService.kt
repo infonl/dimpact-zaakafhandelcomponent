@@ -15,8 +15,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.model.InboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -24,6 +22,8 @@ import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersCo
 import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
+import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -39,18 +39,17 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 class InboxDocumentRestService @Inject constructor(
-    private var inboxDocumentService: InboxDocumentService,
-    private var drcClientService: DrcClientService,
-    private var zrcClientService: ZrcClientService,
-    private var listParametersConverter: RestInboxDocumentListParametersConverter,
-    private var policyService: PolicyService
+    private val inboxDocumentService: InboxDocumentService,
+    private val drcClientService: DrcClientService,
+    private val zrcClientService: ZrcClientService,
+    private val listParametersConverter: RestInboxDocumentListParametersConverter,
+    private val policyService: PolicyService
 ) {
     companion object {
         private val LOG = Logger.getLogger(InboxDocumentRestService::class.java.name)
     }
 
     @PUT
-    @Path("")
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters?): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
@@ -69,17 +68,18 @@ class InboxDocumentRestService @Inject constructor(
     @Path("{id}")
     fun deleteInboxDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().inbox)
-        val inboxDocument = inboxDocumentService.find(id)
-        if (inboxDocument.isEmpty()) {
-            return // reeds verwijderd
+        val inboxDocument = inboxDocumentService.find(id) ?: run {
+            LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
+            return
         }
+
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.get().enkelvoudiginformatieobjectUUID
+            inboxDocument.enkelvoudiginformatieobjectUUID
         )
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
         )
-        if (!zaakInformatieobjecten.isEmpty()) {
+        if (zaakInformatieobjecten.isNotEmpty()) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
             LOG.log(Level.WARNING) {
                 "Deleted InboxDocument but not the informatieobject. " +
@@ -88,7 +88,7 @@ class InboxDocumentRestService @Inject constructor(
             }
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
-                inboxDocument.get().enkelvoudiginformatieobjectUUID
+                inboxDocument.enkelvoudiginformatieobjectUUID
             )
         }
         inboxDocumentService.delete(id)
