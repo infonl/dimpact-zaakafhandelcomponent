@@ -117,7 +117,9 @@ class MailRestServiceTest : BehaviorSpec({
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
+                receivedMailsResponse.code shouldBe HTTP_OK
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                receivedMails.length() shouldBeGreaterThan 0
                 val lastMail = receivedMails.getJSONObject(receivedMails.length() - 1)
                 lastMail.getString("mimeMessage") shouldNotContain "{ZAAKDATA:"
             }

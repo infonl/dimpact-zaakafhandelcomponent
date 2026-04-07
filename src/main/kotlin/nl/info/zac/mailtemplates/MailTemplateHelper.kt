@@ -173,9 +173,15 @@ class MailTemplateHelper @Inject constructor(
         return resolvedTekst
     }
 
+    fun readZaakdata(zaak: Zaak): Map<String, Any> = zaakVariabelenService.readZaakdata(zaak.uuid)
+
     fun resolveZaakdataVariables(text: String, zaak: Zaak): String {
         if (!text.contains("{ZAAKDATA:")) return text
-        val zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
+        return resolveZaakdataVariables(text, readZaakdata(zaak))
+    }
+
+    fun resolveZaakdataVariables(text: String, zaakdata: Map<String, Any>): String {
+        if (!text.contains("{ZAAKDATA:")) return text
         return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
             val key = matchResult.groupValues[1].replace(Regex("<[^>]+>"), "").trim()
             val value = zaakdata[key]?.toString()

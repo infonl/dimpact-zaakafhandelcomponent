@@ -103,9 +103,13 @@ class MailService @Inject constructor(
         )
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
+        val zaakdata: Map<String, Any> = bronnen.zaak
+            ?.takeIf { mailGegevens.subject.contains("{ZAAKDATA:") || mailGegevens.body.contains("{ZAAKDATA:") }
+            ?.let { mailTemplateHelper.readZaakdata(it) }
+            ?: emptyMap()
         val subject =
-            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
-        val body = resolveVariabelen(mailGegevens.body, bronnen)
+            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen, zaakdata), SUBJECT_MAX_WIDTH)
+        val body = resolveVariabelen(mailGegevens.body, bronnen, zaakdata)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()
         val replyToAddress = mailGegevens.replyTo?.toAddress()?.takeIf { fromAddress != it }
@@ -263,7 +267,7 @@ class MailService @Inject constructor(
                 )
             }
 
-    private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
+    private fun resolveVariabelen(tekst: String, bronnen: Bronnen, zaakdata: Map<String, Any>): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
             mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
         }.let {
@@ -271,6 +275,6 @@ class MailService @Inject constructor(
         }.let {
             mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
         }.let {
-            mailTemplateHelper.resolveZaakdataVariables(it, bronnen.zaak ?: return@let it)
+            if (zaakdata.isEmpty()) { it } else { mailTemplateHelper.resolveZaakdataVariables(it, zaakdata) }
         }
 }
