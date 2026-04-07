@@ -13,21 +13,20 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.model.InboxDocumentListParameters
-import net.atos.zac.document.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 class InboxDocumentRestServiceTest : BehaviorSpec({
@@ -214,7 +213,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentService.find(documentId) } returns Optional.of(inboxDocument)
+                every { inboxDocumentService.find(documentId) } returns inboxDocument
                 every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
                 every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
                 every { drcClientService.deleteEnkelvoudigInformatieobject(documentUUID) } returns Unit
@@ -251,7 +250,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 )
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentService.find(documentId) } returns Optional.of(inboxDocument)
+                every { inboxDocumentService.find(documentId) } returns inboxDocument
                 every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
                 every {
                     zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
@@ -280,7 +279,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 val documentId = 999L
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { inboxDocumentService.find(documentId) } returns Optional.empty()
+                every { inboxDocumentService.find(documentId) } returns null
 
                 Then("it should return without throwing an exception") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)

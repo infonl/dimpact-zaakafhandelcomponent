@@ -241,6 +241,63 @@ val user = User().apply {
 ```
 This allows you to initialize the object in a more fluent way.
 
+### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
+Use the following convention:
+
+`findXxx(itemId)` function: returns `null` if the item in question could not be found
+`readXXX(itemId)` - throws 'Item not found' exception when the item in question could not be found
+
+For example:
+```kotlin
+  fun findReferenceTable(code: String): ReferenceTable? =
+    entityManager.criteriaBuilder.let { criteriaBuilder ->
+        criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
+            query.from(ReferenceTable::class.java).let { root ->
+                criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
+                    query.select(root).where(predicate)
+                }
+            }
+            entityManager.createQuery(query).resultList
+        }
+    }.firstOrNull()
+```
+
+and:
+```kotlin
+fun readReferenceTable(code: String): ReferenceTable =
+        findReferenceTable(code) ?: run {
+            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
+        }
+```
+
+### Kotlin database entity classes must be open
+Kotlin database entity classes must be open.
+
+```kotlin// Before
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+class InboxDocument
+// After
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+open class InboxDocument
+```
+
+### In Kotlin database entity classes use `lateinit var` for variables that are nullable
+In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
+
+```kotlin// Before
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+var creatiedatum: LocalDate? = null
+// After
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+lateinit var creatiedatum: LocalDate
+```
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.
