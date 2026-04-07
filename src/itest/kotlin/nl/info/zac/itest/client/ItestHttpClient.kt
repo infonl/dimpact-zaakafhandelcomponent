@@ -343,7 +343,12 @@ class ItestHttpClient {
     ): ResponseContent {
         logger.info { "Performing POST request on: '$url'" }
         val request = Request.Builder()
-            .headers(cloneHeadersWithAuthorization(headers, url))
+            .headers(
+                cloneHeadersWithAuthorization(
+                    headers = headers,
+                    url = url
+                )
+            )
             .url(url)
             .post(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
             .build()
