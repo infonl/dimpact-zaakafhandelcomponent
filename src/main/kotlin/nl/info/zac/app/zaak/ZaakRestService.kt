@@ -964,13 +964,13 @@ class ZaakRestService @Inject constructor(
     }
 
     @GET
-    @Path("{uuid}/procesdiagram")
+    @Path("{uuid}/process-diagram")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID): Response =
         Response.ok(bpmnService.getProcessDiagram(uuid))
             .header(
                 "Content-Disposition",
-                """attachment; filename="procesdiagram.gif"""".trimIndent()
+                """attachment; filename="process-diagram.gif"""".trimIndent()
             )
             .build()
 

@@ -1468,7 +1468,7 @@ export class ZaakViewComponent
         new ReadonlyFormFieldBuilder(
           '<img src="/rest/zaken/' +
             this.zaak.uuid +
-            '/procesdiagram"/ alt="diagram">',
+            '/process-diagram"/ alt="diagram">',
         )
           .id("diagram")
           .label("proces.toestand")
@@ -1480,7 +1480,12 @@ export class ZaakViewComponent
     });
     dialogData.confirmButtonActionKey = "actie.ok";
     dialogData.cancelButtonActionKey = null;
-    this.dialog.open(DialogComponent, { data: dialogData });
+    this.dialog.open(DialogComponent, {
+      data: dialogData,
+      width: "90vw",
+      height: "90vh",
+      maxWidth: "90vw",
+    });
   }
 
   private hasZaakData() {

@@ -73,6 +73,11 @@ class BpmnService @Inject constructor(
 
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
+    fun findProcessDefinitionByZaak(zaakUUID: UUID): ProcessDefinition? =
+        findProcessInstance(zaakUUID)?.let { processInstance ->
+            repositoryService.getProcessDefinition(processInstance.processDefinitionId)
+        }
+
     fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
             .processDefinitionKey(processDefinitionKey)

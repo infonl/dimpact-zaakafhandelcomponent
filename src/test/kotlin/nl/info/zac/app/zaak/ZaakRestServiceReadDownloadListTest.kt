@@ -364,7 +364,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 ) {
                     with(response) {
                         status shouldBe HttpStatus.SC_OK
-                        headers["Content-Disposition"]!![0] shouldBe """attachment; filename="procesdiagram.gif"""".trimIndent()
+                        headers["Content-Disposition"]!![0] shouldBe """attachment; filename="process-diagram.gif"""".trimIndent()
                         (entity as InputStream).bufferedReader().use { it.readText() } shouldBe "fakeDiagram"
                     }
                 }
