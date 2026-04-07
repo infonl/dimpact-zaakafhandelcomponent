@@ -90,7 +90,7 @@
       <zac-static-text
         label="telefoonnummer"
         [value]="
-          zaak().zaakSpecificContactDetails?.telephoneNumber ||
+          zaak().zaakSpecificContactDetails?.telephoneNumber ??
           persoonQuery.data()?.telefoonnummer
         "
       />
@@ -108,7 +108,7 @@
         class="flex-1"
         label="emailadres"
         [value]="
-          zaak().zaakSpecificContactDetails?.emailAddress ||
+          zaak().zaakSpecificContactDetails?.emailAddress ??
           persoonQuery.data()?.emailadres
         "
       />

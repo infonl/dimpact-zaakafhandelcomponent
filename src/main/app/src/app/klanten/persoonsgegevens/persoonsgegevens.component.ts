@@ -61,12 +61,13 @@ export class PersoonsgegevensComponent {
     () => this.zaak().initiatorIdentificatie?.temporaryPersonId ?? "",
   );
 
-  protected readonly persoonQuery = injectQuery(() =>
-    this.klantenService.readPersoon(
+  protected readonly persoonQuery = injectQuery(() => ({
+    ...this.klantenService.readPersoon(
       this.temporaryPersonId(),
       this.zaak().zaaktype.uuid,
     ),
-  );
+    enabled: !!this.temporaryPersonId(),
+  }));
 
   protected readonly isDisabled = signal(false);
 
