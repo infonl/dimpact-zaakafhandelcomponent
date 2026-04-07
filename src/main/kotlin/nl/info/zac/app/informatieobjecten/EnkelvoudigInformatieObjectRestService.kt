@@ -235,11 +235,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 }
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
-                val inboxDocument = inboxDocumentService.read(
-                    enkelvoudigInformatieobjectUUID
-                )
+                val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocument.id?.let { inboxDocumentService.delete(it) }
+                inboxDocument.id?.let(inboxDocumentService::delete)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
