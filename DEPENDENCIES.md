@@ -27,8 +27,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 1.0.0
-- **pabc-api**: 1.0.0
+- **pabc-migrations**: 1.1.0
+- **pabc-api**: 1.1.0
 
 ## Update Process
 
