@@ -173,8 +173,13 @@ class ProductaanvraagService @Inject constructor(
             )
         }
 
-    private fun deleteInboxDocument(documentUUID: UUID) =
-        inboxDocumentService.find(documentUUID)?.id?.let { inboxDocumentService.delete(it) }
+    private fun deleteInboxDocument(documentUUID: UUID) {
+        val inboxDocument = inboxDocumentService.find(documentUUID) ?: run {
+            LOG.warning { "Inbox document with id '$documentUUID' not found." }
+            return
+        }
+        inboxDocument.id?.let(inboxDocumentService::delete)
+    }
 
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]
