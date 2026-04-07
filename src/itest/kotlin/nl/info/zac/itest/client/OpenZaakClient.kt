@@ -52,9 +52,9 @@ class OpenZaakClient(
         informatieobjectTypeUUID: UUID = UUID.fromString(INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID),
         vertrouwelijkheidaanduiding: String = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
     ): ResponseContent {
-        val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
-            File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
-        }
+        val resource = Thread.currentThread().contextClassLoader.getResource(fileName)
+            ?: error("Test resource not found on classpath: '$fileName'")
+        val file = File(URLDecoder.decode(resource.path, Charsets.UTF_8))
         val encodedContent = Base64.getEncoder().encodeToString(file.readBytes())
         val requestBody = JSONObject(
             mapOf(
