@@ -223,21 +223,23 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         )
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
-            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> detachedDocumentService.read(
-                enkelvoudigInformatieobjectUUID
-            )?.let {
-                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.delete(it.id)
-            } ?: {
-                throw DetachedDocumentNotFoundException(
-                    "Detached document with enkelvoudiginformatie object UUID '$enkelvoudigInformatieobjectUUID' not found"
-                )
+            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
+                val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
+                if (detachedDocument != null) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
+                    detachedDocumentService.delete(detachedDocument.id)
+                } else {
+                    throw DetachedDocumentNotFoundException(
+                        "Detached document with enkelvoudiginformatieobject UUID '$enkelvoudigInformatieobjectUUID' not found"
+                    )
+                }
             }
-            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
+            documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
+                val inboxDocument = inboxDocumentService.read(
+                    enkelvoudigInformatieobjectUUID
+                )
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocumentService.delete(it.id)
+                inboxDocumentService.delete(inboxDocument.id)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
@@ -313,8 +315,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         } else {
             // not a document that that was linked to a zaak
             // delete a detached document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
             detachedDocumentService.delete(uuid)
             // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
             inboxDocumentService.delete(uuid)
         }
     }

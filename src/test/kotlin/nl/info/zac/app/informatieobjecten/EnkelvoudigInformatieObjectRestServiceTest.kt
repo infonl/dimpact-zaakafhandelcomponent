@@ -47,6 +47,7 @@ import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
@@ -1161,6 +1162,49 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
                 verify(exactly = 1) { detachedDocumentService.delete(42L) }
+            }
+        }
+    }
+
+    Given("No detached document") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-001"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { detachedDocumentService.read(documentUUID) } returns null
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
+        every { detachedDocumentService.delete(42L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
+            val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
+                enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                    RestDocumentVerplaatsGegevens(
+                        documentUUID = documentUUID,
+                        bron = RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN,
+                        nieuweZaakID = nieuweZaakID
+                    )
+                )
+            }
+
+            Then("an exception should be thrown") {
+                detachedDocumentNotFoundException.message shouldBe
+                    "Detached document with enkelvoudiginformatieobject UUID '$documentUUID' not found"
+                verify(exactly = 0) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
+                    detachedDocumentService.delete(any<Long>())
+                }
             }
         }
     }
