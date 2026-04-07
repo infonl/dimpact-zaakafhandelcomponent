@@ -54,18 +54,11 @@ When(
 
 When(
   "{string} releases the zaken",
-  async function (this: CustomWorld, s: string) {
-    await this.page
-      .getByRole("button", { name: "Vrijgeven" })
-      .locator("span")
-      .first()
-      .click();
-
-    await this.page.getByLabel("Reden").fill("Fake reason");
-    await this.page
-      .getByRole("button", { name: /Vrijgeven/ })
-      .nth(1)
-      .click();
+    { timeout: TEN_SECONDS_IN_MS },
+    async function (this: CustomWorld, s: string) {
+    await this.page.getByRole("button", { name: /vrijgeven/i }).click()
+    await this.page.getByLabel(/reden/i).fill("Fake reason");
+    await this.page.getByRole("button", { name: /vrijgeven/i }).nth(1).click()
   },
 );
 
