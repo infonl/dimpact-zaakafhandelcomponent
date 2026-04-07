@@ -29,7 +29,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
 
   async requestForm(
     zaak: GeneratedType<"RestZaak">,
-    planItem: GeneratedType<"RESTPlanItem">,
+    planItem?: GeneratedType<"RESTPlanItem">,
   ): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
@@ -76,7 +76,7 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       [Validators.min(moment().add(1, "day").startOf("day").valueOf())],
     );
 
-    if (planItem.fataleDatum) {
+    if (planItem?.fataleDatum) {
       taakFataleDatumControl.setValue(moment(planItem.fataleDatum));
     }
 

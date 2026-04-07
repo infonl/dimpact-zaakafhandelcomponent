@@ -47,7 +47,6 @@ export class TaakFormulierenService {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.requestForm(zaak);
       case "AANVULLENDE_INFORMATIE":
-        console.log("ZAAK: ", zaak);
         return this.aanvullendeInformatieFormulier.requestForm(zaak, planItem!);
       case "ADVIES":
         return this.adviesFormulier.requestForm(zaak);
