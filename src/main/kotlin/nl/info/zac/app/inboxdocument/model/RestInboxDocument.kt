@@ -24,7 +24,7 @@ data class RestInboxDocument(
 
 fun InboxDocument.toRestInboxDocument(informatieobjectTypeUUID: UUID) =
     RestInboxDocument(
-        id = this.id ?: 0L,
+        id = this.id!!,
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
         enkelvoudiginformatieobjectID = this.enkelvoudiginformatieobjectID,
         informatieobjectTypeUUID = informatieobjectTypeUUID,
