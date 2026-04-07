@@ -70,7 +70,7 @@ class InboxDocumentRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val inboxDocument = inboxDocumentService.find(id) ?: return
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.enkelvoudiginformatieobjectUUID!!
+            inboxDocument.enkelvoudiginformatieobjectUUID
         )
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
@@ -84,7 +84,7 @@ class InboxDocumentRestService @Inject constructor(
             }
         } else {
             drcClientService.deleteEnkelvoudigInformatieobject(
-                inboxDocument.enkelvoudiginformatieobjectUUID!!
+                inboxDocument.enkelvoudiginformatieobjectUUID
             )
         }
         inboxDocumentService.delete(id)
@@ -93,7 +93,7 @@ class InboxDocumentRestService @Inject constructor(
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
         try {
             val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                inboxDocument.enkelvoudiginformatieobjectUUID!!
+                inboxDocument.enkelvoudiginformatieobjectUUID
             )
             return informatieobject.getInformatieobjecttype().extractUuid()
         } catch (notFoundException: NotFoundException) {

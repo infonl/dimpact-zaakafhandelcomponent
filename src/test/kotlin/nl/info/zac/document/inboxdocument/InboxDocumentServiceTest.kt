@@ -109,7 +109,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("find is called with that UUID") {
-                val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID!!)
+                val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID)
 
                 Then("the document is returned") {
                     result shouldBe document
@@ -143,7 +143,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("read is called with that UUID") {
-                val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID!!)
+                val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID)
 
                 Then("the document is returned") {
                     result shouldBe document
@@ -285,7 +285,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("delete is called with that UUID") {
-                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID!!)
+                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
