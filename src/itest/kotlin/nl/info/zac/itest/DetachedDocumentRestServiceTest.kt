@@ -16,12 +16,12 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -99,7 +99,9 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                When("the delete detached document endpoint is called by a recordmanager with the id of the detached document") {
+                When(
+                    "the delete detached document endpoint is called by a recordmanager with the id of the detached document"
+                ) {
                     val deleteResponse = itestHttpClient.performDeleteRequest(
                         url = "$ZAC_API_URI/ontkoppeldedocumenten/$detachedDocumentId",
                         testUser = RECORDMANAGER_DOMAIN_TEST_1
