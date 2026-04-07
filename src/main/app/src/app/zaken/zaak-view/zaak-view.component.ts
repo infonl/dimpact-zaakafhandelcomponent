@@ -1512,7 +1512,11 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected getInitiatorViewType(): "PERSOON" | "BEDRIJF" | "CONTACT_DETAILS" | null {
+  protected getInitiatorViewType():
+    | "PERSOON"
+    | "BEDRIJF"
+    | "CONTACT_DETAILS"
+    | null {
     const koppelingen =
       this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
 
@@ -1542,16 +1546,16 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen,
     );
   }
 

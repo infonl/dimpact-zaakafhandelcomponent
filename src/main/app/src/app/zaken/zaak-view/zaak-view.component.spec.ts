@@ -30,8 +30,8 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { KlantenService } from "../../klanten/klanten.service";
 import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
+import { KlantenService } from "../../klanten/klanten.service";
 import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";

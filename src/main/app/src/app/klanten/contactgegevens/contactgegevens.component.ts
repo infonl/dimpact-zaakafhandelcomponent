@@ -28,8 +28,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 })
 export class ContactgegevensComponent {
   protected toevoegenToegestaan = input.required<boolean>();
-  protected contactDetails =
-    input.required<GeneratedType<"ContactDetails">>();
+  protected contactDetails = input.required<GeneratedType<"ContactDetails">>();
 
   protected add = output<void>();
 }
