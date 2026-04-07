@@ -163,7 +163,7 @@
           >
           </zac-contactgegevens>
           <zac-persoongegevens
-            *ngSwitchCase="'PERSOON'"
+            *ngSwitchCase="'PERSON'"
             class="w100 flex-1"
             [zaak]="zaak"
             (edit)="addOrEditZaakInitiator()"
@@ -171,7 +171,7 @@
           >
           </zac-persoongegevens>
           <zac-bedrijfsgegevens
-            *ngSwitchCase="'BEDRIJF'"
+            *ngSwitchCase="'COMPANY'"
             class="w100 flex-1"
             [zaak]="zaak"
             (edit)="addOrEditZaakInitiator()"

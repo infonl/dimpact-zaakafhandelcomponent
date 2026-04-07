@@ -1515,8 +1515,8 @@ export class ZaakViewComponent
   }
 
   protected getInitiatorViewType():
-    | "PERSOON"
-    | "BEDRIJF"
+    | "PERSON"
+    | "COMPANY"
     | "CONTACT_DETAILS"
     | null {
     const koppelingen =
@@ -1524,9 +1524,9 @@ export class ZaakViewComponent
 
     if (koppelingen) {
       const type = this.zaak.initiatorIdentificatie?.type ?? "";
-      if (koppelingen.brpKoppelen && ["BSN"].includes(type)) return "PERSOON";
+      if (koppelingen.brpKoppelen && ["BSN"].includes(type)) return "PERSON";
       if (koppelingen.kvkKoppelen && ["VN", "RSIN"].includes(type))
-        return "BEDRIJF";
+        return "COMPANY";
     }
 
     if (this.zaak.zaakSpecificContactDetails) return "CONTACT_DETAILS";
