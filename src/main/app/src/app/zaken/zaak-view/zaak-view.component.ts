@@ -1503,6 +1503,8 @@ export class ZaakViewComponent
   }
 
   protected showInitiator() {
+    if (this.zaak.zaakSpecificContactDetails) return true;
+
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
