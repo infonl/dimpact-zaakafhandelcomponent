@@ -57,7 +57,9 @@ class MailTemplateHelper @Inject constructor(
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
         private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\{ZAAKDATA:([^}]+)}""")
+        private val HTML_TAG_PATTERN = Regex("<[^>]+>")
     }
+
 
     fun resolveGemeenteVariable(text: String): String =
         replaceVariable(
@@ -183,7 +185,7 @@ class MailTemplateHelper @Inject constructor(
     fun resolveZaakdataVariables(text: String, zaakdata: Map<String, Any>): String {
         if (!text.contains("{ZAAKDATA:")) return text
         return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
-            val key = matchResult.groupValues[1].replace(Regex("<[^>]+>"), "").trim()
+            val key = matchResult.groupValues[1].replace(HTML_TAG_PATTERN, "").trim()
             val value = zaakdata[key]?.toString()
             if (value.isNullOrBlank()) {
                 REPLACEMENT_FOR_UNKNOWN_NAME
