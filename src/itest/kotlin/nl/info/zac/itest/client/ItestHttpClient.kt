@@ -328,36 +328,6 @@ class ItestHttpClient {
         return responseContent
     }
 
-    /**
-     * Performs a ZGW API POST request on the given URL with optional headers.
-     *
-     * @param url The URL to perform the POST request on.
-     * @param requestBodyAsString The JSON body of the POST request as a string.
-     * @param headers Optional headers to include in the request. Defaults to standard headers for ZGW API requests.
-     * @return A [ResponseContent] containing the response body, headers, and status code.
-     */
-    fun performZgwApiPostRequest(
-        url: String,
-        requestBodyAsString: String,
-        headers: Headers = buildHeaders()
-    ): ResponseContent {
-        logger.info { "Performing POST request on: '$url'" }
-        val request = Request.Builder()
-            .headers(
-                cloneHeadersWithAuthorization(
-                    headers = headers,
-                    url = url
-                )
-            )
-            .url(url)
-            .post(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
-            .build()
-        return okHttpClient.newCall(request).execute().use {
-            logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
-        }
-    }
-
     private fun cloneHeadersWithAuthorization(headers: Headers, url: String): Headers =
         headers.newBuilder().add(Header.AUTHORIZATION.name, generateBearerToken(url)).build()
 
