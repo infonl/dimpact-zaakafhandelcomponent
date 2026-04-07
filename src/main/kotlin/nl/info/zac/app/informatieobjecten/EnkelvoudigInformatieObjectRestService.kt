@@ -41,6 +41,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
@@ -224,9 +225,13 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         when {
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> detachedDocumentService.read(
                 enkelvoudigInformatieobjectUUID
-            ).let {
+            )?.let {
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
                 detachedDocumentService.delete(it.id)
+            } ?: {
+                throw DetachedDocumentNotFoundException(
+                    "Detached document with enkelvoudiginformatie object UUID '$enkelvoudigInformatieobjectUUID' not found"
+                )
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
                 enkelvoudigInformatieobjectUUID
