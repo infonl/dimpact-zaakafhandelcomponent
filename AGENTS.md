@@ -270,6 +270,34 @@ fun readReferenceTable(code: String): ReferenceTable =
         }
 ```
 
+### Kotlin database entity classes must be open
+Kotlin database entity classes must be open.
+
+```kotlin// Before
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+class InboxDocument
+// After
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+open class InboxDocument
+```
+
+### In Kotlin database entity classes use `lateinit var` for variables that are nullable
+In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
+
+```kotlin// Before
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+var creatiedatum: LocalDate? = null
+// After
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+lateinit var creatiedatum: LocalDate
+```
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.

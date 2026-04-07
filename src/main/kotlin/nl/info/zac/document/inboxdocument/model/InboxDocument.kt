@@ -20,7 +20,7 @@ import java.util.UUID
 @Entity
 @Table(schema = SCHEMA, name = "inbox_document")
 @SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-class InboxDocument {
+open class InboxDocument {
     companion object {
         const val ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME = "enkelvoudiginformatieobjectID"
         const val ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME = "enkelvoudiginformatieobjectUUID"
@@ -35,19 +35,19 @@ class InboxDocument {
 
     @field:NotNull
     @field:Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
-    var enkelvoudiginformatieobjectUUID: UUID? = null
+    lateinit var enkelvoudiginformatieobjectUUID: UUID
 
     @field:NotBlank
     @field:Column(name = "id_enkelvoudiginformatieobject", nullable = false)
-    var enkelvoudiginformatieobjectID: String? = null
+    lateinit var enkelvoudiginformatieobjectID: String
 
     @field:NotNull
     @field:Column(name = "creatiedatum", nullable = false)
-    var creatiedatum: LocalDate? = null
+    lateinit var creatiedatum: LocalDate
 
     @field:NotBlank
     @field:Column(name = "titel", nullable = false)
-    var titel: String? = null
+    lateinit var titel: String
 
     @field:Column(name = "bestandsnaam")
     var bestandsnaam: String? = null
