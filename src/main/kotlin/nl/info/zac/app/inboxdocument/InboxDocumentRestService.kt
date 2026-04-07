@@ -69,7 +69,7 @@ class InboxDocumentRestService @Inject constructor(
     fun deleteInboxDocument(@PathParam("id") id: Long) {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val inboxDocument = inboxDocumentService.find(id) ?: run {
-            LOG.warning{ "Inbox document with id '$id' not found. It may already have been deleted." }
+            LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
             return
         }
 
