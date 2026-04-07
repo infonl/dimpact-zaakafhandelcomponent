@@ -43,8 +43,8 @@
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
 
-### PZ-10533 feature branch — in progress
-- [ ] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
+### PZ-10533 feature branch — done
+- [x] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
 
 ### Bundle size — in progress
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
