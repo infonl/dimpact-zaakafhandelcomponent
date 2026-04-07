@@ -42,7 +42,7 @@ class InboxDocumentService @Inject constructor(
             creatiedatum = informatieobject.creatiedatum
             titel = informatieobject.titel
             bestandsnaam = informatieobject.bestandsnaam
-        }.also { entityManager.persist(it) }
+        }.also(entityManager::persist)
     }
 
     fun find(id: Long): InboxDocument? = entityManager.find(InboxDocument::class.java, id)
