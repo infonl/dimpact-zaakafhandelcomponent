@@ -23,6 +23,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.model.createInboxDocument
+import nl.info.zac.document.inboxdocument.model.createInboxDocumentListParameters
+import nl.info.zac.search.model.DatumRange
 import java.time.LocalDate
 import java.util.UUID
 
@@ -195,6 +197,17 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
             When("list is called with empty list parameters") {
                 val result = inboxDocumentService.list(InboxDocumentListParameters())
+
+                Then("the list of inbox documents is returned") {
+                    result shouldBe listOf(document)
+                }
+            }
+
+            When("list is called with filled inbox document list parameters") {
+                val inboxDocumentListParameters = createInboxDocumentListParameters(
+                    creationDateRange = DatumRange(LocalDate.now(), LocalDate.now().plusDays(1)),
+                )
+                val result = inboxDocumentService.list(inboxDocumentListParameters)
 
                 Then("the list of inbox documents is returned") {
                     result shouldBe listOf(document)
