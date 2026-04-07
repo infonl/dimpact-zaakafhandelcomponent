@@ -9,6 +9,7 @@ import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module
 import { SharedModule } from "../shared/shared.module";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { BedrijfsgegevensComponent } from "./bedrijfsgegevens/bedrijfsgegevens.component";
+import { ContactgegevensComponent } from "./contactgegevens/contactgegevens.component";
 import { KlantZakenTabelComponent } from "./klant-zaken-tabel/klant-zaken-tabel.component";
 import { KlantenRoutingModule } from "./klanten-routing.module";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
@@ -22,7 +23,6 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     BedrijfZoekComponent,
     BedrijfsgegevensComponent,
     PersoonZoekComponent,
-    PersoonsgegevensComponent,
     KlantZakenTabelComponent,
     KlantZoekComponent,
     PersoonViewComponent,
@@ -31,6 +31,7 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
   exports: [
     BedrijfZoekComponent,
     BedrijfsgegevensComponent,
+    ContactgegevensComponent,
     PersoonZoekComponent,
     PersoonsgegevensComponent,
     KlantZoekComponent,
@@ -40,6 +41,8 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     RouterLink,
     KlantenRoutingModule,
     ContactmomentenModule,
+    ContactgegevensComponent,
+    PersoonsgegevensComponent,
   ],
 })
 export class KlantenModule {}

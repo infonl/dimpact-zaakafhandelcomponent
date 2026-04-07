@@ -3,16 +3,29 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
+  computed,
   effect,
   inject,
   input,
   output,
   signal,
 } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { PersoonIndicatiesComponent } from "../../shared/indicaties/persoon-indicaties/persoon-indicaties.component";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 
@@ -20,23 +33,38 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-persoongegevens",
   styleUrls: ["./persoonsgegevens.component.less"],
   templateUrl: "./persoonsgegevens.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatButtonModule,
+    RouterLink,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+    PersoonIndicatiesComponent,
+    StaticTextComponent,
+  ],
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
 
-  protected isVerwijderbaar = input(false);
-  protected isWijzigbaar = input(false);
-  protected zaaktypeUuid = input.required<string>();
-  protected temporaryPersonId = input.required<string>();
+  protected zaak = input.required<GeneratedType<"RestZaak">>();
 
   protected delete = output<GeneratedType<"RestPersoon">>();
   protected edit = output<GeneratedType<"RestPersoon">>();
 
+  protected readonly temporaryPersonId = computed(
+    () => this.zaak().initiatorIdentificatie?.temporaryPersonId ?? "",
+  );
+
   protected readonly persoonQuery = injectQuery(() =>
     this.klantenService.readPersoon(
       this.temporaryPersonId(),
-      this.zaaktypeUuid(),
+      this.zaak().zaaktype.uuid,
     ),
   );
 

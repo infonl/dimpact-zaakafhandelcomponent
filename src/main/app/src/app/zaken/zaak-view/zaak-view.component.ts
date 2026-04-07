@@ -1512,32 +1512,20 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected showPersoonsgegevens() {
-    if (!this.zaak.zaaktype?.uuid) return false;
+  protected getInitiatorViewType(): "PERSOON" | "BEDRIJF" | "CONTACT_DETAILS" | null {
+    const koppelingen =
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
 
-    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
-      return false;
+    if (koppelingen) {
+      const type = this.zaak.initiatorIdentificatie?.type ?? "";
+      if (koppelingen.brpKoppelen && ["BSN"].includes(type)) return "PERSOON";
+      if (koppelingen.kvkKoppelen && ["VN", "RSIN"].includes(type))
+        return "BEDRIJF";
+    }
 
-    const { brpKoppelen } =
-      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
+    if (this.zaak.zaakSpecificContactDetails) return "CONTACT_DETAILS";
 
-    return Boolean(
-      brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
-    );
-  }
-
-  protected showBedrijfsgegevens() {
-    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
-      return false;
-
-    const { kvkKoppelen } =
-      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
-
-    return Boolean(
-      kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
-    );
+    return null;
   }
 
   protected allowedToAddBetrokkene() {
@@ -1554,16 +1542,16 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen,
     );
   }
 

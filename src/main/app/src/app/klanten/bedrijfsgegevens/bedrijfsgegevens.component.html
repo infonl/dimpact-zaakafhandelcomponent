@@ -6,7 +6,7 @@
 <mat-expansion-panel [expanded]="!!bedrijfQuery.data()">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      <span class="mr-2">{{ "initiator.titel" | translate }}</span>
+      <span class="mr-2">{{ "initiator.panel-title" | translate }}</span>
       @if (bedrijfQuery.isLoading()) {
         <mat-spinner diameter="14" />
       } @else if (bedrijfQuery.error()?.status === 404) {
