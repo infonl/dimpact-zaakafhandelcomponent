@@ -40,6 +40,7 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -104,7 +105,10 @@ class MailService @Inject constructor(
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
         val zaakdata: Map<String, Any> = bronnen.zaak
-            ?.takeIf { mailGegevens.subject.contains("{ZAAKDATA:") || mailGegevens.body.contains("{ZAAKDATA:") }
+            ?.takeIf {
+                mailGegevens.subject.contains(MailTemplateVariables.ZAAKDATA_PREFIX) ||
+                    mailGegevens.body.contains(MailTemplateVariables.ZAAKDATA_PREFIX)
+            }
             ?.let { mailTemplateHelper.readZaakdata(it) }
             ?: emptyMap()
         val subject =

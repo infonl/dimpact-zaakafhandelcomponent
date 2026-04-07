@@ -31,6 +31,8 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
     ZAAK_URL(false);
 
     companion object {
+        const val ZAAKDATA_PREFIX = "{ZAAKDATA:"
+
         val GEMEENTE_VARIABELEN = setOf(GEMEENTE)
         val ZAAK_VARIABELEN = setOf(
             ZAAK_NUMMER,
