@@ -21,7 +21,6 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
 @NgModule({
   declarations: [
     BedrijfZoekComponent,
-    BedrijfsgegevensComponent,
     PersoonZoekComponent,
     KlantZakenTabelComponent,
     KlantZoekComponent,
@@ -41,6 +40,7 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     RouterLink,
     KlantenRoutingModule,
     ContactmomentenModule,
+    BedrijfsgegevensComponent,
     ContactgegevensComponent,
     PersoonsgegevensComponent,
   ],
