@@ -62,7 +62,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
         When("the ZAC Solr deployer service is started") {
-            solrDeployerService.onStartup(Object())
+            solrDeployerService.onStartup(Any())
 
             Then("the Solr schema should be updated to the available version and the zaken should be reindexed") {
                 verify(exactly = 1) {

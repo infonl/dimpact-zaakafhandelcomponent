@@ -20,7 +20,7 @@ services:
       - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.6@sha256:8d44614c74798322c4e07fbe0ecb15cfbb5879d69b484628555f58ade06f0d8c
+    image: quay.io/keycloak/keycloak:26.5.7@sha256:45ae20191531eb608ddb0b775d012b40d3e4f942697f3214694887dd7c108d13
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -251,7 +251,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:bee615b4c6fb0ffd6f7ab395d9b3f323cfa69327d085c99db6d6c149e4cb2a3b
+    image: solr:9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
     ports:
       - "8983:8983"
     volumes:
@@ -417,7 +417,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.10.0@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
+    image: prom/prometheus:v3.11.0@sha256:dda13e28bf95a5e5ca5b8ed56852006094c1c8e8871d9c9dbeed30aa6e55271f
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -686,7 +686,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.29.5@sha256:ce952b0ce38684fe7742497df6586d8919aec9be7ad668b438359aa086cbf3d8
+    image: nginxinc/nginx-unprivileged:1.29.5@sha256:bd68c793125e39123d1fdf3c0e9b7d4218667b9db049ed46b1b71aa4cb4493ef
     ports:
       - "8005:8080"
     volumes:

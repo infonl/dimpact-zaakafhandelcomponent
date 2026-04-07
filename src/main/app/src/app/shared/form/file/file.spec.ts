@@ -20,9 +20,9 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
+import { fromPartial } from "src/test-helpers";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
 import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../material/material.module";
@@ -99,10 +99,6 @@ describe(ZacFile.name, () => {
       componentRef.setInput("key", "document");
       component.ngOnInit();
       fixture.detectChanges();
-    });
-
-    it("should create", () => {
-      expect(component).toBeTruthy();
     });
 
     it("should display the form field", async () => {

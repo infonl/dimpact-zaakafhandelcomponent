@@ -22,19 +22,8 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.informatieobjecten.EnkelvoudigInformatieObjectDownloadService
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
-import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerplaatsGegevens
-import net.atos.zac.app.informatieobjecten.model.RESTDocumentVerwijderenGegevens
-import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
-import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
@@ -50,7 +39,19 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
+import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
+import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
@@ -80,7 +81,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val zgwApiService: ZgwApiService,
-    private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val inboxDocumentService: InboxDocumentService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
@@ -107,7 +108,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { enkelvoudigInformatieObject ->
                 zaakUUID?.let(zrcClientService::readZaak).let {
                     restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, it)
-                } ?: restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+                }
             }
 
     @GET
@@ -130,7 +131,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @PUT
     @Path("informatieobjectenList")
     fun listEnkelvoudigInformatieobjecten(
-        zoekParameters: RESTInformatieobjectZoekParameters
+        zoekParameters: RestInformatieobjectZoekParameters
     ): List<RestEnkelvoudigInformatieobject> {
         val zaak = zoekParameters.zaakUUID?.let { zrcClientService.readZaak(it) }
         return zoekParameters.informatieobjectUUIDs?.let {
@@ -210,7 +211,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     @POST
     @Path("informatieobject/verplaats")
-    fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RESTDocumentVerplaatsGegevens) {
+    fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RestDocumentVerplaatsGegevens) {
         val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
@@ -222,17 +223,23 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         )
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
-            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> ontkoppeldeDocumentenService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
-                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                ontkoppeldeDocumentenService.delete(it.id)
+            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
+                val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
+                if (detachedDocument != null) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
+                    detachedDocumentService.delete(detachedDocument.id)
+                } else {
+                    throw DetachedDocumentNotFoundException(
+                        "Detached document with enkelvoudiginformatieobject UUID '$enkelvoudigInformatieobjectUUID' not found"
+                    )
+                }
             }
-            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
+            documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
+                val inboxDocument = inboxDocumentService.read(
+                    enkelvoudigInformatieobjectUUID
+                )
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocumentService.delete(it.id)
+                inboxDocumentService.delete(inboxDocument.id)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
@@ -254,7 +261,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let { ztcClientService.readZaaktype(it).informatieobjecttypen }
             .map(ztcClientService::readInformatieobjecttype)
             .filter { it.isNuGeldig() }
-            .let(RestInformatieobjecttypeConverter::convert)
+            .map { it.toRestInformatieobjecttype() }
 
     @GET
     @Path("zaakinformatieobject/{uuid}/informatieobject")
@@ -293,20 +300,26 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}")
     fun deleteEnkelvoudigInformatieObject(
         @PathParam("uuid") uuid: UUID,
-        documentVerwijderenGegevens: RESTDocumentVerwijderenGegevens
+        documentVerwijderenGegevens: RestDocumentVerwijderenGegevens
     ) {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         val zaak = documentVerwijderenGegevens.zaakUuid?.let(zrcClientService::readZaak)
         assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).verwijderen)
-        zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
-            enkelvoudigInformatieobject,
-            documentVerwijderenGegevens.zaakUuid,
-            documentVerwijderenGegevens.reden
-        )
-
-        // In geval van een ontkoppeld document
-        if (documentVerwijderenGegevens.zaakUuid == null) {
-            ontkoppeldeDocumentenService.delete(uuid)
+        val zaakUuid = documentVerwijderenGegevens.zaakUuid
+        if (zaakUuid != null) {
+            zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
+                enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                zaakUUID = zaakUuid,
+                reason = documentVerwijderenGegevens.reden
+            )
+        } else {
+            // not a document that that was linked to a zaak
+            // delete a detached document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
+            detachedDocumentService.delete(uuid)
+            // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
+            // note that this does not delete the document itself, nor does it remove the document from Solr
+            inboxDocumentService.delete(uuid)
         }
     }
 
@@ -378,12 +391,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @Valid @MultipartForm enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens
     ): RestEnkelvoudigInformatieobject {
         val document = drcClientService.readEnkelvoudigInformatieobject(
-            enkelvoudigInformatieObjectVersieGegevens.uuid
+            enkelvoudigInformatieObjectVersieGegevens.uuid!!
         )
         assertPolicy(
             policyService.readDocumentRechten(
                 document,
-                zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid)
+                zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid!!)
             ).toevoegenNieuweVersie
         )
         val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)

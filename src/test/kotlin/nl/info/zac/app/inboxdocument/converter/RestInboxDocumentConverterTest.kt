@@ -12,9 +12,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import net.atos.zac.document.model.InboxDocument
+import net.atos.zac.document.model.createInboxDocument
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocument
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
-import nl.info.zac.model.createInboxDocument
 import java.time.LocalDate
 import java.util.UUID
 

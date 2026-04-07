@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 34 done — 118 remaining** (2026-03-26)
+**Progress: 40 done — 112 remaining** (2026-04-03)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
 
 ---
@@ -9,10 +9,10 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | Gate | When | Action |
 |---|---|---|
-| **B-9 → B-10** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
-| **B-17** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
-| **C-21** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
-| **C-22** | After browser OK | Show PR title + body as markdown — **stop and wait** |
+| **B-10 → B-11** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
+| **B-18** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
+| **C-22** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
+| **C-23** | After browser OK | Show PR title + body as markdown — **stop and wait** |
 
 These gates exist because the user explicitly asked for them and has corrected skipping them multiple times. Problem-solving mode is not an excuse to skip them. If a step fails (e.g. baseline red), fix it — do not jump past the gate.
 
@@ -34,6 +34,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | **SPDX header** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. |
 | **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
 | **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
+| **No `: void` return types** | Never write `: void` on methods (component `.ts` and spec `.ts`). TypeScript infers `void` — the annotation is redundant. Remove any existing `: void` annotations in files you touch. |
 
 ---
 
@@ -56,37 +57,71 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 5 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
 | 6 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
 | 7 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
-| 8 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
-| 9 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
-| 10 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
-| 11 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
-| 12 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
-| 13 | **Fix new TS errors** introduced by migration only | — |
-| 14 | **Run tests** — must still pass | **Fix until green** |
-| 15 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
-| 16 | **Tick off claim** — `git checkout claims-update`, mark component `[x]` in `migration-claims.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout temp/standalone-migration` | — |
-| 17 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 18 | → if **continue**: **claim first** — `git checkout claims-update`, add next component under `## Marcel` in `migration-claims.md`, commit + push, `git checkout temp/standalone-migration`; then go to step 4 | — |
-| 19 | → if **stop**: proceed to Phase C | — |
+| 8 | **Log pre-existing bugs** — while reading the component, note any logic bugs you spot (error paths not handled, null-checks that always evaluate the same way, duplicate subscriptions, etc.). Do NOT fix them. Add them to `## Known Pre-existing Bugs` at the bottom of this file so they can be addressed in a separate ticket. | — |
+| 9 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
+| 10 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
+| 11 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
+| 12 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
+| 13 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
+| 14 | **Fix new TS errors** introduced by migration only | — |
+| 15 | **Run tests** — must still pass | **Fix until green** |
+| 16 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
+| 17 | **Tick off claim** — `git checkout claims-update`, mark component `[x]` in `migration-claims.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout temp/standalone-migration` | — |
+| 18 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
+| 19 | → if **continue**: **claim first** — `git checkout claims-update`, add next component under `## Marcel` in `migration-claims.md`, commit + push, `git checkout temp/standalone-migration`; then go to step 4 | — |
+| 20 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
 
 | # | Step | Gate |
 |---|---|---|
-| 20 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
-| 21 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
-| 22 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
-| 23 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
-| 24 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
-| 25 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git checkout claims-update`, `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > .claude/commands/migrate-ng19-standalone-components.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout <work-branch>` | — |
-| 26 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
+| 21 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
+| 22 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
+| 23 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
+| 24 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
+| 25 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
+| 26 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git checkout claims-update`, `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > .claude/commands/migrate-ng19-standalone-components.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout <work-branch>` | — |
+| 27 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
 
 ### Spec conventions
-- Service mocking priority: **1)** real service + `jest.spyOn` **2)** `let mock: Pick<Service, 'method'>` + `useValue: mock` **3)** inline `useValue: { ... } satisfies Pick<...>`
-- Never `useValue: { prop }` without a type annotation
+
+#### Service mocking — ALWAYS use `TestBed.inject()` + `jest.spyOn`
+**Never use `{ provide: Service, useValue: mockObject }`** for services that are `providedIn: 'root'` (which is nearly all services in this project).
+
+**Correct pattern:**
+```typescript
+providers: [provideHttpClient(), provideRouter([])],  // add what the service tree needs
+// ...
+service = TestBed.inject(MyService);
+jest.spyOn(service, "myMethod").mockReturnValue(of(result));
+// expectations:
+expect(service.myMethod).toHaveBeenCalledWith(expected);
+```
+
+**For `Observable<never>` return types** (e.g. DELETE/PUT endpoints that return 204):
+```typescript
+jest.spyOn(service, "deleteItem").mockReturnValue(of(undefined) as never);
+// `of(undefined) as never` emits once (triggers subscribe callbacks) AND satisfies the type
+```
+
+**For property-only services** (no methods to spy on — e.g. `FoutAfhandelingService.foutmelding`):
+```typescript
+foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+foutAfhandelingService.foutmelding = "Test fout";  // set directly before createComponent
+```
+
+**Common providers needed:**
+- `provideHttpClient()` — for any service using `ZacHttpClient`
+- `provideRouter([])` — for any service using `Router` (e.g. `UtilService`, `FoutAfhandelingService`)
+- `provideQueryClient(testQueryClient)` — for TanStack Query (import `testQueryClient` from `setupJest.ts`)
+
+**`useValue` is only acceptable** for Angular built-in tokens (`MAT_DIALOG_DATA`, `LOCALE_ID`) or complex dependencies you cannot inject differently.
+
+---
+
 - `WritableSignal` in mocks → `signal(value)`, not `jest.fn()`
 - TanStack Query → `provideQueryClient(testQueryClient)` from `setupJest.ts`
-- Describe-scope order: `fixture` → `loader` → services → mocks; inject services **before** `createComponent`
+- Describe-scope order: `fixture` → `loader` → services; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
 - **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
@@ -115,6 +150,39 @@ Solves PZ-XXXXX
 ---
 
 ## Completed
+
+### ✅ `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts` (2026-04-03) — Dax Batch 3
+- `imports: [NgIf, ReactiveFormsModule, MatToolbarModule, MatIconModule, MatDialogTitle, MatDialogContent, MatDividerModule, MatButtonModule, TranslateModule, MaterialFormBuilderModule]`
+- Access modifiers: `close()`, `verdeel()` → `protected`; `users` already `protected`
+- **Pattern**: Dialog opened via `MatDialog.open()` — standalone component does NOT need to be in module `declarations[]` or `imports[]`; only the TypeScript import is needed for the type reference
+- **Pattern**: `setup()` helper with `makeDialogData()` + `makeTaak()` factories enables separate `describe` blocks for different data scenarios (multiple taken, single taak, empty)
+
+### ✅ `notities/notities.component.ts` (2026-04-03) — Dax Batch 3
+- `imports: [NgIf, NgFor, MatButtonModule, MatIconModule, MatBadgeModule, MatCardModule, MatFormFieldModule, MatInputModule, CdkTextareaAutosize, TranslateModule, DatumPipe]`
+- Access modifiers: `notities`, `showNotes`, `geselecteerdeNotitieId`, `maxLengteTextArea` → `protected`; template methods → `protected`; `haalNotitiesOp()` → `private`
+- **Pattern**: Harness spec `TestHostComponent` becomes `standalone: true, imports: [NotitiesComponent]`; TestBed switches from `declarations: [TestHostComponent, Component]` to `imports: [TestHostComponent]`
+- **Pattern**: `zaak-view.component.spec.ts` had `NotitiesComponent` in `declarations[]` → moved to `imports[]`; fixed pre-existing `undefined` → `null` for `string | null` typed fields
+- **Pattern**: `CdkTextareaAutosize` from `@angular/cdk/text-field` required for `cdkTextareaAutosize` / `cdkAutosizeMinRows` / `cdkAutosizeMaxRows` directives
+
+### ✅ `identity/identity.component.ts` (2026-04-01)
+- `imports: [MatCardModule, MatListModule]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: identity overview component using Material card/list; signal inputs used
+
+### ✅ `gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component.ts` (2026-04-01)
+- `imports: [NgIf, NgFor, NgClass, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslateModule, ReadMoreComponent]`
+- Access modifiers: `actieveZoekopdracht`, `zoekopdrachten`, `actieveFilters` → `protected`; internal helpers → `private`
+- **Pattern**: `ReadMoreComponent` already standalone — import directly; `MatMenuModule` covers `mat-menu` + `[matMenuTriggerFor]`
+
+### ✅ `signaleringen/signaleringen-settings/signaleringen-settings.component.ts` (2026-04-01)
+- `imports: [NgClass, NgFor, NgIf, MatTableModule, MatCheckboxModule, TranslateModule]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: mat-table with simple module (SharedModule + routing only); 16 tests
+
+### ✅ `fout-afhandeling/fout-afhandeling.component.ts` (2026-04-01)
+- `imports: [AsyncPipe, NgFor, MatCardModule, MatIconModule, TranslateModule]`
+- Access modifiers: template-visible members → `protected`
+- **Pattern**: error-page component; only declaration in its module; minimal service dependencies
 
 ### ✅ `shared/version/version.component.ts` (2026-03-16)
 - `imports: [NgIf, MatChipsModule, MatTooltipModule, MatIconModule, MatCardModule, DatumPipe, TranslateModule]`
@@ -264,8 +332,20 @@ Solves PZ-XXXXX
 
 ---
 
+### ✅ `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts` (2026-04-02)
+- `imports: [NgIf, ReactiveFormsModule, RouterLink, TranslateModule, MatCardModule, MatSlideToggleModule, MatTableModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatIconModule, EmptyPipe, DatumPipe, TekstFilterComponent, FacetFilterComponent, DateRangeFilterComponent]`
+- Access modifiers: paginator/sort → private; dataSource/columns/filterColumns/isLoadingResults/zoekParameters/zoekResultaat/inclusiefAfgerondeZaken/filtersChanged → protected; init → private
+- **Pattern**: fixed pre-existing ngOnChanges bug (removed SimpleChanges re-assignment of @Input)
+
+### ✅ `bag/bag-view/bag-view.component.ts` (2026-04-02)
+- `imports: [NgIf, MatCardModule, MatSidenavModule, TranslateModule, StaticTextComponent, BagZakenTabelComponent, BagLocatieComponent]`
+- Access modifiers: all fields already protected, constructor params already private readonly
+- **Pattern**: last component in BAGModule — module now has empty declarations[]
+
+---
+
 ## Next Target
-`zoeken.module.ts` remaining `declarations`: `ZaakBetrokkeneFilterComponent` (116 lines) → `KlantZoekDialog` → `ZoekComponent` (294 lines, most complex). `KlantZoekDialog` blocked on `KlantZoekComponent` being non-standalone.
+`taken.module.ts` remaining: `TakenVrijgevenDialogComponent` (Marcel Batch 6), `TakenMijnComponent`, `TakenWerkvoorraadComponent`. `TakenWerkvoorraad` blocked on `TakenVrijgevenDialog` being standalone first. Good next picks: `core/toolbar` (complex, defer), `klanten/*` dialogs with specs, `zaken/*` dialogs.
 
 ---
 
@@ -309,3 +389,15 @@ Do **not** go hunting for these in files you are not already migrating. Only fix
 | Pattern | Why it is wrong | Fix |
 |---|---|---|
 | `ngOnChanges` re-assigns `@Input` from `changes.x?.currentValue` | Angular sets `@Input` fields before calling `ngOnChanges`. Re-assigning is redundant when the input _did_ change, and **destructive** (sets to `undefined`) when it _did not_. Only the side-effect call (e.g. `loadIndicaties()`) belongs in `ngOnChanges`. | Remove the re-assignment lines; keep only the side-effect call. Drop `SimpleChanges` from the parameter if it is no longer used. |
+
+---
+
+## Known Pre-existing Bugs
+
+Bugs spotted during migration but **not fixed** — scope is standalone migration only, no logic changes to minimise regression risk. Raise separate tickets for these.
+
+| Component | Bug | Found in batch |
+|---|---|---|
+| `ZoekopdrachtComponent` | `clearActief()` sets `actieveZoekopdracht = null` then immediately checks `if (emit && this.actieveZoekopdracht)` — always `false`. The `@Output() zoekopdracht` never emits when clearing; consumers are never notified. Output type should also include `null`. | batch-4 |
+| `SignaleringenSettingsComponent` | `changed()` calls `setLoading(true)` but only calls `setLoading(false)` in the success callback of `put()`. On HTTP error the loading spinner stays stuck forever. Should use `finalize(() => setLoading(false))`. | batch-4 |
+| `FoutAfhandelingComponent` | Template uses `serverErrorTexts \| async` twice (in `@if` and `*ngFor`), creating two separate HTTP subscriptions and triggering duplicate requests. Should use `shareReplay(1)` or an `@let` binding. | batch-4 |

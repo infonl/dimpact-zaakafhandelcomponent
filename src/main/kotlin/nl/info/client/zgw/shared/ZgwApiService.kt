@@ -254,12 +254,12 @@ class ZgwApiService @Inject constructor(
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
      * @param zaakUUID UUID of a [Zaak]
-     * @param toelichting Explanation why the [EnkelvoudigInformatieObject] is to be removed; may be null.
+     * @param reason Explanation why the [EnkelvoudigInformatieObject] is to be removed; may be null.
      */
     fun removeEnkelvoudigInformatieObjectFromZaak(
         enkelvoudigInformatieobject: EnkelvoudigInformatieObject,
         zaakUUID: UUID,
-        toelichting: String?
+        reason: String?
     ) {
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
@@ -267,7 +267,7 @@ class ZgwApiService @Inject constructor(
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
-            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, toelichting, ZAAK_OBJECT_DELETION_PREFIX) }
+            .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, reason, ZAAK_OBJECT_DELETION_PREFIX) }
 
         // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
