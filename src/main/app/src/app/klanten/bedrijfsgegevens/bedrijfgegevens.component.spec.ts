@@ -23,6 +23,7 @@ import { fromPartial } from "src/test-helpers";
 import { sleep } from "../../../../setupJest";
 import { MaterialModule } from "../../shared/material/material.module";
 import { PipesModule } from "../../shared/pipes/pipes.module";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 import { BedrijfsgegevensComponent } from "./bedrijfsgegevens.component";
@@ -43,6 +44,15 @@ describe(BedrijfsgegevensComponent.name, () => {
     kvkNummer: "12345678",
     vestigingsnummer: "12345678",
   });
+
+  const testZaak = fromPartial<GeneratedType<"RestZaak">>({
+    initiatorIdentificatie: betrokkeneIdentificatie,
+    rechten: {
+      toevoegenInitiatorBedrijf: false,
+      verwijderenInitiator: false,
+    },
+  });
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -69,7 +79,7 @@ describe(BedrijfsgegevensComponent.name, () => {
     fixture = TestBed.createComponent(BedrijfsgegevensComponent);
 
     componentRef = fixture.componentRef;
-    componentRef.setInput("initiatorIdentificatie", betrokkeneIdentificatie);
+    componentRef.setInput("zaak", testZaak);
 
     loader = TestbedHarnessEnvironment.loader(fixture);
     httpController = TestBed.inject(HttpTestingController);

@@ -37,7 +37,7 @@
           <mat-icon outlined>other_admission</mat-icon>
         </button>
         <button
-          *ngIf="isWijzigbaar()"
+          *ngIf="zaak().rechten.toevoegenInitiatorBedrijf"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.initiator.wijzigen' | translate"
           mat-icon-button
@@ -48,7 +48,7 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="isVerwijderbaar()"
+          *ngIf="zaak().rechten.verwijderenInitiator"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.ontkoppelen' | translate"
           mat-icon-button

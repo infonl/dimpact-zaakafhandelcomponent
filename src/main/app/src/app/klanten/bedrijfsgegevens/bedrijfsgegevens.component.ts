@@ -18,13 +18,14 @@ import { KlantenService } from "../klanten.service";
   standalone: false,
 })
 export class BedrijfsgegevensComponent {
-  protected isVerwijderbaar = input<boolean | null>(false);
-  protected isWijzigbaar = input<boolean | null>(false);
-  protected initiatorIdentificatie =
-    input.required<GeneratedType<"BetrokkeneIdentificatie">>();
+  protected zaak = input.required<GeneratedType<"RestZaak">>();
 
   protected delete = output<GeneratedType<"RestBedrijf"> | null>();
   protected edit = output<GeneratedType<"RestBedrijf"> | null>();
+
+  protected readonly initiatorIdentificatie = computed(
+    () => this.zaak().initiatorIdentificatie!,
+  );
 
   protected readonly bedrijfQuery = injectQuery(() =>
     this.klantenService.readBedrijf(

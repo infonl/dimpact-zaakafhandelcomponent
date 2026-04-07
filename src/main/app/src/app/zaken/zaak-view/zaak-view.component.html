@@ -173,9 +173,7 @@
           <zac-bedrijfsgegevens
             *ngSwitchCase="'BEDRIJF'"
             class="w100 flex-1"
-            [initiatorIdentificatie]="zaak.initiatorIdentificatie!"
-            [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-            [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
+            [zaak]="zaak"
             (edit)="addOrEditZaakInitiator()"
             (delete)="deleteInitiator()"
           >
