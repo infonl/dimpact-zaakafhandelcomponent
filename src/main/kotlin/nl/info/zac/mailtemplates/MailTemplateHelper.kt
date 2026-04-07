@@ -173,11 +173,15 @@ class MailTemplateHelper @Inject constructor(
         return resolvedTekst
     }
 
+    companion object {
+        private val HTML_TAG_PATTERN = Regex("<[^>]+>")
+    }
+
     fun resolveZaakdataVariables(text: String, zaak: Zaak): String {
         if (!text.contains("{ZAAKDATA:")) return text
         val zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid)
         return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
-            val key = matchResult.groupValues[1].replace(Regex("<[^>]+>"), "").trim()
+            val key = matchResult.groupValues[1].replace(HTML_TAG_PATTERN, "").trim()
             val value = zaakdata[key]?.toString()
             if (value.isNullOrBlank()) {
                 REPLACEMENT_FOR_UNKNOWN_NAME
