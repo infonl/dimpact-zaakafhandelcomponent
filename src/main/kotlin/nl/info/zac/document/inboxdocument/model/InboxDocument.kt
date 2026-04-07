@@ -1,117 +1,54 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.document.inboxdocument.model
 
-package net.atos.zac.document.inboxdocument.model;
-
-import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
-
-import java.time.LocalDate;
-import java.util.UUID;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
+import java.time.LocalDate
+import java.util.UUID
 
 @Entity
 @Table(schema = SCHEMA, name = "inbox_document")
 @SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-public class InboxDocument {
-
-    /**
-     * Naam van property: {@link InboxDocument#enkelvoudiginformatieobjectID}
-     */
-    public static final String ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME = "enkelvoudiginformatieobjectID";
-
-    /**
-     * Naam van property: {@link InboxDocument#enkelvoudiginformatieobjectUUID}
-     */
-    public static final String ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME = "enkelvoudiginformatieobjectUUID";
-
-    /**
-     * Naam van property: {@link InboxDocument#titel}
-     */
-    public static final String TITEL_PROPERTY_NAME = "titel";
-
-    /**
-     * Naam van property: {@link InboxDocument#creatiedatum}
-     */
-    public static final String CREATIE_DATUM_PROPERTY_NAME = "creatiedatum";
-
-    @Id
-    @GeneratedValue(generator = "sq_inbox_document", strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_inbox_document")
-    private Long id;
-
-    @NotNull @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
-    private UUID enkelvoudiginformatieobjectUUID;
-
-    @NotBlank @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
-    private String enkelvoudiginformatieobjectID;
-
-    @NotNull @Column(name = "creatiedatum", nullable = false)
-    private LocalDate creatiedatum;
-
-    @NotBlank @Column(name = "titel", nullable = false)
-    private String titel;
-
-    @Column(name = "bestandsnaam")
-    private String bestandsnaam;
-
-
-    public Long getId() {
-        return id;
+class InboxDocument {
+    companion object {
+        const val ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME = "enkelvoudiginformatieobjectID"
+        const val ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME = "enkelvoudiginformatieobjectUUID"
+        const val TITEL_PROPERTY_NAME = "titel"
+        const val CREATIE_DATUM_PROPERTY_NAME = "creatiedatum"
     }
 
-    public void setId(final Long id) {
-        this.id = id;
-    }
+    @field:Id
+    @field:GeneratedValue(generator = "sq_inbox_document", strategy = GenerationType.SEQUENCE)
+    @field:Column(name = "id_inbox_document")
+    var id: Long? = null
 
+    @field:NotNull
+    @field:Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    var enkelvoudiginformatieobjectUUID: UUID? = null
 
-    public UUID getEnkelvoudiginformatieobjectUUID() {
-        return enkelvoudiginformatieobjectUUID;
-    }
+    @field:NotBlank
+    @field:Column(name = "id_enkelvoudiginformatieobject", nullable = false)
+    var enkelvoudiginformatieobjectID: String? = null
 
-    public void setEnkelvoudiginformatieobjectUUID(final UUID enkelvoudiginformatieobjectUUID) {
-        this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID;
-    }
+    @field:NotNull
+    @field:Column(name = "creatiedatum", nullable = false)
+    var creatiedatum: LocalDate? = null
 
-    public String getEnkelvoudiginformatieobjectID() {
-        return enkelvoudiginformatieobjectID;
-    }
+    @field:NotBlank
+    @field:Column(name = "titel", nullable = false)
+    var titel: String? = null
 
-    public void setEnkelvoudiginformatieobjectID(final String enkelvoudiginformatieobjectID) {
-        this.enkelvoudiginformatieobjectID = enkelvoudiginformatieobjectID;
-    }
-
-    public LocalDate getCreatiedatum() {
-        return creatiedatum;
-    }
-
-    public void setCreatiedatum(final LocalDate creatiedatum) {
-        this.creatiedatum = creatiedatum;
-    }
-
-    public String getTitel() {
-        return titel;
-    }
-
-    public void setTitel(final String titel) {
-        this.titel = titel;
-    }
-
-    public String getBestandsnaam() {
-        return bestandsnaam;
-    }
-
-    public void setBestandsnaam(final String bestandsnaam) {
-        this.bestandsnaam = bestandsnaam;
-    }
+    @field:Column(name = "bestandsnaam")
+    var bestandsnaam: String? = null
 }

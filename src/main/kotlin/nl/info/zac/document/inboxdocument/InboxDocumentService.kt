@@ -1,175 +1,163 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.document.inboxdocument
 
-package net.atos.zac.document.inboxdocument;
-
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-
-import net.atos.client.zgw.shared.util.DateTimeUtil;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
-import net.atos.zac.document.inboxdocument.model.InboxDocument;
-import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters;
-import nl.info.client.zgw.drc.DrcClientService;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.zrc.ZrcClientService;
-import nl.info.zac.search.model.DatumRange;
-import nl.info.zac.shared.model.SorteerRichting;
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
+import jakarta.transaction.Transactional
+import jakarta.ws.rs.NotFoundException
+import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
+import nl.info.zac.search.model.DatumRange
+import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
 @ApplicationScoped
 @Transactional
-public class InboxDocumentService {
-
-    private static final String LIKE = "%%%s%%";
-
-    // Default constructor for CDI
-    public InboxDocumentService() {
+@NoArgConstructor
+@AllOpen
+@Suppress("TooManyFunctions")
+class InboxDocumentService @Inject constructor(
+    private val entityManager: EntityManager,
+    private val zrcClientService: ZrcClientService,
+    private val drcClientService: DrcClientService
+) {
+    fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument {
+        val informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
+        return InboxDocument().apply {
+            enkelvoudiginformatieobjectID = informatieobject.identificatie
+            this.enkelvoudiginformatieobjectUUID = enkelvoudiginformatieobjectUUID
+            creatiedatum = informatieobject.creatiedatum
+            titel = informatieobject.titel
+            bestandsnaam = informatieobject.bestandsnaam
+        }.also { entityManager.persist(it) }
     }
 
-    @Inject
-    public InboxDocumentService(
-            final EntityManager entityManager,
-            final ZrcClientService zrcClientService,
-            final DrcClientService drcClientService
-    ) {
-        this.entityManager = entityManager;
-        this.zrcClientService = zrcClientService;
-        this.drcClientService = drcClientService;
-    }
+    fun find(id: Long): InboxDocument? = entityManager.find(InboxDocument::class.java, id)
 
-    private EntityManager entityManager;
-    private ZrcClientService zrcClientService;
-    private DrcClientService drcClientService;
-
-    public InboxDocument create(final UUID enkelvoudiginformatieobjectUUID) {
-        final EnkelvoudigInformatieObject informatieobject = drcClientService.readEnkelvoudigInformatieobject(
+    fun find(enkelvoudiginformatieobjectUUID: UUID): InboxDocument? {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(InboxDocument::class.java)
+        val root = query.from(InboxDocument::class.java)
+        query.select(root).where(
+            builder.equal(
+                root.get<UUID>(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME),
                 enkelvoudiginformatieobjectUUID
-        );
-        final InboxDocument inboxDocument = new InboxDocument();
-        inboxDocument.setEnkelvoudiginformatieobjectID(informatieobject.getIdentificatie());
-        inboxDocument.setEnkelvoudiginformatieobjectUUID(enkelvoudiginformatieobjectUUID);
-        inboxDocument.setCreatiedatum(informatieobject.getCreatiedatum());
-        inboxDocument.setTitel(informatieobject.getTitel());
-        inboxDocument.setBestandsnaam(informatieobject.getBestandsnaam());
-        entityManager.persist(inboxDocument);
-        return inboxDocument;
+            )
+        )
+        return entityManager.createQuery(query).resultList.firstOrNull()
     }
 
-    public Optional<InboxDocument> find(final long id) {
-        final var inboxDocument = entityManager.find(InboxDocument.class, id);
-        return inboxDocument != null ? Optional.of(inboxDocument) : Optional.empty();
+    fun read(enkelvoudiginformatieobjectUUID: UUID): InboxDocument =
+        find(enkelvoudiginformatieobjectUUID)
+            ?: throw NotFoundException("InboxDocument with uuid '$enkelvoudiginformatieobjectUUID' not found.")
+
+    fun count(listParameters: InboxDocumentListParameters): Int {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Long::class.java)
+        val root = query.from(InboxDocument::class.java)
+        query.where(getWhere(listParameters = listParameters, root = root))
+        query.select(builder.count(root))
+        return entityManager.createQuery(query).singleResult?.toInt() ?: 0
     }
 
-    public Optional<InboxDocument> find(final UUID enkelvoudiginformatieobjectUUID) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<InboxDocument> query = builder.createQuery(InboxDocument.class);
-        final Root<InboxDocument> root = query.from(InboxDocument.class);
-        query.select(root).where(builder.equal(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME),
-                enkelvoudiginformatieobjectUUID));
-        final List<InboxDocument> resultList = entityManager.createQuery(query).getResultList();
-        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
+    fun delete(id: Long) {
+        find(id)?.let { entityManager.remove(it) }
     }
 
-    public InboxDocument read(final UUID enkelvoudiginformatieobjectUUID) {
-        return find(enkelvoudiginformatieobjectUUID).orElseThrow(() -> new RuntimeException(
-                "InboxDocument with uuid '%s' not found.".formatted(enkelvoudiginformatieobjectUUID)));
+    fun delete(uuid: UUID) {
+        find(uuid)?.let { entityManager.remove(it) }
     }
 
-    public int count(final InboxDocumentListParameters listParameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Long> query = builder.createQuery(Long.class);
-        final Root<InboxDocument> root = query.from(InboxDocument.class);
-        query.where(getWhere(listParameters, root));
-        query.select(builder.count(root));
-        final Long result = entityManager.createQuery(query).getSingleResult();
-        if (result == null) {
-            return 0;
-        }
-        return result.intValue();
+    fun deleteForZaakinformatieobject(zaakinformatieobjectUUID: UUID) {
+        val zaakInformatieobject = zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID)
+        find(zaakInformatieobject.informatieobject.extractUuid())?.let { entityManager.remove(it) }
     }
 
-    public void delete(final Long id) {
-        find(id).ifPresent(entityManager::remove);
-    }
-
-    public void delete(final UUID uuid) {
-        find(uuid).ifPresent(entityManager::remove);
-    }
-
-    public void deleteForZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
-        final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID);
-        final UUID enkelvoudiginformatieobjectUUID = extractUuid(zaakInformatieobject.getInformatieobject());
-        find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
-    }
-
-    public List<InboxDocument> list(final InboxDocumentListParameters listParameters) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<InboxDocument> query = builder.createQuery(InboxDocument.class);
-        final Root<InboxDocument> root = query.from(InboxDocument.class);
-        if (listParameters.getSorting() != null) {
-            if (listParameters.getSorting().getDirection() == SorteerRichting.ASCENDING) {
-                query.orderBy(builder.asc(root.get(listParameters.getSorting().getField())));
+    fun list(listParameters: InboxDocumentListParameters): List<InboxDocument> {
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(InboxDocument::class.java)
+        val root = query.from(InboxDocument::class.java)
+        listParameters.sorting?.let { sorting ->
+            if (sorting.direction == SorteerRichting.ASCENDING) {
+                query.orderBy(builder.asc(root.get<Any>(sorting.field)))
             } else {
-                query.orderBy(builder.desc(root.get(listParameters.getSorting().getField())));
+                query.orderBy(builder.desc(root.get<Any>(sorting.field)))
             }
         }
-        query.where(getWhere(listParameters, root));
-        final TypedQuery<InboxDocument> emQuery = entityManager.createQuery(query);
-        if (listParameters.getPaging() != null) {
-            emQuery.setFirstResult(listParameters.getPaging().getFirstResult());
-            emQuery.setMaxResults(listParameters.getPaging().getMaxResults());
+        query.where(getWhere(listParameters = listParameters, root = root))
+        val emQuery = entityManager.createQuery(query)
+        listParameters.paging?.let { paging ->
+            emQuery.firstResult = paging.getFirstResult()
+            emQuery.maxResults = paging.maxResults
         }
-        return emQuery.getResultList();
+        return emQuery.resultList
     }
 
-    private Predicate getWhere(final InboxDocumentListParameters listParameters, final Root<InboxDocument> root) {
-        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        final List<Predicate> predicates = new ArrayList<>();
-        if (StringUtils.isNotBlank(listParameters.getIdentificatie())) {
-            predicates.add(builder.like(root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME),
-                    LIKE.formatted(listParameters.getIdentificatie())));
+    private fun getWhere(listParameters: InboxDocumentListParameters, root: Root<InboxDocument>): Predicate {
+        val builder = entityManager.criteriaBuilder
+        val predicates = mutableListOf<Predicate>()
+        if (!listParameters.identificatie.isNullOrBlank()) {
+            predicates.add(
+                builder.like(
+                    root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME),
+                    "%${listParameters.identificatie}%"
+                )
+            )
         }
-        if (StringUtils.isNotBlank(listParameters.getTitel())) {
-            String titel = LIKE.formatted(listParameters.getTitel().toLowerCase().replace(" ", "%"));
-            predicates.add(builder.like(builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)), titel));
+        if (!listParameters.titel.isNullOrBlank()) {
+            val titel = listParameters.titel!!
+            predicates.add(
+                builder.like(
+                    builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)),
+                    "%${titel.lowercase().replace(" ", "%")}%"
+                )
+            )
         }
-        addCreatiedatumPredicates(listParameters.getCreatiedatum(), predicates, root, builder);
-        return builder.and(predicates.toArray(new Predicate[0]));
+        addCreatiedatumPredicates(
+            creatiedatum = listParameters.creatiedatum,
+            predicates = predicates,
+            root = root,
+            builder = builder
+        )
+        @Suppress("SpreadOperator")
+        return builder.and(*predicates.toTypedArray())
     }
 
-    private void addCreatiedatumPredicates(
-            final DatumRange creatiedatum,
-            final List<Predicate> predicates,
-            final Root<InboxDocument> root,
-            final CriteriaBuilder builder
+    private fun addCreatiedatumPredicates(
+        creatiedatum: DatumRange?,
+        predicates: MutableList<Predicate>,
+        root: Root<InboxDocument>,
+        builder: CriteriaBuilder
     ) {
-        if (creatiedatum != null) {
-            if (creatiedatum.getVan() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        DateTimeUtil.convertToDateTime(creatiedatum.getVan())));
+        creatiedatum?.let {
+            it.van?.let { van ->
+                predicates.add(
+                    builder.greaterThanOrEqualTo(
+                        root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
+                        convertToDateTime(van)
+                    )
+                )
             }
-            if (creatiedatum.getTot() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        DateTimeUtil.convertToDateTime(creatiedatum.getTot()).plusDays(1)
-                                .minusSeconds(1)));
+            it.tot?.let { tot ->
+                predicates.add(
+                    builder.lessThanOrEqualTo(
+                        root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
+                        convertToDateTime(tot).plusDays(1).minusSeconds(1)
+                    )
+                )
             }
         }
     }

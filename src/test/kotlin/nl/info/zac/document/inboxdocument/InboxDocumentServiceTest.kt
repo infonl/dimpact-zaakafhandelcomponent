@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document.inboxdocument
+package nl.info.zac.document.inboxdocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -16,15 +16,14 @@ import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.inboxdocument.model.InboxDocument
-import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters
-import net.atos.zac.document.inboxdocument.model.createInboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.model.createInboxDocument
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class InboxDocumentServiceTest : BehaviorSpec({
@@ -79,10 +78,10 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(InboxDocument::class.java, document.id) } returns document
 
             When("find is called with that ID") {
-                val result = inboxDocumentService.find(document.id)
+                val result = inboxDocumentService.find(document.id!!)
 
-                Then("an Optional containing the document is returned") {
-                    result shouldBe Optional.of(document)
+                Then("the document is returned") {
+                    result shouldBe document
                 }
             }
         }
@@ -94,8 +93,8 @@ class InboxDocumentServiceTest : BehaviorSpec({
             When("find is called with that ID") {
                 val result = inboxDocumentService.find(id)
 
-                Then("an empty Optional is returned") {
-                    result shouldBe Optional.empty()
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }
@@ -110,10 +109,10 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("find is called with that UUID") {
-                val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID)
+                val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID!!)
 
-                Then("an Optional containing the document is returned") {
-                    result shouldBe Optional.of(document)
+                Then("the document is returned") {
+                    result shouldBe document
                 }
             }
         }
@@ -128,8 +127,8 @@ class InboxDocumentServiceTest : BehaviorSpec({
             When("find is called with that UUID") {
                 val result = inboxDocumentService.find(unknownUuid)
 
-                Then("an empty Optional is returned") {
-                    result shouldBe Optional.empty()
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }
@@ -144,7 +143,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("read is called with that UUID") {
-                val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID)
+                val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID!!)
 
                 Then("the document is returned") {
                     result shouldBe document
@@ -174,8 +173,6 @@ class InboxDocumentServiceTest : BehaviorSpec({
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { getSingleResult() } returns null
             }
-            // Due to JVM type erasure, any<CriteriaQuery<Long>>() matches all createQuery() calls.
-            // The relaxed TypedQuery handles getResultList() calls with emptyList() by default.
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
             When("count is called with empty list parameters") {
@@ -212,7 +209,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(InboxDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                inboxDocumentService.delete(document.id)
+                inboxDocumentService.delete(document.id!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
@@ -288,7 +285,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("delete is called with that UUID") {
-                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID)
+                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }

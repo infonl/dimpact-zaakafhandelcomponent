@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.inboxdocument.converter
 
 import net.atos.zac.app.shared.RESTListParametersConverter
-import net.atos.zac.document.inboxdocument.model.InboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

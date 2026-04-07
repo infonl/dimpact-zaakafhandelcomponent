@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.inboxdocument.model
 
-import net.atos.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -24,7 +24,7 @@ data class RestInboxDocument(
 
 fun InboxDocument.toRestInboxDocument(informatieobjectTypeUUID: UUID) =
     RestInboxDocument(
-        id = this.id,
+        id = this.id ?: 0L,
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
         enkelvoudiginformatieobjectID = this.enkelvoudiginformatieobjectID,
         informatieobjectTypeUUID = informatieobjectTypeUUID,

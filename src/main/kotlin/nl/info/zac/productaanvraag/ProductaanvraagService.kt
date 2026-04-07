@@ -11,7 +11,6 @@ import jakarta.json.bind.JsonbConfig
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.inboxdocument.InboxDocumentService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
@@ -39,6 +38,7 @@ import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
@@ -174,7 +174,7 @@ class ProductaanvraagService @Inject constructor(
         }
 
     private fun deleteInboxDocument(documentUUID: UUID) =
-        inboxDocumentService.find(documentUUID).ifPresent { inboxDocumentService.delete(it.id) }
+        inboxDocumentService.find(documentUUID)?.id?.let { inboxDocumentService.delete(it) }
 
     /**
      * Handles a productaanvraag-Dimpact [ModelObject]
@@ -304,10 +304,9 @@ class ProductaanvraagService @Inject constructor(
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
         productaanvraag.pdf?.let { pdfUri ->
-            pdfUri.extractUuid().let {
-                inboxProductaanvraag.aanvraagdocumentUUID = it
-                deleteInboxDocument(it)
-            }
+            val pdfUUID = pdfUri.extractUuid()
+            inboxProductaanvraag.aanvraagdocumentUUID = pdfUUID
+            deleteInboxDocument(pdfUUID)
         }
         productaanvraag.bijlagen?.let { bijlagen ->
             inboxProductaanvraag.aantalBijlagen = bijlagen.size

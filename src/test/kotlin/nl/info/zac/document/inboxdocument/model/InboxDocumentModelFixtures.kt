@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document.inboxdocument.model
+package nl.info.zac.document.inboxdocument.model
 
 import java.time.LocalDate
 import java.util.UUID
