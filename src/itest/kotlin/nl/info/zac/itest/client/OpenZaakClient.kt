@@ -11,7 +11,6 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
@@ -36,6 +35,8 @@ class OpenZaakClient(
      * bypassing ZAC. Use this to simulate externally created documents in integration tests.
      *
      * The file is loaded from test resources and base64-encoded for the [inhoud] field.
+     * The [informatieobjecttype] URL is fetched from Open Zaak's catalogi API to ensure it
+     * matches the URL format that Open Zaak itself uses and will accept in the DRC API.
      *
      * @param fileName Name of the file in test resources (e.g. "fäkeTestDocument.pdf")
      * @param title Document title; defaults to [DOCUMENT_FILE_TITLE]
@@ -53,6 +54,7 @@ class OpenZaakClient(
         informatieobjectTypeUUID: UUID = UUID.fromString(INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID),
         vertrouwelijkheidaanduiding: String = "zaakvertrouwelijk"
     ): ResponseContent {
+        val informatieobjecttypeUrl = getInformatieobjecttypeUrl(informatieobjectTypeUUID)
         val resource = Thread.currentThread().contextClassLoader.getResource(fileName)
             ?: error("Test resource not found on classpath: '$fileName'")
         val file = File(URLDecoder.decode(resource.path, Charsets.UTF_8))
@@ -64,8 +66,7 @@ class OpenZaakClient(
                 "titel" to title,
                 "auteur" to FAKE_AUTHOR_NAME,
                 "taal" to "dut",
-                "informatieobjecttype" to
-                    "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/informatieobjecttypen/$informatieobjectTypeUUID",
+                "informatieobjecttype" to informatieobjecttypeUrl,
                 "inhoud" to encodedContent,
                 "bestandsnaam" to fileName,
                 "bestandsomvang" to file.length(),
@@ -78,6 +79,18 @@ class OpenZaakClient(
             requestBodyAsString = requestBody
         )
     }
+
+    /**
+     * Fetches the URL of an informatieobjecttype from Open Zaak's catalogi API.
+     * This returns the URL as Open Zaak itself serves it, which is the URL format
+     * that Open Zaak accepts in the DRC API when creating enkelvoudiginformatieobjecten.
+     */
+    private fun getInformatieobjecttypeUrl(informatieobjectTypeUUID: UUID): String =
+        itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/catalogi/api/v1/informatieobjecttypen/$informatieobjectTypeUUID"
+        ).let { response ->
+            JSONObject(response.bodyAsString).getString("url")
+        }
 }
 
 /**

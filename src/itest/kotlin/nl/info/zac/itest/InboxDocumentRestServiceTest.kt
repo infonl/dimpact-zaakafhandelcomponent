@@ -12,18 +12,21 @@ import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_CREATED
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("MagicNumber")
 class InboxDocumentRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val maxResults = 10
     val zacClient = ZacClient(itestHttpClient)
     val openZaakClient = OpenZaakClient(itestHttpClient)
     val documentHelper = DocumentHelper(zacClient)
@@ -36,7 +39,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         )
         logger.info { "createEnkelvoudigInformatieobject response: ${createResponse.bodyAsString}" }
         createResponse.code shouldBe HTTP_CREATED
-        val documentUuid = JSONObject(createResponse.bodyAsString).getString("uuid").run(UUID::fromString)
+        val documentUuid = JSONObject(createResponse.bodyAsString).getString("url")
+            .substringAfterLast("/").run(UUID::fromString)
 
         When("a create notification is sent to ZAC for that document") {
             documentHelper.sendEnkelvoudigInformatieobjectCreateNotification(documentUuid)
@@ -48,11 +52,11 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         requestBodyAsString = JSONObject(
                             mapOf(
                                 "page" to 0,
-                                "maxResults" to 10,
+                                "maxResults" to maxResults,
                                 "titel" to uniqueTitle
                             )
                         ).toString(),
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = COORDINATOR_DOMAIN_TEST_1
                     )
                     listResponse.code shouldBe HTTP_OK
                     with(JSONObject(listResponse.bodyAsString)) {
@@ -63,6 +67,62 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         }
                     }
                 }
+            }
+        }
+    }
+
+    Given("a document is created directly in Open Zaak and appears in the inbox documents list") {
+        val uniqueTitle = "inbox-doc-delete-itest-${UUID.randomUUID()}"
+        val createResponse = openZaakClient.createEnkelvoudigInformatieobject(
+            fileName = TEST_PDF_FILE_NAME,
+            title = uniqueTitle
+        )
+        logger.info { "createEnkelvoudigInformatieobject response: ${createResponse.bodyAsString}" }
+        createResponse.code shouldBe HTTP_CREATED
+        val documentUuid = JSONObject(createResponse.bodyAsString).getString("url")
+            .substringAfterLast("/").run(UUID::fromString)
+        documentHelper.sendEnkelvoudigInformatieobjectCreateNotification(documentUuid)
+        var inboxDocumentId = 0L
+        eventually(10.seconds) {
+            val listResponse = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/inboxdocumenten",
+                requestBodyAsString = JSONObject(
+                    mapOf(
+                        "page" to 0,
+                        "maxResults" to maxResults,
+                        "titel" to uniqueTitle
+                    )
+                ).toString(),
+                testUser = COORDINATOR_DOMAIN_TEST_1
+            )
+            listResponse.code shouldBe HTTP_OK
+            JSONObject(listResponse.bodyAsString).run {
+                getInt("totaal") shouldBe 1
+                inboxDocumentId = getJSONArray("resultaten").getJSONObject(0).getLong("id")
+            }
+        }
+
+        When("the inbox document is deleted") {
+            val deleteResponse = itestHttpClient.performDeleteRequest(
+                url = "$ZAC_API_URI/inboxdocumenten/$inboxDocumentId",
+                testUser = COORDINATOR_DOMAIN_TEST_1
+            )
+
+            Then("the inbox document should no longer appear in the inbox documents list") {
+                deleteResponse.code shouldBe HTTP_NO_CONTENT
+                val listResponse = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/inboxdocumenten",
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "page" to 0,
+                            "maxResults" to maxResults,
+                            "titel" to uniqueTitle
+                        )
+                    ).toString(),
+                    testUser = COORDINATOR_DOMAIN_TEST_1
+                )
+                listResponse.code shouldBe HTTP_OK
+                JSONObject(listResponse.bodyAsString).getInt("totaal") shouldBe 0
             }
         }
     }
