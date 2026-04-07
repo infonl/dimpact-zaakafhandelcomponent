@@ -65,11 +65,11 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
-    NotitiesComponent,
     ZaakDocumentenComponent,
   ],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
+    NotitiesComponent,
     SharedModule,
     ZakenRoutingModule,
     KlantenModule,
