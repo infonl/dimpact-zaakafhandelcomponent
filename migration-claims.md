@@ -40,9 +40,11 @@
 ### Batch 6 — claimed
 - [ ] KlantContactmomentenTabelComponent
 - [ ] ZaakBetrokkeneFilterComponent
-- [ ] PersoonsgegevensComponent
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
+
+### PZ-10533 feature branch — in progress
+- [ ] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
 
 ### Bundle size — in progress
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
