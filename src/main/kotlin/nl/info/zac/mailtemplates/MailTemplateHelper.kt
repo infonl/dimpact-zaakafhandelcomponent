@@ -60,7 +60,6 @@ class MailTemplateHelper @Inject constructor(
         private val HTML_TAG_PATTERN = Regex("<[^>]+>")
     }
 
-
     fun resolveGemeenteVariable(text: String): String =
         replaceVariable(
             targetString = text,
