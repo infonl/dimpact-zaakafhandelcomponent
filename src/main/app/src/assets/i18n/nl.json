@@ -1051,6 +1051,8 @@
   "bagobjectgegevens": "BAG objectgegevens",
   "initiator.panel-title": "Initiator",
   "initiator.aanvraagspecifieke-contactgegevens": "Aanvraagspecifieke contactgegevens",
+  "initiator.aanvraagspecifiek-telefoonnummer": "Dit is een aanvraagspecifiek telefoonnummer",
+  "initiator.aanvraagspecifiek-emailadres": "Dit is een aanvraagspecifiek e-mailadres",
   "burgerservicenummer": "Burgerservicenummer",
   "vestigingsnummer": "Vestigingsnummer",
   "bsn.vestigingsnummer.rsin": "BSN / Vestigingsnummer / RSIN",

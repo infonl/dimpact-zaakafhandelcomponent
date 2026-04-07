@@ -561,12 +561,12 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("initiator view", () => {
-    const koppelingen = fromPartial<
-      GeneratedType<"RestBetrokkeneKoppelingen">
-    >({
-      brpKoppelen: true,
-      kvkKoppelen: true,
-    });
+    const koppelingen = fromPartial<GeneratedType<"RestBetrokkeneKoppelingen">>(
+      {
+        brpKoppelen: true,
+        kvkKoppelen: true,
+      },
+    );
 
     it("should show zac-zaak-initiator-toevoegen when no type matches and no contact details", () => {
       mockActivatedRoute.data.next({
@@ -576,7 +576,9 @@ describe(ZaakViewComponent.name, () => {
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({ betrokkeneKoppelingen: koppelingen }),
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
           },
         },
       });
@@ -591,11 +593,16 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
-          initiatorIdentificatie: fromPartial({ type: "BSN", temporaryPersonId: "test-id" }),
+          initiatorIdentificatie: fromPartial({
+            type: "BSN",
+            temporaryPersonId: "test-id",
+          }),
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({ betrokkeneKoppelingen: koppelingen }),
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
           },
         },
       });
@@ -618,7 +625,9 @@ describe(ZaakViewComponent.name, () => {
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({ betrokkeneKoppelingen: koppelingen }),
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
           },
         },
       });
@@ -636,7 +645,10 @@ describe(ZaakViewComponent.name, () => {
           initiatorIdentificatie: null,
           zaakSpecificContactDetails: fromPartial<
             GeneratedType<"ContactDetails">
-          >({ telephoneNumber: "0612345678", emailAddress: "test@example.com" }),
+          >({
+            telephoneNumber: "0612345678",
+            emailAddress: "test@example.com",
+          }),
         },
       });
       fixture.detectChanges();
