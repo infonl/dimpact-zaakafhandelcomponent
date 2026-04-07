@@ -548,9 +548,7 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("should not render <zac-notities> when notitieRechten is absent", () => {
-      jest
-        .spyOn(policyService, "readNotitieRechten")
-        .mockReturnValue(EMPTY);
+      jest.spyOn(policyService, "readNotitieRechten").mockReturnValue(EMPTY);
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
