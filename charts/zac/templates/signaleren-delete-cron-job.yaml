@@ -24,20 +24,22 @@ spec:
           securityContext:
             {{- toYaml .Values.signaleringen.securityContext | nindent 12 }}
           restartPolicy: {{ .Values.signaleringen.restartPolicy }}
-          {{- with .Values.signaleringen.imagePullSecrets }}
-          imagePullSecrets:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           containers:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren-delete
               image: "{{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}"
               imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               resources:
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
+              env:
+                - name: ZAC_INTERNAL_ENDPOINTS_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "zaakafhandelcomponent.fullname" . }}
+                      key: ZAC_INTERNAL_ENDPOINTS_API_KEY
               args:
                 - -X DELETE
                 - -H
-                - 'X-API-KEY: {{ .Values.zacInternalEndpointsApiKey }}'
+                - 'X-API-KEY: $(ZAC_INTERNAL_ENDPOINTS_API_KEY)'
                 - {{ printf "http://%s.%s/rest/internal/signaleringen/delete-old" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
           {{- with .Values.signaleringen.nodeSelector }}
           nodeSelector:
