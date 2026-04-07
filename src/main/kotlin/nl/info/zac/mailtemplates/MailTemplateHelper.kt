@@ -179,8 +179,11 @@ class MailTemplateHelper @Inject constructor(
         return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
             val key = matchResult.groupValues[1].replace(Regex("<[^>]+>"), "").trim()
             val value = zaakdata[key]?.toString()
-            if (value.isNullOrBlank()) REPLACEMENT_FOR_UNKNOWN_NAME
-            else StringEscapeUtils.escapeHtml4(value)
+            if (value.isNullOrBlank()) {
+                REPLACEMENT_FOR_UNKNOWN_NAME
+            } else {
+                StringEscapeUtils.escapeHtml4(value)
+            }
         }
     }
 
