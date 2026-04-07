@@ -39,7 +39,7 @@
 
 ### Batch 6 — claimed
 - [x] KlantContactmomentenTabelComponent
-- [ ] ZaakBetrokkeneFilterComponent
+- [x] ZaakBetrokkeneFilterComponent
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
 
