@@ -21,7 +21,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { of, ReplaySubject } from "rxjs";
+import { EMPTY, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
@@ -97,11 +97,11 @@ describe(ZaakViewComponent.name, () => {
       declarations: [
         ZaakViewComponent,
         ZaakDocumentenComponent,
-        NotitiesComponent,
         PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,
@@ -269,15 +269,15 @@ describe(ZaakViewComponent.name, () => {
     it.each([
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
+          einddatum: null,
+          einddatumGepland: null,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
         1,
       ],
       [
         {
-          einddatum: undefined,
+          einddatum: null,
           einddatumGepland: yesterdayDate,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
@@ -285,23 +285,23 @@ describe(ZaakViewComponent.name, () => {
       ],
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
+          einddatum: null,
+          einddatumGepland: null,
           uiterlijkeEinddatumAfdoening: yesterdayDate,
         },
         1,
       ],
       [
         {
-          einddatum: undefined,
-          einddatumGepland: undefined,
-          uiterlijkeEinddatumAfdoening: undefined,
+          einddatum: null,
+          einddatumGepland: null,
+          uiterlijkeEinddatumAfdoening: null,
         },
         0,
       ],
       [
         {
-          einddatum: undefined,
+          einddatum: null,
           einddatumGepland: tomorrowDate,
           uiterlijkeEinddatumAfdoening: tomorrowDate,
         },
@@ -507,6 +507,52 @@ describe(ZaakViewComponent.name, () => {
 
     it("should add menu subscription to subscriptions$ array when setupMenu is called", () => {
       expect(subscriptionsPushSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("notities", () => {
+    let policyService: PolicyService;
+
+    beforeEach(() => {
+      policyService = TestBed.inject(PolicyService);
+    });
+
+    it("should render <zac-notities> when notitieRechten.lezen is true", () => {
+      jest
+        .spyOn(policyService, "readNotitieRechten")
+        .mockReturnValue(of({ lezen: true, wijzigen: false }));
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+    });
+
+    it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
+      jest
+        .spyOn(policyService, "readNotitieRechten")
+        .mockReturnValue(of({ lezen: false, wijzigen: true }));
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+    });
+
+    it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
+      jest
+        .spyOn(policyService, "readNotitieRechten")
+        .mockReturnValue(of({ lezen: false, wijzigen: false }));
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+    });
+
+    it("should not render <zac-notities> when notitieRechten is absent", () => {
+      jest.spyOn(policyService, "readNotitieRechten").mockReturnValue(EMPTY);
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
     });
   });
 

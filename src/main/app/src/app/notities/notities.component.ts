@@ -3,9 +3,19 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CdkTextareaAutosize } from "@angular/cdk/text-field";
+import { NgFor, NgIf } from "@angular/common";
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { MatBadgeModule } from "@angular/material/badge";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../identity/identity.service";
+import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
 
@@ -13,7 +23,20 @@ import { NotitieService } from "./notities.service";
   selector: "zac-notities",
   templateUrl: "./notities.component.html",
   styleUrls: ["./notities.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    MatButtonModule,
+    MatIconModule,
+    MatBadgeModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    CdkTextareaAutosize,
+    TranslateModule,
+    DatumPipe,
+  ],
 })
 export class NotitiesComponent implements OnInit {
   @Input({ required: true }) zaakUuid!: string;
@@ -28,30 +51,29 @@ export class NotitiesComponent implements OnInit {
     this.identityService.readLoggedInUser(),
   );
 
-  notities: GeneratedType<"RestNote">[] = [];
-  showNotes = false;
-
-  geselecteerdeNotitieId: number | null = null;
-  maxLengteTextArea = 1000;
+  protected notities: GeneratedType<"RestNote">[] = [];
+  protected showNotes = false;
+  protected geselecteerdeNotitieId: number | null = null;
+  protected maxLengteTextArea = 1000;
 
   constructor(
     private identityService: IdentityService,
     private notitieService: NotitieService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.haalNotitiesOp();
   }
 
-  toggleNotitieContainer() {
+  protected toggleNotitieContainer() {
     this.showNotes = !this.showNotes;
   }
 
-  pasNotitieAan(id: number) {
+  protected pasNotitieAan(id: number) {
     this.geselecteerdeNotitieId = id;
   }
 
-  haalNotitiesOp() {
+  private haalNotitiesOp() {
     this.notitieService.listNotities(this.zaakUuid).subscribe((notities) => {
       this.notities = notities;
       this.notities.sort((a, b) => {
@@ -65,7 +87,7 @@ export class NotitiesComponent implements OnInit {
     });
   }
 
-  maakNotitieAan(tekst: string) {
+  protected maakNotitieAan(tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser?.id) return;
     if (tekst.length === 0) return;
@@ -87,7 +109,7 @@ export class NotitiesComponent implements OnInit {
       });
   }
 
-  updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
+  protected updateNotitie(notitie: GeneratedType<"RestNote">, tekst: string) {
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser?.id) return;
 
@@ -106,12 +128,12 @@ export class NotitiesComponent implements OnInit {
       });
   }
 
-  annuleerUpdateNotitie() {
+  protected annuleerUpdateNotitie() {
     this.notitieTekst.nativeElement.value = "";
     this.geselecteerdeNotitieId = null;
   }
 
-  verwijderNotitie(id: number) {
+  protected verwijderNotitie(id: number) {
     this.notitieService.deleteNotitie(id).subscribe(() => {
       this.notities.splice(
         this.notities.findIndex((n) => n.id === id),
