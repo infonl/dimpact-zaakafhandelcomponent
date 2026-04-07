@@ -8,8 +8,7 @@ import { SharedModule } from "../shared/shared.module";
 import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 
 @NgModule({
-  declarations: [KlantContactmomentenTabelComponent],
+  imports: [SharedModule, KlantContactmomentenTabelComponent],
   exports: [KlantContactmomentenTabelComponent],
-  imports: [SharedModule],
 })
 export class ContactmomentenModule {}
