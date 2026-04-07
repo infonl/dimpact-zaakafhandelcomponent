@@ -5,14 +5,9 @@
 
 package nl.info.zac.app.informatieobjecten.model
 
-import net.atos.zac.app.informatieobjecten.model.RESTFileUpload
-import net.atos.zac.app.informatieobjecten.model.RESTInformatieobjectZoekParameters
-import net.atos.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.identity.model.RestUser
 import java.time.LocalDate
 import java.util.UUID
 
@@ -21,12 +16,12 @@ fun createRestDocumentVerzendGegevens(
     verzenddatum: LocalDate = LocalDate.now(),
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID()),
     toelichting: String = "fakeToelichting",
-) = RestDocumentVerzendGegevens().apply {
-    this.zaakUuid = zaakUuid
-    this.verzenddatum = verzenddatum
-    this.informatieobjecten = informatieobjecten
-    this.toelichting = toelichting
-}
+) = RestDocumentVerzendGegevens(
+    zaakUuid = zaakUuid,
+    verzenddatum = verzenddatum,
+    informatieobjecten = informatieobjecten,
+    toelichting = toelichting
+)
 
 @Suppress("LongParameterList")
 fun createRestEnkelvoudigInformatieobject(
@@ -40,19 +35,28 @@ fun createRestEnkelvoudigInformatieobject(
     file: ByteArray = "fakeFile".toByteArray(),
     bestandsNaam: String = "fakeFilename",
     formaat: String = "fakeType",
-    indicatieGebruiksrecht: Boolean? = null
-) = RestEnkelvoudigInformatieobject().apply {
-    this.uuid = uuid
-    this.status = status
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.creatiedatum = creatieDatum
-    this.auteur = auteur
-    this.taal = taal
-    this.informatieobjectTypeUUID = informatieobjectTypeUUID
-    this.file = file
-    this.bestandsnaam = bestandsNaam
-    this.formaat = formaat
-    this.indicatieGebruiksrecht = indicatieGebruiksrecht ?: false
+    indicatieGebruiksrecht: Boolean = false,
+    gelockedDoor: RestUser? = null,
+    ondertekening: RestOndertekening? = null,
+    isBesluitDocument: Boolean = false,
+    verzenddatum: LocalDate? = null
+) = RestEnkelvoudigInformatieobject(
+    uuid = uuid,
+    status = status,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    creatiedatum = creatieDatum,
+    auteur = auteur,
+    taal = taal,
+    informatieobjectTypeUUID = informatieobjectTypeUUID,
+    formaat = formaat,
+    indicatieGebruiksrecht = indicatieGebruiksrecht,
+    gelockedDoor = gelockedDoor,
+    ondertekening = ondertekening,
+    isBesluitDocument = isBesluitDocument,
+    verzenddatum = verzenddatum
+).also {
+    it.file = file
+    it.bestandsnaam = bestandsNaam
 }
 
 fun createRestFileUpload(
@@ -60,24 +64,24 @@ fun createRestFileUpload(
     fileSize: Long = 123L,
     filename: String = "fakeFilename",
     type: String = "fakeType"
-) = RESTFileUpload().apply {
-    this.file = file
-    this.filename = filename
-    this.fileSize = fileSize
-    this.type = type
-}
+) = RestFileUpload(
+    file = file,
+    fileSize = fileSize,
+    filename = filename,
+    type = type
+)
 
 fun createRestInformatieobjecttype(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "fakeOmschrijving",
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
     concept: Boolean = false
-) = RestInformatieobjecttype().apply {
-    this.uuid = uuid
-    this.omschrijving = omschrijving
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-    this.concept = concept
-}
+) = RestInformatieobjecttype(
+    uuid = uuid,
+    omschrijving = omschrijving,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    concept = concept
+)
 
 @Suppress("LongParameterList")
 fun createRestEnkelvoudigInformatieObjectVersieGegevens(
@@ -88,14 +92,15 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     formaat: String = "fakeType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
-) = RestEnkelvoudigInformatieObjectVersieGegevens().apply {
-    this.uuid = uuid
-    this.zaakUuid = zaakUuid
-    this.bestandsnaam = bestandsnaam
-    this.formaat = formaat
-    this.file = file
-    this.informatieobjectTypeUUID = informatieobjectTypeUUID
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+) = RestEnkelvoudigInformatieObjectVersieGegevens(
+    uuid = uuid,
+    zaakUuid = zaakUuid,
+    formaat = formaat,
+    informatieobjectTypeUUID = informatieobjectTypeUUID,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+).also {
+    it.bestandsnaam = bestandsnaam
+    it.file = file
 }
 
 fun createRestInformatieobjectZoekParameters(
@@ -103,9 +108,9 @@ fun createRestInformatieobjectZoekParameters(
     zaakUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     gekoppeldeZaakDocumenten: Boolean = false
-) = RESTInformatieobjectZoekParameters().apply {
-    this.informatieobjectUUIDs = informatieobjectUUIDs
-    this.zaakUUID = zaakUuid
-    this.besluittypeUUID = besluittypeUuid
-    this.gekoppeldeZaakDocumenten = gekoppeldeZaakDocumenten
-}
+) = RestInformatieobjectZoekParameters(
+    informatieobjectUUIDs = informatieobjectUUIDs,
+    zaakUUID = zaakUuid,
+    besluittypeUUID = besluittypeUuid,
+    gekoppeldeZaakDocumenten = gekoppeldeZaakDocumenten
+)

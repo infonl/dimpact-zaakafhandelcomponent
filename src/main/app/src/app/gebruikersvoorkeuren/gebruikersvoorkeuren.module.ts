@@ -9,8 +9,8 @@ import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog/zoek
 import { ZoekopdrachtComponent } from "./zoekopdracht/zoekopdracht.component";
 
 @NgModule({
-  declarations: [ZoekopdrachtSaveDialogComponent, ZoekopdrachtComponent],
+  declarations: [ZoekopdrachtSaveDialogComponent],
   exports: [ZoekopdrachtComponent],
-  imports: [SharedModule],
+  imports: [SharedModule, ZoekopdrachtComponent],
 })
 export class GebruikersvoorkeurenModule {}

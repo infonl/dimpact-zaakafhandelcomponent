@@ -77,7 +77,7 @@
       (click)="setActief(value)"
       id="selecteerZoekopdracht"
     >
-      <read-more [text]="value.naam" [maxLength]="75"></read-more>
+      <read-more [text]="value.naam ?? undefined" [maxLength]="75"></read-more>
       <mat-icon
         matSuffix
         (click)="deleteZoekopdracht($event, value)"

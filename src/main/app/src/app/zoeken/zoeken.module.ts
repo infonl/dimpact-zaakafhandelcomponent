@@ -8,7 +8,7 @@ import { NgModule } from "@angular/core";
 import { SharedModule } from "../shared/shared.module";
 
 import { RouterLink } from "@angular/router";
-import { BAGModule } from "../bag/bag.module";
+import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
 import { KlantenModule } from "../klanten/klanten.module";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { PipesModule } from "../shared/pipes/pipes.module";
@@ -36,7 +36,7 @@ import { ZoekComponent } from "./zoek/zoek.component";
     DocumentZoekObjectComponent,
     MultiFacetFilterComponent,
     DateFilterComponent,
-    BAGModule,
+    BagZoekComponent,
     PipesModule,
   ],
 })

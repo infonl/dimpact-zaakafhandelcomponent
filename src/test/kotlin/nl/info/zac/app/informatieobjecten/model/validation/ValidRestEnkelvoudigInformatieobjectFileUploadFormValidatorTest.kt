@@ -7,8 +7,7 @@ package nl.info.zac.app.informatieobjecten.model.validation
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
-import net.atos.zac.app.informatieobjecten.model.validation.ValidRestEnkelvoudigInformatieFileUploadFormValidator
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 
 class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : BehaviorSpec({
 

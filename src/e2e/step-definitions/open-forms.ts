@@ -6,7 +6,6 @@
 import { Given, When } from "@cucumber/cucumber";
 import path from "path";
 import { CustomWorld } from "support/worlds/world";
-import uniqid from "uniqid";
 import { z } from "zod";
 import { profiles } from "../support/open-forms/profiles";
 import { ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS } from "../support/time-constants";
@@ -22,7 +21,7 @@ Given(
   ) {
     const parsedProfile = profilesSchema.parse(profileType);
     const profile = profiles[parsedProfile];
-    const id = uniqid();
+    const id = crypto.randomUUID();
     this.testStorage.set("open-forms-testid", id);
 
     const firstNameInput = this.page.getByLabel("Voornaam").nth(0);

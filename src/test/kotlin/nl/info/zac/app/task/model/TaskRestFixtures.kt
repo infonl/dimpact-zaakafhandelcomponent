@@ -6,8 +6,8 @@
 package nl.info.zac.app.task.model
 
 import jakarta.json.JsonObject
-import net.atos.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.policy.model.createRestTaakRechten
 import nl.info.zac.app.zaak.model.createRestUser

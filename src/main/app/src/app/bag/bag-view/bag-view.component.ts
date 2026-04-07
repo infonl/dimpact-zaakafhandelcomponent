@@ -3,15 +3,31 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
+import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
+import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
 
 @Component({
   templateUrl: "./bag-view.component.html",
   styleUrls: ["./bag-view.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatCardModule,
+    MatSidenavModule,
+    TranslateModule,
+    StaticTextComponent,
+    BagZakenTabelComponent,
+    BagLocatieComponent,
+  ],
 })
 export class BAGViewComponent implements OnInit {
   protected bagIdentificatie!: string;
@@ -27,7 +43,7 @@ export class BAGViewComponent implements OnInit {
     private readonly activatedRoute: ActivatedRoute,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.utilService.setTitle("bagobjectgegevens");
     this.activatedRoute.data.subscribe((data) => {
       const bagObject: GeneratedType<"RESTBAGObject"> = data.bagObject;
@@ -35,7 +51,7 @@ export class BAGViewComponent implements OnInit {
       switch (bagObject.bagObjectType) {
         case "ADRES":
           this.adres = bagObject;
-          this.geometrie = this.adres.geometry;
+          this.geometrie = this.adres.geometry ?? undefined;
           break;
         case "ADRESSEERBAAR_OBJECT":
           break; // (Nog) geen zelfstandige entiteit
@@ -44,7 +60,7 @@ export class BAGViewComponent implements OnInit {
           break;
         case "PAND":
           this.pand = bagObject;
-          this.geometrie = this.pand.geometry;
+          this.geometrie = this.pand.geometry ?? undefined;
           break;
         case "OPENBARE_RUIMTE":
           this.openbareRuimte = bagObject;

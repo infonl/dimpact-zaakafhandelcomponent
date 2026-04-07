@@ -390,7 +390,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:ba8e26a0e4dc1178f2c90ff8c4090e1ca351bf8f38b2be3052de194e7e2ad291
+      tag: 1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -400,7 +400,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1-slim@sha256:bee615b4c6fb0ffd6f7ab395d9b3f323cfa69327d085c99db6d6c149e4cb2a3b
+      tag: 9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -615,7 +615,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.5@sha256:ce952b0ce38684fe7742497df6586d8919aec9be7ad668b438359aa086cbf3d8
+    tag: 1.29.5@sha256:bd68c793125e39123d1fdf3c0e9b7d4218667b9db049ed46b1b71aa4cb4493ef
   service:
     type: ClusterIP
     port: 80

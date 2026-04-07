@@ -21,12 +21,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Snyk to check for Node E2E tests vulnerabilities
-        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # master
+        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --all-projects --exclude=build.gradle.kts,pom.xml,app --sarif --sarif-category=snyk-node-e2e --sarif-file-output=snyk-node-e2e.sarif
+          args: --all-projects --exclude=build.gradle.kts,pom.xml,app,scripts --sarif --sarif-category=snyk-node-e2e --sarif-file-output=snyk-node-e2e.sarif
           command: test
 
       - name: Upload Snyk Node e2e result to GitHub Code Scanning
@@ -41,12 +41,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Snyk to check for Node app vulnerabilities
-        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # master
+        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --all-projects --exclude=build.gradle.kts,pom.xml,e2e --sarif --sarif-category=snyk-node-app --sarif-file-output=snyk-node-app.sarif
+          args: --all-projects --exclude=build.gradle.kts,pom.xml,e2e,scripts --sarif --sarif-category=snyk-node-app --sarif-file-output=snyk-node-app.sarif
           command: test
 
       - name: Upload Snyk Node app result to GitHub Code Scanning
@@ -61,12 +61,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run Snyk to check for Gradle vulnerabilities
-        uses: snyk/actions/gradle@9adf32b1121593767fc3c057af55b55db032dc04 # master
+        uses: snyk/actions/gradle-9-jdk21@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif --sarif-category=snyk-gradle --sarif-file-output=snyk-gradle.sarif
+          args: --sarif --sarif-category=snyk-gradle --sarif-file-output=snyk-gradle.sarif -- --no-configuration-cache
 
       - name: Upload Snyk Gradle result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1

@@ -110,9 +110,12 @@ public class InboxDocumentService {
         find(id).ifPresent(entityManager::remove);
     }
 
-    public void delete(final UUID zaakinformatieobjectUUID) {
-        final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(
-                zaakinformatieobjectUUID);
+    public void delete(final UUID uuid) {
+        find(uuid).ifPresent(entityManager::remove);
+    }
+
+    public void deleteForZaakinformatieobject(final UUID zaakinformatieobjectUUID) {
+        final ZaakInformatieobject zaakInformatieobject = zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID);
         final UUID enkelvoudiginformatieobjectUUID = extractUuid(zaakInformatieobject.getInformatieobject());
         find(enkelvoudiginformatieobjectUUID).ifPresent(entityManager::remove);
     }

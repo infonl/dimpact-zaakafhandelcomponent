@@ -13,6 +13,8 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
+import { TranslateModule } from "@ngx-translate/core";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
 import * as geom from "ol/geom.js";
@@ -34,7 +36,8 @@ import { GeometryType } from "../../zaken/model/geometryType";
   selector: "zac-bag-locatie",
   templateUrl: "./bag-locatie.component.html",
   styleUrls: ["./bag-locatie.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [MatCardModule, TranslateModule],
 })
 export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() bagGeometrie?: Geometry;

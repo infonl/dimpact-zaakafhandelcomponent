@@ -16,7 +16,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -88,7 +88,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
@@ -124,7 +124,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,

@@ -13,9 +13,8 @@ import { FoutAfhandelingRoutingModule } from "./fout-afhandeling-routing.module"
 import { FoutAfhandelingComponent } from "./fout-afhandeling.component";
 
 @NgModule({
-  declarations: [FoutAfhandelingComponent],
-  exports: [FoutAfhandelingComponent],
   imports: [
+    FoutAfhandelingComponent,
     SharedModule,
     MatExpansionModule,
     FoutAfhandelingRoutingModule,

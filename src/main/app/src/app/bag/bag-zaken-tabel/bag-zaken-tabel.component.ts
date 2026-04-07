@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -10,37 +11,64 @@ import {
   Input,
   OnChanges,
   OnInit,
-  SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { RouterModule } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { Observable, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
-import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 @Component({
   selector: "zac-bag-zaken-tabel",
   templateUrl: "./bag-zaken-tabel.component.html",
   styleUrls: ["./bag-zaken-tabel.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatSlideToggleModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+    TranslateModule,
+    TekstFilterComponent,
+    FacetFilterComponent,
+    DateRangeFilterComponent,
+    DatumPipe,
+    EmptyPipe,
+  ],
 })
 export class BagZakenTabelComponent
   implements OnInit, AfterViewInit, OnChanges
 {
   @Input({ required: true }) BagObjectIdentificatie!: string;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  dataSource = new MatTableDataSource<ZaakZoekObject>();
-  columns = [
+  @ViewChild(MatPaginator) private paginator!: MatPaginator;
+  @ViewChild(MatSort) private sort!: MatSort;
+  protected dataSource = new MatTableDataSource<ZaakZoekObject>();
+  protected columns = [
     "identificatie",
     "status",
     "groep",
@@ -50,21 +78,20 @@ export class BagZakenTabelComponent
     "omschrijving",
     "url",
   ] as const;
-  filterColumns = this.columns.map((n) => n + "_filter");
-  isLoadingResults = true;
+  protected filterColumns = this.columns.map((n) => n + "_filter");
+  protected isLoadingResults = true;
   filterChange = new EventEmitter<void>();
-  zoekParameters = getDefaultZoekParameters();
-  zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
-  init = false;
-  inclusiefAfgerondeZaken = new FormControl(false);
-  ZoekVeld = ZoekVeld;
+  protected zoekParameters = getDefaultZoekParameters();
+  protected zoekResultaat = new ZoekResultaat<ZaakZoekObject>();
+  private init = false;
+  protected inclusiefAfgerondeZaken = new FormControl(false);
 
   constructor(
-    private utilService: UtilService,
-    private zoekenService: ZoekenService,
+    private readonly utilService: UtilService,
+    private readonly zoekenService: ZoekenService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.zoekParameters.type = "ZAAK";
     this.zoekParameters.zoeken ??= {};
     this.zoekParameters.zoeken.ZAAK_BAGOBJECTEN = this.BagObjectIdentificatie;
@@ -112,13 +139,12 @@ export class BagZakenTabelComponent
       });
   }
 
-  filtersChanged() {
+  protected filtersChanged() {
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    this.BagObjectIdentificatie = changes.BagObjectIdentificatie.currentValue;
+  ngOnChanges() {
     if (this.init) {
       this.filtersChanged();
     }
