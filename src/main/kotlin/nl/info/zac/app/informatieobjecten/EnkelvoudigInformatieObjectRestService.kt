@@ -225,7 +225,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
                 val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.delete(detachedDocument.id)
+                detachedDocumentService.delete(detachedDocument.id!!)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)

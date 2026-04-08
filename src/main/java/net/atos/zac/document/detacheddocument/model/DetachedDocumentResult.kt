@@ -2,23 +2,12 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.document.detacheddocument.model
 
-package net.atos.zac.document.detacheddocument.model;
+import nl.info.zac.shared.model.Resultaat
 
-import java.util.List;
-
-import nl.info.zac.shared.model.Resultaat;
-
-public class DetachedDocumentResult extends Resultaat<DetachedDocument> {
-
-    private final List<String> ontkoppeldDoorFilter;
-
-    public DetachedDocumentResult(final List<DetachedDocument> items, final long count, final List<String> ontkoppeldDoorFilter) {
-        super(items, count);
-        this.ontkoppeldDoorFilter = ontkoppeldDoorFilter;
-    }
-
-    public List<String> getOntkoppeldDoorFilter() {
-        return ontkoppeldDoorFilter;
-    }
-}
+class DetachedDocumentResult(
+    items: List<DetachedDocument>,
+    count: Long,
+    val ontkoppeldDoorFilter: List<String>
+) : Resultaat<DetachedDocument>(items, count)

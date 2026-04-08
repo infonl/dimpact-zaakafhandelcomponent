@@ -133,10 +133,10 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("find is called with that ID") {
-                val result = detachedDocumentService.find(document.id)
+                val result = detachedDocumentService.find(document.id!!)
 
-                Then("an Optional containing the document is returned") {
-                    result shouldBe Optional.of(document)
+                Then("the document is returned") {
+                    result shouldBe document
                 }
             }
         }
@@ -148,8 +148,8 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             When("find is called with that ID") {
                 val result = detachedDocumentService.find(id)
 
-                Then("an empty Optional is returned") {
-                    result shouldBe Optional.empty()
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }
@@ -182,7 +182,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                detachedDocumentService.delete(document.id)
+                detachedDocumentService.delete(document.id!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }

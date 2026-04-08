@@ -2,157 +2,87 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package net.atos.zac.document.detacheddocument.model
 
-package net.atos.zac.document.detacheddocument.model;
-
-import static nl.info.zac.database.flyway.FlywayIntegrator.SCHEMA;
-
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.SequenceGenerator
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import nl.info.zac.database.flyway.FlywayIntegrator
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.util.UUID
 
 @Entity
-@Table(schema = SCHEMA, name = "ontkoppeld_document")
-@SequenceGenerator(schema = SCHEMA, name = "sq_ontkoppeld_document", sequenceName = "sq_ontkoppeld_document", allocationSize = 1)
-public class DetachedDocument {
-
-    /** Naam van property: {@link #titel} */
-    public static final String TITEL_PROPERTY_NAME = "titel";
-
-    /** Naam van property: {@link #creatiedatum} */
-    public static final String CREATIEDATUM_PROPERTY_NAME = "creatiedatum";
-
-    /** Naam van property: {@link #zaakID} */
-    public static final String ZAAK_ID_PROPERTY_NAME = "zaakID";
-
-    /** Naam van property: {@link #ontkoppeldDoor} */
-    public static final String ONTKOPPELD_DOOR_PROPERTY_NAME = "ontkoppeldDoor";
-
-    /** Naam van property: {@link #ontkoppeldOp} */
-    public static final String ONTKOPPELD_OP_PROPERTY_NAME = "ontkoppeldOp";
-
-    /** Naam van property: {@link #reden} */
-    public static final String REDEN_PROPERTY_NAME = "reden";
-
+@Table(schema = FlywayIntegrator.SCHEMA, name = "ontkoppeld_document")
+@SequenceGenerator(
+    schema = FlywayIntegrator.SCHEMA,
+    name = "sq_ontkoppeld_document",
+    sequenceName = "sq_ontkoppeld_document",
+    allocationSize = 1
+)
+open class DetachedDocument {
     @Id
     @GeneratedValue(generator = "sq_ontkoppeld_document", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_ontkoppeld_document")
-    private Long id;
+    var id: Long? = null
 
-    @NotNull @Column(name = "uuid_document", nullable = false)
-    private UUID documentUUID;
+    @NotNull
+    @Column(name = "uuid_document", nullable = false)
+    lateinit var documentUUID: UUID
 
-    @NotBlank @Column(name = "id_document", nullable = false)
-    private String documentID;
+    @NotBlank
+    @Column(name = "id_document", nullable = false)
+    lateinit var documentID: String
 
-    @NotBlank @Column(name = "id_zaak", nullable = false)
-    private String zaakID;
+    @NotBlank
+    @Column(name = "id_zaak", nullable = false)
+    lateinit var zaakID: String
 
-    @NotNull @Column(name = "creatiedatum", nullable = false)
-    private LocalDate creatiedatum;
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
+    lateinit var creatiedatum: LocalDate
 
-    @NotBlank @Column(name = "titel", nullable = false)
-    private String titel;
+    @NotBlank
+    @Column(name = "titel", nullable = false)
+    lateinit var titel: String
 
     @Column(name = "bestandsnaam")
-    private String bestandsnaam;
+    var bestandsnaam: String? = null
 
-    @NotNull @Column(name = "ontkoppeld_op", nullable = false)
-    private ZonedDateTime ontkoppeldOp;
+    @NotNull
+    @Column(name = "ontkoppeld_op", nullable = false)
+    lateinit var ontkoppeldOp: ZonedDateTime
 
-    @NotBlank @Column(name = "id_ontkoppeld_door", nullable = false)
-    private String ontkoppeldDoor;
+    @NotBlank
+    @Column(name = "id_ontkoppeld_door", nullable = false)
+    lateinit var ontkoppeldDoor: String
 
     @Column(name = "reden")
-    private String reden;
+    var reden: String? = null
 
-    public Long getId() {
-        return id;
-    }
+    companion object {
+        /** Naam van property: [.titel]  */
+        const val TITEL_PROPERTY_NAME: String = "titel"
 
-    public void setId(final Long id) {
-        this.id = id;
-    }
+        /** Naam van property: [.creatiedatum]  */
+        const val CREATIEDATUM_PROPERTY_NAME: String = "creatiedatum"
 
-    public UUID getDocumentUUID() {
-        return documentUUID;
-    }
+        /** Naam van property: [.zaakID]  */
+        const val ZAAK_ID_PROPERTY_NAME: String = "zaakID"
 
-    public void setDocumentUUID(final UUID documentUUID) {
-        this.documentUUID = documentUUID;
-    }
+        /** Naam van property: [.ontkoppeldDoor]  */
+        const val ONTKOPPELD_DOOR_PROPERTY_NAME: String = "ontkoppeldDoor"
 
-    public String getDocumentID() {
-        return documentID;
-    }
+        /** Naam van property: [.ontkoppeldOp]  */
+        const val ONTKOPPELD_OP_PROPERTY_NAME: String = "ontkoppeldOp"
 
-    public void setDocumentID(final String documentID) {
-        this.documentID = documentID;
-    }
-
-    public LocalDate getCreatiedatum() {
-        return creatiedatum;
-    }
-
-    public void setCreatiedatum(final LocalDate creatiedatum) {
-        this.creatiedatum = creatiedatum;
-    }
-
-    public String getTitel() {
-        return titel;
-    }
-
-    public void setTitel(final String titel) {
-        this.titel = titel;
-    }
-
-    public String getBestandsnaam() {
-        return bestandsnaam;
-    }
-
-    public void setBestandsnaam(final String bestandsnaam) {
-        this.bestandsnaam = bestandsnaam;
-    }
-
-    public String getZaakID() {
-        return zaakID;
-    }
-
-    public void setZaakID(final String zaakID) {
-        this.zaakID = zaakID;
-    }
-
-    public ZonedDateTime getOntkoppeldOp() {
-        return ontkoppeldOp;
-    }
-
-    public void setOntkoppeldOp(final ZonedDateTime ontkoppeldOp) {
-        this.ontkoppeldOp = ontkoppeldOp;
-    }
-
-    public String getOntkoppeldDoor() {
-        return ontkoppeldDoor;
-    }
-
-    public void setOntkoppeldDoor(final String ontkoppeldDoor) {
-        this.ontkoppeldDoor = ontkoppeldDoor;
-    }
-
-    public String getReden() {
-        return reden;
-    }
-
-    public void setReden(final String reden) {
-        this.reden = reden;
+        /** Naam van property: [.reden]  */
+        const val REDEN_PROPERTY_NAME: String = "reden"
     }
 }

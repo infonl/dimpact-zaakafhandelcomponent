@@ -10,7 +10,7 @@ import java.util.UUID
 
 fun createDetachedDocument(
     uuid: UUID = UUID.randomUUID(),
-    userId: String? = null,
+    userId: String = "fakeUserId",
 ) = DetachedDocument().apply {
     id = 1L
     documentUUID = uuid
