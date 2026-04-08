@@ -9,5 +9,5 @@ import nl.info.zac.shared.model.Resultaat
 class DetachedDocumentResult(
     items: List<DetachedDocument>,
     count: Long,
-    val ontkoppeldDoorFilter: List<String>
+    val detachedByFilter: List<String>
 ) : Resultaat<DetachedDocument>(items, count)

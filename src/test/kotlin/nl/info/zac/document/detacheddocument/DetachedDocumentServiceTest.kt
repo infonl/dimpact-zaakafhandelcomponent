@@ -119,7 +119,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
                 Then("an exception is thrown") {
                     detachedDocumentNotFoundException.message shouldBe
-                        "Detached document with enkelvoudiginformatieobject UUID '$targetUuid' not found"
+                        "No detached document found for enkelvoudiginformatieobject UUID: '$targetUuid'"
                 }
             }
         }
@@ -163,12 +163,12 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
             When("getResultaat is called") {
-                val result = detachedDocumentService.getResultaat(DetachedDocumentListParameters())
+                val result = detachedDocumentService.getDetachedDocumentResult(DetachedDocumentListParameters())
 
                 Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
                     result.items shouldBe emptyList()
                     result.count shouldBe 0L
-                    result.ontkoppeldDoorFilter shouldBe emptyList()
+                    result.detachedByFilter shouldBe emptyList()
                 }
             }
         }
