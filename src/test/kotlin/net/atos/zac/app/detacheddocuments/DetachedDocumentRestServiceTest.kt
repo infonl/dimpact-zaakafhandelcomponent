@@ -24,10 +24,10 @@ import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import net.atos.zac.document.DetachedDocumentService
-import net.atos.zac.document.model.DetachedDocument
-import net.atos.zac.document.model.DetachedDocumentListParameters
-import net.atos.zac.document.model.DetachedDocumentResult
-import net.atos.zac.document.model.createDetachedDocument
+import net.atos.zac.document.detacheddocument.model.DetachedDocument
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult
+import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

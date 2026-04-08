@@ -1,3 +1,8 @@
+---
+name: migrate-java-to-kotlin
+description: Migrate a Java package or class to Kotlin using the Kotlin and other coding conventions of this project.
+---
+
 Migrate the Java package `$ARGUMENTS` to Kotlin, following the project's history-preserving two-step commit strategy.
 
 ## Derive paths from the package name
