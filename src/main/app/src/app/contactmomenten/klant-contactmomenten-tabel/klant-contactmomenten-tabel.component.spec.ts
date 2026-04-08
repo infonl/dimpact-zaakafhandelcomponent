@@ -212,7 +212,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
   describe("ngOnChanges", () => {
     it("does not reset paginator when init is false", () => {
       component["init"] = false;
-      // Should not throw even without paginator initialised
+
       expect(() => component.ngOnChanges()).not.toThrow();
     });
 
@@ -220,7 +220,7 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       component.bsn = "111111111";
       fixture.detectChanges();
       tick(0);
-      // Resolve initial load
+
       listSubject.next(makeResultaat([], 0));
       tick(0);
 
