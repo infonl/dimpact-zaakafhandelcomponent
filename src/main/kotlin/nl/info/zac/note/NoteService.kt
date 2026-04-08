@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import jakarta.validation.Valid
+import net.atos.zac.util.ValidationUtil.validateObject
 import nl.info.zac.note.model.Note
 import nl.info.zac.note.model.Note.Companion.ZAAK_UUID_FIELD
 import nl.info.zac.util.AllOpen
@@ -26,6 +27,7 @@ class NoteService @Inject constructor(
 ) {
     @Transactional(REQUIRED)
     fun createNote(@Valid note: Note): Note {
+        validateObject(note)
         entityManager.persist(note)
         return note
     }
@@ -40,6 +42,7 @@ class NoteService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun updateNote(@Valid note: Note): Note {
+        validateObject(note)
         return entityManager.merge(note)
     }
 
