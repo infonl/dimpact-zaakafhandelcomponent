@@ -1166,7 +1166,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("No detached document") {
+    Given("The detached document service throws an exception when retrieving a detached document") {
         val documentUUID = UUID.randomUUID()
         val nieuweZaakID = "ZAAK-TARGET-001"
         val informatieobject = createEnkelvoudigInformatieObject()
@@ -1182,13 +1182,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             policyService.readZaakRechten(targetZaak, loggedInUser)
         } returns createZaakRechten(wijzigen = true)
-        every { detachedDocumentService.read(documentUUID) } returns null
+        val detachedDocumentNotFoundException = DetachedDocumentNotFoundException("fakeExceptionMessage")
+        every { detachedDocumentService.read(documentUUID) } throws
+                detachedDocumentNotFoundException
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { detachedDocumentService.delete(42L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
-            val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
+            val passedOnDetachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
                 enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
                     RestDocumentVerplaatsGegevens(
                         documentUUID = documentUUID,
@@ -1198,9 +1200,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("an exception should be thrown") {
-                detachedDocumentNotFoundException.message shouldBe
-                    "Detached document with enkelvoudiginformatieobject UUID '$documentUUID' not found"
+            Then("the exception should be passed on") {
+                passedOnDetachedDocumentNotFoundException shouldBe detachedDocumentNotFoundException
+            }
+
+            And("the document should not be moved") {
                 verify(exactly = 0) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                     detachedDocumentService.delete(any<Long>())

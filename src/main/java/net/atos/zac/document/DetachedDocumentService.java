@@ -4,15 +4,6 @@
  */
 package net.atos.zac.document;
 
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -23,18 +14,26 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.zac.document.detacheddocument.model.DetachedDocument;
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
+import org.apache.commons.lang3.StringUtils;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static net.atos.zac.util.ValidationUtil.valideerObject;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 @ApplicationScoped
 @Transactional
@@ -89,11 +88,11 @@ public class DetachedDocumentService {
     }
 
     /**
-     * Returns the detach document for the provided enkelvoudiginformatieobject UUID, if it exists,
-     * or null otherwise.
+     * Returns the detach document for the provided enkelvoudiginformatieobject UUID.
      *
      * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
-     * @return the detached document, or null if no detached document exists for the enkelvoudiginformatieobject UUID
+     * @return the detached document
+     * @throws DetachedDocumentNotFoundException if the detached document could not be found
      */
     public DetachedDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -104,7 +103,12 @@ public class DetachedDocumentService {
         if (!resultList.isEmpty()) {
             return resultList.getFirst();
         } else {
-            return null;
+            throw new DetachedDocumentNotFoundException(
+                    String.format(
+                            "Detached document with enkelvoudiginformatieobject UUID '%s' not found",
+                            enkelvoudiginformatieobjectUUID
+                    )
+            );
         }
     }
 

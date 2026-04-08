@@ -225,14 +225,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         when {
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
                 val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
-                if (detachedDocument != null) {
-                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                    detachedDocumentService.delete(detachedDocument.id)
-                } else {
-                    throw DetachedDocumentNotFoundException(
-                        "Detached document with enkelvoudiginformatieobject UUID '$enkelvoudigInformatieobjectUUID' not found"
-                    )
-                }
+                zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
+                detachedDocumentService.delete(detachedDocument.id)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
