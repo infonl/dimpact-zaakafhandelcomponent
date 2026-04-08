@@ -3,9 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatCardModule } from "@angular/material/card";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
+import { TranslateModule } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZoekVeld } from "../../../model/zoek-veld";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
@@ -14,18 +21,32 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   selector: "zac-zaak-betrokkene-filter",
   templateUrl: "./zaak-betrokkene-filter.component.html",
   styleUrls: ["./zaak-betrokkene-filter.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgClass,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    TranslateModule,
+  ],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
-  @Input() zoekparameters!: GeneratedType<"RestZoekParameters">;
-  @Output() changed = new EventEmitter<string>();
-  dialogOpen: boolean = false;
-  betrokkeneSelectControl = new FormControl<ZoekVeld>(ZoekVeld.ZAAK_INITIATOR);
-  klantIdControl = new FormControl("");
-  huidigeRoltype!: ZoekVeld;
-  ZoekVeld = ZoekVeld;
+  @Input({ required: true })
+  zoekparameters!: GeneratedType<"RestZoekParameters">;
+  @Output() changed = new EventEmitter<void>();
+  protected dialogOpen: boolean = false;
+  protected betrokkeneSelectControl = new FormControl<ZoekVeld>(
+    ZoekVeld.ZAAK_INITIATOR,
+  );
+  protected klantIdControl = new FormControl("");
+  protected huidigeRoltype!: ZoekVeld;
+  protected ZoekVeld = ZoekVeld;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(private readonly dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.bepaalHuidigRoltype();

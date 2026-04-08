@@ -1,7 +1,7 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 40 done — 112 remaining** (2026-04-03)
-Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
+**Progress: 60 done — 92 remaining** (2026-04-08)
+Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
 
@@ -322,6 +322,11 @@ Solves PZ-XXXXX
 - Access modifiers: `selected`, `getFilters()`, `isVertaalbaar()`, `change()` → `protected`; `VERTAALBARE_FACETTEN` → `protected Record<string, string>`
 - **Pattern**: `MatSelectHarness` + `(await select.host()).getAttribute("id")` to assert on Material component attributes without querySelector
 
+### ✅ `taken/taak-edit/taak-edit.component.ts` (2026-04-01)
+- `imports: [ReactiveFormsModule, MatToolbarModule, MatIconModule, MatButtonModule, MatDividerModule, TranslateModule, MaterialFormBuilderModule]`
+- Access modifiers: formSubmit() implicit public → protected
+- **Pattern**: uses signal inputs (input.required<T>()); MaterialFormBuilderModule covers all zac-* form children
+
 ### ✅ `shared/material/narrow-checkbox.directive.ts` (fix) + `zoeken/zoek/filters/multi-facet-filter/multi-facet-filter.component.ts` (2026-03-26) — Marcel Batch 7
 - `ZacNarrowMatCheckboxDirective`: prior PR removed `standalone: false` but never added `standalone: true`; also already moved to `imports[]`/`exports[]` in `shared.module.ts` — only fix needed was adding explicit `standalone: true`
 - `MultiFacetFilterComponent` `imports: [NgIf, NgFor, LowerCasePipe, ReactiveFormsModule, MatCardModule, MatCheckboxModule, MatIconModule, TranslateModule, ZacNarrowMatCheckboxDirective, ReadMoreComponent]`
@@ -329,6 +334,39 @@ Solves PZ-XXXXX
 - **Spec pattern**: `setup()` helper outside `describe` + `beforeEach` only configures TestBed; avoids re-calling `ngOnInit` across tests
 - **Spec pattern**: `makeFilter` default param `= {}` avoids redundant `makeFilter({ values: [] })` at call sites
 - **Spec pattern**: `toEqual(["ZAAK"])` replaces `toHaveLength(1)` + `toContain` + `not.toContain` triple
+
+### ✅ shared pipes cluster (2026-02-26) — PR #5393 (compiler warnings fix)
+Migrated as part of fixing 6 Angular standalone compiler warnings:
+- `shared/pipes/bestandsomvang.pipe.ts` — `imports: []`
+- `shared/pipes/capitalizeFirstLetter.pipe.ts` — `imports: []`
+- `shared/pipes/dagen.pipe.ts` — `imports: []`
+- `shared/pipes/datum.pipe.ts` — `imports: []`
+- `shared/pipes/location.pipe.ts` — `imports: []`
+- `shared/pipes/slice.pipe.ts` — `imports: []`
+- `shared/dynamic-table/pipes/sort.pipe.ts` — `imports: []`
+- All are pure transform pipes with no template deps — no spec changes needed
+
+### ✅ `shared/side-nav/side-nav.component.ts` (2026-03-19)
+- `imports: [NgFor, NgIf, NgSwitch, NgSwitchCase, MatListModule, MatDividerModule, MatIconModule, MatToolbarModule, MatButtonModule, MatTooltipModule, RouterModule, TranslateModule]`
+
+### ✅ `formulieren/formio-wrapper/formio-wrapper.component.ts` (2026-03-25)
+- `imports: [FormioModule]`
+- Uses `@HostListener('click')` with `stopPropagation` to intercept choices-widget clicks inside the form
+
+### ✅ `zoeken/zoek/filters/date-filter/date-filter.component.ts` (2026-03-26)
+- `imports: [NgIf, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatIconModule, TranslateModule]`
+
+### ✅ `admin/bpmn-process-definitions/` cluster (2026-03-31) — PR #5636
+- `bpmn-process-definitions.directive.ts` (`BpmnNodeRowDirective`): `@Directive({ selector: "[bpmnNodeRow]", standalone: true })` — no `imports[]`
+- `bpmn-process-definition-item.component.ts`: `imports: [SharedModule, FileDragAndDropDirective, MatExpansionModule]`
+- `bpmn-process-definitions.component.ts`: `imports: [SharedModule, BpmnNodeRowDirective, BpmnProcessDefinitionItemComponent, FileDragAndDropDirective]`
+- Note: both components use `SharedModule` (not yet decomposed) as a transitional import
+
+### ✅ `contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component.ts` (2026-04-07) — Batch 6
+- `imports: [NgIf, MatCardModule, MatTableModule, MatPaginatorModule, TranslateModule, DatumPipe, EmptyPipe]`
+
+### ✅ `zoeken/zoek/filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component.ts` (2026-04-07) — Batch 6
+- `imports: [NgClass, ReactiveFormsModule, MatCardModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslateModule]`
 
 ---
 
@@ -345,7 +383,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-`taken.module.ts` remaining: `TakenVrijgevenDialogComponent` (Marcel Batch 6), `TakenMijnComponent`, `TakenWerkvoorraadComponent`. `TakenWerkvoorraad` blocked on `TakenVrijgevenDialog` being standalone first. Good next picks: `core/toolbar` (complex, defer), `klanten/*` dialogs with specs, `zaken/*` dialogs.
+`TakenVrijgevenDialogComponent`
 
 ---
 
