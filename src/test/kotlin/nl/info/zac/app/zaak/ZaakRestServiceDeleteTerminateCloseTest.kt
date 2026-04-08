@@ -21,7 +21,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.document.detacheddocument.model.DetachedDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService

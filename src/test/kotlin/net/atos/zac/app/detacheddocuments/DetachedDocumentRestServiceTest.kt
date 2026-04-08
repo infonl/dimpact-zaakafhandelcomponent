@@ -23,7 +23,7 @@ import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentListPara
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.document.detacheddocument.model.DetachedDocument
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult

@@ -18,7 +18,6 @@ import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.document.detacheddocument.model.DetachedDocument
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
 import net.atos.zac.document.detacheddocument.model.createDetachedDocument

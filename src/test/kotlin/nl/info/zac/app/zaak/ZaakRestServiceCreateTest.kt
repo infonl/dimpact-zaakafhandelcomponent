@@ -22,7 +22,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService

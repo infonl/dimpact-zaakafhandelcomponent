@@ -22,7 +22,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
