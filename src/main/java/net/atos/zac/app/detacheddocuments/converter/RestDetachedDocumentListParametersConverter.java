@@ -23,8 +23,8 @@ public class RestDetachedDocumentListParametersConverter extends
 
         if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
             listParameters.setCreatiedatum(new DatumRange(
-                    restListParameters.creatiedatum.getVan(), restListParameters.creatiedatum
-                            .getTot()
+                    restListParameters.creatiedatum.getVan(),
+                    restListParameters.creatiedatum.getTot()
             ));
         }
 
@@ -34,8 +34,8 @@ public class RestDetachedDocumentListParametersConverter extends
 
         if (restListParameters.ontkoppeldOp != null && restListParameters.ontkoppeldOp.hasValue()) {
             listParameters.setOntkoppeldOp(new DatumRange(
-                    restListParameters.ontkoppeldOp.getVan(), restListParameters.ontkoppeldOp
-                            .getTot()
+                    restListParameters.ontkoppeldOp.getVan(),
+                    restListParameters.ontkoppeldOp.getTot()
             ));
         }
 
