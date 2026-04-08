@@ -14,6 +14,7 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator
+import nl.info.zac.util.AllOpen
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -26,7 +27,8 @@ import java.util.UUID
     sequenceName = "sq_ontkoppeld_document",
     allocationSize = 1
 )
-open class DetachedDocument {
+@AllOpen
+class DetachedDocument {
     companion object {
         /** Name of the field: [DetachedDocument.titel] */
         const val TITEL_PROPERTY_NAME: String = "titel"

@@ -270,8 +270,8 @@ fun readReferenceTable(code: String): ReferenceTable =
         }
 ```
 
-### Kotlin database entity classes must be open
-Kotlin database entity classes must be open.
+### Kotlin database entity classes must have the @AllOpen annotation
+Kotlin database entity classes must have the @AllOpen annotation.
 
 ```kotlin// Before
 @Entity
@@ -282,7 +282,8 @@ class InboxDocument
 @Entity
 @Table(schema = SCHEMA, name = "inbox_document")
 @SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-open class InboxDocument
+@AllOpen
+class InboxDocument
 ```
 
 ### In Kotlin database entity classes use `lateinit var` for variables that are nullable
