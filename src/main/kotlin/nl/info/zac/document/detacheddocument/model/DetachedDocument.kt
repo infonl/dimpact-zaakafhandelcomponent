@@ -28,22 +28,22 @@ import java.util.UUID
 )
 open class DetachedDocument {
     companion object {
-        /** Naam van property: [.titel]  */
+        /** Name of the field: [DetachedDocument.titel] */
         const val TITEL_PROPERTY_NAME: String = "titel"
 
-        /** Naam van property: [.creatiedatum]  */
+        /** Name of the field: [DetachedDocument.creatiedatum] */
         const val CREATIEDATUM_PROPERTY_NAME: String = "creatiedatum"
 
-        /** Naam van property: [.zaakID]  */
+        /** Name of the field: [DetachedDocument.zaakID] */
         const val ZAAK_ID_PROPERTY_NAME: String = "zaakID"
 
-        /** Naam van property: [.ontkoppeldDoor]  */
+        /** Name of the field: [DetachedDocument.ontkoppeldDoor] */
         const val ONTKOPPELD_DOOR_PROPERTY_NAME: String = "ontkoppeldDoor"
 
-        /** Naam van property: [.ontkoppeldOp]  */
+        /** Name of the field: [DetachedDocument.ontkoppeldOp] */
         const val ONTKOPPELD_OP_PROPERTY_NAME: String = "ontkoppeldOp"
 
-        /** Naam van property: [.reden]  */
+        /** Name of the field: [DetachedDocument.reden] */
         const val REDEN_PROPERTY_NAME: String = "reden"
     }
 
