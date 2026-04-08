@@ -23,22 +23,21 @@ import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentListPara
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
-import net.atos.zac.document.DetachedDocumentService
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult
-import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
+import nl.info.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 class DetachedDocumentRestServiceTest : BehaviorSpec({
@@ -72,7 +71,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             } returns werklijstRechten
             every {
                 detachedDocumentService.find(id)
-            } returns Optional.empty()
+            } returns null
 
             When("the delete endpoint is called with that id") {
                 detachedDocumentRestService.deleteDetachedDocument(id)
@@ -91,21 +90,21 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                detachedDocumentService.find(document.id)
-            } returns Optional.of(document)
+                detachedDocumentService.find(document.id!!)
+            } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
             every {
-                detachedDocumentService.delete(document.id)
+                detachedDocumentService.delete(document.id!!)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
-                detachedDocumentRestService.deleteDetachedDocument(document.id)
+                detachedDocumentRestService.deleteDetachedDocument(document.id!!)
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        detachedDocumentService.delete(document.id)
+                        detachedDocumentService.delete(document.id!!)
                     }
                 }
             }
@@ -113,22 +112,20 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         Given("a document that exists in the database but results in a non-404 error from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = DetachedDocument()
-            document.documentUUID = UUID.randomUUID()
-            document.id = 1
+            val document = createDetachedDocument()
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                detachedDocumentService.find(document.id)
-            } returns Optional.of(document)
+                detachedDocumentService.find(document.id!!)
+            } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
             When("the delete endpoint is called with the id of that document") {
                 val exception =
-                    shouldThrow<ZgwErrorException> { detachedDocumentRestService.deleteDetachedDocument(document.id) }
+                    shouldThrow<ZgwErrorException> { detachedDocumentRestService.deleteDetachedDocument(document.id!!) }
 
                 Then("the exception from OpenZaak is rethrown") {
                     exception.zgwError.status shouldBe 400
@@ -138,9 +135,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         Given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
-            val document = DetachedDocument()
-            document.documentUUID = UUID.randomUUID()
-            document.id = 1
+            val document = createDetachedDocument()
             val informatieObject = EnkelvoudigInformatieObject()
             val zaakInformatieObject = ZaakInformatieobject()
             zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
@@ -148,8 +143,8 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                detachedDocumentService.find(document.id)
-            } returns Optional.of(document)
+                detachedDocumentService.find(document.id!!)
+            } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
@@ -161,7 +156,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 val exception =
                     shouldThrow<IllegalStateException> {
                         detachedDocumentRestService.deleteDetachedDocument(
-                            document.id
+                            document.id!!
                         )
                     }
 
@@ -185,8 +180,8 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
             every {
-                detachedDocumentService.find(document.id)
-            } returns Optional.of(document)
+                detachedDocumentService.find(document.id!!)
+            } returns document
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
@@ -197,15 +192,15 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 zrcClientService.listZaakinformatieobjecten(informatieObject)
             } returns mutableListOf()
             every {
-                detachedDocumentService.delete(document.id)
+                detachedDocumentService.delete(document.id!!)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
-                detachedDocumentRestService.deleteDetachedDocument(document.id)
+                detachedDocumentRestService.deleteDetachedDocument(document.id!!)
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        detachedDocumentService.delete(document.id)
+                        detachedDocumentService.delete(document.id!!)
                     }
                 }
             }
@@ -242,7 +237,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(detachedDocument), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
@@ -273,7 +268,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(document), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
@@ -305,7 +300,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject

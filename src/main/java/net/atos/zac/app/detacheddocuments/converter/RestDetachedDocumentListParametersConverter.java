@@ -7,7 +7,7 @@ package net.atos.zac.app.detacheddocuments.converter;
 
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
 import net.atos.zac.app.shared.RESTListParametersConverter;
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters;
 import nl.info.zac.search.model.DatumRange;
 
 public class RestDetachedDocumentListParametersConverter extends
@@ -22,8 +22,10 @@ public class RestDetachedDocumentListParametersConverter extends
         listParameters.setTitel(restListParameters.titel);
 
         if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
-            listParameters.setCreatiedatum(new DatumRange(restListParameters.creatiedatum.getVan(), restListParameters.creatiedatum
-                    .getTot()));
+            listParameters.setCreatiedatum(new DatumRange(
+                    restListParameters.creatiedatum.getVan(),
+                    restListParameters.creatiedatum.getTot()
+            ));
         }
 
         if (restListParameters.ontkoppeldDoor != null) {
@@ -31,8 +33,10 @@ public class RestDetachedDocumentListParametersConverter extends
         }
 
         if (restListParameters.ontkoppeldOp != null && restListParameters.ontkoppeldOp.hasValue()) {
-            listParameters.setOntkoppeldOp(new DatumRange(restListParameters.ontkoppeldOp.getVan(), restListParameters.ontkoppeldOp
-                    .getTot()));
+            listParameters.setOntkoppeldOp(new DatumRange(
+                    restListParameters.ontkoppeldOp.getVan(),
+                    restListParameters.ontkoppeldOp.getTot()
+            ));
         }
 
         listParameters.setZaakID(restListParameters.zaakID);

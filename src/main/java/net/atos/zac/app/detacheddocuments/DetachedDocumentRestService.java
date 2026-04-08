@@ -8,7 +8,6 @@ import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -33,14 +32,14 @@ import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult;
 import net.atos.zac.app.shared.RESTResultaat;
-import net.atos.zac.document.DetachedDocumentService;
-import net.atos.zac.document.detacheddocument.model.DetachedDocument;
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.document.detacheddocument.DetachedDocumentService;
+import nl.info.zac.document.detacheddocument.model.DetachedDocument;
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters;
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
@@ -89,12 +88,12 @@ public class DetachedDocumentRestService {
     public RESTResultaat<RestDetachedDocument> listDetachedDocuments(final RestDetachedDocumentListParameters restListParameters) {
         assertPolicy(policyService.readWerklijstRechten().getInbox());
         final DetachedDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        final DetachedDocumentResult resultaat = detachedDocumentService.getResultaat(listParameters);
+        final DetachedDocumentResult resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters);
         var ontkoppeldeDocumenten = resultaat.getItems();
         var informationObjectTypeUUIDs = ontkoppeldeDocumenten.stream().map(
                 ontkoppeldeDocument -> extractUuid(
                         drcClientService
-                                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.getDocumentUUID())
+                                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.documentUUID)
                                 .getInformatieobjecttype()
                 )
         ).toList();
@@ -102,7 +101,7 @@ public class DetachedDocumentRestService {
                 restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
                 resultaat.getCount()
         );
-        final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
+        final List<String> ontkoppeldDoor = resultaat.getDetachedByFilter();
         if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
             if (restListParameters.ontkoppeldDoor != null) {
                 restDetachedDocumentResult.filterOntkoppeldDoor = List.of(restListParameters.ontkoppeldDoor);
@@ -117,13 +116,13 @@ public class DetachedDocumentRestService {
     @Path("{id}")
     public void deleteDetachedDocument(@PathParam("id") final long id) {
         assertPolicy(policyService.readWerklijstRechten().getOntkoppeldeDocumentenVerwijderen());
-        final Optional<DetachedDocument> detachedDocument = detachedDocumentService.find(id);
-        if (detachedDocument.isEmpty()) {
+        final DetachedDocument detachedDocument = detachedDocumentService.find(id);
+        if (detachedDocument == null) {
             // detached document record does not exist; ignore silently
             return;
         }
         EnkelvoudigInformatieObject enkelvoudigInformatieobject = null;
-        final UUID documentUUID = detachedDocument.get().getDocumentUUID();
+        final UUID documentUUID = detachedDocument.getDocumentUUID();
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID);
         } catch (ZgwErrorException e) {
@@ -142,6 +141,6 @@ public class DetachedDocumentRestService {
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID);
         }
 
-        detachedDocumentService.delete(detachedDocument.get().getId());
+        detachedDocumentService.delete(detachedDocument.getId());
     }
 }

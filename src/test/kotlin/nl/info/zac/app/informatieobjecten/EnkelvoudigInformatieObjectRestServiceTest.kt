@@ -20,8 +20,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.document.DetachedDocumentService
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEvent
@@ -59,6 +57,8 @@ import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService

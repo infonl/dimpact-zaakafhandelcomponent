@@ -11,8 +11,8 @@ import java.util.UUID;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
-import net.atos.zac.document.detacheddocument.model.DetachedDocument;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.document.detacheddocument.model.DetachedDocument;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 
@@ -45,7 +45,7 @@ public class RestDetachedDocumentConverter {
         restDocument.zaakID = document.getZaakID();
         restDocument.creatiedatum = document.getCreatiedatum();
         restDocument.bestandsnaam = document.getBestandsnaam();
-        restDocument.ontkoppeldDoor = userConverter.convertUserId(document.getOntkoppeldDoor());
+        restDocument.ontkoppeldDoor = userConverter.convertUserId(document.ontkoppeldDoor);
         restDocument.ontkoppeldOp = document.getOntkoppeldOp();
         restDocument.reden = document.getReden();
         final EnkelvoudigInformatieObjectLock lock = lockService.findLock(document.getDocumentUUID());

@@ -11,6 +11,8 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
 import nl.info.client.zgw.drc.DrcClientService
@@ -25,7 +27,7 @@ import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
 @Suppress("TooManyFunctions")
@@ -34,6 +36,7 @@ class InboxDocumentService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService
 ) {
+    @Transactional(REQUIRED)
     fun create(enkelvoudiginformatieobjectUUID: UUID): InboxDocument {
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(enkelvoudiginformatieobjectUUID)
         return InboxDocument().apply {
@@ -73,14 +76,17 @@ class InboxDocumentService @Inject constructor(
         return entityManager.createQuery(query).singleResult?.toInt() ?: 0
     }
 
+    @Transactional(REQUIRED)
     fun delete(id: Long) {
         find(id)?.let { entityManager.remove(it) }
     }
 
+    @Transactional(REQUIRED)
     fun delete(uuid: UUID) {
         find(uuid)?.let { entityManager.remove(it) }
     }
 
+    @Transactional(REQUIRED)
     fun deleteForZaakinformatieobject(zaakinformatieobjectUUID: UUID) {
         val zaakInformatieobject = zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID)
         find(zaakInformatieobject.informatieobject.extractUuid())?.let { entityManager.remove(it) }
@@ -109,22 +115,25 @@ class InboxDocumentService @Inject constructor(
     private fun getWhere(listParameters: InboxDocumentListParameters, root: Root<InboxDocument>): Predicate {
         val builder = entityManager.criteriaBuilder
         val predicates = mutableListOf<Predicate>()
-        if (!listParameters.identificatie.isNullOrBlank()) {
-            predicates.add(
-                builder.like(
-                    root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME),
-                    "%${listParameters.identificatie}%"
+        listParameters.identificatie?.let {
+            if (it.isNotBlank()) {
+                predicates.add(
+                    builder.like(
+                        root.get(InboxDocument.ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME),
+                        "%$it%"
+                    )
                 )
-            )
+            }
         }
-        if (!listParameters.titel.isNullOrBlank()) {
-            val titel = listParameters.titel!!
-            predicates.add(
-                builder.like(
-                    builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)),
-                    "%${titel.lowercase().replace(" ", "%")}%"
+        listParameters.titel?.let {
+            if (!it.isBlank()) {
+                predicates.add(
+                    builder.like(
+                        builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)),
+                        "%${it.lowercase().replace(" ", "%")}%"
+                    )
                 )
-            )
+            }
         }
         addCreatiedatumPredicates(
             creatiedatum = listParameters.creatiedatum,

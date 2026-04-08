@@ -128,28 +128,28 @@ class InboxDocument {
         const val CREATIE_DATUM_PROPERTY_NAME = "creatiedatum"
     }
 
-    @field:Id
-    @field:GeneratedValue(generator = "sq_inbox_document", strategy = GenerationType.SEQUENCE)
-    @field:Column(name = "id_inbox_document")
+    @Id
+    @GeneratedValue(generator = "sq_inbox_document", strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_inbox_document")
     var id: Long? = null
 
-    @field:NotNull
-    @field:Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
+    @NotNull
+    @Column(name = "uuid_enkelvoudiginformatieobject", nullable = false)
     var enkelvoudiginformatieobjectUUID: UUID? = null
 
-    @field:NotBlank
-    @field:Column(name = "id_enkelvoudiginformatieobject", nullable = false)
+    @NotBlank
+    @Column(name = "id_enkelvoudiginformatieobject", nullable = false)
     var enkelvoudiginformatieobjectID: String? = null
 
-    @field:NotNull
-    @field:Column(name = "creatiedatum", nullable = false)
+    @NotNull
+    @Column(name = "creatiedatum", nullable = false)
     var creatiedatum: LocalDate? = null
 
-    @field:NotBlank
-    @field:Column(name = "titel", nullable = false)
+    @NotBlank
+    @Column(name = "titel", nullable = false)
     var titel: String? = null
 
-    @field:Column(name = "bestandsnaam")
+    @Column(name = "bestandsnaam")
     var bestandsnaam: String? = null
 }
 ```

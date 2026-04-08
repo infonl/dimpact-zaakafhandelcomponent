@@ -22,7 +22,6 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -62,6 +61,7 @@ import nl.info.zac.app.zaak.model.createRestZaakCreateData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration

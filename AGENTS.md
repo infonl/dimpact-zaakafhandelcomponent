@@ -289,14 +289,22 @@ open class InboxDocument
 In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
 
 ```kotlin// Before
-@field:NotNull
-@field:Column(name = "creatiedatum", nullable = false)
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
 var creatiedatum: LocalDate? = null
 // After
-@field:NotNull
-@field:Column(name = "creatiedatum", nullable = false)
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
 lateinit var creatiedatum: LocalDate
 ```
+
+### Use proper Transaction annotations in Kotlin database entity classes
+Use proper Transaction annotations in Kotlin database service classes.
+Follow these rules:
+- Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update the database.
+- Use `@Transactional(REQUIRED)` at function level for functions that update (write or delete) from the database.
+- Do not use any transactional annotations at function level for functions that only read from the database. 
+For these functions, the transactional annotation at class level is used.
 
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
