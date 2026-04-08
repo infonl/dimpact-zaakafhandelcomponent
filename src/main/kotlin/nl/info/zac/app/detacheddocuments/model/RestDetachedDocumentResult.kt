@@ -1,22 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.detacheddocuments.model
 
-package net.atos.zac.app.detacheddocuments.model;
+import net.atos.zac.app.shared.RESTResultaat
+import nl.info.zac.app.identity.model.RestUser
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import net.atos.zac.app.shared.RESTResultaat;
-import nl.info.zac.app.identity.model.RestUser;
-
-public class RestDetachedDocumentResult extends RESTResultaat<RestDetachedDocument> {
-
-    public List<RestUser> filterOntkoppeldDoor = new ArrayList<>();
-
-    public RestDetachedDocumentResult(final Collection<RestDetachedDocument> resultaten, final long aantalTotaal) {
-        super(resultaten, aantalTotaal);
-    }
+class RestDetachedDocumentResult(
+    resultaten: Collection<RestDetachedDocument>,
+    aantalTotaal: Long
+) : RESTResultaat<RestDetachedDocument>(resultaten, aantalTotaal) {
+    var filterOntkoppeldDoor: List<RestUser> = emptyList()
 }

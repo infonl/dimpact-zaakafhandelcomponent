@@ -1,49 +1,47 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.detacheddocuments.converter
 
-package net.atos.zac.app.detacheddocuments.converter;
+import net.atos.zac.app.shared.RESTListParametersConverter
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.search.model.DatumRange
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
-import net.atos.zac.app.shared.RESTListParametersConverter;
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters;
-import nl.info.zac.search.model.DatumRange;
-
-public class RestDetachedDocumentListParametersConverter extends
-                                                         RESTListParametersConverter<DetachedDocumentListParameters, RestDetachedDocumentListParameters> {
-
-    @Override
-    protected void doConvert(
-            final DetachedDocumentListParameters listParameters,
-            final RestDetachedDocumentListParameters restListParameters
+@AllOpen
+@NoArgConstructor
+class RestDetachedDocumentListParametersConverter :
+    RESTListParametersConverter<DetachedDocumentListParameters, RestDetachedDocumentListParameters>() {
+    override fun doConvert(
+        listParameters: DetachedDocumentListParameters?,
+        restListParameters: RestDetachedDocumentListParameters?
     ) {
-        listParameters.setReden(restListParameters.reden);
-        listParameters.setTitel(restListParameters.titel);
+        if (listParameters == null || restListParameters == null) return
 
-        if (restListParameters.creatiedatum != null && restListParameters.creatiedatum.hasValue()) {
-            listParameters.setCreatiedatum(new DatumRange(
-                    restListParameters.creatiedatum.getVan(),
-                    restListParameters.creatiedatum.getTot()
-            ));
+        listParameters.reden = restListParameters.reden
+        listParameters.titel = restListParameters.titel
+
+        restListParameters.creatiedatum?.let { creatiedatum ->
+            if (creatiedatum.hasValue()) {
+                listParameters.creatiedatum = DatumRange(van = creatiedatum.van, tot = creatiedatum.tot)
+            }
         }
 
-        if (restListParameters.ontkoppeldDoor != null) {
-            listParameters.setOntkoppeldDoor(restListParameters.ontkoppeldDoor.getId());
+        restListParameters.ontkoppeldDoor?.let { ontkoppeldDoor ->
+            listParameters.ontkoppeldDoor = ontkoppeldDoor.id
         }
 
-        if (restListParameters.ontkoppeldOp != null && restListParameters.ontkoppeldOp.hasValue()) {
-            listParameters.setOntkoppeldOp(new DatumRange(
-                    restListParameters.ontkoppeldOp.getVan(),
-                    restListParameters.ontkoppeldOp.getTot()
-            ));
+        restListParameters.ontkoppeldOp?.let { ontkoppeldOp ->
+            if (ontkoppeldOp.hasValue()) {
+                listParameters.ontkoppeldOp = DatumRange(van = ontkoppeldOp.van, tot = ontkoppeldOp.tot)
+            }
         }
 
-        listParameters.setZaakID(restListParameters.zaakID);
+        listParameters.zaakID = restListParameters.zaakID
     }
 
-    @Override
-    protected DetachedDocumentListParameters getListParameters() {
-        return new DetachedDocumentListParameters();
-    }
+    override fun getListParameters() = DetachedDocumentListParameters()
 }

@@ -1,69 +1,42 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.detacheddocuments.converter;
+package nl.info.zac.app.detacheddocuments.converter
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import jakarta.inject.Inject
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
+import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import java.util.UUID
 
-import jakarta.inject.Inject;
-
-import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
-import nl.info.zac.app.identity.converter.RestUserConverter;
-import nl.info.zac.document.detacheddocument.model.DetachedDocument;
-import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
-import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
-
-public class RestDetachedDocumentConverter {
-
-    private RestUserConverter userConverter;
-    private EnkelvoudigInformatieObjectLockService lockService;
-
-    @SuppressWarnings("unused")
-    public RestDetachedDocumentConverter() {
-        // Default constructor for CDI
+@AllOpen
+@NoArgConstructor
+class RestDetachedDocumentConverter @Inject constructor(
+    private val userConverter: RestUserConverter,
+    private val lockService: EnkelvoudigInformatieObjectLockService
+) {
+    fun convert(document: DetachedDocument, informatieobjectTypeUUID: UUID): RestDetachedDocument {
+        val lock = lockService.findLock(document.documentUUID)
+        return RestDetachedDocument(
+            id = document.id!!,
+            documentUUID = document.documentUUID,
+            documentID = document.documentID,
+            informatieobjectTypeUUID = informatieobjectTypeUUID,
+            titel = document.titel,
+            zaakID = document.zaakID,
+            creatiedatum = document.creatiedatum,
+            bestandsnaam = document.bestandsnaam,
+            ontkoppeldDoor = userConverter.convertUserId(document.ontkoppeldDoor),
+            ontkoppeldOp = document.ontkoppeldOp,
+            reden = document.reden,
+            isVergrendeld = lock != null && lock.lock != null
+        )
     }
 
-    @Inject
-    public RestDetachedDocumentConverter(
-            final RestUserConverter userConverter,
-            final EnkelvoudigInformatieObjectLockService lockService
-    ) {
-        this.userConverter = userConverter;
-        this.lockService = lockService;
-    }
-
-    public RestDetachedDocument convert(final DetachedDocument document, final UUID informatieobjectTypeUUID) {
-        final RestDetachedDocument restDocument = new RestDetachedDocument();
-        restDocument.id = document.getId();
-        restDocument.documentUUID = document.getDocumentUUID();
-        restDocument.documentID = document.getDocumentID();
-        restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
-        restDocument.titel = document.getTitel();
-        restDocument.zaakID = document.getZaakID();
-        restDocument.creatiedatum = document.getCreatiedatum();
-        restDocument.bestandsnaam = document.getBestandsnaam();
-        restDocument.ontkoppeldDoor = userConverter.convertUserId(document.ontkoppeldDoor);
-        restDocument.ontkoppeldOp = document.getOntkoppeldOp();
-        restDocument.reden = document.getReden();
-        final EnkelvoudigInformatieObjectLock lock = lockService.findLock(document.getDocumentUUID());
-        restDocument.isVergrendeld = lock != null && lock.getLock() != null;
-        return restDocument;
-    }
-
-    public List<RestDetachedDocument> convert(
-            final List<DetachedDocument> documenten,
-            final List<UUID> informatieobjectTypeUUIDs
-    ) {
-        List<RestDetachedDocument> list = new ArrayList<>();
-        for (int index = 0; index < documenten.size(); index++) {
-            list.add(convert(
-                    documenten.get(index),
-                    informatieobjectTypeUUIDs.get(index)
-            ));
-        }
-        return list;
-    }
+    fun convert(documenten: List<DetachedDocument>, informatieobjectTypeUUIDs: List<UUID>): List<RestDetachedDocument> =
+        documenten.indices.map { index -> convert(documenten[index], informatieobjectTypeUUIDs[index]) }
 }

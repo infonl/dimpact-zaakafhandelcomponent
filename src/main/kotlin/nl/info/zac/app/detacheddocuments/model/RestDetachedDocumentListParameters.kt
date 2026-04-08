@@ -1,24 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.app.detacheddocuments.model
 
-package net.atos.zac.app.detacheddocuments.model;
+import net.atos.zac.app.shared.RESTListParameters
+import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 
-import net.atos.zac.app.shared.RESTListParameters;
-import nl.info.zac.app.identity.model.RestUser;
-import nl.info.zac.app.search.model.RestDatumRange;
+@AllOpen
+@NoArgConstructor
+class RestDetachedDocumentListParameters : RESTListParameters() {
+    var titel: String? = null
 
-public class RestDetachedDocumentListParameters extends RESTListParameters {
-    public String titel;
+    var reden: String? = null
 
-    public String reden;
+    var creatiedatum: RestDatumRange? = null
 
-    public RestDatumRange creatiedatum;
+    var ontkoppeldDoor: RestUser? = null
 
-    public RestUser ontkoppeldDoor;
+    var ontkoppeldOp: RestDatumRange? = null
 
-    public RestDatumRange ontkoppeldOp;
-
-    public String zaakID;
+    var zaakID: String? = null
 }
