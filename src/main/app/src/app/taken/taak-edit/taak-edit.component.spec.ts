@@ -58,7 +58,9 @@ const makeTask = (
     zaakIdentificatie: "ZAAK-001",
     toelichting: undefined,
     ...fields,
-  }) as Partial<GeneratedType<"RestTask">> as unknown as GeneratedType<"RestTask">;
+  }) as Partial<
+    GeneratedType<"RestTask">
+  > as unknown as GeneratedType<"RestTask">;
 
 const makeGroup = (
   fields: Partial<GeneratedType<"RestGroup">> = {},
@@ -67,7 +69,9 @@ const makeGroup = (
     id: "group-1",
     naam: "Group 1",
     ...fields,
-  }) as Partial<GeneratedType<"RestGroup">> as unknown as GeneratedType<"RestGroup">;
+  }) as Partial<
+    GeneratedType<"RestGroup">
+  > as unknown as GeneratedType<"RestGroup">;
 
 const makeUser = (
   fields: Partial<GeneratedType<"RestUser">> = {},
@@ -76,7 +80,9 @@ const makeUser = (
     id: "user-1",
     naam: "User 1",
     ...fields,
-  }) as Partial<GeneratedType<"RestUser">> as unknown as GeneratedType<"RestUser">;
+  }) as Partial<
+    GeneratedType<"RestUser">
+  > as unknown as GeneratedType<"RestUser">;
 
 describe(TaakEditComponent.name, () => {
   let fixture: ComponentFixture<TaakEditComponent>;

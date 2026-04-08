@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -15,7 +16,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgIf } from "@angular/common";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { PutBody } from "../../shared/http/http-client";
@@ -45,8 +45,9 @@ export class KlantContactmomentenTabelComponent
   @Input() bsn?: string;
   @Input() vestigingsnummer?: string;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  protected dataSource =
-    new MatTableDataSource<GeneratedType<"RestContactmoment">>();
+  protected dataSource = new MatTableDataSource<
+    GeneratedType<"RestContactmoment">
+  >();
   protected columns: string[] = [
     "registratiedatum",
     "kanaal",

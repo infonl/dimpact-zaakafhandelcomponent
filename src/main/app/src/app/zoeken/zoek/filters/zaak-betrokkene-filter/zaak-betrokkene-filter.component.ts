@@ -5,7 +5,7 @@
 
 import { NgClass } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { ReactiveFormsModule, FormControl } from "@angular/forms";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -35,7 +35,8 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
   ],
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
-  @Input({ required: true }) zoekparameters!: GeneratedType<"RestZoekParameters">;
+  @Input({ required: true })
+  zoekparameters!: GeneratedType<"RestZoekParameters">;
   @Output() changed = new EventEmitter<string>();
   protected dialogOpen: boolean = false;
   protected betrokkeneSelectControl = new FormControl<ZoekVeld>(

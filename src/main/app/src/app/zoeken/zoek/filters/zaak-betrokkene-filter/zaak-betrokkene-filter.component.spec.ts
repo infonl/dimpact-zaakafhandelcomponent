@@ -5,17 +5,22 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
+import { MatSelectHarness } from "@angular/material/select/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZoekVeld } from "../../../model/zoek-veld";
-import { ZaakBetrokkeneFilterComponent } from "./zaak-betrokkene-filter.component";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
+import { ZaakBetrokkeneFilterComponent } from "./zaak-betrokkene-filter.component";
 
 const makeZoekParams = (
   zoeken: { [key: string]: string } = {},
@@ -24,7 +29,9 @@ const makeZoekParams = (
     page: 0,
     rows: 25,
     zoeken,
-  }) as Partial<GeneratedType<"RestZoekParameters">> as unknown as GeneratedType<"RestZoekParameters">;
+  }) as Partial<
+    GeneratedType<"RestZoekParameters">
+  > as unknown as GeneratedType<"RestZoekParameters">;
 
 describe(ZaakBetrokkeneFilterComponent.name, () => {
   let fixture: ComponentFixture<ZaakBetrokkeneFilterComponent>;
@@ -146,7 +153,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       );
       component["roltypeChanged"]();
 
-      expect(component.zoekparameters.zoeken!["ZAAK_INITIATOR"]).toBeUndefined();
+      expect(
+        component.zoekparameters.zoeken!["ZAAK_INITIATOR"],
+      ).toBeUndefined();
       expect(component.zoekparameters.zoeken!["ZAAK_BETROKKENE_ADVISEUR"]).toBe(
         "bsn123",
       );
@@ -251,8 +260,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component["dialogOpen"] = true;
       fixture.detectChanges();
 
-      const icon: HTMLElement =
-        fixture.nativeElement.querySelector("mat-icon");
+      const icon: HTMLElement = fixture.nativeElement.querySelector("mat-icon");
       expect(icon.classList).toContain("active");
     });
 
@@ -260,8 +268,7 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component.zoekparameters = makeZoekParams({});
       fixture.detectChanges();
 
-      const icon: HTMLElement =
-        fixture.nativeElement.querySelector("mat-icon");
+      const icon: HTMLElement = fixture.nativeElement.querySelector("mat-icon");
       expect(icon.classList).not.toContain("active");
     });
 
