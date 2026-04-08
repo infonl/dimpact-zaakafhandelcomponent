@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document.detacheddocument
+package nl.info.zac.document.detacheddocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,16 +18,14 @@ import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.DetachedDocumentService
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.createDetachedDocument
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class DetachedDocumentServiceTest : BehaviorSpec({
@@ -121,7 +119,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
                 Then("an exception is thrown") {
                     detachedDocumentNotFoundException.message shouldBe
-                        "Detached document with enkelvoudiginformatieobject UUID '$targetUuid' not found"
+                        "No detached document found for enkelvoudiginformatieobject UUID: '$targetUuid'"
                 }
             }
         }
@@ -134,10 +132,10 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("find is called with that ID") {
-                val result = detachedDocumentService.find(document.id)
+                val result = detachedDocumentService.find(document.id!!)
 
-                Then("an Optional containing the document is returned") {
-                    result shouldBe Optional.of(document)
+                Then("the document is returned") {
+                    result shouldBe document
                 }
             }
         }
@@ -149,8 +147,8 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             When("find is called with that ID") {
                 val result = detachedDocumentService.find(id)
 
-                Then("an empty Optional is returned") {
-                    result shouldBe Optional.empty()
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }
@@ -165,12 +163,12 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
             When("getResultaat is called") {
-                val result = detachedDocumentService.getResultaat(DetachedDocumentListParameters())
+                val result = detachedDocumentService.getDetachedDocumentResult(DetachedDocumentListParameters())
 
                 Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
                     result.items shouldBe emptyList()
                     result.count shouldBe 0L
-                    result.ontkoppeldDoorFilter shouldBe emptyList()
+                    result.detachedByFilter shouldBe emptyList()
                 }
             }
         }
@@ -183,7 +181,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                detachedDocumentService.delete(document.id)
+                detachedDocumentService.delete(document.id!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }

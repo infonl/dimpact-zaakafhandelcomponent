@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
@@ -55,6 +54,7 @@ import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
@@ -225,7 +225,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
                 val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.delete(detachedDocument.id)
+                detachedDocumentService.delete(detachedDocument.id!!)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
