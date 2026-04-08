@@ -65,6 +65,8 @@ import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-op
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
 
+type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
+
 @Component({
   templateUrl: "./zaak-view.component.html",
   styleUrls: ["./zaak-view.component.less"],
@@ -1514,11 +1516,7 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected initiatorViewType():
-    | "PERSON"
-    | "COMPANY"
-    | "CONTACT_DETAILS"
-    | null {
+  protected initiatorViewType(): InitiatorViewType {
     const koppelingen =
       this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
 
@@ -1531,7 +1529,7 @@ export class ZaakViewComponent
 
     if (this.zaak.zaakSpecificContactDetails) return "CONTACT_DETAILS";
 
-    return null;
+    return "ADD";
   }
 
   protected allowedToAddBetrokkene() {
