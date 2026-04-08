@@ -37,7 +37,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 export class ZaakBetrokkeneFilterComponent implements OnInit {
   @Input({ required: true })
   zoekparameters!: GeneratedType<"RestZoekParameters">;
-  @Output() changed = new EventEmitter<string>();
+  @Output() changed = new EventEmitter<void>();
   protected dialogOpen: boolean = false;
   protected betrokkeneSelectControl = new FormControl<ZoekVeld>(
     ZoekVeld.ZAAK_INITIATOR,
