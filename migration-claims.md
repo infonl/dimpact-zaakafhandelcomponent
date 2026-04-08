@@ -42,6 +42,7 @@
 - [x] ZaakBetrokkeneFilterComponent
 - [ ] OntvangstbevestigingComponent
 - [ ] TakenVrijgevenDialogComponent
+- [ ] ZoekopdrachtSaveDialogComponent
 
 ### PZ-10533 feature branch — done
 - [x] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
