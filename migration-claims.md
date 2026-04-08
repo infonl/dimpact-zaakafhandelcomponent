@@ -41,7 +41,7 @@
 - [x] KlantContactmomentenTabelComponent
 - [x] ZaakBetrokkeneFilterComponent
 - [ ] OntvangstbevestigingComponent
-- [ ] TakenVrijgevenDialogComponent
+- [x] TakenVrijgevenDialogComponent
 - [ ] ZoekopdrachtSaveDialogComponent
 
 ### PZ-10533 feature branch — done
