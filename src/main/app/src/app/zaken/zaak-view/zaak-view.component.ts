@@ -1514,7 +1514,7 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected getInitiatorViewType():
+  protected initiatorViewType():
     | "PERSON"
     | "COMPANY"
     | "CONTACT_DETAILS"

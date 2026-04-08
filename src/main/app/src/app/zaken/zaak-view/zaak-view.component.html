@@ -146,7 +146,7 @@
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">
       <section *ngIf="showInitiator()" class="w100 flex-1">
-        <ng-container [ngSwitch]="getInitiatorViewType()">
+        <ng-container [ngSwitch]="initiatorViewType()">
           <zac-zaak-initiator-toevoegen
             *ngSwitchDefault
             class="w100 flex-1"
