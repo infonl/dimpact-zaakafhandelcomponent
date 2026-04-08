@@ -13,8 +13,8 @@ import {
 } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "src/test-helpers";
 import { Subject } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
