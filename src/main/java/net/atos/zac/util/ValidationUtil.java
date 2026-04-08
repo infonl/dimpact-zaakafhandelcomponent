@@ -28,11 +28,12 @@ public final class ValidationUtil {
     private static final Pattern emailRegex = Pattern.compile("^" + EMAIL + "$");
 
     /**
-     * Valideert het opgegeven object
-     * Gooit een {@link ConstraintViolationException} met daarin de fouten indien het object niet valide is
+     * Validates an object using Jakarta Validation annotations defined in the object class.
+     * Only use this when the `@Valid` annotation cannot be used on the object.
      *
-     * @param object           het te valideren object
-     * @param validationGroups de optionele validatie groepen
+     * @param object the object to validatie
+     * @param validationGroups option validation groups to use
+     * @throws ConstraintViolationException if the object is not valid
      */
     public static void valideerObject(final Object object, final Class<?>... validationGroups) {
         final Set<ConstraintViolation<Object>> violations = valideer(object, validationGroups);

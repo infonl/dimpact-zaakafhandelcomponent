@@ -50,7 +50,6 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val reden = "Test reden"
             val userId = "user-123"
             val zaak = createZaak(identificatie = "ZAAK-789")
-
             val informatieobject = createEnkelvoudigInformatieObject(
                 uuid = documentUuid
             ).apply {
@@ -66,18 +65,18 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             }
 
             When("the ontkoppelde documenten create is invoked") {
-                val result = detachedDocumentService.create(informatieobject, zaak, reden)
+                val detachedDocument = detachedDocumentService.create(informatieobject, zaak, reden)
 
                 Then("a detached document is created and stored") {
-                    result.documentUUID shouldBe documentUuid
-                    result.documentID shouldBe identificatie
-                    result.creatiedatum shouldBe creatiedatum
-                    result.titel shouldBe titel
-                    result.bestandsnaam shouldBe bestandsnaam
-                    result.ontkoppeldDoor shouldBe userId
-                    result.zaakID shouldBe zaak.identificatie
-                    result.reden shouldBe reden
-                    result.ontkoppeldOp shouldNotBe null
+                    detachedDocument.documentUUID shouldBe documentUuid
+                    detachedDocument.documentID shouldBe identificatie
+                    detachedDocument.creatiedatum shouldBe creatiedatum
+                    detachedDocument.titel shouldBe titel
+                    detachedDocument.bestandsnaam shouldBe bestandsnaam
+                    detachedDocument.ontkoppeldDoor shouldBe userId
+                    detachedDocument.zaakID shouldBe zaak.identificatie
+                    detachedDocument.reden shouldBe reden
+                    detachedDocument.ontkoppeldOp shouldNotBe null
                 }
             }
         }
