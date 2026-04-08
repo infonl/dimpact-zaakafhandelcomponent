@@ -13,7 +13,7 @@ import {
 } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { fromPartial } from "@total-typescript/shoehorn";
+import { fromPartial } from "src/test-helpers";
 import { Subject } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
