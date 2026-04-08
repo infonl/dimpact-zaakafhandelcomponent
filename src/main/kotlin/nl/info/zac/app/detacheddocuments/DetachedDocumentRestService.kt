@@ -93,9 +93,9 @@ class DetachedDocumentRestService @Inject constructor(
         val documentUUID = detachedDocument.documentUUID
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID)
-        } catch (e: ZgwErrorException) {
-            if (e.zgwError.status != HttpStatus.NOT_FOUND_404) {
-                throw e
+        } catch (zgwErrorException: ZgwErrorException) {
+            if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
+                throw zgwErrorException
             }
             LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
         }

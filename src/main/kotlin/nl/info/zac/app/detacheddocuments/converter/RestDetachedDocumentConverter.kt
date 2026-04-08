@@ -19,20 +19,22 @@ class RestDetachedDocumentConverter @Inject constructor(
     private val userConverter: RestUserConverter,
     private val lockService: EnkelvoudigInformatieObjectLockService
 ) {
-    fun convert(document: DetachedDocument, informatieobjectTypeUUID: UUID): RestDetachedDocument {
-        val lock = lockService.findLock(document.documentUUID)
+    fun convert(detachedDocument: DetachedDocument, informatieobjectTypeUUID: UUID): RestDetachedDocument {
+        val lock = lockService.findLock(detachedDocument.documentUUID)
         return RestDetachedDocument(
-            id = document.id!!,
-            documentUUID = document.documentUUID,
-            documentID = document.documentID,
+            // conversion is always done from an existing detached document (in the database),
+            // so id is always present
+            id = detachedDocument.id!!,
+            documentUUID = detachedDocument.documentUUID,
+            documentID = detachedDocument.documentID,
             informatieobjectTypeUUID = informatieobjectTypeUUID,
-            titel = document.titel,
-            zaakID = document.zaakID,
-            creatiedatum = document.creatiedatum,
-            bestandsnaam = document.bestandsnaam,
-            ontkoppeldDoor = userConverter.convertUserId(document.ontkoppeldDoor),
-            ontkoppeldOp = document.ontkoppeldOp,
-            reden = document.reden,
+            titel = detachedDocument.titel,
+            zaakID = detachedDocument.zaakID,
+            creatiedatum = detachedDocument.creatiedatum,
+            bestandsnaam = detachedDocument.bestandsnaam,
+            ontkoppeldDoor = userConverter.convertUserId(detachedDocument.ontkoppeldDoor),
+            ontkoppeldOp = detachedDocument.ontkoppeldOp,
+            reden = detachedDocument.reden,
             isVergrendeld = lock != null && lock.lock != null
         )
     }
