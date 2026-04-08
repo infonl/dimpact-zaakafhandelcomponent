@@ -122,7 +122,7 @@ public class DetachedDocumentRestService {
             return;
         }
         EnkelvoudigInformatieObject enkelvoudigInformatieobject = null;
-        final UUID documentUUID = detachedDocument.documentUUID;
+        final UUID documentUUID = detachedDocument.getDocumentUUID();
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID);
         } catch (ZgwErrorException e) {
