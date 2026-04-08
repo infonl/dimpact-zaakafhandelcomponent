@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document.detacheddocument
+package nl.info.zac.document.detacheddocument
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -13,14 +13,14 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import net.atos.client.zgw.shared.util.DateTimeUtil
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
@@ -74,7 +74,7 @@ class DetachedDocumentService @Inject constructor(
      *
      * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
      * @return the detached document
-     * @throws DetachedDocumentNotFoundException if the detached document could not be found
+     * @throws nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException if the detached document could not be found
      */
     fun read(enkelvoudiginformatieobjectUUID: UUID): DetachedDocument =
         find(enkelvoudiginformatieobjectUUID) ?: throw DetachedDocumentNotFoundException(

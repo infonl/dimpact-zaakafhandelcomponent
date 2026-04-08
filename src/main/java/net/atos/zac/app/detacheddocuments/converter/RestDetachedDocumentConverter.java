@@ -11,8 +11,8 @@ import java.util.UUID;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
-import net.atos.zac.document.detacheddocument.model.DetachedDocument;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.document.detacheddocument.model.DetachedDocument;
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService;
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock;
 

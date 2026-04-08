@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document.detacheddocument
+package nl.info.zac.document.detacheddocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,15 +18,14 @@ import jakarta.enterprise.inject.Instance
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.createDetachedDocument
 import java.time.LocalDate
-import java.util.Optional
 import java.util.UUID
 
 class DetachedDocumentServiceTest : BehaviorSpec({

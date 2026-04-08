@@ -23,22 +23,21 @@ import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentListPara
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
-import net.atos.zac.document.detacheddocument.DetachedDocumentService
-import net.atos.zac.document.detacheddocument.model.DetachedDocument
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult
-import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
+import nl.info.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 class DetachedDocumentRestServiceTest : BehaviorSpec({
