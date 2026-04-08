@@ -32,6 +32,7 @@ import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParamete
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
@@ -89,11 +90,11 @@ public class DetachedDocumentService {
     }
 
     /**
-     * Returns the detach document for the provided enkelvoudiginformatieobject UUID, if it exists,
-     * or null otherwise.
+     * Returns the detach document for the provided enkelvoudiginformatieobject UUID.
      *
      * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
-     * @return the detached document, or null if no detached document exists for the enkelvoudiginformatieobject UUID
+     * @return the detached document
+     * @throws DetachedDocumentNotFoundException if the detached document could not be found
      */
     public DetachedDocument read(final UUID enkelvoudiginformatieobjectUUID) {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -104,7 +105,12 @@ public class DetachedDocumentService {
         if (!resultList.isEmpty()) {
             return resultList.getFirst();
         } else {
-            return null;
+            throw new DetachedDocumentNotFoundException(
+                    String.format(
+                            "Detached document with enkelvoudiginformatieobject UUID '%s' not found",
+                            enkelvoudiginformatieobjectUUID
+                    )
+            );
         }
     }
 
