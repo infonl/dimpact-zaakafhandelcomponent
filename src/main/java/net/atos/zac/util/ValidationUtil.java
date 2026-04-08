@@ -31,7 +31,7 @@ public final class ValidationUtil {
      * Validates an object using Jakarta Validation annotations defined in the object class.
      * Only use this when the `@Valid` annotation cannot be used on the object.
      *
-     * @param object the object to validatie
+     * @param object           the object to validatie
      * @param validationGroups option validation groups to use
      * @throws ConstraintViolationException if the object is not valid
      */
