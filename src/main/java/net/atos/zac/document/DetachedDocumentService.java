@@ -4,15 +4,6 @@
  */
 package net.atos.zac.document;
 
-import static net.atos.zac.util.ValidationUtil.valideerObject;
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -23,9 +14,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-
 import net.atos.client.zgw.shared.util.DateTimeUtil;
 import net.atos.zac.document.detacheddocument.model.DetachedDocument;
 import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
@@ -36,6 +24,16 @@ import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundExce
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.search.model.DatumRange;
 import nl.info.zac.shared.model.SorteerRichting;
+import org.apache.commons.lang3.StringUtils;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static net.atos.zac.util.ValidationUtil.valideerObject;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 @ApplicationScoped
 @Transactional
