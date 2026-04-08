@@ -4,6 +4,7 @@
  */
 package net.atos.zac.document.detacheddocument
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -23,6 +24,7 @@ import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParamete
 import net.atos.zac.document.detacheddocument.model.createDetachedDocument
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import java.time.LocalDate
 import java.util.Optional
@@ -113,10 +115,13 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             } returns typedQuery
 
             When("read is called with that UUID") {
-                val result = detachedDocumentService.read(targetUuid)
+                val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
+                    detachedDocumentService.read(targetUuid)
+                }
 
-                Then("null is returned") {
-                    result shouldBe null
+                Then("an exception is thrown") {
+                    detachedDocumentNotFoundException.message shouldBe
+                        "Detached document with enkelvoudiginformatieobject UUID '$targetUuid' not found"
                 }
             }
         }
