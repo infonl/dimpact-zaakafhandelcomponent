@@ -88,7 +88,7 @@ public class DetachedDocumentRestService {
     public RESTResultaat<RestDetachedDocument> listDetachedDocuments(final RestDetachedDocumentListParameters restListParameters) {
         assertPolicy(policyService.readWerklijstRechten().getInbox());
         final DetachedDocumentListParameters listParameters = listParametersConverter.convert(restListParameters);
-        final DetachedDocumentResult resultaat = detachedDocumentService.getResultaat(listParameters);
+        final DetachedDocumentResult resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters);
         var ontkoppeldeDocumenten = resultaat.getItems();
         var informationObjectTypeUUIDs = ontkoppeldeDocumenten.stream().map(
                 ontkoppeldeDocument -> extractUuid(
@@ -101,7 +101,7 @@ public class DetachedDocumentRestService {
                 restDetachedDocumentConverter.convert(ontkoppeldeDocumenten, informationObjectTypeUUIDs),
                 resultaat.getCount()
         );
-        final List<String> ontkoppeldDoor = resultaat.getOntkoppeldDoorFilter();
+        final List<String> ontkoppeldDoor = resultaat.getDetachedByFilter();
         if (CollectionUtils.isEmpty(ontkoppeldDoor)) {
             if (restListParameters.ontkoppeldDoor != null) {
                 restDetachedDocumentResult.filterOntkoppeldDoor = List.of(restListParameters.ontkoppeldDoor);

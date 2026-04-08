@@ -237,7 +237,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(detachedDocument), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
@@ -268,7 +268,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(document), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
@@ -300,7 +300,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
             every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getResultaat(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject

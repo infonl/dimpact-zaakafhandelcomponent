@@ -9,6 +9,8 @@ import nl.info.zac.shared.model.ListParameters
 
 class InboxDocumentListParameters : ListParameters() {
     var titel: String? = null
+
     var identificatie: String? = null
+
     var creatiedatum: DatumRange? = null
 }

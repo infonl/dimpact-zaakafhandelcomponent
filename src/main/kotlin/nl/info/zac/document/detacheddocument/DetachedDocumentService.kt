@@ -12,6 +12,8 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.client.zgw.shared.util.DateTimeUtil
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
@@ -19,6 +21,9 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.REDEN_PROPERTY_NAME
+import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.TITEL_PROPERTY_NAME
+import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.ZAAK_ID_PROPERTY_NAME
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
 import nl.info.zac.search.model.DatumRange
@@ -31,7 +36,7 @@ import java.util.Locale
 import java.util.UUID
 
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
 @Suppress("TooManyFunctions")
@@ -43,42 +48,48 @@ class DetachedDocumentService @Inject constructor(
         private const val LIKE = "%%%s%%"
     }
 
+    @Transactional(REQUIRED)
     fun create(
-        informatieobject: EnkelvoudigInformatieObject,
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
         zaak: Zaak,
-        reden: String?
+        reason: String
     ): DetachedDocument {
         val detachedDocument = DetachedDocument().apply {
-            documentID = informatieobject.getIdentificatie()
-            documentUUID = informatieobject.getUrl().extractUuid()
-            creatiedatum = informatieobject.getCreatiedatum()
-            titel = informatieobject.getTitel()
-            bestandsnaam = informatieobject.getBestandsnaam()
+            documentID = enkelvoudigInformatieObject.getIdentificatie()
+            documentUUID = enkelvoudigInformatieObject.getUrl().extractUuid()
+            creatiedatum = enkelvoudigInformatieObject.getCreatiedatum()
+            titel = enkelvoudigInformatieObject.getTitel()
+            bestandsnaam = enkelvoudigInformatieObject.getBestandsnaam()
             ontkoppeldOp = ZonedDateTime.now()
-            ontkoppeldDoor = loggedInUserInstance.get()!!.id
+            ontkoppeldDoor = loggedInUserInstance.get().id
             zaakID = zaak.getIdentificatie()
-            this.reden = reden
+            reden = reason
         }
         entityManager.persist(detachedDocument)
         return detachedDocument
     }
 
-    fun getResultaat(listParameters: DetachedDocumentListParameters) = DetachedDocumentResult(
-        items = list(listParameters),
-        count = count(listParameters).toLong(),
-        ontkoppeldDoorFilter = getOntkoppeldDoor(listParameters)
-    )
+    fun getDetachedDocumentResult(listParameters: DetachedDocumentListParameters): DetachedDocumentResult {
+        val detachedDocuments = list(listParameters)
+        val detachedDocumentsCount = count(listParameters)
+        val detachedByFilters = getOntkoppeldDoor(listParameters)
+        return DetachedDocumentResult(
+            items = detachedDocuments,
+            count = detachedDocumentsCount.toLong(),
+            detachedByFilter = detachedByFilters
+        )
+    }
 
     /**
      * Returns the detached document for the provided enkelvoudiginformatieobject UUID.
      *
      * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
      * @return the detached document
-     * @throws nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException if the detached document could not be found
+     * @throws DetachedDocumentNotFoundException if the detached document could not be found
      */
     fun read(enkelvoudiginformatieobjectUUID: UUID): DetachedDocument =
         find(enkelvoudiginformatieobjectUUID) ?: throw DetachedDocumentNotFoundException(
-            "Detached document with enkelvoudiginformatieobject UUID '$enkelvoudiginformatieobjectUUID' not found"
+            "No detached document found for enkelvoudiginformatieobject UUID: '$enkelvoudiginformatieobjectUUID'"
         )
 
     fun find(id: Long): DetachedDocument? =
@@ -97,6 +108,14 @@ class DetachedDocumentService @Inject constructor(
         }
     }
 
+    @Transactional(REQUIRED)
+    fun delete(id: Long) { find(id)?.run(entityManager::remove) }
+
+    @Transactional(REQUIRED)
+    fun delete(uuid: UUID) {
+        find(uuid)?.run(entityManager::remove)
+    }
+
     private fun count(listParameters: DetachedDocumentListParameters): Int {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(Long::class.java)
@@ -111,18 +130,18 @@ class DetachedDocumentService @Inject constructor(
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(DetachedDocument::class.java)
         val root = query.from(DetachedDocument::class.java)
-        if (listParameters.sorting != null) {
-            if (listParameters.sorting!!.direction == SorteerRichting.ASCENDING) {
-                query.orderBy(builder.asc(root.get<Any>(listParameters.sorting!!.field)))
+        listParameters.sorting?.let {
+            if (it.direction == SorteerRichting.ASCENDING) {
+                query.orderBy(builder.asc(root.get<Any>(it.field)))
             } else {
-                query.orderBy(builder.desc(root.get<Any>(listParameters.sorting!!.field)))
+                query.orderBy(builder.desc(root.get<Any>(it.field)))
             }
         }
         query.where(getWhere(listParameters, root))
         val emQuery = entityManager.createQuery(query)
-        if (listParameters.paging != null) {
-            emQuery.firstResult = listParameters.paging!!.getFirstResult()
-            emQuery.maxResults = listParameters.paging!!.maxResults
+        listParameters.paging?.let {
+            emQuery.firstResult = it.getFirstResult()
+            emQuery.maxResults = it.maxResults
         }
         return emQuery.getResultList()
     }
@@ -136,12 +155,6 @@ class DetachedDocumentService @Inject constructor(
         return entityManager.createQuery(query).getResultList()
     }
 
-    fun delete(id: Long) { find(id)?.run(entityManager::remove) }
-
-    fun delete(uuid: UUID) {
-        find(uuid)?.run(entityManager::remove)
-    }
-
     private fun getWhere(
         listParameters: DetachedDocumentListParameters,
         root: Root<DetachedDocument>
@@ -151,71 +164,78 @@ class DetachedDocumentService @Inject constructor(
         if (StringUtils.isNotBlank(listParameters.zaakID)) {
             predicates.add(
                 builder.like(
-                    root.get<String?>(DetachedDocument.ZAAK_ID_PROPERTY_NAME),
+                    root.get(ZAAK_ID_PROPERTY_NAME),
                     LIKE.format(listParameters.zaakID)
                 )
             )
         }
-        if (StringUtils.isNotBlank(listParameters.titel)) {
-            val titel: String = LIKE.format(listParameters.titel!!.lowercase(Locale.getDefault()).replace(" ", "%"))
-            predicates.add(builder.like(builder.lower(root.get<String?>(DetachedDocument.TITEL_PROPERTY_NAME)), titel))
+        listParameters.titel?.let {
+            if (it.isNotBlank()) {
+                val titel = LIKE.format(it.lowercase(Locale.getDefault()).replace(" ", "%"))
+                predicates.add(builder.like(builder.lower(root.get(TITEL_PROPERTY_NAME)), titel))
+            }
         }
-        if (StringUtils.isNotBlank(listParameters.reden)) {
-            val reden: String = LIKE.format(listParameters.reden!!.lowercase(Locale.getDefault()).replace(" ", "%"))
-            predicates.add(builder.like(builder.lower(root.get<String?>(DetachedDocument.REDEN_PROPERTY_NAME)), reden))
+        listParameters.reden?.let {
+            if (it.isNotBlank()) {
+                val reden = LIKE.format(it.lowercase(Locale.getDefault()).replace(" ", "%"))
+                predicates.add(builder.like(builder.lower(root.get(REDEN_PROPERTY_NAME)), reden))
+            }
         }
-
-        if (StringUtils.isNotBlank(listParameters.ontkoppeldDoor)) {
-            predicates.add(
-                builder.equal(
-                    root.get<Any?>(DetachedDocument.ONTKOPPELD_DOOR_PROPERTY_NAME),
-                    listParameters.ontkoppeldDoor
+        listParameters.ontkoppeldDoor?.let {
+            if (it.isNotBlank()) {
+                predicates.add(
+                    builder.equal(
+                        root.get<Any>(DetachedDocument.ONTKOPPELD_DOOR_PROPERTY_NAME),
+                        it
+                    )
                 )
+            }
+        }
+        listParameters.creatiedatum?.let {
+            addDatumRangePredicates(
+                it,
+                DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
+                predicates,
+                root,
+                builder
             )
         }
-        addDatumRangePredicates(
-            listParameters.creatiedatum,
-            DetachedDocument.CREATIEDATUM_PROPERTY_NAME,
-            predicates,
-            root,
-            builder
-        )
-        addDatumRangePredicates(
-            listParameters.ontkoppeldOp,
-            DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
-            predicates,
-            root,
-            builder
-        )
-
+        listParameters.ontkoppeldOp?.let {
+            addDatumRangePredicates(
+                it,
+                DetachedDocument.ONTKOPPELD_OP_PROPERTY_NAME,
+                predicates,
+                root,
+                builder
+            )
+        }
+        @Suppress("SpreadOperator")
         return builder.and(*predicates.toTypedArray<Predicate?>())
     }
 
     private fun addDatumRangePredicates(
-        dateRange: DatumRange?,
+        dateRange: DatumRange,
         veld: String?,
         predicates: MutableList<Predicate>,
         root: Root<DetachedDocument>,
         builder: CriteriaBuilder
     ) {
-        dateRange?.let { datumRange ->
-            dateRange.van?.let {
-                predicates.add(
-                    builder.greaterThanOrEqualTo(
-                        root.get(veld),
-                        DateTimeUtil.convertToDateTime(it)
-                    )
+        dateRange.van?.let {
+            predicates.add(
+                builder.greaterThanOrEqualTo(
+                    root.get(veld),
+                    DateTimeUtil.convertToDateTime(it)
                 )
-            }
-            dateRange.tot?.let {
-                predicates.add(
-                    builder.lessThanOrEqualTo(
-                        root.get(veld),
-                        DateTimeUtil.convertToDateTime(it).plusDays(1)
-                            .minusSeconds(1)
-                    )
+            )
+        }
+        dateRange.tot?.let {
+            predicates.add(
+                builder.lessThanOrEqualTo(
+                    root.get(veld),
+                    DateTimeUtil.convertToDateTime(it).plusDays(1)
+                        .minusSeconds(1)
                 )
-            }
+            )
         }
     }
 }

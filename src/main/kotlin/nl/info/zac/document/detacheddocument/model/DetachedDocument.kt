@@ -27,6 +27,26 @@ import java.util.UUID
     allocationSize = 1
 )
 open class DetachedDocument {
+    companion object {
+        /** Naam van property: [.titel]  */
+        const val TITEL_PROPERTY_NAME: String = "titel"
+
+        /** Naam van property: [.creatiedatum]  */
+        const val CREATIEDATUM_PROPERTY_NAME: String = "creatiedatum"
+
+        /** Naam van property: [.zaakID]  */
+        const val ZAAK_ID_PROPERTY_NAME: String = "zaakID"
+
+        /** Naam van property: [.ontkoppeldDoor]  */
+        const val ONTKOPPELD_DOOR_PROPERTY_NAME: String = "ontkoppeldDoor"
+
+        /** Naam van property: [.ontkoppeldOp]  */
+        const val ONTKOPPELD_OP_PROPERTY_NAME: String = "ontkoppeldOp"
+
+        /** Naam van property: [.reden]  */
+        const val REDEN_PROPERTY_NAME: String = "reden"
+    }
+
     @Id
     @GeneratedValue(generator = "sq_ontkoppeld_document", strategy = GenerationType.SEQUENCE)
     @Column(name = "id_ontkoppeld_document")
@@ -65,24 +85,4 @@ open class DetachedDocument {
 
     @Column(name = "reden")
     var reden: String? = null
-
-    companion object {
-        /** Naam van property: [.titel]  */
-        const val TITEL_PROPERTY_NAME: String = "titel"
-
-        /** Naam van property: [.creatiedatum]  */
-        const val CREATIEDATUM_PROPERTY_NAME: String = "creatiedatum"
-
-        /** Naam van property: [.zaakID]  */
-        const val ZAAK_ID_PROPERTY_NAME: String = "zaakID"
-
-        /** Naam van property: [.ontkoppeldDoor]  */
-        const val ONTKOPPELD_DOOR_PROPERTY_NAME: String = "ontkoppeldDoor"
-
-        /** Naam van property: [.ontkoppeldOp]  */
-        const val ONTKOPPELD_OP_PROPERTY_NAME: String = "ontkoppeldOp"
-
-        /** Naam van property: [.reden]  */
-        const val REDEN_PROPERTY_NAME: String = "reden"
-    }
 }
