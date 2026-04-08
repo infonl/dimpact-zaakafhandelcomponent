@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
@@ -20,6 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -110,6 +112,18 @@ class MailRestServiceTest : BehaviorSpec({
                 }
             }
 
+            And("the received mail body should not contain unresolved '{ZAAKDATA:' placeholders") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                receivedMails.length() shouldBeGreaterThan 0
+                val lastMail = receivedMails.getJSONObject(receivedMails.length() - 1)
+                lastMail.getString("mimeMessage") shouldNotContain "{ZAAKDATA:"
+            }
+
             And(
                 """
                 a PDF document should be added to the zaak as enkelvoudiginformatieobject containing the email details,
@@ -154,6 +168,53 @@ class MailRestServiceTest : BehaviorSpec({
                   }
                 }
                 """.trimIndent()
+            }
+        }
+    }
+
+    Given(
+        """
+        A zaak exists whose CMMN process automatically sets 'zaaktypeOmschrijving' in zaakdata,
+        and an SMTP server is configured and a behandelaar is logged in
+        """
+    ) {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            testUser = BEHEERDER_ELK_ZAAKTYPE
+        )
+
+        When("A mail is sent with a '{ZAAKDATA:zaaktypeOmschrijving}' variable in the body") {
+            val receiverMail = "zaakdataReceiverTest@example.com"
+
+            itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/mail/send/$zaakUuid",
+                headers = Headers.headersOf("Content-Type", "application/json"),
+                requestBodyAsString = """{
+                    "verzender": "sender@example.com",
+                    "ontvanger": "$receiverMail",
+                    "onderwerp": "Zaakdata test",
+                    "body": "<p>Zaaktype: {ZAAKDATA:zaaktypeOmschrijving}</p>",
+                    "bijlagen": "",
+                    "createDocumentFromMail": false
+                }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            ).also { response -> response.code shouldBe HTTP_NO_CONTENT }
+
+            Then("the received mail body should contain the resolved zaaktypeOmschrijving value") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                receivedMails.length() shouldBeGreaterThan 0
+                val lastMail = receivedMails.getJSONObject(receivedMails.length() - 1)
+                with(lastMail.getString("mimeMessage")) {
+                    shouldContain(ZAAKTYPE_TEST_2_DESCRIPTION)
+                    shouldNotContain("{ZAAKDATA:")
+                }
             }
         }
     }
