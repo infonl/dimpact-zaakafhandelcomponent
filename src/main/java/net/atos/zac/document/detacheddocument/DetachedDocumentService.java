@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.document;
+package net.atos.zac.document.detacheddocument;
 
 import static net.atos.zac.util.ValidationUtil.valideerObject;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;

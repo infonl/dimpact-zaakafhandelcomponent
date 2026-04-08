@@ -17,7 +17,7 @@ import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService

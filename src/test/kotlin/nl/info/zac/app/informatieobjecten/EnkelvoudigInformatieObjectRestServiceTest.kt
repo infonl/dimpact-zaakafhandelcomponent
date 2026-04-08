@@ -20,7 +20,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.document.DetachedDocumentService
+import net.atos.zac.document.detacheddocument.DetachedDocumentService
 import net.atos.zac.document.detacheddocument.model.DetachedDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
