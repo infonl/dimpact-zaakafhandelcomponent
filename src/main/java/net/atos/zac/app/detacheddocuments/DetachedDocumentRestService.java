@@ -8,7 +8,6 @@ import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -33,14 +32,14 @@ import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument;
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters;
 import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult;
 import net.atos.zac.app.shared.RESTResultaat;
-import net.atos.zac.document.detacheddocument.DetachedDocumentService;
-import net.atos.zac.document.detacheddocument.model.DetachedDocument;
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentListParameters;
-import net.atos.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.zac.app.identity.converter.RestUserConverter;
+import nl.info.zac.document.detacheddocument.DetachedDocumentService;
+import nl.info.zac.document.detacheddocument.model.DetachedDocument;
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters;
+import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
