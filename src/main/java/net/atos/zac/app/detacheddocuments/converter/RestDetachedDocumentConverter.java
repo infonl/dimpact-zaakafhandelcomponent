@@ -38,17 +38,17 @@ public class RestDetachedDocumentConverter {
     public RestDetachedDocument convert(final DetachedDocument document, final UUID informatieobjectTypeUUID) {
         final RestDetachedDocument restDocument = new RestDetachedDocument();
         restDocument.id = document.getId();
-        restDocument.documentUUID = document.documentUUID;
-        restDocument.documentID = document.documentID;
+        restDocument.documentUUID = document.getDocumentUUID();
+        restDocument.documentID = document.getDocumentID();
         restDocument.informatieobjectTypeUUID = informatieobjectTypeUUID;
-        restDocument.titel = document.titel;
-        restDocument.zaakID = document.zaakID;
-        restDocument.creatiedatum = document.creatiedatum;
+        restDocument.titel = document.getTitel();
+        restDocument.zaakID = document.getZaakID();
+        restDocument.creatiedatum = document.getCreatiedatum();
         restDocument.bestandsnaam = document.getBestandsnaam();
         restDocument.ontkoppeldDoor = userConverter.convertUserId(document.ontkoppeldDoor);
-        restDocument.ontkoppeldOp = document.ontkoppeldOp;
+        restDocument.ontkoppeldOp = document.getOntkoppeldOp();
         restDocument.reden = document.getReden();
-        final EnkelvoudigInformatieObjectLock lock = lockService.findLock(document.documentUUID);
+        final EnkelvoudigInformatieObjectLock lock = lockService.findLock(document.getDocumentUUID());
         restDocument.isVergrendeld = lock != null && lock.getLock() != null;
         return restDocument;
     }
