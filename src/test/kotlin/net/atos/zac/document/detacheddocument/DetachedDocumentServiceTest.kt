@@ -121,7 +121,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
                 Then("an exception is thrown") {
                     detachedDocumentNotFoundException.message shouldBe
-                        "Detached document with enkelvoudiginformatieobject UUID '$targetUuid' not found"
+                            "Detached document with enkelvoudiginformatieobject UUID '$targetUuid' not found"
                 }
             }
         }
