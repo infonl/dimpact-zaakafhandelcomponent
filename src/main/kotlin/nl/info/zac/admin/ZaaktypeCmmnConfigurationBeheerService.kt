@@ -91,13 +91,13 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     }
 
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
-        ValidationUtil.valideerObject(zaaktypeCmmnConfiguration)
+        ValidationUtil.validateObject(zaaktypeCmmnConfiguration)
 
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
-            getHumanTaskParametersCollection().forEach { ValidationUtil.valideerObject(it) }
-            getUserEventListenerParametersCollection().forEach { ValidationUtil.valideerObject(it) }
-            getMailtemplateKoppelingen().forEach { ValidationUtil.valideerObject(it) }
+            getHumanTaskParametersCollection().forEach { ValidationUtil.validateObject(it) }
+            getUserEventListenerParametersCollection().forEach { ValidationUtil.validateObject(it) }
+            getMailtemplateKoppelingen().forEach { ValidationUtil.validateObject(it) }
         }
 
         return if (zaaktypeCmmnConfiguration.id == null) {

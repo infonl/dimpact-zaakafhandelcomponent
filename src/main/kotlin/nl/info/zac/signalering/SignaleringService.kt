@@ -121,7 +121,7 @@ class SignaleringService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun storeSignalering(signalering: Signalering): Signalering {
-        ValidationUtil.valideerObject(signalering)
+        ValidationUtil.validateObject(signalering)
 
         val signaleringToStore = findSignalering(signalering)?.apply {
             LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
@@ -259,7 +259,7 @@ class SignaleringService @Inject constructor(
     }
 
     fun sendSignalering(signalering: Signalering) {
-        ValidationUtil.valideerObject(signalering)
+        ValidationUtil.validateObject(signalering)
         signaleringenMailHelper.getTargetMail(signalering)?.let { mail ->
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
@@ -298,7 +298,7 @@ class SignaleringService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
-        ValidationUtil.valideerObject(instellingen)
+        ValidationUtil.validateObject(instellingen)
         if (instellingen.isEmpty) {
             instellingen.id?.let {
                 entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
@@ -355,7 +355,7 @@ class SignaleringService @Inject constructor(
     @Transactional(REQUIRED)
     fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
-        ValidationUtil.valideerObject(signaleringVerzonden)
+        ValidationUtil.validateObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
     }
 

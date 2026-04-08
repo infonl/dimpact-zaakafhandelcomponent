@@ -74,7 +74,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun createMailtemplate(mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.valideerObject(mailTemplate)
+        ValidationUtil.validateObject(mailTemplate)
         // Ensure ID is not set for new entities - let database auto-generate
         mailTemplate.id = 0
         entityManager.persist(mailTemplate)
@@ -82,7 +82,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.valideerObject(mailTemplate)
+        ValidationUtil.validateObject(mailTemplate)
         val existingTemplate = readMailtemplate(id)
 
         existingTemplate.apply {
@@ -97,7 +97,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun storeMailtemplate(mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.valideerObject(mailTemplate)
+        ValidationUtil.validateObject(mailTemplate)
         return if (mailTemplate.id != 0L && findMailtemplate(mailTemplate.id) != null) {
             updateMailtemplate(mailTemplate.id, mailTemplate)
         } else {

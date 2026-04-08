@@ -35,7 +35,7 @@ public final class ValidationUtil {
      * @param validationGroups option validation groups to use
      * @throws ConstraintViolationException if the object is not valid
      */
-    public static void valideerObject(final Object object, final Class<?>... validationGroups) {
+    public static void validateObject(final Object object, final Class<?>... validationGroups) {
         final Set<ConstraintViolation<Object>> violations = valideer(object, validationGroups);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
