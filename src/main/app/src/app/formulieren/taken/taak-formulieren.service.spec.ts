@@ -13,12 +13,12 @@ import { TranslateService } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { testQueryClient } from "../../../../setupJest";
+import { fromPartial } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
 import { AdviesFormulier } from "./model/advies";
 import { GoedkeurenFormulier } from "./model/goedkeuren";
 import { TaakFormulierenService } from "./taak-formulieren.service";
-import {fromPartial} from "../../../test-helpers";
 
 describe("TaakFormulierenService", () => {
   let service: TaakFormulierenService;
