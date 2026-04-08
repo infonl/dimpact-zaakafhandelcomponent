@@ -1,0 +1,40 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <span class="mr-2">{{ "initiator.panel-title" | translate }}</span>
+    </mat-panel-title>
+    <mat-panel-description>
+      <span>{{
+        "initiator.aanvraagspecifieke-contactgegevens" | translate
+      }}</span>
+      <button
+        *ngIf="toevoegenToegestaan()"
+        mat-icon-button
+        [title]="'actie.initiator.koppelen' | translate"
+        (click)="$event.stopPropagation(); add.emit()"
+      >
+        <mat-icon>person_add_alt_1</mat-icon>
+      </button>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+  <div
+    id="contactgegevens"
+    class="content flex-row justify-start flex-wrap gap-10"
+  >
+    <zac-static-text
+      class="flex-none"
+      label="telefoonnummer"
+      [value]="contactDetails().telephoneNumber"
+    />
+    <zac-static-text
+      class="flex-none"
+      label="emailadres"
+      [value]="contactDetails().emailAddress"
+    />
+  </div>
+</mat-expansion-panel>

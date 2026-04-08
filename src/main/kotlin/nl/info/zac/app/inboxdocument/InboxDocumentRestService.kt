@@ -15,8 +15,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.model.InboxDocument
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -24,6 +22,8 @@ import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersCo
 import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
+import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -39,27 +39,59 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 class InboxDocumentRestService @Inject constructor(
-    private var inboxDocumentService: InboxDocumentService,
-    private var drcClientService: DrcClientService,
-    private var zrcClientService: ZrcClientService,
-    private var listParametersConverter: RestInboxDocumentListParametersConverter,
-    private var policyService: PolicyService
+    private val inboxDocumentService: InboxDocumentService,
+    private val drcClientService: DrcClientService,
+    private val zrcClientService: ZrcClientService,
+    private val listParametersConverter: RestInboxDocumentListParametersConverter,
+    private val policyService: PolicyService
 ) {
     companion object {
         private val LOG = Logger.getLogger(InboxDocumentRestService::class.java.name)
     }
 
     @PUT
-    @Path("")
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters?): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
         val inboxDocuments = inboxDocumentService.list(listParameters)
-        val informationObjectTypeUUIDs = inboxDocuments.stream().map(::getInformatieobjectTypeUUID).toList()
+        // the list of informatie object type UUIDs has the same length as the inbox documents, and can contain null\
+        // values if the enkelvoudiginformatieobject for a specific inbox document could not be found
+        val informatieobjectTypeUUIDs = inboxDocuments.map(::getInformatieobjectTypeUUID).toList()
+        val restInboxDocuments = inboxDocuments.toRestInboxDocuments(informatieobjectTypeUUIDs)
         return RESTResultaat<RestInboxDocument>(
-            inboxDocuments.toRestInboxDocuments(informationObjectTypeUUIDs),
+            restInboxDocuments,
             inboxDocumentService.count(listParameters).toLong()
         )
+    }
+
+    @DELETE
+    @Path("{id}")
+    fun deleteInboxDocument(@PathParam("id") id: Long) {
+        assertPolicy(policyService.readWerklijstRechten().inbox)
+        val inboxDocument = inboxDocumentService.find(id) ?: run {
+            LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
+            return
+        }
+
+        val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+            inboxDocument.enkelvoudiginformatieobjectUUID
+        )
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
+            enkelvoudigInformatieobject
+        )
+        if (zaakInformatieobjecten.isNotEmpty()) {
+            val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
+            LOG.log(Level.WARNING) {
+                "Deleted InboxDocument but not the informatieobject. " +
+                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
+                    "to zaak '$zaakUuid'."
+            }
+        } else {
+            drcClientService.deleteEnkelvoudigInformatieobject(
+                inboxDocument.enkelvoudiginformatieobjectUUID
+            )
+        }
+        inboxDocumentService.delete(id)
     }
 
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {
@@ -76,34 +108,5 @@ class InboxDocumentRestService @Inject constructor(
             }
         }
         return null
-    }
-
-    @DELETE
-    @Path("{id}")
-    fun deleteInboxDocument(@PathParam("id") id: Long) {
-        assertPolicy(policyService.readWerklijstRechten().inbox)
-        val inboxDocument = inboxDocumentService.find(id)
-        if (inboxDocument.isEmpty()) {
-            return // reeds verwijderd
-        }
-        val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-            inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
-        )
-        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
-        if (!zaakInformatieobjecten.isEmpty()) {
-            val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
-            LOG.log(Level.WARNING) {
-                "Deleted InboxDocument but not the informatieobject. " +
-                    "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
-                    "to zaak '$zaakUuid'."
-            }
-        } else {
-            drcClientService.deleteEnkelvoudigInformatieobject(
-                inboxDocument.get().getEnkelvoudiginformatieobjectUUID()
-            )
-        }
-        inboxDocumentService.delete(id)
     }
 }

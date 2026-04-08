@@ -333,6 +333,17 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "npm install --no-save lockfile-lint@(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "lockfile-lint",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/^pom\\.xml$/"
       ],
       "matchStrings": [

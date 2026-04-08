@@ -122,7 +122,8 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "patch",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    // @ts-expect-error Expression produces a union type that is too complex to represent.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- @ts-expect-error causes TS2578 in Angular esbuild build (Ivy does not reproduce TS2590)
+    // @ts-ignore TS2590: Expression produces a union type that is too complex to represent (tsc only; esbuild/Ivy does not reproduce)
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,

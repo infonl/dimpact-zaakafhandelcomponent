@@ -28,20 +28,76 @@ jobs:
 
   # Delete old tagged images but keep the 10 most recent, while always preserving:
   #   - 'latest'
-  #   - minor version tags          (e.g. v2.2)
-  #   - patch-zero version tags     (e.g. v2.2.0)
-  #   - version tags with a suffix  (e.g. v2.3.3-1)
-  # This means regular patch releases like v2.3.1, v2.3.2 and build artifacts
+  #   - minor version tags          (e.g. 2.2 or v2.2)
+  #   - patch-zero version tags     (e.g. 2.2.0 or v2.2.0)
+  #   - version tags with a suffix  (e.g. 2.3.3-1 or v2.3.3-1)
+  # This means regular patch releases like 2.3.1, 2.3.2 and build artifacts
   # like main-12345 are eligible for cleanup.
+  #
+  # Note: we use a custom script instead of the actions/delete-package-versions
+  # action's ignore-versions parameter because for container packages the action
+  # matches the regex against the SHA256 digest (version name), not against the
+  # image tags, so tag-based patterns never match.
   clean-tagged:
     runs-on: ubuntu-24.04
     name: Delete old Docker images, keep minor release versions
     steps:
-      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
-        with:
-          owner: infonl
-          package-name: zaakafhandelcomponent
-          package-type: container
-          min-versions-to-keep: 10
-          ignore-versions: '^(latest|v\d+\.\d+(\.0|\.\d+-\S+)?)$'
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Delete old tagged Docker images
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          owner="infonl"
+          package="zaakafhandelcomponent"
+          keep=10
+          preserve='^(latest|v?\d+\.\d+(\.0|\.\d+-\S+)?)$'
+
+          echo "Fetching all versions of ${owner}/${package}..."
+          versions=$(gh api --paginate \
+            "/orgs/${owner}/packages/container/${package}/versions" \
+            | jq -s 'add // []')
+
+          total=$(jq 'length' <<< "$versions")
+          echo "Total versions: ${total}"
+
+          if (( total == 0 )); then
+            echo "No versions found. Nothing to do."
+            exit 0
+          fi
+
+          preserved=$(jq -r --arg pat "$preserve" '
+            [ .[]
+              | select(.metadata.container.tags | length > 0)
+              | select(.metadata.container.tags | any(test($pat)))
+            ] | length
+          ' <<< "$versions")
+          echo "Preserved versions (tag matches pattern): ${preserved}"
+
+          to_delete=$(jq -r --arg pat "$preserve" --argjson keep "$keep" '
+            [ .[]
+              | select(.metadata.container.tags | length > 0)
+              | select(.metadata.container.tags | all(test($pat) | not))
+            ]
+            | sort_by(.created_at) | reverse
+            | .[$keep:]
+            | .[].id
+          ' <<< "$versions")
+
+          count=$(grep -c '[0-9]' <<< "$to_delete" || true)
+          echo "Deletable versions beyond newest ${keep}: ${count}"
+
+          deleted=0
+          while IFS= read -r id; do
+            [ -z "$id" ] && continue
+            if (( deleted >= 100 )); then
+              echo "Rate limit: stopping after 100 deletions per run"
+              break
+            fi
+            echo "Deleting version ${id}..."
+            gh api --method DELETE \
+              "/orgs/${owner}/packages/container/${package}/versions/${id}" \
+              --silent 2>/dev/null || echo "  Warning: failed to delete ${id}"
+            deleted=$((deleted + 1))
+          done <<< "$to_delete"
+
+          echo "Done. Deleted ${deleted} versions."

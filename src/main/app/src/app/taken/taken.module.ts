@@ -16,7 +16,6 @@ import { TaakEditComponent } from "./taak-edit/taak-edit.component";
 import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
 import { TakenRoutingModule } from "./taken-routing.module";
-import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog/taken-verdelen-dialog.component";
 import { TakenVrijgevenDialogComponent } from "./taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
 
@@ -25,7 +24,6 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     TaakViewComponent,
     TakenWerkvoorraadComponent,
     TakenMijnComponent,
-    TakenVerdelenDialogComponent,
     TakenVrijgevenDialogComponent,
   ],
   imports: [

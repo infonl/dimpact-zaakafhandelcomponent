@@ -22,7 +22,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.OntkoppeldeDocumentenService
+import net.atos.zac.document.DetachedDocumentService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -101,7 +101,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
@@ -137,7 +137,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,

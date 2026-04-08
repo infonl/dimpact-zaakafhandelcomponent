@@ -196,7 +196,8 @@ fun createRestZaak(
     isProcesGestuurd = false,
     heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     rechten = rechten,
-    initiatorIdentificatie = initiatorBetrokkeneIdentificatie
+    initiatorIdentificatie = initiatorBetrokkeneIdentificatie,
+    zaakSpecificContactDetails = null
 )
 
 fun createRestZaakDataUpdate(
@@ -433,11 +434,11 @@ fun createRestCoordinates(
     longitude = longitude
 )
 
-fun createRestDocumentOntkoppelGegevens(
+fun createRestDetachDocumentData(
     zaakUUID: UUID = UUID.randomUUID(),
     documentUUID: UUID = UUID.randomUUID(),
     reden: String = "fakeReason“"
-) = RESTDocumentOntkoppelGegevens(
+) = RestDetachDocumentData(
     zaakUUID = zaakUUID,
     documentUUID = documentUUID,
     reden = reden

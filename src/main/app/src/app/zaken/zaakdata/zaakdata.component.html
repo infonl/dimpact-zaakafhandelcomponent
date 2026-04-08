@@ -59,16 +59,12 @@
   let-parentForm="parentForm"
 >
   @if (isFormControl(control)) {
-    <zac-input
-      [form]="parentForm"
-      [key]="controlName"
-      class="col-12"
-    ></zac-input>
+    <zac-input [form]="parentForm" [key]="controlName" class="col-12">
+      <mat-label>{{ controlName }}</mat-label>
+    </zac-input>
   } @else if (isFormGroup(control)) {
     <div class="col-12">
-      <mat-label class="font-weight-bold">{{
-        controlName | translate | capitalizeFirstLetter
-      }}</mat-label>
+      <mat-label class="font-weight-bold">{{ controlName }}</mat-label>
       <div [formGroup]="control" class="row mt-2">
         @for (item of control.controls | keyvalue; track item.key) {
           <ng-container
@@ -87,19 +83,13 @@
     </div>
   } @else if (isFormArray(control)) {
     <div class="col-12">
-      <mat-label class="font-weight-bold">{{
-        controlName | translate | capitalizeFirstLetter
-      }}</mat-label>
+      <mat-label class="font-weight-bold">{{ controlName }}</mat-label>
       <div [formGroup]="parentForm">
         <div [formArrayName]="controlName" class="row mt-2">
           @for (item of getFormArrayControls(control); track $index) {
             <div class="col-12">
               <fieldset>
-                <legend>
-                  {{ controlName | translate | capitalizeFirstLetter }} ({{
-                    $index + 1
-                  }})
-                </legend>
+                <legend>{{ controlName }} ({{ $index + 1 }})</legend>
                 @if (isFormGroup(item)) {
                   <div [formGroupName]="$index" class="row">
                     @for (
@@ -122,7 +112,7 @@
                 } @else {
                   <mat-form-field class="col-12 full-width" appearance="fill">
                     <mat-label>
-                      {{ controlName | translate | capitalizeFirstLetter }}
+                      {{ controlName }}
                     </mat-label>
                     <input
                       matInput

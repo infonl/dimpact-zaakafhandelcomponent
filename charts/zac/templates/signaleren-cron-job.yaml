@@ -30,9 +30,15 @@ spec:
               imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               resources: 
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
+              env:
+                - name: ZAC_INTERNAL_ENDPOINTS_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "zaakafhandelcomponent.fullname" . }}
+                      key: ZAC_INTERNAL_ENDPOINTS_API_KEY
               args:
                 - -H
-                - 'X-API-KEY: {{ .Values.zacInternalEndpointsApiKey }}'
+                - 'X-API-KEY: $(ZAC_INTERNAL_ENDPOINTS_API_KEY)'
                 - {{ printf "http://%s.%s/rest/internal/signaleringen/send-signaleringen" (include "zaakafhandelcomponent.fullname" .) .Release.Namespace }}
           {{- with .Values.signaleringen.nodeSelector }}
           nodeSelector:

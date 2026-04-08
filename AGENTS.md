@@ -23,7 +23,7 @@ The project uses Gradle for build automation and has a strong emphasis on type s
 
 ### Frontend (in `src/main/app/`)
 ```bash
-npm install                         # Install dependencies
+npm ci --ignore-scripts              # Install dependencies
 npm run build                       # Production build
 npm run dev                         # Dev server with HMR
 ```
@@ -102,16 +102,36 @@ ZAC connects to: Open Zaak (ZGW APIs), Open Klant, Open Notificaties, HaalCentra
 
 Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
+### Angular Component Specs (Frontend Tests)
+- **No `NO_ERRORS_SCHEMA`** — never use it in specs; use real imports so the compiler catches missing declarations
+- **No `any`** — no `any`, `as any`, or `eslint-disable no-explicit-any` anywhere in specs or components
+- Standalone components declare all template dependencies in their `imports` array — import the component under test directly, no `NO_ERRORS_SCHEMA` needed
+- Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
+
 ### Kotest (Backend Tests)
 Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
-    Given("some state") {
-        When("action occurs") {
-            Then("expected result") { ... }
+    Context("A function in the service under test") {
+        Given("some state") {
+            When("action occurs") {
+                Then("expected result") { ... }
+            }
         }
     }
 })
+```
+
+### Use `fakeXXX` for test values where possible
+
+For example, instead of:
+```kotlin
+createRestUser(id = "user1", name = "User One")
+```
+
+use:
+```kotlin
+createRestUser(id = "fakeUserId1", name = "fakeUserName1")
 ```
 
 ### SPDX License Headers
@@ -162,6 +182,121 @@ This can improve the robustness of the code and prevent potential crashes.
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
+
+### Follow the Kotlin Coding Conventions
+Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
+This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
+Rename existing classes to comply with the following Kotlin code convention:
+When using an acronym as part of a declaration name, follow these rules:
+    - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
+    - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+
+### Prefer Kotlin data classes for simple data holders
+When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
+use a Kotlin `data class`.
+When used by dependency injection frameworks, such as is the case in REST services, ensure that the data class has the following annotations:
+```
+@NoArgConstructor
+@AllOpen
+```
+
+### Use named parameters in Kotlin
+When calling a Kotlin function that has multiple parameters, especially if they are of the same type, use named parameters to improve readability. For example:
+```kotlin
+// Before
+val user = createUser("John", "Doe", 30)
+// After
+val user = createUser(firstName = "John", lastName = "Doe", age = 30)
+```
+This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
+
+### Prefer concise lambda syntax in Kotlin
+When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
+```kotlin// Before
+val sum = numbers.map { number -> number * 2 }.sum()
+// After
+val sum = numbers.map { it * 2 }.sum()
+```
+This makes the code more concise and easier to read.
+
+### Use method references in Kotlin
+When you have a lambda function that simply calls another function, use a method reference to make the code more concise. For example:
+```kotlin// Before
+val param.map { someFunction(it) }
+// After
+val param.map(::someFunction)
+```
+
+### Use .apply for object configuration in Kotlin
+When you need to configure an object after creating it, use the `.apply` scope function to make the code more concise and readable. For example:
+```kotlin// Before
+val user = User()
+user.firstName = "John"
+user.lastName = "Doe"
+// After
+val user = User().apply {
+    firstName = "John"
+    lastName = "Doe"
+}
+```
+This allows you to initialize the object in a more fluent way.
+
+### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
+Use the following convention:
+
+`findXxx(itemId)` function: returns `null` if the item in question could not be found
+`readXXX(itemId)` - throws 'Item not found' exception when the item in question could not be found
+
+For example:
+```kotlin
+  fun findReferenceTable(code: String): ReferenceTable? =
+    entityManager.criteriaBuilder.let { criteriaBuilder ->
+        criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
+            query.from(ReferenceTable::class.java).let { root ->
+                criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
+                    query.select(root).where(predicate)
+                }
+            }
+            entityManager.createQuery(query).resultList
+        }
+    }.firstOrNull()
+```
+
+and:
+```kotlin
+fun readReferenceTable(code: String): ReferenceTable =
+        findReferenceTable(code) ?: run {
+            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
+        }
+```
+
+### Kotlin database entity classes must be open
+Kotlin database entity classes must be open.
+
+```kotlin// Before
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+class InboxDocument
+// After
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+open class InboxDocument
+```
+
+### In Kotlin database entity classes use `lateinit var` for variables that are nullable
+In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
+
+```kotlin// Before
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+var creatiedatum: LocalDate? = null
+// After
+@field:NotNull
+@field:Column(name = "creatiedatum", nullable = false)
+lateinit var creatiedatum: LocalDate
+```
 
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.

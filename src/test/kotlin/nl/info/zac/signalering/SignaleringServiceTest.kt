@@ -25,7 +25,6 @@ import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.Signalering
@@ -37,6 +36,7 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht

@@ -18,7 +18,6 @@ import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.InboxDocumentService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.productaanvraag.model.InboxProductaanvraag
@@ -48,7 +47,9 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
@@ -1656,8 +1657,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val specificEmail = "specific@example.com"
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = UUID.randomUUID(),
-                email = specificEmail,
-                phone = null
+                contactDetails = ContactDetails(
+                    emailAddress = specificEmail,
+                    telephoneNumber = null,
+                )
             )
             val zaakType = createZaakType()
             val createdZaak = createZaak()
@@ -1734,8 +1737,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = UUID.randomUUID(),
-                email = "specific@example.com",
-                phone = null
+                contactDetails = ContactDetails(
+                    emailAddress = "specific@example.com",
+                    telephoneNumber = null,
+                )
             )
             val groupName = "fakeGroup"
             val group = createGroup(id = groupName, name = "Fake Group")

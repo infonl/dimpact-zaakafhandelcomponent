@@ -146,34 +146,39 @@
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">
       <section *ngIf="showInitiator()" class="w100 flex-1">
-        <zac-zaak-initiator-toevoegen
-          *ngIf="!(showPersoonsgegevens() || showBedrijfsgegevens())"
-          class="w100 flex-1"
-          [toevoegenToegestaan]="allowedToAddBetrokkene()"
-          (add)="addOrEditZaakInitiator()"
-        >
-        </zac-zaak-initiator-toevoegen>
-        <zac-persoongegevens
-          *ngIf="showPersoonsgegevens()"
-          class="w100 flex-1"
-          [temporaryPersonId]="zaak.initiatorIdentificatie?.temporaryPersonId!"
-          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorPersoon"
-          [zaaktypeUuid]="zaak.zaaktype.uuid"
-          (edit)="addOrEditZaakInitiator()"
-          (delete)="deleteInitiator()"
-        >
-        </zac-persoongegevens>
-        <zac-bedrijfsgegevens
-          *ngIf="showBedrijfsgegevens()"
-          class="w100 flex-1"
-          [initiatorIdentificatie]="zaak.initiatorIdentificatie"
-          [isVerwijderbaar]="zaak.rechten.verwijderenInitiator"
-          [isWijzigbaar]="zaak.rechten.toevoegenInitiatorBedrijf"
-          (edit)="addOrEditZaakInitiator()"
-          (delete)="deleteInitiator()"
-        >
-        </zac-bedrijfsgegevens>
+        <ng-container [ngSwitch]="initiatorViewType()">
+          <zac-zaak-initiator-toevoegen
+            *ngSwitchCase="'ADD'"
+            class="w100 flex-1"
+            [toevoegenToegestaan]="allowedToAddBetrokkene()"
+            (add)="addOrEditZaakInitiator()"
+          >
+          </zac-zaak-initiator-toevoegen>
+          <zac-contactgegevens
+            *ngSwitchCase="'CONTACT_DETAILS'"
+            class="w100 flex-1"
+            [contactDetails]="zaak.zaakSpecificContactDetails!"
+            [toevoegenToegestaan]="allowedToAddBetrokkene()"
+            (add)="addOrEditZaakInitiator()"
+          >
+          </zac-contactgegevens>
+          <zac-persoongegevens
+            *ngSwitchCase="'PERSON'"
+            class="w100 flex-1"
+            [zaak]="zaak"
+            (edit)="addOrEditZaakInitiator()"
+            (delete)="deleteInitiator()"
+          >
+          </zac-persoongegevens>
+          <zac-bedrijfsgegevens
+            *ngSwitchCase="'COMPANY'"
+            class="w100 flex-1"
+            [zaak]="zaak"
+            (edit)="addOrEditZaakInitiator()"
+            (delete)="deleteInitiator()"
+          >
+          </zac-bedrijfsgegevens>
+        </ng-container>
       </section>
       <mat-card class="w50 flex-1">
         <mat-card-header class="flex-col gap-8">

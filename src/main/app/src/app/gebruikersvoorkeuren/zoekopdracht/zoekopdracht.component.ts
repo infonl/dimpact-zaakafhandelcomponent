@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -11,8 +12,14 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
+import { MatIconModule } from "@angular/material/icon";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { hasActiveSearchFilters } from "../../zoeken/model/zoek-parameters";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
@@ -23,7 +30,18 @@ import { ZoekFilters } from "./zoekfilters.model";
   selector: "zac-zoekopdracht",
   templateUrl: "./zoekopdracht.component.html",
   styleUrls: ["./zoekopdracht.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+    TranslateModule,
+    ReadMoreComponent,
+  ],
 })
 export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   @Input({ required: true }) werklijst!: GeneratedType<"Werklijst">;
@@ -33,10 +51,11 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   >();
   @Input({ required: true }) filtersChanged!: EventEmitter<void>;
 
-  zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
-  actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null = null;
-  actieveFilters = false;
-  filtersChangedSubscription$!: Subscription;
+  protected zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [];
+  protected actieveZoekopdracht: GeneratedType<"RESTZoekopdracht"> | null =
+    null;
+  protected actieveFilters = false;
+  private filtersChangedSubscription$!: Subscription;
 
   constructor(
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -54,7 +73,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.loadZoekopdrachten();
   }
 
-  saveSearch() {
+  protected saveSearch() {
     const dialogRef = this.dialog.open(ZoekopdrachtSaveDialogComponent, {
       data: {
         zoekopdrachten: this.zoekopdrachten,
@@ -69,7 +88,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     });
   }
 
-  setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  protected setActief(zoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
@@ -78,7 +97,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  deleteZoekopdracht(
+  protected deleteZoekopdracht(
     $event: MouseEvent,
     zoekopdracht: GeneratedType<"RESTZoekopdracht">,
   ) {
@@ -90,7 +109,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
       });
   }
 
-  clearActief(emit?: boolean) {
+  protected clearActief(emit?: boolean) {
     this.actieveZoekopdracht = null;
     this.gebruikersvoorkeurenService
       .removeZoekopdrachtActief(this.werklijst)
@@ -120,7 +139,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     switch (this.zoekFilters.filtersType) {
       case "ZoekParameters":
         return hasActiveSearchFilters(this.zoekFilters);
-      case "OntkoppeldDocumentListParameters":
+      case "DetachedDocumentListParameters":
         if (this.zoekFilters.zaakID) return true;
         if (this.zoekFilters.ontkoppeldDoor) return true;
         if (this.zoekFilters.ontkoppeldOp?.van) return true;

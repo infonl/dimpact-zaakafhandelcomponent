@@ -78,10 +78,6 @@ describe(ZacInput.name, () => {
       fixture.detectChanges();
     });
 
-    it("should create", () => {
-      expect(component).toBeTruthy();
-    });
-
     it("should display the input field", async () => {
       const input = await loader.getHarness(MatInputHarness);
       expect(input).toBeTruthy();

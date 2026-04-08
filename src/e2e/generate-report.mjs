@@ -3,24 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { generate } from "cucumber-html-reporter";
+import report from "multiple-cucumber-html-reporter";
 import { readdir, stat, writeFile } from "fs/promises";
 
-const options = {
-  theme: "bootstrap",
-  jsonFile: "reports/e2e-report.json",
-  output: "reports/e2e-report.html",
-  reportSuiteAsScenarios: true,
-  scenarioTimestamp: true,
-  launchReport: true,
-  metadata: {
-    App: "Dimpact e2e test",
-    "Test Environment": "Test",
-    // more metadata fields as needed
+report.generate({
+  jsonDir: "./reports/",
+  reportPath: "./reports/",
+  pageTitle: "Dimpact e2e test",
+  reportName: "E2E Test Report",
+  openReportInBrowser: false,
+  displayDuration: true,
+  customData: {
+    title: "Run info",
+    data: [
+      { label: "App", value: "Dimpact e2e test" },
+      { label: "Test Environment", value: "Test" },
+    ],
   },
-};
-
-generate(options);
+});
 await writeVideoHtmlPage()
 
 async function dirRecursive(d = "", root = "./reports/videos/") {
