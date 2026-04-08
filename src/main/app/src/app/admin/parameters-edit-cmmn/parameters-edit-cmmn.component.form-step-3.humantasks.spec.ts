@@ -160,14 +160,6 @@ describe("Human tasks form step", () => {
       ]),
     );
     jest
-      .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-      .mockReturnValue(
-        of([
-          { id: "test-group-id", naam: "test-group" },
-          { id: "test-group-id-2", naam: "test-group-2" },
-        ]),
-      );
-    jest
       .spyOn(identityService, "listUsersInGroup")
       .mockReturnValueOnce(
         of([
@@ -191,8 +183,8 @@ describe("Human tasks form step", () => {
       .mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
-    fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it("should create a form group for each humanTaskParameter", () => {
