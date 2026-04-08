@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak.model
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.AllOpen
@@ -86,5 +87,6 @@ data class RestZaak(
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,
     var zaakgeometrie: RestGeometry?,
-    var zaaktype: RestZaaktype
+    var zaaktype: RestZaaktype,
+    var zaakSpecificContactDetails: ContactDetails?
 )

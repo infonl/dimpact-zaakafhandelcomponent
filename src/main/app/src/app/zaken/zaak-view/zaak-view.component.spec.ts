@@ -30,6 +30,8 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
+import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
 import { KlantenService } from "../../klanten/klanten.service";
 import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
@@ -97,10 +99,12 @@ describe(ZaakViewComponent.name, () => {
       declarations: [
         ZaakViewComponent,
         ZaakDocumentenComponent,
-        PersoonsgegevensComponent,
         ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        BedrijfsgegevensComponent,
+        ContactgegevensComponent,
+        PersoonsgegevensComponent,
         NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
@@ -553,6 +557,105 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+    });
+  });
+
+  describe("initiator view", () => {
+    const koppelingen = fromPartial<GeneratedType<"RestBetrokkeneKoppelingen">>(
+      {
+        brpKoppelen: true,
+        kvkKoppelen: true,
+      },
+    );
+
+    it("should show zac-zaak-initiator-toevoegen when no type matches and no contact details", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: null,
+          zaakSpecificContactDetails: null,
+          zaaktype: {
+            ...zaak.zaaktype,
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
+      ).toBeTruthy();
+    });
+
+    it("should show zac-persoongegevens when initiator type is BSN", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: fromPartial({
+            type: "BSN",
+            temporaryPersonId: "test-id",
+          }),
+          zaakSpecificContactDetails: null,
+          zaaktype: {
+            ...zaak.zaaktype,
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-persoongegevens"),
+      ).toBeTruthy();
+    });
+
+    it("should show zac-bedrijfsgegevens when initiator type is VN", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: fromPartial({
+            type: "VN",
+            vestigingsnummer: "12345678",
+            kvkNummer: "87654321",
+          }),
+          zaakSpecificContactDetails: null,
+          zaaktype: {
+            ...zaak.zaaktype,
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-bedrijfsgegevens"),
+      ).toBeTruthy();
+    });
+
+    it("should show zac-contactgegevens when zaakSpecificContactDetails is present", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: null,
+          zaakSpecificContactDetails: fromPartial<
+            GeneratedType<"ContactDetails">
+          >({
+            telephoneNumber: "0612345678",
+            emailAddress: "test@example.com",
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-contactgegevens"),
+      ).toBeTruthy();
     });
   });
 

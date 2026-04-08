@@ -196,7 +196,8 @@ fun createRestZaak(
     isProcesGestuurd = false,
     heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     rechten = rechten,
-    initiatorIdentificatie = initiatorBetrokkeneIdentificatie
+    initiatorIdentificatie = initiatorBetrokkeneIdentificatie,
+    zaakSpecificContactDetails = null
 )
 
 fun createRestZaakDataUpdate(

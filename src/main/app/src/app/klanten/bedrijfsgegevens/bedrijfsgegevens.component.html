@@ -6,7 +6,7 @@
 <mat-expansion-panel [expanded]="!!bedrijfQuery.data()">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      <span class="mr-2">{{ "initiator.titel" | translate }}</span>
+      <span class="mr-2">{{ "initiator.panel-title" | translate }}</span>
       @if (bedrijfQuery.isLoading()) {
         <mat-spinner diameter="14" />
       } @else if (bedrijfQuery.error()?.status === 404) {
@@ -37,7 +37,7 @@
           <mat-icon outlined>other_admission</mat-icon>
         </button>
         <button
-          *ngIf="isWijzigbaar()"
+          *ngIf="zaak().rechten.toevoegenInitiatorBedrijf"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.initiator.wijzigen' | translate"
           mat-icon-button
@@ -48,7 +48,7 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="isVerwijderbaar()"
+          *ngIf="zaak().rechten.verwijderenInitiator"
           [disabled]="bedrijfQuery.isLoading()"
           [title]="'actie.ontkoppelen' | translate"
           mat-icon-button

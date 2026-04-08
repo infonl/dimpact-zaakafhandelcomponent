@@ -6,7 +6,7 @@
 <mat-expansion-panel [disabled]="isDisabled()">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      <span class="mr-2">{{ "initiator.titel" | translate }}</span>
+      <span class="mr-2">{{ "initiator.panel-title" | translate }}</span>
       @if (persoonQuery.isLoading()) {
         <mat-spinner diameter="14" />
       } @else if (persoonQuery.error()) {
@@ -32,7 +32,7 @@
           "
         ></zac-persoon-indicaties>
         <button
-          *ngIf="isWijzigbaar()"
+          *ngIf="zaak().rechten.toevoegenInitiatorPersoon"
           mat-icon-button
           [title]="'actie.initiator.wijzigen' | translate"
           [disabled]="isDisabled()"
@@ -41,7 +41,7 @@
           <mat-icon>edit</mat-icon>
         </button>
         <button
-          *ngIf="isVerwijderbaar()"
+          *ngIf="zaak().rechten.verwijderenInitiator"
           mat-icon-button
           [disabled]="isDisabled()"
           [title]="'actie.ontkoppelen' | translate"
@@ -86,15 +86,40 @@
       label="verblijfplaats"
       [value]="persoonQuery.data()?.verblijfplaats"
     />
-    <zac-static-text
-      class="flex-1"
-      label="telefoonnummer"
-      [value]="persoonQuery.data()?.telefoonnummer"
-    />
-    <zac-static-text
-      class="flex-1"
-      label="emailadres"
-      [value]="persoonQuery.data()?.emailadres"
-    />
+    <div class="flex-1 flex-column gap-2">
+      <zac-static-text
+        label="telefoonnummer"
+        [value]="
+          zaak().zaakSpecificContactDetails?.telephoneNumber ??
+          persoonQuery.data()?.telefoonnummer
+        "
+      />
+      @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
+        <div class="hint flex-row items-center gap-5">
+          <mat-icon outlined>info</mat-icon>
+          <span>{{
+            "initiator.aanvraagspecifiek-telefoonnummer" | translate
+          }}</span>
+        </div>
+      }
+    </div>
+    <div class="flex-1 flex-column gap-2">
+      <zac-static-text
+        class="flex-1"
+        label="emailadres"
+        [value]="
+          zaak().zaakSpecificContactDetails?.emailAddress ??
+          persoonQuery.data()?.emailadres
+        "
+      />
+      @if (zaak().zaakSpecificContactDetails?.emailAddress) {
+        <div class="hint flex-row items-center gap-5">
+          <mat-icon outlined>info</mat-icon>
+          <span>{{
+            "initiator.aanvraagspecifiek-emailadres" | translate
+          }}</span>
+        </div>
+      }
+    </div>
   </div>
 </mat-expansion-panel>
