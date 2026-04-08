@@ -94,7 +94,7 @@ public class DetachedDocumentRestService {
         var informationObjectTypeUUIDs = ontkoppeldeDocumenten.stream().map(
                 ontkoppeldeDocument -> extractUuid(
                         drcClientService
-                                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.getDocumentUUID())
+                                .readEnkelvoudigInformatieobject(ontkoppeldeDocument.documentUUID)
                                 .getInformatieobjecttype()
                 )
         ).toList();
@@ -117,13 +117,13 @@ public class DetachedDocumentRestService {
     @Path("{id}")
     public void deleteDetachedDocument(@PathParam("id") final long id) {
         assertPolicy(policyService.readWerklijstRechten().getOntkoppeldeDocumentenVerwijderen());
-        final Optional<DetachedDocument> detachedDocument = detachedDocumentService.find(id);
-        if (detachedDocument.isEmpty()) {
+        final DetachedDocument detachedDocument = detachedDocumentService.find(id);
+        if (detachedDocument == null) {
             // detached document record does not exist; ignore silently
             return;
         }
         EnkelvoudigInformatieObject enkelvoudigInformatieobject = null;
-        final UUID documentUUID = detachedDocument.get().getDocumentUUID();
+        final UUID documentUUID = detachedDocument.documentUUID;
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID);
         } catch (ZgwErrorException e) {
@@ -142,6 +142,6 @@ public class DetachedDocumentRestService {
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID);
         }
 
-        detachedDocumentService.delete(detachedDocument.get().getId());
+        detachedDocumentService.delete(detachedDocument.getId());
     }
 }

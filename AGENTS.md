@@ -289,12 +289,12 @@ open class InboxDocument
 In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
 
 ```kotlin// Before
-@field:NotNull
-@field:Column(name = "creatiedatum", nullable = false)
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
 var creatiedatum: LocalDate? = null
 // After
-@field:NotNull
-@field:Column(name = "creatiedatum", nullable = false)
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
 lateinit var creatiedatum: LocalDate
 ```
 
