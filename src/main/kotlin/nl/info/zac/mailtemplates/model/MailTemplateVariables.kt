@@ -31,7 +31,8 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
     ZAAK_URL(false);
 
     companion object {
-        const val ZAAKDATA_PREFIX = "{ZAAKDATA:"
+        /** Marks the start of a zaakdata variable placeholder in mail templates, e.g. {ZAAKDATA:someKey}. */
+        const val ZAAKDATA_VARIABLE_PREFIX = "{ZAAKDATA:"
 
         val GEMEENTE_VARIABELEN = setOf(GEMEENTE)
         val ZAAK_VARIABELEN = setOf(

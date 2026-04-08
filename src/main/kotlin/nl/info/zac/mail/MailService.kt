@@ -106,8 +106,8 @@ class MailService @Inject constructor(
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
         val zaakdata: Map<String, Any> = bronnen.zaak
             ?.takeIf {
-                mailGegevens.subject.contains(MailTemplateVariables.ZAAKDATA_PREFIX) ||
-                    mailGegevens.body.contains(MailTemplateVariables.ZAAKDATA_PREFIX)
+                mailGegevens.subject.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX) ||
+                    mailGegevens.body.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)
             }
             ?.let { mailTemplateHelper.readZaakdata(it) }
             ?: emptyMap()

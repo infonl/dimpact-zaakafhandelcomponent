@@ -30,6 +30,7 @@ import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.text.StringEscapeUtils
@@ -56,7 +57,7 @@ class MailTemplateHelper @Inject constructor(
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
-        private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\{ZAAKDATA:([^}]+)}""")
+        private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\$ZAAKDATA_VARIABLE_PREFIX([^}]+)}""")
         private val HTML_TAG_PATTERN = Regex("<[^>]+>")
     }
 
@@ -177,12 +178,12 @@ class MailTemplateHelper @Inject constructor(
     fun readZaakdata(zaak: Zaak): Map<String, Any> = zaakVariabelenService.readZaakdata(zaak.uuid)
 
     fun resolveZaakdataVariables(text: String, zaak: Zaak): String {
-        if (!text.contains(MailTemplateVariables.ZAAKDATA_PREFIX)) return text
+        if (!text.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)) return text
         return resolveZaakdataVariables(text, readZaakdata(zaak))
     }
 
     fun resolveZaakdataVariables(text: String, zaakdata: Map<String, Any>): String {
-        if (!text.contains(MailTemplateVariables.ZAAKDATA_PREFIX)) return text
+        if (!text.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)) return text
         return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
             val key = matchResult.groupValues[1].replace(HTML_TAG_PATTERN, "").trim()
             val value = zaakdata[key]?.toString()
