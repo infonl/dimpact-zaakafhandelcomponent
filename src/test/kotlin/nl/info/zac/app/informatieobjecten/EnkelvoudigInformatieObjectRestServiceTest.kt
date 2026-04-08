@@ -1184,7 +1184,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns createZaakRechten(wijzigen = true)
         val detachedDocumentNotFoundException = DetachedDocumentNotFoundException("fakeExceptionMessage")
         every { detachedDocumentService.read(documentUUID) } throws
-                detachedDocumentNotFoundException
+            detachedDocumentNotFoundException
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { detachedDocumentService.delete(42L) } just Runs
