@@ -77,7 +77,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
     this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
 
-    const emailAddress = this.data.zaak.zaakSpecificContactDetails?.emailAddress;
+    const emailAddress =
+      this.data.zaak.zaakSpecificContactDetails?.emailAddress;
     if (emailAddress) {
       this.initiatorEmail = emailAddress;
     } else {

@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, ElementRef, inject, input, Signal } from "@angular/core";
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  input,
+  Signal,
+} from "@angular/core";
 import { FormGroup } from "@angular/forms";
 
 @Component({
@@ -38,8 +45,9 @@ export class ZacFormActions {
 
   protected readonly form =
     input.required<Pick<FormGroup, "valid" | "disabled" | "dirty">>();
-  protected readonly mutation =
-    input.required<{ isPending: Signal<boolean> }>();
+  protected readonly mutation = input.required<{
+    isPending: Signal<boolean>;
+  }>();
 
   protected readonly onCancel = (event: MouseEvent) => {
     const cancelEvent = new CustomEvent("cancel", {

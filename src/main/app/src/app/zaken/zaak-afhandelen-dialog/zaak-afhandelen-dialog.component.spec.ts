@@ -157,15 +157,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
-    jest
-      .spyOn(klantenService, "getContactDetailsForPerson")
-      .mockReturnValue(
-        of(
-          fromPartial<GeneratedType<"RestContactDetails">>({
-            emailadres: "initiator@example.com",
-          }),
-        ),
-      );
+    jest.spyOn(klantenService, "getContactDetailsForPerson").mockReturnValue(
+      of(
+        fromPartial<GeneratedType<"RestContactDetails">>({
+          emailadres: "initiator@example.com",
+        }),
+      ),
+    );
 
     testQueryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
@@ -497,23 +495,25 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   describe("setInitiatorEmail", () => {
     it("sets ontvanger to initiatorEmailQuery emailadres when no zaakSpecificContactDetails", () => {
       fixture.componentInstance["setInitiatorEmail"]();
-      expect(
-        fixture.componentInstance.formGroup.controls.ontvanger.value,
-      ).toBe("initiator@example.com");
+      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+        "initiator@example.com",
+      );
     });
 
     it("sets ontvanger to zaakSpecificContactDetails.emailAddress when available", async () => {
       const mockZaakWithContact = fromPartial<GeneratedType<"RestZaak">>({
         ...mockZaak,
         uuid: "test-zaak-uuid-contact",
-        zaakSpecificContactDetails: fromPartial({ emailAddress: "contact@example.com" }),
+        zaakSpecificContactDetails: fromPartial({
+          emailAddress: "contact@example.com",
+        }),
       });
       await createTestBed(mockZaakWithContact, mockPlanItem);
 
       fixture.componentInstance["setInitiatorEmail"]();
-      expect(
-        fixture.componentInstance.formGroup.controls.ontvanger.value,
-      ).toBe("contact@example.com");
+      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+        "contact@example.com",
+      );
     });
   });
 

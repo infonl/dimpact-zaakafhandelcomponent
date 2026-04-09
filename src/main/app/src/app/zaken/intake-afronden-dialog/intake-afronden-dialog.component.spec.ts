@@ -45,20 +45,25 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     emailadres: "initiator@example.com",
   });
 
-  const mockMailtemplateOntvankelijk =
-    fromPartial<GeneratedType<"RESTMailtemplate">>({
-      onderwerp: "Zaak ontvankelijk",
-      body: "<p>Uw zaak is ontvangen</p>",
-    });
+  const mockMailtemplateOntvankelijk = fromPartial<
+    GeneratedType<"RESTMailtemplate">
+  >({
+    onderwerp: "Zaak ontvankelijk",
+    body: "<p>Uw zaak is ontvangen</p>",
+  });
 
-  const mockMailtemplateNietOntvankelijk =
-    fromPartial<GeneratedType<"RESTMailtemplate">>({
-      onderwerp: "Zaak niet ontvankelijk",
-      body: "<p>Uw zaak is niet ontvankelijk</p>",
-    });
+  const mockMailtemplateNietOntvankelijk = fromPartial<
+    GeneratedType<"RESTMailtemplate">
+  >({
+    onderwerp: "Zaak niet ontvankelijk",
+    body: "<p>Uw zaak is niet ontvankelijk</p>",
+  });
 
   function makeZaak(
-    intakeMail: "BESCHIKBAAR_AAN" | "BESCHIKBAAR_UIT" | "NIET_BESCHIKBAAR" = "BESCHIKBAAR_AAN",
+    intakeMail:
+      | "BESCHIKBAAR_AAN"
+      | "BESCHIKBAAR_UIT"
+      | "NIET_BESCHIKBAAR" = "BESCHIKBAAR_AAN",
     temporaryPersonId: string | null = "person-123",
   ) {
     return fromPartial<GeneratedType<"RestZaak">>({
@@ -89,7 +94,10 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: MAT_DIALOG_DATA, useValue: { zaak, planItem: mockPlanItem } },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { zaak, planItem: mockPlanItem },
+        },
         { provide: MatDialogRef, useValue: mockDialogRef },
         ZakenService,
         PlanItemsService,
@@ -163,9 +171,13 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       const zaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: "zaak-uuid",
         zaaktype: fromPartial({
-          zaakafhandelparameters: fromPartial({ intakeMail: "BESCHIKBAAR_AAN" }),
+          zaakafhandelparameters: fromPartial({
+            intakeMail: "BESCHIKBAAR_AAN",
+          }),
         }),
-        zaakSpecificContactDetails: fromPartial({ emailAddress: "zaak@example.com" }),
+        zaakSpecificContactDetails: fromPartial({
+          emailAddress: "zaak@example.com",
+        }),
       });
       await setup(zaak);
 
@@ -256,9 +268,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       component["afronden"]();
 
-      expect(
-        planItemsService.doUserEventListenerPlanItem,
-      ).toHaveBeenCalledWith(
+      expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalledWith(
         expect.objectContaining({
           actie: "INTAKE_AFRONDEN",
           planItemInstanceId: mockPlanItem.id,
@@ -291,9 +301,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       component["afronden"]();
 
-      expect(
-        planItemsService.doUserEventListenerPlanItem,
-      ).toHaveBeenCalledWith(
+      expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalledWith(
         expect.objectContaining({
           restMailGegevens: expect.objectContaining({
             onderwerp: mockMailtemplateNietOntvankelijk.onderwerp,
@@ -312,9 +320,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       component["afronden"]();
 
-      expect(
-        planItemsService.doUserEventListenerPlanItem,
-      ).toHaveBeenCalledWith(
+      expect(planItemsService.doUserEventListenerPlanItem).toHaveBeenCalledWith(
         expect.objectContaining({ restMailGegevens: null }),
       );
     });
