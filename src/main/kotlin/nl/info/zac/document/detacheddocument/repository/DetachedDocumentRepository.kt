@@ -40,10 +40,7 @@ class DetachedDocumentRepository @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun save(detachedDocument: DetachedDocument): DetachedDocument {
-        entityManager.persist(detachedDocument)
-        return detachedDocument
-    }
+    fun save(detachedDocument: DetachedDocument) = entityManager.persist(detachedDocument)
 
     fun find(id: Long): DetachedDocument? =
         entityManager.find(DetachedDocument::class.java, id)
