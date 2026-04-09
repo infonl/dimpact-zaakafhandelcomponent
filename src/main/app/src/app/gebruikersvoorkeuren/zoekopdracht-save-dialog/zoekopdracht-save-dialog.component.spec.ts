@@ -9,7 +9,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatButtonModule } from "@angular/material/button";
-import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -24,9 +28,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.component";
 
-const makeZoekopdracht = (
-  naam: string,
-): GeneratedType<"RESTZoekopdracht"> => ({
+const makeZoekopdracht = (naam: string): GeneratedType<"RESTZoekopdracht"> => ({
   naam,
   json: "{}",
   lijstID: "TAKEN_WERKVOORRAAD" as GeneratedType<"Werklijst">,

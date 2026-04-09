@@ -20,12 +20,16 @@ const makeTaak = (fields: Partial<TaakZoekObject> = {}): TaakZoekObject =>
     zaakUuid: "zaak-uuid-1",
     behandelaarGebruikersnaam: "user1",
     ...fields,
-  } as Partial<TaakZoekObject> as unknown as TaakZoekObject);
+  }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
 
 const setup = (taken: TaakZoekObject[] = [makeTaak()]) => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   TestBed.configureTestingModule({
-    imports: [TakenVrijgevenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      TakenVrijgevenDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       provideHttpClient(),
       provideRouter([]),
@@ -43,7 +47,12 @@ const setup = (taken: TaakZoekObject[] = [makeTaak()]) => {
   const fixture: ComponentFixture<TakenVrijgevenDialogComponent> =
     TestBed.createComponent(TakenVrijgevenDialogComponent);
   fixture.detectChanges();
-  return { fixture, component: fixture.componentInstance, takenService, dialogRefMock };
+  return {
+    fixture,
+    component: fixture.componentInstance,
+    takenService,
+    dialogRefMock,
+  };
 };
 
 describe(TakenVrijgevenDialogComponent.name, () => {
@@ -55,7 +64,9 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       const visible = Array.from(paragraphs).filter(
         (p) => p.offsetParent !== null || p.textContent?.trim(),
       );
-      expect(visible.some((p) => p.textContent?.includes("msg.vrijgeven.taak"))).toBe(true);
+      expect(
+        visible.some((p) => p.textContent?.includes("msg.vrijgeven.taak")),
+      ).toBe(true);
     });
   });
 
