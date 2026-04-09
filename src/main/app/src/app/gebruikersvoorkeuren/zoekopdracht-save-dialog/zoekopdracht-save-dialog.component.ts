@@ -3,9 +3,23 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, Inject, OnInit } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { AsyncPipe, NgFor } from "@angular/common";
+import { Component, inject, OnInit } from "@angular/core";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { Observable, of } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -15,30 +29,46 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 @Component({
   templateUrl: "./zoekopdracht-save-dialog.component.html",
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    AsyncPipe,
+    NgFor,
+    ReactiveFormsModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatToolbarModule,
+    TranslateModule,
+  ],
 })
 export class ZoekopdrachtSaveDialogComponent implements OnInit {
-  loading = false;
-  formControl = new FormControl("");
-  filteredOptions: Observable<string[]> = of([]);
+  private readonly dialogRef = inject(
+    MatDialogRef<ZoekopdrachtSaveDialogComponent>,
+  );
+  protected readonly data = inject<{
+    zoekopdrachten: GeneratedType<"RESTZoekopdracht">[];
+    lijstID: GeneratedType<"Werklijst">;
+    zoekopdracht: unknown;
+  }>(MAT_DIALOG_DATA);
+  private readonly gebruikersvoorkeurenService = inject(
+    GebruikersvoorkeurenService,
+  );
+  private readonly utilService = inject(UtilService);
 
-  constructor(
-    public readonly dialogRef: MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public readonly data: {
-      zoekopdrachten: GeneratedType<"RESTZoekopdracht">[];
-      lijstID: GeneratedType<"Werklijst">;
-      zoekopdracht: unknown;
-    },
-    private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-    private readonly utilService: UtilService,
-  ) {}
+  protected loading = false;
+  protected formControl = new FormControl("");
+  protected filteredOptions: Observable<string[]> = of([]);
 
-  close() {
+  protected close() {
     this.dialogRef.close();
   }
 
-  opslaan() {
+  protected opslaan() {
     this.dialogRef.disableClose = true;
     this.loading = true;
     const zoekopdracht = this.isNew()
@@ -64,7 +94,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
       });
   }
 
-  isNew() {
+  protected isNew() {
     return (
       this.data.zoekopdrachten.filter(
         (value) =>
@@ -74,7 +104,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     );
   }
 
-  readZoekopdracht() {
+  private readZoekopdracht() {
     return this.data.zoekopdrachten.filter(
       (value) =>
         value.naam?.toLowerCase() ===
@@ -82,7 +112,7 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     )[0];
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.filteredOptions = this.formControl.valueChanges.pipe(
       startWith(""),
       map((value) => this._filter(value || "")),
