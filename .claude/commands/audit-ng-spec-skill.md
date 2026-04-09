@@ -2,7 +2,7 @@
 
 Independently audit an Angular component spec file against the project's migration guidelines.
 
-**Usage:** `/audit-ng-spec $ARGUMENTS`
+**Usage:** `/audit-ng-spec-skill $ARGUMENTS`
 `$ARGUMENTS` = path to the spec file (relative from repo root), e.g. `src/main/app/src/app/taken/taken-vrijgeven-dialog/taken-vrijgeven-dialog.component.spec.ts`
 
 If `$ARGUMENTS` is omitted, ask the user for the spec path before proceeding.
