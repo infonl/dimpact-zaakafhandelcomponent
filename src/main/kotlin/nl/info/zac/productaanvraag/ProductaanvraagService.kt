@@ -36,6 +36,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
@@ -346,10 +347,14 @@ class ProductaanvraagService @Inject constructor(
         zaaktypeBpmnConfiguration.groepID?.let {
             assignZaakToGroup(zaak = zaak, groupName = it)
         }
-        // note: BPMN zaaktypes do not yet support a default employee to be assigned to the zaak, as is the case for CMMN
         pairDocumentsWithZaak(productaanvraagDimpact = productaanvraagDimpact, zaak = zaak)
-        // note: BPMN zaaktypes do not yet support adding an initiator nor other betrokkenen to the zaak, as is the case for CMMN
-        // note: for BPMN zaken no automatic email notification is sent here, because this is the responsibility of the BPMN process
+        productaanvraagBetrokkeneService.addInitiatorAndBetrokkenenToZaak(
+            productaanvraag = productaanvraagDimpact,
+            zaak = zaak,
+            brpEnabled = isBrpEnabled(zaaktypeBpmnConfiguration),
+            kvkEnabled = isKvkEnabled(zaaktypeBpmnConfiguration)
+        )
+        // note: BPMN zaaktypes do not support automatic email notifications, as is the case for CMMN
         klantClientService.findProductaanvraagSpecificContactDetails(
             productaanvraagDimpact.bron.kenmerk
         )?.let {
@@ -459,11 +464,11 @@ class ProductaanvraagService @Inject constructor(
         )
     }
 
-    private fun isBrpEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
-        zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen ?: false
+    private fun isBrpEnabled(zaaktypeConfiguration: ZaaktypeConfiguration) =
+        zaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen ?: false
 
-    private fun isKvkEnabled(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration) =
-        zaaktypeCmmnConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen ?: false
+    private fun isKvkEnabled(zaaktypeConfiguration: ZaaktypeConfiguration) =
+        zaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen ?: false
 
     private fun generateProductaanvraagDescription(productaanvraag: ProductaanvraagDimpact) =
         "Productaanvraag '${productaanvraag.bron.naam}' with characteristics '${productaanvraag.bron.kenmerk}' and " +

@@ -16,6 +16,7 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -373,7 +374,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the productaanvraag emakl service should be called to send a confirmation of receipt email") {
+                And("the productaanvraag email service should be called to send a confirmation of receipt email") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
@@ -1489,6 +1490,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaakTypeUri = zaakType.url,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
+            val rolTypeInitiator = createRolType(
+                zaakTypeUri = zaakType.url,
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR
+            )
             val bsnNumber = "123456789"
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
@@ -1513,6 +1518,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
             )
             val zaakDataSlot = slot<Map<String, Any>>()
+            val createdRolSlot = slot<Rol<*>>()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
             every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
             every {
@@ -1538,7 +1544,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             } returns behandelaarRolType
-            every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
+            every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
+            every { zrcClientService.createRol(capture(createdRolSlot)) } returns mockk()
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1562,7 +1569,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 }
                 And("the group role should be created for the assigned group") {
                     verify(exactly = 1) {
-                        zrcClientService.createRol(any())
+                        zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
+                    }
+                }
+                And("the initiator betrokkene role should be added to the zaak") {
+                    verify(exactly = 1) {
+                        zrcClientService.createRol(any<RolNatuurlijkPersoon>())
+                    }
+                    with(createdRolSlot.captured) {
+                        betrokkeneType shouldBe BetrokkeneTypeEnum.NATUURLIJK_PERSOON
+                        identificatienummer shouldBe bsnNumber
+                        roltype shouldBe rolTypeInitiator.url
+                        zaak shouldBe createdZaak.url
                     }
                 }
                 And("no CMMN process be started") {
