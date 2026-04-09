@@ -172,7 +172,53 @@ Proceed automatically once green.
 
 ---
 
-## Stage 6 — Migration + Review (combined)
+## Stage 6 — Spec Auditor
+
+Launch a **general-purpose** agent with no prior context of how the spec was written:
+
+```
+Read AGENTS.md.
+Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md — pay special attention to the Rules table and Spec Conventions section.
+Read the spec at {COMPONENT_SPEC_PATH}.
+Read the component at {COMPONENT_TS_PATH} and its template at {COMPONENT_HTML_PATH} (if exists).
+
+TASK: Independently audit the spec. You did NOT write it — treat it with fresh eyes.
+
+For each item below, mark PASS or FAIL with a one-line reason:
+
+RULES
+[ ] No `any` / `as any` / eslint-disable no-explicit-any
+[ ] No `: void` return type annotations anywhere in the spec
+[ ] No trivial smoke tests (it("should create", ...))
+[ ] No NO_ERRORS_SCHEMA
+[ ] No querySelectorAll / querySelector for Material components (harnesses only; plain HTML elements are OK)
+[ ] SPDX header: new spec file → `2026 INFO.nl` only; existing file → INFO.nl added only if completely absent
+
+SPEC STRUCTURE
+[ ] describe(ClassName.name, ...) — class name reference, not a string literal
+[ ] declarations[] used (component is still standalone: false at this point)
+[ ] Services mocked via TestBed.inject() + jest.spyOn() — NOT useValue: mockObject (MAT_DIALOG_DATA / LOCALE_ID tokens are the only exception)
+[ ] provideHttpClient() present if any service uses ZacHttpClient
+[ ] provideRouter([]) present if any service uses Router
+[ ] Factory helpers use `as Partial<T> as unknown as T` — never bare `as unknown as T` on an object literal
+
+COVERAGE
+[ ] Every test asserts meaningful behaviour (no trivial creates/renders)
+[ ] ≥90% of template behaviours covered (buttons, conditionals, outputs, form states)
+[ ] Protected/private members accessed via bracket notation: component["member"]
+
+For each FAIL: output the exact line(s) that need changing and the correct fix.
+If all items PASS, return: AUDIT: PASS
+If any FAIL, fix them in the file, then return: AUDIT: PASS (N issues fixed: <summary>)
+
+Do NOT change any component source files — spec only.
+```
+
+---
+
+## Stage 7 — Migration + Review (combined)
+
+> Re-run baseline after Stage 6 audit fixes if anything was changed.
 
 Launch a **general-purpose** agent (substitute paths):
 
@@ -235,7 +281,7 @@ SELF_REVIEW: PASS
 
 ---
 
-## Stage 7 — Lint
+## Stage 8 — Lint
 
 Run directly from repo root:
 
@@ -247,7 +293,7 @@ Fix errors only in touched files. Ignore pre-existing errors in untouched files.
 
 ---
 
-## Stage 8 — Tick Claim
+## Stage 9 — Tick Claim
 
 Launch a **general-purpose** agent:
 
@@ -270,7 +316,7 @@ Return: TICKED: yes
 
 ---
 
-## Stage 9 — Commit
+## Stage 10 — Commit
 
 Stage and commit directly (do not auto-commit without showing the stat first):
 
@@ -284,7 +330,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 
 ---
 
-## Stage 10 — Stats Updater
+## Stage 11 — Stats Updater
 
 Run directly:
 
@@ -311,7 +357,7 @@ _"Please verify in browser (`npm run dev`). All good?"_ — **stop and wait.**
 
 ---
 
-## Stage 11 — PR
+## Stage 12 — PR
 
 ⛔ **Gate G-2** — show the following and wait for approval:
 
@@ -353,13 +399,14 @@ Stage  2   Claim Agent          → claimed via git worktree (no stash)
 Stage  3   Work Branch          → temp/standalone-{component-kebab} from main
 Stage  4   Spec Writer+Reviewer → spec written and self-reviewed
 Stage  5   Baseline Tests       → green ✅ (auto-proceed)
-Stage  6   Migration+Reviewer   → standalone: true, tests green, self-reviewed
-Stage  7   Lint                 → 0 errors in touched files
-Stage  8   Tick Claim           → [x] via git worktree (no stash)
-Stage  9   Commit               → files committed
-Stage 10   Stats Updater        → plan MD progress counter updated
+Stage  6   Spec Auditor         → independent audit; fixes applied if needed
+Stage  7   Migration+Reviewer   → standalone: true, tests green, self-reviewed
+Stage  8   Lint                 → 0 errors in touched files
+Stage  9   Tick Claim           → [x] via git worktree (no stash)
+Stage 10   Commit               → files committed
+Stage 11   Stats Updater        → plan MD progress counter updated
          ⛔ G-1: browser verify
-Stage 11   PR                   → branch renamed, PR created
+Stage 12   PR                   → branch renamed, PR created
          ⛔ G-2: PR title/body approval
 ```
 
