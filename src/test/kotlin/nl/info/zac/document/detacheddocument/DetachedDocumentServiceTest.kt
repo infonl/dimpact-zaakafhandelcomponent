@@ -6,11 +6,13 @@ package nl.info.zac.document.detacheddocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -52,26 +54,29 @@ class DetachedDocumentServiceTest : BehaviorSpec({
                 setTitel(titel)
                 setBestandsnaam(bestandsnaam)
             }
+            val detachedDocumentSlot = slot<DetachedDocument>()
 
             every { loggedInUserInstance.get() } returns mockk<LoggedInUser> {
                 every { id } returns userId
             }
-            every { detachedDocumentRepository.save(any()) } answers { firstArg() }
+            every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } answers { firstArg() }
 
             When("create is invoked") {
-                val detachedDocument = detachedDocumentService.create(informatieobject, zaak, reden)
+                detachedDocumentService.create(informatieobject, zaak, reden)
 
                 Then("a detached document is built from the domain objects and saved via the repository") {
-                    detachedDocument.documentUUID shouldBe documentUuid
-                    detachedDocument.documentID shouldBe identificatie
-                    detachedDocument.creatiedatum shouldBe creatiedatum
-                    detachedDocument.titel shouldBe titel
-                    detachedDocument.bestandsnaam shouldBe bestandsnaam
-                    detachedDocument.ontkoppeldDoor shouldBe userId
-                    detachedDocument.zaakID shouldBe zaak.identificatie
-                    detachedDocument.reden shouldBe reden
-                    detachedDocument.ontkoppeldOp shouldNotBe null
-                    verify { detachedDocumentRepository.save(any()) }
+                    verify(exactly = 1) { detachedDocumentRepository.save(detachedDocumentSlot.captured) }
+                    with(detachedDocumentSlot.captured) {
+                        this.documentUUID shouldBe documentUuid
+                        this.documentID shouldBe identificatie
+                        this.creatiedatum shouldBe creatiedatum
+                        this.titel shouldBe titel
+                        this.bestandsnaam shouldBe bestandsnaam
+                        this.ontkoppeldDoor shouldBe userId
+                        this.zaakID shouldBe zaak.identificatie
+                        this.reden shouldBe reden
+                        this.ontkoppeldOp shouldNotBe null
+                    }
                 }
             }
         }

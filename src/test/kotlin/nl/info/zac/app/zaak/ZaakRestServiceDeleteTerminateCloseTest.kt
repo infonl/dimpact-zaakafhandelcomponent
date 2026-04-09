@@ -374,7 +374,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
             every {
                 detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
-            } returns mockk<DetachedDocument>()
+            } just Runs
 
             When("a request is done to unlink the zaakinformatieobject from the zaak") {
                 zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
