@@ -102,6 +102,40 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       );
       expect(button.disabled).toBe(true);
     });
+
+    it("is disabled when loading", () => {
+      const { fixture, component } = setup();
+      component["loading"] = true;
+      fixture.detectChanges();
+      const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+        "#taakVrijgeven_button",
+      );
+      expect(button.disabled).toBe(true);
+    });
+  });
+
+  describe("annuleren button", () => {
+    it("is disabled when loading", () => {
+      const { fixture, component } = setup();
+      component["loading"] = true;
+      fixture.detectChanges();
+      const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+        "#dialogClose_button",
+      );
+      expect(button.disabled).toBe(true);
+    });
+
+  });
+
+  describe("vrijgeven() — reden", () => {
+    it("passes reden from form to service", () => {
+      const { component, takenService } = setup([makeTaak()]);
+      component["form"].controls.reden.setValue("testopmerking");
+      component["vrijgeven"]();
+      expect(takenService.vrijgevenVanuitLijst).toHaveBeenCalledWith(
+        expect.objectContaining({ reden: "testopmerking" }),
+      );
+    });
   });
 
   describe("vrijgeven()", () => {
