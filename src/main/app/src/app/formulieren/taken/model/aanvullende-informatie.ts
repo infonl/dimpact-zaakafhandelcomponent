@@ -88,10 +88,9 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       Validators.required,
       Validators.email,
     ]);
-    if (zaak.zaakSpecificContactDetails?.emailAddress) {
-      emailControl.setValue(
-        zaak.zaakSpecificContactDetails?.emailAddress ?? null,
-      );
+    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      emailControl.setValue(emailAddress);
     } else {
       const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
       if (temporaryPersonId) {
