@@ -48,6 +48,12 @@
 - [x] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
 - [x] `klanten/bedrijfsgegevens/bedrijfsgegevens.component.ts`
 
+### PZ-10629 feature branch — done
+- [x] `mail/mail-create/mail-create.component.ts`
+- [x] `shared/form/form-actions/form-actions.component.ts`
+- [x] `zaken/intake-afronden-dialog/intake-afronden-dialog.component.ts`
+- [x] `zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.ts`
+
 ### Bundle size — in progress
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `shared/pipes/empty.pipe.ts` — made standalone (enabler for BagZoekComponent)
