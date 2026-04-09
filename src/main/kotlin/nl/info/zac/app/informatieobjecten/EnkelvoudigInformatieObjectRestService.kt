@@ -305,9 +305,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             )
         } else {
             // not a document that that was linked to a zaak
-            // delete a detached document record, if it exists for this enkelvoudiginformatieobject
-            // note that this does not delete the document itself, nor does it remove the document from Solr
-            detachedDocumentService.deleteIfExists(uuid)
+            detachedDocumentService.deleteIfExists(
+                detachedDocumentUUID = uuid,
+                deleteRelatedEnkelvoudigInformatieObject = true
+            )
             // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
             // note that this does not delete the document itself, nor does it remove the document from Solr
             inboxDocumentService.delete(uuid)

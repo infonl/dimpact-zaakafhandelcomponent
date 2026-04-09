@@ -924,7 +924,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
-        every { detachedDocumentService.deleteIfExists(uuid) } just Runs
+        every { detachedDocumentService.deleteIfExists(uuid, true) } just Runs
         every { inboxDocumentService.delete(uuid) } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
@@ -933,8 +933,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
             )
 
-            Then("the related ontkoppeld document is deleted if it exists") {
-                verify(exactly = 1) { detachedDocumentService.deleteIfExists(uuid) }
+            Then("the related ontkoppeld document is deleted if it exists as well as the document itself") {
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(uuid, true) }
             }
 
             And("the related inbox document is deleted if it exists") {
