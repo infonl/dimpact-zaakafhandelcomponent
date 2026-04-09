@@ -6,7 +6,7 @@ package nl.info.zac.app.detacheddocuments.converter
 
 import net.atos.zac.app.shared.RESTListParametersConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

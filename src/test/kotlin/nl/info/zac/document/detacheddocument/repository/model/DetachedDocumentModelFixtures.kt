@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.document.detacheddocument.model
+package nl.info.zac.document.detacheddocument.repository.model
 
 import java.time.LocalDate
 import java.time.ZonedDateTime

@@ -7,7 +7,7 @@ package nl.info.zac.app.detacheddocuments.converter
 import jakarta.inject.Inject
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
