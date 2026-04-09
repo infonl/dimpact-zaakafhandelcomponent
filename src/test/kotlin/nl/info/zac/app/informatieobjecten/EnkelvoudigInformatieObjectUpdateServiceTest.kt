@@ -7,6 +7,7 @@ package nl.info.zac.app.informatieobjecten
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just

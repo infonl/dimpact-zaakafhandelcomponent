@@ -10,7 +10,6 @@ import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -31,7 +30,6 @@ import java.util.UUID
 @AllOpen
 class DetachedDocumentService @Inject constructor(
     private val detachedDocumentRepository: DetachedDocumentRepository,
-    private val drcClientService: DrcClientService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     @Transactional(REQUIRED)
@@ -75,10 +73,7 @@ class DetachedDocumentService @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun deleteIfExists(detachedDocumentUUID: UUID, deleteRelatedEnkelvoudigInformatieObject: Boolean = false) {
+    fun deleteIfExists(detachedDocumentUUID: UUID) {
         detachedDocumentRepository.find(detachedDocumentUUID)?.let(detachedDocumentRepository::delete)
-        if (deleteRelatedEnkelvoudigInformatieObject) {
-            drcClientService.deleteEnkelvoudigInformatieobject(detachedDocumentUUID)
-        }
     }
 }

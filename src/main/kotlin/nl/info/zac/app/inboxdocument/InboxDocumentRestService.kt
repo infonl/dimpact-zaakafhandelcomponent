@@ -91,7 +91,7 @@ class InboxDocumentRestService @Inject constructor(
                 inboxDocument.enkelvoudiginformatieobjectUUID
             )
         }
-        inboxDocumentService.delete(id)
+        inboxDocumentService.deleteIfExists(id)
     }
 
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {

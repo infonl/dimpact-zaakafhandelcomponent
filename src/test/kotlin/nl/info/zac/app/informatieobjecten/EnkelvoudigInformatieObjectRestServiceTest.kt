@@ -919,26 +919,39 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     }
 
     Given("An enkelvoudig informatieobject not linked to a zaak, and the user has permission to delete it") {
-        val uuid = UUID.randomUUID()
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = enkelvoudigInformatieobjectUUID
+        )
 
-        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+        } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
-        every { detachedDocumentService.deleteIfExists(uuid, true) } just Runs
-        every { inboxDocumentService.delete(uuid) } just Runs
+        every { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) } just Runs
+        every { inboxDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) } just Runs
+        every {
+            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+        } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
-                uuid,
+                enkelvoudigInformatieobjectUUID,
                 RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
             )
 
-            Then("the related ontkoppeld document is deleted if it exists as well as the document itself") {
-                verify(exactly = 1) { detachedDocumentService.deleteIfExists(uuid, true) }
+            Then("the related ontkoppeld document is deleted if it exists") {
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
             }
 
             And("the related inbox document is deleted if it exists") {
-                verify(exactly = 1) { inboxDocumentService.delete(uuid) }
+                verify(exactly = 1) { inboxDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
+            }
+
+            And("the enkelvoudig informatieobject is deleted") {
+                verify(exactly = 1) {
+                    drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+                }
             }
         }
     }
@@ -1234,7 +1247,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { inboxDocumentService.read(documentUUID) } returns inboxDoc
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.INBOX_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
-        every { inboxDocumentService.delete(99L) } just Runs
+        every { inboxDocumentService.deleteIfExists(99L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
@@ -1249,7 +1262,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
-                verify(exactly = 1) { inboxDocumentService.delete(99L) }
+                verify(exactly = 1) { inboxDocumentService.deleteIfExists(99L) }
             }
         }
     }

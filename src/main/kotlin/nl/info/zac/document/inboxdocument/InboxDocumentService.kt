@@ -77,12 +77,12 @@ class InboxDocumentService @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun delete(id: Long) {
+    fun deleteIfExists(id: Long) {
         find(id)?.let { entityManager.remove(it) }
     }
 
     @Transactional(REQUIRED)
-    fun delete(uuid: UUID) {
+    fun deleteIfExists(uuid: UUID) {
         find(uuid)?.let { entityManager.remove(it) }
     }
 

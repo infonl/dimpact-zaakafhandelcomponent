@@ -178,7 +178,7 @@ class ProductaanvraagService @Inject constructor(
             LOG.warning { "Inbox document with id '$documentUUID' not found." }
             return
         }
-        inboxDocument.id?.let(inboxDocumentService::delete)
+        inboxDocument.id?.let(inboxDocumentService::deleteIfExists)
     }
 
     /**

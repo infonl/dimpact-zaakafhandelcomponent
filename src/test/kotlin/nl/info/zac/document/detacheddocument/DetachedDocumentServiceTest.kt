@@ -16,7 +16,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
@@ -30,11 +29,9 @@ import java.util.UUID
 
 class DetachedDocumentServiceTest : BehaviorSpec({
     val detachedDocumentRepository = mockk<DetachedDocumentRepository>()
-    val drcClientService = mockk<DrcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val detachedDocumentService = DetachedDocumentService(
         detachedDocumentRepository = detachedDocumentRepository,
-        drcClientService = drcClientService,
         loggedInUserInstance = loggedInUserInstance
     )
 
@@ -209,22 +206,14 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
             every { detachedDocumentRepository.delete(detachedDocument) } just Runs
-            every { drcClientService.deleteEnkelvoudigInformatieobject(targetUuid) } just Runs
 
             When(
                 "delete is called with that UUID and with the option to also delete the related EnkelvoudigInformatieObject"
             ) {
-                detachedDocumentService.deleteIfExists(
-                    detachedDocumentUUID = targetUuid,
-                    deleteRelatedEnkelvoudigInformatieObject = true
-                )
+                detachedDocumentService.deleteIfExists(targetUuid)
 
                 Then("deletion is delegated to the repository") {
                     verify { detachedDocumentRepository.delete(detachedDocument) }
-                }
-
-                And("the related EnkelvoudigInformatieObject is also deleted") {
-                    verify(exactly = 1) { drcClientService.deleteEnkelvoudigInformatieobject(targetUuid) }
                 }
             }
         }
