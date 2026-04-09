@@ -10,8 +10,7 @@ import { MailCreateComponent } from "./mail-create/mail-create.component";
 import { OntvangstbevestigingComponent } from "./ontvangstbevestiging/ontvangstbevestiging.component";
 
 @NgModule({
-  declarations: [MailCreateComponent],
+  imports: [SharedModule, MailCreateComponent, OntvangstbevestigingComponent],
   exports: [MailCreateComponent, OntvangstbevestigingComponent],
-  imports: [SharedModule, OntvangstbevestigingComponent],
 })
 export class MailModule {}

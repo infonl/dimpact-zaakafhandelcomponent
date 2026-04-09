@@ -22,8 +22,11 @@ describe(ZacFormActions.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacFormActions],
-      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [
+        ZacFormActions,
+        TranslateModule.forRoot(),
+        NoopAnimationsModule,
+      ],
     }).compileComponents();
 
     const formBuilder = TestBed.inject(FormBuilder);

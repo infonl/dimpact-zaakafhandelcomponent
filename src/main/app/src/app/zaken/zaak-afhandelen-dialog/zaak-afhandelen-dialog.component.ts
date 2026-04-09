@@ -3,10 +3,23 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf } from "@angular/common";
 import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import {
   injectMutation,
   injectQuery,
@@ -17,6 +30,8 @@ import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandelin
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -24,7 +39,23 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaak-afhandelen-dialog.component.html",
   styleUrls: ["./zaak-afhandelen-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    StaticTextComponent,
+    MaterialFormBuilderModule,
+  ],
 })
 export class ZaakAfhandelenDialogComponent {
   private readonly dialogRef = inject(
@@ -237,7 +268,9 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   protected setInitiatorEmail() {
-    const email = this.initiatorEmailQuery.data()?.emailadres;
+    const email =
+      this.data.zaak.zaakSpecificContactDetails?.emailAddress ??
+      this.initiatorEmailQuery.data()?.emailadres;
     this.formGroup.controls.ontvanger.setValue(email ?? null);
   }
 
