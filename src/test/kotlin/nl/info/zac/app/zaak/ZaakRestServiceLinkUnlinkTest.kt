@@ -44,7 +44,7 @@ import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -76,7 +76,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val detachedDocumentService = mockk<DetachedDocumentService>()
+    val detachedDocumentService = mockk<DetachedDocumentRepository>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
