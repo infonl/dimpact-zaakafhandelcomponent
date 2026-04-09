@@ -120,7 +120,7 @@ class MailTemplateHelper @Inject constructor(
                     zaaktypeUuid = zaak.zaaktype.extractUuid(),
                     initiatorRole = initiatorRole
                 )
-            } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
+            } ?: replaceInitiatorVariablesWithEmptyText(resolvedTekst)
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.getVariable())) {
             val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
@@ -313,10 +313,10 @@ class MailTemplateHelper @Inject constructor(
             name = initiatorResultaatItem.getNaam(),
             address = it.toAddressString()
         )
-    } ?: replaceInitiatorVariablesWithUnknownText(resolvedText)
+    } ?: replaceInitiatorVariablesWithEmptyText(resolvedText)
 
-    private fun replaceInitiatorVariablesWithUnknownText(resolvedTekst: String) =
-        replaceInitiatorVariables(resolvedTekst, "Onbekend", "")
+    private fun replaceInitiatorVariablesWithEmptyText(resolvedTekst: String) =
+        replaceInitiatorVariables(resolvedTekst, "", "")
 
     private fun replaceInitiatorVariables(
         resolvedText: String,
