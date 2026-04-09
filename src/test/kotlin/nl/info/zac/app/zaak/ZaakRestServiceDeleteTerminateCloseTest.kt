@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak
 
+import io.kotest.assertions.any
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -59,6 +60,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.model.DetachedDocument
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -343,7 +345,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
     }
 
-    Context("Detaching an informatieobject from a zaak") {
+    Context("Detaching a n informatieobject from a zaak") {
         Given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak"
         ) {
@@ -372,7 +374,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
             every {
                 detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
-            } just Runs
+            } returns mockk<DetachedDocument>()
 
             When("a request is done to unlink the zaakinformatieobject from the zaak") {
                 zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
