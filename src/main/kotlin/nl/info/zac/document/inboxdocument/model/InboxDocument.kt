@@ -14,13 +14,15 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
+import nl.info.zac.util.AllOpen
 import java.time.LocalDate
 import java.util.UUID
 
 @Entity
 @Table(schema = SCHEMA, name = "inbox_document")
 @SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
-open class InboxDocument {
+@AllOpen
+class InboxDocument {
     companion object {
         const val ENKELVOUDIGINFORMATIEOBJECT_ID_PROPERTY_NAME = "enkelvoudiginformatieobjectID"
         const val ENKELVOUDIGINFORMATIEOBJECT_UUID_PROPERTY_NAME = "enkelvoudiginformatieobjectUUID"

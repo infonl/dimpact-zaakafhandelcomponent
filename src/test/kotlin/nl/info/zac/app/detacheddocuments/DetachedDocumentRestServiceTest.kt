@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.detacheddocuments
+package nl.info.zac.app.detacheddocuments
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,15 +18,15 @@ import io.mockk.verify
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
-import net.atos.zac.app.detacheddocuments.converter.RestDetachedDocumentListParametersConverter
-import net.atos.zac.app.detacheddocuments.model.RestDetachedDocument
-import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
-import net.atos.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
+import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentListParametersConverter
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
+import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
