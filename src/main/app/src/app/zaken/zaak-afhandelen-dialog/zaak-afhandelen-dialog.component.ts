@@ -237,7 +237,9 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   protected setInitiatorEmail() {
-    const email = this.initiatorEmailQuery.data()?.emailadres;
+    const email =
+      this.data.zaak.zaakSpecificContactDetails?.emailAddress ??
+      this.initiatorEmailQuery.data()?.emailadres;
     this.formGroup.controls.ontvanger.setValue(email ?? null);
   }
 
