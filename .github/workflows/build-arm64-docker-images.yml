@@ -1,0 +1,112 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  build-arm64-docker-images:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      packages: write
+    env:
+      OPEN_ZAAK_VERSION: 1.26.0
+      OPEN_KLANT_VERSION: 2.14.0
+      OPEN_NOTIFICATIES_VERSION: 1.13.0
+      OBJECTS_API_VERSION: 3.3.1
+      OPEN_ARCHIEFBEHEER_VERSION: 1.1.1
+      PABC_VERSION: v1.1.0
+      POSTGIS_VERSION: 17-3.5
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check out open-zaak ${{ env.OPEN_ZAAK_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: open-zaak/open-zaak
+          ref: ${{ env.OPEN_ZAAK_VERSION }}
+
+      - name: Build open-zaak Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/open-zaak:${{ env.OPEN_ZAAK_VERSION }} .
+
+      - name: Push open-zaak Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/open-zaak:${{ env.OPEN_ZAAK_VERSION }}
+
+      - name: Check out open-klant ${{ env.OPEN_KLANT_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: maykinmedia/open-klant
+          ref: ${{ env.OPEN_KLANT_VERSION }}
+
+      - name: Build open-klant Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/open-klant:${{ env.OPEN_KLANT_VERSION }} .
+
+      - name: Push open-klant Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/open-klant:${{ env.OPEN_KLANT_VERSION }}
+
+      - name: Check out open-notificaties ${{ env.OPEN_NOTIFICATIES_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: open-zaak/open-notificaties
+          ref: ${{ env.OPEN_NOTIFICATIES_VERSION }}
+
+      - name: Build open-notificaties Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/open-notificaties:${{ env.OPEN_NOTIFICATIES_VERSION }} .
+
+      - name: Push open-notificaties Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/open-notificaties:${{ env.OPEN_NOTIFICATIES_VERSION }}
+
+      - name: Check out objects-api ${{ env.OBJECTS_API_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: maykinmedia/objects-api
+          ref: ${{ env.OBJECTS_API_VERSION }}
+
+      - name: Build objects-api Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/objects-api:${{ env.OBJECTS_API_VERSION }} .
+
+      - name: Push objects-api Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/objects-api:${{ env.OBJECTS_API_VERSION }}
+
+      - name: Check out open-archiefbeheer ${{ env.OPEN_ARCHIEFBEHEER_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: maykinmedia/open-archiefbeheer
+          ref: ${{ env.OPEN_ARCHIEFBEHEER_VERSION }}
+
+      - name: Build open-archiefbeheer Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/open-archiefbeheer:${{ env.OPEN_ARCHIEFBEHEER_VERSION }} .
+
+      - name: Push open-archiefbeheer Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/open-archiefbeheer:${{ env.OPEN_ARCHIEFBEHEER_VERSION }}
+
+      - name: Check out PABC ${{ env.PABC_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: Platform-Autorisatie-Beheer-Component/PABC-API
+          ref: ${{ env.PABC_VERSION }}
+
+      - name: Build pabc-api Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/pabc-api:${{ env.PABC_VERSION }} -f PABC.Server/Dockerfile .
+
+      - name: Push pabc-api Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/pabc-api:${{ env.PABC_VERSION }}
+
+      - name: Build pabc-migrations Docker image
+        run: docker build --tag ghcr.io/${{ github.repository_owner }}/pabc-migrations:${{ env.PABC_VERSION }} -f PABC.MigrationService/Dockerfile .
+
+      - name: Push pabc-migrations Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/pabc-migrations:${{ env.PABC_VERSION }}
+
+      - name: Check out postgis ${{ env.POSTGIS_VERSION }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: postgis/docker-postgis
+
+      - name: Build postgis Docker image
+        run: (cd ${{ env.POSTGIS_VERSION }}; docker build --tag ghcr.io/${{ github.repository_owner }}/postgis:${{ env.POSTGIS_VERSION }} .)
+
+      - name: Push postgis Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/postgis:${{ env.POSTGIS_VERSION }}
