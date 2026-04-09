@@ -96,6 +96,49 @@ class ItestHttpClient {
     }
 
     /**
+     * Performs a DELETE request with a JSON body on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the DELETE request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBodyAsString The JSON body of the DELETE request as a string.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code.
+     */
+    fun performDeleteRequest(
+        url: String,
+        headers: Headers = buildHeaders(),
+        requestBodyAsString: String,
+        testUser: TestUser? = null
+    ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
+        logger.info { "Performing DELETE request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                tokens?.let {
+                    cloneHeadersWithAuthorization(
+                        headers = headers,
+                        url = url,
+                        accessToken = tokens.first
+                    )
+                } ?: run {
+                    headers
+                }
+            )
+            .url(url)
+            .delete(requestBodyAsString.toRequestBody(MediaType.APPLICATION_JSON.toMediaType()))
+            .build()
+        val responseContent = okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
+        tokens?.let { logout(testUser, it.second) }
+        return responseContent
+    }
+
+    /**
      * Performs a GET request on the given URL with optional headers.
      * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
      * and will be logged out from Keycloak afterwards.
