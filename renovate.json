@@ -637,7 +637,7 @@
         "docker"
       ],
       "versioning": "loose",
-      "allowedVersions": "/jre-ubi10-minimal$/"
+      "allowedVersions": "/^21.*jre-ubi10-minimal$/"
     },
     {
       "matchPackageNames": [
