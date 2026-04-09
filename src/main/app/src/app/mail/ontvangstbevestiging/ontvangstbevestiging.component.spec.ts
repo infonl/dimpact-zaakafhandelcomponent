@@ -207,7 +207,7 @@ describe(OntvangstbevestigingComponent.name, () => {
       expect(component["variables"]).toEqual(mockMailtemplate.variabelen);
     });
 
-    it("should set contactEmailAddress from contact details when initiator has temporaryPersonId", () => {
+    it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
       expect(component["contactEmailAddress"]).toEqual(
         mockContactGegevens.emailadres,
       );

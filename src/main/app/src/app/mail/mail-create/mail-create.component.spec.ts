@@ -185,7 +185,7 @@ describe(MailCreateComponent.name, () => {
       expect(component["documents"]).toEqual(mockDocuments);
     });
 
-    it("should set contactEmailAddress from contact details when initiator has temporaryPersonId", () => {
+    it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
       expect(component["contactEmailAddress"]).toEqual(
         mockContactGegevens.emailadres,
       );
