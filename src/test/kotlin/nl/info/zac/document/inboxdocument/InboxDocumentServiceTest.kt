@@ -222,7 +222,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(InboxDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                inboxDocumentService.delete(document.id!!)
+                inboxDocumentService.deleteIfExists(document.id!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
@@ -235,7 +235,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(InboxDocument::class.java, id) } returns null
 
             When("delete is called with that ID") {
-                inboxDocumentService.delete(id)
+                inboxDocumentService.deleteIfExists(id)
 
                 Then("no document is removed from the entity manager") {
                     verify(exactly = 0) { entityManager.remove(any()) }
@@ -298,7 +298,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("delete is called with that UUID") {
-                inboxDocumentService.delete(document.enkelvoudiginformatieobjectUUID)
+                inboxDocumentService.deleteIfExists(document.enkelvoudiginformatieobjectUUID)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
@@ -314,7 +314,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
             When("delete is called with that UUID") {
-                inboxDocumentService.delete(unknownUuid)
+                inboxDocumentService.deleteIfExists(unknownUuid)
 
                 Then("no document is removed from the entity manager") {
                     verify(exactly = 0) { entityManager.remove(any()) }

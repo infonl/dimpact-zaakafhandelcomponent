@@ -45,11 +45,11 @@ class DetachedDocumentRepository @Inject constructor(
     fun find(id: Long): DetachedDocument? =
         entityManager.find(DetachedDocument::class.java, id)
 
-    fun find(enkelvoudiginformatieobjectUUID: UUID): DetachedDocument? {
+    fun find(detachedDocumentUUID: UUID): DetachedDocument? {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(DetachedDocument::class.java)
         val root = query.from(DetachedDocument::class.java)
-        query.select(root).where(builder.equal(root.get<Any>("documentUUID"), enkelvoudiginformatieobjectUUID))
+        query.select(root).where(builder.equal(root.get<Any>("documentUUID"), detachedDocumentUUID))
         val resultList = entityManager.createQuery(query).getResultList()
         return if (!resultList.isEmpty()) {
             resultList.first()
@@ -59,12 +59,7 @@ class DetachedDocumentRepository @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun delete(id: Long) { find(id)?.run(entityManager::remove) }
-
-    @Transactional(REQUIRED)
-    fun delete(uuid: UUID) {
-        find(uuid)?.run(entityManager::remove)
-    }
+    fun delete(detachedDocument: DetachedDocument) = entityManager.remove(detachedDocument)
 
     fun list(listParameters: DetachedDocumentListParameters): List<DetachedDocument> {
         val builder = entityManager.criteriaBuilder

@@ -14,7 +14,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.exception.ZgwErrorException
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -100,14 +99,13 @@ class DetachedDocumentRestService @Inject constructor(
             LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
         }
         enkelvoudigInformatieobject?.let { informatieobject ->
-            val zaakInformatieobjecten: List<ZaakInformatieobject> =
-                zrcClientService.listZaakinformatieobjecten(informatieobject)
+            val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(informatieobject)
             if (zaakInformatieobjecten.isNotEmpty()) {
                 val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
                 error("Informatieobject is gekoppeld aan zaak '$zaakUuid'")
             }
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
         }
-        detachedDocumentService.delete(detachedDocument.id!!)
+        detachedDocumentService.deleteIfExists(detachedDocument.id!!)
     }
 }

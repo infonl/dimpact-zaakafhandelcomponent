@@ -225,12 +225,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
                 val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.delete(detachedDocument.id!!)
+                detachedDocumentService.deleteIfExists(detachedDocument.id!!)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocument.id?.let(inboxDocumentService::delete)
+                inboxDocument.id?.run(inboxDocumentService::deleteIfExists)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
@@ -304,13 +304,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 reason = documentVerwijderenGegevens.reden
             )
         } else {
-            // not a document that that was linked to a zaak
-            // delete a detached document record, if it exists for this enkelvoudiginformatieobject
-            // note that this does not delete the document itself, nor does it remove the document from Solr
-            detachedDocumentService.delete(uuid)
-            // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
-            // note that this does not delete the document itself, nor does it remove the document from Solr
-            inboxDocumentService.delete(uuid)
+            // the document is not linked to zaak
+            // it may be a detached document, an inbox document, or neither
+            // (i.e. just a document from Open Zaak which ZAC knows nothing about)
+            // delete the detached document or inbox document records from ZAC, if they exist
+            detachedDocumentService.deleteIfExists(uuid)
+            inboxDocumentService.deleteIfExists(uuid)
+            // also delete the actual document from the document registry
+            drcClientService.deleteEnkelvoudigInformatieobject(uuid)
         }
     }
 

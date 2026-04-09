@@ -17,6 +17,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_CREATED
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
@@ -71,7 +72,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a document is created directly in Open Zaak and appears in the inbox documents list") {
+    Given("a document is created in the document register and appears in the inbox documents list") {
         val uniqueTitle = "inbox-doc-delete-itest-${UUID.randomUUID()}"
         val createResponse = openZaakClient.createEnkelvoudigInformatieobject(
             fileName = TEST_PDF_FILE_NAME,
@@ -123,6 +124,19 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 )
                 listResponse.code shouldBe HTTP_OK
                 JSONObject(listResponse.bodyAsString).getInt("totaal") shouldBe 0
+            }
+
+            When("the get enkelvoudig informatie object endpoint is called for the deleted document") {
+                val getResponse = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
+                    testUser = COORDINATOR_DOMAIN_TEST_1
+                )
+                Then(
+                    "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"
+                ) {
+                    logger.info { "Get enkelvoudiginformatieobject after delete response: ${getResponse.bodyAsString}" }
+                    getResponse.code shouldBe HTTP_NOT_FOUND
+                }
             }
         }
     }

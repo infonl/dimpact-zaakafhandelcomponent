@@ -217,7 +217,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
                 every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
                 every { drcClientService.deleteEnkelvoudigInformatieobject(documentUUID) } returns Unit
-                every { inboxDocumentService.delete(documentId) } returns Unit
+                every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
                 Then("it should delete both the inbox document and the informatieobject") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)
@@ -228,7 +228,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.readEnkelvoudigInformatieobject(documentUUID)
                         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
                         drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
-                        inboxDocumentService.delete(documentId)
+                        inboxDocumentService.deleteIfExists(documentId)
                     }
                 }
             }
@@ -255,7 +255,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every {
                     zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
                 } returns listOf(zaakInformatieobject)
-                every { inboxDocumentService.delete(documentId) } returns Unit
+                every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
                 Then("it should delete the inbox document but not the informatieobject") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)
@@ -265,7 +265,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         inboxDocumentService.find(documentId)
                         drcClientService.readEnkelvoudigInformatieobject(documentUUID)
                         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
-                        inboxDocumentService.delete(documentId)
+                        inboxDocumentService.deleteIfExists(documentId)
                     }
 
                     verify(exactly = 0) {
@@ -293,7 +293,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.readEnkelvoudigInformatieobject(any<UUID>())
                         zrcClientService.listZaakinformatieobjecten(any<EnkelvoudigInformatieObject>())
                         drcClientService.deleteEnkelvoudigInformatieobject(any<UUID>())
-                        inboxDocumentService.delete(any<Long>())
+                        inboxDocumentService.deleteIfExists(any<Long>())
                     }
                 }
             }
