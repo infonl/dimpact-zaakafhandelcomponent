@@ -6,7 +6,6 @@ package nl.info.zac.document.detacheddocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
@@ -167,17 +166,18 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting a detached document by Long ID") {
+    Context("Deleting a detached document by ID") {
         Given("a Long ID") {
             val document = createDetachedDocument()
 
-            every { detachedDocumentRepository.delete(document.id!!) } returns Unit
+            every { detachedDocumentRepository.find(document.id!!) } returns document
+            every { detachedDocumentRepository.deleteByID(document.id!!) } returns Unit
 
             When("delete is called with that ID") {
-                detachedDocumentService.delete(document.id!!)
+                detachedDocumentService.deleteIfExists(document.id!!)
 
                 Then("deletion is delegated to the repository") {
-                    verify { detachedDocumentRepository.delete(document.id!!) }
+                    verify { detachedDocumentRepository.deleteByID(document.id!!) }
                 }
             }
         }
@@ -186,14 +186,16 @@ class DetachedDocumentServiceTest : BehaviorSpec({
     Context("Deleting a detached document by UUID") {
         Given("a UUID") {
             val targetUuid = UUID.randomUUID()
+            val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
-            every { detachedDocumentRepository.delete(targetUuid) } returns Unit
+            every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
+            every { detachedDocumentRepository.deleteByID(detachedDocument.id!!) } just Runs
 
             When("delete is called with that UUID") {
-                detachedDocumentService.delete(targetUuid)
+                detachedDocumentService.deleteIfExists(targetUuid)
 
                 Then("deletion is delegated to the repository") {
-                    verify { detachedDocumentRepository.delete(targetUuid) }
+                    verify { detachedDocumentRepository.deleteByID(detachedDocument.id!!) }
                 }
             }
         }

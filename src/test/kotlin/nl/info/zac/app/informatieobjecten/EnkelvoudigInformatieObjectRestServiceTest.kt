@@ -924,7 +924,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
-        every { detachedDocumentService.delete(uuid) } just Runs
+        every { detachedDocumentService.deleteIfExists(uuid) } just Runs
         every { inboxDocumentService.delete(uuid) } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
@@ -934,7 +934,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
 
             Then("the related ontkoppeld document is deleted if it exists") {
-                verify(exactly = 1) { detachedDocumentService.delete(uuid) }
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(uuid) }
             }
 
             And("the related inbox document is deleted if it exists") {
@@ -1146,7 +1146,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { detachedDocumentService.read(documentUUID) } returns ontkoppeldDoc
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
-        every { detachedDocumentService.delete(42L) } just Runs
+        every { detachedDocumentService.deleteIfExists(42L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
@@ -1161,7 +1161,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
-                verify(exactly = 1) { detachedDocumentService.delete(42L) }
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(42L) }
             }
         }
     }
@@ -1187,7 +1187,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             detachedDocumentNotFoundException
         val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
-        every { detachedDocumentService.delete(42L) } just Runs
+        every { detachedDocumentService.deleteIfExists(42L) } just Runs
 
         When("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
             val passedOnDetachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
@@ -1207,7 +1207,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             And("the document should not be moved") {
                 verify(exactly = 0) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
-                    detachedDocumentService.delete(any<Long>())
+                    detachedDocumentService.deleteIfExists(any<Long>())
                 }
             }
         }

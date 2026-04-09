@@ -225,7 +225,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
                 val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                detachedDocumentService.delete(detachedDocument.id!!)
+                detachedDocumentService.deleteIfExists(detachedDocument.id!!)
             }
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
@@ -307,7 +307,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             // not a document that that was linked to a zaak
             // delete a detached document record, if it exists for this enkelvoudiginformatieobject
             // note that this does not delete the document itself, nor does it remove the document from Solr
-            detachedDocumentService.delete(uuid)
+            detachedDocumentService.deleteIfExists(uuid)
             // delete an inbox document record, if it exists for this enkelvoudiginformatieobject
             // note that this does not delete the document itself, nor does it remove the document from Solr
             inboxDocumentService.delete(uuid)

@@ -108,53 +108,15 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting a detached document by Long ID") {
+    Context("Deleting a detached document by ID") {
         Given("an existing detached document with a known Long ID") {
-            val document = createDetachedDocument()
-
-            every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
+            val documentId = 1234L
 
             When("delete is called with that ID") {
-                detachedDocumentRepository.delete(document.id!!)
+                detachedDocumentRepository.deleteByID(documentId)
 
                 Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
-                }
-            }
-        }
-
-        Given("no document exists for a given Long ID") {
-            val id = 999L
-
-            every { entityManager.find(DetachedDocument::class.java, id) } returns null
-
-            When("delete is called with that ID") {
-                detachedDocumentRepository.delete(id)
-
-                Then("no document is removed from the entity manager") {
-                    verify(exactly = 0) { entityManager.remove(any()) }
-                }
-            }
-        }
-    }
-
-    Context("Deleting a detached document by UUID") {
-        Given("an existing detached document with a known UUID") {
-            val targetUuid = UUID.randomUUID()
-            val document = createDetachedDocument(uuid = targetUuid)
-            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { resultList } returns listOf(document)
-            }
-
-            every {
-                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
-            } returns typedQuery
-
-            When("delete is called with that UUID") {
-                detachedDocumentRepository.delete(targetUuid)
-
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
+                    verify { entityManager.remove(documentId) }
                 }
             }
         }

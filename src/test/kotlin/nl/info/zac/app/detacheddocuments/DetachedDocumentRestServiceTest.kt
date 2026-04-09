@@ -96,7 +96,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } throws ZgwErrorException(ZgwError(null, null, null, 404, null, null))
             every {
-                detachedDocumentService.delete(document.id!!)
+                detachedDocumentService.deleteIfExists(document.id!!)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
@@ -104,7 +104,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        detachedDocumentService.delete(document.id!!)
+                        detachedDocumentService.deleteIfExists(document.id!!)
                     }
                 }
             }
@@ -192,7 +192,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 zrcClientService.listZaakinformatieobjecten(informatieObject)
             } returns mutableListOf()
             every {
-                detachedDocumentService.delete(document.id!!)
+                detachedDocumentService.deleteIfExists(document.id!!)
             } just runs
 
             When("the delete endpoint is called with the id of that document") {
@@ -200,7 +200,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
                 Then("the document is deleted") {
                     verify(exactly = 1) {
-                        detachedDocumentService.delete(document.id!!)
+                        detachedDocumentService.deleteIfExists(document.id!!)
                     }
                 }
             }

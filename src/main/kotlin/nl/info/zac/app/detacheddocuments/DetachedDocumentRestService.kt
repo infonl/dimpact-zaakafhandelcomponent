@@ -108,6 +108,6 @@ class DetachedDocumentRestService @Inject constructor(
             }
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
         }
-        detachedDocumentService.delete(detachedDocument.id!!)
+        detachedDocumentService.deleteIfExists(detachedDocument.id!!)
     }
 }
