@@ -144,12 +144,6 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - OTEL_SDK_DISABLED=true
-      # Enable uwsgi post-buffering to properly handle chunked transfer encoding in HTTP mode.
-      # Without this, ZAC's large file uploads (sent using chunked encoding) result in an empty
-      # request body reaching Django, causing a 400 error with "required fields missing".
-      # In the test/production Kubernetes environment this is handled by nginx, which decodes
-      # chunked requests and forwards them with Content-Length to the backend.
-      - UWSGI_POST_BUFFERING=4096
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
