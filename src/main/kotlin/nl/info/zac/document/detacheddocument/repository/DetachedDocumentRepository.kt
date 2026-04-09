@@ -59,7 +59,7 @@ class DetachedDocumentRepository @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun deleteByID(id: Long) = entityManager.remove(id)
+    fun delete(detachedDocument: DetachedDocument) = entityManager.remove(detachedDocument)
 
     fun list(listParameters: DetachedDocumentListParameters): List<DetachedDocument> {
         val builder = entityManager.criteriaBuilder

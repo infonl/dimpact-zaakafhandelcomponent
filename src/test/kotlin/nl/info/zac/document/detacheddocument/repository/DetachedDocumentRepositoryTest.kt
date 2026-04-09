@@ -108,15 +108,15 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting a detached document by ID") {
-        Given("an existing detached document with a known Long ID") {
-            val documentId = 1234L
+    Context("Deleting a detached document") {
+        Given("an existing detached document") {
+            val detachedDocument = createDetachedDocument()
 
             When("delete is called with that ID") {
-                detachedDocumentRepository.deleteByID(documentId)
+                detachedDocumentRepository.delete(detachedDocument)
 
                 Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(documentId) }
+                    verify { entityManager.remove(detachedDocument) }
                 }
             }
         }

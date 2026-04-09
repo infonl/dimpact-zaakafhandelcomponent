@@ -174,13 +174,13 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val document = createDetachedDocument()
 
             every { detachedDocumentRepository.find(document.id!!) } returns document
-            every { detachedDocumentRepository.deleteByID(document.id!!) } returns Unit
+            every { detachedDocumentRepository.delete(document) } returns Unit
 
             When("delete is called with that ID") {
                 detachedDocumentService.deleteIfExists(document.id!!)
 
                 Then("deletion is delegated to the repository") {
-                    verify { detachedDocumentRepository.deleteByID(document.id!!) }
+                    verify { detachedDocumentRepository.delete(document) }
                 }
             }
         }
@@ -192,13 +192,13 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
-            every { detachedDocumentRepository.deleteByID(detachedDocument.id!!) } just Runs
+            every { detachedDocumentRepository.delete(detachedDocument) } just Runs
 
             When("delete is called with that UUID") {
                 detachedDocumentService.deleteIfExists(targetUuid)
 
                 Then("deletion is delegated to the repository") {
-                    verify { detachedDocumentRepository.deleteByID(detachedDocument.id!!) }
+                    verify { detachedDocumentRepository.delete(detachedDocument) }
                 }
             }
         }
@@ -208,7 +208,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
-            every { detachedDocumentRepository.deleteByID(detachedDocument.id!!) } just Runs
+            every { detachedDocumentRepository.delete(detachedDocument) } just Runs
             every { drcClientService.deleteEnkelvoudigInformatieobject(targetUuid) } just Runs
 
             When(
@@ -220,7 +220,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
                 )
 
                 Then("deletion is delegated to the repository") {
-                    verify { detachedDocumentRepository.deleteByID(detachedDocument.id!!) }
+                    verify { detachedDocumentRepository.delete(detachedDocument) }
                 }
 
                 And("the related EnkelvoudigInformatieObject is also deleted") {
