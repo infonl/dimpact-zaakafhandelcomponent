@@ -23,6 +23,7 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 |---|---|---|
 | **G-1** | Before `npm run dev` browser verify | _"Please verify in browser (`npm run dev`). All good?"_ — **stop and wait** |
 | **G-2** | Before `gh pr create` | Show PR title + body as markdown — **stop and wait for approval** |
+| **G-3** | Before MD sync to claims branch | _"The migration MDs have changed. Sync them to the claims branch so teammates get the latest versions? (yes/no)"_ — **stop and wait** |
 
 ---
 
@@ -391,6 +392,43 @@ Return: PR_URL: <url>
 
 ---
 
+## Stage 13 — Sync Migration MDs to Claims Branch
+
+> Run after the PR is created. Keeps the collaboration branch up-to-date with the latest versions of all migration tooling so teammates always get fresh skill/plan files.
+
+**Before running:** ask the user — _"The migration MDs have changed in this branch. Sync them to the claims branch so teammates get the latest versions? (yes/no)"_ — **wait for confirmation.**
+
+Launch a **general-purpose** agent only if the user confirms:
+
+```
+Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Work branch: {FINAL_BRANCH_NAME}
+Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+
+Files to sync (copy from work branch into claims branch):
+- .claude/commands/migrate-ng19-standalone-components.md
+- .claude/commands/migrate-ng19-standalone-components-agentic.md
+- .claude/commands/audit-ng-spec-skill.md
+
+Use git worktree — never git checkout:
+1. git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+2. git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+3. For each file above:
+   git show {FINAL_BRANCH_NAME}:.claude/commands/<filename> > /tmp/zac-claims/.claude/commands/<filename>
+4. cd /tmp/zac-claims
+   git diff --stat   (show what changed)
+   If no diff: skip commit, report "MDs already up to date"
+   If diff: git add .claude/commands/ && git commit -m "chore: sync migration MDs from {FINAL_BRANCH_NAME}"
+5. git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+6. git worktree remove /tmp/zac-claims
+
+Do NOT touch the main working tree. Do NOT stash anything.
+
+Return: SYNCED: yes | FILES_CHANGED: <list or "none">
+```
+
+---
+
 ## Pipeline Summary
 
 ```
@@ -408,9 +446,11 @@ Stage 11   Stats Updater        → plan MD progress counter updated
          ⛔ G-1: browser verify
 Stage 12   PR                   → branch renamed, PR created
          ⛔ G-2: PR title/body approval
+         ⛔ G-3: confirm MD sync to claims branch
+Stage 13   MD Sync              → migration MDs synced to claims branch via worktree
 ```
 
-**Human gates: 2** (browser verify · PR approval).
+**Human gates: 3** (browser verify · PR approval · MD sync confirmation).
 Everything else runs autonomously.
 
 ---
