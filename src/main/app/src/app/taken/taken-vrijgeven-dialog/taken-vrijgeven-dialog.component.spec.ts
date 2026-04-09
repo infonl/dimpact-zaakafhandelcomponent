@@ -124,7 +124,6 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       );
       expect(button.disabled).toBe(true);
     });
-
   });
 
   describe("vrijgeven() — reden", () => {
