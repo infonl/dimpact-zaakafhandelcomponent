@@ -77,19 +77,21 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
     this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
 
-    if (
-      this.data.zaak.initiatorIdentificatie?.type &&
-      this.data.zaak.initiatorIdentificatie?.temporaryPersonId
-    ) {
-      this.klantenService
-        .getContactDetailsForPerson(
-          this.data.zaak.initiatorIdentificatie.temporaryPersonId,
-        )
-        .subscribe((gegevens) => {
-          if (gegevens.emailadres) {
-            this.initiatorEmail = gegevens.emailadres;
-          }
-        });
+    const emailAddress = this.data.zaak.zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      this.initiatorEmail = emailAddress;
+    } else {
+      const temporaryPersonId =
+        this.data.zaak.initiatorIdentificatie?.temporaryPersonId;
+      if (temporaryPersonId) {
+        this.klantenService
+          .getContactDetailsForPerson(temporaryPersonId)
+          .subscribe((gegevens) => {
+            if (gegevens.emailadres) {
+              this.initiatorEmail = gegevens.emailadres;
+            }
+          });
+      }
     }
 
     this.formGroup = this.formBuilder.group({

@@ -88,18 +88,20 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       Validators.required,
       Validators.email,
     ]);
-    if (
-      zaak.initiatorIdentificatie?.type &&
-      zaak.initiatorIdentificatie?.temporaryPersonId
-    ) {
-      this.klantenService
-        .getContactDetailsForPerson(
-          zaak.initiatorIdentificatie.temporaryPersonId,
-        )
-        .subscribe((value) => {
-          if (!value.emailadres) return;
-          emailControl.setValue(value.emailadres);
-        });
+    if (zaak.zaakSpecificContactDetails?.emailAddress) {
+      emailControl.setValue(
+        zaak.zaakSpecificContactDetails?.emailAddress ?? null,
+      );
+    } else {
+      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
+      if (temporaryPersonId) {
+        this.klantenService
+          .getContactDetailsForPerson(temporaryPersonId)
+          .subscribe((value) => {
+            if (!value.emailadres) return;
+            emailControl.setValue(value.emailadres);
+          });
+      }
     }
 
     const formFields: FormField[] = [
