@@ -20,7 +20,9 @@
             </ng-container>
             <ng-container
               *ngIf="
-                column != 'type' && column != 'subjecttype' && row[column] != null
+                column != 'type' &&
+                column != 'subjecttype' &&
+                row[column] != null
               "
             >
               <mat-checkbox
