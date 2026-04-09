@@ -72,7 +72,7 @@ Confirm the target with the user before proceeding.
 Launch a **general-purpose** agent (substitute `{COMPONENT_CLASS}`):
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
 Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 
 Use git worktree — never git checkout:
@@ -299,7 +299,7 @@ Fix errors only in touched files. Ignore pre-existing errors in untouched files.
 Launch a **general-purpose** agent:
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
 Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 
 Use git worktree — never git checkout:
@@ -378,7 +378,7 @@ Solves PZ-XXXXX
 Ask for Jira ticket if unknown. After approval, launch a **general-purpose** agent:
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
 
 1. git branch -m temp/standalone-{COMPONENT_CLASS_KEBAB} chore/{JIRA}--FE--Angular-v19-migration--{COMPONENT_CLASS_KEBAB}
 2. git push -u origin chore/{JIRA}--FE--Angular-v19-migration--{COMPONENT_CLASS_KEBAB}
@@ -401,7 +401,7 @@ Return: PR_URL: <url>
 Launch a **general-purpose** agent only if the user confirms:
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
 Work branch: {FINAL_BRANCH_NAME}
 Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 
