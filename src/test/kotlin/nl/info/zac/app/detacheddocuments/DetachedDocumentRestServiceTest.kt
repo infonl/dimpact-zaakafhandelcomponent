@@ -29,11 +29,11 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
-import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
-import nl.info.zac.document.detacheddocument.model.createDetachedDocument
+import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentResult
+import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
@@ -41,7 +41,7 @@ import java.net.URI
 import java.util.UUID
 
 class DetachedDocumentRestServiceTest : BehaviorSpec({
-    val detachedDocumentService = mockk<DetachedDocumentService>()
+    val detachedDocumentService = mockk<DetachedDocumentRepository>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()

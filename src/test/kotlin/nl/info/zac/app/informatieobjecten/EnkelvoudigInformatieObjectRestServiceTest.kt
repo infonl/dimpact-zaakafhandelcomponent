@@ -57,8 +57,8 @@ import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.document.detacheddocument.DetachedDocumentService
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -87,7 +87,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val inboxDocumentService = mockk<InboxDocumentService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val detachedDocumentService = mockk<DetachedDocumentService>()
+    val detachedDocumentService = mockk<DetachedDocumentRepository>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()

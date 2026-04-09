@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.document.detacheddocument
+package nl.info.zac.document.detacheddocument.repository
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
@@ -20,12 +20,12 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
-import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.REDEN_PROPERTY_NAME
-import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.TITEL_PROPERTY_NAME
-import nl.info.zac.document.detacheddocument.model.DetachedDocument.Companion.ZAAK_ID_PROPERTY_NAME
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentResult
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.REDEN_PROPERTY_NAME
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.TITEL_PROPERTY_NAME
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument.Companion.ZAAK_ID_PROPERTY_NAME
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentResult
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
@@ -40,7 +40,7 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 @Suppress("TooManyFunctions")
-class DetachedDocumentService @Inject constructor(
+class DetachedDocumentRepository @Inject constructor(
     private val entityManager: EntityManager,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {

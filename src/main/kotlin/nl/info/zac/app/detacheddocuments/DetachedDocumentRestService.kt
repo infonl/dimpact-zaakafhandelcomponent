@@ -26,7 +26,7 @@ import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
 import nl.info.zac.app.identity.converter.RestUserConverter
-import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -42,7 +42,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @Suppress("LongParameterList")
 class DetachedDocumentRestService @Inject constructor(
-    private val detachedDocumentService: DetachedDocumentService,
+    private val detachedDocumentService: DetachedDocumentRepository,
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,

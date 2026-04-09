@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.document.detacheddocument
+package nl.info.zac.document.detacheddocument.repository
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -22,16 +22,16 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import nl.info.zac.document.detacheddocument.model.createDetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import java.time.LocalDate
 import java.util.UUID
 
-class DetachedDocumentServiceTest : BehaviorSpec({
+class DetachedDocumentRepositoryTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val detachedDocumentService = DetachedDocumentService(
+    val detachedDocumentRepository = DetachedDocumentRepository(
         entityManager,
         loggedInUserInstance
     )
@@ -65,7 +65,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             }
 
             When("the ontkoppelde documenten create is invoked") {
-                val detachedDocument = detachedDocumentService.create(informatieobject, zaak, reden)
+                val detachedDocument = detachedDocumentRepository.create(informatieobject, zaak, reden)
 
                 Then("a detached document is created and stored") {
                     detachedDocument.documentUUID shouldBe documentUuid
@@ -94,7 +94,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             } returns typedQuery
 
             When("read is called with that UUID") {
-                val result = detachedDocumentService.read(targetUuid)
+                val result = detachedDocumentRepository.read(targetUuid)
 
                 Then("the document with that UUID is returned") {
                     result.documentUUID shouldBe targetUuid
@@ -113,7 +113,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
             When("read is called with that UUID") {
                 val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
-                    detachedDocumentService.read(targetUuid)
+                    detachedDocumentRepository.read(targetUuid)
                 }
 
                 Then("an exception is thrown") {
@@ -131,7 +131,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("find is called with that ID") {
-                val result = detachedDocumentService.find(document.id!!)
+                val result = detachedDocumentRepository.find(document.id!!)
 
                 Then("the document is returned") {
                     result shouldBe document
@@ -144,7 +144,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
             When("find is called with that ID") {
-                val result = detachedDocumentService.find(id)
+                val result = detachedDocumentRepository.find(id)
 
                 Then("null is returned") {
                     result shouldBe null
@@ -162,7 +162,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
             When("getResultaat is called") {
-                val result = detachedDocumentService.getDetachedDocumentResult(DetachedDocumentListParameters())
+                val result = detachedDocumentRepository.getDetachedDocumentResult(DetachedDocumentListParameters())
 
                 Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
                     result.items shouldBe emptyList()
@@ -180,7 +180,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
             When("delete is called with that ID") {
-                detachedDocumentService.delete(document.id!!)
+                detachedDocumentRepository.delete(document.id!!)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
@@ -194,7 +194,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
             When("delete is called with that ID") {
-                detachedDocumentService.delete(id)
+                detachedDocumentRepository.delete(id)
 
                 Then("no document is removed from the entity manager") {
                     verify(exactly = 0) { entityManager.remove(any()) }
@@ -216,7 +216,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             } returns typedQuery
 
             When("delete is called with that UUID") {
-                detachedDocumentService.delete(targetUuid)
+                detachedDocumentRepository.delete(targetUuid)
 
                 Then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }

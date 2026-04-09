@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.document.detacheddocument.model
+package nl.info.zac.document.detacheddocument.repository.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
