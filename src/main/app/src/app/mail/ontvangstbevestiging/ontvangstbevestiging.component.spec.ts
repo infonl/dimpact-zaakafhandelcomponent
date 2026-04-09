@@ -207,8 +207,8 @@ describe(OntvangstbevestigingComponent.name, () => {
       expect(component["variables"]).toEqual(mockMailtemplate.variabelen);
     });
 
-    it("should set contactEmailAdress from contact details when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAdress"]).toEqual(
+    it("should set contactEmailAddress from contact details when initiator has temporaryPersonId", () => {
+      expect(component["contactEmailAddress"]).toEqual(
         mockContactGegevens.emailadres,
       );
     });
@@ -230,7 +230,9 @@ describe(OntvangstbevestigingComponent.name, () => {
       jest.mocked(klantenService.getContactDetailsForPerson).mockClear();
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["contactEmailAdress"]).toBe(emailAddress);
+      expect(fixture.componentInstance["contactEmailAddress"]).toBe(
+        emailAddress,
+      );
       expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
     });
 
@@ -248,7 +250,7 @@ describe(OntvangstbevestigingComponent.name, () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component["contactEmailAdress"]).toBeNull();
+      expect(component["contactEmailAddress"]).toBeNull();
     });
   });
 
@@ -261,8 +263,8 @@ describe(OntvangstbevestigingComponent.name, () => {
       );
     });
 
-    it("should set ontvanger to null when contactEmailAdress is null", () => {
-      component["contactEmailAdress"] = null;
+    it("should set ontvanger to null when contactEmailAddress is null", () => {
+      component["contactEmailAddress"] = null;
 
       component.setOntvanger();
 

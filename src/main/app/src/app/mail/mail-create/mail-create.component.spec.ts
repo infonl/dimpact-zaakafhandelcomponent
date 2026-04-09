@@ -185,8 +185,8 @@ describe(MailCreateComponent.name, () => {
       expect(component["documents"]).toEqual(mockDocuments);
     });
 
-    it("should set contactEmailAdress from contact details when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAdress"]).toEqual(
+    it("should set contactEmailAddress from contact details when initiator has temporaryPersonId", () => {
+      expect(component["contactEmailAddress"]).toEqual(
         mockContactGegevens.emailadres,
       );
     });
@@ -205,13 +205,13 @@ describe(MailCreateComponent.name, () => {
       jest.mocked(klantenService.getContactDetailsForPerson).mockClear();
       localFixture.detectChanges();
 
-      expect(localFixture.componentInstance["contactEmailAdress"]).toBe(
+      expect(localFixture.componentInstance["contactEmailAddress"]).toBe(
         emailAddress,
       );
       expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
     });
 
-    it("should not set contactEmailAdress when initiator has no temporaryPersonId", () => {
+    it("should not set contactEmailAddress when initiator has no temporaryPersonId", () => {
       const localFixture = TestBed.createComponent(MailCreateComponent);
       localFixture.componentRef.setInput("sideNav", mockSideNav);
       localFixture.componentRef.setInput(
@@ -223,7 +223,7 @@ describe(MailCreateComponent.name, () => {
       );
       localFixture.detectChanges();
 
-      expect(localFixture.componentInstance["contactEmailAdress"]).toBeNull();
+      expect(localFixture.componentInstance["contactEmailAddress"]).toBeNull();
     });
   });
 
@@ -236,8 +236,8 @@ describe(MailCreateComponent.name, () => {
       );
     });
 
-    it("should set ontvanger to null when contactEmailAdress is null", () => {
-      component["contactEmailAdress"] = null;
+    it("should set ontvanger to null when contactEmailAddress is null", () => {
+      component["contactEmailAddress"] = null;
 
       component["setOntvanger"]();
 
@@ -261,8 +261,7 @@ describe(MailCreateComponent.name, () => {
 
       const req = httpTestingController.expectOne(
         (request) =>
-          request.url.includes("/rest/mail/send/") &&
-          request.method === "POST",
+          request.url.includes("/rest/mail/send/") && request.method === "POST",
       );
 
       expect(req.request.body).toMatchObject({
@@ -293,8 +292,7 @@ describe(MailCreateComponent.name, () => {
 
       const req = httpTestingController.expectOne(
         (request) =>
-          request.url.includes("/rest/mail/send/") &&
-          request.method === "POST",
+          request.url.includes("/rest/mail/send/") && request.method === "POST",
       );
 
       expect(req.request.body.bijlagen).toBe("doc-1;doc-2");
@@ -320,8 +318,7 @@ describe(MailCreateComponent.name, () => {
 
       const req = httpTestingController.expectOne(
         (request) =>
-          request.url.includes("/rest/mail/send/") &&
-          request.method === "POST",
+          request.url.includes("/rest/mail/send/") && request.method === "POST",
       );
 
       req.flush({});
@@ -351,8 +348,7 @@ describe(MailCreateComponent.name, () => {
 
       const req = httpTestingController.expectOne(
         (request) =>
-          request.url.includes("/rest/mail/send/") &&
-          request.method === "POST",
+          request.url.includes("/rest/mail/send/") && request.method === "POST",
       );
 
       req.flush({}, { status: 500, statusText: "Internal Server Error" });

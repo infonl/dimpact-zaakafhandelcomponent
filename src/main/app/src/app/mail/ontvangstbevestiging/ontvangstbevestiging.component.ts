@@ -38,7 +38,7 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
   protected variables: GeneratedType<"MailTemplateVariables">[] = [];
-  protected contactEmailAdress: string | null = null;
+  protected contactEmailAddress: string | null = null;
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected readonly sendAcknowledgeReceiptMutation = injectMutation(() => ({
@@ -101,7 +101,7 @@ export class OntvangstbevestigingComponent implements OnInit {
     const emailAddress = this.zaak().zaakSpecificContactDetails?.emailAddress;
 
     if (emailAddress) {
-      this.contactEmailAdress = emailAddress;
+      this.contactEmailAddress = emailAddress;
       return;
     }
 
@@ -113,12 +113,12 @@ export class OntvangstbevestigingComponent implements OnInit {
     this.klantenService
       .getContactDetailsForPerson(temporaryPersonId)
       .subscribe((gegevens) => {
-        this.contactEmailAdress = gegevens?.emailadres ?? null;
+        this.contactEmailAddress = gegevens?.emailadres ?? null;
       });
   }
 
   setOntvanger() {
-    this.form.controls.ontvanger.setValue(this.contactEmailAdress ?? null);
+    this.form.controls.ontvanger.setValue(this.contactEmailAddress ?? null);
   }
 
   submit() {
