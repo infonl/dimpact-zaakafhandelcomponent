@@ -3,15 +3,32 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { AsyncPipe, NgFor, NgIf } from "@angular/common";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
   FormGroup,
+  ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatRadioModule } from "@angular/material/radio";
+import { MatSelectModule } from "@angular/material/select";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -26,7 +43,26 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "intake-afronden-dialog.component.html",
   styleUrls: ["./intake-afronden-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    AsyncPipe,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatRadioModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+  ],
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
   loading = false;

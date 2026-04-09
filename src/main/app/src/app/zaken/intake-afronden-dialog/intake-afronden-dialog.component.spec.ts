@@ -6,7 +6,6 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -16,7 +15,6 @@ import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog.component";
@@ -84,11 +82,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     mockDialogRef.close = jest.fn();
 
     await TestBed.configureTestingModule({
-      declarations: [IntakeAfrondenDialogComponent],
       imports: [
-        ReactiveFormsModule,
+        IntakeAfrondenDialogComponent,
         TranslateModule.forRoot(),
-        MaterialModule,
         NoopAnimationsModule,
       ],
       providers: [

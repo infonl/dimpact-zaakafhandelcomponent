@@ -12,7 +12,6 @@ import {
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -28,10 +27,6 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -116,14 +111,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakAfhandelenDialogComponent],
       imports: [
-        StaticTextComponent,
-        ReactiveFormsModule,
+        ZaakAfhandelenDialogComponent,
         TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [

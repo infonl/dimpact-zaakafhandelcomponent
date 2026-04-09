@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgTemplateOutlet } from "@angular/common";
 import {
   Component,
   computed,
@@ -12,11 +13,26 @@ import {
   Signal,
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDialogActions } from "@angular/material/dialog";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: "zac-form-actions",
   templateUrl: "./form-actions.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgTemplateOutlet,
+    MatDialogActions,
+    MatExpansionPanelActionRow,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    TranslateModule,
+  ],
 })
 export class ZacFormActions {
   private readonly host = inject(ElementRef<HTMLElement>);
