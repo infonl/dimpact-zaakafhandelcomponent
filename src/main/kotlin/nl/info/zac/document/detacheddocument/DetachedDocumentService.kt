@@ -37,7 +37,7 @@ class DetachedDocumentService @Inject constructor(
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
         zaak: Zaak,
         reason: String
-    ): DetachedDocument {
+    ) {
         val detachedDocument = DetachedDocument().apply {
             documentID = enkelvoudigInformatieObject.getIdentificatie()
             documentUUID = enkelvoudigInformatieObject.getUrl().extractUuid()
@@ -49,23 +49,15 @@ class DetachedDocumentService @Inject constructor(
             zaakID = zaak.getIdentificatie()
             reden = reason
         }
-        return detachedDocumentRepository.save(detachedDocument)
+        detachedDocumentRepository.save(detachedDocument)
     }
 
-    fun getDetachedDocumentResult(listParameters: DetachedDocumentListParameters): DetachedDocumentResult =
-        DetachedDocumentResult(
-            items = detachedDocumentRepository.list(listParameters),
-            count = detachedDocumentRepository.count(listParameters).toLong(),
-            detachedByFilter = detachedDocumentRepository.getOntkoppeldDoor(listParameters)
-        )
+    fun getDetachedDocumentResult(listParameters: DetachedDocumentListParameters) = DetachedDocumentResult(
+        items = detachedDocumentRepository.list(listParameters),
+        count = detachedDocumentRepository.count(listParameters).toLong(),
+        detachedByFilter = detachedDocumentRepository.getOntkoppeldDoor(listParameters)
+    )
 
-    /**
-     * Returns the detached document for the provided enkelvoudiginformatieobject UUID.
-     *
-     * @param enkelvoudiginformatieobjectUUID the enkelvoudiginformatieobject UUID
-     * @return the detached document
-     * @throws DetachedDocumentNotFoundException if the detached document could not be found
-     */
     fun read(enkelvoudiginformatieobjectUUID: UUID): DetachedDocument =
         detachedDocumentRepository.find(enkelvoudiginformatieobjectUUID) ?: throw DetachedDocumentNotFoundException(
             "No detached document found for enkelvoudiginformatieobject UUID: '$enkelvoudiginformatieobjectUUID'"
