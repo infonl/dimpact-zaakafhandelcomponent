@@ -16,7 +16,6 @@ import { TaakEditComponent } from "./taak-edit/taak-edit.component";
 import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
 import { TakenRoutingModule } from "./taken-routing.module";
-import { TakenVrijgevenDialogComponent } from "./taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
 
 @NgModule({
@@ -24,7 +23,6 @@ import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorr
     TaakViewComponent,
     TakenWerkvoorraadComponent,
     TakenMijnComponent,
-    TakenVrijgevenDialogComponent,
   ],
   imports: [
     SharedModule,

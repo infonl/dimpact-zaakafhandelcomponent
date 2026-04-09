@@ -15,7 +15,6 @@ import {
   provideExperimentalZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -29,9 +28,6 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
@@ -121,13 +117,9 @@ describe(OntvangstbevestigingComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [OntvangstbevestigingComponent],
       imports: [
-        ReactiveFormsModule,
+        OntvangstbevestigingComponent,
         TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
@@ -256,7 +248,7 @@ describe(OntvangstbevestigingComponent.name, () => {
 
   describe("setOntvanger", () => {
     it("should set ontvanger field with contact email address", () => {
-      component.setOntvanger();
+      component["setOntvanger"]();
 
       expect(component["form"].controls.ontvanger.value).toEqual(
         mockContactGegevens.emailadres,
@@ -266,7 +258,7 @@ describe(OntvangstbevestigingComponent.name, () => {
     it("should set ontvanger to null when contactEmailAddress is null", () => {
       component["contactEmailAddress"] = null;
 
-      component.setOntvanger();
+      component["setOntvanger"]();
 
       expect(component["form"].controls.ontvanger.value).toBeNull();
     });
@@ -321,7 +313,7 @@ describe(OntvangstbevestigingComponent.name, () => {
         bijlagen: [mockDocuments[0]],
       });
 
-      component.submit();
+      component["submit"]();
 
       // Wait for mutation to trigger HTTP request
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -354,7 +346,7 @@ describe(OntvangstbevestigingComponent.name, () => {
         bijlagen: mockDocuments,
       });
 
-      component.submit();
+      component["submit"]();
 
       // Wait for mutation to trigger HTTP request
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -382,7 +374,7 @@ describe(OntvangstbevestigingComponent.name, () => {
         bijlagen: [],
       });
 
-      component.submit();
+      component["submit"]();
 
       // Wait for mutation to trigger HTTP request
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -421,6 +413,35 @@ describe(OntvangstbevestigingComponent.name, () => {
       );
 
       expect(await submitButton?.isDisabled()).toBe(false);
+    });
+  });
+
+  describe("close button", () => {
+    it("closes the sideNav when clicked", async () => {
+      const closeButton = await loader.getHarness(
+        MatButtonHarness.with({ ancestor: "mat-toolbar" }),
+      );
+      await closeButton.click();
+      expect(mockSideNav.close).toHaveBeenCalled();
+    });
+  });
+
+  describe("set-ontvanger button", () => {
+    it("is shown when contactGegevens has an email address", async () => {
+      const personButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ text: /person/ }),
+      );
+      expect(personButtons).toHaveLength(1);
+    });
+
+    it("is hidden when contactEmailAddress is null", async () => {
+      component["contactEmailAddress"] = null;
+      fixture.detectChanges();
+
+      const personButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ text: /person/ }),
+      );
+      expect(personButtons).toHaveLength(0);
     });
   });
 });

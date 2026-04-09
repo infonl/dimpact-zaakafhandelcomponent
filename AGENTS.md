@@ -188,8 +188,8 @@ Follow the official Kotlin coding conventions for naming, formatting, and struct
 This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
 Rename existing classes to comply with the following Kotlin code convention:
 When using an acronym as part of a declaration name, follow these rules:
-    - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
-    - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+    — For two-letter acronyms, use uppercase for both letters. For example, IOStream.
+    — For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
 
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
@@ -270,8 +270,8 @@ fun readReferenceTable(code: String): ReferenceTable =
         }
 ```
 
-### Kotlin database entity classes must have the @AllOpen annotation
-Kotlin database entity classes must have the @AllOpen annotation.
+### Kotlin repository entity classes must have the @AllOpen annotation
+Kotlin repository entity classes must have the @AllOpen annotation.
 
 ```kotlin// Before
 @Entity
@@ -286,8 +286,8 @@ class InboxDocument
 class InboxDocument
 ```
 
-### In Kotlin database entity classes use `lateinit var` for variables that are nullable
-In Kotlin database entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
+### In Kotlin repository entity classes use `lateinit var` for variables that are nullable
+In Kotlin repository entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
 
 ```kotlin// Before
 @NotNull
@@ -299,11 +299,20 @@ var creatiedatum: LocalDate? = null
 lateinit var creatiedatum: LocalDate
 ```
 
-### Use proper Transaction annotations in Kotlin database entity classes
-Use proper Transaction annotations in Kotlin database service classes.
+### Use `XxxRepository` naming convention for Kotlin repository classes
+Name Kotlin classes that perform logic on the ZAC database using JPA `XxxRepository`
+
+```kotlin// Before
+class DetachedDocumentService
+// After
+class DetachedDocumentRepository
+```
+
+### Use proper Transaction annotations in Kotlin service classes
+Use proper Transaction annotations in Kotlin service classes.
 Follow these rules:
-- Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update the database.
-- Use `@Transactional(REQUIRED)` at function level for functions that update (write or delete) from the database.
+- Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update data in the database.
+- Use `@Transactional(REQUIRED)` at function level for functions that update data in the database.
 - Do not use any transactional annotations at function level for functions that only read from the database. 
 For these functions, the transactional annotation at class level is used.
 

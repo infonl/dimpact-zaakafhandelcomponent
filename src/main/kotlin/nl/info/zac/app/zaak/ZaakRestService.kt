@@ -466,8 +466,8 @@ class ZaakRestService @Inject constructor(
         )
         if (zaakInformatieobjecten.isEmpty()) {
             throw NotFoundException(
-                "Geen ZaakInformatieobject gevonden voor Zaak: '${restDetachDocumentData.zaakUUID}' " +
-                    "en InformatieObject: '${restDetachDocumentData.documentUUID}'"
+                "Zaakinformatieobject not found for zaak UUID: '${restDetachDocumentData.zaakUUID}' " +
+                    "and document UUID: '${restDetachDocumentData.documentUUID}'"
             )
         }
         zaakInformatieobjecten.forEach {
@@ -493,7 +493,7 @@ class ZaakRestService @Inject constructor(
         val uiterlijkeEinddatumAfdoeningWaarschuwing = mutableMapOf<UUID, LocalDate>()
         val loggedInUser = loggedInUserInstance.get()
         // Retrieve all CMMN zaaktype configurations to determine the warning dates for the zaaktypes.
-        // Note that this can take considerable time if there are many zaaktypes,
+        // Note that this can take a considerable time if there are many zaaktypes,
         // especially if the zaaktype configuration cache is empty.
         zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration().forEach { zaaktypeCmmnConfiguration ->
             zaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing?.let { days ->

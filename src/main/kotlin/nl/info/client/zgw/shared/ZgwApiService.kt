@@ -47,7 +47,7 @@ import java.util.UUID
 import java.util.logging.Logger
 
 /**
- * Service class for ZGW API's.
+ * Service class for logic that involves using multiple ZGW API's.
  */
 @ApplicationScoped
 @Suppress("TooManyFunctions")
@@ -59,7 +59,7 @@ class ZgwApiService @Inject constructor(
     val drcClientService: DrcClientService
 ) {
     companion object {
-        private val LOG: Logger = Logger.getLogger(ZgwApiService::class.java.getName())
+        private val LOG = Logger.getLogger(ZgwApiService::class.java.getName())
 
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
@@ -230,7 +230,7 @@ class ZgwApiService @Inject constructor(
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
-        // Gebruiksrechten are required for every created zaak-informatieobject or else
+        // Gebruiksrechten are required for every created zaakinformatieobject or else
         // the zaak in question can no longer be aborted or closed (OpenZaak will return a 400 error on aborting or closing in that case).
         val gebruiksrechten = Gebruiksrechten().apply {
             informatieobject = newInformatieObjectData.url
