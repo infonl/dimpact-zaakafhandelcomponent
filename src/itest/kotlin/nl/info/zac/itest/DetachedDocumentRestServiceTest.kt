@@ -23,6 +23,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -135,6 +136,21 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                                 .map { resultatenAfterDelete.getJSONObject(it) }
                                 .any { it.getString("documentUUID") == documentUuid.toString() }
                             stillPresent shouldBe false
+                        }
+                    }
+
+                    When(
+                        "the get enkelvoudig informatie object endpoint is called for the deleted document"
+                    ) {
+                        val getResponse = itestHttpClient.performGetRequest(
+                            url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
+                            testUser = RECORDMANAGER_DOMAIN_TEST_1
+                        )
+                        Then(
+                            "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"
+                        ) {
+                            logger.info { "Get enkelvoudiginformatieobject after delete response: ${getResponse.bodyAsString}" }
+                            getResponse.code shouldBe HTTP_NOT_FOUND
                         }
                     }
                 }
