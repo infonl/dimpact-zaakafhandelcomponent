@@ -100,8 +100,7 @@ class DetachedDocumentRestService @Inject constructor(
             LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")
         }
         enkelvoudigInformatieobject?.let { informatieobject ->
-            val zaakInformatieobjecten: List<ZaakInformatieobject> =
-                zrcClientService.listZaakinformatieobjecten(informatieobject)
+            val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(informatieobject)
             if (zaakInformatieobjecten.isNotEmpty()) {
                 val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
                 error("Informatieobject is gekoppeld aan zaak '$zaakUuid'")
