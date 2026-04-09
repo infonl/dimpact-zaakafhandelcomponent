@@ -9,8 +9,10 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -59,7 +61,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns mockk<LoggedInUser> {
                 every { id } returns userId
             }
-            every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } answers { firstArg() }
+            every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } just Runs
 
             When("create is invoked") {
                 detachedDocumentService.create(informatieobject, zaak, reden)
