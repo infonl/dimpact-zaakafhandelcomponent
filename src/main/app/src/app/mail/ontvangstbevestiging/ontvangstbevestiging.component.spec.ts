@@ -207,8 +207,31 @@ describe(OntvangstbevestigingComponent.name, () => {
       expect(component["variables"]).toEqual(mockMailtemplate.variabelen);
     });
 
-    it("should load contact details when initiator has temporaryPersonId", () => {
-      expect(component["contactGegevens"]).toEqual(mockContactGegevens);
+    it("should set contactEmailAdress from contact details when initiator has temporaryPersonId", () => {
+      expect(component["contactEmailAdress"]).toEqual(
+        mockContactGegevens.emailadres,
+      );
+    });
+
+    it("should use zaakSpecificContactDetails email address when available and skip contact details lookup", () => {
+      const emailAddress = "zaak-contact@example.com";
+      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
+      componentRef = fixture.componentRef;
+      componentRef.setInput("sideNav", mockSideNav);
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "test-zaak-uuid",
+          zaakSpecificContactDetails: fromPartial({
+            emailAddress,
+          }),
+        }),
+      );
+      jest.mocked(klantenService.getContactDetailsForPerson).mockClear();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["contactEmailAdress"]).toBe(emailAddress);
+      expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
     });
 
     it("should not load contact details when initiator has no temporaryPersonId", () => {
@@ -225,7 +248,7 @@ describe(OntvangstbevestigingComponent.name, () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component["contactGegevens"]).toBeNull();
+      expect(component["contactEmailAdress"]).toBeNull();
     });
   });
 
@@ -238,13 +261,8 @@ describe(OntvangstbevestigingComponent.name, () => {
       );
     });
 
-    it("should set ontvanger to null when contactGegevens has no email", () => {
-      component["contactGegevens"] = fromPartial<
-        GeneratedType<"RestContactDetails">
-      >({
-        emailadres: null,
-        telefoonnummer: "0612345678",
-      });
+    it("should set ontvanger to null when contactEmailAdress is null", () => {
+      component["contactEmailAdress"] = null;
 
       component.setOntvanger();
 
