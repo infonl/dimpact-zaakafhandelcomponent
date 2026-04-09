@@ -144,8 +144,6 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - OTEL_SDK_DISABLED=true
-    ports:
-      - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
@@ -183,6 +181,21 @@ services:
       openzaak.local:
         condition: service_healthy
     profiles: [ "opennotificaties" ]
+
+  # nginx reverse proxy in front of Open Zaak.
+  # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
+  # file uploads. uwsgi in HTTP mode does not buffer chunked request bodies before passing
+  # them to Django. nginx buffers the full request before forwarding it with Content-Length,
+  # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
+  openzaak-nginx:
+    image: nginx:1.27.5@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./scripts/docker-compose/imports/openzaak/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      openzaak.local:
+        condition: service_healthy
 
   redis:
     image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78

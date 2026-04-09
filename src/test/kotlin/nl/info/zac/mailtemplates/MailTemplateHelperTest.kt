@@ -143,12 +143,12 @@ class MailTemplateHelperTest : BehaviorSpec({
                 Then(
                     """
                         the variables in the provided text should be replaced by the correct values from the zaak, 
-                        and the initiator variable should be replaced with 'Onbekend'
+                        and the initiator variable should be replaced with ''
                         """
                 ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
                         "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, " +
-                        "Onbekend"
+                        ""
                 }
             }
         }
