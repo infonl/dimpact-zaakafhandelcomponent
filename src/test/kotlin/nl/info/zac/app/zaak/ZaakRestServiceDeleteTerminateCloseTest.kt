@@ -4,7 +4,6 @@
  */
 package nl.info.zac.app.zaak
 
-import io.kotest.assertions.any
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -344,7 +343,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
     }
 
-    Context("Detaching a n informatieobject from a zaak") {
+    Context("Detaching an informatieobject from a zaak") {
         Given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak"
         ) {
