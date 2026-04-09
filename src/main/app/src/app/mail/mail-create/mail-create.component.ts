@@ -62,7 +62,7 @@ export class MailCreateComponent implements OnInit {
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
-  protected contactGegevens: GeneratedType<"RestContactDetails"> | null = null;
+  protected contactEmailAdress: string | null = null;
   protected variabelen: string[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
@@ -107,14 +107,20 @@ export class MailCreateComponent implements OnInit {
         this.documents = documents;
       });
 
-    const initiatorIdentificatie = this.zaak().initiatorIdentificatie;
-    if (!initiatorIdentificatie?.temporaryPersonId) return;
+    const emailAddress = this.zaak().zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      this.contactEmailAdress = emailAddress;
+      return;
+    }
+
+    const temporaryPersonId =
+      this.zaak().initiatorIdentificatie?.temporaryPersonId;
+    if (!temporaryPersonId) return;
 
     this.klantenService
-      .getContactDetailsForPerson(initiatorIdentificatie.temporaryPersonId)
-      .subscribe((contactGegevens) => {
-        if (!contactGegevens.emailadres) return;
-        this.contactGegevens = contactGegevens;
+      .getContactDetailsForPerson(temporaryPersonId)
+      .subscribe((gegevens) => {
+        this.contactEmailAdress = gegevens?.emailadres ?? null;
       });
   }
 
@@ -133,8 +139,6 @@ export class MailCreateComponent implements OnInit {
   }
 
   protected setOntvanger() {
-    this.form.controls.ontvanger.setValue(
-      this.contactGegevens?.emailadres ?? null,
-    );
+    this.form.controls.ontvanger.setValue(this.contactEmailAdress ?? null);
   }
 }
