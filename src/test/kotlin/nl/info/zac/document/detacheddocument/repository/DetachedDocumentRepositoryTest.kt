@@ -40,8 +40,8 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a detached document by Long ID") {
-        Given("an existing detached document with a known Long ID") {
+    Context("Finding a detached document by ID") {
+        Given("an existing detached document with a known ID") {
             val document = createDetachedDocument()
 
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
@@ -55,7 +55,7 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
             }
         }
 
-        Given("no document exists for a given Long ID") {
+        Given("no document exists for a given ID") {
             val id = 999L
             every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
@@ -112,7 +112,7 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
         Given("an existing detached document") {
             val detachedDocument = createDetachedDocument()
 
-            When("delete is called with that ID") {
+            When("delete is called for that document") {
                 detachedDocumentRepository.delete(detachedDocument)
 
                 Then("the document is removed from the entity manager") {
