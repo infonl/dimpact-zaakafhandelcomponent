@@ -69,11 +69,11 @@ class DetachedDocumentService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun deleteIfExists(detachedDocumentID: Long) {
-        detachedDocumentRepository.find(detachedDocumentID)?.let(detachedDocumentRepository::delete)
+        detachedDocumentRepository.find(detachedDocumentID)?.run(detachedDocumentRepository::delete)
     }
 
     @Transactional(REQUIRED)
     fun deleteIfExists(detachedDocumentUUID: UUID) {
-        detachedDocumentRepository.find(detachedDocumentUUID)?.let(detachedDocumentRepository::delete)
+        detachedDocumentRepository.find(detachedDocumentUUID)?.run(detachedDocumentRepository::delete)
     }
 }

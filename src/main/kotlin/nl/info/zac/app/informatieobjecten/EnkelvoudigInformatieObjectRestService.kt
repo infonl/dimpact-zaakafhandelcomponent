@@ -230,7 +230,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
                 val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocument.id?.let(inboxDocumentService::deleteIfExists)
+                inboxDocument.id?.run(inboxDocumentService::deleteIfExists)
             }
             else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)

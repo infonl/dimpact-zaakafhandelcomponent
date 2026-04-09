@@ -481,16 +481,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 logger.info { "Delete response: ${response.bodyAsString}" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
+        }
 
-            When("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
-                val getResponse = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
-                    testUser = RECORDMANAGER_DOMAIN_TEST_1
-                )
-                Then("the response should be not found") {
-                    logger.info { "Get after delete response: ${getResponse.bodyAsString}" }
-                    getResponse.code shouldBe HTTP_NOT_FOUND
-                }
+        When("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
+            val getResponse = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
+            )
+            Then("the response should be not found") {
+                logger.info { "Get after delete response: ${getResponse.bodyAsString}" }
+                getResponse.code shouldBe HTTP_NOT_FOUND
             }
         }
     }
