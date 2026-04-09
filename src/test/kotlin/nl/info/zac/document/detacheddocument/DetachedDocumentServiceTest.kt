@@ -6,6 +6,7 @@ package nl.info.zac.document.detacheddocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
@@ -13,26 +14,25 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import jakarta.persistence.EntityManager
-import jakarta.persistence.TypedQuery
-import jakarta.persistence.criteria.CriteriaQuery
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.document.detacheddocument.model.DetachedDocument
-import nl.info.zac.document.detacheddocument.model.DetachedDocumentListParameters
-import nl.info.zac.document.detacheddocument.model.createDetachedDocument
+import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
+import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import java.time.LocalDate
 import java.util.UUID
 
 class DetachedDocumentServiceTest : BehaviorSpec({
-    val entityManager = mockk<EntityManager>(relaxed = true)
+    val detachedDocumentRepository = mockk<DetachedDocumentRepository>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val detachedDocumentService = DetachedDocumentService(
-        entityManager,
+        detachedDocumentRepository,
         loggedInUserInstance
     )
 
@@ -40,7 +40,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating an detached document") {
+    Context("Creating a detached document") {
         Given("a valid EnkelvoudigInformatieObject for a given Zaak") {
             val documentUuid = UUID.randomUUID()
             val identificatie = "DOC-456"
@@ -50,33 +50,35 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             val reden = "Test reden"
             val userId = "user-123"
             val zaak = createZaak(identificatie = "ZAAK-789")
-            val informatieobject = createEnkelvoudigInformatieObject(
-                uuid = documentUuid
-            ).apply {
+            val informatieobject = createEnkelvoudigInformatieObject(uuid = documentUuid).apply {
                 setIdentificatie(identificatie)
                 setCreatiedatum(creatiedatum)
                 setTitel(titel)
                 setBestandsnaam(bestandsnaam)
             }
+            val detachedDocumentSlot = slot<DetachedDocument>()
 
-            every { entityManager.persist(any<DetachedDocument>()) } just Runs
             every { loggedInUserInstance.get() } returns mockk<LoggedInUser> {
                 every { id } returns userId
             }
+            every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } just Runs
 
-            When("the ontkoppelde documenten create is invoked") {
-                val detachedDocument = detachedDocumentService.create(informatieobject, zaak, reden)
+            When("create is invoked") {
+                detachedDocumentService.create(informatieobject, zaak, reden)
 
-                Then("a detached document is created and stored") {
-                    detachedDocument.documentUUID shouldBe documentUuid
-                    detachedDocument.documentID shouldBe identificatie
-                    detachedDocument.creatiedatum shouldBe creatiedatum
-                    detachedDocument.titel shouldBe titel
-                    detachedDocument.bestandsnaam shouldBe bestandsnaam
-                    detachedDocument.ontkoppeldDoor shouldBe userId
-                    detachedDocument.zaakID shouldBe zaak.identificatie
-                    detachedDocument.reden shouldBe reden
-                    detachedDocument.ontkoppeldOp shouldNotBe null
+                Then("a detached document is built from the domain objects and saved via the repository") {
+                    verify(exactly = 1) { detachedDocumentRepository.save(detachedDocumentSlot.captured) }
+                    with(detachedDocumentSlot.captured) {
+                        this.documentUUID shouldBe documentUuid
+                        this.documentID shouldBe identificatie
+                        this.creatiedatum shouldBe creatiedatum
+                        this.titel shouldBe titel
+                        this.bestandsnaam shouldBe bestandsnaam
+                        this.ontkoppeldDoor shouldBe userId
+                        this.zaakID shouldBe zaak.identificatie
+                        this.reden shouldBe reden
+                        this.ontkoppeldOp shouldNotBe null
+                    }
                 }
             }
         }
@@ -86,12 +88,8 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         Given("an existing detached document with a known UUID") {
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
-            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { resultList } returns listOf(detachedDocument)
-            }
-            every {
-                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
-            } returns typedQuery
+
+            every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
 
             When("read is called with that UUID") {
                 val result = detachedDocumentService.read(targetUuid)
@@ -104,21 +102,37 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
         Given("no detached document for a certain UUID") {
             val targetUuid = UUID.randomUUID()
-            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { getResultList() } returns emptyList()
-            }
-            every {
-                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
-            } returns typedQuery
+
+            every { detachedDocumentRepository.find(targetUuid) } returns null
 
             When("read is called with that UUID") {
                 val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
                     detachedDocumentService.read(targetUuid)
                 }
 
-                Then("an exception is thrown") {
+                Then("a DetachedDocumentNotFoundException is thrown") {
                     detachedDocumentNotFoundException.message shouldBe
                         "No detached document found for enkelvoudiginformatieobject UUID: '$targetUuid'"
+                }
+            }
+        }
+    }
+
+    Context("Getting a result set of detached documents") {
+        Given("empty list parameters") {
+            val listParameters = DetachedDocumentListParameters()
+
+            every { detachedDocumentRepository.list(listParameters) } returns emptyList()
+            every { detachedDocumentRepository.count(listParameters) } returns 0
+            every { detachedDocumentRepository.getOntkoppeldDoor(listParameters) } returns emptyList()
+
+            When("getDetachedDocumentResult is called") {
+                val result = detachedDocumentService.getDetachedDocumentResult(listParameters)
+
+                Then("an empty result set is assembled from repository calls") {
+                    result.items shouldBe emptyList()
+                    result.count shouldBe 0L
+                    result.detachedByFilter shouldBe emptyList()
                 }
             }
         }
@@ -128,7 +142,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         Given("an existing detached document with a known Long ID") {
             val document = createDetachedDocument()
 
-            every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
+            every { detachedDocumentRepository.find(document.id!!) } returns document
 
             When("find is called with that ID") {
                 val result = detachedDocumentService.find(document.id!!)
@@ -141,7 +155,7 @@ class DetachedDocumentServiceTest : BehaviorSpec({
 
         Given("no document exists for a given Long ID") {
             val id = 999L
-            every { entityManager.find(DetachedDocument::class.java, id) } returns null
+            every { detachedDocumentRepository.find(id) } returns null
 
             When("find is called with that ID") {
                 val result = detachedDocumentService.find(id)
@@ -153,73 +167,64 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting a result set of detached documents") {
-        Given("a relaxed entity manager and empty list parameters") {
-            val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
-                every { resultList } returns emptyList()
-                every { singleResult } returns 0L
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
-
-            When("getResultaat is called") {
-                val result = detachedDocumentService.getDetachedDocumentResult(DetachedDocumentListParameters())
-
-                Then("an empty result set is returned with count zero and no ontkoppeldDoor filter") {
-                    result.items shouldBe emptyList()
-                    result.count shouldBe 0L
-                    result.detachedByFilter shouldBe emptyList()
-                }
-            }
-        }
-    }
-
     Context("Deleting a detached document by Long ID") {
-        Given("an existing detached document with a known Long ID") {
+        Given("a Long ID") {
             val document = createDetachedDocument()
 
-            every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
+            every { detachedDocumentRepository.delete(document.id!!) } returns Unit
 
             When("delete is called with that ID") {
                 detachedDocumentService.delete(document.id!!)
 
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
-                }
-            }
-        }
-
-        Given("no document exists for a given Long ID") {
-            val id = 999L
-
-            every { entityManager.find(DetachedDocument::class.java, id) } returns null
-
-            When("delete is called with that ID") {
-                detachedDocumentService.delete(id)
-
-                Then("no document is removed from the entity manager") {
-                    verify(exactly = 0) { entityManager.remove(any()) }
+                Then("deletion is delegated to the repository") {
+                    verify { detachedDocumentRepository.delete(document.id!!) }
                 }
             }
         }
     }
 
     Context("Deleting a detached document by UUID") {
-        Given("an existing detached document with a known UUID") {
+        Given("a UUID") {
             val targetUuid = UUID.randomUUID()
-            val document = createDetachedDocument(uuid = targetUuid)
-            val typedQuery = mockk<TypedQuery<DetachedDocument>> {
-                every { resultList } returns listOf(document)
-            }
 
-            every {
-                entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
-            } returns typedQuery
+            every { detachedDocumentRepository.delete(targetUuid) } returns Unit
 
             When("delete is called with that UUID") {
                 detachedDocumentService.delete(targetUuid)
 
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
+                Then("deletion is delegated to the repository") {
+                    verify { detachedDocumentRepository.delete(targetUuid) }
+                }
+            }
+        }
+    }
+
+    Context("Finding a detached document by UUID") {
+        Given("a UUID for an existing document") {
+            val targetUuid = UUID.randomUUID()
+            val document = createDetachedDocument(uuid = targetUuid)
+
+            every { detachedDocumentRepository.find(targetUuid) } returns document
+
+            When("find is called with that UUID") {
+                val result = detachedDocumentService.find(targetUuid)
+
+                Then("the document is returned") {
+                    result shouldBe document
+                }
+            }
+        }
+
+        Given("a UUID for a non-existent document") {
+            val targetUuid = UUID.randomUUID()
+
+            every { detachedDocumentRepository.find(targetUuid) } returns null
+
+            When("find is called with that UUID") {
+                val result = detachedDocumentService.find(targetUuid)
+
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }
