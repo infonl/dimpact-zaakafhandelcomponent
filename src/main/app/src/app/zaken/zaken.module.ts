@@ -21,8 +21,6 @@ import { ZoekenModule } from "../zoeken/zoeken.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
-import { IntakeAfrondenDialogComponent } from "./intake-afronden-dialog/intake-afronden-dialog.component";
-import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
@@ -48,7 +46,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BesluitCreateComponent,
     BesluitEditComponent,
     BesluitViewComponent,
-    IntakeAfrondenDialogComponent,
     ZaakViewComponent,
     BetrokkeneLinkComponent,
     ZaakVerkortComponent,
@@ -56,7 +53,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZakenWerkvoorraadComponent,
     ZakenMijnComponent,
     ZakenAfgehandeldComponent,
-    ZaakAfhandelenDialogComponent,
     ZakenVerdelenDialogComponent,
     ZaakOntkoppelenDialogComponent,
     ZakenVrijgevenDialogComponent,

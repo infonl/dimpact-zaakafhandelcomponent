@@ -121,7 +121,6 @@ import { FormComponent } from "./form/form/form.component";
     ZacDocuments,
     ZacRadio,
     ZacForm,
-    ZacFormActions,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -188,6 +187,7 @@ import { FormComponent } from "./form/form/form.component";
     MatExpansionPanelActionRow,
     EmptyPipe,
     CapitalizeFirstLetterPipe,
+    ZacFormActions,
   ],
   providers: [
     {

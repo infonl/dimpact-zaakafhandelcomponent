@@ -12,7 +12,6 @@ import {
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -22,15 +21,12 @@ import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { QueryClient } from "@tanstack/query-core";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { KlantenService } from "../../klanten/klanten.service";
+import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -39,10 +35,10 @@ import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.componen
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
   let loader: HarnessLoader;
-
-  let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
-  let queryClient: QueryClient;
   let httpTestingController: HttpTestingController;
+  let zakenService: ZakenService;
+  let mailtemplateService: MailtemplateService;
+  let klantenService: KlantenService;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -108,12 +104,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     body: "Test Body",
   });
 
-  const mockZakenService = {
-    listResultaattypes: jest.fn().mockReturnValue(of(mockResultaattypes)),
-    listAfzenders: jest.fn().mockReturnValue(of(mockAfzenders)),
-    getMailTemplate: jest.fn().mockReturnValue(of(mockMailtemplate)),
-  };
-
   const createTestBed = async (
     zaakMock: GeneratedType<"RestZaak">,
     planItemMock?: GeneratedType<"RESTPlanItem"> | null,
@@ -121,14 +111,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     TestBed.resetTestingModule();
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakAfhandelenDialogComponent],
       imports: [
-        StaticTextComponent,
-        ReactiveFormsModule,
+        ZaakAfhandelenDialogComponent,
         TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
@@ -136,35 +121,54 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        {
-          provide: MatDialogRef,
-          useValue: mockDialogRef,
-        },
+        { provide: MatDialogRef, useValue: mockDialogRef },
         {
           provide: MAT_DIALOG_DATA,
-          useValue: {
-            zaak: zaakMock,
-            planItem: planItemMock,
-          },
+          useValue: { zaak: zaakMock, planItem: planItemMock },
         },
-        { provide: ZakenService, useValue: mockZakenService },
         CustomValidators,
+        ZakenService,
+        MailtemplateService,
+        KlantenService,
       ],
     }).compileComponents();
 
-    dialogRef = TestBed.inject(MatDialogRef);
-    queryClient = TestBed.inject(QueryClient);
     httpTestingController = TestBed.inject(HttpTestingController);
+    zakenService = TestBed.inject(ZakenService);
+    mailtemplateService = TestBed.inject(MailtemplateService);
+    klantenService = TestBed.inject(KlantenService);
 
-    queryClient.setQueryData(
+    jest
+      .spyOn(zakenService, "listResultaattypes")
+      .mockReturnValue(of(mockResultaattypes));
+    jest
+      .spyOn(zakenService, "listAfzendersVoorZaak")
+      .mockReturnValue(of(mockAfzenders));
+    jest
+      .spyOn(mailtemplateService, "findMailtemplate")
+      .mockReturnValue(of(mockMailtemplate));
+    jest.spyOn(klantenService, "getContactDetailsForPerson").mockReturnValue(
+      of(
+        fromPartial<GeneratedType<"RestContactDetails">>({
+          emailadres: "initiator@example.com",
+        }),
+      ),
+    );
+
+    testQueryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
       mockResultaattypes,
     );
-    queryClient.setQueryData(["afzenders", zaakMock.uuid], mockAfzenders);
-    queryClient.setQueryData(["mailtemplate", zaakMock.uuid], mockMailtemplate);
-    queryClient.setQueryData(
+    testQueryClient.setQueryData(["afzenders", zaakMock.uuid], mockAfzenders);
+    testQueryClient.setQueryData(
+      ["mailtemplate", zaakMock.uuid],
+      mockMailtemplate,
+    );
+    testQueryClient.setQueryData(
       ["initiatorEmail", zaakMock.initiatorIdentificatie?.temporaryPersonId],
-      { emailadres: "initiator@example.com" },
+      fromPartial<GeneratedType<"RestContactDetails">>({
+        emailadres: "initiator@example.com",
+      }),
     );
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
@@ -173,7 +177,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   };
 
   beforeEach(async () => {
+    mockDialogRef.close = jest.fn();
     await createTestBed(mockZaak, mockPlanItem);
+  });
+
+  afterEach(() => {
+    testQueryClient.clear();
+    httpTestingController.verify();
   });
 
   describe("sendMail checkbox", () => {
@@ -240,18 +250,16 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       );
       await closeButton.click();
 
-      expect(dialogRef.close).toHaveBeenCalled();
+      expect(mockDialogRef.close).toHaveBeenCalled();
     });
   });
 
   describe("form validation", () => {
-    it("should disable submit button when form is invalid", async () => {
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+    it("should disable submit button when form is invalid", () => {
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
       );
-      const isDisabled = await submitButton.isDisabled();
-
-      expect(isDisabled).toBe(true);
+      expect(submitBtn.disabled).toBe(true);
     });
 
     it("should enable submit button when form is valid", async () => {
@@ -260,13 +268,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const options = await resultaattypeSelect.getOptions();
       await options[2]?.click();
+      fixture.detectChanges();
 
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
       );
-      const isDisabled = await submitButton.isDisabled();
-
-      expect(isDisabled).toBe(false);
+      expect(submitBtn.disabled).toBe(false);
     });
   });
 
@@ -296,6 +303,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           resultaattypeUuid: "resultaat-3",
         }),
       );
+      req.flush({});
     });
 
     it("should send over a 'brondatumEigenschap' when a brondatumEigenschap is required", async () => {
@@ -330,6 +338,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           brondatumEigenschap: "2021-12-31T23:00:00.000Z",
         }),
       );
+      req.flush({});
     });
 
     it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {
@@ -338,13 +347,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const options = await resultaattypeSelect.getOptions();
       await options[0]?.click();
+      fixture.detectChanges();
 
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
       );
-      const isDisabled = await submitButton.isDisabled();
-
-      expect(isDisabled).toBe(true);
+      expect(submitBtn.disabled).toBe(true);
     });
   });
 
@@ -474,6 +482,31 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     );
   });
 
+  describe("setInitiatorEmail", () => {
+    it("sets ontvanger to initiatorEmailQuery emailadres when no zaakSpecificContactDetails", () => {
+      fixture.componentInstance["setInitiatorEmail"]();
+      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+        "initiator@example.com",
+      );
+    });
+
+    it("sets ontvanger to zaakSpecificContactDetails.emailAddress when available", async () => {
+      const mockZaakWithContact = fromPartial<GeneratedType<"RestZaak">>({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-contact",
+        zaakSpecificContactDetails: fromPartial({
+          emailAddress: "contact@example.com",
+        }),
+      });
+      await createTestBed(mockZaakWithContact, mockPlanItem);
+
+      fixture.componentInstance["setInitiatorEmail"]();
+      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+        "contact@example.com",
+      );
+    });
+  });
+
   describe("Open dialog with zaakafhandelparameters afrondenMail BESCHIKBAAR_AAN", () => {
     beforeEach(async () => {
       const mockZaakWithAfrondenMailAan = fromPartial<
@@ -570,6 +603,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           resultaattypeUuid: "resultaat-3",
         }),
       );
+      req.flush({});
     });
   });
 });
