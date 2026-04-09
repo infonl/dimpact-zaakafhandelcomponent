@@ -466,8 +466,8 @@ class ZaakRestService @Inject constructor(
         )
         if (zaakInformatieobjecten.isEmpty()) {
             throw NotFoundException(
-                "Geen ZaakInformatieobject gevonden voor Zaak: '${restDetachDocumentData.zaakUUID}' " +
-                    "en InformatieObject: '${restDetachDocumentData.documentUUID}'"
+                "Zaakinformatieobject not found for zaak UUID: '${restDetachDocumentData.zaakUUID}' " +
+                    "and document UUID: '${restDetachDocumentData.documentUUID}'"
             )
         }
         zaakInformatieobjecten.forEach {

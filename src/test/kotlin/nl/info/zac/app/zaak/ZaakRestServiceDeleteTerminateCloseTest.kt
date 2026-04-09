@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak
 
+import io.kotest.assertions.any
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -29,6 +30,7 @@ import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -343,7 +345,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
     }
 
-    Context("Uncoupling an informatieobject from a zaak") {
+    Context("Detaching a n informatieobject from a zaak") {
         Given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak"
         ) {
@@ -391,6 +393,61 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
                         )
                         indexingService.removeInformatieobject(informatieobjectUUID)
                         detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                    }
+                }
+            }
+        }
+
+        Given(
+            "A zaak with a zaakinformatieobject where the corresponding informatieobject is also linked to another zaak"
+        ) {
+            val zaakUUID = UUID.randomUUID()
+            val informatieobjectUUID = UUID.randomUUID()
+            val zaak = createZaak(uuid = zaakUUID)
+            val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
+            val zaakinformatiebject = createZaakInformatieobjectForReads(
+                uuid = informatieobjectUUID
+            )
+            val zaakInformatieobject2 = createZaakInformatieobjectForReads()
+            val restOntkoppelGegevens = createRestDetachDocumentData(
+                zaakUUID = zaakUUID,
+                documentUUID = informatieobjectUUID,
+                reden = "veryFakeReason"
+            )
+            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
+            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).ontkoppelen } returns true
+            every {
+                zrcClientService.listZaakinformatieobjecten(any<ZaakInformatieobjectListParameters>())
+            } returns listOf(zaakinformatiebject)
+            // enkelvoudiginformatieobject is linked to another zaak still
+            every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns listOf(zaakInformatieobject2)
+            every {
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+            } just Runs
+
+            When("a request is done to unlink the zaakinformatieobject from the zaak") {
+                zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
+
+                Then(
+                    "the zaakinformatieobject is unlinked from the zaak"
+                ) {
+                    verify(exactly = 1) {
+                        zrcClientService.deleteZaakInformatieobject(
+                            zaakinformatiebject.uuid,
+                            "veryFakeReason",
+                            "Ontkoppeld"
+                        )
+                    }
+                }
+                And("the informatieobject is not removed from the search index and is not added as an inboxdocument") {
+                    verify(exactly = 0) {
+                        indexingService.removeInformatieobject(informatieobjectUUID)
+                        detachedDocumentService.create(
+                            any<EnkelvoudigInformatieObject>(),
+                            any<Zaak>(),
+                            any()
+                        )
                     }
                 }
             }
