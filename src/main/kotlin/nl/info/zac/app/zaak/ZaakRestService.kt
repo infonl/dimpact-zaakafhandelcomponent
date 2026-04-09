@@ -117,7 +117,7 @@ import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.document.detacheddocument.repository.DetachedDocumentRepository
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -168,7 +168,7 @@ class ZaakRestService @Inject constructor(
     private val indexingService: IndexingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val objectsClientService: ObjectsClientService,
-    private val detachedDocumentService: DetachedDocumentRepository,
+    private val detachedDocumentService: DetachedDocumentService,
     private val opschortenZaakHelper: SuspensionZaakHelper,
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
