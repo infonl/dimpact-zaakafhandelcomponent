@@ -5,6 +5,7 @@
 
 import { NgClass, NgFor, NgIf } from "@angular/common";
 import { AfterViewInit, Component, OnInit } from "@angular/core";
+import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
@@ -20,6 +21,7 @@ import { SignaleringenSettingsService } from "../signaleringen-settings.service"
     NgClass,
     NgFor,
     NgIf,
+    MatCardModule,
     MatTableModule,
     MatCheckboxModule,
     TranslateModule,

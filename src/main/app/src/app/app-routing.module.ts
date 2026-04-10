@@ -26,6 +26,13 @@ const routes: Routes = [
     loadChildren: () =>
       import("./bag/bag.routes").then((module) => module.BAG_ROUTES),
   },
+  {
+    path: "signaleringen",
+    loadChildren: () =>
+      import("./signaleringen/signaleringen.routes").then(
+        (module) => module.SIGNALERINGEN_ROUTES,
+      ),
+  },
 ];
 
 @NgModule({

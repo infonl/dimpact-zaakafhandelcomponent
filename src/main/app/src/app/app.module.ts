@@ -38,7 +38,6 @@ import { PlanItemsModule } from "./plan-items/plan-items.module";
 import { ProductaanvragenModule } from "./productaanvragen/productaanvragen.module";
 import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
-import { SignaleringenModule } from "./signaleringen/signaleringen.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekenModule } from "./zoeken/zoeken.module";
 
@@ -65,7 +64,6 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     MailModule,
     PlanItemsModule,
     ProductaanvragenModule,
-    SignaleringenModule,
     IdentityModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,
