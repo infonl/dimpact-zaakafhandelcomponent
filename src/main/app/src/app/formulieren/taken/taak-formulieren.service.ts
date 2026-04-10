@@ -40,13 +40,14 @@ export class TaakFormulierenService {
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
-    formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null,
+    planItem?: GeneratedType<"RESTPlanItem">,
   ): Promise<FormField[]> {
+    const formulierDefinitie = planItem?.formulierDefinitie;
     switch (formulierDefinitie) {
       case "GOEDKEUREN":
         return this.goedkeurenFormulier.requestForm(zaak);
       case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieFormulier.requestForm(zaak);
+        return this.aanvullendeInformatieFormulier.requestForm(zaak, planItem!);
       case "ADVIES":
         return this.adviesFormulier.requestForm(zaak);
       default:

@@ -76,11 +76,11 @@ describe("HumanTaskDoComponent", () => {
     fixture = TestBed.createComponent(HumanTaskDoComponent);
 
     component = fixture.componentInstance;
-    component.planItem = fromPartial({
+    component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
       type: "HUMAN_TASK",
       formulierDefinitie: "ADVIES",
     });
-    component.zaak = fromPartial({
+    component.zaak = fromPartial<GeneratedType<"RestZaak">>({
       zaaktype: {
         uuid: "test-zaaktype-uuid",
       },
@@ -101,6 +101,63 @@ describe("HumanTaskDoComponent", () => {
 
       const fields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(fields).toHaveLength(2); // `Group` and `User` inputs
+    });
+
+    it("should pre-select the group and load users when planItem.groepId matches a group", async () => {
+      const listUsersInGroupSpy = jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockReturnValue(of([]));
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+        groepId: "1",
+      });
+
+      await component.ngOnInit();
+
+      expect(listUsersInGroupSpy).toHaveBeenCalledWith("1");
+    });
+
+    it("should prefill group control, populate user options, and enable user control when groepId matches", async () => {
+      const mockUsers = [
+        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+        fromPartial<GeneratedType<"RestUser">>({ id: "u2", naam: "User Two" }),
+      ];
+      jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockReturnValue(of(mockUsers));
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+        groepId: "1",
+      });
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(component["form"].get("group")?.value).toEqual(
+        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
+      );
+      expect(component["form"].get("user")?.enabled).toBe(true);
+      const userField = component["formFields"].find(
+        (f) => f.type === "auto-complete" && f.key === "user",
+      ) as { options?: unknown[] } | undefined;
+      expect(userField?.options).toEqual(mockUsers);
+    });
+
+    it("should not pre-select a group when planItem.groepId is not set", async () => {
+      const listUsersInGroupSpy = jest.spyOn(
+        identityService,
+        "listUsersInGroup",
+      );
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+      });
+
+      await component.ngOnInit();
+
+      expect(listUsersInGroupSpy).not.toHaveBeenCalled();
     });
   });
 
