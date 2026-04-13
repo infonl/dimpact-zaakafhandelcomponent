@@ -26,15 +26,18 @@ Handles three types of lines:
 
 import sys
 import json
+import os
 
 # ANSI colors
-RESET  = '\033[0m'
-BOLD   = '\033[1m'
-DIM    = '\033[2m'
-RED    = '\033[31m'
-YELLOW = '\033[33m'
-GREEN  = '\033[32m'
-CYAN   = '\033[36m'
+FORCE_COLOR = os.environ.get('FORCE_COLOR', '').strip().lower() not in ('', '0', 'false', 'no')
+USE_COLOR = FORCE_COLOR or (sys.stdout.isatty() and 'NO_COLOR' not in os.environ)
+RESET  = '\033[0m' if USE_COLOR else ''
+BOLD   = '\033[1m' if USE_COLOR else ''
+DIM    = '\033[2m' if USE_COLOR else ''
+RED    = '\033[31m' if USE_COLOR else ''
+YELLOW = '\033[33m' if USE_COLOR else ''
+GREEN  = '\033[32m' if USE_COLOR else ''
+CYAN   = '\033[36m' if USE_COLOR else ''
 
 LEVEL_COLORS = {
     'SEVERE':  RED + BOLD,
