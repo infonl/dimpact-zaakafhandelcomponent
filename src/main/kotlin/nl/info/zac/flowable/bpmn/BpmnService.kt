@@ -143,9 +143,11 @@ class BpmnService @Inject constructor(
     private fun isBackground(image: BufferedImage, x: Int, y: Int): Boolean {
         val color = Color(image.getRGB(x, y), true)
         return color.alpha == 0 ||
-            (color.red > BACKGROUND_COLOR_THRESHOLD &&
-                color.green > BACKGROUND_COLOR_THRESHOLD &&
-                color.blue > BACKGROUND_COLOR_THRESHOLD)
+            (
+                color.red > BACKGROUND_COLOR_THRESHOLD &&
+                    color.green > BACKGROUND_COLOR_THRESHOLD &&
+                    color.blue > BACKGROUND_COLOR_THRESHOLD
+                )
     }
 
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
