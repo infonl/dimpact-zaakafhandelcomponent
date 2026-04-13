@@ -144,6 +144,7 @@
     ></zac-zaakdata>
     <zac-zaak-process-flow
       *ngSwitchCase="'actie.processtroom.bekijken'"
+      class="flex-col flex-fill-col"
       [sideNav]="actionsSidenav"
       [zaakUuid]="zaak.uuid"
       [bpmnProcessDefinition]="zaak.bpmnProcessDefinition!"
