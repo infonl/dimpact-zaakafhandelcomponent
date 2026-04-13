@@ -10,6 +10,7 @@ import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
 import java.lang.reflect.Type;
 
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import jakarta.json.bind.serializer.DeserializationContext;
 import jakarta.json.bind.serializer.JsonbDeserializer;
 import jakarta.json.stream.JsonParser;
@@ -21,7 +22,11 @@ public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditW
 
     @Override
     public AuditWijziging<?> deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
-        final JsonObject wijzigingObject = parser.getObject();
+        // Old audit trail records (e.g. inbox/detached documents) may have wijzigingen as "" instead of {}
+        final JsonValue value = parser.getValue();
+        if (!(value instanceof JsonObject wijzigingObject)) {
+            return null;
+        }
         final JsonObject waardeObject;
         if (!wijzigingObject.isNull("oud")) {
             waardeObject = wijzigingObject.get("oud").asJsonObject();
