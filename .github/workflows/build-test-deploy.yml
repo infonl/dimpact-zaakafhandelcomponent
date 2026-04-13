@@ -10,12 +10,11 @@ on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: 'Select the version bump.'
+        description: 'Select the version bump for a sprint release.'
         type: choice
         required: true
-        default: 'patch'
+        default: 'minor'
         options:
-          - patch
           - minor
           - major
       hotfix_version:
@@ -51,12 +50,12 @@ jobs:
   validate-input:
     runs-on: ubuntu-24.04
     outputs:
-      version-bump: ${{ github.event.inputs.confirm || 'patch' }}
+      version-bump: ${{ github.event.inputs.confirm || 'minor' }}
     steps:
       - name: Use selected version bump
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          echo "Version will be bumped to next ${{ github.event.inputs.confirm || 'patch' }} number."
+          echo "Version will be bumped to next ${{ github.event.inputs.confirm || 'minor' }} number."
 
       - name: Manual version bump only allowed on main branch
         if: ${{ github.ref != 'refs/heads/main' && github.event_name == 'workflow_dispatch' && (!startsWith(github.ref_name, 'hotfix/') || github.event.inputs.hotfix_version == '') }}
@@ -68,10 +67,10 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [validate-input]
     outputs:
-      version: ${{ steps.set-hotfix-version.outputs.version || steps.get-version.outputs.version }}
-      tag: ${{ steps.set-hotfix-version.outputs.tag || steps.get-version.outputs.tag }}
+      version: ${{ steps.set-hotfix-version.outputs.version || steps.calc-version.outputs.version }}
+      tag: ${{ steps.set-hotfix-version.outputs.tag || steps.calc-version.outputs.tag }}
+      release-type: ${{ steps.release-type.outputs.release-type }}
     steps:
-      # Checkout the repository including tags
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -113,45 +112,59 @@ jobs:
           echo "tag=v${{ github.event.inputs.hotfix_version }}" >> "$GITHUB_OUTPUT"
           echo "Calculated version: ${{ github.event.inputs.hotfix_version }} (tag: v${{ github.event.inputs.hotfix_version }})"
 
-      - name: Get next tag on main
-        if: ${{ !startsWith(github.ref_name, 'hotfix/') && github.ref == 'refs/heads/main' }}
-        id: get-tag-main
-        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRERELEASE: false
-          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
-          FORCE_WITHOUT_CHANGES: ${{ needs.validate-input.outputs.version-bump != 'patch' }}
-          WITH_V: true
-          RELEASE_BRANCHES: main
-          BRANCH_HISTORY: last
-
-      - name: Get next tag on non-main (dry run)
-        if: ${{ !startsWith(github.ref_name, 'hotfix/') && github.ref != 'refs/heads/main' }}
-        id: get-tag-non-main
-        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRERELEASE: false
-          DEFAULT_BUMP: ${{ needs.validate-input.outputs.version-bump }}
-          WITH_V: true
-          RELEASE_BRANCHES: main
-          DRY_RUN: true
-          BRANCH_HISTORY: last
-
-      - name: Extract version (non-hotfix)
-        if: ${{ !startsWith(github.ref_name, 'hotfix/') }}
-        id: get-version
+      - name: Determine release type
+        id: release-type
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            TAG='${{ steps.get-tag-main.outputs.new_tag }}'
+          if [[ "${{ startsWith(github.ref_name, 'hotfix/') }}" == "true" ]]; then
+            echo "release-type=hotfix" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "release-type=release" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "release-type=dev" >> "$GITHUB_OUTPUT"
           else
-            TAG='${{ steps.get-tag-non-main.outputs.new_tag }}'
+            echo "release-type=none" >> "$GITHUB_OUTPUT"
           fi
-          VERSION="${TAG#v}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Calculated version: $VERSION (tag: $TAG)"
+
+      - name: Calculate next version
+        if: ${{ !startsWith(github.ref_name, 'hotfix/') }}
+        id: calc-version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(gh release list --exclude-pre-releases --limit 1 --json tagName -q '.[0].tagName // ""' 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous release found. Starting from v0.0.0"
+            LATEST_TAG="v0.0.0"
+          fi
+          echo "Latest release tag: $LATEST_TAG"
+
+          VERSION="${LATEST_TAG#v}"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+
+          RELEASE_TYPE="${{ steps.release-type.outputs.release-type }}"
+
+          if [ "$RELEASE_TYPE" = "dev" ]; then
+            # Dev builds always assume next minor version
+            MINOR=$((MINOR + 1))
+            NEXT_VERSION="${MAJOR}.${MINOR}.0-dev"
+          else
+            BUMP_TYPE="${{ needs.validate-input.outputs.version-bump }}"
+            case "$BUMP_TYPE" in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                ;;
+            esac
+            NEXT_VERSION="${MAJOR}.${MINOR}.0"
+          fi
+
+          echo "version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Calculated version: ${NEXT_VERSION} (release type: ${RELEASE_TYPE})"
 
   paths-filter:
     runs-on: ubuntu-24.04
@@ -245,7 +258,7 @@ jobs:
       # https://github.com/diffplug/spotless/issues/651
       - name: Gradle build
         run: |
-          if [ "${{ needs.validate-input.outputs.version-bump }}" != "patch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             ./gradlew clean build -x test --info --no-configuration-cache
           else
             ./gradlew build -x test --info --no-configuration-cache
@@ -507,6 +520,7 @@ jobs:
     env:
       ZAC_DOCKER_IMAGE: ${{ needs.build.outputs.zac_docker_image }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
     steps:
       - name: Docker Login
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -528,11 +542,17 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
-      - name: Tag Docker Image with next version tag
+      - name: Tag Docker Image with version tag
         if: env.NEXT_VERSION != ''
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+
+      - name: Tag Docker Image with pinned dev build number tag
+        if: ${{ env.RELEASE_TYPE == 'dev' }}
+        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}.${{ github.run_number }}
+
+      - name: Tag Docker Image with major and minor version tags
+        if: ${{ env.NEXT_VERSION != '' && env.RELEASE_TYPE == 'release' }}
         run: |
-          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
-          # Additionaly tag the image with '$major' and '$major.$minor' tags
           MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
           MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
           docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
@@ -548,16 +568,52 @@ jobs:
     env:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
       NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
+      RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Delete existing dev pre-releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dev_tags=$(gh release list --json tagName,isPrerelease -q '[.[] | select(.isPrerelease and (.tagName | endswith("-dev")))] | .[].tagName' 2>/dev/null || echo "")
+          for tag in $dev_tags; do
+            echo "Deleting dev pre-release: $tag"
+            gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || true
+          done
+
       - name: Read dependencies
         id: dependencies
         run: |
           echo "dependencies<<EOF" >> $GITHUB_OUTPUT
           cat DEPENDENCIES.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-      - name: Create or update GitHub release
+
+      - name: Create dev pre-release
+        if: ${{ env.RELEASE_TYPE == 'dev' }}
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.NEXT_VERSION_TAG }}
+          commit: ${{ github.sha }}
+          name: ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }} (development build)
+          body: |
+            ⚠️ **This is a development pre-release and is updated with every push to main.**
+
+            Docker image: `${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ env.NEXT_VERSION }}`
+            Build: #${{ github.run_number }} | Commit: `${{ github.sha }}`
+
+            ## Tested Against
+
+            ${{ steps.dependencies.outputs.dependencies }}
+          draft: false
+          prerelease: true
+          makeLatest: false
+          generateReleaseNotes: true
+
+      - name: Create release
+        if: ${{ env.RELEASE_TYPE == 'release' || env.RELEASE_TYPE == 'hotfix' }}
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -567,20 +623,19 @@ jobs:
           body: |
             This release contains the docker image ${{ env.APPLICATION_NAME }} ${{ env.NEXT_VERSION }}, which is available
             at ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.APPLICATION_NAME }}:${{ env.NEXT_VERSION }}
-            
+
             ## Tested Against
-            
+
             ${{ steps.dependencies.outputs.dependencies }}
           draft: false
           prerelease: false
-          allowUpdates: true
-          makeLatest: ${{ github.ref == 'refs/heads/main' }}
+          makeLatest: ${{ env.RELEASE_TYPE == 'release' }}
           generateReleaseNotes: true
 
   trigger-provision:
     needs: [determine-version, push-docker-image, create-release]
     env:
-      NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
+      PROVISION_TAG: ${{ needs.determine-version.outputs.release-type == 'dev' && format('{0}.{1}', needs.determine-version.outputs.version, github.run_number) || needs.determine-version.outputs.version }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     if: ${{ github.ref == 'refs/heads/main' && vars.ENABLE_AUTOMATIC_PROVISION == 'true' }}
@@ -594,7 +649,7 @@ jobs:
               repo: 'dimpact-provisioning',
               workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
               inputs: {
-                tag: '${{ env.NEXT_VERSION }}',
+                tag: '${{ env.PROVISION_TAG }}',
               },
               ref: 'main'
             })
