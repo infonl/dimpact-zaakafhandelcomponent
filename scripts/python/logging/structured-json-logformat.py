@@ -96,7 +96,7 @@ def render_json(obj):
     sys.stdout.flush()
 
 for raw in sys.stdin:
-    raw = raw.rstrip('\n')
+    raw = raw.rstrip('\r\n')
     try:
         render_json(json.loads(raw))
     except (json.JSONDecodeError, ValueError):
