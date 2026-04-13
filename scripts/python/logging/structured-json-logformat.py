@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-#
 #  SPDX-FileCopyrightText: 2026 INFO.nl
 #  SPDX-License-Identifier: EUPL-1.2+
-#
 
 """
 Formats mixed structured/unstructured log output for human-readable terminal display.
