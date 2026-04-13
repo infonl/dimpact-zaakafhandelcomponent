@@ -49,16 +49,24 @@ LEVEL_COLORS = {
 def format_exception(exc, depth=0):
     """Recursively render exception + causedBy chain as a traditional stack trace."""
     prefix = '' if depth == 0 else 'Caused by: '
+
+    if not isinstance(exc, dict):
+        return [f'{RED}{prefix}Exception{RESET}: {exc}']
+
     ex_type = exc.get('exceptionType', 'Exception')
     message  = exc.get('message', '')
     out = [f'{RED}{prefix}{ex_type}{RESET}: {message}']
     for f in exc.get('frames', []):
+        if not isinstance(f, dict):
+            out.append(f'{DIM}    at {f}{RESET}')
+            continue
         cls     = f.get('class', '?')
         method  = f.get('method', '?')
         line_no = f.get('line')
         loc = f'{cls.split(".")[-1]}.java:{line_no}' if line_no else 'Unknown Source'
         out.append(f'{DIM}    at {cls}.{method}({loc}){RESET}')
-    caused_by_exc = (exc.get('causedBy') or {}).get('exception')
+    caused_by = exc.get('causedBy') or {}
+    caused_by_exc = caused_by.get('exception') if isinstance(caused_by, dict) else caused_by
     if caused_by_exc:
         out.append('')
         out.extend(format_exception(caused_by_exc, depth + 1))
