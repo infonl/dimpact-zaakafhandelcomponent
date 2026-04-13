@@ -14,8 +14,7 @@ import io.mockk.mockk
 import jakarta.json.Json
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
-import net.atos.client.zgw.shared.util.AuditWijzigingJsonbDeserializer
+import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
 import java.lang.reflect.Type
 
 class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({

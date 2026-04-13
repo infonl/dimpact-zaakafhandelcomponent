@@ -1,18 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.shared.model.audit.besluiten;
+package nl.info.client.zgw.shared.model.audit.besluiten
 
-import net.atos.client.zgw.shared.model.ObjectType;
-import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-import nl.info.client.zgw.brc.model.generated.Besluit;
+import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.shared.model.audit.AuditWijziging
 
-public class BesluitWijziging extends AuditWijziging<Besluit> {
-
-    @Override
-    public ObjectType getObjectType() {
-        return ObjectType.BESLUIT;
-    }
+class BesluitWijziging : AuditWijziging<Besluit>() {
+    override val objectType = ObjectType.BESLUIT
 }

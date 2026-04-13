@@ -1,42 +1,32 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.shared.util;
+package nl.info.client.zgw.shared.util
 
-import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
+import jakarta.json.JsonObject
+import jakarta.json.bind.serializer.DeserializationContext
+import jakarta.json.bind.serializer.JsonbDeserializer
+import jakarta.json.stream.JsonParser
+import net.atos.client.zgw.shared.model.ObjectType
+import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
+import nl.info.client.zgw.shared.model.audit.AuditWijziging
+import java.lang.reflect.Type
 
-import java.lang.reflect.Type;
-
-import jakarta.json.JsonObject;
-import jakarta.json.JsonValue;
-import jakarta.json.bind.serializer.DeserializationContext;
-import jakarta.json.bind.serializer.JsonbDeserializer;
-import jakarta.json.stream.JsonParser;
-
-import net.atos.client.zgw.shared.model.ObjectType;
-import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-
-public class AuditWijzigingJsonbDeserializer implements JsonbDeserializer<AuditWijziging<?>> {
-
-    @Override
-    public AuditWijziging<?> deserialize(final JsonParser parser, final DeserializationContext ctx, final Type rtType) {
+class AuditWijzigingJsonbDeserializer : JsonbDeserializer<AuditWijziging<*>> {
+    override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): AuditWijziging<*>? {
         // Old audit trail records (e.g. inbox/detached documents) may have wijzigingen as "" instead of {}
-        final JsonValue value = parser.getValue();
-        if (!(value instanceof JsonObject wijzigingObject)) {
-            return null;
-        }
-        final JsonObject waardeObject;
-        if (!wijzigingObject.isNull("oud")) {
-            waardeObject = wijzigingObject.get("oud").asJsonObject();
-        } else if (!wijzigingObject.isNull("nieuw")) {
-            waardeObject = wijzigingObject.get("nieuw").asJsonObject();
-        } else {
-            return null;
+        val value = parser.value
+        if (value !is JsonObject) return null
+
+        val waardeObject = when {
+            !value.isNull("oud") -> value.getJsonObject("oud")
+            !value.isNull("nieuw") -> value.getJsonObject("nieuw")
+            else -> return null
         }
 
-        final ObjectType type = ObjectType.getObjectType(waardeObject.getJsonString("url").getString());
-        return JSONB.fromJson(wijzigingObject.toString(), type.getAuditClass());
+        val type = ObjectType.getObjectType(waardeObject.getJsonString("url").string)
+        return JSONB.fromJson(value.toString(), type.auditClass)
     }
 }

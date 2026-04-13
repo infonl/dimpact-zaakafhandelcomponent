@@ -9,12 +9,12 @@ import java.lang.reflect.Type;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.shared.model.audit.AuditWijziging;
-import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging;
-import net.atos.client.zgw.shared.model.audit.besluiten.BesluitWijziging;
-import net.atos.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
-import net.atos.client.zgw.shared.model.audit.documenten.GebuiksrechtenWijziging;
-import net.atos.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging;
+import nl.info.client.zgw.shared.model.audit.AuditWijziging;
+import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging;
+import nl.info.client.zgw.shared.model.audit.besluiten.BesluitWijziging;
+import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
+import nl.info.client.zgw.shared.model.audit.documenten.GebuiksrechtenWijziging;
+import nl.info.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging;
 
 public enum ObjectType {
     ENKELVOUDIG_INFORMATIEOBJECT("/documenten/api/v1/enkelvoudiginformatieobjecten/", EnkelvoudigInformatieobjectWijziging.class),

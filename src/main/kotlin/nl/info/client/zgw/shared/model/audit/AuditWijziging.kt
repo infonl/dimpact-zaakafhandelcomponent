@@ -1,37 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.client.zgw.shared.model.audit;
+package nl.info.client.zgw.shared.model.audit
 
-import jakarta.json.bind.annotation.JsonbTypeDeserializer;
+import jakarta.json.bind.annotation.JsonbTypeDeserializer
+import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.shared.util.AuditWijzigingJsonbDeserializer
 
-import net.atos.client.zgw.shared.model.ObjectType;
-import net.atos.client.zgw.shared.util.AuditWijzigingJsonbDeserializer;
+@JsonbTypeDeserializer(AuditWijzigingJsonbDeserializer::class)
+abstract class AuditWijziging<T> {
+    var oud: T? = null
+    var nieuw: T? = null
 
-@JsonbTypeDeserializer(AuditWijzigingJsonbDeserializer.class)
-public abstract class AuditWijziging<T> {
-    private T oud;
-
-    private T nieuw;
-
-    public T getOud() {
-        return oud;
-    }
-
-    public void setOud(final T oud) {
-        this.oud = oud;
-    }
-
-    public T getNieuw() {
-        return nieuw;
-    }
-
-    public void setNieuw(final T nieuw) {
-        this.nieuw = nieuw;
-    }
-
-    public abstract ObjectType getObjectType();
-
+    abstract val objectType: ObjectType
 }
