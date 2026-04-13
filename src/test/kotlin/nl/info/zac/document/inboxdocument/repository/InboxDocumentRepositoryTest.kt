@@ -19,8 +19,8 @@ import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.Paging
-import nl.info.zac.shared.model.Sorting
 import nl.info.zac.shared.model.SorteerRichting
+import nl.info.zac.shared.model.Sorting
 import java.time.LocalDate
 import java.util.UUID
 
