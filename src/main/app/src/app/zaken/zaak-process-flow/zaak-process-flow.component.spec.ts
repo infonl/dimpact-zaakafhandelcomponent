@@ -178,5 +178,17 @@ describe(ZaakProcessFlowComponent.name, () => {
         behavior: "smooth",
       });
     });
+
+    it("does not zoom when an input element has focus", () => {
+      const input = document.createElement("input");
+      document.body.appendChild(input);
+      input.focus();
+
+      dispatchArrowKey("ArrowUp");
+      fixture.detectChanges();
+
+      expect(getZoomTransform()).toBe("scale(1)");
+      document.body.removeChild(input);
+    });
   });
 });

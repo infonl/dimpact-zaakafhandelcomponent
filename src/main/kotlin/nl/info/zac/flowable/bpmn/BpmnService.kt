@@ -51,6 +51,7 @@ class BpmnService @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
         private const val DIAGRAM_PADDING = 10
+        private const val BACKGROUND_COLOR_THRESHOLD = 240
     }
 
     /**
@@ -83,43 +84,10 @@ class BpmnService @Inject constructor(
         val width = image.width
         val height = image.height
 
-        var top = 0
-        var bottom = height - 1
-        var left = 0
-        var right = width - 1
-
-        outer@ for (y in 0 until height) {
-            for (x in 0 until width) {
-                if (!isBackground(image, x, y)) {
-                    top = y;
-                    break@outer
-                }
-            }
-        }
-        outer@ for (y in height - 1 downTo top) {
-            for (x in 0 until width) {
-                if (!isBackground(image, x, y)) {
-                    bottom = y;
-                    break@outer
-                }
-            }
-        }
-        outer@ for (x in 0 until width) {
-            for (y in top..bottom) {
-                if (!isBackground(image, x, y)) {
-                    left = x;
-                    break@outer
-                }
-            }
-        }
-        outer@ for (x in width - 1 downTo left) {
-            for (y in top..bottom) {
-                if (!isBackground(image, x, y)) {
-                    right = x;
-                    break@outer
-                }
-            }
-        }
+        val top = findTopEdge(image, width, height)
+        val bottom = findBottomEdge(image, width, height, top)
+        val left = findLeftEdge(image, width, top, bottom)
+        val right = findRightEdge(image, width, top, bottom, left)
 
         val paddedLeft = maxOf(0, left - DIAGRAM_PADDING)
         val paddedTop = maxOf(0, top - DIAGRAM_PADDING)
@@ -136,9 +104,48 @@ class BpmnService @Inject constructor(
             .let { ByteArrayInputStream(it.toByteArray()) }
     }
 
+    private fun findTopEdge(image: BufferedImage, width: Int, height: Int): Int {
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) return y
+            }
+        }
+        return 0
+    }
+
+    private fun findBottomEdge(image: BufferedImage, width: Int, height: Int, top: Int): Int {
+        for (y in height - 1 downTo top) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) return y
+            }
+        }
+        return height - 1
+    }
+
+    private fun findLeftEdge(image: BufferedImage, width: Int, top: Int, bottom: Int): Int {
+        for (x in 0 until width) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) return x
+            }
+        }
+        return 0
+    }
+
+    private fun findRightEdge(image: BufferedImage, width: Int, top: Int, bottom: Int, left: Int): Int {
+        for (x in width - 1 downTo left) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) return x
+            }
+        }
+        return width - 1
+    }
+
     private fun isBackground(image: BufferedImage, x: Int, y: Int): Boolean {
         val color = Color(image.getRGB(x, y), true)
-        return color.alpha == 0 || (color.red > 240 && color.green > 240 && color.blue > 240)
+        return color.alpha == 0 ||
+            (color.red > BACKGROUND_COLOR_THRESHOLD &&
+                color.green > BACKGROUND_COLOR_THRESHOLD &&
+                color.blue > BACKGROUND_COLOR_THRESHOLD)
     }
 
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null

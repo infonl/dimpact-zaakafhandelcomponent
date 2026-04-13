@@ -53,18 +53,21 @@ export class ZaakProcessFlowComponent {
 
   @HostListener("document:keydown.ArrowUp", ["$event"])
   protected onArrowUp(event: KeyboardEvent) {
+    if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.zoomIn();
   }
 
   @HostListener("document:keydown.ArrowDown", ["$event"])
   protected onArrowDown(event: KeyboardEvent) {
+    if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.zoomOut();
   }
 
   @HostListener("document:keydown.ArrowLeft", ["$event"])
   protected onArrowLeft(event: KeyboardEvent) {
+    if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.containerRef()?.nativeElement.scrollBy({
       left: -SCROLL_STEP,
@@ -74,11 +77,24 @@ export class ZaakProcessFlowComponent {
 
   @HostListener("document:keydown.ArrowRight", ["$event"])
   protected onArrowRight(event: KeyboardEvent) {
+    if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.containerRef()?.nativeElement.scrollBy({
       left: SCROLL_STEP,
       behavior: "smooth",
     });
+  }
+
+  private isInteractiveElementFocused(): boolean {
+    const element = document.activeElement;
+    if (!element) return false;
+    const tag = element.tagName.toLowerCase();
+    return (
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      (element as HTMLElement).isContentEditable
+    );
   }
 
   protected zoomIn() {
