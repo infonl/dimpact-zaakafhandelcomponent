@@ -80,28 +80,33 @@ class BpmnService @Inject constructor(
         }
 
     private fun trimWhitespace(inputStream: InputStream): InputStream {
-        val image = ImageIO.read(inputStream)
-        val width = image.width
-        val height = image.height
+        inputStream.use {
+            val image = ImageIO.read(inputStream)
+            val width = image.width
+            val height = image.height
 
-        val top = findTopEdge(image, width, height)
-        val bottom = findBottomEdge(image, width, height, top)
-        val left = findLeftEdge(image, width, top, bottom)
-        val right = findRightEdge(image, width, top, bottom, left)
+            val top = findTopEdge(image, width, height)
+            val bottom = findBottomEdge(image, width, height, top)
+            val left = findLeftEdge(image, width, top, bottom)
+            val right = findRightEdge(image, width, top, bottom, left)
 
-        val paddedLeft = maxOf(0, left - DIAGRAM_PADDING)
-        val paddedTop = maxOf(0, top - DIAGRAM_PADDING)
-        val paddedRight = minOf(width - 1, right + DIAGRAM_PADDING)
-        val paddedBottom = minOf(height - 1, bottom + DIAGRAM_PADDING)
+            val paddedLeft = maxOf(0, left - DIAGRAM_PADDING)
+            val paddedTop = maxOf(0, top - DIAGRAM_PADDING)
+            val paddedRight = minOf(width - 1, right + DIAGRAM_PADDING)
+            val paddedBottom = minOf(height - 1, bottom + DIAGRAM_PADDING)
 
-        val cropped = image.getSubimage(
-            paddedLeft,
-            paddedTop,
-            paddedRight - paddedLeft + 1,
-            paddedBottom - paddedTop + 1
-        )
-        return ByteArrayOutputStream().also { ImageIO.write(cropped, "png", it) }
-            .let { ByteArrayInputStream(it.toByteArray()) }
+            val cropped = image.getSubimage(
+                paddedLeft,
+                paddedTop,
+                paddedRight - paddedLeft + 1,
+                paddedBottom - paddedTop + 1
+            )
+            return ByteArrayInputStream(
+                ByteArrayOutputStream().also {
+                    ImageIO.write(cropped, "png", it)
+                }.toByteArray()
+            )
+        }
     }
 
     private fun findTopEdge(image: BufferedImage, width: Int, height: Int): Int {
