@@ -20,6 +20,7 @@ import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.Locale
 import java.util.UUID
 
 @ApplicationScoped
@@ -99,7 +100,7 @@ class InboxDocumentRepository @Inject constructor(
                 predicates.add(
                     builder.like(
                         builder.lower(root.get(InboxDocument.TITEL_PROPERTY_NAME)),
-                        "%${it.lowercase().replace(" ", "%")}%"
+                        "%${it.lowercase(Locale.getDefault()).replace(" ", "%")}%"
                     )
                 )
             }
