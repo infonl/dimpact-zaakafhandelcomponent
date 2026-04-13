@@ -13,8 +13,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocument
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
-import nl.info.zac.document.inboxdocument.model.InboxDocument
-import nl.info.zac.document.inboxdocument.model.createInboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import java.time.LocalDate
 import java.util.UUID
 

@@ -20,8 +20,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
-import nl.info.zac.document.inboxdocument.model.createInboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten

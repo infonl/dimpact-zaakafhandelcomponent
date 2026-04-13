@@ -60,7 +60,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine

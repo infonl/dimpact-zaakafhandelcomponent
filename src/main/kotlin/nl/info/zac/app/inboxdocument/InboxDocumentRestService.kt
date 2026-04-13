@@ -23,7 +23,7 @@ import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
