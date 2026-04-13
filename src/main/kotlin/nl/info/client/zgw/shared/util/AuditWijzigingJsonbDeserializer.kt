@@ -17,16 +17,17 @@ import java.lang.reflect.Type
 class AuditWijzigingJsonbDeserializer : JsonbDeserializer<AuditWijziging<*>> {
     override fun deserialize(parser: JsonParser, ctx: DeserializationContext, rtType: Type): AuditWijziging<*>? {
         // Old audit trail records (e.g. inbox/detached documents) may have wijzigingen as "" instead of {}
-        val value = parser.value
-        if (value !is JsonObject) return null
-
+        val wijzigingenObject = parser.value as? JsonObject ?: return null
         val waardeObject = when {
-            !value.isNull("oud") -> value.getJsonObject("oud")
-            !value.isNull("nieuw") -> value.getJsonObject("nieuw")
-            else -> return null
+            !wijzigingenObject.isNull("oud") -> wijzigingenObject.getJsonObject("oud")
+            !wijzigingenObject.isNull("nieuw") -> wijzigingenObject.getJsonObject("nieuw")
+            else -> null
         }
-
-        val type = ObjectType.getObjectType(waardeObject.getJsonString("url").string)
-        return JSONB.fromJson(value.toString(), type.auditClass)
+        return waardeObject?.let {
+            JSONB.fromJson(
+                wijzigingenObject.toString(),
+                ObjectType.getObjectType(it.getJsonString("url").string).auditClass
+            )
+        }
     }
 }
