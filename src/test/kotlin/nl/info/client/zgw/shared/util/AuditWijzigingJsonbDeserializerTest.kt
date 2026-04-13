@@ -20,8 +20,8 @@ import java.lang.reflect.Type
 class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
     val deserializer = AuditWijzigingJsonbDeserializer()
     val parser = mockk<JsonParser>()
-    val ctx = mockk<DeserializationContext>()
-    val rtType = mockk<Type>()
+    val deserializationContext = mockk<DeserializationContext>()
+    val runtimeType = mockk<Type>()
 
     beforeEach {
         checkUnnecessaryStub()
@@ -33,7 +33,7 @@ class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
         every { parser.value } returns Json.createValue("")
 
         When("the deserializer is called") {
-            val result = deserializer.deserialize(parser, ctx, rtType)
+            val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
             Then("result should be null") {
                 result.shouldBeNull()
@@ -52,7 +52,7 @@ class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
         every { parser.value } returns wijzigingen
 
         When("the deserializer is called") {
-            val result = deserializer.deserialize(parser, ctx, rtType)
+            val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
             Then("result should not be null") {
                 result.shouldNotBeNull()

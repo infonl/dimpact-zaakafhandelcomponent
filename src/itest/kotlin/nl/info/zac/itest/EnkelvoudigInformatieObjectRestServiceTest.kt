@@ -69,7 +69,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
         lateinit var enkelvoudigInformatieObjectUuid: String
-        lateinit var enkelvoudigInformatieObject2Uuid: String
+        lateinit var secondEnkelvoudigInformatieObjectUuid: String
 
         When(
             """
@@ -403,13 +403,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                     }
                 """.trimIndent()
-                enkelvoudigInformatieObject2Uuid = JSONObject(responseBody).getString("uuid")
+                secondEnkelvoudigInformatieObjectUuid = JSONObject(responseBody).getString("uuid")
             }
         }
 
         When("the convert endpoint is called") {
             val response = itestHttpClient.performPostRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/" +
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/" +
                     "convert?zaak=$zaakUuid",
                 requestBody = "".toRequestBody(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
@@ -426,7 +426,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObject2Uuid/",
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/",
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             Then(

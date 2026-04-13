@@ -210,6 +210,16 @@ val user = createUser(firstName = "John", lastName = "Doe", age = 30)
 ```
 This makes it clear what each argument represents and reduces the chance of accidentally swapping parameters.
 
+### Do not use abbreviated variable names
+Use human-readable names for all variables, including those used in tests.
+
+```kotlin
+// Before
+val restEio = createRestEnkelvoudigInformatieobject()
+// After
+val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+```
+
 ### Prefer concise lambda syntax in Kotlin
 When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
 ```kotlin// Before
