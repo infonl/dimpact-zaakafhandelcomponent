@@ -1,6 +1,6 @@
 # Python scripts
 
-This folder contains some python scripts that might be useful. Further details on the exact scripts
+This folder contains some Python scripts that might be useful. Further details on the exact scripts
 is described below.
 
 ## Setup Python virtual environment
@@ -146,3 +146,7 @@ The table shows the component, the old `component` version and the new `componen
 
 Where the _new_ version differs from the _old_ version, the version for the _new_ is surrounded with `**` so that it 
 would display bold in a markdown viewer.
+
+## Logging scripts
+
+Scripts for reading log files are available in the [logging folder](logging).
