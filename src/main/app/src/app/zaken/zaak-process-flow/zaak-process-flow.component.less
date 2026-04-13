@@ -9,6 +9,13 @@
   height: 100%;
 }
 
+.diagram-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
 .diagram-container {
   flex: 1;
   overflow: auto;
@@ -16,11 +23,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: zoom-in;
+
+  * {
+    cursor: zoom-in;
+  }
 }
 
 .diagram-image {
   display: block;
   width: 100%;
   height: auto;
-  cursor: zoom-in;
 }

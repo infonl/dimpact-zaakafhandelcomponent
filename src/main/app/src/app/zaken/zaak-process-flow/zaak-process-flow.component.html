@@ -39,12 +39,16 @@
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
-<div class="diagram-container">
+<div class="diagram-hint">
+  <mat-icon outlined>info</mat-icon>
+  <span>{{ "proces.diagram.hint" | translate }}</span>
+</div>
+<mat-divider></mat-divider>
+<div #diagramContainer class="diagram-container" (click)="zoomIn()">
   <img
     [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram?t=' + cacheBuster"
-    alt="Click to zoom"
+    [alt]="'actie.click-to-zoom-in' | translate"
     [style.transform]="'scale(' + zoomLevel() + ')'"
-    (click)="zoomIn()"
     class="diagram-image"
   />
 </div>

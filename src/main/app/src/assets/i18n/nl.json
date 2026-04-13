@@ -721,6 +721,8 @@
   "actie.zaakafhandelparameters": "Ga naar zaakafhandelparameters",
   "actie.zaakdata.wijzigen": "Zaakdata wijzigen",
   "actie.zaakdata.bekijken": "Zaakdata",
+  "actie.click-to-zoom-in": "Klik om in te zoomen",
+  "proces.diagram.hint": "Klik op de afbeelding of gebruik ↑ / ↓ om in/uit te zoomen. Of de − / + knoppen hierboven om stapsgewijs te verkleinen / vergroten, resetknop om terug te gaan naar originele formaat.",
   "actie.zaak.acties": "Actie",
   "actie.zoeken": "Zoeken",
   "actie.zoeken.persoon": "Persoon zoeken",

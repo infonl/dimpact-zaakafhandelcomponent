@@ -721,6 +721,8 @@
   "actie.zaakafhandelparameters": "Go to case handling parameters",
   "actie.zaakdata.wijzigen": "Change case data",
   "actie.zaakdata.bekijken": "Case data",
+  "actie.click-to-zoom-in": "Click to zoom",
+  "proces.diagram.hint": "Click on the image or use ↑ / ↓ to zoom in/out. Or use the − / + buttons above to zoom step by step, reset button to return to the original size.",
   "actie.zaak.acties": "Action",
   "actie.zoeken": "Search",
   "actie.zoeken.persoon": "Search person",

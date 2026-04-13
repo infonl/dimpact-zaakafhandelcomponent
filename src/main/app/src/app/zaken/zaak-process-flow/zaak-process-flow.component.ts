@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, signal } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  input,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
@@ -16,6 +23,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 const ZOOM_STEP = 0.25;
 const ZOOM_MIN = 0.25;
 const ZOOM_MAX = 4;
+const SCROLL_STEP = 100;
 
 @Component({
   selector: "zac-zaak-process-flow",
@@ -38,7 +46,40 @@ export class ZaakProcessFlowComponent {
     input.required<GeneratedType<"RestZaakBpmnProcessDefinition">>();
   protected readonly cacheBuster = Date.now();
 
+  private readonly containerRef =
+    viewChild<ElementRef<HTMLDivElement>>("diagramContainer");
+
   protected readonly zoomLevel = signal(1);
+
+  @HostListener("document:keydown.ArrowUp", ["$event"])
+  protected onArrowUp(event: KeyboardEvent) {
+    event.preventDefault();
+    this.zoomIn();
+  }
+
+  @HostListener("document:keydown.ArrowDown", ["$event"])
+  protected onArrowDown(event: KeyboardEvent) {
+    event.preventDefault();
+    this.zoomOut();
+  }
+
+  @HostListener("document:keydown.ArrowLeft", ["$event"])
+  protected onArrowLeft(event: KeyboardEvent) {
+    event.preventDefault();
+    this.containerRef()?.nativeElement.scrollBy({
+      left: -SCROLL_STEP,
+      behavior: "smooth",
+    });
+  }
+
+  @HostListener("document:keydown.ArrowRight", ["$event"])
+  protected onArrowRight(event: KeyboardEvent) {
+    event.preventDefault();
+    this.containerRef()?.nativeElement.scrollBy({
+      left: SCROLL_STEP,
+      behavior: "smooth",
+    });
+  }
 
   protected zoomIn() {
     this.zoomLevel.update((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
