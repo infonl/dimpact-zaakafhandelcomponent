@@ -25,10 +25,15 @@ import org.flowable.engine.RuntimeService
 import org.flowable.engine.repository.Deployment
 import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.runtime.ProcessInstance
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
+import javax.imageio.ImageIO
 
 @ApplicationScoped
 @Transactional
@@ -45,6 +50,7 @@ class BpmnService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
+        private const val DIAGRAM_PADDING = 10
     }
 
     /**
@@ -59,7 +65,7 @@ class BpmnService @Inject constructor(
             return processEngineConfiguration.getProcessDiagramGenerator()
                 .generateDiagram(
                     bpmnModel,
-                    "gif",
+                    "png",
                     runtimeService.getActiveActivityIds(processInstance.id),
                     mutableListOf<String>(),
                     processEngineConfiguration.getActivityFontName(),
@@ -69,7 +75,59 @@ class BpmnService @Inject constructor(
                     1.0,
                     processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI
                 )
+                .let { trimWhitespace(it) }
         }
+
+    private fun trimWhitespace(inputStream: InputStream): InputStream {
+        val image = ImageIO.read(inputStream)
+        val width = image.width
+        val height = image.height
+
+        var top = 0
+        var bottom = height - 1
+        var left = 0
+        var right = width - 1
+
+        outer@ for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) { top = y; break@outer }
+            }
+        }
+        outer@ for (y in height - 1 downTo top) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) { bottom = y; break@outer }
+            }
+        }
+        outer@ for (x in 0 until width) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) { left = x; break@outer }
+            }
+        }
+        outer@ for (x in width - 1 downTo left) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) { right = x; break@outer }
+            }
+        }
+
+        val paddedLeft = maxOf(0, left - DIAGRAM_PADDING)
+        val paddedTop = maxOf(0, top - DIAGRAM_PADDING)
+        val paddedRight = minOf(width - 1, right + DIAGRAM_PADDING)
+        val paddedBottom = minOf(height - 1, bottom + DIAGRAM_PADDING)
+
+        val cropped = image.getSubimage(
+            paddedLeft,
+            paddedTop,
+            paddedRight - paddedLeft + 1,
+            paddedBottom - paddedTop + 1
+        )
+        return ByteArrayOutputStream().also { ImageIO.write(cropped, "png", it) }
+            .let { ByteArrayInputStream(it.toByteArray()) }
+    }
+
+    private fun isBackground(image: BufferedImage, x: Int, y: Int): Boolean {
+        val color = Color(image.getRGB(x, y), true)
+        return color.alpha == 0 || (color.red > 240 && color.green > 240 && color.blue > 240)
+    }
 
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
