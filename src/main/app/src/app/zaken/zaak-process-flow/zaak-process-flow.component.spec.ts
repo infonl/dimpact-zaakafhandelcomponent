@@ -26,6 +26,11 @@ describe(ZaakProcessFlowComponent.name, () => {
       close: jest.fn(),
     } as unknown as MatDrawer);
     fixture.componentRef.setInput("zaakUuid", "test-uuid");
+    fixture.componentRef.setInput("bpmnProcessDefinition", {
+      processDefinitionKey: "test-key",
+      processDefinitionName: "Test Process",
+      processDefinitionVersion: 3,
+    });
     fixture.detectChanges();
   });
 

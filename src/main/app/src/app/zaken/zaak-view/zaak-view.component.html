@@ -146,6 +146,7 @@
       *ngSwitchCase="'actie.processtroom.bekijken'"
       [sideNav]="actionsSidenav"
       [zaakUuid]="zaak.uuid"
+      [bpmnProcessDefinition]="zaak.bpmnProcessDefinition!"
     ></zac-zaak-process-flow>
   </mat-drawer>
   <mat-drawer-content>

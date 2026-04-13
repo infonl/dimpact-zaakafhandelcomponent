@@ -5,16 +5,20 @@
 
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>flowsheet</mat-icon>
-  <h3 class="flex-grow-1">{{ "actie.processtroom.bekijken" | translate }}</h3>
+  <h3 class="flex-grow-1">
+    {{ "actie.processtroom.bekijken" | translate }} —
+    {{ bpmnProcessDefinition().processDefinitionName }}
+    ({{ "versie" | translate }} {{ bpmnProcessDefinition().processDefinitionVersion }})
+  </h3>
   <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
-<div class="bpmn-diagram-container p-16">
+<div class="diagram-container">
   <img
-    [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram'"
+    [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram?t=' + cacheBuster"
     [alt]="'proces.toestand' | translate"
-    style="max-width: 100%; height: auto"
+    class="diagram-image"
   />
 </div>
