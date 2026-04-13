@@ -8,8 +8,32 @@
   <h3 class="flex-grow-1">
     {{ "actie.processtroom.bekijken" | translate }} —
     {{ bpmnProcessDefinition().processDefinitionName }}
-    ({{ "versie" | translate }} {{ bpmnProcessDefinition().processDefinitionVersion }})
+    - {{ "versie" | translate }}
+    {{ bpmnProcessDefinition().processDefinitionVersion }}
   </h3>
+  <button
+    mat-icon-button
+    (click)="zoomOut()"
+    [disabled]="zoomLevel() <= 0.25"
+    [matTooltip]="'actie.zoom.out' | translate"
+  >
+    <mat-icon>remove</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    (click)="resetZoom()"
+    [matTooltip]="'actie.zoom.reset' | translate"
+  >
+    <mat-icon>zoom_out_map</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    (click)="zoomIn()"
+    [disabled]="zoomLevel() >= 4"
+    [matTooltip]="'actie.zoom.in' | translate"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
   <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -18,7 +42,9 @@
 <div class="diagram-container">
   <img
     [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram?t=' + cacheBuster"
-    [alt]="'proces.toestand' | translate"
+    alt="Click to zoom"
+    [style.transform]="'scale(' + zoomLevel() + ')'"
+    (click)="zoomIn()"
     class="diagram-image"
   />
 </div>
