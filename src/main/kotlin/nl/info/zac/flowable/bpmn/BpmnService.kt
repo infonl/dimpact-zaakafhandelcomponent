@@ -90,22 +90,34 @@ class BpmnService @Inject constructor(
 
         outer@ for (y in 0 until height) {
             for (x in 0 until width) {
-                if (!isBackground(image, x, y)) { top = y; break@outer }
+                if (!isBackground(image, x, y)) {
+                    top = y;
+                    break@outer
+                }
             }
         }
         outer@ for (y in height - 1 downTo top) {
             for (x in 0 until width) {
-                if (!isBackground(image, x, y)) { bottom = y; break@outer }
+                if (!isBackground(image, x, y)) {
+                    bottom = y;
+                    break@outer
+                }
             }
         }
         outer@ for (x in 0 until width) {
             for (y in top..bottom) {
-                if (!isBackground(image, x, y)) { left = x; break@outer }
+                if (!isBackground(image, x, y)) {
+                    left = x;
+                    break@outer
+                }
             }
         }
         outer@ for (x in width - 1 downTo left) {
             for (y in top..bottom) {
-                if (!isBackground(image, x, y)) { right = x; break@outer }
+                if (!isBackground(image, x, y)) {
+                    right = x;
+                    break@outer
+                }
             }
         }
 
