@@ -13,13 +13,13 @@ import nl.info.client.zgw.shared.model.audit.AuditWijziging;
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging;
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitWijziging;
 import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
-import nl.info.client.zgw.shared.model.audit.documenten.GebuiksrechtenWijziging;
+import nl.info.client.zgw.shared.model.audit.documenten.GebruiksrechtenWijziging;
 import nl.info.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging;
 
 public enum ObjectType {
     ENKELVOUDIG_INFORMATIEOBJECT("/documenten/api/v1/enkelvoudiginformatieobjecten/", EnkelvoudigInformatieobjectWijziging.class),
 
-    GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebuiksrechtenWijziging.class),
+    GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebruiksrechtenWijziging.class),
 
     OBJECT_INFORMATIEOBJECT("documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging.class),
 

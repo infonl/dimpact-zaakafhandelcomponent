@@ -9,6 +9,6 @@ import net.atos.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 
-class GebuiksrechtenWijziging : AuditWijziging<Gebruiksrechten>() {
+class GebruiksrechtenWijziging : AuditWijziging<Gebruiksrechten>() {
     override val objectType = ObjectType.GEBRUIKSRECHTEN
 }
