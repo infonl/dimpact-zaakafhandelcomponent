@@ -47,6 +47,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
+import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
@@ -109,6 +110,7 @@ describe(ZaakViewComponent.name, () => {
         ZaakIndicatiesComponent,
         SideNavComponent,
         StaticTextComponent,
+        ZaakProcessFlowComponent,
         TranslateModule.forRoot(),
         PipesModule,
         MaterialModule,
@@ -739,6 +741,80 @@ describe(ZaakViewComponent.name, () => {
         MatSubheaderHarness.with({ text: "actie.zaak.acties" }),
       );
       expect(subheader).toBeNull();
+    });
+  });
+
+  describe("Process Definition Flow tests", () => {
+    const bpmnProcessDefinition = fromPartial<
+      GeneratedType<"RestZaakBpmnProcessDefinition">
+    >({
+      processDefinitionKey: "test-key",
+      processDefinitionName: "Test Process",
+      processDefinitionVersion: 3,
+    });
+
+    const zaakWithBpmn = {
+      ...zaak,
+      bpmnProcessDefinition,
+    } satisfies GeneratedType<"RestZaak">;
+
+    describe("when bpmnProcessDefinition is set", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({ zaak: zaakWithBpmn });
+        fixture.detectChanges();
+      });
+
+      it("should show the button", async () => {
+        const button = await loader.getHarness(
+          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+        );
+        expect(button).toBeTruthy();
+      });
+
+      it("should open the sidenav and set the active action when clicked", async () => {
+        const openSpy = jest.spyOn(
+          fixture.componentInstance.actionsSidenav,
+          "open",
+        );
+
+        const button = await loader.getHarness(
+          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+        );
+        await button.click();
+
+        expect(openSpy).toHaveBeenCalled();
+        expect(fixture.componentInstance.activeSideAction).toBe(
+          "actie.processtroom.bekijken",
+        );
+      });
+
+      it("should show the process definition name and version in the sidenav title", async () => {
+        const button = await loader.getHarness(
+          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+        );
+        await button.click();
+        fixture.detectChanges();
+
+        const heading: HTMLElement = fixture.nativeElement.querySelector(
+          "zac-zaak-process-flow h3",
+        );
+        expect(heading?.textContent).toContain("Test Process");
+        expect(heading?.textContent).toContain("3");
+      });
+    });
+
+    describe("when bpmnProcessDefinition is not set", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({ zaak });
+        fixture.detectChanges();
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+        );
+        expect(button).toBeNull();
+      });
     });
   });
 });
