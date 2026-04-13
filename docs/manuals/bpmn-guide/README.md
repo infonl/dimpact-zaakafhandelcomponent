@@ -281,9 +281,9 @@ For example:
 #### Using zaakdata in email templates
 
 Email templates support dynamic substitution of zaakdata values. This allows you to include
-data that was collected during the BPMN process (e.g. from Form.io form fields) directly in the email body.
+data that was collected during the BPMN process (e.g. from Form.io form fields) directly in the email subject and body.
 
-Use the following syntax in the email template body:
+Use the following syntax in the email template subject or body:
 ```
 {ZAAKDATA:<key>}
 ```
@@ -293,7 +293,7 @@ or any other variable stored in the zaakdata during the process.
 
 :warning: If the key does not exist or has no value, it will be replaced with `Onbekend`.
 
-Example: if your Form.io form has a field with key `customerPhone`, add the following to your email template body:
+Example: if your Form.io form has a field with key `customerPhone`, add the following to your email template subject or body:
 ```
 Het telefoonnummer van de klant is: {ZAAKDATA:customerPhone}
 ```
