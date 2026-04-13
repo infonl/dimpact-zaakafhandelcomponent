@@ -21,7 +21,6 @@ import { ZoekenModule } from "../zoeken/zoeken.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
-import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
@@ -31,6 +30,7 @@ import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.c
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
+import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
