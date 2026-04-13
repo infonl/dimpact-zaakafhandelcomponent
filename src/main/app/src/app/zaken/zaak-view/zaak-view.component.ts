@@ -465,7 +465,7 @@ export class ZaakViewComponent
     if (this.zaak.bpmnProcessDefinition) {
       this.menu.push(
         new ButtonMenuItem(
-          "actie.processtroom.bekijken",
+          "actie.procesverloop.bekijken",
           () => this.actionsSidenav.open(),
           "play_shapes",
         ),
@@ -1534,16 +1534,16 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen,
     );
   }
 

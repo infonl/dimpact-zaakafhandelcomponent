@@ -766,7 +766,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should show the button", async () => {
         const button = await loader.getHarness(
-          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+          MatNavListItemHarness.with({ title: "actie.procesverloop.bekijken" }),
         );
         expect(button).toBeTruthy();
       });
@@ -778,19 +778,19 @@ describe(ZaakViewComponent.name, () => {
         );
 
         const button = await loader.getHarness(
-          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+          MatNavListItemHarness.with({ title: "actie.procesverloop.bekijken" }),
         );
         await button.click();
 
         expect(openSpy).toHaveBeenCalled();
         expect(fixture.componentInstance.activeSideAction).toBe(
-          "actie.processtroom.bekijken",
+          "actie.procesverloop.bekijken",
         );
       });
 
       it("should show the process definition name and version in the sidenav title", async () => {
         const button = await loader.getHarness(
-          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+          MatNavListItemHarness.with({ title: "actie.procesverloop.bekijken" }),
         );
         await button.click();
         fixture.detectChanges();
@@ -811,7 +811,7 @@ describe(ZaakViewComponent.name, () => {
 
       it("should not show the button", async () => {
         const button = await loader.getHarnessOrNull(
-          MatNavListItemHarness.with({ title: "actie.processtroom.bekijken" }),
+          MatNavListItemHarness.with({ title: "actie.procesverloop.bekijken" }),
         );
         expect(button).toBeNull();
       });
