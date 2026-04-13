@@ -196,6 +196,14 @@
               <mat-card-subtitle>{{
                 zaak.zaaktype.omschrijving
               }}</mat-card-subtitle>
+              @if (zaak.bpmnProcessDefinition) {
+                <div class="hint flex-row items-center">
+                  <mat-icon outlined>info</mat-icon>
+                  {{ zaak.bpmnProcessDefinition.processDefinitionName }} -
+                  {{ "versie" | translate }}
+                  {{ zaak.bpmnProcessDefinition.processDefinitionVersion }}
+                </div>
+              }
             </div>
             <button
               *ngIf="zaak.isProcesGestuurd && zaak.isOpen && !zaak.isHeropend"
