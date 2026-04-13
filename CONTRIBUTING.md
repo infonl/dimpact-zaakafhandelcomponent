@@ -47,10 +47,8 @@ For other file types (e.g. `.html` and `.xml` files) please add the following SP
 Finally, for e.g. `.sh` files please add:
 
 ```
-#
 # SPDX-FileCopyrightText: <YYYY> INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
-#
 ```
 
 Tip: configure your IDE to automatically add these headers to new source code files.
