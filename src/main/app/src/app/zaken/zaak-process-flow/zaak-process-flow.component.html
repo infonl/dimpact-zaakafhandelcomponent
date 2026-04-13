@@ -1,0 +1,20 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>flowsheet</mat-icon>
+  <h3 class="flex-grow-1">{{ "actie.processtroom.bekijken" | translate }}</h3>
+  <button mat-icon-button (click)="sideNav().close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+<div class="bpmn-diagram-container p-16">
+  <img
+    [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram'"
+    [alt]="'proces.toestand' | translate"
+    style="max-width: 100%; height: auto"
+  />
+</div>
