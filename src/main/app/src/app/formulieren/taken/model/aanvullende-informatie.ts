@@ -27,7 +27,10 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
   );
   private readonly klantenService = inject(KlantenService);
 
-  async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
+  async requestForm(
+    zaak: GeneratedType<"RestZaak">,
+    planItem?: GeneratedType<"RESTPlanItem">,
+  ): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
     replyToControl.disable();
 
@@ -72,6 +75,11 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       null,
       [Validators.min(moment().add(1, "day").startOf("day").valueOf())],
     );
+
+    if (planItem?.fataleDatum) {
+      taakFataleDatumControl.setValue(moment(planItem.fataleDatum));
+    }
+
     const messageControl = this.formBuilder.control(
       this.getMessageFieldLabel(zaak, null),
     );
@@ -88,18 +96,19 @@ export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
       Validators.required,
       Validators.email,
     ]);
-    if (
-      zaak.initiatorIdentificatie?.type &&
-      zaak.initiatorIdentificatie?.temporaryPersonId
-    ) {
-      this.klantenService
-        .getContactDetailsForPerson(
-          zaak.initiatorIdentificatie.temporaryPersonId,
-        )
-        .subscribe((value) => {
-          if (!value.emailadres) return;
-          emailControl.setValue(value.emailadres);
-        });
+    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      emailControl.setValue(emailAddress);
+    } else {
+      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
+      if (temporaryPersonId) {
+        this.klantenService
+          .getContactDetailsForPerson(temporaryPersonId)
+          .subscribe((value) => {
+            if (!value.emailadres) return;
+            emailControl.setValue(value.emailadres);
+          });
+      }
     }
 
     const formFields: FormField[] = [

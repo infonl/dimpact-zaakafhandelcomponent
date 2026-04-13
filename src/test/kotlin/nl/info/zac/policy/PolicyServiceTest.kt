@@ -35,7 +35,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
-import nl.info.zac.model.createEnkelvoudigInformatieObjectLock
+import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput

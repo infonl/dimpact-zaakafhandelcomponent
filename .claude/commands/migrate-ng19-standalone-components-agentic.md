@@ -23,6 +23,7 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 |---|---|---|
 | **G-1** | Before `npm run dev` browser verify | _"Please verify in browser (`npm run dev`). All good?"_ — **stop and wait** |
 | **G-2** | Before `gh pr create` | Show PR title + body as markdown — **stop and wait for approval** |
+| **G-3** | Before MD sync to claims branch | _"The migration MDs have changed. Sync them to the claims branch so teammates get the latest versions? (yes/no)"_ — **stop and wait** |
 
 ---
 
@@ -71,20 +72,20 @@ Confirm the target with the user before proceeding.
 Launch a **general-purpose** agent (substitute `{COMPONENT_CLASS}`):
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
+Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 
-1. Store current branch: git branch --show-current
-2. git checkout chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
-3. Read migration-claims.md.
-4. Find the ## Marcel section (or create it).
-5. Add: `- [ ] {COMPONENT_CLASS}` under ## Marcel.
-6. git add migration-claims.md && git commit -m "chore: claim {COMPONENT_CLASS} for standalone migration"
-7. git push origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
-8. git checkout <branch from step 1>
+Use git worktree — never git checkout:
+1. git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+2. git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+3. In /tmp/zac-claims/migration-claims.md: find the ## Marcel section (or create it); add `- [ ] {COMPONENT_CLASS}` under it.
+4. cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim {COMPONENT_CLASS} for standalone migration"
+5. git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+6. git worktree remove /tmp/zac-claims
 
-IMPORTANT: Do NOT stash any working-tree files. If the checkout fails due to conflicts, abort and report.
+Do NOT touch the main working tree. Do NOT stash anything.
 
-Return: CLAIMED: yes | BRANCH_RESTORED: yes | PREVIOUS_BRANCH: <name>
+Return: CLAIMED: yes
 ```
 
 ---
@@ -95,8 +96,11 @@ Run directly:
 
 ```bash
 git checkout main && git pull origin main
-git checkout -b temp/standalone-migration
+git checkout -b temp/standalone-{COMPONENT_CLASS_KEBAB}
 ```
+
+> Each parallel run MUST use a unique branch name based on the component class (kebab-case).
+> Example: `TakenVrijgevenDialogComponent` → `temp/standalone-taken-vrijgeven-dialog`.
 
 ---
 
@@ -125,11 +129,11 @@ TASK: Write a spec file at {COMPONENT_SPEC_PATH}, then self-review it.
        ({ ...defaults, ...fields }) as Partial<T> as unknown as T
    Never use bare `as unknown as T` on an object literal.
 5. Protected/private members via bracket notation: component["member"].
-6. SPDX: `2026 INFO.nl` only if INFO.nl is completely absent from the existing header.
+6. SPDX: new spec files get `2026 INFO.nl` only — never copy the component's Atos/prior-year header.
 7. Cover ≥90% of template behaviours. Do NOT add a checklist comment block to the spec.
 8. No `any`, no `as any`, no NO_ERRORS_SCHEMA, no querySelectorAll for Material components (use harnesses).
 9. No `: void` return type annotations — remove any existing ones in files you touch.
-9. describe(ClassName.name, ...) — class name reference, not a string literal.
+10. describe(ClassName.name, ...) — class name reference, not a string literal.
 
 --- SELF-REVIEW CHECKLIST ---
 After writing, verify every item:
@@ -141,7 +145,7 @@ After writing, verify every item:
 [ ] No querySelectorAll for Material components
 [ ] Factory helpers use `as Partial<T> as unknown as T` (never bare `as unknown as T`)
 [ ] Protected/private members via bracket notation
-[ ] SPDX header correct
+[ ] SPDX header correct (new file: `2026 INFO.nl` only)
 [ ] ≥90% template behaviours covered (no comment block)
 [ ] declarations[] used (not imports[])
 [ ] Services mocked via TestBed.inject() + jest.spyOn() — NOT useValue: mockObject (unless MAT_DIALOG_DATA or similar token)
@@ -169,7 +173,53 @@ Proceed automatically once green.
 
 ---
 
-## Stage 6 — Migration + Review (combined)
+## Stage 6 — Spec Auditor
+
+Launch a **general-purpose** agent with no prior context of how the spec was written:
+
+```
+Read AGENTS.md.
+Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md — pay special attention to the Rules table and Spec Conventions section.
+Read the spec at {COMPONENT_SPEC_PATH}.
+Read the component at {COMPONENT_TS_PATH} and its template at {COMPONENT_HTML_PATH} (if exists).
+
+TASK: Independently audit the spec. You did NOT write it — treat it with fresh eyes.
+
+For each item below, mark PASS or FAIL with a one-line reason:
+
+RULES
+[ ] No `any` / `as any` / eslint-disable no-explicit-any
+[ ] No `: void` return type annotations anywhere in the spec
+[ ] No trivial smoke tests (it("should create", ...))
+[ ] No NO_ERRORS_SCHEMA
+[ ] No querySelectorAll / querySelector for Material components (harnesses only; plain HTML elements are OK)
+[ ] SPDX header: new spec file → `2026 INFO.nl` only; existing file → INFO.nl added only if completely absent
+
+SPEC STRUCTURE
+[ ] describe(ClassName.name, ...) — class name reference, not a string literal
+[ ] declarations[] used (component is still standalone: false at this point)
+[ ] Services mocked via TestBed.inject() + jest.spyOn() — NOT useValue: mockObject (MAT_DIALOG_DATA / LOCALE_ID tokens are the only exception)
+[ ] provideHttpClient() present if any service uses ZacHttpClient
+[ ] provideRouter([]) present if any service uses Router
+[ ] Factory helpers use `as Partial<T> as unknown as T` — never bare `as unknown as T` on an object literal
+
+COVERAGE
+[ ] Every test asserts meaningful behaviour (no trivial creates/renders)
+[ ] ≥90% of template behaviours covered (buttons, conditionals, outputs, form states)
+[ ] Protected/private members accessed via bracket notation: component["member"]
+
+For each FAIL: output the exact line(s) that need changing and the correct fix.
+If all items PASS, return: AUDIT: PASS
+If any FAIL, fix them in the file, then return: AUDIT: PASS (N issues fixed: <summary>)
+
+Do NOT change any component source files — spec only.
+```
+
+---
+
+## Stage 7 — Migration + Review (combined)
+
+> Re-run baseline after Stage 6 audit fixes if anything was changed.
 
 Launch a **general-purpose** agent (substitute paths):
 
@@ -191,7 +241,7 @@ TASK: Migrate {COMPONENT_CLASS} to standalone, then self-review.
    - Access modifiers: protected (template-visible), private (internal), public only for @Input/@Output
    - @Input({ required: true }) field!: Type for required; @Input() field?: Type for optional
    - Fix TS errors only in files you touch
-   - SPDX: add 2026 INFO.nl only if INFO.nl completely absent
+   - SPDX: add 2026 INFO.nl only if INFO.nl completely absent from the existing header
 
 2. {DECLARING_MODULE_PATH}:
    - Move from declarations[] to imports[]
@@ -232,7 +282,7 @@ SELF_REVIEW: PASS
 
 ---
 
-## Stage 7 — Lint
+## Stage 8 — Lint
 
 Run directly from repo root:
 
@@ -244,28 +294,30 @@ Fix errors only in touched files. Ignore pre-existing errors in untouched files.
 
 ---
 
-## Stage 8 — Tick Claim
+## Stage 9 — Tick Claim
 
 Launch a **general-purpose** agent:
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
+Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 
-1. Store current branch: git branch --show-current
-2. git checkout chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
-3. In migration-claims.md: change `- [ ] {COMPONENT_CLASS}` to `- [x] {COMPONENT_CLASS}`
-4. git add migration-claims.md && git commit -m "chore: mark {COMPONENT_CLASS} done in migration claims"
-5. git push origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
-6. git checkout <branch from step 1>
+Use git worktree — never git checkout:
+1. git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+2. git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+3. In /tmp/zac-claims/migration-claims.md: change `- [ ] {COMPONENT_CLASS}` to `- [x] {COMPONENT_CLASS}`
+4. cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: mark {COMPONENT_CLASS} done in migration claims"
+5. git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+6. git worktree remove /tmp/zac-claims
 
-IMPORTANT: Do NOT stash or carry any working-tree files across the branch switch.
+Do NOT touch the main working tree. Do NOT stash anything.
 
-Return: TICKED: yes | BRANCH_RESTORED: yes
+Return: TICKED: yes
 ```
 
 ---
 
-## Stage 9 — Commit
+## Stage 10 — Commit
 
 Stage and commit directly (do not auto-commit without showing the stat first):
 
@@ -279,32 +331,23 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 
 ---
 
-## Stage 10 — Stats Updater
+## Stage 11 — Stats Updater
 
-Launch a **general-purpose** agent:
+Run directly:
 
+```bash
+cd src/main/app && grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
 
-Read AGENTS.md.
-Read .claude/commands/migrate-ng19-standalone-components.md.
+Update `.claude/commands/migrate-ng19-standalone-components.md`:
+- Replace the `**Progress: N remaining**` line with the new count and today's date.
+- Update `## Next Target` to `TBD — run step 0 (claims check) at start of next session.`
 
-Run from src/main/app/:
-  grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l
-→ this is REMAINING. DONE = 152 - REMAINING.
+```bash
+git add .claude/commands/migrate-ng19-standalone-components.md
+git commit -m "chore: update migration plan after {COMPONENT_CLASS}
 
-1. Update progress line: **Progress: X done — Y remaining** (2026-03-26)
-2. Add ✅ entry to ## Completed:
-   ### ✅ `{COMPONENT_RELATIVE_PATH}` ({TODAY})
-   - `imports: [{IMPORTS_LIST}]`
-   - Access modifiers: {ACCESS_FIXES_SUMMARY}
-   - **Pattern**: {notable pattern, if any}
-3. Update ## Next Target.
-4. git add .claude/commands/migrate-ng19-standalone-components.md
-   git commit -m "chore: update migration plan after {COMPONENT_CLASS}"
-   git push origin {CURRENT_BRANCH}
-
-Return: STATS_UPDATED: yes | NEW_PROGRESS: N done — M remaining
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 ```
 
 ---
@@ -315,7 +358,7 @@ _"Please verify in browser (`npm run dev`). All good?"_ — **stop and wait.**
 
 ---
 
-## Stage 11 — PR
+## Stage 12 — PR
 
 ⛔ **Gate G-2** — show the following and wait for approval:
 
@@ -335,9 +378,9 @@ Solves PZ-XXXXX
 Ask for Jira ticket if unknown. After approval, launch a **general-purpose** agent:
 
 ```
-Repo root: /Users/marcel.evers/_PROJECTS/_INFO/DIMPACT/dimpact-zaakafhandelcomponent
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
 
-1. git branch -m temp/standalone-migration chore/{JIRA}--FE--Angular-v19-migration--{COMPONENT_CLASS_KEBAB}
+1. git branch -m temp/standalone-{COMPONENT_CLASS_KEBAB} chore/{JIRA}--FE--Angular-v19-migration--{COMPONENT_CLASS_KEBAB}
 2. git push -u origin chore/{JIRA}--FE--Angular-v19-migration--{COMPONENT_CLASS_KEBAB}
 3. gh pr create --title "{APPROVED_TITLE}" --body "$(cat <<'EOF'
 {APPROVED_BODY}
@@ -349,25 +392,65 @@ Return: PR_URL: <url>
 
 ---
 
+## Stage 13 — Sync Migration MDs to Claims Branch
+
+> Run after the PR is created. Keeps the collaboration branch up-to-date with the latest versions of all migration tooling so teammates always get fresh skill/plan files.
+
+**Before running:** ask the user — _"The migration MDs have changed in this branch. Sync them to the claims branch so teammates get the latest versions? (yes/no)"_ — **wait for confirmation.**
+
+Launch a **general-purpose** agent only if the user confirms:
+
+```
+Repo root: <absolute path to the local clone of dimpact-zaakafhandelcomponent>
+Work branch: {FINAL_BRANCH_NAME}
+Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+
+Files to sync (copy from work branch into claims branch):
+- .claude/commands/migrate-ng19-standalone-components.md
+- .claude/commands/migrate-ng19-standalone-components-agentic.md
+- .claude/commands/audit-ng-spec-skill.md
+
+Use git worktree — never git checkout:
+1. git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+2. git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+3. For each file above:
+   git show {FINAL_BRANCH_NAME}:.claude/commands/<filename> > /tmp/zac-claims/.claude/commands/<filename>
+4. cd /tmp/zac-claims
+   git diff --stat   (show what changed)
+   If no diff: skip commit, report "MDs already up to date"
+   If diff: git add .claude/commands/ && git commit -m "chore: sync migration MDs from {FINAL_BRANCH_NAME}"
+5. git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+6. git worktree remove /tmp/zac-claims
+
+Do NOT touch the main working tree. Do NOT stash anything.
+
+Return: SYNCED: yes | FILES_CHANGED: <list or "none">
+```
+
+---
+
 ## Pipeline Summary
 
 ```
 Stage  1   Target Picker        → component chosen (skip if named)
-Stage  2   Claim Agent          → claimed on collab branch
-Stage  3   Work Branch          → temp/standalone-migration from main
+Stage  2   Claim Agent          → claimed via git worktree (no stash)
+Stage  3   Work Branch          → temp/standalone-{component-kebab} from main
 Stage  4   Spec Writer+Reviewer → spec written and self-reviewed
 Stage  5   Baseline Tests       → green ✅ (auto-proceed)
-Stage  6   Migration+Reviewer   → standalone: true, tests green, self-reviewed
-Stage  7   Lint                 → 0 errors in touched files
-Stage  8   Tick Claim           → [x] on collab branch
-Stage  9   Commit               → files committed
-Stage 10   Stats Updater        → plan MD updated
+Stage  6   Spec Auditor         → independent audit; fixes applied if needed
+Stage  7   Migration+Reviewer   → standalone: true, tests green, self-reviewed
+Stage  8   Lint                 → 0 errors in touched files
+Stage  9   Tick Claim           → [x] via git worktree (no stash)
+Stage 10   Commit               → files committed
+Stage 11   Stats Updater        → plan MD progress counter updated
          ⛔ G-1: browser verify
-Stage 11   PR                   → branch renamed, PR created
+Stage 12   PR                   → branch renamed, PR created
          ⛔ G-2: PR title/body approval
+         ⛔ G-3: confirm MD sync to claims branch
+Stage 13   MD Sync              → migration MDs synced to claims branch via worktree
 ```
 
-**Human gates: 2** (browser verify · PR approval).
+**Human gates: 3** (browser verify · PR approval · MD sync confirmation).
 Everything else runs autonomously.
 
 ---
@@ -382,5 +465,9 @@ Session 2: /migrate-ng19-standalone-components-agentic ComponentB
 Session 3: /migrate-ng19-standalone-components-agentic ComponentC
 ```
 
-Each session works in its own `temp/standalone-migration` branch. Before pushing, rename to avoid collisions.
-Components that share a module file should NOT run in parallel (merge conflict risk).
+Each session gets its own branch (`temp/standalone-component-a`, `temp/standalone-component-b`, etc.) and its own claim worktree at `/tmp/zac-claims`. Since worktrees are ephemeral (added and removed per stage), sessions do not interfere.
+
+**Conflict rules:**
+- Components that share a **module file** must NOT run in parallel — they would produce merge conflicts in the module.
+- Claims are serialised automatically by git push ordering — no coordination needed.
+- Each PR is independent and targets `main`.

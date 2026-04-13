@@ -5,18 +5,33 @@
 
 import { Component, effect, inject, input } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
 @Component({
   selector: "zac-taak-edit",
   templateUrl: "./taak-edit.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class TaakEditComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -84,7 +99,7 @@ export class TaakEditComponent {
       });
   }
 
-  formSubmit() {
+  protected formSubmit() {
     this.mutation.mutate({
       taakId: this.task().id!,
       zaakUuid: this.task().zaakUuid!,

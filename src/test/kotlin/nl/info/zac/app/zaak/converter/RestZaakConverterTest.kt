@@ -13,6 +13,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
@@ -34,6 +35,7 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
+import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRestDecision
@@ -71,6 +73,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
     val identificationService = mockk<IdentificationService>()
+    val klantClientService = mockk<KlantClientService>()
     val restZaakConverter = RestZaakConverter(
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
@@ -84,7 +87,8 @@ class RestZaakConverterTest : BehaviorSpec({
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService,
-        identificationService = identificationService
+        identificationService = identificationService,
+        klantClientService = klantClientService,
     )
 
     beforeEach {
@@ -134,6 +138,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -153,6 +158,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     isOpgeschort shouldBe zaak.isOpgeschort()
                     eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldContainExactly EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                    zaakSpecificContactDetails shouldBe null
                 }
             }
         }
@@ -198,6 +204,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -215,6 +222,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     isOpgeschort shouldBe zaak.isOpgeschort()
                     eerdereOpschorting shouldBe zaak.isEerderOpgeschort()
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                    zaakSpecificContactDetails shouldBe null
                 }
             }
         }
@@ -262,6 +270,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
@@ -279,6 +288,7 @@ class RestZaakConverterTest : BehaviorSpec({
                     isOpgeschort shouldBe zaak.isOpgeschort()
                     eerdereOpschorting shouldBe true
                     indicaties shouldNotContain EnumSet.of(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
+                    zaakSpecificContactDetails shouldBe null
                 }
             }
         }
@@ -380,6 +390,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting a zaak to a rest zaak") {
             val testCases = listOf(
@@ -433,6 +444,43 @@ class RestZaakConverterTest : BehaviorSpec({
                         restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
                     }
                 }
+            }
+        }
+    }
+
+    Given("A zaak with zaak-specific contact details") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val rolNatuurlijkPersoon = createRolNatuurlijkPersoon()
+        val betrokkeneIdentificatie = createBetrokkeneIdentificatie()
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+        val contactDetails = ContactDetails(telephoneNumber = "0612345678", emailAddress = "test@example.com")
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+        every {
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
+        } returns betrokkeneIdentificatie
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns contactDetails
+
+        When("converting a zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            Then("the zaakSpecificContactDetails should be set on the rest zaak") {
+                restZaak.zaakSpecificContactDetails shouldBe contactDetails
             }
         }
     }

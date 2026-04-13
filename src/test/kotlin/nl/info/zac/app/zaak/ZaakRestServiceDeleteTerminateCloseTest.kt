@@ -21,8 +21,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.document.OntkoppeldeDocumentenService
-import net.atos.zac.document.model.OntkoppeldDocument
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -31,6 +29,7 @@ import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -54,11 +53,12 @@ import nl.info.zac.app.zaak.model.RESTReden
 import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
-import nl.info.zac.app.zaak.model.createRestDocumentOntkoppelGegevens
+import nl.info.zac.app.zaak.model.createRestDetachDocumentData
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -92,7 +92,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
@@ -128,7 +128,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
@@ -343,7 +343,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
     }
 
-    Context("Uncoupling an informatieobject from a zaak") {
+    Context("Detaching an informatieobject from a zaak") {
         Given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak"
         ) {
@@ -354,7 +354,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             val zaakinformatiebject = createZaakInformatieobjectForReads(
                 uuid = informatieobjectUUID
             )
-            val restOntkoppelGegevens = createRestDocumentOntkoppelGegevens(
+            val restOntkoppelGegevens = createRestDetachDocumentData(
                 zaakUUID = zaakUUID,
                 documentUUID = informatieobjectUUID,
                 reden = "veryFakeReason"
@@ -371,11 +371,11 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             } just Runs
             every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
             every {
-                ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
-            } returns mockk<OntkoppeldDocument>()
+                detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+            } just Runs
 
             When("a request is done to unlink the zaakinformatieobject from the zaak") {
-                zaakRestService.ontkoppelInformatieObject(restOntkoppelGegevens)
+                zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
 
                 Then(
                     """
@@ -390,7 +390,62 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
                             "Ontkoppeld"
                         )
                         indexingService.removeInformatieobject(informatieobjectUUID)
-                        ontkoppeldeDocumentenService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                        detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
+                    }
+                }
+            }
+        }
+
+        Given(
+            "A zaak with a zaakinformatieobject where the corresponding informatieobject is also linked to another zaak"
+        ) {
+            val zaakUUID = UUID.randomUUID()
+            val informatieobjectUUID = UUID.randomUUID()
+            val zaak = createZaak(uuid = zaakUUID)
+            val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject(uuid = informatieobjectUUID)
+            val zaakinformatiebject = createZaakInformatieobjectForReads(
+                uuid = informatieobjectUUID
+            )
+            val zaakInformatieobject2 = createZaakInformatieobjectForReads()
+            val restOntkoppelGegevens = createRestDetachDocumentData(
+                zaakUUID = zaakUUID,
+                documentUUID = informatieobjectUUID,
+                reden = "veryFakeReason"
+            )
+            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID) } returns enkelvoudiginformatieobject
+            every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak).ontkoppelen } returns true
+            every {
+                zrcClientService.listZaakinformatieobjecten(any<ZaakInformatieobjectListParameters>())
+            } returns listOf(zaakinformatiebject)
+            // enkelvoudiginformatieobject is linked to another zaak still
+            every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns listOf(zaakInformatieobject2)
+            every {
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+            } just Runs
+
+            When("a request is done to unlink the zaakinformatieobject from the zaak") {
+                zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
+
+                Then(
+                    "the zaakinformatieobject is unlinked from the zaak"
+                ) {
+                    verify(exactly = 1) {
+                        zrcClientService.deleteZaakInformatieobject(
+                            zaakinformatiebject.uuid,
+                            "veryFakeReason",
+                            "Ontkoppeld"
+                        )
+                    }
+                }
+                And("the informatieobject is not removed from the search index and is not added as an inboxdocument") {
+                    verify(exactly = 0) {
+                        indexingService.removeInformatieobject(informatieobjectUUID)
+                        detachedDocumentService.create(
+                            any<EnkelvoudigInformatieObject>(),
+                            any<Zaak>(),
+                            any()
+                        )
                     }
                 }
             }

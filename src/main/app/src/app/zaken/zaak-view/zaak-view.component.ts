@@ -65,6 +65,8 @@ import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-op
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
 
+type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
+
 @Component({
   templateUrl: "./zaak-view.component.html",
   styleUrls: ["./zaak-view.component.less"],
@@ -1508,6 +1510,8 @@ export class ZaakViewComponent
   }
 
   protected showInitiator() {
+    if (this.zaak.zaakSpecificContactDetails) return true;
+
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
 
@@ -1517,32 +1521,20 @@ export class ZaakViewComponent
     return Boolean(brpKoppelen || kvkKoppelen);
   }
 
-  protected showPersoonsgegevens() {
-    if (!this.zaak.zaaktype?.uuid) return false;
+  protected initiatorViewType(): InitiatorViewType {
+    const koppelingen =
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
 
-    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
-      return false;
+    if (koppelingen) {
+      const type = this.zaak.initiatorIdentificatie?.type ?? "";
+      if (koppelingen.brpKoppelen && ["BSN"].includes(type)) return "PERSON";
+      if (koppelingen.kvkKoppelen && ["VN", "RSIN"].includes(type))
+        return "COMPANY";
+    }
 
-    const { brpKoppelen } =
-      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
+    if (this.zaak.zaakSpecificContactDetails) return "CONTACT_DETAILS";
 
-    return Boolean(
-      brpKoppelen &&
-        ["BSN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
-    );
-  }
-
-  protected showBedrijfsgegevens() {
-    if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
-      return false;
-
-    const { kvkKoppelen } =
-      this.zaak.zaaktype.zaakafhandelparameters.betrokkeneKoppelingen;
-
-    return Boolean(
-      kvkKoppelen &&
-        ["VN", "RSIN"].includes(this.zaak.initiatorIdentificatie?.type ?? ""),
-    );
+    return "ADD";
   }
 
   protected allowedToAddBetrokkene() {

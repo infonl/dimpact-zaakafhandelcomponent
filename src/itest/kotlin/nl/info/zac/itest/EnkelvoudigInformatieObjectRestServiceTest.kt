@@ -34,6 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -42,6 +43,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
@@ -466,6 +468,29 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 }
                 """.trimIndent()
                 JSONObject(responseBody).getString("identificatie") shouldNotBe null
+            }
+        }
+
+        When("the delete enkelvoudig informatie object endpoint is called for the first created document") {
+            val response = itestHttpClient.performDeleteRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid",
+                requestBodyAsString = """{"zaakUuid": "$zaakUuid"}""",
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
+            )
+            Then("the response should be no content") {
+                logger.info { "Delete response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+        }
+
+        When("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
+            val getResponse = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
+                testUser = RECORDMANAGER_DOMAIN_TEST_1
+            )
+            Then("the response should be not found") {
+                logger.info { "Get after delete response: ${getResponse.bodyAsString}" }
+                getResponse.code shouldBe HTTP_NOT_FOUND
             }
         }
     }

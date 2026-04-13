@@ -96,8 +96,8 @@ class NotificationsTest : BehaviorSpec({
     lateinit var zaakProductaanvraagComboUuid: UUID
     lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
 
-    Given("""ZAC and all related Docker containers are running""") {
-        When("""the notificaties endpoint is called with fake payload without authentication header""") {
+    Given("A fake notifications payload without authentication header") {
+        When("the notificaties endpoint is called") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
@@ -115,8 +115,8 @@ class NotificationsTest : BehaviorSpec({
 
     Given(
         """
-            ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with 
-            a productaanvraag type, zaaktypeCmmnConfiguration are defined in ZAC configured with the same productaanvraag type
+            A productaanvraag object exists in Objecten with a productaanvraag type. 
+            A zaaktypeCmmnConfiguration is defined in ZAC with the same productaanvraag type
             and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
             and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()

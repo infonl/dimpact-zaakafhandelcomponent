@@ -1,7 +1,7 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 44 done — 108 remaining** (2026-04-02)
-Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | wc -l` (from `src/main/app/`)
+**Progress: 71 remaining** (2026-04-09)
+Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
 
@@ -18,6 +18,25 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 ---
 
+## Pattern Index
+
+| Pattern | Detail |
+|---|---|
+| Service mocking (`TestBed.inject` + `jest.spyOn`) | See Spec Conventions → Service mocking below |
+| `MatDialog` in standalone | `fixture.debugElement.injector.get(MatDialog)` — standalone gets its own injector, not root |
+| Shell isolation (`TestBed.overrideComponent`) | `TestBed.overrideComponent(Shell, { remove: { imports: [Real] }, add: { imports: [Stub] } })` |
+| Partial test fixtures (`makeX` factory) | See Spec Conventions → bullets below |
+| TanStack Query scheduler (loading spinner tests) | `notifyManager.setScheduler((fn) => fn())` in `beforeEach`; restore in `afterEach`; import from `@tanstack/query-core` |
+| Abstract base class | Abstract base: `@Component({ template: '', standalone: true })`, no `imports[]`; each subclass declares its own |
+| Direct class instantiation (no TestBed) | Zero-service components: `new Component(mockService)` — skip TestBed entirely |
+| `CdkDragDrop` direct method call | `component["move"]({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)` |
+| `fakeAsync` + `tick(0)` for `setTimeout` in `ngOnInit` | Wrap `createComponent` + `fixture.detectChanges` in `fakeAsync`; call `tick(0)` after |
+| Async + fakeAsync split `beforeEach` (child HTTP calls) | First `beforeEach` is `async` (TestBed + spies); second is `fakeAsync` (create + `tick(0)`); use `delay(0)` on all mock observables |
+| `By.directive` for directive presence | `fixture.debugElement.query(By.directive(MatTooltip))` — raw attribute selectors don't work after Angular processes them |
+| Cherry-pick an unmerged dep before migrating | `git cherry-pick <sha>` onto work branch when a dep PR hasn't merged to `main` yet |
+
+---
+
 ## Rules
 
 | Rule | Detail |
@@ -31,7 +50,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 | **`public` only when forced** | `@Input`, `@Output`, or inherited `public` from a parent class (e.g. `AdminComponent.utilService`). |
 | **Bracket notation in specs** | Access protected members via `component["member"]()` — never promote to `public` for a spec. |
 | **`@Input()` with `!`** | Must use `@Input({ required: true }) field!: Type`. Optional inputs use `?`. |
-| **SPDX header** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. |
+| **SPDX header (existing files)** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. If `INFO.nl` already appears (any year), leave unchanged. |
+| **SPDX header (new spec files)** | New `.spec.ts` files get `2026 INFO.nl` only — never copy the component's `Atos`/prior-year header. |
 | **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
 | **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
 | **No `: void` return types** | Never write `: void` on methods (component `.ts` and spec `.ts`). TypeScript infers `void` — the annotation is redundant. Remove any existing `: void` annotations in files you touch. |
@@ -47,7 +67,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
 | 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
 | 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
-| 3 | **Claim** — `git checkout -b claims-update origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; ask user to name the batch (`## {name}`) where this migration falls under in `migration-claims.md`; commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git checkout temp/standalone-migration` | — |
+| 3 | **Claim** — `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; ask user to name the batch (`## {name}`); edit `/tmp/zac-claims/migration-claims.md` to add components; `cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim ..." && git push origin HEAD:<claims-branch>`; `git worktree remove /tmp/zac-claims` (where `<claims-branch>` = `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`) | — |
 
 ### Phase B — Per-component loop (repeat until PR)
 
@@ -66,9 +86,9 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 14 | **Fix new TS errors** introduced by migration only | — |
 | 15 | **Run tests** — must still pass | **Fix until green** |
 | 16 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
-| 17 | **Tick off claim** — `git checkout claims-update`, mark component `[x]` in `migration-claims.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout temp/standalone-migration` | — |
+| 17 | **Tick off claim** — worktree pattern: `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; mark `[x]` in `/tmp/zac-claims/migration-claims.md`; commit + push; `git worktree remove /tmp/zac-claims` | — |
 | 18 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 19 | → if **continue**: **claim first** — `git checkout claims-update`, add next component under `## Marcel` in `migration-claims.md`, commit + push, `git checkout temp/standalone-migration`; then go to step 4 | — |
+| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## Marcel` in `/tmp/zac-claims/migration-claims.md`, commit + push, remove worktree; then go to step 4 | — |
 | 20 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
@@ -80,8 +100,10 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 23 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
 | 24 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
 | 25 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
-| 26 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git checkout claims-update`, `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > .claude/commands/migrate-ng19-standalone-components.md`, commit + push to `origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`, `git checkout <work-branch>` | — |
+| 26 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me && git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; copy updated plan: `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > /tmp/zac-claims/.claude/commands/migrate-ng19-standalone-components.md`; `cd /tmp/zac-claims && git add .claude/commands/migrate-ng19-standalone-components.md && git commit -m "chore: sync migration plan" && git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git worktree remove /tmp/zac-claims` | — |
 | 27 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
+
+---
 
 ### Spec conventions
 
@@ -149,223 +171,8 @@ Solves PZ-XXXXX
 
 ---
 
-## Completed
-
-### ✅ `identity/identity.component.ts` (2026-04-01)
-- `imports: [MatCardModule, MatListModule]`
-- Access modifiers: template-visible members → `protected`
-- **Pattern**: identity overview component using Material card/list; signal inputs used
-
-### ✅ `gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component.ts` (2026-04-01)
-- `imports: [NgIf, NgFor, NgClass, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslateModule, ReadMoreComponent]`
-- Access modifiers: `actieveZoekopdracht`, `zoekopdrachten`, `actieveFilters` → `protected`; internal helpers → `private`
-- **Pattern**: `ReadMoreComponent` already standalone — import directly; `MatMenuModule` covers `mat-menu` + `[matMenuTriggerFor]`
-
-### ✅ `signaleringen/signaleringen-settings/signaleringen-settings.component.ts` (2026-04-01)
-- `imports: [NgClass, NgFor, NgIf, MatTableModule, MatCheckboxModule, TranslateModule]`
-- Access modifiers: template-visible members → `protected`
-- **Pattern**: mat-table with simple module (SharedModule + routing only); 16 tests
-
-### ✅ `fout-afhandeling/fout-afhandeling.component.ts` (2026-04-01)
-- `imports: [AsyncPipe, NgFor, MatCardModule, MatIconModule, TranslateModule]`
-- Access modifiers: template-visible members → `protected`
-- **Pattern**: error-page component; only declaration in its module; minimal service dependencies
-
-### ✅ `shared/version/version.component.ts` (2026-03-16)
-- `imports: [NgIf, MatChipsModule, MatTooltipModule, MatIconModule, MatCardModule, DatumPipe, TranslateModule]`
-- **Pattern**: Named `Pick<Service, 'method'>` mock + `TestBed.inject` for typesafe assertions; `EMPTY` when service just needs to complete
-
-### ✅ `shared/table-zoek-filters/toggle-filter/toggle-filter.component.ts` (2026-03-16)
-- `imports: [MatButtonModule, MatIconModule, NgSwitch, NgSwitchCase]`
-- **Pattern**: Button click via `querySelector("button").click()`; `@Output()` EventEmitter is `public` so tests subscribe directly
-
-### ✅ `shared/read-more/read-more.component.ts` (2026-03-12)
-- `imports: [NgIf, MatTooltipModule]`
-- **Pattern**: `By.directive(MatTooltip)` to assert directive presence — raw attribute selectors don't work after Angular processes them
-
-### ✅ `core/loading/loading.component.ts` (2026-03-11) — canonical spec reference
-- `imports: [MatProgressBarModule]`
-- **Gotcha**: `injectIsMutating/IsFetching` use async scheduler → wrap in `describe` with `beforeEach(() => notifyManager.setScheduler((fn) => fn()))` + `afterEach` restore; import from `@tanstack/query-core`
-- **Gotcha**: In-flight query cancelled by `testQueryClient.clear()` → add `.catch(() => {})` on `query.fetch()`
-- **Pattern**: `WritableSignal` mocked with real `signal()`; `UtilService` inline `useValue: { loading: signal(false) } satisfies Pick<...>`; `provideQueryClient(testQueryClient)`
-
-### ✅ `shared/material/narrow-checkbox.directive.ts` (2026-03-17)
-- `imports: []` — attribute directive, no template deps
-- **Pattern**: Test host becomes standalone and imports the directive directly
-
-### ✅ `shared/export-button/export-button.component.ts` (2026-03-17)
-- `imports: [MatButtonModule, MatIconModule, TranslateModule]`
-- **Pattern**: Baseline uses `declarations[]` → after migration switch to `imports: [Component]`; Material modules drop from spec (component brings them)
-
-### ✅ `shared/navigation/back-button.directive.ts` (2026-03-17)
-- `imports: []` — host listener directive
-- **Pattern**: TestHost standalone + imports directive; `Pick<NavigationService, 'back'>` mock
-
-### ✅ `shared/directives/outside-click.directive.ts` (2026-03-17)
-- `imports: []`; kept in module `imports` (used by `EditInputComponent`) but NOT exported
-- **Pattern**: `fakeAsync` + `tick(0)` to flush `setTimeout` in `ngOnInit`
-- **Pattern**: Directive used by another non-standalone component in the same module → still needs module `imports` even without re-exporting
-
-### ✅ `shared/static-text/static-text.component.ts` (2026-03-17)
-- `imports: [NgIf, NgClass, MatIconModule, TranslateModule, ReadMoreComponent, EmptyPipe]`
-- **Pattern**: Generic components need full type union in `ComponentFixture<StaticTextComponent<string | number | null | undefined>>`
-
-### ✅ `admin/mailtemplates/mailtemplates.component.ts` (2026-03-19)
-- `imports: [NgIf, NgFor, MatSidenavModule, MatTableModule, MatSortModule, MatCardModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatDialogModule, RouterModule, TranslateModule, SideNavComponent, ReadMoreComponent]`
-- **Pattern**: Use `fixture.debugElement.injector.get(MatDialog)` — standalone component with `MatDialogModule` gets its own injector instance, not root
-
-### ✅ `admin/inrichtingscheck/inrichtingscheck.component.ts` (2026-03-19)
-- `imports: [NgIf, MatSidenavModule, MatCardModule, MatExpansionModule, MatIconModule, MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatButtonModule, TranslateModule, DatumPipe, SideNavComponent, ToggleFilterComponent, VersionComponent, ReadMoreComponent]`
-- **Pattern**: Split `beforeEach` into `async` (TestBed + spies) and `fakeAsync` (create + `tick(0)`) — needed when `ngAfterViewInit` emits synchronously; use `delay(0)` on all mock observables
-- **Pattern**: Mock hidden endpoints called by child components (`VersionComponent.readBuildInformatie`) or HTTP errors occur
-- **Pattern**: `MatButtonHarness.isDisabled()` unreliable for `[disabled]` binding in Angular Material 19 — use native `querySelector("[mat-raised-button]").disabled`
-
-### ✅ `admin/mailtemplate/mailtemplate.component.ts` (2026-03-19)
-- Already `standalone: true`; `imports: [ReactiveFormsModule, MatSidenavModule, MatCardModule, MatButtonModule, RouterModule, TranslateModule, SideNavComponent, MaterialFormBuilderModule]`
-- Note: imports ATOS `MaterialFormBuilderModule` — already migrated, exclusion applies only to future migrations
-
-### ✅ `shared/edit/edit-input/edit-input.component.ts` (2026-03-19) — ATOS exception
-- `imports: [NgIf, MatIconModule, MatButtonModule, TranslateModule, EmptyPipe, OutsideClickDirective, MaterialFormBuilderModule]`
-- **Exception**: thin wrapper around ATOS, not ATOS internals; migrating unblocks `referentie-tabel`
-
-### ✅ `admin/referentie-tabel/referentie-tabel.component.ts` (2026-03-19)
-- `imports: [NgIf, DragDropModule, MatSidenavModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, TranslateModule, SideNavComponent, EditInputComponent]`
-- **Pattern**: `By.directive(EditInputComponent)` to query all instances incl. inside table cells
-- **Pattern**: `CdkDragDrop` tested by calling `component["moveTabelWaarde"]({ previousIndex, currentIndex, container: { data } } as unknown as CdkDragDrop<...>)` directly
-- **Pattern**: `import type { CdkDragDrop }` when used only as type cast — avoids "declared but never read"
-- **Pattern**: `*matNoDataRow` does not render synchronously — test empty-state via component state instead
-
-### ✅ `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts` (2026-03-23) — PR #5565
-- `imports: [NgIf, ReactiveFormsModule, MatFormFieldModule, MatDatepickerModule, MatNativeDateModule, MatIconModule]`
-- **Fix**: `floatLabel="never"` removed from template (not a valid `FloatLabelType`); `FormControl<Date | null>` for nullable date controls
-- **Fix**: `@Input({ required: true }) range!: DatumRange`, `@Input({ required: true }) label!: string`
-
-### ✅ `admin/parameters/parameters.component.ts` (2026-03-23) — PR #5565
-- `imports: [NgIf, NgFor, RouterLink, TranslateModule, MatSidenavModule, MatCardModule, MatTableModule, MatSortModule, MatFormFieldModule, MatSelectModule, MatIconModule, MatButtonModule, SideNavComponent, ToggleFilterComponent, DateRangeFilterComponent, ReadMoreComponent, DatumPipe, EmptyPipe]`
-- **Pattern**: `provideRouter([])` instead of `RouterModule.forRoot([])` in standalone spec
-- **Pattern**: Three describe blocks: unit tests for `applyFilter`, unit tests for compare functions, TestBed render tests
-
-### ✅ `shared/notification-dialog/notification-dialog.component.ts` (2026-03-23) — PR #5567
-- `imports: [MatDialogContent, MatDialogActions, MatButtonModule, TranslateModule]`
-- **Pattern**: `TestBed.inject(MAT_DIALOG_DATA)` to get a typed reference to dialog data for use in assertions
-
-### ✅ `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts` (2026-03-23) — PR #5567
-- `imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatIconModule]`
-- **Fix**: `@Input() value: string` → `@Input() value?: string`; `FormControl<string>` → `FormControl<string | undefined>`; `formControl.value` assigned with `?? undefined` to avoid `null`
-- **Pattern**: `component["formControl"].setValue(...)` + `dispatchEvent(new Event("blur"))` to trigger `change()` without going through the DOM input
-
-### ✅ `shared/confirm-dialog/confirm-dialog.component.ts` (2026-03-23) — PR #5567
-- `imports: [NgIf, MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule]`
-- **Pattern**: `setup()` helper function keeps `beforeEach` light when the same `TestBed` config is needed across multiple `describe` blocks
-- **Pattern**: `Subject<void>` as the observable lets tests control next/error timing precisely
-- **Note**: `confirm-dialog.component.less` has a pre-existing ESLint parse error (no LESS parser configured); `autofocus` attribute on confirm button is a pre-existing `no-autofocus` lint violation — both are in untouched files
-
-### ✅ `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts` (2026-03-24)
-- `imports: [MatStepperModule, MatIconModule, MatButtonModule, TranslateModule, MaterialFormBuilderModule]`
-- **Pattern**: `MatButtonHarness.with({ text: /regex/ })` to find button by translated text; `nativeElement.disabled` for `[disabled]` binding (harness `isDisabled()` unreliable)
-- **Pattern**: `satisfies Pick<ActivatedRoute, "data">` for typed route mock
-
-### ✅ `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts` (2026-03-24)
-- `imports: [NgIf, NgFor, ReactiveFormsModule, MatStepperModule, MatIconModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, MatTableModule, TranslateModule, MaterialFormBuilderModule, StaticTextComponent]`
-- **Pattern**: `private readonly dialog = inject(MatDialog)` (field initializer) — removed from constructor
-- **Pattern**: `fixture.debugElement.injector.get(MatDialog)` for standalone component with `MatDialogModule`
-- **Pattern**: `MatDialogRef` spy with `afterClosed: () => of(true)` to simulate confirm dialog close
-
-### ✅ `admin/parameters-edit-shell/parameters-edit-shell.component.ts` (2026-03-24)
-- `imports: [NgSwitch, NgSwitchCase, NgSwitchDefault, MatSidenavModule, MatProgressSpinnerModule, SideNavComponent, ParameterSelectProcessModelMethodComponent, ParametersEditCmmnComponent, ParametersEditBpmnComponent]`
-- **Pattern**: `TestBed.overrideComponent(ShellComponent, { remove: { imports: [RealChild] }, add: { imports: [StubChild] } })` to isolate shell from full child service graphs
-- **Pattern**: Stub components: `@Component({ selector: 'app-xyz', template: '', standalone: true, inputs: ['...'], outputs: ['...'] })` — must match all `@Input`/`@Output` of the real component to avoid binding errors
-
-### ✅ `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts` (2026-03-26)
-- Zero services; pure switch logic + `@HostListener` — fastest possible spec: direct class instantiation, 11 tests, no TestBed
-- **Cherry-pick pattern**: when a dependency PR (e.g. indicaties standalone) hasn't merged to `main` yet, `git cherry-pick <commit>` onto the work branch before migrating the dependent component
-- **Partial test fixtures**: use named factory helpers `const makeX = (fields: Partial<T>): T => fields as unknown as T`; for inline (single use) prefer `{ ...fields } as Partial<T> as unknown as T`; for invalid-union tests cast only the field: `makeX({ type: "UNKNOWN" as T["type"] })`
-
-### ✅ `indicaties` cluster (2026-03-26) — `IndicatiesComponent` (base) + `BesluitIndicatiesComponent` + `PersoonIndicatiesComponent` + `ZaakIndicatiesComponent`
-- `imports: [CommonModule, MaterialModule, TranslateModule]` (all 3 concrete subclasses share the same template and same import set)
-- **Inheritance pattern**: Abstract base `@Component({ template: '', standalone: true })` needs no `imports[]`; each subclass declares its own `imports[]` covering the shared template's directives/pipes
-- **Access modifiers**: `indicaties` and `Layout` fields on the base class → `protected`; `loadIndicaties()` in subclasses → `private`; `@Input()` fields remain `public`
-- **Spec pattern**: Instantiate component class directly with `new Component(mockService)` — no `TestBed.createComponent` needed when testing pure logic; use `component["indicaties"]` (bracket notation) to access the protected field
-- **NgModule cleanup**: Standalone components move from `declarations[]` → `imports[]` in `shared.module.ts`; remain in `exports[]` so consuming modules (`zoeken`, `zaken`, `informatie-objecten`) continue to receive them via `SharedModule`
-- **Downstream spec fix**: Other specs that had the component in `declarations[]` need it moved to `imports[]` (e.g., `zaak-view.component.spec.ts`)
-
-### ✅ `fout-afhandeling/dialog/fout-dialog.component.ts` + `actie-onmogelijk-dialog.component.ts` (2026-03-26) — Dax Batch 2
-- `imports: [MatToolbarModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDividerModule, MatButtonModule, MatIconModule, TranslateModule]` (both components, identical import set)
-- **Access modifiers**: `dialogRef` → `private`; `close()` → `protected`
-- **Module cleanup**: removed from `declarations[]`, added to `imports[]` in `FoutAfhandelingModule`
-- **Pattern**: same as `ConfirmDialogComponent` / `NotificationDialogComponent` — `Pick<MatDialogRef<T>, 'close'>` mock; `MAT_DIALOG_DATA` via `useValue`; button clicks via Angular Material harnesses (e.g. `MatButtonHarness`), not `nativeElement.querySelector`, per Rules above
-
-### ✅ `zoeken/zoek-object/zoek-object/zoek-object-component.ts` + `zaak-zoek-object` + `taak-zoek-object` + `document-zoek-object` (2026-03-26) — Marcel Batch 6
-- Abstract base: `standalone: true`, no `imports[]` — same inheritance pattern as `indicaties` cluster
-- Concrete subclasses: `imports: [ZoekObjectLinkComponent, StaticTextComponent, DatumPipe, TranslateModule]` (identical set)
-- **Fix**: `@Input() taak: TaakZoekObject` / `@Input() document: DocumentZoekObject` → `@Input({ required: true }) taak!` / `document!` (pre-existing TS errors)
-- **Spec pattern**: baseline uses `declarations[]` + explicit child imports; after migration switch to `imports: [Component]`; child imports drop (component brings them)
-- **Spec pattern**: `ZoekObjectLinkComponent` uses `RouterLink` → `provideRouter([])` needed in test providers
-- **Spec pattern**: `ZoekObjectLinkComponent` calls `zoekObject.type.toLowerCase()` → fixture must include `type` field
-- **Spec pattern**: multiple `toContain` label assertions → `toEqual(expect.arrayContaining([...]))` for conciseness
-
-### ✅ `shared/table-zoek-filters/facet-filter/facet-filter.component.ts` (2026-03-26)
-- `imports: [NgFor, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, TranslateModule]`
-- Access modifiers: `selected`, `getFilters()`, `isVertaalbaar()`, `change()` → `protected`; `VERTAALBARE_FACETTEN` → `protected Record<string, string>`
-- **Pattern**: `MatSelectHarness` + `(await select.host()).getAttribute("id")` to assert on Material component attributes without querySelector
-
-### ✅ `shared/material/narrow-checkbox.directive.ts` (fix) + `zoeken/zoek/filters/multi-facet-filter/multi-facet-filter.component.ts` (2026-03-26) — Marcel Batch 7
-- `ZacNarrowMatCheckboxDirective`: prior PR removed `standalone: false` but never added `standalone: true`; also already moved to `imports[]`/`exports[]` in `shared.module.ts` — only fix needed was adding explicit `standalone: true`
-- `MultiFacetFilterComponent` `imports: [NgIf, NgFor, LowerCasePipe, ReactiveFormsModule, MatCardModule, MatCheckboxModule, MatIconModule, TranslateModule, ZacNarrowMatCheckboxDirective, ReadMoreComponent]`
-- **Access modifiers**: `VERTAALBARE_FACETTEN` `public` → `protected`; `formGroup`/`inverse` → `protected`; `selected` → `private`; `checkboxChange`/`isVertaalbaar`/`invert` → `protected`
-- **Spec pattern**: `setup()` helper outside `describe` + `beforeEach` only configures TestBed; avoids re-calling `ngOnInit` across tests
-- **Spec pattern**: `makeFilter` default param `= {}` avoids redundant `makeFilter({ values: [] })` at call sites
-- **Spec pattern**: `toEqual(["ZAAK"])` replaces `toHaveLength(1)` + `toContain` + `not.toContain` triple
-
----
-
-### ✅ `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts` (2026-04-02)
-- `imports: [NgIf, ReactiveFormsModule, RouterLink, TranslateModule, MatCardModule, MatSlideToggleModule, MatTableModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatIconModule, EmptyPipe, DatumPipe, TekstFilterComponent, FacetFilterComponent, DateRangeFilterComponent]`
-- Access modifiers: paginator/sort → private; dataSource/columns/filterColumns/isLoadingResults/zoekParameters/zoekResultaat/inclusiefAfgerondeZaken/filtersChanged → protected; init → private
-- **Pattern**: fixed pre-existing ngOnChanges bug (removed SimpleChanges re-assignment of @Input)
-
-### ✅ `bag/bag-view/bag-view.component.ts` (2026-04-02)
-- `imports: [NgIf, MatCardModule, MatSidenavModule, TranslateModule, StaticTextComponent, BagZakenTabelComponent, BagLocatieComponent]`
-- Access modifiers: all fields already protected, constructor params already private readonly
-- **Pattern**: last component in BAGModule — module now has empty declarations[]
-
----
-
 ## Next Target
-`taken.module.ts` remaining: `TakenVrijgevenDialogComponent`, `TakenMijnComponent`, `TakenVerdelenDialogComponent`, `TakenWerkvoorraadComponent` (sequential — all share same module). Or pick 4 more non-conflicting targets from different modules for parallel run.
-
----
-
-## Intermediate Goal: Lazy-load `/admin` ✅ DONE (2026-03-24)
-
-**Progress: 18/18**
-
-| Component | Status |
-|---|---|
-| `shared/abstract-view/view-component.ts` | ✅ |
-| `admin/admin/admin.component` | ✅ |
-| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form-item.component` | ✅ |
-| `admin/parameters-edit-cmmn/smart-documents-form/smart-documents-form.component` | ✅ |
-| `admin/parameters-edit-cmmn/parameters-edit-cmmn.component` | ✅ |
-| `admin/groep-signaleringen/groep-signaleringen.component` | ✅ |
-| `admin/mailtemplates/mailtemplates.component` | ✅ |
-| `admin/mailtemplate/mailtemplate.component` | ✅ |
-| `admin/process-definitions/process-definitions.component` | ✅ |
-| `admin/referentie-tabellen/referentie-tabellen.component` | ✅ |
-| `admin/referentie-tabel/referentie-tabel.component` | ✅ |
-| `admin/inrichtingscheck/inrichtingscheck.component` | ✅ |
-| `admin/parameters/parameters.component` | ✅ |
-| `admin/parameters-select-process-model-method/parameters-select-process-model-method.component` | ✅ |
-| `admin/parameters-edit-bpmn/parameters-edit-bpmn.component` | ✅ |
-| `admin/parameters-edit-shell/parameters-edit-shell.component` | ✅ |
-| **Replace `admin.module.ts` → `admin.routes.ts` + wire `loadChildren`** | ✅ |
-
-### ✅ Lazy-load `/admin` (2026-03-24)
-- Created `admin/admin.routes.ts` with `ADMIN_ROUTES: Routes` (children only, no `"admin"` wrapper)
-- Added `{ path: "admin", loadChildren: () => import("./admin/admin.routes").then(m => m.ADMIN_ROUTES) }` to `app-routing.module.ts`
-- Removed `AdminModule` from `AppModule.imports`
-- Deleted `admin.module.ts` and `admin-routing.module.ts`
-- Build clean; lint 0 errors
+TBD — run step 0 (claims check) at start of next session.
 
 ---
 
@@ -381,7 +188,7 @@ Do **not** go hunting for these in files you are not already migrating. Only fix
 
 ## Known Pre-existing Bugs
 
-Bugs spotted during migration but **not fixed** — scope is standalone migration only, no logic changes to minimise regression risk. Raise separate tickets for these.
+Bugs spotted during migration but **not fixed** — standalone migration scope only. Raise separate tickets for these.
 
 | Component | Bug | Found in batch |
 |---|---|---|

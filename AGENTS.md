@@ -112,12 +112,26 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
-    Given("some state") {
-        When("action occurs") {
-            Then("expected result") { ... }
+    Context("A function in the service under test") {
+        Given("some state") {
+            When("action occurs") {
+                Then("expected result") { ... }
+            }
         }
     }
 })
+```
+
+### Use `fakeXXX` for test values where possible
+
+For example, instead of:
+```kotlin
+createRestUser(id = "user1", name = "User One")
+```
+
+use:
+```kotlin
+createRestUser(id = "fakeUserId1", name = "fakeUserName1")
 ```
 
 ### SPDX License Headers
@@ -174,8 +188,8 @@ Follow the official Kotlin coding conventions for naming, formatting, and struct
 This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
 Rename existing classes to comply with the following Kotlin code convention:
 When using an acronym as part of a declaration name, follow these rules:
-    - For two-letter acronyms, use uppercase for both letters. For example, IOStream.
-    - For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+    — For two-letter acronyms, use uppercase for both letters. For example, IOStream.
+    — For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
 
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
@@ -226,6 +240,81 @@ val user = User().apply {
 }
 ```
 This allows you to initialize the object in a more fluent way.
+
+### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
+Use the following convention:
+
+`findXxx(itemId)` function: returns `null` if the item in question could not be found
+`readXXX(itemId)` - throws 'Item not found' exception when the item in question could not be found
+
+For example:
+```kotlin
+  fun findReferenceTable(code: String): ReferenceTable? =
+    entityManager.criteriaBuilder.let { criteriaBuilder ->
+        criteriaBuilder.createQuery(ReferenceTable::class.java).let { query ->
+            query.from(ReferenceTable::class.java).let { root ->
+                criteriaBuilder.equal(root.get<Any>("code"), code.uppercase()).let { predicate ->
+                    query.select(root).where(predicate)
+                }
+            }
+            entityManager.createQuery(query).resultList
+        }
+    }.firstOrNull()
+```
+
+and:
+```kotlin
+fun readReferenceTable(code: String): ReferenceTable =
+        findReferenceTable(code) ?: run {
+            throw ReferenceTableNotFoundException("No reference table found with code '$code'")
+        }
+```
+
+### Kotlin repository entity classes must have the @AllOpen annotation
+Kotlin repository entity classes must have the @AllOpen annotation.
+
+```kotlin// Before
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+class InboxDocument
+// After
+@Entity
+@Table(schema = SCHEMA, name = "inbox_document")
+@SequenceGenerator(schema = SCHEMA, name = "sq_inbox_document", sequenceName = "sq_inbox_document", allocationSize = 1)
+@AllOpen
+class InboxDocument
+```
+
+### In Kotlin repository entity classes use `lateinit var` for variables that are nullable
+In Kotlin repository entity classes use `lateinit var` for variables that are nullable instead of a nullable variable. 
+
+```kotlin// Before
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
+var creatiedatum: LocalDate? = null
+// After
+@NotNull
+@Column(name = "creatiedatum", nullable = false)
+lateinit var creatiedatum: LocalDate
+```
+
+### Use `XxxRepository` naming convention for Kotlin repository classes
+Name Kotlin classes that perform logic on the ZAC database using JPA `XxxRepository`
+
+```kotlin// Before
+class DetachedDocumentService
+// After
+class DetachedDocumentRepository
+```
+
+### Use proper Transaction annotations in Kotlin service classes
+Use proper Transaction annotations in Kotlin service classes.
+Follow these rules:
+- Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update data in the database.
+- Use `@Transactional(REQUIRED)` at function level for functions that update data in the database.
+- Do not use any transactional annotations at function level for functions that only read from the database. 
+For these functions, the transactional annotation at class level is used.
 
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.

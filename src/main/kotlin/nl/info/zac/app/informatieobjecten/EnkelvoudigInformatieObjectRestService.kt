@@ -22,8 +22,6 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.webdav.WebdavHelper
@@ -56,6 +54,8 @@ import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
@@ -80,7 +80,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val zrcClientService: ZrcClientService,
     private val zgwApiService: ZgwApiService,
-    private val ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val inboxDocumentService: InboxDocumentService,
     private val enkelvoudigInformatieObjectLockService: EnkelvoudigInformatieObjectLockService,
     private val eventingService: EventingService,
@@ -211,30 +211,28 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @POST
     @Path("informatieobject/verplaats")
     fun verplaatsEnkelvoudigInformatieobject(documentVerplaatsGegevens: RestDocumentVerplaatsGegevens) {
-        val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID!!
+        val enkelvoudigInformatieobjectUUID = documentVerplaatsGegevens.documentUUID
         val informatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         )
-        val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID!!)
+        val targetZaak = zrcClientService.readZaakByID(documentVerplaatsGegevens.nieuweZaakID)
         assertPolicy(
             policyService.readDocumentRechten(informatieobject, targetZaak).verplaatsen &&
                 policyService.readZaakRechten(targetZaak, loggedInUserInstance.get()).wijzigen
         )
         val toelichting = "Verplaatst: ${documentVerplaatsGegevens.bron} -> ${targetZaak.identificatie}"
         when {
-            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> ontkoppeldeDocumentenService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
+            documentVerplaatsGegevens.vanuitOntkoppeldeDocumenten() -> {
+                val detachedDocument = detachedDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                ontkoppeldeDocumentenService.delete(it.id)
+                detachedDocumentService.deleteIfExists(detachedDocument.id!!)
             }
-            documentVerplaatsGegevens.vanuitInboxDocumenten() -> inboxDocumentService.read(
-                enkelvoudigInformatieobjectUUID
-            ).let {
+            documentVerplaatsGegevens.vanuitInboxDocumenten() -> {
+                val inboxDocument = inboxDocumentService.read(enkelvoudigInformatieobjectUUID)
                 zrcClientService.koppelInformatieobject(informatieobject, targetZaak, toelichting)
-                inboxDocumentService.delete(it.id)
+                inboxDocument.id?.run(inboxDocumentService::deleteIfExists)
             }
-            else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron!!).let {
+            else -> zrcClientService.readZaakByID(documentVerplaatsGegevens.bron).let {
                 zrcClientService.verplaatsInformatieobject(informatieobject, it, targetZaak)
             }
         }
@@ -306,8 +304,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 reason = documentVerwijderenGegevens.reden
             )
         } else {
-            // In geval van een ontkoppeld document
-            ontkoppeldeDocumentenService.delete(uuid)
+            // the document is not linked to zaak
+            // it may be a detached document, an inbox document, or neither
+            // (i.e. just a document from Open Zaak which ZAC knows nothing about)
+            // delete the detached document or inbox document records from ZAC, if they exist
+            detachedDocumentService.deleteIfExists(uuid)
+            inboxDocumentService.deleteIfExists(uuid)
+            // also delete the actual document from the document registry
+            drcClientService.deleteEnkelvoudigInformatieobject(uuid)
         }
     }
 

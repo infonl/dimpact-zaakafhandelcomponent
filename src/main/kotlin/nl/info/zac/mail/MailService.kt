@@ -40,6 +40,7 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -103,9 +104,16 @@ class MailService @Inject constructor(
         )
 
     fun sendMail(mailGegevens: MailGegevens, bronnen: Bronnen): String? {
+        val zaakdata: Map<String, Any> = bronnen.zaak
+            ?.takeIf {
+                mailGegevens.subject.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX) ||
+                    mailGegevens.body.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)
+            }
+            ?.let { mailTemplateHelper.readZaakdata(it) }
+            ?: emptyMap()
         val subject =
-            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen), SUBJECT_MAX_WIDTH)
-        val body = resolveVariabelen(mailGegevens.body, bronnen)
+            StringUtils.abbreviate(resolveVariabelen(mailGegevens.subject, bronnen, zaakdata), SUBJECT_MAX_WIDTH)
+        val body = resolveVariabelen(mailGegevens.body, bronnen, zaakdata)
         val attachments = getAttachments(mailGegevens.attachments)
         val fromAddress = mailGegevens.from.toAddress()
         val replyToAddress = mailGegevens.replyTo?.toAddress()?.takeIf { fromAddress != it }
@@ -263,12 +271,14 @@ class MailService @Inject constructor(
                 )
             }
 
-    private fun resolveVariabelen(tekst: String, bronnen: Bronnen): String =
+    private fun resolveVariabelen(tekst: String, bronnen: Bronnen, zaakdata: Map<String, Any>): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
             mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
         }.let {
             mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {
             mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
+        }.let {
+            if (zaakdata.isEmpty()) { it } else { mailTemplateHelper.resolveZaakdataVariables(it, zaakdata) }
         }
 }

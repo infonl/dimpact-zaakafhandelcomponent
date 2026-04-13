@@ -9,12 +9,12 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.15.1-static
+- **openpolicyagent/opa**: 1.15.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
 - **kontextwork-converter**: 1.8.3
 - **otel/opentelemetry-collector-contrib**: 0.149.0
 - **grafana/tempo**: 2.10.3
-- **prom/prometheus**: v3.11.0
+- **prom/prometheus**: v3.11.1
 - **grafana/grafana**: 12.4.2
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.5-alpine
@@ -27,8 +27,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
 - **open-archiefbeheer**: 1.1.1
-- **pabc-migrations**: 1.0.0
-- **pabc-api**: 1.0.0
+- **pabc-migrations**: 1.1.0
+- **pabc-api**: 1.1.0
 
 ## Update Process
 

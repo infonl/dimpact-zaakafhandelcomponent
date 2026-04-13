@@ -29,7 +29,7 @@
     <zac-input [form]="form" key="ontvanger">
       <button
         (click)="setOntvanger()"
-        *ngIf="this.contactGegevens?.emailadres"
+        *ngIf="contactEmailAddress"
         type="button"
         mat-icon-button
         matSuffix

@@ -144,8 +144,6 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - OTEL_SDK_DISABLED=true
-    ports:
-      - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
@@ -183,6 +181,21 @@ services:
       openzaak.local:
         condition: service_healthy
     profiles: [ "opennotificaties" ]
+
+  # nginx reverse proxy in front of Open Zaak.
+  # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
+  # file uploads. uwsgi in HTTP mode does not buffer chunked request bodies before passing
+  # them to Django. nginx buffers the full request before forwarding it with Content-Length,
+  # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
+  openzaak-nginx:
+    image: nginx:1.29.8@sha256:7f0adca1fc6c29c8dc49a2e90037a10ba20dc266baaed0988e9fb4d0d8b85ba0
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./scripts/docker-compose/imports/openzaak/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      openzaak.local:
+        condition: service_healthy
 
   redis:
     image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
@@ -266,7 +279,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.1-static@sha256:865ac441701302fc63844667df8e0acda7cf6ca796377eccf6c6177dcc3b7b24
+    image: openpolicyagent/opa:1.15.2-static@sha256:f3429de096f6d274bd9927f7a50c334e340a6cf206fad9460ccf17e2f3e807bf
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -370,7 +383,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.1@sha256:c3e940a236811f34a9bdf1b98e1a441db7f1ef81151a0bb4a9706467a11c8cd9
+    image: openpolicyagent/opa:1.15.2@sha256:4750afa83e85a1b0a4964ea5700e9caa1c1e61b508435e09fd77f038747340e6
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -417,7 +430,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.11.0@sha256:dda13e28bf95a5e5ca5b8ed56852006094c1c8e8871d9c9dbeed30aa6e55271f
+    image: prom/prometheus:v3.11.1@sha256:759ea6db49103737f2a6f420b0d1632062d8ad99dec086c76db605fd0bf23e15
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -713,7 +726,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.0.0@sha256:f69310f61b7cbefa5c78c6e2061d818070b4507d695f5d169615ff62672e709a
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.0@sha256:c40905205d997936538bbe1efdf0c582ec98a8414df9ceb05b0c1b0d1121a39a
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
@@ -726,7 +739,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.0.0@sha256:68749474713f7a9614e4ec10c046e70f160c1d93e19eb89e9e786fc06c7ce3cd
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.0@sha256:108225d8ba671ace5be159d24ecfdfe06b073494227943a123955418c5b124a0
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:

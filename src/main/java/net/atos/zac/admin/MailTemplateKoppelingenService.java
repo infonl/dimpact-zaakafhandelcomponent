@@ -4,7 +4,7 @@
  */
 package net.atos.zac.admin;
 
-import static net.atos.zac.util.ValidationUtil.valideerObject;
+import static net.atos.zac.util.ValidationUtil.validateObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class MailTemplateKoppelingenService {
     public ZaaktypeCmmnMailtemplateParameters storeMailtemplateKoppeling(
             final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters
     ) {
-        valideerObject(zaaktypeCmmnMailtemplateParameters);
+        validateObject(zaaktypeCmmnMailtemplateParameters);
         if (zaaktypeCmmnMailtemplateParameters.getId() != null && find(zaaktypeCmmnMailtemplateParameters.getId()).isPresent()) {
             return entityManager.merge(zaaktypeCmmnMailtemplateParameters);
         } else {

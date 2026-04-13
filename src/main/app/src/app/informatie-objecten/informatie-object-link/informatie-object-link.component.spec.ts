@@ -43,8 +43,8 @@ describe(InformatieObjectLinkComponent.name, () => {
     close: jest.fn().mockReturnValue(Promise.resolve()),
   });
 
-  const mockInfoObjectRESTOntkoppeldDocument = fromPartial<
-    GeneratedType<"RESTOntkoppeldDocument">
+  const mockInfoObjectRestDetachedDocument = fromPartial<
+    GeneratedType<"RestDetachedDocument">
   >({
     documentUUID: "doc-uuid-123",
     documentID: "DOC-001",
@@ -168,7 +168,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   });
 
   it("should disable submit button when form invalid", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const submitButton = await loader.getHarness(
       MatButtonHarness.with({ text: /actie\.zoeken/ }),
@@ -178,7 +178,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   });
 
   it("should disable submit button when loading", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     component["form"].patchValue({ caseSearch: "ZAAK-001" });
     component["loading"] = true;
     fixture.detectChanges();
@@ -191,7 +191,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   it("should search cases with correct parameters", () => {
     const listSpy = jest.spyOn(zoekenService, "listDocumentKoppelbareZaken");
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     component["form"].patchValue({ caseSearch: "ZAAK-001" });
 
@@ -206,7 +206,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   });
 
   it("should populate results after search", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     component["form"].patchValue({ caseSearch: "ZAAK-001" });
 
@@ -219,7 +219,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   it("should link document with correct UUID", () => {
     const linkSpy = jest.spyOn(informatieObjectenService, "linkDocumentToCase");
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
@@ -233,7 +233,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   });
 
   it("should show snackbar after successful link", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
@@ -247,7 +247,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   it("should emit event after successful link", () => {
     const emitSpy = jest.spyOn(component.informationObjectLinked, "emit");
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
@@ -300,8 +300,8 @@ describe(InformatieObjectLinkComponent.name, () => {
     expect(mockSideNav.close).toHaveBeenCalled();
   });
 
-  it("should extract UUID from RESTOntkoppeldDocument", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRESTOntkoppeldDocument);
+  it("should extract UUID from RestDetachedDocument", () => {
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
 
     expect(component["getDocumentUUID"]()).toBe("doc-uuid-123");

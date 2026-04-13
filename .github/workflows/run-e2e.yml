@@ -130,7 +130,7 @@ jobs:
                       "type": "section",
                       "text": {
                         "type": "mrkdwn",
-                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
+                        "text": "*Report URL:*\n:link: https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
                       }
                     },
                     {
@@ -142,7 +142,7 @@ jobs:
                             "type": "plain_text",
                             "text": "View Report"
                           },
-                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/e2e-report.html"
+                          "url": "https://infonl.github.io/dimpact-zaakafhandelcomponent/${{ steps.date.outputs.date }}/index.html"
                         },
                         {
                           "type": "button",

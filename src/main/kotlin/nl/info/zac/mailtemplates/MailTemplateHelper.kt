@@ -6,6 +6,7 @@ package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
+import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.util.time.DateTimeConverterUtil
@@ -29,6 +30,7 @@ import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.mailtemplates.model.MailLink
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.mailtemplates.model.MailTemplateVariables.Companion.ZAAKDATA_VARIABLE_PREFIX
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.text.StringEscapeUtils
@@ -46,6 +48,7 @@ class MailTemplateHelper @Inject constructor(
     private var configurationService: ConfigurationService,
     private val identityService: IdentityService,
     private val kvkClientService: KvkClientService,
+    private val zaakVariabelenService: ZaakVariabelenService,
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
@@ -54,6 +57,8 @@ class MailTemplateHelper @Inject constructor(
         private val LOG = Logger.getLogger(MailTemplateHelper::class.java.name)
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         private const val REPLACEMENT_FOR_UNKNOWN_NAME = "Onbekend"
+        private val ZAAKDATA_VARIABLE_PATTERN = Regex("""\$ZAAKDATA_VARIABLE_PREFIX([^}]+)}""")
+        private val HTML_TAG_PATTERN = Regex("<[^>]+>")
     }
 
     fun resolveGemeenteVariable(text: String): String =
@@ -115,7 +120,7 @@ class MailTemplateHelper @Inject constructor(
                     zaaktypeUuid = zaak.zaaktype.extractUuid(),
                     initiatorRole = initiatorRole
                 )
-            } ?: replaceInitiatorVariablesWithUnknownText(resolvedTekst)
+            } ?: replaceInitiatorVariablesWithEmptyText(resolvedTekst)
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.getVariable())) {
             val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
@@ -168,6 +173,26 @@ class MailTemplateHelper @Inject constructor(
             )
         }
         return resolvedTekst
+    }
+
+    fun readZaakdata(zaak: Zaak): Map<String, Any> = zaakVariabelenService.readZaakdata(zaak.uuid)
+
+    fun resolveZaakdataVariables(text: String, zaak: Zaak): String {
+        if (!text.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)) return text
+        return resolveZaakdataVariables(text, readZaakdata(zaak))
+    }
+
+    fun resolveZaakdataVariables(text: String, zaakdata: Map<String, Any>): String {
+        if (!text.contains(MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX)) return text
+        return ZAAKDATA_VARIABLE_PATTERN.replace(text) { matchResult ->
+            val key = matchResult.groupValues[1].replace(HTML_TAG_PATTERN, "").trim()
+            val value = zaakdata[key]?.toString()
+            if (value.isNullOrBlank()) {
+                REPLACEMENT_FOR_UNKNOWN_NAME
+            } else {
+                StringEscapeUtils.escapeHtml4(value)
+            }
+        }
     }
 
     fun resolveEnkelvoudigInformatieObjectVariables(
@@ -288,10 +313,10 @@ class MailTemplateHelper @Inject constructor(
             name = initiatorResultaatItem.getNaam(),
             address = it.toAddressString()
         )
-    } ?: replaceInitiatorVariablesWithUnknownText(resolvedText)
+    } ?: replaceInitiatorVariablesWithEmptyText(resolvedText)
 
-    private fun replaceInitiatorVariablesWithUnknownText(resolvedTekst: String) =
-        replaceInitiatorVariables(resolvedTekst, "Onbekend", "")
+    private fun replaceInitiatorVariablesWithEmptyText(resolvedTekst: String) =
+        replaceInitiatorVariables(resolvedTekst, "", "")
 
     private fun replaceInitiatorVariables(
         resolvedText: String,

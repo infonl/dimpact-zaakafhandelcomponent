@@ -17,7 +17,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import kotlinx.coroutines.test.StandardTestDispatcher
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -45,6 +44,7 @@ import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -76,7 +76,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
@@ -112,7 +112,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
         indexingService = indexingService,
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         opschortenZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,

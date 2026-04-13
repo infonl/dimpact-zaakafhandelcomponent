@@ -3,12 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
@@ -16,7 +28,19 @@ import { TakenService } from "../taken.service";
 @Component({
   selector: "zac-taken-verdelen-dialog",
   templateUrl: "./taken-verdelen-dialog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDividerModule,
+    MatButtonModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class TakenVerdelenDialogComponent {
   private readonly dialogRef = inject(MatDialogRef);
@@ -71,11 +95,11 @@ export class TakenVerdelenDialogComponent {
       });
   }
 
-  close() {
+  protected close() {
     this.dialogRef.close(false);
   }
 
-  verdeel() {
+  protected verdeel() {
     this.mutation.mutate({
       taken: this.data.taken.map(({ id, zaakUuid }) => ({
         taakId: id,

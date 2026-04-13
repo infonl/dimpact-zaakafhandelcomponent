@@ -7,6 +7,8 @@ package nl.info.zac.app.informatieobjecten
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.datatest.withData
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -18,8 +20,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
-import net.atos.zac.document.InboxDocumentService
-import net.atos.zac.document.OntkoppeldeDocumentenService
 import net.atos.zac.event.EventingService
 import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEvent
@@ -40,10 +40,14 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.exception.RestExceptionMapper
+import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConverter
+import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundException
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
+import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestOndertekening
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
@@ -53,6 +57,10 @@ import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
+import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
@@ -62,9 +70,11 @@ import nl.info.zac.policy.output.createDocumentRechten
 import nl.info.zac.policy.output.createDocumentRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.search.model.DocumentIndicatie
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -77,7 +87,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
     val inboxDocumentService = mockk<InboxDocumentService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val ontkoppeldeDocumentenService = mockk<OntkoppeldeDocumentenService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val policyService = mockk<PolicyService>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
@@ -92,7 +102,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zrcClientService = zrcClientService,
         zgwApiService = zgwApiService,
-        ontkoppeldeDocumentenService = ontkoppeldeDocumentenService,
+        detachedDocumentService = detachedDocumentService,
         inboxDocumentService = inboxDocumentService,
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService,
         eventingService = eventingService,
@@ -908,22 +918,40 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An ontkoppeld document and the user has permission to delete it") {
-        val uuid = UUID.randomUUID()
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+    Given("An enkelvoudig informatieobject not linked to a zaak, and the user has permission to delete it") {
+        val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = enkelvoudigInformatieobjectUUID
+        )
 
-        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+        } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
-        every { ontkoppeldeDocumentenService.delete(uuid) } just Runs
+        every { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) } just Runs
+        every { inboxDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) } just Runs
+        every {
+            drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+        } just Runs
 
         When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
-                uuid,
+                enkelvoudigInformatieobjectUUID,
                 RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
             )
 
-            Then("the ontkoppeld document is deleted") {
-                verify(exactly = 1) { ontkoppeldeDocumentenService.delete(uuid) }
+            Then("the related ontkoppeld document is deleted if it exists") {
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
+            }
+
+            And("the related inbox document is deleted if it exists") {
+                verify(exactly = 1) { inboxDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
+            }
+
+            And("the enkelvoudig informatieobject is deleted") {
+                verify(exactly = 1) {
+                    drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
+                }
             }
         }
     }
@@ -1110,6 +1138,254 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
+    Given("A document in ontkoppelde-documenten and the user has permission to move it") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-001"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val ontkoppeldDoc = mockk<DetachedDocument>()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { ontkoppeldDoc.id } returns 42L
+        every { detachedDocumentService.read(documentUUID) } returns ontkoppeldDoc
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
+        every { detachedDocumentService.deleteIfExists(42L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN,
+                    nieuweZaakID = nieuweZaakID
+                )
+            )
+
+            Then("the document is linked to the target zaak and removed from ontkoppelde-documenten") {
+                verify(exactly = 1) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
+                }
+                verify(exactly = 1) { detachedDocumentService.deleteIfExists(42L) }
+            }
+        }
+    }
+
+    Given("The detached document service throws an exception when retrieving a detached document") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-001"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        val detachedDocumentNotFoundException = DetachedDocumentNotFoundException("fakeExceptionMessage")
+        every { detachedDocumentService.read(documentUUID) } throws
+            detachedDocumentNotFoundException
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
+        every { detachedDocumentService.deleteIfExists(42L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
+            val passedOnDetachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
+                enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                    RestDocumentVerplaatsGegevens(
+                        documentUUID = documentUUID,
+                        bron = RestDocumentVerplaatsGegevens.ONTKOPPELDE_DOCUMENTEN,
+                        nieuweZaakID = nieuweZaakID
+                    )
+                )
+            }
+
+            Then("the exception should be passed on") {
+                passedOnDetachedDocumentNotFoundException shouldBe detachedDocumentNotFoundException
+            }
+
+            And("the document should not be moved") {
+                verify(exactly = 0) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
+                    detachedDocumentService.deleteIfExists(any<Long>())
+                }
+            }
+        }
+    }
+
+    Given("A document in inbox-documenten and the user has permission to move it") {
+        val documentUUID = UUID.randomUUID()
+        val nieuweZaakID = "ZAAK-TARGET-002"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val targetZaak = createZaak(identificatie = nieuweZaakID)
+        val inboxDoc = mockk<InboxDocument>()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(nieuweZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { inboxDoc.id } returns 99L
+        every { inboxDocumentService.read(documentUUID) } returns inboxDoc
+        val expectedToelichting = "Verplaatst: ${RestDocumentVerplaatsGegevens.INBOX_DOCUMENTEN} -> $nieuweZaakID"
+        every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
+        every { inboxDocumentService.deleteIfExists(99L) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = RestDocumentVerplaatsGegevens.INBOX_DOCUMENTEN,
+                    nieuweZaakID = nieuweZaakID
+                )
+            )
+
+            Then("the document is linked to the target zaak and removed from inbox-documenten") {
+                verify(exactly = 1) {
+                    zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
+                }
+                verify(exactly = 1) { inboxDocumentService.deleteIfExists(99L) }
+            }
+        }
+    }
+
+    Given("A document linked to a source zaak and the user has permission to move it to another zaak") {
+        val documentUUID = UUID.randomUUID()
+        val sourceZaakID = "fakeSourceZaakID"
+        val targetZaakID = "fakeTargetZaakID"
+        val informatieobject = createEnkelvoudigInformatieObject()
+        val sourceZaak = createZaak(identificatie = sourceZaakID)
+        val targetZaak = createZaak(identificatie = targetZaakID)
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns informatieobject
+        every { zrcClientService.readZaakByID(targetZaakID) } returns targetZaak
+        every {
+            policyService.readDocumentRechten(informatieobject, targetZaak)
+        } returns createDocumentRechten(verplaatsen = true)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(targetZaak, loggedInUser)
+        } returns createZaakRechten(wijzigen = true)
+        every { zrcClientService.readZaakByID(sourceZaakID) } returns sourceZaak
+        every { zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak) } just Runs
+
+        When("verplaatsEnkelvoudigInformatieobject is called with bron being a zaak ID") {
+            enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
+                RestDocumentVerplaatsGegevens(
+                    documentUUID = documentUUID,
+                    bron = sourceZaakID,
+                    nieuweZaakID = targetZaakID
+                )
+            )
+
+            Then("the document is moved from the source zaak to the target zaak") {
+                verify(exactly = 1) {
+                    zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak)
+                }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak where the user has read access") {
+        val uuid = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val startDate = LocalDate.of(2024, 1, 1)
+        val plannedEndDate = LocalDate.of(2024, 12, 31)
+        val zaak = createZaak(
+            zaaktypeUri = zaakTypeUri,
+            startDate = startDate,
+            einddatumGepland = plannedEndDate,
+            identificatie = "faakZaakID"
+        )
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+
+        When("listZaakInformatieobjecten is called") {
+            val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+
+            Then("the result contains enriched zaak data because the user can read the zaak") {
+                restZaakInformatieobjects shouldHaveSize 1
+                with(restZaakInformatieobjects.first()) {
+                    zaakIdentificatie shouldBe "faakZaakID"
+                    zaakStartDatum shouldBe startDate
+                    zaakEinddatumGepland shouldBe plannedEndDate
+                    zaaktypeOmschrijving shouldBe zaakType.getOmschrijving()
+                    zaakRechten.lezen shouldBe true
+                    zaakStatus shouldBe null // createZaak() has no status by default
+                }
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject linked to a zaak where the user does not have read access") {
+        val uuid = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaak = createZaak(
+            zaaktypeUri = zaakTypeUri,
+            startDate = LocalDate.of(2024, 6, 1),
+            identificatie = "ZAAK-2024-NOACCESS"
+        )
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
+
+        When("listZaakInformatieobjecten is called") {
+            val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
+
+            Then("sensitive zaak fields are null because the user cannot read the zaak") {
+                restZaakInformatieobjects shouldHaveSize 1
+                with(restZaakInformatieobjects.first()) {
+                    zaakIdentificatie shouldBe "ZAAK-2024-NOACCESS"
+                    zaakStartDatum shouldBe null
+                    zaakEinddatumGepland shouldBe null
+                    zaaktypeOmschrijving shouldBe null
+                    zaakRechten.lezen shouldBe false
+                    zaakStatus shouldBe null
+                }
+            }
+        }
+    }
+
     Given("An unsigned enkelvoudig informatieobject and the user has permission to sign it") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
@@ -1131,6 +1407,137 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 response.status shouldBe 200
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
+                }
+            }
+        }
+    }
+
+    Given("A zaak with one currently valid and one expired informatieobjecttype") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val validTypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
+        val invalidTypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
+        val zaak = createZaak(zaaktypeUri = zaakTypeUri)
+        val zaakType = createZaakType(informatieObjectTypen = listOf(validTypeUri, invalidTypeUri))
+        val validType = createInformatieObjectType(uri = validTypeUri, omschrijving = "validType")
+        val invalidType = createInformatieObjectType(uri = invalidTypeUri, omschrijving = "invalidType")
+            .apply { this.eindeGeldigheid = LocalDate.now().minusDays(1) }
+
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(validTypeUri) } returns validType
+        every { ztcClientService.readInformatieobjecttype(invalidTypeUri) } returns invalidType
+
+        When("listInformatieobjecttypesForZaak is called") {
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
+                zaakUUID
+            )
+
+            Then("only the currently valid informatieobjecttype is returned") {
+                restInformatieobjecttypes shouldHaveSize 1
+                restInformatieobjecttypes.first().omschrijving shouldBe "validType"
+            }
+        }
+    }
+
+    Given("A zaak with no informatieobjecttypen") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+        val zaak = createZaak(zaaktypeUri = zaakTypeUri)
+        val zaakType = createZaakType(informatieObjectTypen = emptyList())
+
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
+
+        When("listInformatieobjecttypesForZaak is called") {
+            val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
+                zaakUUID
+            )
+
+            Then("an empty list is returned") {
+                restInformatieobjecttypes shouldBe emptyList()
+            }
+        }
+    }
+
+    Given("An enkelvoudig informatieobject returned by readEnkelvoudigInformatieobject with various indicator flags") {
+        data class TestCase(
+            val gelockedDoor: RestUser? = null,
+            val ondertekening: RestOndertekening? = null,
+            val indicatieGebruiksrecht: Boolean = false,
+            val isBesluitDocument: Boolean = false,
+            val verzenddatum: LocalDate? = null,
+            val expectedIndicaties: Set<DocumentIndicatie>
+        )
+
+        val uuid = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+
+        withData(
+            nameFn = { "expected indicaties: ${it.expectedIndicaties}" },
+            listOf(
+                TestCase(
+                    expectedIndicaties = emptySet()
+                ),
+                TestCase(
+                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    expectedIndicaties = setOf(DocumentIndicatie.VERGRENDELD)
+                ),
+                TestCase(
+                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
+                    expectedIndicaties = setOf(DocumentIndicatie.ONDERTEKEND)
+                ),
+                TestCase(
+                    indicatieGebruiksrecht = true,
+                    expectedIndicaties = setOf(DocumentIndicatie.GEBRUIKSRECHT)
+                ),
+                TestCase(
+                    isBesluitDocument = true,
+                    expectedIndicaties = setOf(DocumentIndicatie.BESLUIT)
+                ),
+                TestCase(
+                    verzenddatum = LocalDate.of(2026, 1, 1),
+                    expectedIndicaties = setOf(DocumentIndicatie.VERZONDEN)
+                ),
+                TestCase(
+                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
+                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
+                    indicatieGebruiksrecht = true,
+                    isBesluitDocument = true,
+                    verzenddatum = LocalDate.of(2026, 1, 1),
+                    expectedIndicaties = setOf(
+                        DocumentIndicatie.VERGRENDELD,
+                        DocumentIndicatie.ONDERTEKEND,
+                        DocumentIndicatie.GEBRUIKSRECHT,
+                        DocumentIndicatie.BESLUIT,
+                        DocumentIndicatie.VERZONDEN
+                    )
+                )
+            )
+        ) { testCase ->
+            // Each test case re-stubs the converter with a real RestEnkelvoudigInformatieobject
+            // built from the fixture, so getIndicaties() executes against real field values.
+            val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
+                gelockedDoor = testCase.gelockedDoor,
+                ondertekening = testCase.ondertekening,
+                indicatieGebruiksrecht = testCase.indicatieGebruiksrecht,
+                isBesluitDocument = testCase.isBesluitDocument,
+                verzenddatum = testCase.verzenddatum
+            )
+            every {
+                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+            } returns restEnkelvoudigInformatieobject
+
+            When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+                val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(
+                    uuid,
+                    null
+                )
+
+                Then("getIndicaties() reflects the document's indicator flags") {
+                    enkelvoudigInformatieobject.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
                 }
             }
         }

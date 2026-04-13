@@ -1,10 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.inboxdocument.model
 
-import net.atos.zac.document.model.InboxDocument
+import nl.info.zac.document.inboxdocument.model.InboxDocument
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -24,7 +24,7 @@ data class RestInboxDocument(
 
 fun InboxDocument.toRestInboxDocument(informatieobjectTypeUUID: UUID) =
     RestInboxDocument(
-        id = this.id,
+        id = this.id!!,
         enkelvoudiginformatieobjectUUID = this.enkelvoudiginformatieobjectUUID,
         enkelvoudiginformatieobjectID = this.enkelvoudiginformatieobjectID,
         informatieobjectTypeUUID = informatieobjectTypeUUID,
@@ -38,7 +38,7 @@ fun List<InboxDocument>.toRestInboxDocuments(
 ): List<RestInboxDocument> {
     val list: MutableList<RestInboxDocument> = ArrayList()
     for (index in this.indices) {
-        // Skip documents for which we don't have an informatieobjectTypeUUID
+        // skip documents for which no informatieobjectTypeUUID was provided
         informatieobjectTypeUUIDs[index]?.let {
             list.add(this[index].toRestInboxDocument(it))
         }

@@ -3,11 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
+import { EMPTY, lastValueFrom, switchMap } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
@@ -26,6 +35,7 @@ import { PlanItemsService } from "../plan-items.service";
   standalone: false,
 })
 export class HumanTaskDoComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private formulier?: AbstractTaakFormulier;
   @Input() planItem?: GeneratedType<"RESTPlanItem"> | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;
@@ -74,7 +84,7 @@ export class HumanTaskDoComponent implements OnInit {
       const formFields =
         await this.taakFormulierenService.getAngularRequestFormBuilder(
           this.zaak,
-          this.planItem.formulierDefinitie,
+          this.planItem,
         );
 
       formFields.map((formField) => {
@@ -103,6 +113,16 @@ export class HumanTaskDoComponent implements OnInit {
           this.zaak.zaaktype.uuid,
         ),
       );
+
+      if (this.planItem.groepId) {
+        const defaultGroup = groups.find(
+          (group) => group.id === this.planItem!.groepId,
+        );
+        if (defaultGroup) {
+          groupControl.setValue(defaultGroup);
+        }
+      }
+
       this.formFields.push({
         type: "auto-complete",
         key: "group",
@@ -123,23 +143,27 @@ export class HumanTaskDoComponent implements OnInit {
         optionDisplayValue: "naam",
       });
 
-      groupControl.valueChanges.subscribe((value) => {
-        userControl.reset();
-
-        if (!value) {
-          userControl.disable();
-          return;
-        }
-
+      if (groupControl.value) {
         userControl.enable();
-        this.identityService.listUsersInGroup(value.id).subscribe((users) => {
-          this.formFields = this.formFields.map((field) => {
-            if (field.type === "auto-complete" && field.key === "user")
-              field.options = users;
-            return field;
-          });
-        });
-      });
+        this.identityService
+          .listUsersInGroup(groupControl.value.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((users) => this.updateUserOptions(users));
+      }
+      groupControl.valueChanges
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap((value) => {
+            userControl.reset();
+            if (!value) {
+              userControl.disable();
+              return EMPTY;
+            }
+            userControl.enable();
+            return this.identityService.listUsersInGroup(value.id);
+          }),
+        )
+        .subscribe((users) => this.updateUserOptions(users));
     } catch (e) {
       console.warn(e);
 
@@ -152,6 +176,14 @@ export class HumanTaskDoComponent implements OnInit {
       }
       this.formItems = this.formulier.form;
     }
+  }
+
+  private updateUserOptions(users: GeneratedType<"RestUser">[]) {
+    this.formFields = this.formFields.map((field) => {
+      if (field.type === "auto-complete" && field.key === "user")
+        field.options = users;
+      return field;
+    });
   }
 
   onFormCancel() {

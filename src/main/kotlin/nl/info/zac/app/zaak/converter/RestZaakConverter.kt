@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.util.time.PeriodUtil
+import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -61,6 +62,7 @@ class RestZaakConverter @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
     private val identificationService: IdentificationService,
+    private val klantClientService: KlantClientService
 ) {
     fun toRestZaak(
         zaak: Zaak,
@@ -162,7 +164,8 @@ class RestZaakConverter @Inject constructor(
                 if (!hasSentConfirmationOfReceipt) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
-            }
+            },
+            zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         )
     }
 
