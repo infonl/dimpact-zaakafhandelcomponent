@@ -13,7 +13,7 @@ Usage:
     kubectl logs -f <pod> | python3 structured-json-logformat.py
 
 Handles three types of lines:
-  - JSON log entries (WildFly/JBoss structured logging format):
+  - JSON log entries (e.g. WildFly structured logging format):
       Rendered as a compact header line (timestamp, level, logger, thread),
       followed by the message. Embedded newlines in message strings (e.g. Java
       object toString() dumps) are expanded into real newlines.
