@@ -62,6 +62,15 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
                 Then("the repository saves the Inbox Document with the correct properties") {
                     verify(exactly = 1) { inboxDocumentRepository.save(inboxDocumentSlot.captured) }
+                    with(inboxDocumentSlot.captured) {
+                        this.enkelvoudiginformatieobjectUUID shouldBe uuid
+                        this.enkelvoudiginformatieobjectID shouldBe identificatie
+                        this.creatiedatum shouldBe creatiedatum
+                        this.titel shouldBe titel
+                        this.bestandsnaam shouldBe bestandsnaam
+                    }
+                }
+                And("it returns the expected results") {
                     result.enkelvoudiginformatieobjectUUID shouldBe uuid
                     result.enkelvoudiginformatieobjectID shouldBe identificatie
                     result.creatiedatum shouldBe creatiedatum
