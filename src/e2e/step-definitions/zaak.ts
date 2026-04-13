@@ -94,6 +94,8 @@ When(
     user2: z.infer<typeof worldUsers>,
   ) {
     const zaakNumber = this.testStorage.get("caseNumber");
+    const user1Parsed = worldUsers.parse(user1);
+    const user1Profile = users[user1Parsed];
     const user2Parsed = worldUsers.parse(user2);
     const user2Profile = users[user2Parsed];
 
@@ -103,6 +105,16 @@ When(
       .locator("mat-label", { hasText: "E-mailadres" })
       .first()
       .fill("e2e-test@team-dimpact.info.nl");
+
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() + 14);
+    await this.expect(this.page.getByLabel("Fatale datum")).toHaveValue(
+      expectedDate.toISOString().split("T")[0],
+    );
+
+    await this.expect(
+      this.page.getByLabel("Taak toekennen aan groep").first(),
+    ).toHaveValue(user1Profile.group);
 
     await this.page.getByLabel("Taak toekennen aan groep").first().click();
     await this.page
