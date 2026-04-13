@@ -57,7 +57,8 @@ class InboxDocumentRepository @Inject constructor(
         val root = query.from(InboxDocument::class.java)
         query.where(getWhere(listParameters = listParameters, root = root))
         query.select(builder.count(root))
-        return entityManager.createQuery(query).singleResult?.toInt() ?: 0
+        val count = entityManager.createQuery(query).singleResult ?: 0L
+        return java.lang.Math.toIntExact(count)
     }
 
     fun list(listParameters: InboxDocumentListParameters): List<InboxDocument> {
