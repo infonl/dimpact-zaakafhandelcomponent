@@ -108,8 +108,13 @@ When(
 
     const expectedDate = new Date();
     expectedDate.setDate(expectedDate.getDate() + 14);
+    const expectedDateString = [
+      expectedDate.getFullYear(),
+      String(expectedDate.getMonth() + 1).padStart(2, "0"),
+      String(expectedDate.getDate()).padStart(2, "0"),
+    ].join("-");
     await this.expect(this.page.getByLabel("Fatale datum")).toHaveValue(
-      expectedDate.toISOString().split("T")[0],
+      expectedDateString,
     );
 
     await this.expect(
