@@ -51,7 +51,13 @@
 >
   <img
     [src]="'/rest/zaken/' + zaakUuid() + '/process-diagram?t=' + cacheBuster"
-    [alt]="'actie.click-to-zoom-in' | translate"
+    [alt]="
+      bpmnProcessDefinition().processDefinitionName +
+      ' - ' +
+      ('versie' | translate) +
+      ' ' +
+      bpmnProcessDefinition().processDefinitionVersion
+    "
     [style.transform]="'scale(' + zoomLevel() + ')'"
     class="diagram-image"
   />
