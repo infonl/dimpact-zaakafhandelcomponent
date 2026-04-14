@@ -1110,7 +1110,7 @@
           },
           {
             "inpBsn": "999992958",
-            "rolOmschrijvingGeneriek": "adviseur"
+            "roltypeOmschrijving": "Plaatsvervanger"
           }
         ],
         "pdf": "http://openzaak.local:8000/documenten/api/v1/enkelvoudiginformatieobjecten/37e16ddc-7992-418c-b5a0-54cf6680329e"

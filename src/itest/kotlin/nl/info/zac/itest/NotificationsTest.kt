@@ -284,6 +284,7 @@ class NotificationsTest : BehaviorSpec({
                     )
                 ).toString()
             )
+            logger.info { "Requested product aanvraag: $OBJECT_PRODUCTAANVRAAG_BPMN_UUID" }
 
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
@@ -311,25 +312,40 @@ class NotificationsTest : BehaviorSpec({
                     }
                 }
             }
-        }
 
-        When("the get betrokkene endpoint is called for the BPMN-started zaak created from the productaanvraag") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
-            )
-            Then(
-                """
-                the response should be a 200 HTTP response without any betrokkenen 
-                because we do support adding betrokkenen yet in the BPMN productaanvraag flow
-                """.trimIndent()
-            ) {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJsonIgnoringExtraneousFields """
-                    []
-                """.trimIndent()
+            When("the get betrokkene endpoint is called for the BPMN zaak created from the productaanvraag") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag3Uuid/betrokkene",
+                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                )
+
+                Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    [ {
+                      "identificatie" : "999992958",
+                      "roltoelichting" : "Overgenomen vanuit de product aanvraag",
+                      "roltype" : "Plaatsvervanger",
+                      "type" : "NATUURLIJK_PERSOON"
+                    }, {
+                      "identificatie" : "999991838",
+                      "roltoelichting" : "Overgenomen vanuit de product aanvraag",
+                      "roltype" : "Bewindvoerder",
+                      "type" : "NATUURLIJK_PERSOON"
+                    }, {
+                      "identificatie" : "999991838",
+                      "roltoelichting" : "Overgenomen vanuit de product aanvraag",
+                      "roltype" : "Medeaanvrager",
+                      "type" : "NATUURLIJK_PERSOON"
+                    } ]
+                    """.trimIndent()
+                    UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
+                    UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("temporaryPersonId"))
+                    UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("temporaryPersonId"))
+                    zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)
+                }
             }
         }
     }
