@@ -86,11 +86,11 @@ HEADLESS=true ./start-e2e-with-test-env.sh
 #### Running only a single test feature
 
 To run a single test feature (or similar features with the same tag), you can use the `TAGS` environment variable.
-For example, to only run the test scenario(s) with the tag `@bpmn` in headless mode on the TEST environment, 
+For example, to only run the test scenario(s) with the tag `@bpmn` in headless mode on the TEST environment,
 you can use the following command:
 
 ```shell
- HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh
+HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh
 ```
 
 ### Writing e2e tests
