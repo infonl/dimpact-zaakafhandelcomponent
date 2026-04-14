@@ -52,21 +52,21 @@ export class ZaakProcessFlowComponent {
   protected readonly zoomLevel = signal(1);
 
   @HostListener("document:keydown.ArrowUp", ["$event"])
-  protected onArrowUp(event: KeyboardEvent) {
+  protected onArrowUp(event: Event) {
     if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.zoomIn();
   }
 
   @HostListener("document:keydown.ArrowDown", ["$event"])
-  protected onArrowDown(event: KeyboardEvent) {
+  protected onArrowDown(event: Event) {
     if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.zoomOut();
   }
 
   @HostListener("document:keydown.ArrowLeft", ["$event"])
-  protected onArrowLeft(event: KeyboardEvent) {
+  protected onArrowLeft(event: Event) {
     if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.containerRef()?.nativeElement.scrollBy({
@@ -76,7 +76,7 @@ export class ZaakProcessFlowComponent {
   }
 
   @HostListener("document:keydown.ArrowRight", ["$event"])
-  protected onArrowRight(event: KeyboardEvent) {
+  protected onArrowRight(event: Event) {
     if (this.isInteractiveElementFocused()) return;
     event.preventDefault();
     this.containerRef()?.nativeElement.scrollBy({
