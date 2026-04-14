@@ -136,13 +136,15 @@ Then(
     documentName: string,
   ) {
     const form = formioForm(this.page);
-    await form
-      .getByRole("searchbox", { name: "Select one or more documents" })
-      .fill(documentName);
+    const searchbox = form.getByRole("searchbox", {
+      name: "Select one or more documents",
+    });
+    await searchbox.click();
+    await searchbox.fill(documentName);
 
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
-    ).toContainText(documentName, { timeout: ONE_MINUTE_IN_MS });
+    ).toBeVisible({ timeout: ONE_MINUTE_IN_MS });
   },
 );
 
