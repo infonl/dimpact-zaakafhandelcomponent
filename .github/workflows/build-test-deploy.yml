@@ -168,7 +168,7 @@ jobs:
       - name: Find previous release tag
         id: prev-tag
         run: |
-          PREV_TAG=$(git tag -l 'v*' --sort=-v:refname --merged HEAD | grep -m 1 -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
+          PREV_TAG=$(git tag -l 'v*' --sort=-v:refname --merged HEAD | grep -m 1 -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)
           echo "tag=${PREV_TAG:-}" >> "$GITHUB_OUTPUT"
           echo "Previous release tag: ${PREV_TAG:-none}"
 
