@@ -278,6 +278,39 @@ For example:
     </serviceTask>
 ```
 
+#### Using zaakdata in email templates
+
+Email templates support dynamic substitution of zaakdata values. This allows you to include
+data that was collected during the BPMN process (e.g. from Form.io form fields) directly in the email subject and body.
+
+Use the following syntax in the email template subject or body:
+```
+{ZAAKDATA:<key>}
+```
+
+Where `<key>` is the name of the zaakdata variable — this corresponds to the `key` of the Form.io form field
+or any other variable stored in the zaakdata during the process.
+
+:warning: If the key does not exist or has no value, it will be replaced with `Onbekend`.
+
+Example: if your Form.io form has a field with key `customerPhone`, add the following to your email template subject or body:
+```
+Het telefoonnummer van de klant is: {ZAAKDATA:customerPhone}
+```
+
+To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see [Process data](#process-data)):
+```json
+{
+  "label": "Telefoonnummer",
+  "type": "input",
+  "key": "customerPhone",
+  "input": true,
+  "attributes": {
+    "ZAC_TYPE": "ZAC_process_data"
+  }
+}
+```
+
 ### User/group
 
 #### Listing groups
@@ -604,3 +637,6 @@ Example:
 * `zaakBehandelaar` - zaak assigned user`
 * `zaaktypeUUID` - zaaktype UUID
 * `zaaktypeOmschrijving` - zaaktype description
+
+
+

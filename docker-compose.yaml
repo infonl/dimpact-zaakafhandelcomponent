@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54326:5432"
     healthcheck:
@@ -304,7 +304,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54325:5432"
     healthcheck:
@@ -480,7 +480,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.5-alpine@sha256:53e51f8469ef13d0a1a2b03c0d36dcf4efbf13089f552440ec5620ca07f2c64e
+    image: rabbitmq:4.2.5-alpine@sha256:04e883cc733f9c9ce87dbf5343eb4a3f54a8c474a5cd418e79210602824dcb07
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -710,7 +710,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54329:5432"
     environment:
@@ -764,7 +764,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54320:5432"
     healthcheck:
