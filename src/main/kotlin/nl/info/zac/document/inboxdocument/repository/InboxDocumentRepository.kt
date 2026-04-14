@@ -52,14 +52,13 @@ class InboxDocumentRepository @Inject constructor(
     @Transactional(REQUIRED)
     fun delete(inboxDocument: InboxDocument) = entityManager.remove(inboxDocument)
 
-    fun count(listParameters: InboxDocumentListParameters): Int {
+    fun count(listParameters: InboxDocumentListParameters): Long {
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(Long::class.java)
         val root = query.from(InboxDocument::class.java)
         query.where(getWhere(listParameters = listParameters, root = root))
         query.select(builder.count(root))
-        val count = entityManager.createQuery(query).singleResult ?: 0L
-        return java.lang.Math.toIntExact(count)
+        return entityManager.createQuery(query).singleResult ?: 0L
     }
 
     fun list(listParameters: InboxDocumentListParameters): List<InboxDocument> {

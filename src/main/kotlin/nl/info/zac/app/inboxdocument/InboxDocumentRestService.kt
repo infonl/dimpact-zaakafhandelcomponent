@@ -60,7 +60,7 @@ class InboxDocumentRestService @Inject constructor(
         val restInboxDocuments = inboxDocuments.toRestInboxDocuments(informatieobjectTypeUUIDs)
         return RESTResultaat<RestInboxDocument>(
             restInboxDocuments,
-            inboxDocumentService.count(listParameters).toLong()
+            inboxDocumentService.count(listParameters)
         )
     }
 

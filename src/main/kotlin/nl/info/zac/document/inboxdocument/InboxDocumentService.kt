@@ -50,7 +50,7 @@ class InboxDocumentService @Inject constructor(
         inboxDocumentRepository.find(enkelvoudiginformatieobjectUUID)
             ?: throw NotFoundException("InboxDocument with uuid '$enkelvoudiginformatieobjectUUID' not found.")
 
-    fun count(listParameters: InboxDocumentListParameters): Int = inboxDocumentRepository.count(listParameters)
+    fun count(listParameters: InboxDocumentListParameters): Long = inboxDocumentRepository.count(listParameters)
 
     @Transactional(REQUIRED)
     fun deleteIfExists(id: Long) {
