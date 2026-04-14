@@ -11,6 +11,7 @@ import { ZaakProcessFlowComponent } from "./zaak-process-flow.component";
 
 const ZAAK = {
   uuid: "test-uuid",
+  identificatie: "ZAAK-2026-001",
   bpmnProcessDefinition: {
     processDefinitionKey: "test-key",
     processDefinitionName: "Test Process",
@@ -59,10 +60,9 @@ describe(ZaakProcessFlowComponent.name, () => {
   });
 
   describe("header", () => {
-    it("shows the process definition name and version", () => {
+    it("shows the zaak identificatie", () => {
       const heading: HTMLElement = fixture.nativeElement.querySelector("h3");
-      expect(heading.textContent).toContain("Test Process");
-      expect(heading.textContent).toContain("3");
+      expect(heading.textContent).toContain("ZAAK-2026-001");
     });
 
     it("calls sideNav.close() when the close button is clicked", () => {
