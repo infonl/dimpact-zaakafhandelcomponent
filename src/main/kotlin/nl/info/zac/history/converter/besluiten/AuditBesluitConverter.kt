@@ -4,8 +4,8 @@
  */
 package nl.info.zac.history.converter.besluiten
 
-import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.zac.history.converter.addHistorieRegel
 import nl.info.zac.history.model.HistoryLine
 

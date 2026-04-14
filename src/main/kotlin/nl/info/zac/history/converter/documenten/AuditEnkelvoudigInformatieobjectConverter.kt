@@ -6,9 +6,9 @@
 package nl.info.zac.history.converter.documenten
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Ondertekening
+import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.history.converter.addHistorieRegel
 import nl.info.zac.history.model.HistoryLine
