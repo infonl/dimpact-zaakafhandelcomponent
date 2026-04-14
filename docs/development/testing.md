@@ -83,6 +83,16 @@ To run the tests in headless mode you can use the following command:
 HEADLESS=true ./start-e2e-with-test-env.sh
 ```
 
+#### Running only a single test feature
+
+To run a single test feature (or similar features with the same tag), you can use the `TAGS` environment variable.
+For example, to only run the test scenario(s) with the tag `@bpmn` in headless mode on the TEST environment,
+you can use the following command:
+
+```shell
+HEADLESS=true TAGS="@bpmn" ./start-e2e-with-test-env.sh
+```
+
 ### Writing e2e tests
 
 We have predefined steps that you can use to write tests. You can find them in the [src/main/e2e/step-definitions](../../src/e2e/step-definitions) folder. each file in this folder represents a specific domain, like "zaak" is meant for non reusables steps that are specific to the "zaak" domain. steps in common are meant to be reusable across domains.
