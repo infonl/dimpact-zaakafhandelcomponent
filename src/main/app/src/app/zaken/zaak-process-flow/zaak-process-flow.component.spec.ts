@@ -9,10 +9,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow.component";
 
-const BPMN_DEFINITION = {
-  processDefinitionKey: "test-key",
-  processDefinitionName: "Test Process",
-  processDefinitionVersion: 3,
+const ZAAK = {
+  uuid: "test-uuid",
+  bpmnProcessDefinition: {
+    processDefinitionKey: "test-key",
+    processDefinitionName: "Test Process",
+    processDefinitionVersion: 3,
+  },
 };
 
 describe(ZaakProcessFlowComponent.name, () => {
@@ -51,8 +54,7 @@ describe(ZaakProcessFlowComponent.name, () => {
     fixture.componentRef.setInput("sideNav", {
       close: closeMock,
     } as unknown as MatDrawer);
-    fixture.componentRef.setInput("zaakUuid", "test-uuid");
-    fixture.componentRef.setInput("bpmnProcessDefinition", BPMN_DEFINITION);
+    fixture.componentRef.setInput("zaak", ZAAK);
     fixture.detectChanges();
   });
 

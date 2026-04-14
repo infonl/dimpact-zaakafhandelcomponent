@@ -1100,6 +1100,7 @@
   "meerkeuzeOpties": "Multiple choice options",
   "volgorde": "Order",
   "bpmn.process-definition.key": "Key",
+  "bpmn.process-definition.key.extended": "Process definition key",
   "bpmn.process-definition.chip.onvolledig": "This BPMN process definition is not complete.",
   "bpmn.process-definition.date.uploaded": "Upload date",
   "bpmn.process-definition.date.changed": "Modified date",

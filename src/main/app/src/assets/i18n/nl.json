@@ -1100,6 +1100,7 @@
   "meerkeuzeOpties": "Meerkeuze opties",
   "volgorde": "Volgorde",
   "bpmn.process-definition.key": "Sleutel",
+  "bpmn.process-definition.key.extended": "Procesdefinitiesleutel",
   "bpmn.process-definition.chip.onvolledig": "Deze BPMN-procesdefinitie is niet volledig.",
   "bpmn.process-definition.date.uploaded": "Datum geüpload",
   "bpmn.process-definition.date.changed": "Datum gewijzigd",

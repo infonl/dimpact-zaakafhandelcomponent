@@ -146,8 +146,7 @@
       *ngSwitchCase="'actie.procesverloop.bekijken'"
       class="flex-col flex-fill-col"
       [sideNav]="actionsSidenav"
-      [zaakUuid]="zaak.uuid"
-      [bpmnProcessDefinition]="zaak.bpmnProcessDefinition!"
+      [zaak]="zaak"
     ></zac-zaak-process-flow>
   </mat-drawer>
   <mat-drawer-content>
@@ -203,14 +202,6 @@
               <mat-card-subtitle>{{
                 zaak.zaaktype.omschrijving
               }}</mat-card-subtitle>
-              @if (zaak.bpmnProcessDefinition) {
-                <div class="hint flex-row items-center">
-                  <mat-icon outlined>info</mat-icon>
-                  {{ zaak.bpmnProcessDefinition.processDefinitionName }} -
-                  {{ "versie" | translate }}
-                  {{ zaak.bpmnProcessDefinition.processDefinitionVersion }}
-                </div>
-              }
             </div>
           </section>
         </mat-card-header>

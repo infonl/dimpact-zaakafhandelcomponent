@@ -18,6 +18,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 const ZOOM_STEP = 0.25;
@@ -36,14 +37,13 @@ const SCROLL_STEP = 100;
     MatIconModule,
     MatToolbarModule,
     MatTooltipModule,
+    StaticTextComponent,
     TranslateModule,
   ],
 })
 export class ZaakProcessFlowComponent {
   protected readonly sideNav = input.required<MatDrawer>();
-  protected readonly zaakUuid = input.required<string>();
-  protected readonly bpmnProcessDefinition =
-    input.required<GeneratedType<"RestZaakBpmnProcessDefinition">>();
+  protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
   protected readonly cacheBuster = Date.now();
 
   private readonly containerRef =
