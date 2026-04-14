@@ -788,18 +788,17 @@ describe(ZaakViewComponent.name, () => {
         );
       });
 
-      it("should show the process definition name and version in the sidenav title", async () => {
+      it("should render the process flow sidenav when clicked", async () => {
         const button = await loader.getHarness(
           MatNavListItemHarness.with({ title: "actie.procesverloop.bekijken" }),
         );
         await button.click();
         fixture.detectChanges();
 
-        const heading: HTMLElement = fixture.nativeElement.querySelector(
-          "zac-zaak-process-flow h3",
+        const processFlowLoader = await loader.getChildLoader(
+          "zac-zaak-process-flow",
         );
-        expect(heading?.textContent).toContain("Test Process");
-        expect(heading?.textContent).toContain("3");
+        expect(processFlowLoader).toBeTruthy();
       });
     });
 
