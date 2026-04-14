@@ -23,7 +23,7 @@ import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
@@ -60,7 +60,7 @@ class InboxDocumentRestService @Inject constructor(
         val restInboxDocuments = inboxDocuments.toRestInboxDocuments(informatieobjectTypeUUIDs)
         return RESTResultaat<RestInboxDocument>(
             restInboxDocuments,
-            inboxDocumentService.count(listParameters).toLong()
+            inboxDocumentService.count(listParameters)
         )
     }
 
