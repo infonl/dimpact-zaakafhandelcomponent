@@ -70,6 +70,7 @@ jobs:
       version: ${{ steps.set-hotfix-version.outputs.version || steps.calc-version.outputs.version }}
       tag: ${{ steps.set-hotfix-version.outputs.tag || steps.calc-version.outputs.tag }}
       release-type: ${{ steps.release-type.outputs.release-type }}
+      previous-tag: ${{ steps.prev-tag.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -163,6 +164,13 @@ jobs:
           echo "version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=v${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
           echo "Calculated version: ${NEXT_VERSION} (release type: ${RELEASE_TYPE})"
+
+      - name: Find previous release tag
+        id: prev-tag
+        run: |
+          PREV_TAG=$(git tag -l 'v*' --sort=-v:refname --merged HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          echo "tag=${PREV_TAG:-}" >> "$GITHUB_OUTPUT"
+          echo "Previous release tag: ${PREV_TAG:-none}"
 
   paths-filter:
     runs-on: ubuntu-24.04
@@ -567,6 +575,7 @@ jobs:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
       NEXT_VERSION_TAG: ${{ needs.determine-version.outputs.tag }}
       RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
+      PREVIOUS_TAG: ${{ needs.determine-version.outputs.previous-tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -589,6 +598,20 @@ jobs:
           cat DEPENDENCIES.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Generate release notes
+        id: release-notes
+        if: ${{ env.PREVIOUS_TAG != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          gh api repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name="${{ env.NEXT_VERSION_TAG }}" \
+            -f target_commitish="${{ github.sha }}" \
+            -f previous_tag_name="${{ env.PREVIOUS_TAG }}" \
+            --jq '.body' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create dev pre-release
         if: ${{ env.RELEASE_TYPE == 'dev' }}
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
@@ -606,12 +629,13 @@ jobs:
             ## Tested Against
 
             ${{ steps.dependencies.outputs.dependencies }}
+
+            ${{ steps.release-notes.outputs.notes }}
           draft: false
           prerelease: true
           makeLatest: false
           allowUpdates: true
           updateOnlyUnreleased: true
-          generateReleaseNotes: true
 
       - name: Create release
         if: ${{ env.RELEASE_TYPE == 'release' || env.RELEASE_TYPE == 'hotfix' }}
@@ -628,11 +652,12 @@ jobs:
             ## Tested Against
 
             ${{ steps.dependencies.outputs.dependencies }}
+
+            ${{ steps.release-notes.outputs.notes }}
           draft: false
           prerelease: false
           allowUpdates: true
           makeLatest: ${{ env.RELEASE_TYPE == 'release' }}
-          generateReleaseNotes: true
 
   trigger-provision:
     needs: [determine-version, push-docker-image, create-release]
@@ -652,6 +677,7 @@ jobs:
               workflow_id: 'azure-provision-zaakafhandelcomponent.yml',
               inputs: {
                 tag: '${{ env.PROVISION_TAG }}',
+                commit_sha: '${{ github.sha }}',
               },
               ref: 'main'
             })
