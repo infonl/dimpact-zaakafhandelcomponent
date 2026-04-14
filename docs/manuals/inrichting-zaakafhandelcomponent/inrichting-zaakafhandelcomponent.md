@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 27-01-2026 <br>
-> Versie :   1.11 <br>
-> Verandering : ZAC v4.1.0 Inrichting Zaakafhandelcomponent <br>
+> Datum : 14-04-2026 <br>
+> Versie :   1.12 <br>
+> Verandering : ZAC v4.6.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -27,6 +27,7 @@ Versiegeschiedenis:
 | 1.9  | ZAC versie 4.0.83  |
 | 1.10 | ZAC versie 4.1.0   |
 | 1.11 | ZAC versie 4.1.27  |
+| 1.12 | ZAC versie 4.6.0   |
 
 # Inhoud
 
@@ -571,20 +572,17 @@ Hiermee wordt een functionele rol gekoppeld aan applicatierollen voor een specif
 
   ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
 
-Voor (functioneel) beheerders in ZAC geldt, in ieder geval op dit moment, dat ze binnen ZAC alles moeten kunnen,
-binnen alle domeinen.
-In dit geval kan er gekozen worden voor het type `geen enkel entiteitstype`.
-Dit type wordt gebruikt voor functionele rollen waar entiteitstypes niet voor van toepassing zijn.
-De aanbeveling is om dit type te gebruiken om de ZAC beheerder-rollen in te richten.
-Bij gebruik van dit roltype, zijn ook alle toekomstig nog aan te maken entiteitstypes (zoals zaaktypes) automatisch geautoriseerd. 
-Dit vermindert beheerslast.
+Voor (functioneel) beheerders in ZAC geldt dat ze toegang moeten hebben tot alle entiteitstypes (zoals zaaktypes) in alle domeinen. 
+Dit is bijvoorbeeld nodig voor het inrichten van zaakafhandelparameters waar je moet kunnen kiezen uit alle 
+(in de PABC beschikbaar gemaakte) zaaktypen.
+In dit geval kan er gekozen worden voor het type `Alle entiteitstypes`.
 
   ![PABC autorisatie-koppeling voor alle entiteitstypes](images/pabc_autorisatie_koppeling_2.png)
 
   ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
 
-Het derde type autorisatie-koppeling, `alle entiteitstypes`, is bedoeld voor rollen die geautoriseerd moeten worden voor per definitie alle entiteitstypes.
-Dit type wordt (nog) niet ondersteund door ZAC.
+Het derde type autorisatie-koppeling, `Geen enkel entiteitstype`, is bedoeld voor rollen waar entiteitstypes niet voor van toepassing zijn.
+Dit type wordt nog niet ondersteund door ZAC en moet dus niet worden gebruikt.
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 
