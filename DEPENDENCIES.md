@@ -12,13 +12,13 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.15.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
 - **kontextwork-converter**: 1.8.3
-- **otel/opentelemetry-collector-contrib**: 0.149.0
+- **otel/opentelemetry-collector-contrib**: 0.150.1
 - **grafana/tempo**: 2.10.4
 - **prom/prometheus**: v3.11.2
 - **grafana/grafana**: 12.4.2
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.5-alpine
-- **nginxinc/nginx-unprivileged**: 1.29.5
+- **nginxinc/nginx-unprivileged**: 1.29.8
 
 ## Common Ground components
 

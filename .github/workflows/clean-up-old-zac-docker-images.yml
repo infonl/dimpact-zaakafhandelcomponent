@@ -28,11 +28,10 @@ jobs:
 
   # Delete old tagged images but keep the 10 most recent, while always preserving:
   #   - 'latest'
-  #   - minor version tags          (e.g. 2.2 or v2.2)
-  #   - patch-zero version tags     (e.g. 2.2.0 or v2.2.0)
-  #   - version tags with a suffix  (e.g. 2.3.3-1 or v2.3.3-1)
-  # This means regular patch releases like 2.3.1, 2.3.2 and build artifacts
-  # like main-12345 are eligible for cleanup.
+  #   - minor version tags              (e.g. 2.2 or v2.2)
+  #   - all patch version tags          (e.g. 4.7.0, 4.6.1 or v4.6.1)
+  #   - version tags with a suffix      (e.g. 4.7.0-dev, but NOT 4.7.0-dev.123)
+  # This means build artifacts like main-12345 are eligible for cleanup.
   #
   # Note: we use a custom script instead of the actions/delete-package-versions
   # action's ignore-versions parameter because for container packages the action
@@ -50,7 +49,7 @@ jobs:
           owner="infonl"
           package="zaakafhandelcomponent"
           keep=10
-          preserve='^(latest|v?\d+\.\d+(\.0|\.\d+-\S+)?)$'
+          preserve='^(latest|v?\d+\.\d+(\.\d+(-[^.\s]+)?)?)$'
 
           echo "Fetching all versions of ${owner}/${package}..."
           versions=$(gh api --paginate \
