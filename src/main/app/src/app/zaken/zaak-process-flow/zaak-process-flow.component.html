@@ -1,0 +1,78 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16">
+  <mat-icon>play_shapes</mat-icon>
+  <h3 class="flex-grow-1">
+    {{ "actie.procesverloop.bekijken" | translate }} —
+    {{ zaak().identificatie }}
+  </h3>
+  <button mat-icon-button (click)="sideNav().close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+<div class="flex-row gap-20 process-definition-details">
+  <zac-static-text
+    label="bpmn.process-definition.key.extended"
+    [value]="zaak().bpmnProcessDefinition!.processDefinitionKey"
+  />
+  <zac-static-text
+    label="versie"
+    [value]="zaak().bpmnProcessDefinition!.processDefinitionVersion"
+  />
+</div>
+<mat-divider></mat-divider>
+<div class="diagram-wrapper">
+  <div class="diagram-controls">
+    <button
+      mat-icon-button
+      (click)="zoomIn()"
+      [disabled]="zoomLevel() >= 4"
+      [matTooltip]="'actie.zoom.in' | translate"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      (click)="resetZoom()"
+      [matTooltip]="'actie.zoom.reset' | translate"
+    >
+      <mat-icon>zoom_out_map</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      (click)="zoomOut()"
+      [disabled]="zoomLevel() <= 0.25"
+      [matTooltip]="'actie.zoom.out' | translate"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <mat-divider></mat-divider>
+    <div class="flex-row justify-center">
+      <mat-icon outlined [matTooltip]="'proces.diagram.hint' | translate"
+        >info</mat-icon
+      >
+    </div>
+  </div>
+  <div
+    #diagramContainer
+    class="diagram-container flex-row flex-1 items-center justify-center"
+    (click)="zoomIn()"
+  >
+    <img
+      [src]="'/rest/zaken/' + zaak().uuid + '/process-diagram?t=' + cacheBuster"
+      [alt]="
+        zaak().bpmnProcessDefinition!.processDefinitionName +
+        ' - ' +
+        ('versie' | translate) +
+        ' ' +
+        zaak().bpmnProcessDefinition!.processDefinitionVersion
+      "
+      [style.transform]="'scale(' + zoomLevel() + ')'"
+      class="diagram-image"
+    />
+  </div>
+</div>

@@ -65,6 +65,7 @@ data class RestZaak(
      */
     @get:JsonbProperty("isProcesGestuurd")
     var isProcesGestuurd: Boolean,
+    var bpmnProcessDefinition: RestZaakBpmnProcessDefinition?,
 
     @get:JsonbProperty("isVerlengd")
     var isVerlengd: Boolean,

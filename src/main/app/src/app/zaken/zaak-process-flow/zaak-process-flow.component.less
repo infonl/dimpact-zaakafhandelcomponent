@@ -1,0 +1,48 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.diagram-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.diagram-controls {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  top: 2px;
+  right: 20px;
+  z-index: 1;
+  gap: 4px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+
+  button {
+    margin: 0;
+  }
+}
+
+.diagram-container {
+  overflow: auto;
+  padding: 16px;
+  cursor: zoom-in;
+}
+
+.process-definition-details {
+  padding: 16px;
+}
+
+.diagram-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: top left;
+}

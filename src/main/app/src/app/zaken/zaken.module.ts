@@ -30,6 +30,7 @@ import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.c
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
+import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
@@ -81,6 +82,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     MimetypeToExtensionPipe,
     CaseLocationEditComponent,
     LocatieTonenComponent,
+    ZaakProcessFlowComponent,
   ],
 })
 export class ZakenModule {}

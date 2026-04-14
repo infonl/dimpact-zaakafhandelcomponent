@@ -25,10 +25,15 @@ import org.flowable.engine.RuntimeService
 import org.flowable.engine.repository.Deployment
 import org.flowable.engine.repository.ProcessDefinition
 import org.flowable.engine.runtime.ProcessInstance
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
+import javax.imageio.ImageIO
 
 @ApplicationScoped
 @Transactional
@@ -45,6 +50,8 @@ class BpmnService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(BpmnService::class.java.getName())
+        private const val DIAGRAM_PADDING = 10
+        private const val BACKGROUND_COLOR_THRESHOLD = 240
     }
 
     /**
@@ -59,7 +66,7 @@ class BpmnService @Inject constructor(
             return processEngineConfiguration.getProcessDiagramGenerator()
                 .generateDiagram(
                     bpmnModel,
-                    "gif",
+                    "png",
                     runtimeService.getActiveActivityIds(processInstance.id),
                     mutableListOf<String>(),
                     processEngineConfiguration.getActivityFontName(),
@@ -69,9 +76,91 @@ class BpmnService @Inject constructor(
                     1.0,
                     processEngineConfiguration.isDrawSequenceFlowNameWithNoLabelDI
                 )
+                .let { trimWhitespace(it) }
         }
 
+    private fun trimWhitespace(inputStream: InputStream): InputStream {
+        inputStream.use {
+            val image = ImageIO.read(inputStream)
+            val width = image.width
+            val height = image.height
+
+            val top = findTopEdge(image, width, height)
+            val bottom = findBottomEdge(image, width, height, top)
+            val left = findLeftEdge(image, width, top, bottom)
+            val right = findRightEdge(image, width, top, bottom, left)
+
+            val paddedLeft = maxOf(0, left - DIAGRAM_PADDING)
+            val paddedTop = maxOf(0, top - DIAGRAM_PADDING)
+            val paddedRight = minOf(width - 1, right + DIAGRAM_PADDING)
+            val paddedBottom = minOf(height - 1, bottom + DIAGRAM_PADDING)
+
+            val cropped = image.getSubimage(
+                paddedLeft,
+                paddedTop,
+                paddedRight - paddedLeft + 1,
+                paddedBottom - paddedTop + 1
+            )
+            return ByteArrayInputStream(
+                ByteArrayOutputStream().also {
+                    ImageIO.write(cropped, "png", it)
+                }.toByteArray()
+            )
+        }
+    }
+
+    private fun findTopEdge(image: BufferedImage, width: Int, height: Int): Int {
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) return y
+            }
+        }
+        return 0
+    }
+
+    private fun findBottomEdge(image: BufferedImage, width: Int, height: Int, top: Int): Int {
+        for (y in height - 1 downTo top) {
+            for (x in 0 until width) {
+                if (!isBackground(image, x, y)) return y
+            }
+        }
+        return height - 1
+    }
+
+    private fun findLeftEdge(image: BufferedImage, width: Int, top: Int, bottom: Int): Int {
+        for (x in 0 until width) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) return x
+            }
+        }
+        return 0
+    }
+
+    private fun findRightEdge(image: BufferedImage, width: Int, top: Int, bottom: Int, left: Int): Int {
+        for (x in width - 1 downTo left) {
+            for (y in top..bottom) {
+                if (!isBackground(image, x, y)) return x
+            }
+        }
+        return width - 1
+    }
+
+    private fun isBackground(image: BufferedImage, x: Int, y: Int): Boolean {
+        val color = Color(image.getRGB(x, y), true)
+        return color.alpha == 0 ||
+            (
+                color.red > BACKGROUND_COLOR_THRESHOLD &&
+                    color.green > BACKGROUND_COLOR_THRESHOLD &&
+                    color.blue > BACKGROUND_COLOR_THRESHOLD
+                )
+    }
+
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
+
+    fun findProcessDefinitionByZaak(zaakUUID: UUID): ProcessDefinition? =
+        findProcessInstance(zaakUUID)?.let { processInstance ->
+            repositoryService.getProcessDefinition(processInstance.processDefinitionId)
+        }
 
     fun findProcessDefinitionByProcessDefinitionKey(processDefinitionKey: String): ProcessDefinition? =
         repositoryService.createProcessDefinitionQuery()
