@@ -30,8 +30,8 @@ import nl.info.zac.app.zaak.model.RESTZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
-import nl.info.zac.app.zaak.model.RestZaakBpmnProcessDefinition
 import nl.info.zac.app.zaak.model.toRestGeometry
+import nl.info.zac.app.zaak.model.toRestZaakBpmnProcessDefinition
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -146,13 +146,7 @@ class RestZaakConverter @Inject constructor(
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnProcessDefinition != null,
-            bpmnProcessDefinition = bpmnProcessDefinition?.let {
-                RestZaakBpmnProcessDefinition(
-                    processDefinitionKey = it.key,
-                    processDefinitionName = it.name,
-                    processDefinitionVersion = it.version,
-                )
-            },
+            bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
             heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
