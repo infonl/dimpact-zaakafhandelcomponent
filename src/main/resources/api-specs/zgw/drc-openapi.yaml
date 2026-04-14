@@ -6432,7 +6432,7 @@ components:
       - sha_256
       - sha_512
       - sha_3
-       # manual change by INFO.nl: can be an empty string in the Open Zaak response
+      # manual change by INFO.nl: can be an empty string in the Open Zaak response
       - ''
       type: string
     AuditTrail:
