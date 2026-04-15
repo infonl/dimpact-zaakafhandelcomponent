@@ -30,7 +30,6 @@ import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocument
-import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentResult
 import nl.info.zac.document.detacheddocument.repository.model.createDetachedDocument
 import nl.info.zac.policy.PolicyService
@@ -226,7 +225,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         Given("a valid request with no ontkoppeldDoor filter in request or database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<DetachedDocumentListParameters>()
             val restListParameters = RestDetachedDocumentListParameters()
             val detachedDocument = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
@@ -253,7 +251,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         Given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<DetachedDocumentListParameters>()
             val requestUser = createRestUser(id = "fakeUserId1", name = "fakeUserName1")
             val restListParameters = RestDetachedDocumentListParameters().apply {
                 ontkoppeldDoor = requestUser
@@ -282,7 +279,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
         Given("a valid request with ontkoppeldDoor filter returned from the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
-            val listParameters = mockk<DetachedDocumentListParameters>()
             val restListParameters = RestDetachedDocumentListParameters()
             val document = createDetachedDocument()
             val informatieObject = createEnkelvoudigInformatieObject()
