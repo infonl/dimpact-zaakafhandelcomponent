@@ -19,13 +19,12 @@ import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
   declarations: [
     DashboardComponent,
     InformatieobjectenCardComponent,
-    TakenCardComponent,
     TaakZoekenCardComponent,
     ZakenCardComponent,
     ZaakWaarschuwingenCardComponent,
     ZaakZoekenCardComponent,
   ],
+  imports: [CommonModule, SharedModule, RouterModule, TakenCardComponent],
   exports: [DashboardComponent],
-  imports: [CommonModule, SharedModule, RouterModule],
 })
 export class DashboardModule {}
