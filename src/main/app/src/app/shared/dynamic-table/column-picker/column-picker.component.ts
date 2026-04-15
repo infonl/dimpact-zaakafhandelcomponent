@@ -3,16 +3,35 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { KeyValuePipe, NgFor } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { MatListOption, MatSelectionList } from "@angular/material/list";
+import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
 import { MatSelectionListChange } from "@angular/material/list";
+import { TranslateModule } from "@ngx-translate/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SortPipe } from "../pipes/sort.pipe";
 import { ColumnPickerValue } from "./column-picker-value";
 
 @Component({
   selector: "zac-column-picker",
   templateUrl: "./column-picker.component.html",
   styleUrls: ["./column-picker.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    KeyValuePipe,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatIcon,
+    MatSelectionList,
+    MatListOption,
+    TranslateModule,
+    SortPipe,
+  ],
 })
 export class ColumnPickerComponent {
   @Input() set columnSrc(columns: Map<string, ColumnPickerValue>) {
