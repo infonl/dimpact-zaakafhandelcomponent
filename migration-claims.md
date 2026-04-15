@@ -54,15 +54,15 @@
 - [x] `zaken/intake-afronden-dialog/intake-afronden-dialog.component.ts`
 - [x] `zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.ts`
 
-### Bundle size — in progress
+### Bundle size — done
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `shared/pipes/empty.pipe.ts` — made standalone (enabler for BagZoekComponent)
 - [x] `bag/zoek/bag-zoek/bag-zoek.component.ts` — made standalone (enabler for BAGModule lazy load)
 - [x] `bag/bag-locatie/bag-locatie.component.ts` — lazy-loaded via BAGModule `loadChildren`
 - [x] `bag/bag-zaken-tabel/bag-zaken-tabel.component.ts`
 - [x] `bag/bag-view/bag-view.component.ts`
-- [ ] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
-- [ ] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
+- [x] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
+- [x] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
 ## Dax
 
