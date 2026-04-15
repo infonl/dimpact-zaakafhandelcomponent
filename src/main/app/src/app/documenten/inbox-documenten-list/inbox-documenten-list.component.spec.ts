@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { provideHttpClient } from "@angular/common/http";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { ActivatedRoute } from "@angular/router";
@@ -20,9 +21,9 @@ describe(InboxDocumentenListComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
-      declarations: [InboxDocumentenListComponent],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot(), InboxDocumentenListComponent],
       providers: [
+        provideHttpClient(),
         {
           provide: ActivatedRoute,
           useValue: { data: of({ tabelGegevens: { aantalPerPagina: 10 } }) },
@@ -52,7 +53,7 @@ describe(InboxDocumentenListComponent.name, () => {
     component.sort.direction = "asc";
     component.paginator.pageSize = 25;
 
-    component.updateListParameters();
+    component["updateListParameters"]();
 
     expect(setItemSpy).toHaveBeenCalledWith("INBOX_DOCUMENTEN_ZOEKPARAMETERS", {
       maxResults: 25,
@@ -81,6 +82,6 @@ describe(InboxDocumentenListComponent.name, () => {
 
     component.ngOnInit();
 
-    expect(component.listParameters).toEqual(rememberedParams);
+    expect(component["listParameters"]).toEqual(rememberedParams);
   });
 });

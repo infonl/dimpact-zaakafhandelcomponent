@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -11,17 +12,39 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { MatAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
+import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSidenav } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
-import { ActivatedRoute } from "@angular/router";
+import {
+  MatDrawer,
+  MatDrawerContainer,
+  MatDrawerContent,
+  MatSidenav,
+} from "@angular/material/sidenav";
+import { MatSort, MatSortHeader } from "@angular/material/sort";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+  MatTableDataSource,
+} from "@angular/material/table";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
+import { InformatieObjectenModule } from "../../informatie-objecten/informatie-objecten.module";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   ConfirmDialogComponent,
@@ -29,42 +52,76 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,
 } from "../../shared/storage/session-storage.util";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 
 @Component({
   templateUrl: "./inbox-documenten-list.component.html",
   styleUrls: ["./inbox-documenten-list.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    RouterLink,
+    MatDrawerContainer,
+    MatDrawer,
+    MatDrawerContent,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatSort,
+    MatSortHeader,
+    MatPaginator,
+    MatIconButton,
+    MatAnchor,
+    MatIcon,
+    TranslateModule,
+    TekstFilterComponent,
+    DateRangeFilterComponent,
+    ReadMoreComponent,
+    ZoekopdrachtComponent,
+    DatumPipe,
+    InformatieObjectenModule,
+  ],
 })
 export class InboxDocumentenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  isLoadingResults = true;
-  dataSource = new MatTableDataSource<GeneratedType<"RestInboxDocument">>();
+  protected isLoadingResults = true;
+  protected dataSource = new MatTableDataSource<GeneratedType<"RestInboxDocument">>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
 
-  displayedColumns = [
+  protected readonly displayedColumns = [
     "enkelvoudiginformatieobjectID",
     "creatiedatum",
     "titel",
     "actions",
   ] as const;
-  filterColumns = [
+  protected readonly filterColumns = [
     "identificatie_filter",
     "creatiedatum_filter",
     "titel_filter",
     "actions_filter",
   ] as const;
-  listParameters: PutBody<"/rest/inboxdocumenten"> = {};
-  listParametersSort: {
+  protected listParameters: PutBody<"/rest/inboxdocumenten"> = {};
+  protected listParametersSort: {
     sort: keyof PutBody<"/rest/inboxdocumenten">;
     order: "desc" | "asc";
     filtersType: ZoekFilters["filtersType"];
@@ -73,15 +130,15 @@ export class InboxDocumentenListComponent
     order: "desc",
     filtersType: "InboxDocumentListParameters",
   };
-  filterChange = new EventEmitter<void>();
-  clearZoekopdracht = new EventEmitter<void>();
-  selectedInformationObject: GeneratedType<"RestInboxDocument"> | null = null;
+  protected filterChange = new EventEmitter<void>();
+  protected clearZoekopdracht = new EventEmitter<void>();
+  protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null = null;
 
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,
     private readonly infoService: InformatieObjectenService,
     private readonly utilService: UtilService,
-    public readonly dialog: MatDialog,
+    private readonly dialog: MatDialog,
     public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public readonly route: ActivatedRoute,
   ) {
