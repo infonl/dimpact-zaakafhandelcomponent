@@ -27,7 +27,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 
 import net.atos.zac.app.productaanvragen.converter.RESTInboxProductaanvraagConverter;
-import net.atos.zac.app.productaanvragen.converter.RESTInboxProductaanvraagListParametersConverter;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters;
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagResultaat;
@@ -38,6 +37,7 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.util.MediaTypes;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
+import nl.info.zac.app.productaanvragen.converter.RESTInboxProductaanvraagListParametersConverter;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton

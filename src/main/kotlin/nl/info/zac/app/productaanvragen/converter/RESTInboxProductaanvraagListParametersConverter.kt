@@ -1,34 +1,33 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.productaanvragen.converter;
+package nl.info.zac.app.productaanvragen.converter
 
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters;
-import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters;
-import nl.info.zac.app.shared.RESTListParametersConverter;
-import nl.info.zac.search.model.DatumRange;
+import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters
+import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters
+import nl.info.zac.app.shared.RESTListParametersConverter
+import nl.info.zac.search.model.DatumRange
 
-public class RESTInboxProductaanvraagListParametersConverter extends
-                                                             RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters> {
+class RESTInboxProductaanvraagListParametersConverter :
+    RESTListParametersConverter<InboxProductaanvraagListParameters, RESTInboxProductaanvraagListParameters>() {
 
-    @Override
-    protected void doConvert(
-            final InboxProductaanvraagListParameters listParameters,
-            final RESTInboxProductaanvraagListParameters restListParameters
+    override fun doConvert(
+        listParameters: InboxProductaanvraagListParameters,
+        restListParameters: RESTInboxProductaanvraagListParameters
     ) {
-        listParameters.setType(restListParameters.type);
-        listParameters.setInitiatorID(restListParameters.initiatorID);
-
-        if (restListParameters.ontvangstdatum != null && restListParameters.ontvangstdatum.hasValue()) {
-            listParameters.setOntvangstdatum(new DatumRange(restListParameters.ontvangstdatum.getVan(), restListParameters.ontvangstdatum
-                    .getTot()));
+        listParameters.apply {
+            type = restListParameters.type
+            initiatorID = restListParameters.initiatorID
+            if (restListParameters.ontvangstdatum != null && restListParameters.ontvangstdatum.hasValue()) {
+                ontvangstdatum = DatumRange(
+                    van = restListParameters.ontvangstdatum.van,
+                    tot = restListParameters.ontvangstdatum.tot
+                )
+            }
         }
     }
 
-    @Override
-    protected InboxProductaanvraagListParameters getListParameters() {
-        return new InboxProductaanvraagListParameters();
-    }
+    override fun getListParameters() = InboxProductaanvraagListParameters()
 }
