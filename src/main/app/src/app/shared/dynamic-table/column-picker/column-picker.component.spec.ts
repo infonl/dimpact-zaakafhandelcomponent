@@ -54,20 +54,20 @@ describe(ColumnPickerComponent.name, () => {
       datum: ColumnPickerValue.HIDDEN,
     });
 
-    expect(component.isSelected("naam")).toBe(true);
-    expect(component.isSelected("datum")).toBe(false);
+    expect(component["isSelected"]("naam")).toBe(true);
+    expect(component["isSelected"]("datum")).toBe(false);
   });
 
   it("resets selection state when columnSrc is reassigned", () => {
     component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
     component.columnSrc = makeColumns({ naam: ColumnPickerValue.HIDDEN });
 
-    expect(component.isSelected("naam")).toBe(false);
+    expect(component["isSelected"]("naam")).toBe(false);
   });
 
   it("resets changed flag when menu opens", () => {
     component["changed"] = true;
-    component.menuOpened();
+    component["menuOpened"]();
     expect(component["changed"]).toBe(false);
   });
 
@@ -76,7 +76,7 @@ describe(ColumnPickerComponent.name, () => {
 
     const mockOption = { value: "naam" };
     const mockEvent = { options: [mockOption] } as never;
-    component.selectionChanged(mockEvent);
+    component["selectionChanged"](mockEvent);
 
     expect(component["_columnSrc"].get("naam")).toBe(ColumnPickerValue.HIDDEN);
     expect(component["changed"]).toBe(true);
@@ -87,7 +87,7 @@ describe(ColumnPickerComponent.name, () => {
 
     const mockOption = { value: "naam" };
     const mockEvent = { options: [mockOption] } as never;
-    component.selectionChanged(mockEvent);
+    component["selectionChanged"](mockEvent);
 
     expect(component["_columnSrc"].get("naam")).toBe(ColumnPickerValue.VISIBLE);
   });
@@ -99,7 +99,7 @@ describe(ColumnPickerComponent.name, () => {
     const emitted: Map<string, ColumnPickerValue>[] = [];
     component.columnsChanged.subscribe((v) => emitted.push(v));
 
-    component.updateColumns();
+    component["updateColumns"]();
 
     expect(emitted).toHaveLength(1);
   });
@@ -111,7 +111,7 @@ describe(ColumnPickerComponent.name, () => {
     const emitted: Map<string, ColumnPickerValue>[] = [];
     component.columnsChanged.subscribe((v) => emitted.push(v));
 
-    component.updateColumns();
+    component["updateColumns"]();
 
     expect(emitted).toHaveLength(0);
   });
@@ -126,7 +126,7 @@ describe(ColumnPickerComponent.name, () => {
 
   it("exposes columns map via getter", () => {
     component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
-    expect(component.columns.size).toBe(1);
-    expect(component.columns.has("naam")).toBe(true);
+    expect(component["columns"].size).toBe(1);
+    expect(component["columns"].has("naam")).toBe(true);
   });
 });

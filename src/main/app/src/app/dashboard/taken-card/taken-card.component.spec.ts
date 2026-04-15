@@ -3,8 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -42,6 +45,7 @@ const makeDashboardCard = (): DashboardCard =>
 describe(TakenCardComponent.name, () => {
   let fixture: ComponentFixture<TakenCardComponent>;
   let component: TakenCardComponent;
+  let loader: HarnessLoader;
   let signaleringenService: SignaleringenService;
 
   beforeEach(async () => {
@@ -75,6 +79,7 @@ describe(TakenCardComponent.name, () => {
 
     fixture = TestBed.createComponent(TakenCardComponent);
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
     component.data = makeDashboardCard();
     fixture.detectChanges();
   });
@@ -106,22 +111,22 @@ describe(TakenCardComponent.name, () => {
     ]);
   });
 
-  it("renders a table row for each task in dataSource", () => {
+  it("renders a table row for each task in dataSource", async () => {
     const taken = [makeTaak({ naam: "Taak X" }), makeTaak({ naam: "Taak Y" })];
     component.dataSource.data = taken;
     fixture.detectChanges();
 
-    const rows = fixture.nativeElement.querySelectorAll("tr[mat-row]");
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows();
     expect(rows.length).toBe(2);
   });
 
-  it("renders empty state row when dataSource is empty", () => {
+  it("renders empty state row when dataSource is empty", async () => {
     component.dataSource.data = [];
     fixture.detectChanges();
 
-    const noDataRow =
-      fixture.nativeElement.querySelector("tr.mat-mdc-no-data-row") ??
-      fixture.nativeElement.querySelector("tr[mat-no-data-row]");
-    expect(noDataRow).toBeTruthy();
+    const table = await loader.getHarness(MatTableHarness);
+    const rows = await table.getRows();
+    expect(rows.length).toBe(0);
   });
 });

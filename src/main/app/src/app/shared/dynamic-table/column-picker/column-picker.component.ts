@@ -60,11 +60,11 @@ export class ColumnPickerComponent {
 
   constructor(private readonly translate: TranslateService) {}
 
-  menuOpened() {
+  protected menuOpened() {
     this.changed = false;
   }
 
-  selectionChanged($event: MatSelectionListChange) {
+  protected selectionChanged($event: MatSelectionListChange) {
     this.changed = true;
     $event.options.forEach((option) =>
       this._columnSrc.set(
@@ -76,17 +76,17 @@ export class ColumnPickerComponent {
     );
   }
 
-  updateColumns() {
+  protected updateColumns() {
     if (this.changed) {
       this.columnsChanged.emit(this._columnSrc);
     }
   }
 
-  get columns() {
+  protected get columns() {
     return this._columns;
   }
 
-  isSelected(column: string) {
+  protected isSelected(column: string) {
     return this._selection.includes(column);
   }
 }

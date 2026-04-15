@@ -20,7 +20,6 @@ import {
   MatDrawer,
   MatDrawerContainer,
   MatDrawerContent,
-  MatSidenav,
 } from "@angular/material/sidenav";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
 import {
@@ -108,7 +107,7 @@ export class InboxDocumentenListComponent
   >();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
+  @ViewChild("actionsSidenav") actionsSidenav!: MatDrawer;
 
   protected readonly displayedColumns = [
     "enkelvoudiginformatieobjectID",
