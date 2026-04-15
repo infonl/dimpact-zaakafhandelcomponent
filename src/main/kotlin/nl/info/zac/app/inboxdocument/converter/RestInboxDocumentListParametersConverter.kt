@@ -16,11 +16,9 @@ import nl.info.zac.util.NoArgConstructor
 class RestInboxDocumentListParametersConverter :
     RESTListParametersConverter<InboxDocumentListParameters, RestInboxDocumentListParameters>() {
     override fun doConvert(
-        listParameters: InboxDocumentListParameters?,
-        restListParameters: RestInboxDocumentListParameters?
+        listParameters: InboxDocumentListParameters,
+        restListParameters: RestInboxDocumentListParameters
     ) {
-        if (listParameters == null || restListParameters == null) return
-
         listParameters.identificatie = restListParameters.identificatie
         listParameters.titel = restListParameters.titel
         restListParameters.creatiedatum?.let { creatiedatum ->

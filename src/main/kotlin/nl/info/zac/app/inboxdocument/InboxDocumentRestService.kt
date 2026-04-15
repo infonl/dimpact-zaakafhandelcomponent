@@ -50,7 +50,7 @@ class InboxDocumentRestService @Inject constructor(
     }
 
     @PUT
-    fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters?): RESTResultaat<RestInboxDocument> {
+    fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val listParameters = listParametersConverter.convert(restListParameters)
         val inboxDocuments = inboxDocumentService.list(listParameters)
