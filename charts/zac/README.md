@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.220](https://img.shields.io/badge/Version-1.0.220-informational?style=flat-square) ![AppVersion: 4.6](https://img.shields.io/badge/AppVersion-4.6-informational?style=flat-square)
+![Version: 1.0.221](https://img.shields.io/badge/Version-1.0.221-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -81,7 +81,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.19.0@sha256:b066cbf876d50a5d024927878a586c4a39c985325ded195e2e231f4abdddf3c8"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.19.0@sha256:9a6f6a17667960e077f1b153009aaf18ac99a622221084e1938a45a06fff057a"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
