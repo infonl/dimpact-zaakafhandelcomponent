@@ -1,33 +1,32 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.shared;
+package nl.info.zac.app.shared
 
-import org.apache.commons.lang3.StringUtils;
+import net.atos.zac.app.shared.RESTListParameters
+import nl.info.zac.shared.model.ListParameters
+import nl.info.zac.shared.model.Paging
+import nl.info.zac.shared.model.Sorting
+import nl.info.zac.shared.model.fromValue
 
-import nl.info.zac.shared.model.ListParameters;
-import nl.info.zac.shared.model.Paging;
-import nl.info.zac.shared.model.SorteerRichtingKt;
-import nl.info.zac.shared.model.Sorting;
+abstract class RESTListParametersConverter<LP : ListParameters, RLP : RESTListParameters> {
 
-public abstract class RESTListParametersConverter<LP extends ListParameters, RLP extends RESTListParameters> {
-
-    public LP convert(final RLP restListParameters) {
-        final LP listParameters = getListParameters();
+    fun convert(restListParameters: RLP?): LP {
+        val listParameters = getListParameters()
         if (restListParameters == null) {
-            return listParameters;
+            return listParameters
         }
-        if (StringUtils.isNotBlank(restListParameters.sort)) {
-            listParameters.setSorting(new Sorting(restListParameters.sort, SorteerRichtingKt.fromValue(restListParameters.order)));
+        if (!restListParameters.sort.isNullOrBlank()) {
+            listParameters.sorting = Sorting(restListParameters.sort, fromValue(restListParameters.order))
         }
-        listParameters.setPaging(new Paging(restListParameters.page, restListParameters.maxResults));
-        doConvert(listParameters, restListParameters);
-        return listParameters;
+        listParameters.paging = Paging(restListParameters.page, restListParameters.maxResults)
+        doConvert(listParameters, restListParameters)
+        return listParameters
     }
 
-    protected abstract void doConvert(final LP listParameters, final RLP restListParameters);
+    protected abstract fun doConvert(listParameters: LP, restListParameters: RLP)
 
-    protected abstract LP getListParameters();
+    protected abstract fun getListParameters(): LP
 }

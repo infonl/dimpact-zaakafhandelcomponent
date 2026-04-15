@@ -4,8 +4,8 @@
  */
 package nl.info.zac.app.detacheddocuments.converter
 
-import net.atos.zac.app.shared.RESTListParametersConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
+import nl.info.zac.app.shared.RESTListParametersConverter
 import nl.info.zac.document.detacheddocument.repository.model.DetachedDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.util.AllOpen
@@ -16,11 +16,9 @@ import nl.info.zac.util.NoArgConstructor
 class RestDetachedDocumentListParametersConverter :
     RESTListParametersConverter<DetachedDocumentListParameters, RestDetachedDocumentListParameters>() {
     override fun doConvert(
-        listParameters: DetachedDocumentListParameters?,
-        restListParameters: RestDetachedDocumentListParameters?
+        listParameters: DetachedDocumentListParameters,
+        restListParameters: RestDetachedDocumentListParameters
     ) {
-        if (listParameters == null || restListParameters == null) return
-
         listParameters.reden = restListParameters.reden
         listParameters.titel = restListParameters.titel
 
