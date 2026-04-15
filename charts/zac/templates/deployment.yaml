@@ -80,8 +80,8 @@ spec:
           livenessProbe:
             httpGet:
               port: admin
-              path: /health/live
-            failureThreshold: 3
+              path: /health/ready
+            failureThreshold: 16
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 1
