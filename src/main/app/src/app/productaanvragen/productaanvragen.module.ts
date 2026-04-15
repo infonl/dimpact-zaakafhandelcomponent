@@ -12,8 +12,8 @@ import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-lis
 import { ProductaanvragenRoutingModule } from "./productaanvragen-routing.module";
 
 @NgModule({
-  declarations: [InboxProductaanvragenListComponent],
   imports: [
+    InboxProductaanvragenListComponent,
     SharedModule,
     ProductaanvragenRoutingModule,
     ZoekenModule,

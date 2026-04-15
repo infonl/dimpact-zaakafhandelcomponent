@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -12,16 +13,33 @@ import {
   ViewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { MatFormField } from "@angular/material/form-field";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSelectChange } from "@angular/material/select";
-import { MatSort, SortDirection } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatOption, MatSelect, MatSelectChange } from "@angular/material/select";
+import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable,
+  MatTableDataSource,
+} from "@angular/material/table";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { detailExpand } from "../../shared/animations/animations";
 import {
@@ -29,10 +47,13 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,
 } from "../../shared/storage/session-storage.util";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
@@ -41,19 +62,48 @@ import { InboxProductaanvragenService } from "../inbox-productaanvragen.service"
   templateUrl: "./inbox-productaanvragen-list.component.html",
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    RouterLink,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatSort,
+    MatSortHeader,
+    MatPaginator,
+    MatIconButton,
+    MatIconAnchor,
+    MatIcon,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    TranslateModule,
+    TekstFilterComponent,
+    DateRangeFilterComponent,
+    ZoekopdrachtComponent,
+    DatumPipe,
+  ],
 })
 export class InboxProductaanvragenListComponent
   extends WerklijstComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  isLoadingResults = true;
-  dataSource = new MatTableDataSource<
+  protected isLoadingResults = true;
+  protected dataSource = new MatTableDataSource<
     GeneratedType<"RESTInboxProductaanvraag">
   >();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  displayedColumns = [
+  protected readonly displayedColumns = [
     "expand",
     "type",
     "ontvangstdatum",
@@ -61,7 +111,7 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen",
     "actions",
   ] as const;
-  filterColumns = [
+  protected readonly filterColumns = [
     "expand_filter",
     "type_filter",
     "ontvangstdatum_filter",
@@ -69,21 +119,21 @@ export class InboxProductaanvragenListComponent
     "aantal_bijlagen_filter",
     "actions_filter",
   ] as const;
-  listParameters = SessionStorageUtil.getItem(
+  protected listParameters = SessionStorageUtil.getItem(
     `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
     this.createDefaultParameters(),
   );
-  expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
-  filterType: string[] = [];
-  filterChange = new EventEmitter<void>();
-  clearZoekopdracht = new EventEmitter<void>();
-  previewSrc: SafeUrl | null = null;
+  protected expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
+  protected filterType: string[] = [];
+  protected filterChange = new EventEmitter<void>();
+  protected clearZoekopdracht = new EventEmitter<void>();
+  protected previewSrc: SafeUrl | null = null;
 
   constructor(
     private readonly inboxProductaanvragenService: InboxProductaanvragenService,
     private readonly infoService: InformatieObjectenService,
     private readonly utilService: UtilService,
-    public readonly dialog: MatDialog,
+    private readonly dialog: MatDialog,
     public readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -121,7 +171,7 @@ export class InboxProductaanvragenListComponent
       });
   }
 
-  updateListParameters() {
+  protected updateListParameters() {
     this.listParameters.sort = this.sort.active;
     this.listParameters.order = this.sort.direction;
     this.listParameters.page = this.paginator.pageIndex;
@@ -132,11 +182,11 @@ export class InboxProductaanvragenListComponent
     );
   }
 
-  getDownloadURL(ip: GeneratedType<"RESTInboxProductaanvraag">) {
+  protected getDownloadURL(ip: GeneratedType<"RESTInboxProductaanvraag">) {
     return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
-  filtersChanged(options: {
+  protected filtersChanged(options: {
     event: MatSelectChange | string | DatumRange;
     filter: keyof GeneratedType<"RESTInboxProductaanvraagListParameters">;
   }) {
@@ -149,7 +199,7 @@ export class InboxProductaanvragenListComponent
     this.filterChange.emit();
   }
 
-  resetSearch() {
+  protected resetSearch() {
     this.listParameters = SessionStorageUtil.setItem(
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
@@ -160,7 +210,7 @@ export class InboxProductaanvragenListComponent
     this.filterChange.emit();
   }
 
-  zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  protected zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort.active = this.listParameters.sort ?? "id";
@@ -174,7 +224,7 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  createDefaultParameters(): GeneratedType<"RESTInboxProductaanvraagListParameters"> {
+  protected createDefaultParameters(): GeneratedType<"RESTInboxProductaanvraagListParameters"> {
     return { sort: "id", order: "desc" };
   }
 
@@ -182,7 +232,7 @@ export class InboxProductaanvragenListComponent
     return "INBOX_PRODUCTAANVRAGEN";
   }
 
-  updateActive(selectedRow: GeneratedType<"RESTInboxProductaanvraag">) {
+  protected updateActive(selectedRow: GeneratedType<"RESTInboxProductaanvraag">) {
     if (this.expandedRow === selectedRow) {
       this.expandedRow = null;
       this.previewSrc = null;
@@ -196,7 +246,7 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  aanmakenZaak(
+  protected aanmakenZaak(
     inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     this.router.navigateByUrl("zaken/create", {
@@ -204,7 +254,7 @@ export class InboxProductaanvragenListComponent
     });
   }
 
-  inboxProductaanvragenVerwijderen(
+  protected inboxProductaanvragenVerwijderen(
     inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
   ) {
     this.dialog

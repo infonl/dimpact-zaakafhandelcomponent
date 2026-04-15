@@ -42,8 +42,8 @@ import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
-import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { InformatieObjectenModule } from "../../informatie-objecten/informatie-objecten.module";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -53,6 +53,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
   SessionStorageUtil,
   WerklijstZoekParameter,
@@ -60,7 +61,6 @@ import {
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 
 @Component({
@@ -103,7 +103,9 @@ export class InboxDocumentenListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   protected isLoadingResults = true;
-  protected dataSource = new MatTableDataSource<GeneratedType<"RestInboxDocument">>();
+  protected dataSource = new MatTableDataSource<
+    GeneratedType<"RestInboxDocument">
+  >();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
@@ -132,7 +134,8 @@ export class InboxDocumentenListComponent
   };
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
-  protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null = null;
+  protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null =
+    null;
 
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,

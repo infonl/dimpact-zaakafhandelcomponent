@@ -14,9 +14,9 @@ import { InboxDocumentenListComponent } from "./inbox-documenten-list/inbox-docu
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list/ontkoppelde-documenten-list.component";
 
 @NgModule({
-  declarations: [OntkoppeldeDocumentenListComponent],
   imports: [
     InboxDocumentenListComponent,
+    OntkoppeldeDocumentenListComponent,
     SharedModule,
     DocumentenRoutingModule,
     ZoekenModule,
