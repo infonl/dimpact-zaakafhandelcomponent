@@ -12,10 +12,16 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatOption, MatSelect, MatSelectChange } from "@angular/material/select";
+import {
+  MatOption,
+  MatSelect,
+  MatSelectChange,
+} from "@angular/material/select";
 import { MatSort, MatSortHeader, SortDirection } from "@angular/material/sort";
 import {
   MatCell,
@@ -30,8 +36,6 @@ import {
   MatTable,
   MatTableDataSource,
 } from "@angular/material/table";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
-import { MatIcon } from "@angular/material/icon";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -123,7 +127,8 @@ export class InboxProductaanvragenListComponent
     `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
     this.createDefaultParameters(),
   );
-  protected expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null = null;
+  protected expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null =
+    null;
   protected filterType: string[] = [];
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
@@ -210,7 +215,9 @@ export class InboxProductaanvragenListComponent
     this.filterChange.emit();
   }
 
-  protected zoekopdrachtChanged(actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">) {
+  protected zoekopdrachtChanged(
+    actieveZoekopdracht: GeneratedType<"RESTZoekopdracht">,
+  ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
       this.sort.active = this.listParameters.sort ?? "id";
@@ -232,7 +239,9 @@ export class InboxProductaanvragenListComponent
     return "INBOX_PRODUCTAANVRAGEN";
   }
 
-  protected updateActive(selectedRow: GeneratedType<"RESTInboxProductaanvraag">) {
+  protected updateActive(
+    selectedRow: GeneratedType<"RESTInboxProductaanvraag">,
+  ) {
     if (this.expandedRow === selectedRow) {
       this.expandedRow = null;
       this.previewSrc = null;

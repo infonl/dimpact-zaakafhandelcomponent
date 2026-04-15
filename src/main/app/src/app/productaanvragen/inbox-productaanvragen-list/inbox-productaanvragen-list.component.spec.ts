@@ -4,14 +4,13 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { Router } from "@angular/router";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
@@ -23,7 +22,9 @@ import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-lis
 
 type Productaanvraag = GeneratedType<"RESTInboxProductaanvraag">;
 
-const makeProductaanvraag = (fields: Partial<Productaanvraag> = {}): Productaanvraag =>
+const makeProductaanvraag = (
+  fields: Partial<Productaanvraag> = {},
+): Productaanvraag =>
   ({
     id: 1,
     type: "type-A",
@@ -62,9 +63,11 @@ describe(InboxProductaanvragenListComponent.name, () => {
     infoService = TestBed.inject(InformatieObjectenService);
     utilService = TestBed.inject(UtilService);
 
-    jest.spyOn(service, "list").mockReturnValue(
-      of({ totaal: 0, resultaten: [], filterType: [] } as never),
-    );
+    jest
+      .spyOn(service, "list")
+      .mockReturnValue(
+        of({ totaal: 0, resultaten: [], filterType: [] } as never),
+      );
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -101,7 +104,9 @@ describe(InboxProductaanvragenListComponent.name, () => {
   });
 
   it("should return download URL from getDownloadURL", () => {
-    jest.spyOn(infoService, "getDownloadURL").mockReturnValue("/download/uuid-1");
+    jest
+      .spyOn(infoService, "getDownloadURL")
+      .mockReturnValue("/download/uuid-1");
     const doc = makeProductaanvraag({ aanvraagdocumentUUID: "uuid-1" });
     expect(component["getDownloadURL"](doc)).toBe("/download/uuid-1");
   });
@@ -134,7 +139,10 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
     component["resetSearch"]();
 
-    expect(component["listParameters"]).toMatchObject({ sort: "id", order: "desc" });
+    expect(component["listParameters"]).toMatchObject({
+      sort: "id",
+      order: "desc",
+    });
     expect(component.sort.active).toBe("id");
     expect(component.sort.direction).toBe("desc");
     expect(component.paginator.pageIndex).toBe(0);
@@ -144,23 +152,32 @@ describe(InboxProductaanvragenListComponent.name, () => {
   it("should parse JSON and emit filterChange on zoekopdrachtChanged with json", () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     const params = { sort: "type", order: "asc" };
-    component["zoekopdrachtChanged"](
-      { json: JSON.stringify(params) } as Partial<GeneratedType<"RESTZoekopdracht">> as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
+    component["zoekopdrachtChanged"]({
+      json: JSON.stringify(params),
+    } as Partial<
+      GeneratedType<"RESTZoekopdracht">
+    > as unknown as GeneratedType<"RESTZoekopdracht">);
     expect(component["listParameters"]).toMatchObject(params);
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 
   it("should call resetSearch on zoekopdrachtChanged with null", () => {
-    const resetSpy = jest.spyOn(component as unknown as { resetSearch: () => void }, "resetSearch");
-    component["zoekopdrachtChanged"](null as unknown as GeneratedType<"RESTZoekopdracht">);
+    const resetSpy = jest.spyOn(
+      component as unknown as { resetSearch: () => void },
+      "resetSearch",
+    );
+    component["zoekopdrachtChanged"](
+      null as unknown as GeneratedType<"RESTZoekopdracht">,
+    );
     expect(resetSpy).toHaveBeenCalled();
   });
 
   it("should emit filterChange on zoekopdrachtChanged with defined but no json", () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     component["zoekopdrachtChanged"](
-      {} as Partial<GeneratedType<"RESTZoekopdracht">> as unknown as GeneratedType<"RESTZoekopdracht">,
+      {} as Partial<
+        GeneratedType<"RESTZoekopdracht">
+      > as unknown as GeneratedType<"RESTZoekopdracht">,
     );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
@@ -194,20 +211,28 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
     component["aanmakenZaak"](row);
 
-    expect(navSpy).toHaveBeenCalledWith("zaken/create", { state: { inboxProductaanvraag: row } });
+    expect(navSpy).toHaveBeenCalledWith("zaken/create", {
+      state: { inboxProductaanvraag: row },
+    });
   });
 
   it("should open confirm dialog and emit filterChange on inboxProductaanvragenVerwijderen when confirmed", () => {
     jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const snackbarSpy = jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
+    const snackbarSpy = jest
+      .spyOn(utilService, "openSnackbar")
+      .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest.spyOn(service, "delete").mockReturnValue(of(undefined) as never);
 
-    component["inboxProductaanvragenVerwijderen"](makeProductaanvraag({ id: 42 }));
+    component["inboxProductaanvragenVerwijderen"](
+      makeProductaanvraag({ id: 42 }),
+    );
 
-    expect(snackbarSpy).toHaveBeenCalledWith("msg.inboxProductaanvraag.verwijderen.uitgevoerd");
+    expect(snackbarSpy).toHaveBeenCalledWith(
+      "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+    );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 
@@ -224,9 +249,16 @@ describe(InboxProductaanvragenListComponent.name, () => {
   });
 
   it("should populate dataSource and filterType from list response", () => {
-    const rows = [makeProductaanvraag({ id: 1 }), makeProductaanvraag({ id: 2 })];
+    const rows = [
+      makeProductaanvraag({ id: 1 }),
+      makeProductaanvraag({ id: 2 }),
+    ];
     jest.spyOn(service, "list").mockReturnValue(
-      of({ totaal: 2, resultaten: rows, filterType: ["type-A", "type-B"] } as never),
+      of({
+        totaal: 2,
+        resultaten: rows,
+        filterType: ["type-A", "type-B"],
+      } as never),
     );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual(rows);
@@ -235,9 +267,13 @@ describe(InboxProductaanvragenListComponent.name, () => {
   });
 
   it("should fall back to empty array when list response omits resultaten", () => {
-    jest.spyOn(service, "list").mockReturnValue(
-      of({ totaal: 0, filterType: [] } as Partial<GeneratedType<"RESTResultaatRESTInboxProductaanvraag">> as unknown as GeneratedType<"RESTResultaatRESTInboxProductaanvraag">),
-    );
+    jest
+      .spyOn(service, "list")
+      .mockReturnValue(
+        of({ totaal: 0, filterType: [] } as Partial<
+          GeneratedType<"RESTResultaatRESTInboxProductaanvraag">
+        > as unknown as GeneratedType<"RESTResultaatRESTInboxProductaanvraag">),
+      );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual([]);
   });

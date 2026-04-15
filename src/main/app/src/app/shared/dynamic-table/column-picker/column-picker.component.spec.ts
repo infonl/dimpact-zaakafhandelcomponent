@@ -9,8 +9,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { ColumnPickerComponent } from "./column-picker.component";
 import { ColumnPickerValue } from "./column-picker-value";
+import { ColumnPickerComponent } from "./column-picker.component";
 
 const makeColumns = (
   fields: Partial<Record<string, ColumnPickerValue>> = {},

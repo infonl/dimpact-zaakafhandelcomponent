@@ -7,11 +7,13 @@ import { KeyValuePipe, NgFor } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
-import { MatListOption, MatSelectionList } from "@angular/material/list";
+import {
+  MatListOption,
+  MatSelectionList,
+  MatSelectionListChange,
+} from "@angular/material/list";
 import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
-import { MatSelectionListChange } from "@angular/material/list";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { SortPipe } from "../pipes/sort.pipe";
 import { ColumnPickerValue } from "./column-picker-value";
 

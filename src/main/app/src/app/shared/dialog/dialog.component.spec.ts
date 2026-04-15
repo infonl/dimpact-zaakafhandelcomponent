@@ -8,8 +8,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject, of, throwError } from "rxjs";
-import { DialogComponent } from "./dialog.component";
 import { DialogData } from "./dialog-data";
+import { DialogComponent } from "./dialog.component";
 
 const makeDialogData = (
   fields: Partial<ConstructorParameters<typeof DialogData>[0]> = {},
@@ -139,9 +139,7 @@ describe(DialogComponent.name, () => {
   });
 
   it("does not render confirm button when confirmButtonActionKey is null", () => {
-    const { fixture } = setup(
-      makeDialogData({ confirmButtonActionKey: null }),
-    );
+    const { fixture } = setup(makeDialogData({ confirmButtonActionKey: null }));
     const btn = fixture.nativeElement.querySelector("#confirmButton");
     expect(btn).toBeNull();
   });

@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideHttpClient } from "@angular/common/http";
 import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { SignaleringenService } from "../../signaleringen.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { TakenCardComponent } from "./taken-card.component";
-import { TranslateModule } from "@ngx-translate/core";
 
 const makeTaak = (
   fields: Partial<GeneratedType<"RestSignaleringTaskSummary">> = {},
@@ -28,7 +28,9 @@ const makeTaak = (
     zaakIdentificatie: "ZAAK-001",
     zaaktypeOmschrijving: "Testtype",
     ...fields,
-  }) as Partial<GeneratedType<"RestSignaleringTaskSummary">> as unknown as GeneratedType<"RestSignaleringTaskSummary">;
+  }) as Partial<
+    GeneratedType<"RestSignaleringTaskSummary">
+  > as unknown as GeneratedType<"RestSignaleringTaskSummary">;
 
 const makeDashboardCard = (): DashboardCard =>
   new DashboardCard(
@@ -66,9 +68,10 @@ describe(TakenCardComponent.name, () => {
       .mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
-    jest
-      .spyOn(identityService, "readLoggedInUser")
-      .mockReturnValue({ queryKey: ["user"], queryFn: async () => null } as never);
+    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue({
+      queryKey: ["user"],
+      queryFn: async () => null,
+    } as never);
 
     fixture = TestBed.createComponent(TakenCardComponent);
     component = fixture.componentInstance;
