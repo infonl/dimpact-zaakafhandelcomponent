@@ -60,6 +60,8 @@
 - [ ] ColumnPickerComponent
 - [ ] TakenCardComponent
 - [x] InboxDocumentenListComponent
+- [x] OntkoppeldeDocumentenListComponent
+- [ ] InboxProductaanvragenListComponent
 
 ### Bundle size — done
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
