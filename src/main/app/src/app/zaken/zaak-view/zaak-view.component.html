@@ -142,6 +142,12 @@
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
     ></zac-zaakdata>
+    <zac-zaak-process-flow
+      *ngSwitchCase="'actie.procesverloop.bekijken'"
+      class="flex-col flex-fill-col"
+      [sideNav]="actionsSidenav"
+      [zaak]="zaak"
+    ></zac-zaak-process-flow>
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">
@@ -197,15 +203,6 @@
                 zaak.zaaktype.omschrijving
               }}</mat-card-subtitle>
             </div>
-            <button
-              *ngIf="zaak.isProcesGestuurd && zaak.isOpen && !zaak.isHeropend"
-              class="proces-button"
-              (click)="showProces()"
-              [title]="'actie.proces.bekijken' | translate"
-              mat-icon-button
-            >
-              <mat-icon> play_shapes </mat-icon>
-            </button>
           </section>
         </mat-card-header>
         <mat-card-content>

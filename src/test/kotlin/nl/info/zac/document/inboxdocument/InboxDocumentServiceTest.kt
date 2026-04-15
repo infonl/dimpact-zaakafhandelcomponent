@@ -12,28 +12,27 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
-import jakarta.persistence.EntityManager
-import jakarta.persistence.TypedQuery
-import jakarta.persistence.criteria.CriteriaQuery
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.document.inboxdocument.model.InboxDocument
-import nl.info.zac.document.inboxdocument.model.InboxDocumentListParameters
-import nl.info.zac.document.inboxdocument.model.createInboxDocument
-import nl.info.zac.document.inboxdocument.model.createInboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.repository.InboxDocumentRepository
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
 import java.time.LocalDate
 import java.util.UUID
 
 class InboxDocumentServiceTest : BehaviorSpec({
-    val entityManager = mockk<EntityManager>(relaxed = true)
+    val inboxDocumentRepository = mockk<InboxDocumentRepository>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
 
-    val inboxDocumentService = InboxDocumentService(entityManager, zrcClientService, drcClientService)
+    val inboxDocumentService = InboxDocumentService(inboxDocumentRepository, zrcClientService, drcClientService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -46,6 +45,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             val creatiedatum = LocalDate.now()
             val titel = "fakeDocument"
             val bestandsnaam = "document.pdf"
+            val inboxDocumentSlot = slot<InboxDocument>()
 
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject().apply {
                 setIdentificatie(identificatie)
@@ -55,15 +55,22 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
 
             every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-            every { entityManager.persist(any<InboxDocument>()) } just Runs
+            every { inboxDocumentRepository.save(capture(inboxDocumentSlot)) } just Runs
 
-            When(
-                "the Inbox Document Service retrieves creates a Document from the EnkelvoudigInformatieObject's UUID"
-            ) {
+            When("the Inbox Document Service creates a Document from the EnkelvoudigInformatieObject's UUID") {
                 val result = inboxDocumentService.create(uuid)
 
-                Then("the Service should have stored an Inbox Document") {
-                    verify { entityManager.persist(result) }
+                Then("the repository saves the Inbox Document with the correct properties") {
+                    verify(exactly = 1) { inboxDocumentRepository.save(inboxDocumentSlot.captured) }
+                    with(inboxDocumentSlot.captured) {
+                        this.enkelvoudiginformatieobjectUUID shouldBe uuid
+                        this.enkelvoudiginformatieobjectID shouldBe identificatie
+                        this.creatiedatum shouldBe creatiedatum
+                        this.titel shouldBe titel
+                        this.bestandsnaam shouldBe bestandsnaam
+                    }
+                }
+                And("it returns the expected results") {
                     result.enkelvoudiginformatieobjectUUID shouldBe uuid
                     result.enkelvoudiginformatieobjectID shouldBe identificatie
                     result.creatiedatum shouldBe creatiedatum
@@ -77,7 +84,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
     Context("Finding an inbox document by Long ID") {
         Given("an inbox document exists with a known Long ID") {
             val document = createInboxDocument()
-            every { entityManager.find(InboxDocument::class.java, document.id) } returns document
+            every { inboxDocumentRepository.find(document.id!!) } returns document
 
             When("find is called with that ID") {
                 val result = inboxDocumentService.find(document.id!!)
@@ -90,7 +97,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
         Given("no inbox document exists for a given Long ID") {
             val id = 999L
-            every { entityManager.find(InboxDocument::class.java, id) } returns null
+            every { inboxDocumentRepository.find(id) } returns null
 
             When("find is called with that ID") {
                 val result = inboxDocumentService.find(id)
@@ -105,10 +112,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
     Context("Finding an inbox document by UUID") {
         Given("an inbox document exists with a known UUID") {
             val document = createInboxDocument()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns listOf(document)
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(document.enkelvoudiginformatieobjectUUID) } returns document
 
             When("find is called with that UUID") {
                 val result = inboxDocumentService.find(document.enkelvoudiginformatieobjectUUID)
@@ -121,10 +125,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
         Given("no inbox document exists for a given UUID") {
             val unknownUuid = UUID.randomUUID()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns emptyList()
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(unknownUuid) } returns null
 
             When("find is called with that UUID") {
                 val result = inboxDocumentService.find(unknownUuid)
@@ -139,10 +140,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
     Context("Reading an inbox document by UUID") {
         Given("an inbox document exists with a known UUID") {
             val document = createInboxDocument()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns listOf(document)
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(document.enkelvoudiginformatieobjectUUID) } returns document
 
             When("read is called with that UUID") {
                 val result = inboxDocumentService.read(document.enkelvoudiginformatieobjectUUID)
@@ -155,10 +153,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
         Given("no inbox document exists for a given UUID") {
             val unknownUuid = UUID.randomUUID()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns emptyList()
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(unknownUuid) } returns null
 
             When("read is called with that UUID") {
                 val thrown = shouldThrow<RuntimeException> { inboxDocumentService.read(unknownUuid) }
@@ -171,16 +166,14 @@ class InboxDocumentServiceTest : BehaviorSpec({
     }
 
     Context("Counting inbox documents") {
-        Given("a relaxed entity manager and empty list parameters") {
-            val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
-                every { getSingleResult() } returns null
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
+        Given("empty list parameters") {
+            val listParameters = InboxDocumentListParameters()
+            every { inboxDocumentRepository.count(listParameters) } returns 0
 
             When("count is called with empty list parameters") {
-                val result = inboxDocumentService.count(InboxDocumentListParameters())
+                val result = inboxDocumentService.count(listParameters)
 
-                Then("zero is returned when the count query returns null") {
+                Then("zero is returned") {
                     result shouldBe 0
                 }
             }
@@ -190,10 +183,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
     Context("Listing inbox documents") {
         Given("inbox documents exist in the database") {
             val document = createInboxDocument()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns listOf(document)
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.list(any()) } returns listOf(document)
 
             When("list is called with empty list parameters") {
                 val result = inboxDocumentService.list(InboxDocumentListParameters())
@@ -219,26 +209,56 @@ class InboxDocumentServiceTest : BehaviorSpec({
     Context("Deleting an inbox document by Long ID") {
         Given("an inbox document exists with a known Long ID") {
             val document = createInboxDocument()
-            every { entityManager.find(InboxDocument::class.java, document.id) } returns document
+            every { inboxDocumentRepository.find(document.id!!) } returns document
+            every { inboxDocumentRepository.delete(document) } just Runs
 
-            When("delete is called with that ID") {
+            When("deleteIfExists is called with that ID") {
                 inboxDocumentService.deleteIfExists(document.id!!)
 
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
+                Then("deletion is delegated to the repository") {
+                    verify { inboxDocumentRepository.delete(document) }
                 }
             }
         }
 
         Given("no inbox document exists for a given Long ID") {
             val id = 999L
-            every { entityManager.find(InboxDocument::class.java, id) } returns null
+            every { inboxDocumentRepository.find(id) } returns null
 
-            When("delete is called with that ID") {
+            When("deleteIfExists is called with that ID") {
                 inboxDocumentService.deleteIfExists(id)
 
-                Then("no document is removed from the entity manager") {
-                    verify(exactly = 0) { entityManager.remove(any()) }
+                Then("no document is removed via the repository") {
+                    verify(exactly = 0) { inboxDocumentRepository.delete(any()) }
+                }
+            }
+        }
+    }
+
+    Context("Deleting an inbox document by UUID") {
+        Given("an inbox document exists with a known UUID") {
+            val document = createInboxDocument()
+            every { inboxDocumentRepository.find(document.enkelvoudiginformatieobjectUUID) } returns document
+            every { inboxDocumentRepository.delete(document) } just Runs
+
+            When("deleteIfExists is called with that UUID") {
+                inboxDocumentService.deleteIfExists(document.enkelvoudiginformatieobjectUUID)
+
+                Then("deletion is delegated to the repository") {
+                    verify { inboxDocumentRepository.delete(document) }
+                }
+            }
+        }
+
+        Given("no inbox document exists for a given UUID") {
+            val unknownUuid = UUID.randomUUID()
+            every { inboxDocumentRepository.find(unknownUuid) } returns null
+
+            When("deleteIfExists is called with that UUID") {
+                inboxDocumentService.deleteIfExists(unknownUuid)
+
+                Then("no document is removed via the repository") {
+                    verify(exactly = 0) { inboxDocumentRepository.delete(any()) }
                 }
             }
         }
@@ -252,17 +272,15 @@ class InboxDocumentServiceTest : BehaviorSpec({
             val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
                 informatieobjectUUID = eioUuid
             )
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns listOf(document)
-            }
             every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(eioUuid) } returns document
+            every { inboxDocumentRepository.delete(document) } just Runs
 
             When("deleteForZaakinformatieobject is called with the ZaakInformatieobject UUID") {
                 inboxDocumentService.deleteForZaakinformatieobject(zioUuid)
 
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
+                Then("deletion is delegated to the repository") {
+                    verify { inboxDocumentRepository.delete(document) }
                 }
             }
         }
@@ -273,51 +291,14 @@ class InboxDocumentServiceTest : BehaviorSpec({
             val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
                 informatieobjectUUID = eioUuid
             )
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns emptyList()
-            }
             every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
+            every { inboxDocumentRepository.find(eioUuid) } returns null
 
             When("deleteForZaakinformatieobject is called with the ZaakInformatieobject UUID") {
                 inboxDocumentService.deleteForZaakinformatieobject(zioUuid)
 
-                Then("no document is removed from the entity manager") {
-                    verify(exactly = 0) { entityManager.remove(any()) }
-                }
-            }
-        }
-    }
-
-    Context("Deleting an inbox document by UUID") {
-        Given("an inbox document exists with a known UUID") {
-            val document = createInboxDocument()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns listOf(document)
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
-
-            When("delete is called with that UUID") {
-                inboxDocumentService.deleteIfExists(document.enkelvoudiginformatieobjectUUID)
-
-                Then("the document is removed from the entity manager") {
-                    verify { entityManager.remove(document) }
-                }
-            }
-        }
-
-        Given("no inbox document exists for a given UUID") {
-            val unknownUuid = UUID.randomUUID()
-            val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
-                every { getResultList() } returns emptyList()
-            }
-            every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
-
-            When("delete is called with that UUID") {
-                inboxDocumentService.deleteIfExists(unknownUuid)
-
-                Then("no document is removed from the entity manager") {
-                    verify(exactly = 0) { entityManager.remove(any()) }
+                Then("no document is removed via the repository") {
+                    verify(exactly = 0) { inboxDocumentRepository.delete(any()) }
                 }
             }
         }

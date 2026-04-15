@@ -194,6 +194,7 @@ fun createRestZaak(
     isBesluittypeAanwezig = false,
     isInIntakeFase = true,
     isProcesGestuurd = false,
+    bpmnProcessDefinition = null,
     heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
     rechten = rechten,
     initiatorIdentificatie = initiatorBetrokkeneIdentificatie,

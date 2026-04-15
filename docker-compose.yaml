@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54326:5432"
     healthcheck:
@@ -188,7 +188,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginx:1.29.8@sha256:7f0adca1fc6c29c8dc49a2e90037a10ba20dc266baaed0988e9fb4d0d8b85ba0
+    image: nginx:1.30.0@sha256:20a5c4e1083a19a656b0f473e8343a10690898ce34a9170d71d57040e3707826
     ports:
       - "8001:8000"
     volumes:
@@ -304,7 +304,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54325:5432"
     healthcheck:
@@ -443,7 +443,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:12.4.2@sha256:83749231c3835e390a3144e5e940203e42b9589761f20ef3169c716e734ad505
+    image: grafana/grafana:13.0.0@sha256:a03d9e604e4dba58c5e64458a879701f46ef64af1f596058aacfad9aacdcab34
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -480,7 +480,7 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.5-alpine@sha256:53e51f8469ef13d0a1a2b03c0d36dcf4efbf13089f552440ec5620ca07f2c64e
+    image: rabbitmq:4.2.5-alpine@sha256:04e883cc733f9c9ce87dbf5343eb4a3f54a8c474a5cd418e79210602824dcb07
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -710,7 +710,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54329:5432"
     environment:
@@ -764,7 +764,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.9@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16
+    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
     ports:
       - "54320:5432"
     healthcheck:

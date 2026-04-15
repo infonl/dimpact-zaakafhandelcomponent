@@ -27,7 +27,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.model.InboxDocument
+import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.signalering.SignaleringService

@@ -46,7 +46,6 @@ import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { ReadonlyFormFieldBuilder } from "../../shared/material-form-builder/form-components/readonly/readonly-form-field-builder";
 import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -453,6 +452,26 @@ export class ZaakViewComponent
       );
     }
 
+    if (this.hasZaakData() && this.zaak.rechten.bekijkenZaakdata) {
+      this.menu.push(
+        new ButtonMenuItem(
+          "actie.zaakdata.bekijken",
+          () => this.actionsSidenav.open(),
+          "folder_copy",
+        ),
+      );
+    }
+
+    if (this.zaak.bpmnProcessDefinition) {
+      this.menu.push(
+        new ButtonMenuItem(
+          "actie.procesverloop.bekijken",
+          () => this.actionsSidenav.open(),
+          "play_shapes",
+        ),
+      );
+    }
+
     const menuSubscription = forkJoin([
       this.planItemsService.listUserEventListenerPlanItems(this.zaak.uuid),
       this.planItemsService.listHumanTaskPlanItems(this.zaak.uuid),
@@ -464,16 +483,6 @@ export class ZaakViewComponent
         processTaskPlanItems,
       ]) => {
         const actionMenuItems = this.createActionMenuItems();
-
-        if (this.hasZaakData() && this.zaak.rechten.bekijkenZaakdata) {
-          this.menu.push(
-            new ButtonMenuItem(
-              "actie.zaakdata.bekijken",
-              () => this.actionsSidenav.open(),
-              "folder_copy",
-            ),
-          );
-        }
 
         if (this.zaak.rechten.behandelen) {
           if (userEventListenerPlanItems.length || actionMenuItems.length) {
@@ -1462,27 +1471,6 @@ export class ZaakViewComponent
           );
         }
       });
-  }
-
-  protected showProces() {
-    const dialogData = new DialogData({
-      formFields: [
-        new ReadonlyFormFieldBuilder(
-          '<img src="/rest/zaken/' +
-            this.zaak.uuid +
-            '/procesdiagram"/ alt="diagram">',
-        )
-          .id("diagram")
-          .label("proces.toestand")
-          .build(),
-      ],
-      confirmButtonActionKey: "actie.ok",
-      cancelButtonActionKey: null,
-      icon: "play_shapes",
-    });
-    dialogData.confirmButtonActionKey = "actie.ok";
-    dialogData.cancelButtonActionKey = null;
-    this.dialog.open(DialogComponent, { data: dialogData });
   }
 
   private hasZaakData() {

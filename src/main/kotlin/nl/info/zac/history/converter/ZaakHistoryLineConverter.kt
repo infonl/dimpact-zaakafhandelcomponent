@@ -10,11 +10,11 @@ import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
 import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
-import net.atos.client.zgw.shared.model.audit.AuditWijziging
-import net.atos.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
+import nl.info.client.zgw.shared.model.audit.AuditWijziging
+import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import nl.info.zac.history.converter.besluiten.AuditBesluitConverter
 import nl.info.zac.history.converter.documenten.AuditBesluitInformatieobjectConverter
 import nl.info.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter

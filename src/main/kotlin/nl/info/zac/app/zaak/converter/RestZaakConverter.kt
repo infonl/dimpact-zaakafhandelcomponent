@@ -31,6 +31,7 @@ import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.toRestGeometry
+import nl.info.zac.app.zaak.model.toRestZaakBpmnProcessDefinition
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -96,6 +97,7 @@ class RestZaakConverter @Inject constructor(
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
 
         val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
+        val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         return RestZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
@@ -143,7 +145,8 @@ class RestZaakConverter @Inject constructor(
             isHeropend = statustype.isHeropend(),
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnService.isZaakProcessDriven(zaak.uuid),
+            isProcesGestuurd = bpmnProcessDefinition != null,
+            bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
             heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             rechten = zaakRechten.toRestZaakRechten(),
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),

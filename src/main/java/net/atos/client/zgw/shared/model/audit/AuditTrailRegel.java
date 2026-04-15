@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import net.atos.client.zgw.shared.model.Bron;
+import nl.info.client.zgw.shared.model.audit.AuditWijziging;
 
 /**
  * Audit trail data related to a change on an object.

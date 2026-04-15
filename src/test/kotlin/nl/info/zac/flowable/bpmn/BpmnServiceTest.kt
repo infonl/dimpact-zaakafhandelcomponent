@@ -390,6 +390,45 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
+    Given("A zaak UUID for which a BPMN process instance and process definition exist") {
+        val zaakUUID = UUID.randomUUID()
+        val processDefinitionId = "fakeProcessDefinitionId"
+        val processInstance = mockk<ProcessInstance>()
+        val processDefinition = createProcessDefinition()
+        every {
+            runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()
+        } returns processInstance
+        every { processInstance.processDefinitionId } returns processDefinitionId
+        every { repositoryService.getProcessDefinition(processDefinitionId) } returns processDefinition
+
+        When("finding the process definition by zaak UUID") {
+            val result = bpmnService.findProcessDefinitionByZaak(zaakUUID)
+
+            Then("the process definition is returned") {
+                result shouldBe processDefinition
+            }
+        }
+    }
+
+    Given("A zaak UUID for which no BPMN process instance exists") {
+        val zaakUUID = UUID.randomUUID()
+        every {
+            runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(zaakUUID.toString())
+                .singleResult()
+        } returns null
+
+        When("finding the process definition by zaak UUID") {
+            val result = bpmnService.findProcessDefinitionByZaak(zaakUUID)
+
+            Then("null is returned") {
+                result shouldBe null
+            }
+        }
+    }
+
     Context("Getting process definition metadata") {
         Given(
             "A process definition with full metadata including documentation, modification date, form keys and upload date"
