@@ -48,7 +48,6 @@ import { VersionComponent } from "./version/version.component";
 
 @NgModule({
   declarations: [
-    DialogComponent,
     DocumentViewerComponent,
     ZaakdataComponent,
   ],
@@ -65,6 +64,7 @@ import { VersionComponent } from "./version/version.component";
     FacetFilterComponent,
     ConfirmDialogComponent,
     ColumnPickerComponent,
+    DialogComponent,
     SideNavComponent,
     VersionComponent,
     SortPipe,
