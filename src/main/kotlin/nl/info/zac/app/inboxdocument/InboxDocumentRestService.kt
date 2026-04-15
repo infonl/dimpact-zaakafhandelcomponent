@@ -18,7 +18,7 @@ import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
+import nl.info.zac.app.inboxdocument.converter.toInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.RestInboxDocument
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
@@ -42,7 +42,6 @@ class InboxDocumentRestService @Inject constructor(
     private val inboxDocumentService: InboxDocumentService,
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService,
-    private val listParametersConverter: RestInboxDocumentListParametersConverter,
     private val policyService: PolicyService
 ) {
     companion object {
@@ -52,7 +51,7 @@ class InboxDocumentRestService @Inject constructor(
     @PUT
     fun listInboxDocuments(restListParameters: RestInboxDocumentListParameters): RESTResultaat<RestInboxDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
-        val listParameters = listParametersConverter.convert(restListParameters)
+        val listParameters = restListParameters.toInboxDocumentListParameters()
         val inboxDocuments = inboxDocumentService.list(listParameters)
         // the list of informatie object type UUIDs has the same length as the inbox documents, and can contain null\
         // values if the enkelvoudiginformatieobject for a specific inbox document could not be found

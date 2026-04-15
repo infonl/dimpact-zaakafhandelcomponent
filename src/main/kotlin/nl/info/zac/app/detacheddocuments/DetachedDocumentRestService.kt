@@ -20,7 +20,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
-import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentListParametersConverter
+import nl.info.zac.app.detacheddocuments.converter.toDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
@@ -39,13 +39,11 @@ import java.util.logging.Logger
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
 @NoArgConstructor
-@Suppress("LongParameterList")
 class DetachedDocumentRestService @Inject constructor(
     private val detachedDocumentService: DetachedDocumentService,
     private val drcClientService: DrcClientService,
     private val zrcClientService: ZrcClientService,
     private val restDetachedDocumentConverter: RestDetachedDocumentConverter,
-    private val listParametersConverter: RestDetachedDocumentListParametersConverter,
     private val userConverter: RestUserConverter,
     private val policyService: PolicyService
 ) {
@@ -59,7 +57,7 @@ class DetachedDocumentRestService @Inject constructor(
         restListParameters: RestDetachedDocumentListParameters
     ): RESTResultaat<RestDetachedDocument> {
         assertPolicy(policyService.readWerklijstRechten().inbox)
-        val listParameters = listParametersConverter.convert(restListParameters)
+        val listParameters = restListParameters.toDetachedDocumentListParameters()
         val resultaat = detachedDocumentService.getDetachedDocumentResult(listParameters)
         val ontkoppeldeDocumenten = resultaat.items
         val informationObjectTypeUUIDs = ontkoppeldeDocumenten.map { ontkoppeldeDocument ->

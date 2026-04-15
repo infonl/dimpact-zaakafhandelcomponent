@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.productaanvragen;
 
+import static nl.info.zac.app.productaanvragen.converter.RestInboxProductaanvraagListParametersConverter.toInboxProductaanvraagListParameters;
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
 
 import java.io.ByteArrayInputStream;
@@ -37,7 +38,6 @@ import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat;
 import net.atos.zac.util.MediaTypes;
 import nl.info.client.zgw.drc.DrcClientService;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.zac.app.productaanvragen.converter.RESTInboxProductaanvraagListParametersConverter;
 import nl.info.zac.policy.PolicyService;
 
 @Singleton
@@ -55,16 +55,13 @@ public class InboxProductaanvragenRESTService {
     @Inject
     private InboxProductaanvraagService inboxProductaanvraagService;
 
-    @Inject
-    private RESTInboxProductaanvraagListParametersConverter listParametersConverter;
-
     @PUT
     @Path("")
     public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(
             final RESTInboxProductaanvraagListParameters restListParameters
     ) {
         assertPolicy(policyService.readWerklijstRechten().getInbox());
-        final InboxProductaanvraagListParameters listParameters = listParametersConverter.convert(restListParameters);
+        final InboxProductaanvraagListParameters listParameters = toInboxProductaanvraagListParameters(restListParameters);
         final InboxProductaanvraagResultaat resultaat = inboxProductaanvraagService.list(listParameters);
         final RESTInboxProductaanvraagResultaat restInboxProductaanvraagResultaat = new RESTInboxProductaanvraagResultaat(
                 RESTInboxProductaanvraagConverter.convert(resultaat.getItems()), resultaat.getCount());

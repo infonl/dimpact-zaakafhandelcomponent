@@ -23,7 +23,6 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentConverter
-import nl.info.zac.app.detacheddocuments.converter.RestDetachedDocumentListParametersConverter
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocument
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentListParameters
 import nl.info.zac.app.detacheddocuments.model.RestDetachedDocumentResult
@@ -45,7 +44,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
     val restDetachedDocumentConverter = mockk<RestDetachedDocumentConverter>()
-    val listParametersConverter = mockk<RestDetachedDocumentListParametersConverter>()
     val userConverter = mockk<RestUserConverter>()
     val policyService = mockk<PolicyService>()
     val detachedDocumentRestService = DetachedDocumentRestService(
@@ -53,7 +51,6 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         drcClientService,
         zrcClientService,
         restDetachedDocumentConverter,
-        listParametersConverter,
         userConverter,
         policyService
     )
@@ -236,8 +233,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val restDocument = RestDetachedDocument()
             val resultaat = DetachedDocumentResult(listOf(detachedDocument), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
-            every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(detachedDocument.documentUUID)
             } returns informatieObject
@@ -267,8 +263,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val restDocument = RestDetachedDocument()
             val resultaat = DetachedDocumentResult(listOf(document), 1L, emptyList())
             every { policyService.readWerklijstRechten() } returns werklijstRechten
-            every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
@@ -299,8 +294,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             )
             val resultaat = DetachedDocumentResult(listOf(document), 1L, dbUserIds)
             every { policyService.readWerklijstRechten() } returns werklijstRechten
-            every { listParametersConverter.convert(restListParameters) } returns listParameters
-            every { detachedDocumentService.getDetachedDocumentResult(listParameters) } returns resultaat
+            every { detachedDocumentService.getDetachedDocumentResult(any()) } returns resultaat
             every {
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } returns informatieObject
