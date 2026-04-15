@@ -54,14 +54,14 @@
 - [x] `zaken/intake-afronden-dialog/intake-afronden-dialog.component.ts`
 - [x] `zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.ts`
 
-### Batch 7 — claimed
-- [ ] DialogComponent
-- [ ] EditComponent
-- [ ] ColumnPickerComponent
-- [ ] TakenCardComponent
+### Batch 7 — PR: `chore/PZ-10848--FE--Angular-v19-migration--InboxDocumentenList--OntkoppeldeDocumentenList--InboxProductaanvragenList--ColumnPicker--Dialog--Edit--TakenCard`
+- [x] DialogComponent
+- [x] EditComponent (EditInputComponent)
+- [x] ColumnPickerComponent
+- [x] TakenCardComponent
 - [x] InboxDocumentenListComponent
 - [x] OntkoppeldeDocumentenListComponent
-- [ ] InboxProductaanvragenListComponent
+- [x] InboxProductaanvragenListComponent
 
 ### Bundle size — done
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
