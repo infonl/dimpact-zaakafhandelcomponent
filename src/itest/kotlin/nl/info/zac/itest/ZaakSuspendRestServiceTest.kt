@@ -64,7 +64,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 suspendResponse.code shouldBe HTTP_OK
                 responseBody.shouldContainJsonKeyValue("redenOpschorting", suspensionReason)
-                responseBody.shouldContainJsonKeyValue("indicatieOpschorting", true)
+                responseBody.shouldContainJsonKeyValue("isOpgeschort", true)
             }
 
             When("the suspension details of the zaak are read") {
