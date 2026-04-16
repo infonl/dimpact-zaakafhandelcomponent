@@ -22,6 +22,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 | Pattern | Detail |
 |---|---|
+| `<a mat-icon-button>` → use `MatIconAnchor` | `MatAnchor` is for `<a mat-button>`; `MatIconAnchor` is for `<a mat-icon-button>`. Using the wrong one leaves the anchor unstyled → browser default blue (rgb(0,0,238)). Always check the directive on `<a>` elements when adding button imports. |
 | Service mocking (`TestBed.inject` + `jest.spyOn`) | See Spec Conventions → Service mocking below |
 | `MatDialog` in standalone | `fixture.debugElement.injector.get(MatDialog)` — standalone gets its own injector, not root |
 | Shell isolation (`TestBed.overrideComponent`) | `TestBed.overrideComponent(Shell, { remove: { imports: [Real] }, add: { imports: [Stub] } })` |

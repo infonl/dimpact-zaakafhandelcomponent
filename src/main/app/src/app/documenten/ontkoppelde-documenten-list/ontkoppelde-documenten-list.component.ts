@@ -12,7 +12,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { MatAnchor, MatIconButton } from "@angular/material/button";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatFormField } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
@@ -89,7 +89,7 @@ import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service"
     MatSortHeader,
     MatPaginator,
     MatIconButton,
-    MatAnchor,
+    MatIconAnchor,
     MatIcon,
     MatFormField,
     MatSelect,

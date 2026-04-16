@@ -12,7 +12,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { MatAnchor, MatIconButton } from "@angular/material/button";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -86,7 +86,7 @@ import { InboxDocumentenService } from "../inbox-documenten.service";
     MatSortHeader,
     MatPaginator,
     MatIconButton,
-    MatAnchor,
+    MatIconAnchor,
     MatIcon,
     TranslateModule,
     TekstFilterComponent,

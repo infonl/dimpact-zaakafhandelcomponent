@@ -4,7 +4,7 @@
  */
 
 import { Component } from "@angular/core";
-import { MatAnchor } from "@angular/material/button";
+import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
@@ -54,7 +54,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatRow,
     MatNoDataRow,
     MatPaginator,
-    MatAnchor,
+    MatIconAnchor,
     MatIcon,
     RouterLink,
     TranslateModule,
