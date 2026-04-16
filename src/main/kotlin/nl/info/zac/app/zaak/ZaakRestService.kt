@@ -1171,7 +1171,7 @@ class ZaakRestService @Inject constructor(
         inboxProductaanvraag: RestInboxProductaanvraag
     ) {
         val productaanvraagObject = objectsClientService.readObject(
-            inboxProductaanvraag.productaanvraagObjectUUID!!
+            inboxProductaanvraag.productaanvraagObjectUUID
         )
         val productaanvraag = productaanvraagService.getProductaanvraag(
             productaanvraagObject

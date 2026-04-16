@@ -13,10 +13,10 @@ import java.util.UUID
 @NoArgConstructor
 data class RestInboxProductaanvraag(
     var id: Long = 0,
-    var productaanvraagObjectUUID: UUID? = null,
+    var productaanvraagObjectUUID: UUID,
     var aanvraagdocumentUUID: UUID? = null,
     var aantalBijlagen: Int = 0,
-    var type: String? = null,
-    var ontvangstdatum: LocalDate? = null,
+    var type: String,
+    var ontvangstdatum: LocalDate,
     var initiatorID: String? = null
 )

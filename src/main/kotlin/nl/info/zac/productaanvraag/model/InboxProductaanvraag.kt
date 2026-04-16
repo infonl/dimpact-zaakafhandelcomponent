@@ -46,18 +46,18 @@ class InboxProductaanvraag {
 
     @NotNull
     @Column(name = "uuid_productaanvraag_object", nullable = false)
-    var productaanvraagObjectUUID: UUID? = null
+    lateinit var productaanvraagObjectUUID: UUID
 
     @Column(name = "uuid_aanvraagdocument")
     var aanvraagdocumentUUID: UUID? = null
 
     @NotNull
     @Column(name = "ontvangstdatum", nullable = false)
-    var ontvangstdatum: LocalDate? = null
+    lateinit var ontvangstdatum: LocalDate
 
     @NotBlank
     @Column(name = "productaanvraag_type", nullable = false)
-    var type: String? = null
+    lateinit var type: String
 
     @Column(name = "id_initiator")
     var initiatorID: String? = null

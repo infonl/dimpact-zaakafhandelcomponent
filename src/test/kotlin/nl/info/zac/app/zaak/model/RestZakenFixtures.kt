@@ -113,16 +113,17 @@ fun createRestGroup(
 fun createRestInboxProductaanvraag(
     id: Long = 1234L,
     productaanvraagObjectUUID: UUID = UUID.randomUUID(),
-    aanvraagdocumentUUID: UUID = UUID.randomUUID()
-) = RestInboxProductaanvraag().apply {
-    this.id = id
-    this.productaanvraagObjectUUID = productaanvraagObjectUUID
-    this.aanvraagdocumentUUID = aanvraagdocumentUUID
-    aantalBijlagen = 0
-    type = null
-    ontvangstdatum = null
+    aanvraagdocumentUUID: UUID = UUID.randomUUID(),
+    ontvangstdatum: LocalDate = LocalDate.of(2023, 9, 14),
+) = RestInboxProductaanvraag(
+    id = id,
+    productaanvraagObjectUUID = productaanvraagObjectUUID,
+    aanvraagdocumentUUID = aanvraagdocumentUUID,
+    aantalBijlagen = 0,
+    type = "fakeTye",
+    ontvangstdatum = ontvangstdatum,
     initiatorID = null
-}
+)
 
 fun createRESTOpenbareRuimte() = RESTOpenbareRuimte()
 
