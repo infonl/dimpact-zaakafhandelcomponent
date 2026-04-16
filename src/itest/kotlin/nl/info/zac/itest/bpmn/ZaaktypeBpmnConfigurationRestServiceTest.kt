@@ -37,7 +37,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
@@ -48,7 +48,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_2_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
@@ -59,7 +59,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_3_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
