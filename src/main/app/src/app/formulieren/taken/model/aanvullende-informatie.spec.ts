@@ -123,7 +123,9 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should set sendMail hidden to true with value true", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        const field = fields.find((f) => f.key === "taakStuurGegevens.sendMail");
+        const field = fields.find(
+          (f) => f.key === "taakStuurGegevens.sendMail",
+        );
         expect(field?.hidden).toBe(true);
         expect(field?.control?.value).toBe(true);
       });
@@ -183,9 +185,7 @@ describe("AanvullendeInformatieFormulier", () => {
         const fields = await formulier.requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "body");
-        expect(
-          ("variables" in field! ? field.variables : undefined),
-        ).toEqual([]);
+        expect("variables" in field! ? field.variables : undefined).toEqual([]);
       });
     });
 
@@ -421,7 +421,9 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should not call getContactDetailsForPerson when initiatorIdentificatie is absent", async () => {
         await formulier.requestForm(mockZaak);
 
-        expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
+        expect(
+          klantenService.getContactDetailsForPerson,
+        ).not.toHaveBeenCalled();
       });
 
       it("should not set email when getContactDetailsForPerson returns no emailadres", async () => {
@@ -506,9 +508,7 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should include zaakOpschorten field when zaak is suspendable", async () => {
         const fields = await formulier.requestForm(suspendableZaak);
 
-        expect(
-          fields.find((f) => f.key === "zaakOpschorten"),
-        ).toBeDefined();
+        expect(fields.find((f) => f.key === "zaakOpschorten")).toBeDefined();
       });
 
       it("should initialize zaakOpschorten as false", async () => {
@@ -549,7 +549,9 @@ describe("AanvullendeInformatieFormulier", () => {
         zaakOpschortenField?.control?.setValue(true);
         zaakOpschortenField?.control?.setValue(false);
 
-        expect(taakFataledatumField?.control?.errors?.["required"]).toBeUndefined();
+        expect(
+          taakFataledatumField?.control?.errors?.["required"],
+        ).toBeUndefined();
       });
     });
   });
@@ -631,9 +633,7 @@ describe("AanvullendeInformatieFormulier", () => {
 
         const field = fields.find((f) => f.key === "aanvullendeInformatie");
         expect(field?.type).toBe("radio");
-        expect(
-          ("options" in field! ? field.options : []),
-        ).toEqual([
+        expect("options" in field! ? field.options : []).toEqual([
           "aanvullende-informatie.geleverd-akkoord",
           "aanvullende-informatie.geleverd-niet-akkoord",
           "aanvullende-informatie.niet-geleverd",
@@ -694,9 +694,7 @@ describe("AanvullendeInformatieFormulier", () => {
 
         const fields = await formulier.handleForm(mockTaak, opgeschortZaak);
 
-        expect(
-          fields.find((f) => f.key === "zaakHervatten"),
-        ).toBeDefined();
+        expect(fields.find((f) => f.key === "zaakHervatten")).toBeDefined();
       });
 
       it("should pre-fill zaakHervatten from taakdata", async () => {

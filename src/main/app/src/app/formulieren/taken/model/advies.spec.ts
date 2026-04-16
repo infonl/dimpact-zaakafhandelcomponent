@@ -75,9 +75,9 @@ describe("AdviesFormulier", () => {
       it("should render relevanteDocumenten as documents", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        expect(
-          fields.find((f) => f.key === "relevanteDocumenten")?.type,
-        ).toBe("documents");
+        expect(fields.find((f) => f.key === "relevanteDocumenten")?.type).toBe(
+          "documents",
+        );
       });
     });
 
@@ -143,9 +143,9 @@ describe("AdviesFormulier", () => {
         const fields = await formulier.requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "relevanteDocumenten");
-        expect(
-          "options" in field! ? field.options : [],
-        ).toEqual([mockDocument]);
+        expect("options" in field! ? field.options : []).toEqual([
+          mockDocument,
+        ]);
       });
     });
   });
@@ -190,9 +190,9 @@ describe("AdviesFormulier", () => {
       it("should render relevanteDocumenten as documents", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
-        expect(
-          fields.find((f) => f.key === "relevanteDocumenten")?.type,
-        ).toBe("documents");
+        expect(fields.find((f) => f.key === "relevanteDocumenten")?.type).toBe(
+          "documents",
+        );
       });
 
       it("should render advies as radio", async () => {
@@ -281,9 +281,10 @@ describe("AdviesFormulier", () => {
         const fields = await formulier.handleForm(mockTaak);
 
         const field = fields.find((f) => f.key === "advies");
-        expect(
-          "options" in field! ? field.options : [],
-        ).toEqual(["akkoord", "niet-akkoord"]);
+        expect("options" in field! ? field.options : []).toEqual([
+          "akkoord",
+          "niet-akkoord",
+        ]);
       });
 
       it("should fall back to empty options when tabellen is undefined", async () => {
@@ -295,9 +296,7 @@ describe("AdviesFormulier", () => {
         const fields = await formulier.handleForm(taakWithoutTabellen);
 
         const field = fields.find((f) => f.key === "advies");
-        expect(
-          "options" in field! ? field.options : null,
-        ).toEqual([]);
+        expect("options" in field! ? field.options : null).toEqual([]);
       });
 
       it("should fall back to empty options when ADVIES key is absent from tabellen", async () => {
@@ -311,9 +310,7 @@ describe("AdviesFormulier", () => {
         const fields = await formulier.handleForm(taakWithoutAdviesTabellen);
 
         const field = fields.find((f) => f.key === "advies");
-        expect(
-          "options" in field! ? field.options : null,
-        ).toEqual([]);
+        expect("options" in field! ? field.options : null).toEqual([]);
       });
 
       it("should require advies", async () => {
@@ -334,9 +331,9 @@ describe("AdviesFormulier", () => {
 
         const fields = await formulier.handleForm(taakWithAdvies);
 
-        expect(
-          fields.find((f) => f.key === "advies")?.control?.value,
-        ).toBe("akkoord");
+        expect(fields.find((f) => f.key === "advies")?.control?.value).toBe(
+          "akkoord",
+        );
       });
 
       it("should have no advies pre-filled when taakdata is empty", async () => {

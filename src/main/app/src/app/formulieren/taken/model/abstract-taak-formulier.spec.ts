@@ -7,7 +7,12 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
@@ -109,8 +114,12 @@ class TestFormulier extends AbstractTaakFormulier {
 
 describe(AbstractTaakFormulier.name, () => {
   let formulier: TestFormulier;
-  let fixture: ComponentFixture<ZacForm<Record<string, AbstractControl<unknown, unknown>>>>;
-  let componentRef: ComponentRef<ZacForm<Record<string, AbstractControl<unknown, unknown>>>>;
+  let fixture: ComponentFixture<
+    ZacForm<Record<string, AbstractControl<unknown, unknown>>>
+  >;
+  let componentRef: ComponentRef<
+    ZacForm<Record<string, AbstractControl<unknown, unknown>>>
+  >;
   let loader: HarnessLoader;
   let formGroup: FormGroup;
 
@@ -131,9 +140,9 @@ describe(AbstractTaakFormulier.name, () => {
 
   describe("requestForm rendering", () => {
     beforeEach(async () => {
-      const fields = await formulier.requestForm(
-        { uuid: "zaak-uuid" } as GeneratedType<"RestZaak">,
-      );
+      const fields = await formulier.requestForm({
+        uuid: "zaak-uuid",
+      } as GeneratedType<"RestZaak">);
 
       formGroup = new FormGroup({});
       for (const field of fields) {

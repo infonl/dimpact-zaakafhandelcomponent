@@ -80,9 +80,9 @@ describe("GoedkeurenFormulier", () => {
       it("should render relevanteDocumenten as documents", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        expect(
-          fields.find((f) => f.key === "relevanteDocumenten")?.type,
-        ).toBe("documents");
+        expect(fields.find((f) => f.key === "relevanteDocumenten")?.type).toBe(
+          "documents",
+        );
       });
     });
 
@@ -363,9 +363,9 @@ describe("GoedkeurenFormulier", () => {
 
         const fields = await formulier.handleForm(taakWithGoedkeuren);
 
-        expect(
-          fields.find((f) => f.key === "goedkeuren")?.control?.value,
-        ).toBe(`goedkeuren.${Goedkeuring.akkoord}`);
+        expect(fields.find((f) => f.key === "goedkeuren")?.control?.value).toBe(
+          `goedkeuren.${Goedkeuring.akkoord}`,
+        );
       });
 
       it("should have no goedkeuren pre-filled when taakdata is empty", async () => {
