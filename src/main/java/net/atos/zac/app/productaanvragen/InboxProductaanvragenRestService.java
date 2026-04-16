@@ -44,7 +44,7 @@ import nl.info.zac.policy.PolicyService;
 @Path("inbox-productaanvragen")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class InboxProductaanvragenRESTService {
+public class InboxProductaanvragenRestService {
 
     @Inject
     private DrcClientService drcClientService;
