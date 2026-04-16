@@ -174,7 +174,7 @@ describe("GoedkeurenFormulier", () => {
         const fields = await formulier.handleForm(mockTaak);
 
         expect(fields.map((f) => f.key)).toEqual([
-          "titel",
+          "intro",
           "vraag",
           "ondertekenen",
           "goedkeuren",
@@ -184,7 +184,7 @@ describe("GoedkeurenFormulier", () => {
       it("should render titel as plain-text", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
-        expect(fields.find((f) => f.key === "titel")?.type).toBe("plain-text");
+        expect(fields.find((f) => f.key === "intro")?.type).toBe("plain-text");
       });
 
       it("should render vraag as plain-text", async () => {
@@ -221,7 +221,7 @@ describe("GoedkeurenFormulier", () => {
       it("should set titel control value to translated string", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
-        expect(fields.find((f) => f.key === "titel")?.control?.value).toBe(
+        expect(fields.find((f) => f.key === "intro")?.control?.value).toBe(
           "translated-value",
         );
       });

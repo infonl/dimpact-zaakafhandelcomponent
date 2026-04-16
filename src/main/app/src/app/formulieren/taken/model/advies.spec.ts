@@ -17,8 +17,6 @@ describe("AdviesFormulier", () => {
   let informatieObjectenService: {
     listEnkelvoudigInformatieobjecten: jest.Mock;
   };
-  let translateService: { instant: jest.Mock };
-
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
   });
@@ -31,14 +29,11 @@ describe("AdviesFormulier", () => {
     informatieObjectenService = {
       listEnkelvoudigInformatieobjecten: jest.fn().mockReturnValue(of([])),
     };
-    translateService = {
-      instant: jest.fn().mockReturnValue("translated-value"),
-    };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
-        { provide: TranslateService, useValue: translateService },
+        { provide: TranslateService, useValue: {} },
         {
           provide: InformatieObjectenService,
           useValue: informatieObjectenService,
@@ -164,21 +159,21 @@ describe("AdviesFormulier", () => {
         expect(fields.length).toBe(4);
       });
 
-      it("should return fields with keys: titel, vraag, relevanteDocumenten, advies", async () => {
+      it("should return fields with keys: intro, vraag, relevanteDocumenten, advies", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
         expect(fields.map((f) => f.key)).toEqual([
-          "titel",
+          "intro",
           "vraag",
           "relevanteDocumenten",
           "advies",
         ]);
       });
 
-      it("should render titel as plain-text", async () => {
+      it("should render intro as plain-text", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
-        expect(fields.find((f) => f.key === "titel")?.type).toBe("plain-text");
+        expect(fields.find((f) => f.key === "intro")?.type).toBe("plain-text");
       });
 
       it("should render vraag as plain-text", async () => {
@@ -202,15 +197,12 @@ describe("AdviesFormulier", () => {
       });
     });
 
-    describe("titel field", () => {
-      it("should use translated msg.advies.behandelen as value", async () => {
+    describe("intro field", () => {
+      it("should set the raw i18n key as value (translation delegated to template)", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
-        expect(translateService.instant).toHaveBeenCalledWith(
+        expect(fields.find((f) => f.key === "intro")?.control?.value).toBe(
           "msg.advies.behandelen",
-        );
-        expect(fields.find((f) => f.key === "titel")?.control?.value).toBe(
-          "translated-value",
         );
       });
     });
