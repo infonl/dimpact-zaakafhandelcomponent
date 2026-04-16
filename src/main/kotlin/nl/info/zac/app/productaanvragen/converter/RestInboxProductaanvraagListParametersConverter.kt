@@ -3,16 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-@file:JvmName("RestInboxProductaanvraagListParametersConverter")
-
 package nl.info.zac.app.productaanvragen.converter
 
-import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagListParameters
+import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
 import nl.info.zac.search.model.DatumRange
 
-fun RESTInboxProductaanvraagListParameters.toInboxProductaanvraagListParameters() =
+fun RestInboxProductaanvraagListParameters.toInboxProductaanvraagListParameters() =
     InboxProductaanvraagListParameters().also { params ->
         this.applyCommonParametersTo(params)
         params.type = this.type

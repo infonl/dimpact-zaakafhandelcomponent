@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.productaanvraag
+package nl.info.zac.app.productaanvraag
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -11,10 +11,9 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagListParameters
-import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
@@ -46,13 +45,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val item = createInboxProductaanvraag()
                 val resultaat = InboxProductaanvraagResultaat(listOf(item), 1L, listOf("typeA", "typeB"))
-                val params = RESTInboxProductaanvraagListParameters()
+                val params = RestInboxProductaanvraagListParameters()
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
                 Then("the result contains the items and the filterType from the service") {
-                    val result = service.listInboxProductaanvragen(params) as RESTInboxProductaanvraagResultaat
+                    val result = service.listInboxProductaanvragen(params)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
@@ -67,13 +66,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             When("the service returns an empty typeFilter and params contain a type") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val resultaat = InboxProductaanvraagResultaat(emptyList(), 0L, emptyList())
-                val params = RESTInboxProductaanvraagListParameters().apply { type = "aanvraag" }
+                val params = RestInboxProductaanvraagListParameters().apply { type = "aanvraag" }
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
                 Then("the filterType is set to the type from the request parameters") {
-                    val result = service.listInboxProductaanvragen(params) as RESTInboxProductaanvraagResultaat
+                    val result = service.listInboxProductaanvragen(params)
 
                     result.totaal shouldBe 0
                     result.filterType shouldBe listOf("aanvraag")
@@ -83,13 +82,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             When("the service returns an empty typeFilter and params have no type") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val resultaat = InboxProductaanvraagResultaat(emptyList(), 0L, emptyList())
-                val params = RESTInboxProductaanvraagListParameters()
+                val params = RestInboxProductaanvraagListParameters()
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
                 Then("the filterType remains empty") {
-                    val result = service.listInboxProductaanvragen(params) as RESTInboxProductaanvraagResultaat
+                    val result = service.listInboxProductaanvragen(params)
 
                     result.totaal shouldBe 0
                     result.filterType shouldBe emptyList()
@@ -104,7 +103,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
 
                 Then("a PolicyException is thrown") {
                     shouldThrow<PolicyException> {
-                        service.listInboxProductaanvragen(RESTInboxProductaanvraagListParameters())
+                        service.listInboxProductaanvragen(RestInboxProductaanvraagListParameters())
                     }
                 }
             }

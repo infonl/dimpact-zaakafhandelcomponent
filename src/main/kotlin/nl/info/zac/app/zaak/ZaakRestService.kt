@@ -31,7 +31,6 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
 import net.atos.zac.app.bag.converter.RestBagConverter
-import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraag
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICATIEKANAAL
@@ -67,6 +66,7 @@ import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
@@ -1168,10 +1168,10 @@ class ZaakRestService @Inject constructor(
 
     private fun koppelInboxProductaanvraag(
         zaak: Zaak,
-        inboxProductaanvraag: RESTInboxProductaanvraag
+        inboxProductaanvraag: RestInboxProductaanvraag
     ) {
         val productaanvraagObject = objectsClientService.readObject(
-            inboxProductaanvraag.productaanvraagObjectUUID
+            inboxProductaanvraag.productaanvraagObjectUUID!!
         )
         val productaanvraag = productaanvraagService.getProductaanvraag(
             productaanvraagObject
