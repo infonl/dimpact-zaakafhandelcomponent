@@ -77,7 +77,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
-import nl.info.zac.productaanvraag.createProductaanvraagDimpact
+import nl.info.zac.productaanvraag.model.createProductaanvraagDimpact
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService

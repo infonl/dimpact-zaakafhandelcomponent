@@ -2,13 +2,12 @@
  * SPDX-FileCopyrightText: 2023 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.productaanvraag.model
 
-package nl.info.zac.productaanvraag
-
-import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Bron
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.search.model.DatumRange
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -36,12 +35,12 @@ fun createBron(
 
 @Suppress("LongParameterList")
 fun createInboxProductaanvraag(
-    id: Long = 1234L,
+    id: Long = 1L,
     productaanvraagObjectUUID: UUID = UUID.randomUUID(),
-    aanvraagdocumentUUID: UUID = UUID.randomUUID(),
+    aanvraagdocumentUUID: UUID? = null,
     ontvangstdatum: LocalDate = LocalDate.now(),
     type: String = "fakeType",
-    initiatorID: String = "fakeInitiator",
+    initiatorID: String? = null,
     aantalBijlagen: Int = 0
 ) = InboxProductaanvraag().apply {
     this.id = id
@@ -51,6 +50,16 @@ fun createInboxProductaanvraag(
     this.type = type
     this.initiatorID = initiatorID
     this.aantalBijlagen = aantalBijlagen
+}
+
+fun createInboxProductaanvraagListParameters(
+    initiatorID: String? = null,
+    type: String? = null,
+    ontvangstdatumRange: DatumRange? = null
+) = InboxProductaanvraagListParameters().apply {
+    this.initiatorID = initiatorID
+    this.type = type
+    this.ontvangstdatum = ontvangstdatumRange
 }
 
 @Suppress("LongParameterList")
