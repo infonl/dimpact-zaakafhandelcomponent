@@ -53,7 +53,7 @@ class InboxProductaanvraag {
 
     @NotNull
     @Column(name = "ontvangstdatum", nullable = false)
-    lateinit var ontvangstdatum: LocalDate
+    var ontvangstdatum: LocalDate? = null
 
     @NotBlank
     @Column(name = "productaanvraag_type", nullable = false)

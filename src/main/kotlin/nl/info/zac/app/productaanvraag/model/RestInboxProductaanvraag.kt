@@ -17,6 +17,6 @@ data class RestInboxProductaanvraag(
     var aanvraagdocumentUUID: UUID? = null,
     var aantalBijlagen: Int = 0,
     var type: String,
-    var ontvangstdatum: LocalDate,
+    var ontvangstdatum: LocalDate? = null,
     var initiatorID: String? = null
 )
