@@ -64,10 +64,8 @@ export class AdviesFormulier extends AbstractTaakFormulier {
     return [
       {
         type: "plain-text",
-        key: "titel",
-        control: this.formBuilder.control(
-          this.translateService.instant("msg.advies.behandelen"),
-        ),
+        key: "intro",
+        control: this.formBuilder.control("msg.advies.behandelen"),
       },
       {
         type: "plain-text",
