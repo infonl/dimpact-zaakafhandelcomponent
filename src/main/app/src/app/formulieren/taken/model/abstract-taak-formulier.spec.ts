@@ -3,10 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  provideHttpClient,
-  withInterceptorsFromDi,
-} from "@angular/common/http";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentRef } from "@angular/core";
@@ -127,10 +123,7 @@ describe(AbstractTaakFormulier.name, () => {
         RouterModule.forRoot([]),
         MaterialFormBuilderModule,
       ],
-      providers: [
-        provideHttpClient(withInterceptorsFromDi()),
-        FormBuilder,
-      ],
+      providers: [FormBuilder],
     }).compileComponents();
 
     formulier = TestBed.runInInjectionContext(() => new TestFormulier());
