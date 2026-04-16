@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.app.productaanvragen.converter
+package nl.info.zac.app.productaanvraag.converter
 
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.app.shared.applyCommonParametersTo

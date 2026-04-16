@@ -22,7 +22,6 @@ import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.shared.model.Sorting
 import java.time.LocalDate
-import java.util.Optional
 
 class InboxProductaanvraagServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
@@ -48,14 +47,14 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
 
     Context("Finding an inbox productaanvraag by ID") {
         Given("an existing inbox productaanvraag") {
-            val item = createInboxProductaanvraag()
-            every { entityManager.find(InboxProductaanvraag::class.java, item.id) } returns item
+            val inboxProductaanvraag = createInboxProductaanvraag()
+            every { entityManager.find(InboxProductaanvraag::class.java, inboxProductaanvraag.id) } returns inboxProductaanvraag
 
             When("find is called with that ID") {
-                val result = service.find(item.id!!)
+                val result = service.find(inboxProductaanvraag.id!!)
 
-                Then("the entity is returned as a present Optional") {
-                    result shouldBe Optional.of(item)
+                Then("the entity is returned") {
+                    result shouldBe inboxProductaanvraag
                 }
             }
         }
@@ -67,8 +66,8 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             When("find is called with that ID") {
                 val result = service.find(id)
 
-                Then("an empty Optional is returned") {
-                    result shouldBe Optional.empty()
+                Then("null is returned") {
+                    result shouldBe null
                 }
             }
         }

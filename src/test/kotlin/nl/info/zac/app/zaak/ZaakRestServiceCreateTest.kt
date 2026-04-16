@@ -206,7 +206,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         every { configurationService.readVerantwoordelijkeOrganisatie() } returns verantwoordelijkeOrganisatie
         every { cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null) } just runs
         every {
-            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag?.id)
+            inboxProductaanvraagService.delete(restZaakAanmaakGegevens.inboxProductaanvraag!!.id)
         } just runs
         every {
             objectsClientService

@@ -17,10 +17,10 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.zac.app.productaanvraag.converter.toInboxProductaanvraagListParameters
 import nl.info.zac.app.productaanvraag.converter.toRestInboxProductaanvragen
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagResultaat
-import nl.info.zac.app.productaanvragen.converter.toInboxProductaanvraagListParameters
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.productaanvraag.InboxProductaanvraagService
@@ -51,10 +51,8 @@ class InboxProductaanvraagRestService @Inject constructor(
             resultaat.count
         )
         val types = resultaat.typeFilter
-        restResultaat.filterType = if (types.isEmpty()) {
+        restResultaat.filterType = types.ifEmpty {
             restListParameters.type?.let { listOf(it) } ?: emptyList()
-        } else {
-            types
         }
         return restResultaat
     }

@@ -9,7 +9,7 @@ import nl.info.zac.util.AllOpen
 
 @AllOpen
 class RestInboxProductaanvraagResultaat(
-    resultaten: Collection<RestInboxProductaanvraag>,
+    resultaten: List<RestInboxProductaanvraag>,
     aantalTotaal: Long
 ) : RESTResultaat<RestInboxProductaanvraag>(resultaten, aantalTotaal) {
     var filterType: List<String> = emptyList()

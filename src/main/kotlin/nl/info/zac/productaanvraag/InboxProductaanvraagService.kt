@@ -16,7 +16,6 @@ import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.Optional
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -38,14 +37,12 @@ class InboxProductaanvraagService @Inject constructor(
     fun list(listParameters: InboxProductaanvraagListParameters): InboxProductaanvraagResultaat =
         InboxProductaanvraagResultaat(query(listParameters), count(listParameters), listTypes(listParameters))
 
-    fun delete(id: Long?) {
-        id?.let { find(it).ifPresent(entityManager::remove) }
+    fun delete(id: Long) {
+        find(id)?.run(entityManager::remove)
     }
 
-    fun find(id: Long): Optional<InboxProductaanvraag> {
-        val inboxProductaanvraag = entityManager.find(InboxProductaanvraag::class.java, id)
-        return if (inboxProductaanvraag != null) Optional.of(inboxProductaanvraag) else Optional.empty()
-    }
+    fun find(id: Long): InboxProductaanvraag? =
+        entityManager.find(InboxProductaanvraag::class.java, id)
 
     private fun query(listParameters: InboxProductaanvraagListParameters): List<InboxProductaanvraag> {
         LOG.info("Querying inbox productaanvragen with parameters: $listParameters")
