@@ -5,7 +5,7 @@
 
 package nl.info.zac.productaanvraag
 
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Bron
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact

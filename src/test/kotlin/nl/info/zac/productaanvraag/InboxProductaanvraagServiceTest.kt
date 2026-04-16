@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.productaanvraag
+package nl.info.zac.productaanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -13,10 +13,10 @@ import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaQuery
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag
-import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters
-import net.atos.zac.productaanvraag.model.createInboxProductaanvraag
-import net.atos.zac.productaanvraag.model.createInboxProductaanvraagListParameters
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
+import nl.info.zac.productaanvraag.model.createInboxProductaanvraag
+import nl.info.zac.productaanvraag.model.createInboxProductaanvraagListParameters
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.shared.model.Paging
 import nl.info.zac.shared.model.SorteerRichting

@@ -20,7 +20,6 @@ import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
@@ -56,6 +55,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService

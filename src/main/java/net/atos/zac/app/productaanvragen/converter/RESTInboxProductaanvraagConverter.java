@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag;
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag;
 
 public class RESTInboxProductaanvraagConverter {
 

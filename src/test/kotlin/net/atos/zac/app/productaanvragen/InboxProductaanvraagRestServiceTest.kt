@@ -13,15 +13,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters
 import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagResultaat
-import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat
-import net.atos.zac.productaanvraag.model.createInboxProductaanvraag
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
+import nl.info.zac.productaanvraag.InboxProductaanvraagService
+import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
+import nl.info.zac.productaanvraag.model.createInboxProductaanvraag
 import java.io.ByteArrayInputStream
 import java.util.UUID
 

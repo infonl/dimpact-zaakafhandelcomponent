@@ -38,7 +38,6 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICAT
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.productaanvraag.InboxProductaanvraagService
 import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
@@ -126,6 +125,7 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.zac.productaanvraag.ProductaanvraagDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService

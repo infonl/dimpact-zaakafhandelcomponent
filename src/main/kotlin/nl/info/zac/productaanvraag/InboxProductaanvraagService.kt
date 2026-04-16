@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.productaanvraag
+package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -10,9 +10,9 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag
-import net.atos.zac.productaanvraag.model.InboxProductaanvraagListParameters
-import net.atos.zac.productaanvraag.model.InboxProductaanvraagResultaat
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters
+import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

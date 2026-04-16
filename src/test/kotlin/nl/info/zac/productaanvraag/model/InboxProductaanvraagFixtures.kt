@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.productaanvraag.model
+package nl.info.zac.productaanvraag.model
 
 import nl.info.zac.search.model.DatumRange
 import java.time.LocalDate
