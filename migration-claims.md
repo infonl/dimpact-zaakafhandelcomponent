@@ -73,6 +73,17 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `zaken/zaak-locatie-tonen/zaak-locatie-tonen.component.ts`
 - [x] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
+### Batch 8 — claimed
+- [ ] EnhanceMatErrorDirective
+- [ ] ZacRadio
+- [ ] ZacCheckbox
+- [ ] ZacToggle
+- [ ] ZacTextarea
+- [ ] ZacDate
+- [ ] ZacSelect
+- [ ] ZacInput
+- [ ] ZacAutoComplete
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
