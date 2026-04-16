@@ -97,7 +97,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                     val responseBody = resumeResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     resumeResponse.code shouldBe HTTP_OK
-                    responseBody.shouldContainJsonKeyValue("indicatieOpschorting", false)
+                    responseBody.shouldContainJsonKeyValue("isOpgeschort", false)
                     responseBody.shouldNotContainJsonKey("redenOpschorting")
                 }
 
