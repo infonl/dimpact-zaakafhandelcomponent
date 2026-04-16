@@ -74,15 +74,15 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
 ### Batch 8 — claimed
-- [ ] EnhanceMatErrorDirective
-- [ ] ZacRadio
-- [ ] ZacCheckbox
-- [ ] ZacToggle
-- [ ] ZacTextarea
-- [ ] ZacDate
-- [ ] ZacSelect
-- [ ] ZacInput
-- [ ] ZacAutoComplete
+- [x] EnhanceMatErrorDirective
+- [x] ZacRadio
+- [x] ZacCheckbox
+- [x] ZacToggle
+- [x] ZacTextarea
+- [x] ZacDate
+- [x] ZacSelect
+- [x] ZacInput
+- [x] ZacAutoComplete
 
 ## Dax
 
