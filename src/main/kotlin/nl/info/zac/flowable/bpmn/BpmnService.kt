@@ -155,6 +155,11 @@ class BpmnService @Inject constructor(
                 )
     }
 
+    /**
+     * Returns true if a BPMN process instance is found for the given zaak UUID, false otherwise.
+     * Note that for resolved (closed) zaken, no BPMN process instance exists, so this method
+     * will return false for those zaken.
+     */
     fun isZaakProcessDriven(zaakUUID: UUID): Boolean = findProcessInstance(zaakUUID) != null
 
     fun findProcessDefinitionByZaak(zaakUUID: UUID): ProcessDefinition? =

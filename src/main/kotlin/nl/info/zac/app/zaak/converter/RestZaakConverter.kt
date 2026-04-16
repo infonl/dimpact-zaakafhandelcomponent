@@ -98,6 +98,7 @@ class RestZaakConverter @Inject constructor(
 
         val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
+        val zaakIsProcessDriven = bpmnService.isZaakProcessDriven(zaak.uuid)
         return RestZaak(
             identificatie = zaak.identificatie,
             uuid = zaak.uuid,
@@ -145,7 +146,7 @@ class RestZaakConverter @Inject constructor(
             isHeropend = statustype.isHeropend(),
             isInIntakeFase = statustype.isIntake(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnProcessDefinition != null,
+            isProcesGestuurd = zaakIsProcessDriven,
             bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
             heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
             rechten = zaakRechten.toRestZaakRechten(),

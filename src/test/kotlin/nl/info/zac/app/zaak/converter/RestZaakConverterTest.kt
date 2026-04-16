@@ -133,7 +133,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
@@ -200,7 +203,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
@@ -265,7 +271,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
@@ -315,7 +324,10 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns true
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
+        }
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting the zaak to a rest zaak") {
@@ -350,7 +362,10 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
         When("converting the zaak to a rest zaak") {
@@ -382,7 +397,10 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
@@ -466,7 +484,10 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { brcClientService.listBesluiten(zaak) } returns emptyList()
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
-        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        with(bpmnService) {
+            every { isZaakProcessDriven(zaak.uuid) } returns false
+            every { findProcessDefinitionByZaak(zaak.uuid) } returns null
+        }
         every {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(rolNatuurlijkPersoon)
         } returns betrokkeneIdentificatie
