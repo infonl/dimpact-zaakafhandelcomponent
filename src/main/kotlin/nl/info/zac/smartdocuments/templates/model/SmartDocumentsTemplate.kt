@@ -22,18 +22,18 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_smartdocuments_document_template_parameters")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_smartdocuments_document_template_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
-    sequenceName = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
+    name = "sq_zaaktype_smartdocuments_document_template_parameters",
+    sequenceName = "sq_zaaktype_smartdocuments_document_template_parameters",
     allocationSize = 1
 )
 @AllOpen
 class SmartDocumentsTemplate {
     @Id
     @GeneratedValue(
-        generator = "sq_zaaktype_cmmn_smartdocuments_document_template_parameters",
+        generator = "sq_zaaktype_smartdocuments_document_template_parameters",
         strategy = GenerationType.SEQUENCE
     )
     @Column(name = "id")
@@ -59,3 +59,4 @@ class SmartDocumentsTemplate {
     @Column(name = "informatie_object_type_uuid", nullable = false)
     lateinit var informatieObjectTypeUUID: UUID
 }
+
