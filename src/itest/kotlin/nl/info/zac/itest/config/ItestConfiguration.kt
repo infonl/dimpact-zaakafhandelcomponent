@@ -79,7 +79,7 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
-    const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:8080"
+    const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:3000"
     const val OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK = "dca40822-5eb3-4acc-b915-7b020041ad55"
     const val OPEN_FORMULIEREN_FORMULIER_BRON_NAAM = "open-forms"
     const val OPEN_NOTIFICATIONS_API_SECRET_KEY = "openNotificatiesApiSecretKey"

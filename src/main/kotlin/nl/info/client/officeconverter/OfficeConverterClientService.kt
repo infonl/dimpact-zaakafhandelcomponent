@@ -22,7 +22,7 @@ class OfficeConverterClientService @Inject constructor(
 ) {
     fun convertToPDF(document: ByteArrayInputStream, filename: String): ByteArrayInputStream {
         val multipartFormDataOutput = MultipartFormDataOutput().apply {
-            addFormData("file", document, APPLICATION_OCTET_STREAM_TYPE, filename)
+            addFormData("files", document, APPLICATION_OCTET_STREAM_TYPE, filename)
         }
         val response = officeConverterClient.convert(multipartFormDataOutput)
         if (!response.bufferEntity()) {
