@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.productaanvragen
+package net.atos.zac.app.productaanvraag
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -11,8 +11,8 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagResultaat
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagListParameters
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.zac.policy.PolicyService

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.productaanvragen.converter;
+package net.atos.zac.app.productaanvraag.converter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraag;
 import nl.info.zac.productaanvraag.model.InboxProductaanvraag;
 
 public class RESTInboxProductaanvraagConverter {

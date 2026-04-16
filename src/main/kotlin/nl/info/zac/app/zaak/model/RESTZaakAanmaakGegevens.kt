@@ -6,7 +6,7 @@ package nl.info.zac.app.zaak.model
 
 import jakarta.validation.Valid
 import net.atos.zac.app.bag.model.RESTBAGObject
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraag
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 

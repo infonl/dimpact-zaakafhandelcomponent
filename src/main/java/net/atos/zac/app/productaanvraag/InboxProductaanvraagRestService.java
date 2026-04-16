@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.productaanvragen;
+package net.atos.zac.app.productaanvraag;
 
 import static nl.info.zac.app.productaanvragen.converter.RestInboxProductaanvraagListParametersConverter.toInboxProductaanvraagListParameters;
 import static nl.info.zac.policy.PolicyServiceKt.assertPolicy;
@@ -27,10 +27,10 @@ import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import net.atos.zac.app.productaanvragen.converter.RESTInboxProductaanvraagConverter;
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag;
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagListParameters;
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraagResultaat;
+import net.atos.zac.app.productaanvraag.converter.RESTInboxProductaanvraagConverter;
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraag;
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagListParameters;
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraagResultaat;
 import net.atos.zac.app.shared.RESTResultaat;
 import nl.info.zac.productaanvraag.InboxProductaanvraagService;
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagListParameters;

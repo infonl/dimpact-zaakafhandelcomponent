@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.productaanvragen.model;
+package net.atos.zac.app.productaanvraag.model;
 
 import java.time.LocalDate;
 import java.util.UUID;

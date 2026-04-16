@@ -8,7 +8,7 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
-import net.atos.zac.app.productaanvragen.model.RESTInboxProductaanvraag
+import net.atos.zac.app.productaanvraag.model.RESTInboxProductaanvraag
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
