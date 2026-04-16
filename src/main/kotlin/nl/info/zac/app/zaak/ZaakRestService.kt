@@ -396,7 +396,6 @@ class ZaakRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.opschorten)
         return if (opschortGegevens.indicatieOpschorting) {
             val suspendedZaak = opschortenZaakHelper.suspendZaak(
                 zaak = zaak,
