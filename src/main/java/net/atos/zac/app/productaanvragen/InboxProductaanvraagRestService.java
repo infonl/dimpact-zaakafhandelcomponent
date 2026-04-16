@@ -55,6 +55,22 @@ public class InboxProductaanvraagRestService {
     @Inject
     private InboxProductaanvraagService inboxProductaanvraagService;
 
+    /**
+     * No-arg constructor required for CDI.
+     */
+    public InboxProductaanvraagRestService() {
+    }
+
+    public InboxProductaanvraagRestService(
+            final DrcClientService drcClientService,
+            final PolicyService policyService,
+            final InboxProductaanvraagService inboxProductaanvraagService
+    ) {
+        this.drcClientService = drcClientService;
+        this.policyService = policyService;
+        this.inboxProductaanvraagService = inboxProductaanvraagService;
+    }
+
     @PUT
     @Path("")
     public RESTResultaat<RESTInboxProductaanvraag> listInboxProductaanvragen(
