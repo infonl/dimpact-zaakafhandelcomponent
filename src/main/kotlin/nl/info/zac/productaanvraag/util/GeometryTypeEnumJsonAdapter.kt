@@ -11,6 +11,6 @@ import nl.info.zac.productaanvraag.model.generated.Geometry
  * JSON adapter for the [Geometry.Type] enum that matches on the enum's value instead of the enum's name.
  */
 class GeometryTypeEnumJsonAdapter : JsonbAdapter<Geometry.Type, String> {
-    override fun adaptToJson(value: Geometry.Type): String = value.name
-    override fun adaptFromJson(s: String): Geometry.Type = Geometry.Type.fromValue(s)
+    override fun adaptToJson(geometryType: Geometry.Type): String = geometryType.toString()
+    override fun adaptFromJson(value: String): Geometry.Type = Geometry.Type.fromValue(value)
 }

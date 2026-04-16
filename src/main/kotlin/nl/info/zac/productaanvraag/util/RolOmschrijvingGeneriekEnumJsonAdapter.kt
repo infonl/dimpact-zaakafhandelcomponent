@@ -12,7 +12,9 @@ import nl.info.zac.productaanvraag.model.generated.Betrokkene
  * instead of the enum's name.
  */
 class RolOmschrijvingGeneriekEnumJsonAdapter : JsonbAdapter<Betrokkene.RolOmschrijvingGeneriek, String> {
-    override fun adaptToJson(value: Betrokkene.RolOmschrijvingGeneriek): String = value.name
-    override fun adaptFromJson(s: String): Betrokkene.RolOmschrijvingGeneriek =
-        Betrokkene.RolOmschrijvingGeneriek.fromValue(s)
+    override fun adaptToJson(
+        rolOmschrijvingGeneriek: Betrokkene.RolOmschrijvingGeneriek
+    ): String = rolOmschrijvingGeneriek.toString()
+    override fun adaptFromJson(value: String): Betrokkene.RolOmschrijvingGeneriek =
+        Betrokkene.RolOmschrijvingGeneriek.fromValue(value)
 }

@@ -271,8 +271,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       .spyOn(service, "list")
       .mockReturnValue(
         of({ totaal: 0, filterType: [] } as Partial<
-          GeneratedType<"RestResultaatRestInboxProductaanvraag">
-        > as unknown as GeneratedType<"RestResultaatRestInboxProductaanvraag">),
+          GeneratedType<"RestInboxProductaanvraagResultaat">
+        > as unknown as GeneratedType<"RestInboxProductaanvraagResultaat">),
       );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual([]);

@@ -11,6 +11,10 @@ import nl.info.zac.productaanvraag.model.generated.Betrokkene
  * JSON adapter for the [Betrokkene.IndicatieMachtiging] enum that matches on the enum's value instead of the enum's name.
  */
 class IndicatieMachtigingEnumJsonAdapter : JsonbAdapter<Betrokkene.IndicatieMachtiging, String> {
-    override fun adaptToJson(value: Betrokkene.IndicatieMachtiging): String = value.name
-    override fun adaptFromJson(s: String): Betrokkene.IndicatieMachtiging = Betrokkene.IndicatieMachtiging.fromValue(s)
+    override fun adaptToJson(
+        indicatieMachtiging: Betrokkene.IndicatieMachtiging
+    ): String = indicatieMachtiging.toString()
+    override fun adaptFromJson(
+        value: String
+    ): Betrokkene.IndicatieMachtiging = Betrokkene.IndicatieMachtiging.fromValue(value)
 }
