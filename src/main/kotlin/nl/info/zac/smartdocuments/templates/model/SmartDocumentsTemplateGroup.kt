@@ -64,4 +64,3 @@ class SmartDocumentsTemplateGroup {
     @JoinColumn(name = "zaaktype_configuration_id", nullable = false)
     lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
 }
-

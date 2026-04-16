@@ -59,4 +59,3 @@ class SmartDocumentsTemplate {
     @Column(name = "informatie_object_type_uuid", nullable = false)
     lateinit var informatieObjectTypeUUID: UUID
 }
-
