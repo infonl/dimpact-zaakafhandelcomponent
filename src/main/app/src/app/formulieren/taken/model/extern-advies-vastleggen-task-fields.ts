@@ -44,7 +44,6 @@ export class ExternAdviesVastleggenTaskFields extends AbstractTaakFormulier {
   }
 
   async handleForm(taak: GeneratedType<"RestTask">): Promise<FormField[]> {
-    void taak;
     return [
       {
         type: "plain-text",
@@ -71,7 +70,7 @@ export class ExternAdviesVastleggenTaskFields extends AbstractTaakFormulier {
       {
         type: "textarea",
         key: "externAdvies",
-        control: this.formBuilder.control("", [
+        control: this.formBuilder.control(taak.taakdata?.["externAdvies"] ?? "", [
           Validators.required,
           Validators.maxLength(1000),
         ]),

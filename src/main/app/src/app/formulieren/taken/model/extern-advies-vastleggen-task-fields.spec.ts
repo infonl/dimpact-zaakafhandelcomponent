@@ -289,12 +289,25 @@ describe("ExternAdviesVastleggenTaskFields", () => {
     });
 
     describe("externAdvies field", () => {
-      it("should initialize externAdvies as empty string", async () => {
+      it("should initialize externAdvies as empty string when taakdata is empty", async () => {
         const fields = await formulier.handleForm(mockTaak);
 
         expect(
           fields.find((f) => f.key === "externAdvies")?.control?.value,
         ).toBe("");
+      });
+
+      it("should pre-fill externAdvies from taakdata when previously saved", async () => {
+        const taakWithData = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          taakdata: { externAdvies: "eerder opgeslagen advies" },
+        });
+
+        const fields = await formulier.handleForm(taakWithData);
+
+        expect(
+          fields.find((f) => f.key === "externAdvies")?.control?.value,
+        ).toBe("eerder opgeslagen advies");
       });
 
       it("should require externAdvies", async () => {
