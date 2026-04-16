@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.221](https://img.shields.io/badge/Version-1.0.221-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
+![Version: 1.0.222](https://img.shields.io/badge/Version-1.0.222-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -198,8 +198,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.affinity | object | `{}` |  |
 | office_converter.enabled | bool | `true` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
-| office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"` |  |
+| office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
+| office_converter.image.tag | string | `"8.30.1@sha256:206a6c708fc6d05257367d9ac902d6c56c50d2e3284d0596ea000814ef97f22c"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
