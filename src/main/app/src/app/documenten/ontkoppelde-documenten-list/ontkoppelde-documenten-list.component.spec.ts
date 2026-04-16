@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -18,29 +18,31 @@ import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { InboxDocumentenService } from "../inbox-documenten.service";
-import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
+import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
+import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
-type InboxDocument = Parameters<
-  (typeof InboxDocumentenListComponent.prototype)["openDrawer"]
->[0];
+type DetachedDocument = GeneratedType<"RestDetachedDocument">;
 
-const makeInboxDocument = (
-  fields: Partial<InboxDocument> = {},
-): InboxDocument =>
+const makeDetachedDocument = (
+  fields: Partial<DetachedDocument> = {},
+): DetachedDocument =>
   ({
     id: 1,
     titel: "Test document",
-    enkelvoudiginformatieobjectUUID: "uuid-1",
-    enkelvoudiginformatieobjectID: "ID-001",
+    documentUUID: "uuid-1",
     creatiedatum: "2026-01-01",
+    zaakID: "ZAAK-001",
+    ontkoppeldDoor: { id: "user-1", naam: "Jan" },
+    ontkoppeldOp: "2026-01-02",
+    reden: "Test reden",
+    isVergrendeld: false,
     ...fields,
-  }) as Partial<InboxDocument> as unknown as InboxDocument;
+  }) as Partial<DetachedDocument> as unknown as DetachedDocument;
 
-describe(InboxDocumentenListComponent.name, () => {
-  let fixture: ComponentFixture<InboxDocumentenListComponent>;
-  let component: InboxDocumentenListComponent;
-  let inboxDocumentenService: InboxDocumentenService;
+describe(OntkoppeldeDocumentenListComponent.name, () => {
+  let fixture: ComponentFixture<OntkoppeldeDocumentenListComponent>;
+  let component: OntkoppeldeDocumentenListComponent;
+  let ontkoppeldeDocumentenService: OntkoppeldeDocumentenService;
   let infoService: InformatieObjectenService;
   let utilService: UtilService;
 
@@ -49,7 +51,7 @@ describe(InboxDocumentenListComponent.name, () => {
       imports: [
         NoopAnimationsModule,
         TranslateModule.forRoot(),
-        InboxDocumentenListComponent,
+        OntkoppeldeDocumentenListComponent,
       ],
       providers: [
         provideHttpClient(),
@@ -61,17 +63,17 @@ describe(InboxDocumentenListComponent.name, () => {
       ],
     }).compileComponents();
 
-    inboxDocumentenService = TestBed.inject(InboxDocumentenService);
+    ontkoppeldeDocumentenService = TestBed.inject(OntkoppeldeDocumentenService);
     infoService = TestBed.inject(InformatieObjectenService);
     utilService = TestBed.inject(UtilService);
 
     jest
-      .spyOn(inboxDocumentenService, "list")
+      .spyOn(ontkoppeldeDocumentenService, "list")
       .mockReturnValue(of({ totaal: 0, resultaten: [] }));
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
-    fixture = TestBed.createComponent(InboxDocumentenListComponent);
+    fixture = TestBed.createComponent(OntkoppeldeDocumentenListComponent);
     component = fixture.componentInstance;
 
     component.sort = new MatSort();
@@ -94,12 +96,15 @@ describe(InboxDocumentenListComponent.name, () => {
 
     component["updateListParameters"]();
 
-    expect(setItemSpy).toHaveBeenCalledWith("INBOX_DOCUMENTEN_ZOEKPARAMETERS", {
-      maxResults: 25,
-      order: "asc",
-      page: 0,
-      sort: "titel",
-    });
+    expect(setItemSpy).toHaveBeenCalledWith(
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS",
+      {
+        maxResults: 25,
+        order: "asc",
+        page: 0,
+        sort: "titel",
+      },
+    );
   });
 
   it("should use remembered user data when reloading (ngOnInit)", () => {
@@ -107,13 +112,13 @@ describe(InboxDocumentenListComponent.name, () => {
       sort: "MockedTitle",
       order: "MockedOrder",
       maxResults: 99999,
-      filtersType: "MockedInboxDocumentListParameters",
+      filtersType: "DetachedDocumentListParameters",
     };
 
     jest
       .spyOn(SessionStorageUtil, "getItem")
       .mockImplementation((key: string) => {
-        if (key === "INBOX_DOCUMENTEN_ZOEKPARAMETERS") {
+        if (key === "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS") {
           return rememberedParams;
         }
         return null;
@@ -124,27 +129,22 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(component["listParameters"]).toEqual(rememberedParams);
   });
 
-  it("should return null from getDownloadURL when UUID is absent", () => {
-    const doc = makeInboxDocument({
-      enkelvoudiginformatieobjectUUID: undefined,
-    });
+  it("should return null from getDownloadURL when documentUUID is absent", () => {
+    const doc = makeDetachedDocument({ documentUUID: undefined });
     expect(component["getDownloadURL"](doc)).toBeNull();
   });
 
-  it("should return download URL from getDownloadURL when UUID is present", () => {
+  it("should return download URL from getDownloadURL when documentUUID is present", () => {
     jest
       .spyOn(infoService, "getDownloadURL")
       .mockReturnValue("/download/uuid-1");
-    const doc = makeInboxDocument({
-      enkelvoudiginformatieobjectUUID: "uuid-1",
-    });
-    const url = component["getDownloadURL"](doc);
-    expect(url).toBe("/download/uuid-1");
+    const doc = makeDetachedDocument({ documentUUID: "uuid-1" });
+    expect(component["getDownloadURL"](doc)).toBe("/download/uuid-1");
     expect(infoService.getDownloadURL).toHaveBeenCalledWith("uuid-1");
   });
 
-  it("should return INBOX_DOCUMENTEN from getWerklijst", () => {
-    expect(component["getWerklijst"]()).toBe("INBOX_DOCUMENTEN");
+  it("should return ONTKOPPELDE_DOCUMENTEN from getWerklijst", () => {
+    expect(component["getWerklijst"]()).toBe("ONTKOPPELDE_DOCUMENTEN");
   });
 
   it("should reset pageIndex and emit filterChange and clearZoekopdracht on filtersChanged", () => {
@@ -175,21 +175,21 @@ describe(InboxDocumentenListComponent.name, () => {
     component["resetSearch"]();
 
     expect(component["listParameters"]).toMatchObject({
-      sort: "creatiedatum",
+      sort: "ontkoppeldOp",
       order: "desc",
     });
-    expect(component.sort.active).toBe("creatiedatum");
+    expect(component.sort.active).toBe("ontkoppeldOp");
     expect(component.sort.direction).toBe("desc");
     expect(component.paginator.pageIndex).toBe(0);
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 
-  it("should parse JSON and apply parameters on zoekopdrachtChanged with json", () => {
+  it("should parse JSON and apply parameters on zoekopdrachtChanged with truthy value", () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     const params = {
       sort: "titel",
       order: "asc",
-      filtersType: "InboxDocumentListParameters",
+      filtersType: "DetachedDocumentListParameters",
     };
     component["zoekopdrachtChanged"]({
       json: JSON.stringify(params),
@@ -197,9 +197,8 @@ describe(InboxDocumentenListComponent.name, () => {
       GeneratedType<"RESTZoekopdracht">
     > as unknown as GeneratedType<"RESTZoekopdracht">);
 
-    // updateListParameters() fires synchronously via filterChange → only check fields from JSON
     expect(component["listParameters"]).toMatchObject({
-      filtersType: "InboxDocumentListParameters",
+      filtersType: "DetachedDocumentListParameters",
     });
     expect(component.paginator.pageIndex).toBe(0);
     expect(filterChangeSpy).toHaveBeenCalled();
@@ -216,20 +215,10 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(resetSpy).toHaveBeenCalled();
   });
 
-  it("should only emit filterChange on zoekopdrachtChanged with defined but no json", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["zoekopdrachtChanged"](
-      {} as Partial<
-        GeneratedType<"RESTZoekopdracht">
-      > as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
   it("should set selectedInformationObject and open sidenav on openDrawer", () => {
     const openSpy = jest.fn().mockResolvedValue(undefined);
     component.actionsSidenav = { open: openSpy } as unknown as MatSidenav;
-    const doc = makeInboxDocument();
+    const doc = makeDetachedDocument();
 
     component["openDrawer"](doc);
 
@@ -244,13 +233,13 @@ describe(InboxDocumentenListComponent.name, () => {
     component.ngOnDestroy();
 
     expect(setItemSpy).toHaveBeenCalledWith(
-      "INBOX_DOCUMENTEN_ZOEKPARAMETERS",
+      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS",
       expect.objectContaining({ page: 0 }),
     );
   });
 
   it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", () => {
-    const dialogSpy = jest.spyOn(component["dialog"], "open").mockReturnValue({
+    jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const snackbarSpy = jest
@@ -258,13 +247,12 @@ describe(InboxDocumentenListComponent.name, () => {
       .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
-      .spyOn(inboxDocumentenService, "delete")
+      .spyOn(ontkoppeldeDocumentenService, "delete")
       .mockReturnValue(of(undefined) as never);
 
-    const doc = makeInboxDocument({ id: 42, titel: "My doc" });
+    const doc = makeDetachedDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
 
-    expect(dialogSpy).toHaveBeenCalled();
     expect(snackbarSpy).toHaveBeenCalledWith(
       "msg.document.verwijderen.uitgevoerd",
       {
@@ -280,35 +268,53 @@ describe(InboxDocumentenListComponent.name, () => {
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
-      .spyOn(inboxDocumentenService, "delete")
+      .spyOn(ontkoppeldeDocumentenService, "delete")
       .mockReturnValue(of(undefined) as never);
 
-    component["documentVerwijderen"](makeInboxDocument());
+    component["documentVerwijderen"](makeDetachedDocument());
 
     expect(filterChangeSpy).not.toHaveBeenCalled();
   });
 
-  it("should populate dataSource from list response in ngAfterViewInit", () => {
-    const docs = [makeInboxDocument({ id: 1 }), makeInboxDocument({ id: 2 })];
+  it("should populate dataSource and filterOntkoppeldDoor from list response", () => {
+    const docs = [
+      makeDetachedDocument({
+        id: 1,
+        ontkoppeldDoor: {
+          id: "u1",
+          naam: "Alice",
+        } as unknown as GeneratedType<"RestUser">,
+      }),
+      makeDetachedDocument({
+        id: 2,
+        ontkoppeldDoor: {
+          id: "u2",
+          naam: "Bob",
+        } as unknown as GeneratedType<"RestUser">,
+      }),
+    ];
     jest
-      .spyOn(inboxDocumentenService, "list")
+      .spyOn(ontkoppeldeDocumentenService, "list")
       .mockReturnValue(of({ totaal: 2, resultaten: docs }));
 
-    // Re-trigger by emitting filterChange
     component["filterChange"].emit();
 
     expect(component["dataSource"].data).toEqual(docs);
     expect(component.paginator.length).toBe(2);
+    expect(component["filterOntkoppeldDoor"]).toEqual([
+      { id: "u1", naam: "Alice" },
+      { id: "u2", naam: "Bob" },
+    ]);
   });
 
   it("should fall back to empty array and zero length when list response omits resultaten and totaal", () => {
     jest
-      .spyOn(inboxDocumentenService, "list")
+      .spyOn(ontkoppeldeDocumentenService, "list")
       .mockReturnValue(
         of(
           {} as Partial<
-            GeneratedType<"RESTResultaatRestInboxDocument">
-          > as unknown as GeneratedType<"RESTResultaatRestInboxDocument">,
+            GeneratedType<"RESTResultaatRestDetachedDocument">
+          > as unknown as GeneratedType<"RESTResultaatRestDetachedDocument">,
         ),
       );
 
@@ -316,13 +322,32 @@ describe(InboxDocumentenListComponent.name, () => {
 
     expect(component["dataSource"].data).toEqual([]);
     expect(component.paginator.length).toBe(0);
+    expect(component["filterOntkoppeldDoor"]).toEqual([]);
   });
 
   it("should reset pageIndex to 0 when sort changes", () => {
     component.paginator.pageIndex = 3;
-
     component.sort.sortChange.emit({ active: "titel", direction: "asc" });
-
     expect(component.paginator.pageIndex).toBe(0);
+  });
+
+  it("should return true from compareUser when user ids match", () => {
+    const user1 = { id: "u1" } as Partial<
+      GeneratedType<"RestUser">
+    > as unknown as GeneratedType<"RestUser">;
+    const user2 = { id: "u1" } as Partial<
+      GeneratedType<"RestUser">
+    > as unknown as GeneratedType<"RestUser">;
+    expect(component["compareUser"](user1, user2)).toBe(true);
+  });
+
+  it("should return false from compareUser when user ids differ", () => {
+    const user1 = { id: "u1" } as Partial<
+      GeneratedType<"RestUser">
+    > as unknown as GeneratedType<"RestUser">;
+    const user2 = { id: "u2" } as Partial<
+      GeneratedType<"RestUser">
+    > as unknown as GeneratedType<"RestUser">;
+    expect(component["compareUser"](user1, user2)).toBe(false);
   });
 });
