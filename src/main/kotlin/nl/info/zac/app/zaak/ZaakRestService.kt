@@ -83,8 +83,6 @@ import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
-import nl.info.zac.app.zaak.model.RESTZaakOpschorting
 import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.RESTZakenVrijgevenGegevens
@@ -388,41 +386,6 @@ class ZaakRestService @Inject constructor(
     }
 
     @PATCH
-    @Path("zaak/{uuid}/opschorting")
-    fun opschortenZaak(
-        @PathParam("uuid") zaakUUID: UUID,
-        opschortGegevens: RESTZaakOpschortGegevens
-    ): RestZaak {
-        val loggedInUser = loggedInUserInstance.get()
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        return if (opschortGegevens.indicatieOpschorting) {
-            val suspendedZaak = opschortenZaakHelper.suspendZaak(
-                zaak = zaak,
-                numberOfDays = opschortGegevens.duurDagen,
-                suspensionReason = opschortGegevens.redenOpschorting
-            )
-            restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
-        } else {
-            val resumedZaak = opschortenZaakHelper.resumeZaak(zaak, opschortGegevens.redenOpschorting)
-            restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser)
-        }
-    }
-
-    @GET
-    @Path("zaak/{uuid}/opschorting")
-    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
-        val loggedInUser = loggedInUserInstance.get()
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.lezen)
-        return RESTZaakOpschorting().apply {
-            vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
-        }
-    }
-
-    @PATCH
     @Path("zaak/{uuid}/verlenging")
     fun verlengenZaak(
         @PathParam("uuid") zaakUUID: UUID,
@@ -432,7 +395,6 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.verlengen)
-
         val updatedZaak = opschortenZaakHelper.extendZaak(
             zaak = zaak,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
