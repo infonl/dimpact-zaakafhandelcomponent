@@ -6,12 +6,15 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { NgFor, NgIf } from "@angular/common";
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
   Input,
   OnDestroy,
   Output,
+  ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -53,6 +56,8 @@ import {
 } from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
+import {MatDivider} from "@angular/material/divider";
+import {SmartDocumentsFormComponent} from "../parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 
 /**
  * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
@@ -76,29 +81,34 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   templateUrl: "./parameters-edit-bpmn.component.html",
   styleUrls: ["./parameters-edit-bpmn.component.less"],
   standalone: true,
-  imports: [
-    NgIf,
-    NgFor,
-    ReactiveFormsModule,
-    MatStepperModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatTableModule,
-    TranslateModule,
-    MaterialFormBuilderModule,
-    StaticTextComponent,
-  ],
+    imports: [
+        NgIf,
+        NgFor,
+        ReactiveFormsModule,
+        MatStepperModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatTableModule,
+        TranslateModule,
+        MaterialFormBuilderModule,
+        StaticTextComponent,
+        MatDivider,
+        SmartDocumentsFormComponent,
+    ],
 })
-export class ParametersEditBpmnComponent implements OnDestroy {
+export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
+
+  @ViewChild("smartDocumentsFormRef")
+  smartDocsFormGroup!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
@@ -197,6 +207,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly formBuilder: FormBuilder,
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
+    private readonly cdr: ChangeDetectorRef,
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
     private readonly configuratieService: ConfiguratieService,
@@ -249,6 +260,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       }
       this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
   }
 
   async createForm() {
@@ -505,6 +520,12 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype,
         zaakbeeindigParameters:
           this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
+        smartDocuments: {
+          enabledGlobally:
+            this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
+            false,
+          enabledForZaaktype: this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false,
+        },
       })
       .subscribe({
         next: (data) => {
@@ -515,6 +536,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
+
+          if (this.smartDocsFormGroup?.enabledForZaaktypeValue) {
+            this.smartDocsFormGroup.saveSmartDocumentsMapping().subscribe();
+          }
         },
         error: () => {
           this.isLoading = false;

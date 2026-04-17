@@ -3,36 +3,67 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<form class="flex-col">
-  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
-      <smart-documents-form-item
-        class="flex-1"
-        [formGroup]="formGroup"
-        [informationObjectTypes]="informationObjectTypes"
-        [node]="node"
-        (selectionChange)="handleMatTreeNodeChange($event)"
-      ></smart-documents-form-item>
-    </mat-tree-node>
-    <mat-tree-node
-      *matTreeNodeDef="let node; when: hasChild"
-      class="group"
-      matTreeNodeToggle
+<mat-card *ngIf="enabledGlobally">
+  <mat-card-content>
+    <form [formGroup]="enabledForZaaktypeForm" class="flex-col">
+      <div class="flex-row items-center">
+        <section class="flex-1">
+          <h2>
+            {{ "title.smartdocuments.form" | translate }}
+          </h2>
+          <p>
+            {{ "title.admin.parameters.step.smart-documents" | translate }}
+          </p>
+        </section>
+        <mat-slide-toggle
+          formControlName="enabledForZaaktype"
+          (click)="$event.stopPropagation()"
+          color="primary"
+        ></mat-slide-toggle>
+      </div>
+    </form>
+    <mat-divider class="my-3"></mat-divider>
+    <form
+      class="flex-col"
+      *ngIf="enabledForZaaktypeForm.get('enabledForZaaktype')?.value"
     >
-      <button
-        type="button"
-        mat-icon-button
-        matTreeNodeToggle
-        [attr.aria-label]="'Toggle ' + node.name"
-      >
-        <mat-icon class="mat-icon-rtl-mirror">
-          {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
-        </mat-icon>
-      </button>
-      <div class="flex-1">{{ node.name }}</div>
-      <mat-chip [highlighted]="hasSelected(node.id)">
-        {{ (hasSelected(node.id) ? "actief" : "inactief") | translate }}
-      </mat-chip>
-    </mat-tree-node>
-  </mat-tree>
-</form>
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="flex-1">
+          <smart-documents-form-item
+            class="flex-1"
+            [formGroup]="formGroup"
+            [informationObjectTypes]="informationObjectTypes"
+            [node]="node"
+            (selectionChange)="handleMatTreeNodeChange($event)"
+          ></smart-documents-form-item>
+        </mat-tree-node>
+        <mat-tree-node
+          *matTreeNodeDef="let node; when: hasChild"
+          class="group"
+          matTreeNodeToggle
+        >
+          <button
+            type="button"
+            mat-icon-button
+            matTreeNodeToggle
+            [attr.aria-label]="'Toggle ' + node.name"
+          >
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
+            </mat-icon>
+          </button>
+          <div class="flex-1">{{ node.name }}</div>
+          <mat-chip [highlighted]="hasSelected(node.id)">
+            {{ (hasSelected(node.id) ? "actief" : "inactief") | translate }}
+          </mat-chip>
+        </mat-tree-node>
+      </mat-tree>
+    </form>
+    <div
+      *ngIf="!enabledForZaaktypeForm.get('enabledForZaaktype')?.value"
+      class="form-disabled-feedback"
+    >
+      {{ "msg.smartdocuments.form.disabled" | translate }}
+    </div>
+  </mat-card-content>
+</mat-card>

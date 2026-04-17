@@ -881,42 +881,12 @@
           </form>
         </mat-card-content>
       </mat-card>
-      <mat-card *ngIf="parameters.smartDocuments.enabledGlobally">
-        <mat-card-content>
-          <form [formGroup]="smartDocumentsEnabledForm" class="flex-col">
-            <div class="flex-row items-center">
-              <section class="flex-1">
-                <h2>
-                  {{ "title.smartdocuments.form" | translate }}
-                </h2>
-                <p>
-                  {{
-                    "title.admin.parameters.step.smart-documents" | translate
-                  }}
-                </p>
-              </section>
-              <mat-slide-toggle
-                formControlName="enabledForZaaktype"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-            </div>
-          </form>
-          <mat-divider class="my-3"></mat-divider>
-          <smart-documents-form
-            *ngIf="smartDocumentsEnabledForm.get('enabledForZaaktype')?.value"
-            [zaakTypeUuid]="parameters.zaaktype.uuid ?? ''"
-            #smartDocumentsFormRef
-          >
-          </smart-documents-form>
-          <div
-            *ngIf="!smartDocumentsEnabledForm.get('enabledForZaaktype')?.value"
-            class="form-disabled-feedback"
-          >
-            {{ "msg.smartdocuments.form.disabled" | translate }}
-          </div>
-        </mat-card-content>
-      </mat-card>
+      <smart-documents-form
+        [zaakTypeUuid]="parameters.zaaktype.uuid ?? ''"
+        [enabledGlobally]="parameters.smartDocuments.enabledGlobally"
+        [enabledForZaaktype]="parameters.smartDocuments.enabledForZaaktype"
+        #smartDocumentsFormRef
+      ></smart-documents-form>
       <div class="button-group flex-row flex-wrap">
         <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}

@@ -361,6 +361,12 @@
           </form>
         </mat-card-content>
       </mat-card>
+      <smart-documents-form
+        [zaakTypeUuid]="bpmnZaakafhandelParameters.zaaktype.uuid ?? ''"
+        [enabledGlobally]="bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ?? false"
+        [enabledForZaaktype]="bpmnZaakafhandelParameters.smartDocuments?.enabledForZaaktype ?? false"
+        #smartDocumentsFormRef
+      ></smart-documents-form>
       <div class="button-group flex-row flex-wrap">
         <button mat-raised-button matStepperPrevious>
           {{ "actie.terug" | translate }}

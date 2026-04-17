@@ -246,9 +246,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
 
-  protected smartDocumentsEnabledForm = new FormGroup({
-    enabledForZaaktype: new FormControl<boolean | undefined>(false),
-  });
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
@@ -464,7 +461,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
-    this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
 
     if (this.brpDoelbindingSetupEnabled) {
@@ -688,14 +684,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       ),
       enabled: automaticEmailConfirmation!.enabled ?? false,
     });
-  }
-
-  private createSmartDocumentsEnabledForm() {
-    this.smartDocumentsEnabledForm = this.formBuilder.group({
-      enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
-    }) as FormGroup<{
-      enabledForZaaktype: FormControl<boolean | null | undefined>;
-    }>;
   }
 
   protected isZaaknietontvankelijkParameter(
@@ -1011,9 +999,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       )?.value;
     }
 
-    this.parameters.smartDocuments.enabledForZaaktype = Boolean(
-      this.smartDocumentsEnabledForm.value.enabledForZaaktype,
-    );
+    this.parameters.smartDocuments.enabledForZaaktype =
+      this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
       kvkKoppelen: Boolean(
@@ -1064,11 +1051,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         },
       });
 
-    if (
-      this.parameters.smartDocuments.enabledGlobally &&
-      this.parameters.smartDocuments.enabledForZaaktype
-    ) {
-      this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
+    if (this.smartDocsFormGroup?.enabledForZaaktypeValue) {
+      this.smartDocsFormGroup.saveSmartDocumentsMapping().subscribe();
     }
   }
 

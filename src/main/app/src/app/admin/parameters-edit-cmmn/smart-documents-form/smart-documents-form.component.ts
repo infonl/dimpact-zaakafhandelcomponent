@@ -4,11 +4,20 @@
  */
 
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { Component, effect, Input } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { NgIf } from "@angular/common";
+import { Component, effect, Input, OnInit } from "@angular/core";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -37,17 +46,31 @@ interface FlatNode {
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
   imports: [
+    NgIf,
     ReactiveFormsModule,
     MatButtonModule,
+    MatCardModule,
     MatChipsModule,
+    MatDividerModule,
     MatIconModule,
+    MatSlideToggleModule,
     MatTreeModule,
     TranslateModule,
     SmartDocumentsFormItemComponent,
   ],
 })
-export class SmartDocumentsFormComponent {
+export class SmartDocumentsFormComponent implements OnInit {
   @Input({ required: true }) zaakTypeUuid!: string;
+  @Input({ required: true }) enabledGlobally!: boolean;
+  @Input() enabledForZaaktype: boolean = false;
+
+  enabledForZaaktypeForm = new FormGroup({
+    enabledForZaaktype: new FormControl<boolean>(false),
+  });
+
+  get enabledForZaaktypeValue(): boolean {
+    return Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype);
+  }
 
   formGroup = this.formBuilder.group({});
 
@@ -64,6 +87,12 @@ export class SmartDocumentsFormComponent {
     private formBuilder: FormBuilder,
   ) {
     effect(() => this.prepareDatasource());
+  }
+
+  ngOnInit(): void {
+    this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(
+      this.enabledForZaaktype,
+    );
   }
 
   private prepareDatasource() {
