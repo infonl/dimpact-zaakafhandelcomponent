@@ -47,6 +47,11 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
                     formDataMap shouldContainKey "files"
                     formDataMap shouldNotContainKey "file"
                 }
+
+                Then("the multipart form data requests PDF/A-2b output format") {
+                    val formDataMap = multipartSlot.captured.formDataMap
+                    formDataMap shouldContainKey "pdfa"
+                }
             }
         }
 
