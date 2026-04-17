@@ -199,10 +199,10 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*kontextwork-converter\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*gotenberg\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "ghcr.io/eugenmayer/kontextwork-converter",
+      "depNameTemplate": "gotenberg/gotenberg",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
