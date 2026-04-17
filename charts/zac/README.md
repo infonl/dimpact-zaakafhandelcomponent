@@ -197,6 +197,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
 | office_converter.enabled | bool | `true` |  |
+| office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
 | office_converter.image.tag | string | `"8.30.1@sha256:206a6c708fc6d05257367d9ac902d6c56c50d2e3284d0596ea000814ef97f22c"` |  |
