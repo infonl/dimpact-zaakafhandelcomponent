@@ -20,9 +20,9 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.smartdocuments.model.createsmartDocumentsTemplatesResponse
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
@@ -31,11 +31,11 @@ import java.util.UUID
 class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
+    val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val smartDocumentsTemplatesService = SmartDocumentsTemplatesService(
         entityManager = entityManager,
         smartDocumentsService = smartDocumentsService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
+        zaaktypeConfigurationService = zaaktypeConfigurationService
     )
 
     beforeEach {
@@ -101,7 +101,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
     }
 
     Given("A missing mapping") {
-        val zaaktypeCmmnConfigurationUUID = UUID.randomUUID()
+        val zaaktypeUUID = UUID.randomUUID()
         val zaakafhanderParametersId = 1L
         val templateGroupId = "template group id"
         val templateId = "template id"
@@ -110,13 +110,13 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         val criteriaQuery = mockk<CriteriaQuery<Tuple>>()
         val root = mockk<Root<SmartDocumentsTemplate>>()
         val namePath = mockk<Path<UUID>>()
-        val zaaktypeCmmnConfigurationPath = mockk<Path<ZaaktypeCmmnConfiguration>>()
+        val zaaktypeConfigurationPath = mockk<Path<ZaaktypeConfiguration>>()
         val longPath = mockk<Path<Long>>()
         val stringPath = mockk<Path<String>>()
         val templateGroupPath = mockk<Path<SmartDocumentsTemplateGroup>>()
         val templatePath = mockk<Path<SmartDocumentsTemplate>>()
         val predicate = mockk<Predicate>()
-        val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
+        val zaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
         val typedQuery = mockk<TypedQuery<Tuple>>()
         val tuple = mockk<Tuple>()
 
@@ -134,17 +134,17 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { criteriaQuery.from(SmartDocumentsTemplate::class.java) } returns root
 
         every { root.get<UUID>("informatieObjectTypeUUID") } returns namePath
-        every { root.get<ZaaktypeCmmnConfiguration>("zaaktypeCmmnConfiguration") } returns zaaktypeCmmnConfigurationPath
+        every { root.get<ZaaktypeConfiguration>("zaaktypeConfiguration") } returns zaaktypeConfigurationPath
         every { root.get<SmartDocumentsTemplateGroup>("templateGroup") } returns templateGroupPath
         every { root.get<SmartDocumentsTemplate>("smartDocumentsId") } returns templatePath
 
-        every { zaaktypeCmmnConfigurationPath.get<Long>("id") } returns longPath
+        every { zaaktypeConfigurationPath.get<Long>("id") } returns longPath
         every { templateGroupPath.get<String>("smartDocumentsId") } returns stringPath
 
         every {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration((zaaktypeCmmnConfigurationUUID))
-        } returns zaaktypeCmmnConfiguration
-        every { zaaktypeCmmnConfiguration.id } returns zaakafhanderParametersId
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+        } returns zaaktypeConfiguration
+        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
 
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns listOf(tuple)
@@ -154,7 +154,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         When("information object UUID is requested") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-                    zaaktypeCmmnConfigurationUUID,
+                    zaaktypeUUID,
                     templateGroupId,
                     templateId
                 )
@@ -255,6 +255,22 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
             Then("exception is thrown") {
                 exception.message shouldContain "123abc"
+            }
+        }
+    }
+
+    Given("No zaaktype configuration exists for the given UUID") {
+        val unknownUUID = UUID.randomUUID()
+
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(unknownUUID) } returns null
+
+        When("store templates mapping is called") {
+            val exception = shouldThrow<IllegalArgumentException> {
+                smartDocumentsTemplatesService.storeTemplatesMapping(emptySet(), unknownUUID)
+            }
+
+            Then("exception is thrown with the missing UUID") {
+                exception.message shouldContain unknownUUID.toString()
             }
         }
     }
