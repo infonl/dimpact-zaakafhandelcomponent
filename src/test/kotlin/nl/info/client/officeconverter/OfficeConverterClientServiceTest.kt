@@ -6,12 +6,16 @@ package nl.info.client.officeconverter
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput
 import java.io.ByteArrayInputStream
 
 class OfficeConverterClientServiceTest : BehaviorSpec({
@@ -24,9 +28,10 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
             val document = ByteArrayInputStream("fakeDocumentContent".toByteArray())
             val filename = "fakeFilename.docx"
             val expectedPdf = ByteArrayInputStream("fakePdfContent".toByteArray())
+            val multipartSlot = slot<MultipartFormDataOutput>()
             every { response.bufferEntity() } returns true
             every { response.entity } returns expectedPdf
-            every { officeConverterClient.convert(any()) } returns response
+            every { officeConverterClient.convert(capture(multipartSlot)) } returns response
 
             When("convertToPDF is called") {
                 val result = officeConverterClientService.convertToPDF(document, filename)
@@ -35,6 +40,12 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
                     val resultBytes = result.readAllBytes()
                     resultBytes shouldBe "fakePdfContent".toByteArray()
                     verify(exactly = 1) { officeConverterClient.convert(any()) }
+                }
+
+                Then("the multipart form data contains a part named 'files' matching the Gotenberg API contract") {
+                    val formDataMap = multipartSlot.captured.formDataMap
+                    formDataMap shouldContainKey "files"
+                    formDataMap shouldNotContainKey "file"
                 }
             }
         }
