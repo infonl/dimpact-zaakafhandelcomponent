@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.223](https://img.shields.io/badge/Version-1.0.223-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
+![Version: 1.0.224](https://img.shields.io/badge/Version-1.0.224-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -198,6 +198,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
+| office_converter.containerPort | int | `3000` | Container port the office-converter listens on. Gotenberg default is 3000; override to 8080 if using an alternative image (e.g. kontextwork-converter). |
 | office_converter.enabled | bool | `true` |  |
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
