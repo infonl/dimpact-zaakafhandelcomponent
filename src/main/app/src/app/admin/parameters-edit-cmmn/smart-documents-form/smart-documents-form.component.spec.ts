@@ -129,8 +129,7 @@ describe(SmartDocumentsFormComponent.name, () => {
     });
 
     it("should hide the tree form", () => {
-      const treeForms =
-        localFixture.nativeElement.querySelectorAll("mat-tree");
+      const treeForms = localFixture.nativeElement.querySelectorAll("mat-tree");
       expect(treeForms.length).toBe(0);
     });
   });
@@ -156,9 +155,7 @@ describe(SmartDocumentsFormComponent.name, () => {
     });
 
     it("enabledForZaaktypeValue should return true", () => {
-      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(
-        true,
-      );
+      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(true);
     });
 
     it("should hide disabled feedback", () => {
@@ -168,9 +165,7 @@ describe(SmartDocumentsFormComponent.name, () => {
     });
 
     it("should show the tree form", () => {
-      expect(
-        localFixture.nativeElement.querySelector("mat-tree"),
-      ).toBeTruthy();
+      expect(localFixture.nativeElement.querySelector("mat-tree")).toBeTruthy();
     });
   });
 });

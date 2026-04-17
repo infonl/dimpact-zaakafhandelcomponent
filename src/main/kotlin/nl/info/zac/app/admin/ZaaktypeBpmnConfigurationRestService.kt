@@ -44,6 +44,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
+@Suppress("LongParameterList")
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,

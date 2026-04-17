@@ -54,9 +54,9 @@ import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
+import { SmartDocumentsFormComponent } from "../parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import {SmartDocumentsFormComponent} from "../parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 
 /**
  * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
@@ -80,25 +80,25 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   templateUrl: "./parameters-edit-bpmn.component.html",
   styleUrls: ["./parameters-edit-bpmn.component.less"],
   standalone: true,
-    imports: [
-        NgIf,
-        NgFor,
-        ReactiveFormsModule,
-        MatStepperModule,
-        MatIconModule,
-        MatButtonModule,
-        MatCardModule,
-        MatCheckboxModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatTableModule,
-        TranslateModule,
-        MaterialFormBuilderModule,
-        StaticTextComponent,
-        SmartDocumentsFormComponent,
-    ],
+  imports: [
+    NgIf,
+    NgFor,
+    ReactiveFormsModule,
+    MatStepperModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+    StaticTextComponent,
+    SmartDocumentsFormComponent,
+  ],
 })
 export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
@@ -522,7 +522,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           enabledGlobally:
             this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
             false,
-          enabledForZaaktype: this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false,
+          enabledForZaaktype:
+            this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false,
         },
       })
       .subscribe({

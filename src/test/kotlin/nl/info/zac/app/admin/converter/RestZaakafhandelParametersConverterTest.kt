@@ -209,7 +209,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     smartDocuments shouldBe RestSmartDocuments(
                         enabledGlobally = true,
-                        enabledForZaaktype = true
+                        enabledForZaaktype = false
                     )
                 }
             }

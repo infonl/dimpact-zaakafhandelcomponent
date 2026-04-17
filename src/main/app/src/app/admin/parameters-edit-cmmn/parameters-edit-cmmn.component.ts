@@ -246,7 +246,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
 
-
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
   protected domeinen = this.referentieTabelService.listDomeinen();
