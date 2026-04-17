@@ -166,7 +166,10 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
             domein = zaaktypeBpmnConfiguration.domein,
-            smartDocuments = RestSmartDocuments(true, true),
+            smartDocuments = RestSmartDocuments(
+                enabledGlobally = smartDocumentsService.isEnabled(),
+                enabledForZaaktype = zaaktypeBpmnConfiguration.smartDocumentsIngeschakeld
+            ),
             betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeBpmnConfiguration.getBrpParameters()
