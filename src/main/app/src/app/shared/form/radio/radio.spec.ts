@@ -13,10 +13,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import {
-  MatErrorHarness,
-  MatFormFieldHarness,
-} from "@angular/material/form-field/testing";
+import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { MatRadioModule } from "@angular/material/radio";
 import {
   MatRadioButtonHarness,
@@ -112,9 +109,8 @@ describe(ZacRadio.name, () => {
       expect(await buttons[1].getLabelText()).toBe("Option B");
     });
 
-    it("renders a label for the group", async () => {
-      const formField = await loader.getHarness(MatFormFieldHarness);
-      const label = await formField.getLabel();
+    it("renders a label for the group", () => {
+      const label: HTMLElement = fixture.nativeElement.querySelector("mat-label");
       expect(label).not.toBeNull();
     });
   });
@@ -129,15 +125,14 @@ describe(ZacRadio.name, () => {
       expect(fixture.nativeElement.textContent).toContain("*");
     });
 
-    it("does not show asterisk when control is not required", async () => {
+    it("does not show asterisk when control is not required", () => {
       componentRef.setInput("form", makeForm(null, false));
       componentRef.setInput("key", "choice");
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      const formField = await loader.getHarness(MatFormFieldHarness);
-      const label = await formField.getLabel();
-      expect(label).not.toContain("*");
+      const label: HTMLElement = fixture.nativeElement.querySelector("mat-label");
+      expect(label.textContent).not.toContain("*");
     });
   });
 
