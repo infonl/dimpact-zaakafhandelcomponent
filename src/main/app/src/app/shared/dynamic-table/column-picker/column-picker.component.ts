@@ -3,16 +3,37 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { KeyValuePipe, NgFor } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { MatSelectionListChange } from "@angular/material/list";
-import { TranslateService } from "@ngx-translate/core";
+import { MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import {
+  MatListOption,
+  MatSelectionList,
+  MatSelectionListChange,
+} from "@angular/material/list";
+import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { SortPipe } from "../pipes/sort.pipe";
 import { ColumnPickerValue } from "./column-picker-value";
 
 @Component({
   selector: "zac-column-picker",
   templateUrl: "./column-picker.component.html",
   styleUrls: ["./column-picker.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    KeyValuePipe,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatIcon,
+    MatSelectionList,
+    MatListOption,
+    TranslateModule,
+    SortPipe,
+  ],
 })
 export class ColumnPickerComponent {
   @Input() set columnSrc(columns: Map<string, ColumnPickerValue>) {
@@ -39,11 +60,11 @@ export class ColumnPickerComponent {
 
   constructor(private readonly translate: TranslateService) {}
 
-  menuOpened() {
+  protected menuOpened() {
     this.changed = false;
   }
 
-  selectionChanged($event: MatSelectionListChange) {
+  protected selectionChanged($event: MatSelectionListChange) {
     this.changed = true;
     $event.options.forEach((option) =>
       this._columnSrc.set(
@@ -55,17 +76,17 @@ export class ColumnPickerComponent {
     );
   }
 
-  updateColumns() {
+  protected updateColumns() {
     if (this.changed) {
       this.columnsChanged.emit(this._columnSrc);
     }
   }
 
-  get columns() {
+  protected get columns() {
     return this._columns;
   }
 
-  isSelected(column: string) {
+  protected isSelected(column: string) {
     return this._selection.includes(column);
   }
 }

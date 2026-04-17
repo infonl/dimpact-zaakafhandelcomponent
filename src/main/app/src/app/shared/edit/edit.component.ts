@@ -25,7 +25,7 @@ import { StaticTextComponent } from "../static-text/static-text.component";
     "../static-text/static-text.component.less",
     "./edit.component.less",
   ],
-  standalone: false,
+  standalone: true,
 })
 export abstract class EditComponent
   extends StaticTextComponent

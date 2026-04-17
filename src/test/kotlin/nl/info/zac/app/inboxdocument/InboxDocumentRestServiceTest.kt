@@ -17,10 +17,8 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.inboxdocument.converter.RestInboxDocumentListParametersConverter
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.InboxDocumentService
-import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -33,14 +31,12 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
     val inboxDocumentService = mockk<InboxDocumentService>()
     val drcClientService = mockk<DrcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val listParametersConverter = mockk<RestInboxDocumentListParametersConverter>()
     val policyService = mockk<PolicyService>()
 
     val inboxDocumentRESTService = InboxDocumentRestService(
         inboxDocumentService,
         drcClientService,
         zrcClientService,
-        listParametersConverter,
         policyService
     )
 
@@ -49,7 +45,6 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             inboxDocumentService,
             drcClientService,
             zrcClientService,
-            listParametersConverter,
             policyService
         )
     }
@@ -59,7 +54,6 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             When("listing inbox documents with valid parameters") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
-                val listParameters = InboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
                 val inboxDocument = createInboxDocument(uuid = inboxDocumentUUID)
                 val informatieobjectTypeUUID = UUID.randomUUID()
@@ -68,9 +62,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { listParametersConverter.convert(restListParameters) } returns listParameters
-                every { inboxDocumentService.list(listParameters) } returns listOf(inboxDocument)
-                every { inboxDocumentService.count(listParameters) } returns 1
+                every { inboxDocumentService.list(any()) } returns listOf(inboxDocument)
+                every { inboxDocumentService.count(any()) } returns 1
                 every { drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID) } returns enkelvoudigInformatieObject
 
                 Then("it should return the list of inbox documents with the correct informatieobject type UUID") {
@@ -78,9 +71,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
-                        listParametersConverter.convert(restListParameters)
-                        inboxDocumentService.list(listParameters)
-                        inboxDocumentService.count(listParameters)
+                        inboxDocumentService.list(any())
+                        inboxDocumentService.count(any())
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                     }
 
@@ -91,14 +83,12 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             When("listing inbox documents where informatieobject is not found") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
-                val listParameters = InboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
                 val inboxDocument = createInboxDocument(uuid = inboxDocumentUUID)
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { listParametersConverter.convert(restListParameters) } returns listParameters
-                every { inboxDocumentService.list(listParameters) } returns listOf(inboxDocument)
-                every { inboxDocumentService.count(listParameters) } returns 1
+                every { inboxDocumentService.list(any()) } returns listOf(inboxDocument)
+                every { inboxDocumentService.count(any()) } returns 1
                 every {
                     drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                 } throws NotFoundException("Informatieobject not found")
@@ -118,7 +108,6 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             When("listing multiple inbox documents where only some have missing informatieobjects") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
-                val listParameters = InboxDocumentListParameters()
 
                 // Create 3 documents
                 val inboxDocumentUUID1 = UUID.randomUUID()
@@ -141,11 +130,10 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
-                every { listParametersConverter.convert(restListParameters) } returns listParameters
                 every {
-                    inboxDocumentService.list(listParameters)
+                    inboxDocumentService.list(any())
                 } returns listOf(inboxDocument1, inboxDocument2, inboxDocument3)
-                every { inboxDocumentService.count(listParameters) } returns 3
+                every { inboxDocumentService.count(any()) } returns 3
 
                 // First document returns successfully
                 every {
@@ -167,9 +155,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
-                        listParametersConverter.convert(restListParameters)
-                        inboxDocumentService.list(listParameters)
-                        inboxDocumentService.count(listParameters)
+                        inboxDocumentService.list(any())
+                        inboxDocumentService.count(any())
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID1)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID2)
                         drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID3)

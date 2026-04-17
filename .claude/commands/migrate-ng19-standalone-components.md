@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 71 remaining** (2026-04-09)
+**Progress: 64 remaining** (2026-04-15)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
@@ -22,6 +22,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 | Pattern | Detail |
 |---|---|
+| `<a mat-icon-button>` → use `MatIconAnchor` | `MatAnchor` is for `<a mat-button>`; `MatIconAnchor` is for `<a mat-icon-button>`. Using the wrong one leaves the anchor unstyled → browser default blue (rgb(0,0,238)). Always check the directive on `<a>` elements when adding button imports. |
 | Service mocking (`TestBed.inject` + `jest.spyOn`) | See Spec Conventions → Service mocking below |
 | `MatDialog` in standalone | `fixture.debugElement.injector.get(MatDialog)` — standalone gets its own injector, not root |
 | Shell isolation (`TestBed.overrideComponent`) | `TestBed.overrideComponent(Shell, { remove: { imports: [Real] }, add: { imports: [Stub] } })` |

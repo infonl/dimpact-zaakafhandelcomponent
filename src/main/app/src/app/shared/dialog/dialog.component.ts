@@ -3,21 +3,50 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatButton, MatIconButton } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from "@angular/material/dialog";
+import { MatDivider } from "@angular/material/divider";
+import { MatIcon } from "@angular/material/icon";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { MatToolbar } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialFormBuilderModule } from "../material-form-builder/material-form-builder.module";
 import { FieldType } from "../material-form-builder/model/field-type.enum";
 import { DialogData } from "./dialog-data";
 
 @Component({
   templateUrl: "dialog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    MatToolbar,
+    MatDialogTitle,
+    MatIcon,
+    MatIconButton,
+    MatDivider,
+    MatDialogContent,
+    MatDialogActions,
+    MatButton,
+    MatProgressSpinner,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class DialogComponent implements OnInit {
-  loading = true;
+  protected loading = true;
 
   constructor(
-    public dialogRef: MatDialogRef<DialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private readonly dialogRef: MatDialogRef<DialogComponent>,
+    @Inject(MAT_DIALOG_DATA) protected data: DialogData,
   ) {}
 
   ngOnInit(): void {
@@ -26,7 +55,7 @@ export class DialogComponent implements OnInit {
     });
   }
 
-  confirm(): void {
+  protected confirm(): void {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
@@ -52,11 +81,11 @@ export class DialogComponent implements OnInit {
     });
   }
 
-  cancel(): void {
+  protected cancel(): void {
     this.dialogRef.close(false);
   }
 
-  disabled() {
+  protected disabled() {
     return this.loading || (this.data && this.data.formFieldsInvalid());
   }
 }

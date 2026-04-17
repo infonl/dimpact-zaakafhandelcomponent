@@ -109,7 +109,7 @@ class ZacClient(
         defaultBehandelaarId: String,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
-        brpVerwerkingWaarde: String = "Algemeen",
+        brpVerwerkingregisterWaarde: String = "Algemeen",
         nietOntvankelijkResultaattype: UUID,
         testUser: TestUser
     ): ResponseContent {
@@ -133,7 +133,7 @@ class ZacClient(
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
-                "verwerkingWaarde": "$brpVerwerkingWaarde"
+                "verwerkingregisterWaarde": "$brpVerwerkingregisterWaarde"
               },
               "zaakbeeindigParameters": [],
               "zaakNietOntvankelijkResultaattype": {
@@ -161,7 +161,7 @@ class ZacClient(
         domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
-        brpVerwerkingWaarde: String = "Algemeen",
+        brpVerwerkingregisterWaarde: String = "Algemeen",
         automaticEmailConfirmationReply: String = "reply@example.com",
         fatalDateWarningWindow: Int? = null,
         testUser: TestUser
@@ -394,7 +394,7 @@ class ZacClient(
               "brpDoelbindingen": {
                 "zoekWaarde": "$brpDoelbindingenZoekWaarde",
                 "raadpleegWaarde": "$brpDoelbindingenRaadpleegWaarde",
-                "verwerkingregisterWaarde": "$brpVerwerkingWaarde"
+                "verwerkingregisterWaarde": "$brpVerwerkingregisterWaarde"
               },
               "automaticEmailConfirmation": {
                 "enabled": true,

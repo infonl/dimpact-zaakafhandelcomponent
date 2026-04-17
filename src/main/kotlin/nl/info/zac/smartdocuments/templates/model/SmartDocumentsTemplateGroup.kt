@@ -23,18 +23,18 @@ import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
 
 @Entity
-@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_cmmn_smartdocuments_document_template_group_parameters")
+@Table(schema = FlywayIntegrator.SCHEMA, name = "zaaktype_smartdocuments_document_template_group_parameters")
 @SequenceGenerator(
     schema = FlywayIntegrator.SCHEMA,
-    name = "sq_zaaktype_cmmn_smartdocuments_document_template_group_parameters",
-    sequenceName = "sq_zaaktype_cmmn_smartdocuments_document_template_group_parameters",
+    name = "sq_zaaktype_smartdocuments_document_template_group_parameters",
+    sequenceName = "sq_zaaktype_smartdocuments_document_template_group_parameters",
     allocationSize = 1
 )
 @AllOpen
 class SmartDocumentsTemplateGroup {
     @Id
     @GeneratedValue(
-        generator = "sq_zaaktype_cmmn_smartdocuments_document_template_group_parameters",
+        generator = "sq_zaaktype_smartdocuments_document_template_group_parameters",
         strategy = GenerationType.SEQUENCE
     )
     @Column(name = "id")
