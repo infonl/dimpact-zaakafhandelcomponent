@@ -9,6 +9,7 @@ import { By } from "@angular/platform-browser";
 import { EnhanceMatErrorDirective } from "./mat-zac-error";
 
 @Component({
+  standalone: true,
   template: `<span appEnhanceMatError>Some error message</span>`,
   imports: [EnhanceMatErrorDirective],
 })
