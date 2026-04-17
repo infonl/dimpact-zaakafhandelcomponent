@@ -110,7 +110,8 @@ describe(ZacRadio.name, () => {
     });
 
     it("renders a label for the group", () => {
-      const label: HTMLElement = fixture.nativeElement.querySelector("mat-label");
+      const label: HTMLElement =
+        fixture.nativeElement.querySelector("mat-label");
       expect(label).not.toBeNull();
     });
   });
@@ -131,7 +132,8 @@ describe(ZacRadio.name, () => {
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      const label: HTMLElement = fixture.nativeElement.querySelector("mat-label");
+      const label: HTMLElement =
+        fixture.nativeElement.querySelector("mat-label");
       expect(label.textContent).not.toContain("*");
     });
   });
