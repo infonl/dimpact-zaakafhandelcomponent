@@ -11,18 +11,13 @@ import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-lis
 
 const routes: Routes = [
   {
-    path: "productaanvragen",
-    children: [
-      {
-        path: "inbox",
-        component: InboxProductaanvragenListComponent,
-        resolve: { tabelGegevens: TabelGegevensResolver },
-        data: {
-          werklijst:
-            "INBOX_PRODUCTAANVRAGEN" satisfies GeneratedType<"Werklijst">,
-        },
-      },
-    ],
+    path: "inbox",
+    component: InboxProductaanvragenListComponent,
+    resolve: { tabelGegevens: TabelGegevensResolver },
+    data: {
+      werklijst:
+        "INBOX_PRODUCTAANVRAGEN" satisfies GeneratedType<"Werklijst">,
+    },
   },
 ];
 

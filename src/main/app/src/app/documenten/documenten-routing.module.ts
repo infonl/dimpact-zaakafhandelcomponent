@@ -12,26 +12,21 @@ import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-lis
 
 const routes: Routes = [
   {
-    path: "documenten",
-    children: [
-      {
-        path: "ontkoppelde",
-        component: OntkoppeldeDocumentenListComponent,
-        resolve: { tabelGegevens: TabelGegevensResolver },
-        data: {
-          werklijst:
-            "ONTKOPPELDE_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
-        },
-      },
-      {
-        path: "inbox",
-        component: InboxDocumentenListComponent,
-        resolve: { tabelGegevens: TabelGegevensResolver },
-        data: {
-          werklijst: "INBOX_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
-        },
-      },
-    ],
+    path: "ontkoppelde",
+    component: OntkoppeldeDocumentenListComponent,
+    resolve: { tabelGegevens: TabelGegevensResolver },
+    data: {
+      werklijst:
+        "ONTKOPPELDE_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
+    },
+  },
+  {
+    path: "inbox",
+    component: InboxDocumentenListComponent,
+    resolve: { tabelGegevens: TabelGegevensResolver },
+    data: {
+      werklijst: "INBOX_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
+    },
   },
 ];
 
