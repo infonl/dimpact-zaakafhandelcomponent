@@ -56,7 +56,6 @@ import {
 } from "../model/parameters/process-model-method";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import {MatDivider} from "@angular/material/divider";
 import {SmartDocumentsFormComponent} from "../parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
 
 /**
