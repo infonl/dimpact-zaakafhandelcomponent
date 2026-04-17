@@ -1383,6 +1383,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaak = createZaak()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val formulierBron = createBron()
+            val registrationDate = LocalDate.of(2021, 1, 1)
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -1390,7 +1391,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "type" to productAanvraagType,
                         // aanvraaggegevens must contain at least one key with a map value
                         "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
-                    )
+                    ),
+                    // registration date is a mandatory field in inbox productaanvraag records
+                    // and is always present in the object record
+                    registrationAt = registrationDate
                 ),
                 uuid = productAanvraagObjectUUID
             )
@@ -1429,7 +1433,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     inboxProductaanvraagSlot.captured.run {
                         productaanvraagObjectUUID shouldBe productAanvraagObjectUUID
                         aanvraagdocumentUUID shouldBe null
-                        ontvangstdatum shouldBe null
+                        ontvangstdatum shouldBe registrationDate
                         type shouldBe productAanvraagType
                         initiatorID shouldBe null
                         aantalBijlagen shouldBe 0
