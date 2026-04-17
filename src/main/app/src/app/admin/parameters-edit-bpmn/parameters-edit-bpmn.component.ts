@@ -98,7 +98,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
         TranslateModule,
         MaterialFormBuilderModule,
         StaticTextComponent,
-        MatDivider,
         SmartDocumentsFormComponent,
     ],
 })
@@ -530,8 +529,8 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.isLoading = false;
-          this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
-          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
+          this.bpmnZaakafhandelParameters.id = data.id;
+          this.cmmnBpmnFormGroup.disable({ emitEvent: false });
 
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
