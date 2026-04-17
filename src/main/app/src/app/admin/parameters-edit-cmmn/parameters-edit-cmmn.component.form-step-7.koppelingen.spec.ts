@@ -240,11 +240,11 @@ describe("Koppelingen form step", () => {
   });
 
   describe("Smart documents", () => {
-    it("should initialize smartDocumentsEnabledForm with enabledForZaaktype from parameters", () => {
+    it("should initialize enabledForZaaktype from parameters", () => {
       const component = fixture.componentInstance;
-      expect(
-        component["smartDocumentsEnabledForm"].value.enabledForZaaktype,
-      ).toBe(false);
+      expect(component.parameters.smartDocuments.enabledForZaaktype).toBe(
+        false,
+      );
     });
 
     it("should not show smart documents form when enabledGlobally is false", () => {
