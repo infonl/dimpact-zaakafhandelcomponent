@@ -4,9 +4,19 @@
  *
  */
 
+import { NgIf } from "@angular/common";
 import { booleanAttribute, Component, computed, input } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 import { AbstractControl } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
+import { DagenPipe } from "../../pipes/dagen.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
@@ -14,7 +24,19 @@ import { FormHelper } from "../helpers";
   selector: "zac-date",
   templateUrl: "./date.html",
   styleUrls: ["./date.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+    DagenPipe,
+  ],
 })
 export class ZacDate<
   Form extends Record<string, AbstractControl>,

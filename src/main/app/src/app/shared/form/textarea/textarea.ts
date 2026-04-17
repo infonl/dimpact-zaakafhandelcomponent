@@ -4,15 +4,44 @@
  *
  */
 
+import { NgIf } from "@angular/common";
 import { Component, computed, input, numberAttribute } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MatError,
+  MatFormFieldModule,
+  MatHint,
+  MatLabel,
+  MatSuffix,
+} from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { CdkTextareaAutosize } from "@angular/cdk/text-field";
+import { TranslateModule } from "@ngx-translate/core";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-textarea",
   templateUrl: "./textarea.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatLabel,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSuffix,
+    MatError,
+    MatHint,
+    CdkTextareaAutosize,
+    NgIf,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+  ],
 })
 export class ZacTextarea<
   Form extends Record<string, AbstractControl>,

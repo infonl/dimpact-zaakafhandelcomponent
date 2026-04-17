@@ -50,8 +50,8 @@ describe(ZacInput.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacInput],
       imports: [
+        ZacInput,
         ReactiveFormsModule,
         MaterialModule,
         TranslateModule.forRoot(),

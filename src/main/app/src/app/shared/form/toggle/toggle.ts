@@ -4,16 +4,30 @@
  *
  */
 
+import { NgIf } from "@angular/common";
 import { Component, input } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
-import { MatSlideToggle } from "@angular/material/slide-toggle";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
+import { MatSlideToggle, MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { TranslateModule } from "@ngx-translate/core";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-toggle",
   templateUrl: "./toggle.html",
   styleUrls: ["./toggle.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatSlideToggleModule,
+    MatError,
+    MatHint,
+    MatLabel,
+    NgIf,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+  ],
 })
 export class ZacToggle<
   Form extends Record<string, AbstractControl>,
