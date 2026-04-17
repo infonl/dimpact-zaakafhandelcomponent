@@ -4,6 +4,7 @@
  *
  */
 
+import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { NgIf } from "@angular/common";
 import { Component, computed, input, numberAttribute } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
@@ -17,7 +18,6 @@ import {
 } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { TranslateModule } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";

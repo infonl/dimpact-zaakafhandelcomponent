@@ -14,6 +14,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -144,39 +145,27 @@ describe(ZacDate.name, () => {
   });
 
   describe("Clear button", () => {
-    it("should not show clear button when no value is set", () => {
+    it("should not show clear button when no value is set", async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "date");
       fixture.detectChanges();
 
-      // The clear button has (click)="control()?.reset(null)" and is only rendered when value is truthy
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll("button[matSuffix]"),
-      ) as HTMLElement[];
-      // Only the datepicker-toggle should be present (as mat-datepicker-toggle renders its own button),
-      // not a plain mat-icon-button with clear icon
-      const clearButton = buttons.find((btn) =>
-        btn.querySelector("mat-icon")?.textContent?.trim() === "clear",
+      const clearButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ text: "clear" }),
       );
-      expect(clearButton).toBeUndefined();
+      expect(clearButtons.length).toBe(0);
     });
   });
 
   describe("showAmountOfDays", () => {
-    it("should not show days suffix when showAmountOfDays is false (default)", () => {
+    it("should not show days suffix when showAmountOfDays is false (default)", async () => {
       componentRef.setInput("form", createTestForm());
       componentRef.setInput("key", "date");
       fixture.detectChanges();
 
-      // The span with *ngIf="showAmountOfDays()" should not be rendered
-      const spans = Array.from(
-        fixture.nativeElement.querySelectorAll("[matSuffix]"),
-      ) as HTMLElement[];
-      // The dagen span should not be present
-      const dagenSpan = spans.find((el) =>
-        el.tagName.toLowerCase() === "span",
-      );
-      expect(dagenSpan).toBeFalsy();
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const suffixText = await formField.getSuffixText();
+      expect(suffixText).toBe("");
     });
   });
 

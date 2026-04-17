@@ -6,8 +6,7 @@
 
 import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
 import { Component, input } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";

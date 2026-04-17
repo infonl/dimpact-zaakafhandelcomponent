@@ -13,7 +13,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { MatErrorHarness } from "@angular/material/form-field/testing";
+import {
+  MatErrorHarness,
+  MatFormFieldHarness,
+} from "@angular/material/form-field/testing";
 import { MatRadioModule } from "@angular/material/radio";
 import {
   MatRadioButtonHarness,
@@ -43,10 +46,7 @@ type TestZacRadio = ZacRadio<
 const optionA: TestOption = { id: 1, label: "Option A" };
 const optionB: TestOption = { id: 2, label: "Option B" };
 
-const makeForm = (
-  initialValue: TestOption | null = null,
-  required = false,
-) => {
+const makeForm = (initialValue: TestOption | null = null, required = false) => {
   const validators = required ? [Validators.required] : [];
   return new FormGroup<TestForm>({
     choice: new FormControl<TestOption | null>(initialValue, validators),
@@ -112,8 +112,9 @@ describe(ZacRadio.name, () => {
       expect(await buttons[1].getLabelText()).toBe("Option B");
     });
 
-    it("renders a label for the group", () => {
-      const label = fixture.nativeElement.querySelector("mat-label");
+    it("renders a label for the group", async () => {
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const label = await formField.getLabel();
       expect(label).not.toBeNull();
     });
   });
@@ -128,14 +129,15 @@ describe(ZacRadio.name, () => {
       expect(fixture.nativeElement.textContent).toContain("*");
     });
 
-    it("does not show asterisk when control is not required", () => {
+    it("does not show asterisk when control is not required", async () => {
       componentRef.setInput("form", makeForm(null, false));
       componentRef.setInput("key", "choice");
       componentRef.setInput("options", [optionA]);
       fixture.detectChanges();
 
-      const label = fixture.nativeElement.querySelector("mat-label");
-      expect(label.textContent).not.toContain("*");
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const label = await formField.getLabel();
+      expect(label).not.toContain("*");
     });
   });
 

@@ -14,6 +14,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -33,7 +34,11 @@ interface TestForm extends Record<string, AbstractControl> {
 }
 
 const makeOption = (fields: Partial<TestOption> = {}): TestOption =>
-  ({ id: 1, name: "Option A", ...fields } as Partial<TestOption> as unknown as TestOption);
+  ({
+    id: 1,
+    name: "Option A",
+    ...fields,
+  }) as Partial<TestOption> as unknown as TestOption;
 
 describe(ZacAutoComplete.name, () => {
   let component: ZacAutoComplete<
@@ -48,7 +53,7 @@ describe(ZacAutoComplete.name, () => {
 
   const createTestForm = () =>
     new FormGroup<TestForm>({
-      option: new FormControl<TestOption | null>(null, { nonNullable: true }),
+      option: new FormControl<TestOption | null>(null),
     });
 
   const testOptions: TestOption[] = [
@@ -101,14 +106,11 @@ describe(ZacAutoComplete.name, () => {
       expect(input).toBeTruthy();
     });
 
-    it("should show search icon button when no value is set", () => {
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll("button[matSuffix]"),
-      ) as HTMLElement[];
-      const searchButton = buttons.find(
-        (btn) => btn.querySelector("mat-icon")?.textContent?.trim() === "search",
+    it("should show search icon button when no value is set", async () => {
+      const searchButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ text: "search" }),
       );
-      expect(searchButton).toBeTruthy();
+      expect(searchButtons.length).toBe(1);
     });
   });
 
@@ -186,14 +188,11 @@ describe(ZacAutoComplete.name, () => {
       fixture.detectChanges();
     });
 
-    it("should not show clear button when no value is set", () => {
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll("button[matSuffix]"),
-      ) as HTMLElement[];
-      const clearButton = buttons.find(
-        (btn) => btn.querySelector("mat-icon")?.textContent?.trim() === "clear",
+    it("should not show clear button when no value is set", async () => {
+      const clearButtons = await loader.getAllHarnesses(
+        MatButtonHarness.with({ text: "clear" }),
       );
-      expect(clearButton).toBeUndefined();
+      expect(clearButtons.length).toBe(0);
     });
   });
 

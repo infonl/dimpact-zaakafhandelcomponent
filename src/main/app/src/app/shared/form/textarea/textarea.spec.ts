@@ -13,10 +13,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { MatErrorHarness, MatFormFieldHarness } from "@angular/material/form-field/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputHarness } from "@angular/material/input/testing";
+import {
+  MatErrorHarness,
+  MatFormFieldHarness,
+} from "@angular/material/form-field/testing";
 import { MatInputModule } from "@angular/material/input";
+import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
@@ -29,12 +33,18 @@ const makeForm = (
 ): FormGroup<SimpleForm> => new FormGroup<SimpleForm>({ notes: control });
 
 @Component({
-  template: `<zac-textarea [form]="form" key="notes" [label]="label" />`,
+  template: `<zac-textarea
+    [form]="form"
+    key="notes"
+    [label]="label"
+    [readonly]="readonly"
+  />`,
   standalone: false,
 })
 class HostComponent {
   form = makeForm();
   label: string | undefined = undefined;
+  readonly = false;
 }
 
 describe(ZacTextarea.name, () => {
@@ -76,12 +86,11 @@ describe(ZacTextarea.name, () => {
   });
 
   it("is readonly when the readonly input is set", () => {
-    fixture = TestBed.createComponent(HostComponent);
-    host = fixture.componentInstance;
+    host.readonly = true;
     fixture.detectChanges();
-    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector("textarea");
-    // readonly binding is driven by component input — test via attribute
-    expect(textarea.readOnly).toBe(false);
+    const textarea: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector("textarea");
+    expect(textarea.readOnly).toBe(true);
   });
 
   it("is disabled when the form control is disabled", async () => {
@@ -129,17 +138,17 @@ describe(ZacTextarea.name, () => {
     expect(hasCounter).toBe(false);
   });
 
-  it("shows clear button when the control has a non-empty value", () => {
+  it("shows clear button when the control has a non-empty value", async () => {
     host.form.controls.notes.setValue("some text");
     fixture.detectChanges();
-    const clearBtn: HTMLElement = fixture.nativeElement.querySelector("button[mat-icon-button]");
-    expect(clearBtn).toBeTruthy();
+    const buttons = await loader.getAllHarnesses(MatButtonHarness);
+    expect(buttons.length).toBeGreaterThan(0);
   });
 
-  it("hides clear button when the control is empty", () => {
+  it("hides clear button when the control is empty", async () => {
     host.form.controls.notes.setValue("");
     fixture.detectChanges();
-    const clearBtn: HTMLElement = fixture.nativeElement.querySelector("button[mat-icon-button]");
-    expect(clearBtn).toBeNull();
+    const buttons = await loader.getAllHarnesses(MatButtonHarness);
+    expect(buttons.length).toBe(0);
   });
 });

@@ -7,19 +7,25 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSlideToggleHarness } from "@angular/material/slide-toggle/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { ZacToggle } from "./toggle";
 
 type SimpleForm = { enabled: FormControl<boolean | null> };
 
-const makeForm = (control: FormControl<boolean | null> = new FormControl(false)): FormGroup<SimpleForm> =>
-  new FormGroup<SimpleForm>({ enabled: control });
+const makeForm = (
+  control: FormControl<boolean | null> = new FormControl(false),
+): FormGroup<SimpleForm> => new FormGroup<SimpleForm>({ enabled: control });
 
 @Component({
   template: `<zac-toggle [form]="form" key="enabled" [label]="label" />`,

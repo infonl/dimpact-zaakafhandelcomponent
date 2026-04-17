@@ -4,11 +4,11 @@
  *
  */
 
+import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatError, MatHint } from "@angular/material/form-field";
-import { NgIf } from "@angular/common";
 import { TranslateModule } from "@ngx-translate/core";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";

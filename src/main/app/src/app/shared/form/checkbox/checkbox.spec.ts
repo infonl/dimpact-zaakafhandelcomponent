@@ -7,19 +7,25 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { MatCheckboxModule } from "@angular/material/checkbox";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { ZacCheckbox } from "./checkbox";
 
 type SimpleForm = { active: FormControl<boolean | null> };
 
-const makeForm = (control: FormControl<boolean | null> = new FormControl(false)): FormGroup<SimpleForm> =>
-  new FormGroup<SimpleForm>({ active: control });
+const makeForm = (
+  control: FormControl<boolean | null> = new FormControl(false),
+): FormGroup<SimpleForm> => new FormGroup<SimpleForm>({ active: control });
 
 @Component({
   template: `<zac-checkbox [form]="form" key="active" [label]="label" />`,
