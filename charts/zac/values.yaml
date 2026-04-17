@@ -548,6 +548,9 @@ office_converter:
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
+  # Gotenberg environment variables (see https://gotenberg.dev/docs/configuration)
+  env:
+    CHROMIUM_DISABLE_ROUTES: "true"
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
