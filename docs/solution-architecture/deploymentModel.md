@@ -14,7 +14,7 @@ graph TB
             ZAC[ZAC Application<br/>Docker Container]
             SOLR[Apache Solr<br/>Search Engine]
             OPA[OPA<br/>Open Policy Agent]
-            OFFICE[Office Converter<br/>Document Conversion]
+            OFFICE[Gotenberg<br/>Document Conversion]
         end
         
         subgraph "Cron Jobs"

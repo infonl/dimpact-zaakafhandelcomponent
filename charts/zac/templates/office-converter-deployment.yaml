@@ -35,7 +35,14 @@ spec:
           imagePullPolicy: {{ .Values.office_converter.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 3000
+          {{- with .Values.office_converter.env }}
+          env:
+            {{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.office_converter.resources | nindent 12 }}
       {{- with .Values.office_converter.nodeSelector }}

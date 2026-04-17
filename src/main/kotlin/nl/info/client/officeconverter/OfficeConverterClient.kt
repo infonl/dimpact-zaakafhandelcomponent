@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput
 
-@Path("conversion")
+@Path("forms/libreoffice/convert")
 @RegisterRestClient(configKey = "Office-Converter-Client")
 interface OfficeConverterClient {
     @POST

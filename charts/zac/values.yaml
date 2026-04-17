@@ -543,11 +543,14 @@ office_converter:
   # the url should be the url office-converter can be reached on from ZAC ( for example: http://release-office-converter.default.svc.cluster.local )
   # url: ""
   image:
-    repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"
+    repository: gotenberg/gotenberg
+    tag: "8.30.1@sha256:206a6c708fc6d05257367d9ac902d6c56c50d2e3284d0596ea000814ef97f22c"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
+  # Gotenberg environment variables (see https://gotenberg.dev/docs/configuration)
+  env:
+    CHROMIUM_DISABLE_ROUTES: "true"
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
