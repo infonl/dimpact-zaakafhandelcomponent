@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
--- Move smartdocuments_ingeschakeld from zaaktype_cmmn_configuration to the base zaaktype_configuration table
+-- This migration moves smartdocuments_ingeschakeld from the CMMN-specific
+-- zaaktype_cmmn_configuration table to the shared zaaktype_configuration table,
+-- making SmartDocuments opt-in available for both BPMN and CMMN zaaktypes.
+-- The filename is retained for migration history compatibility.
 ALTER TABLE ${schema}.zaaktype_configuration
     ADD COLUMN smartdocuments_ingeschakeld BOOLEAN NOT NULL DEFAULT FALSE;
 

@@ -102,8 +102,10 @@ class SmartDocumentsTemplatesService @Inject constructor(
         }
     }
 
-    private fun getZaaktypeConfigurationId(zaaktypeUUID: UUID) =
-        zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)?.id
+    private fun getZaaktypeConfigurationId(zaaktypeUUID: UUID): Long =
+        requireNotNull(zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)?.id) {
+            "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID"
+        }
 
     /**
      * Deletes all template groups and templates for a zaaktypeConfiguration

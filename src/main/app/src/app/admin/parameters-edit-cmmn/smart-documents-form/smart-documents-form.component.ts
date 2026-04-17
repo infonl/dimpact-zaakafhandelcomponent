@@ -5,7 +5,13 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { NgIf } from "@angular/common";
-import { Component, effect, Input, OnInit } from "@angular/core";
+import {
+  Component,
+  effect,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -59,7 +65,7 @@ interface FlatNode {
     SmartDocumentsFormItemComponent,
   ],
 })
-export class SmartDocumentsFormComponent implements OnInit {
+export class SmartDocumentsFormComponent implements OnChanges {
   @Input({ required: true }) zaakTypeUuid!: string;
   @Input({ required: true }) enabledGlobally!: boolean;
   @Input() enabledForZaaktype: boolean = false;
@@ -89,10 +95,12 @@ export class SmartDocumentsFormComponent implements OnInit {
     effect(() => this.prepareDatasource());
   }
 
-  ngOnInit(): void {
-    this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(
-      this.enabledForZaaktype,
-    );
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["enabledForZaaktype"]) {
+      this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(
+        this.enabledForZaaktype,
+      );
+    }
   }
 
   private prepareDatasource() {
