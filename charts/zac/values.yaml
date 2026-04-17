@@ -270,6 +270,20 @@ resources:
     cpu: 100m
     memory: 1Gi
 
+# -- liveness probe configuration for the main ZAC container
+livenessProbe:
+  # -- Path used for the liveness probe.
+  # Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak
+  # catalogus is unreachable for longer than failureThreshold * periodSeconds.
+  # The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout /
+  # readTimeout configured, causing stale TCP connections in the pool after extended outages.
+  # Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts
+  # are configured on ZGW-API-Client in the ZAC application.
+  path: /health/ready
+  failureThreshold: 16
+  periodSeconds: 30
+  timeoutSeconds: 1
+
 # autoscaling parameters
 autoscaling:
   enabled: false
