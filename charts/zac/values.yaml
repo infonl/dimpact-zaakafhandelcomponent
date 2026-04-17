@@ -576,6 +576,9 @@ office_converter:
     requests:
       cpu: 100m
       memory: 512Mi
+  # -- Container port the office-converter listens on. Gotenberg default is 3000;
+  # override to 8080 if using an alternative image (e.g. kontextwork-converter).
+  containerPort: 3000
   service:
     type: ClusterIP
     port: 80
