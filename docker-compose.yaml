@@ -264,7 +264,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
+    image: solr:9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
     ports:
       - "8983:8983"
     volumes:
@@ -392,11 +392,13 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: ghcr.io/eugenmayer/kontextwork-converter:1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
-    platform: linux/amd64
+    image: gotenberg/gotenberg:8.30.1@sha256:206a6c708fc6d05257367d9ac902d6c56c50d2e3284d0596ea000814ef97f22c
+    # Disable Chromium routes since we only use LibreOffice for document conversion.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-routes=true"
     ports:
-      - "8083:8080"
+      - "8083:3000"
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
@@ -443,7 +445,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.0.0@sha256:a03d9e604e4dba58c5e64458a879701f46ef64af1f596058aacfad9aacdcab34
+    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -814,7 +816,7 @@ services:
       - KEYCLOAK_ADMIN_CLIENT_SECRET=zaakafhandelcomponentAdminClientSecret
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
-      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:8080
+      - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
       - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
