@@ -16,7 +16,6 @@ import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.logging.Logger
 
 @ApplicationScoped
 @Transactional
@@ -27,7 +26,6 @@ class InboxProductaanvraagService @Inject constructor(
 ) {
     companion object {
         private const val LIKE = "%%%s%%"
-        private val LOG = Logger.getLogger(InboxProductaanvraagService::class.java.name)
     }
 
     fun create(inboxProductaanvraag: InboxProductaanvraag) {
@@ -45,7 +43,6 @@ class InboxProductaanvraagService @Inject constructor(
         entityManager.find(InboxProductaanvraag::class.java, id)
 
     private fun query(listParameters: InboxProductaanvraagListParameters): List<InboxProductaanvraag> {
-        LOG.info("Querying inbox productaanvragen with parameters: $listParameters")
         val builder = entityManager.criteriaBuilder
         val query = builder.createQuery(InboxProductaanvraag::class.java)
         val root = query.from(InboxProductaanvraag::class.java)
