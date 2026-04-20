@@ -68,7 +68,7 @@ export class GoedkeurenFormulier extends AbstractTaakFormulier {
     return [
       {
         type: "plain-text",
-        key: "titel",
+        key: "intro",
         control: this.formBuilder.control(
           this.translateService.instant("msg.goedkeuring.behandelen", {
             zaaknummer: taak.zaakIdentificatie,
