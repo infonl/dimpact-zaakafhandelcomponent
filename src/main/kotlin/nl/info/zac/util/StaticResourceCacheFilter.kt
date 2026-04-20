@@ -14,6 +14,7 @@ import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpServletResponseWrapper
+import java.io.PrintWriter
 
 /**
  * Overrides Undertow's default `no-cache, no-store` headers on static assets.
@@ -63,27 +64,31 @@ class StaticResourceCacheFilter : Filter {
         override fun setHeader(name: String, value: String) { if (!isCacheHeader(name)) super.setHeader(name, value) }
         override fun addHeader(name: String, value: String) { if (!isCacheHeader(name)) super.addHeader(name, value) }
         override fun setIntHeader(name: String, value: Int) {
-            if (!isCacheHeader(
-                    name
-                )
-            ) {
+            if (!isCacheHeader(name)) {
                 super.setIntHeader(name, value)
             }
         }
+
         override fun setDateHeader(name: String, date: Long) {
-            if (!isCacheHeader(
-                    name
-                )
-            ) {
+            if (!isCacheHeader(name)) {
                 super.setDateHeader(name, date)
             }
         }
 
-        override fun getOutputStream(): ServletOutputStream {
+        private fun applyCacheHeaders() {
             super.setHeader("Cache-Control", cacheControl)
             super.setHeader("Pragma", "")
             super.setHeader("Expires", "-1")
+        }
+
+        override fun getOutputStream(): ServletOutputStream {
+            applyCacheHeaders()
             return super.getOutputStream()
+        }
+
+        override fun getWriter(): PrintWriter {
+            applyCacheHeaders()
+            return super.getWriter()
         }
     }
 
