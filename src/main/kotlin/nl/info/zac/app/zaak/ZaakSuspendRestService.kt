@@ -29,7 +29,7 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import java.util.UUID
 
-// note: do not use 'zaken/zaak' as path, as it will conflict with existing endpoints in other REST services
+// note: keep the class-level path as 'zaken'; using @Path("zaken/zaak") here would conflict with existing endpoints in other REST services
 @Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
