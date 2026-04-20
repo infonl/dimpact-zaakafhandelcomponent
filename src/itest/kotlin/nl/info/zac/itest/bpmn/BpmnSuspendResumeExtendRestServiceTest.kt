@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
  * and verifies that the zaak suspension state changes correctly after
  * the SuspendZaakDelegate and ResumeZaakDelegate service tasks execute.
  */
-class BpmnSuspendResumeRestServiceTest : BehaviorSpec({
+class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
