@@ -62,8 +62,18 @@ class StaticResourceCacheFilter : Filter {
 
         override fun setHeader(name: String, value: String) { if (!isCacheHeader(name)) super.setHeader(name, value) }
         override fun addHeader(name: String, value: String) { if (!isCacheHeader(name)) super.addHeader(name, value) }
-        override fun setIntHeader(name: String, value: Int) { if (!isCacheHeader(name)) super.setIntHeader(name, value) }
-        override fun setDateHeader(name: String, date: Long) { if (!isCacheHeader(name)) super.setDateHeader(name, date) }
+        override fun setIntHeader(name: String, value: Int) {
+            if (!isCacheHeader(
+                    name
+                )
+            ) super.setIntHeader(name, value)
+        }
+        override fun setDateHeader(name: String, date: Long) {
+            if (!isCacheHeader(
+                    name
+                )
+            ) super.setDateHeader(name, date)
+        }
 
         override fun getOutputStream(): ServletOutputStream {
             super.setHeader("Cache-Control", cacheControl)
@@ -76,6 +86,7 @@ class StaticResourceCacheFilter : Filter {
     companion object {
         // Angular build output: 8-character uppercase content hash in filename, e.g. main-A1B2C3D4.js
         private val HASHED_RESOURCE_REGEX = Regex("""-[A-Z0-9]{8}\.(js|css)(\.map)?$""")
+
         // cache-busting.js generates an 8-character lowercase hex MD5 substring, e.g. 395afa0f
         private val MD5_VERSION_REGEX = Regex("""^[0-9a-f]{8}$""")
     }
