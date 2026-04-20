@@ -42,7 +42,6 @@ import java.util.logging.Logger
 @Suppress("LongParameterList")
 class BpmnDocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val documentCreationService: DocumentCreationService,
     private val documentCreationDataConverter: DocumentCreationDataConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
