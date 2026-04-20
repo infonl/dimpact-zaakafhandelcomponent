@@ -16,7 +16,11 @@
 
 <form [formGroup]="form" (submit)="opschorten()">
   <mat-dialog-content>
-    <zac-input [form]="form" key="numberOfDays" label="opschortduur"></zac-input>
+    <zac-input
+      [form]="form"
+      key="numberOfDays"
+      label="opschortduur"
+    ></zac-input>
     <zac-date
       [form]="form"
       key="einddatumGepland"
