@@ -49,7 +49,10 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
                 // rethrow as a FlowableException
                 // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
-                throw FlowableZgwValidationErrorException("Failed to close zaak", zgwValidationErrorException)
+                throw FlowableZgwValidationErrorException(
+                    "Failed to close zaak with UUID: '${zaak.uuid}'",
+                    zgwValidationErrorException
+                )
             }
         } else {
             val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)

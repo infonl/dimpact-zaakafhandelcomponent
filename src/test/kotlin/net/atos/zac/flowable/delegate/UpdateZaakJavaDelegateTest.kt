@@ -177,7 +177,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             }
 
             Then("a FlowableZgwValidationErrorException is thrown") {
-                exception.message shouldBe "Failed to end zaak"
+                exception.message shouldBe "Failed to close zaak with UUID: '${zaak.uuid}'"
             }
         }
     }
