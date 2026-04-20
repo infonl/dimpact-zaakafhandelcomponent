@@ -275,6 +275,20 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         }
     }
 
+    Given("SmartDocuments is enabled but no zaaktype configuration exists") {
+        val zaaktypeUUID = UUID.randomUUID()
+        every { smartDocumentsService.isEnabled() } returns true
+        every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID) } returns null
+
+        When("templates mapping is requested") {
+            val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)
+
+            Then("it returns an empty set") {
+                mappings shouldBe emptySet()
+            }
+        }
+    }
+
     Given("SmartDocuments is disabled") {
         every { smartDocumentsService.isEnabled() } returns false
 
