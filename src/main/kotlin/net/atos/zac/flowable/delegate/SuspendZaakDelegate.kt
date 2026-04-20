@@ -6,6 +6,7 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -29,7 +30,12 @@ class SuspendZaakDelegate : AbstractDelegate() {
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val zaakRechten = flowableHelper.policyService.readZaakRechten(zaak, loggedInUser)
+        assertPolicy(zaakRechten.opschorten)
+        // make sure the zaak is not already suspended
+        assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
 
         LOG.fine(
             "Suspending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +

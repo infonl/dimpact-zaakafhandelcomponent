@@ -44,7 +44,7 @@ class ZaakSuspendRestService @Inject constructor(
 ) {
     @PATCH
     @Path("zaak/{uuid}/opschorting")
-    fun opschortenZaak(
+    fun suspendOrResumeZaak(
         @PathParam("uuid") zaakUUID: UUID,
         opschortGegevens: RESTZaakOpschortGegevens
     ): RestZaak {

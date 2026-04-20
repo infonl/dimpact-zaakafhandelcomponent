@@ -75,7 +75,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
             When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.opschortenZaak(zaakUUID, opschortGegevens)
+                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
 
                 Then("the suspended zaak is returned") {
                     result shouldBe restZaak
@@ -99,7 +99,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
             When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.opschortenZaak(zaakUUID, opschortGegevens)
+                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
 
                 Then("the resumed zaak is returned") {
                     result shouldBe restZaak

@@ -5,6 +5,7 @@
 package net.atos.zac.flowable
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.inject.Inject
 import net.atos.zac.event.EventingService
@@ -13,9 +14,11 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mailtemplates.MailTemplateService
+import nl.info.zac.policy.PolicyService
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
@@ -45,6 +48,8 @@ class FlowableHelper @Inject constructor(
     val ztcClientService: ZtcClientService,
     val flowableHistoryService: HistoryService,
     val drcClientService: DrcClientService,
+    val policyService: PolicyService,
+    val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object FlowableHelperProvider {
         fun getInstance(): FlowableHelper = CDI.current().select(FlowableHelper::class.java).get()

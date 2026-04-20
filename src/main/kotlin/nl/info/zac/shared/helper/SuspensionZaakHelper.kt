@@ -43,6 +43,7 @@ class SuspensionZaakHelper @Inject constructor(
     fun suspendZaak(zaak: Zaak, numberOfDays: Long, suspensionReason: String?): Zaak {
         val loggedInUser = loggedInUserInstance.get()
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).opschorten)
+        // make sure the zaak is not already suspended
         assertPolicy(zaak.opschorting.reden.isNullOrEmpty())
 
         val zaakUUID = zaak.uuid
