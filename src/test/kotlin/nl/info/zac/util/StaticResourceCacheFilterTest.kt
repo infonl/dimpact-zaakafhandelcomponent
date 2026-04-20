@@ -99,12 +99,6 @@ class StaticResourceCacheFilterTest : BehaviorSpec({
             Then("Cache-Control is set to immutable") {
                 response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
             }
-            Then("Pragma is cleared") {
-                response.headers["Pragma"] shouldBe ""
-            }
-            Then("Expires is cleared") {
-                response.headers["Expires"] shouldBe "-1"
-            }
         }
     }
 
@@ -182,11 +176,33 @@ class StaticResourceCacheFilterTest : BehaviorSpec({
             Then("Cache-Control is set to no-cache") {
                 response.headers["Cache-Control"] shouldBe "no-cache"
             }
-            Then("Pragma is cleared") {
-                response.headers["Pragma"] shouldBe ""
+        }
+    }
+
+    Given("Undertow attempts to set cache-related headers on a matched response") {
+        val response = StubHttpServletResponse()
+        val responseSlot = slot<HttpServletResponse>()
+        val chain = mockk<FilterChain> {
+            every { doFilter(any(), capture(responseSlot)) } answers {
+                responseSlot.captured.setHeader("Cache-Control", "no-cache, no-store, must-revalidate")
+                responseSlot.captured.addHeader("Pragma", "no-cache")
+                responseSlot.captured.setIntHeader("Expires", 0)
+                responseSlot.captured.addIntHeader("Expires", 0)
+                responseSlot.captured.setDateHeader("Expires", 0L)
+                responseSlot.captured.addDateHeader("Expires", 0L)
+                responseSlot.captured.outputStream
             }
-            Then("Expires is cleared") {
-                response.headers["Expires"] shouldBe "-1"
+        }
+        When("the filter processes the request") {
+            filter.doFilter(request("/chunk-A1B2C3D4.js"), response, chain)
+            Then("Undertow's Cache-Control is suppressed and replaced with immutable") {
+                response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
+            }
+            Then("Undertow's Pragma is suppressed") {
+                response.headers.containsKey("Pragma") shouldBe false
+            }
+            Then("Undertow's Expires is suppressed") {
+                response.headers.containsKey("Expires") shouldBe false
             }
         }
     }

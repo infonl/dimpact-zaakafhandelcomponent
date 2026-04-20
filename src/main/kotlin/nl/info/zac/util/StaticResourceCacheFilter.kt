@@ -55,7 +55,7 @@ class StaticResourceCacheFilter : Filter {
         }
     }
 
-    /** Blocks Undertow from setting cache-related headers; injects the correct value on [getOutputStream]. */
+    /** Blocks Undertow from setting cache-related headers; injects the correct value on [getOutputStream] and [getWriter]. */
     private class CacheControlResponseWrapper(
         response: HttpServletResponse,
         private val cacheControl: String
@@ -86,8 +86,6 @@ class StaticResourceCacheFilter : Filter {
 
         private fun applyCacheHeaders() {
             super.setHeader("Cache-Control", cacheControl)
-            super.setHeader("Pragma", "")
-            super.setHeader("Expires", "-1")
         }
 
         override fun getOutputStream(): ServletOutputStream {
