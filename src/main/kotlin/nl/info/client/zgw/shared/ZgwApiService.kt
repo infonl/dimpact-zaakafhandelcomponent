@@ -106,49 +106,38 @@ class ZgwApiService @Inject constructor(
         )
     }
 
-    fun getResultaat(zaakTypeURI: URI, resultaatTypeOmschrijving: String): ResultaatType {
+    fun getResultaatType(zaakTypeURI: URI, resultaatTypeDescription: String): ResultaatType {
         val resultaattypen = ztcClientService.readResultaattypen(zaakTypeURI)
         return filterResultaattype(
-            resultaattypen,
-            resultaatTypeOmschrijving,
-            zaakTypeURI
+            resultaattypes = resultaattypen,
+            description = resultaatTypeDescription,
+            zaaktypeURI = zaakTypeURI
         )
     }
 
     fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType = ztcClientService.readResultaattype(resultaatTypeUUID)
 
     /**
-     * Ends [Zaak]. Creating a new Eind [Status] for the [Zaak].
-     *
-     * @param zaak [Zaak]
-     * @param eindstatusToelichting Toelichting for the Eind [Status].
-     */
-    fun endZaak(zaak: Zaak, resultaatTypeOmschrijving: String, eindstatusToelichting: String) {
-        val resultaattype = getResultaat(zaak.zaaktype, resultaatTypeOmschrijving)
-        closeZaak(zaak, resultaattype.url.extractUuid(), eindstatusToelichting)
-    }
-
-    /**
-     * Close a [Zaak].
+     * Closes a [Zaak].
      *
      * This function will also process the brondatum procedure when needed for
      * the given [resultaatTypeUUID].
      *
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
-     * @param toelichting [String] of the [Resultaat] and [Status].
+     * @param description [String] of the [Resultaat] and [Status].
      */
-    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, toelichting: String?) {
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSub().apply {
             resultaattype = resultaatType.url
-            this.toelichting = toelichting
+            this.toelichting = description
         }
         val statusType = getStatusTypeEind(zaak.zaaktype)
         val status = StatusSub().apply {
             statustype = statusType.url
             datumStatusGezet = ZonedDateTime.now().toOffsetDateTime()
-            statustoelichting = toelichting
+            statustoelichting = description
         }
 
         val zaakSub = zaak.toZaakSub()
@@ -158,7 +147,7 @@ class ZgwApiService @Inject constructor(
             this.resultaat = resultaat
             this.status = status
         }
-        this.processBrondatumProcedure(zaakAfsluiten)
+        processBrondatumProcedure(zaakAfsluiten)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
