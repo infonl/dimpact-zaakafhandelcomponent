@@ -73,7 +73,8 @@ class StaticResourceCacheFilterTest : BehaviorSpec({
     val filter = StaticResourceCacheFilter()
 
     fun request(path: String, queryParam: String? = null) = mockk<HttpServletRequest> {
-        every { servletPath } returns path
+        every { requestURI } returns path
+        every { contextPath } returns ""
         every { getParameter("v") } returns queryParam
     }
 

@@ -19,10 +19,13 @@ import java.io.PrintWriter
 /**
  * Overrides Undertow's default `no-cache, no-store` headers on static assets.
  *
- * Undertow writes response headers when [getOutputStream] is first called — at that point the
- * response is not yet committed, so headers can still be set. A [CacheControlResponseWrapper]
- * intercepts that call to inject the correct Cache-Control value and suppress the legacy
+ * Undertow writes response headers when [getOutputStream] or [getWriter] is first called — at that
+ * point the response is not yet committed, so headers can still be set. A [CacheControlResponseWrapper]
+ * intercepts both calls to inject the correct Cache-Control value and suppress the legacy
  * `Pragma` and `Expires` headers Undertow also sets.
+ *
+ * Path matching uses `requestURI.removePrefix(contextPath)` rather than `servletPath`, because
+ * `servletPath` can be empty for the default servlet mapping (`/`).
  *
  * - Hashed JS/CSS bundles: `immutable` — content hash guarantees freshness
  * - Versioned `/assets/` files with a valid `?v=` MD5 param: `immutable`
@@ -33,14 +36,16 @@ class StaticResourceCacheFilter : Filter {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val wrappedResponse = (request as? HttpServletRequest)
-            ?.let { resolveCacheControl(it) }
-            ?.let { CacheControlResponseWrapper(response as HttpServletResponse, it) }
+            ?.let { httpRequest -> resolveCacheControl(httpRequest) }
+            ?.let { cacheControl ->
+                (response as? HttpServletResponse)?.let { CacheControlResponseWrapper(it, cacheControl) }
+            }
             ?: response
         chain.doFilter(request, wrappedResponse)
     }
 
     private fun resolveCacheControl(request: HttpServletRequest): String? {
-        val path = request.servletPath
+        val path = request.requestURI.removePrefix(request.contextPath)
         return when {
             HASHED_RESOURCE_REGEX.containsMatchIn(path) ||
                 (path.startsWith("/assets/") && MD5_VERSION_REGEX.matches(request.getParameter("v") ?: "")) ->
