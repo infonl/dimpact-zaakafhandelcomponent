@@ -5,13 +5,7 @@
 
 import { FlatTreeControl } from "@angular/cdk/tree";
 import { NgIf } from "@angular/common";
-import {
-  Component,
-  effect,
-  Input,
-  OnChanges,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, effect, Input } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -65,17 +59,19 @@ interface FlatNode {
     SmartDocumentsFormItemComponent,
   ],
 })
-export class SmartDocumentsFormComponent implements OnChanges {
+export class SmartDocumentsFormComponent {
   @Input({ required: true }) zaakTypeUuid!: string;
   @Input({ required: true }) enabledGlobally!: boolean;
-  @Input() enabledForZaaktype: boolean = false;
+  @Input() set enabledForZaaktype(value: boolean) {
+    this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(value);
+  }
 
   enabledForZaaktypeForm = new FormGroup({
     enabledForZaaktype: new FormControl<boolean>(false),
   });
 
   get enabledForZaaktypeValue(): boolean {
-    return Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype);
+    return this.enabledGlobally && Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype);
   }
 
   formGroup = this.formBuilder.group({});
@@ -93,14 +89,6 @@ export class SmartDocumentsFormComponent implements OnChanges {
     private formBuilder: FormBuilder,
   ) {
     effect(() => this.prepareDatasource());
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["enabledForZaaktype"]) {
-      this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(
-        this.enabledForZaaktype,
-      );
-    }
   }
 
   private prepareDatasource() {

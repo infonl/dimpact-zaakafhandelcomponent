@@ -106,7 +106,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
     new EventEmitter<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
-  smartDocsFormGroup!: SmartDocumentsFormComponent;
+  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
@@ -523,21 +523,21 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
             this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
             false,
           enabledForZaaktype:
-            this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false,
+            this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
         },
       })
       .subscribe({
         next: (data) => {
           this.isLoading = false;
-          this.bpmnZaakafhandelParameters.id = data.id;
-          this.cmmnBpmnFormGroup.disable({ emitEvent: false });
+          this.bpmnZaakafhandelParameters.id = data.id; // needed for next save
+          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
 
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
 
-          if (this.smartDocsFormGroup?.enabledForZaaktypeValue) {
-            this.smartDocsFormGroup.saveSmartDocumentsMapping().subscribe();
+          if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+            this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
           }
         },
         error: () => {

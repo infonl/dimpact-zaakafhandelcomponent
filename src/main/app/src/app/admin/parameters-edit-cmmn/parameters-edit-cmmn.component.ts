@@ -115,7 +115,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     new EventEmitter<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
-  smartDocsFormGroup!: SmartDocumentsFormComponent;
+  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -357,8 +357,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
-    if (this.smartDocsFormGroup) {
-      this.smartDocsFormGroup.saveSmartDocumentsMapping();
+    if (this.smartDocumentsFormComponent) {
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 
@@ -999,7 +999,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
 
     this.parameters.smartDocuments.enabledForZaaktype =
-      this.smartDocsFormGroup?.enabledForZaaktypeValue ?? false;
+      this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
       kvkKoppelen: Boolean(
@@ -1050,8 +1050,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         },
       });
 
-    if (this.smartDocsFormGroup?.enabledForZaaktypeValue) {
-      this.smartDocsFormGroup.saveSmartDocumentsMapping().subscribe();
+    if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
     }
   }
 
