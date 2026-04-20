@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper
  * - Versioned `/assets/` files with a valid `?v=` MD5 param: `immutable`
  * - `index.html`: `no-cache` — must revalidate so new chunk references are picked up after deploy
  */
-@WebFilter(filterName = "staticResourceCacheFilter", urlPatterns = ["/*"])
+@WebFilter(filterName = "StaticResourceCacheFilter", urlPatterns = ["/*"])
 class StaticResourceCacheFilter : Filter {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
