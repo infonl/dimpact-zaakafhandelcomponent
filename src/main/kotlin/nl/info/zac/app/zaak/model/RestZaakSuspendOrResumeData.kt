@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakOpschortGegevens(
+data class RestZaakSuspendOrResumeData(
     var indicatieOpschorting: Boolean,
 
     var redenOpschorting: String? = null,

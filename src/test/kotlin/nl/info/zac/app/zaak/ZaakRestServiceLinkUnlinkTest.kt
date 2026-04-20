@@ -113,7 +113,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
         detachedDocumentService = detachedDocumentService,
-        opschortenZaakHelper = opschortenZaakHelper,
+        suspensionZaakHelper = opschortenZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
         productaanvraagDocumentService = productaanvraagDocumentService,

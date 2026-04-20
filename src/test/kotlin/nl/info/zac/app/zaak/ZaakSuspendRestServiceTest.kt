@@ -14,7 +14,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
+import nl.info.zac.app.zaak.model.RestZaakSuspendOrResumeData
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -55,7 +55,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         val restZaak = createRestZaak()
 
         Given("a zaak exists and suspension is requested") {
-            val opschortGegevens = RESTZaakOpschortGegevens(
+            val opschortGegevens = RestZaakSuspendOrResumeData(
                 indicatieOpschorting = true,
                 redenOpschorting = "fakeSuspensionReason",
                 duurDagen = 5L
@@ -75,7 +75,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
             When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.opschortenZaak(zaakUUID, opschortGegevens)
+                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
 
                 Then("the suspended zaak is returned") {
                     result shouldBe restZaak
@@ -84,7 +84,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         }
 
         Given("a zaak exists and resuming is requested") {
-            val opschortGegevens = RESTZaakOpschortGegevens(
+            val opschortGegevens = RestZaakSuspendOrResumeData(
                 indicatieOpschorting = false,
                 redenOpschorting = "fakeResumeReason"
             )
@@ -99,7 +99,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
             When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.opschortenZaak(zaakUUID, opschortGegevens)
+                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
 
                 Then("the resumed zaak is returned") {
                     result shouldBe restZaak

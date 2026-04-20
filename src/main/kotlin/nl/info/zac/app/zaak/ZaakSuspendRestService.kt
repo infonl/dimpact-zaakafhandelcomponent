@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RESTZaakOpschortGegevens
+import nl.info.zac.app.zaak.model.RestZaakSuspendOrResumeData
 import nl.info.zac.app.zaak.model.RESTZaakOpschorting
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.authentication.LoggedInUser
@@ -44,9 +44,9 @@ class ZaakSuspendRestService @Inject constructor(
 ) {
     @PATCH
     @Path("zaak/{uuid}/opschorting")
-    fun opschortenZaak(
+    fun suspendOrResumeZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        opschortGegevens: RESTZaakOpschortGegevens
+        opschortGegevens: RestZaakSuspendOrResumeData
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
