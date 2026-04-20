@@ -80,11 +80,11 @@ spec:
           livenessProbe:
             httpGet:
               port: admin
-              path: /health/live
-            failureThreshold: 3
-            periodSeconds: 30
+              path: {{ .Values.livenessProbe.path }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             successThreshold: 1
-            timeoutSeconds: 1
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
           readinessProbe:
             httpGet:
               port: admin

@@ -26,6 +26,7 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
+import nl.info.zac.productaanvraag.model.createBetrokkene
 import nl.info.zac.zaak.ZaakService
 
 class ProductaanvraagEmailServiceTest : BehaviorSpec({

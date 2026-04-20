@@ -20,7 +20,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
-type Productaanvraag = GeneratedType<"RESTInboxProductaanvraag">;
+type Productaanvraag = GeneratedType<"RestInboxProductaanvraag">;
 
 const makeProductaanvraag = (
   fields: Partial<Productaanvraag> = {},
@@ -271,8 +271,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       .spyOn(service, "list")
       .mockReturnValue(
         of({ totaal: 0, filterType: [] } as Partial<
-          GeneratedType<"RESTResultaatRESTInboxProductaanvraag">
-        > as unknown as GeneratedType<"RESTResultaatRESTInboxProductaanvraag">),
+          GeneratedType<"RestInboxProductaanvraagResultaat">
+        > as unknown as GeneratedType<"RestInboxProductaanvraagResultaat">),
       );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual([]);
