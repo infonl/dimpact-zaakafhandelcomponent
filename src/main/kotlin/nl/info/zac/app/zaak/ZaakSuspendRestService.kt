@@ -16,9 +16,10 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RestZaakSuspendOrResumeData
 import nl.info.zac.app.zaak.model.RESTZaakOpschorting
 import nl.info.zac.app.zaak.model.RestZaak
+import nl.info.zac.app.zaak.model.RestZaakResumeData
+import nl.info.zac.app.zaak.model.RestZaakSuspendData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -43,25 +44,33 @@ class ZaakSuspendRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService
 ) {
     @PATCH
-    @Path("zaak/{uuid}/opschorting")
-    fun suspendOrResumeZaak(
+    @Path("zaak/{uuid}/suspend")
+    fun suspendZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        opschortGegevens: RestZaakSuspendOrResumeData
+        suspendData: RestZaakSuspendData
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        return if (opschortGegevens.indicatieOpschorting) {
-            val suspendedZaak = suspensionZaakHelper.suspendZaak(
-                zaak = zaak,
-                numberOfDays = opschortGegevens.duurDagen,
-                suspensionReason = opschortGegevens.redenOpschorting
-            )
-            restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
-        } else {
-            val resumedZaak = suspensionZaakHelper.resumeZaak(zaak, opschortGegevens.redenOpschorting)
-            restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser)
-        }
+        val suspendedZaak = suspensionZaakHelper.suspendZaak(
+            zaak = zaak,
+            numberOfDays = suspendData.numberOfDays,
+            suspensionReason = suspendData.reason
+        )
+        return restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
+    }
+
+    @PATCH
+    @Path("zaak/{uuid}/resume")
+    fun resumeZaak(
+        @PathParam("uuid") zaakUUID: UUID,
+        resumeData: RestZaakResumeData
+    ): RestZaak {
+        val loggedInUser = loggedInUserInstance.get()
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        val resumedZaak = suspensionZaakHelper.resumeZaak(zaak, resumeData.reason)
+        return restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser)
     }
 
     @GET

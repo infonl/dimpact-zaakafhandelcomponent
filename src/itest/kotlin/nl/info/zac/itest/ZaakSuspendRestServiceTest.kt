@@ -49,12 +49,11 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             val suspensionDays = 5
             val suspensionReason = "fakeSuspensionReason"
             val suspendResponse = itestHttpClient.performPatchRequest(
-                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/suspend",
                 requestBodyAsString = """
                     {
-                        "indicatieOpschorting": true,
-                        "redenOpschorting": "$suspensionReason",
-                        "duurDagen": $suspensionDays
+                        "reason": "$suspensionReason",
+                        "numberOfDays": $suspensionDays
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
@@ -84,11 +83,10 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             When("the zaak is resumed") {
                 val resumeReason = "fakeResumeReason"
                 val resumeResponse = itestHttpClient.performPatchRequest(
-                    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
+                    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/resume",
                     requestBodyAsString = """
                         {
-                            "indicatieOpschorting": false,
-                            "redenOpschorting": "$resumeReason"
+                            "reason": "$resumeReason"
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_DOMAIN_TEST_1

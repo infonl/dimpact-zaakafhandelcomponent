@@ -20,7 +20,7 @@ export class ZaakOpschortenDialogComponent {
   loading = true;
 
   protected readonly form = this.formBuilder.group({
-    duurDagen: this.formBuilder.control<number | null>(null, [
+    numberOfDays: this.formBuilder.control<number | null>(null, [
       Validators.required,
       Validators.min(1),
     ]),
@@ -29,7 +29,7 @@ export class ZaakOpschortenDialogComponent {
       null,
       [Validators.required],
     ),
-    redenOpschorting: this.formBuilder.control<string | null>(null, [
+    reason: this.formBuilder.control<string | null>(null, [
       Validators.required,
       Validators.maxLength(200),
     ]),
@@ -87,7 +87,7 @@ export class ZaakOpschortenDialogComponent {
 
     this.resetFields();
 
-    this.form.controls.duurDagen.valueChanges
+    this.form.controls.numberOfDays.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         this.updateDateFields(value ?? 0);
@@ -106,7 +106,7 @@ export class ZaakOpschortenDialogComponent {
 
     this.form.patchValue(
       {
-        duurDagen: duur,
+        numberOfDays: duur,
         einddatumGepland: this.data.zaak.einddatumGepland
           ? moment(this.data.zaak.einddatumGepland).add(duur, "days")
           : null,
@@ -121,7 +121,7 @@ export class ZaakOpschortenDialogComponent {
   private resetFields() {
     this.form.setValue(
       {
-        duurDagen: null,
+        numberOfDays: null,
         einddatumGepland: this.data.zaak.einddatumGepland
           ? moment(this.data.zaak.einddatumGepland)
           : null,
@@ -129,7 +129,7 @@ export class ZaakOpschortenDialogComponent {
           .uiterlijkeEinddatumAfdoening
           ? moment(this.data.zaak.uiterlijkeEinddatumAfdoening)
           : null,
-        redenOpschorting: null,
+        reason: null,
       },
       { emitEvent: false },
     );
@@ -144,12 +144,9 @@ export class ZaakOpschortenDialogComponent {
     const value = this.form.getRawValue();
 
     this.zakenService
-      .opschortenZaak(this.data.zaak.uuid, {
-        ...value,
-        indicatieOpschorting: true,
-        einddatumGepland: value.einddatumGepland?.toISOString(),
-        uiterlijkeEinddatumAfdoening:
-          value.uiterlijkeEinddatumAfdoening?.toISOString(),
+      .suspendZaak(this.data.zaak.uuid, {
+        reason: value.reason,
+        numberOfDays: value.numberOfDays,
       })
       .subscribe({
         next: (result) => {

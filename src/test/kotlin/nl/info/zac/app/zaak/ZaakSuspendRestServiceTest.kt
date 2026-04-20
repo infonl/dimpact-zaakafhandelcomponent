@@ -14,7 +14,8 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.zaak.converter.RestZaakConverter
-import nl.info.zac.app.zaak.model.RestZaakSuspendOrResumeData
+import nl.info.zac.app.zaak.model.RestZaakResumeData
+import nl.info.zac.app.zaak.model.RestZaakSuspendData
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -55,10 +56,9 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         val restZaak = createRestZaak()
 
         Given("a zaak exists and suspension is requested") {
-            val opschortGegevens = RestZaakSuspendOrResumeData(
-                indicatieOpschorting = true,
-                redenOpschorting = "fakeSuspensionReason",
-                duurDagen = 5L
+            val suspendData = RestZaakSuspendData(
+                reason = "fakeSuspensionReason",
+                numberOfDays = 5L
             )
             val suspendedZaak = createZaak(uuid = zaakUUID)
 
@@ -68,25 +68,33 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every {
                 suspensionZaakHelper.suspendZaak(
                     zaak = zaak,
-                    numberOfDays = opschortGegevens.duurDagen,
-                    suspensionReason = opschortGegevens.redenOpschorting
+                    numberOfDays = suspendData.numberOfDays,
+                    suspensionReason = suspendData.reason
                 )
             } returns suspendedZaak
             every { restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
-            When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
+            When("suspendZaak is called") {
+                val result = zaakSuspendRestService.suspendZaak(zaakUUID, suspendData)
 
                 Then("the suspended zaak is returned") {
                     result shouldBe restZaak
                 }
             }
         }
+    }
+
+    Context("Resuming a zaak") {
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val zaakType = createZaakType()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+        val restZaak = createRestZaak()
 
         Given("a zaak exists and resuming is requested") {
-            val opschortGegevens = RestZaakSuspendOrResumeData(
-                indicatieOpschorting = false,
-                redenOpschorting = "fakeResumeReason"
+            val resumeData = RestZaakResumeData(
+                reason = "fakeResumeReason"
             )
             val resumedZaak = createZaak(uuid = zaakUUID)
 
@@ -98,8 +106,8 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             } returns resumedZaak
             every { restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
-            When("opschortenZaak is called") {
-                val result = zaakSuspendRestService.suspendOrResumeZaak(zaakUUID, opschortGegevens)
+            When("resumeZaak is called") {
+                val result = zaakSuspendRestService.resumeZaak(zaakUUID, resumeData)
 
                 Then("the resumed zaak is returned") {
                     result shouldBe restZaak
