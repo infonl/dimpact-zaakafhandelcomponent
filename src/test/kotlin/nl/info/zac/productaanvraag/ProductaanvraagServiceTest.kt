@@ -20,8 +20,6 @@ import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.kvk.model.createRandomKvkNumber
@@ -56,6 +54,8 @@ import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
+import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
@@ -1383,6 +1383,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaak = createZaak()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             val formulierBron = createBron()
+            val registrationDate = LocalDate.of(2021, 1, 1)
             val productAanvraagORObject = createORObject(
                 record = createObjectRecord(
                     data = mapOf(
@@ -1390,7 +1391,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         "type" to productAanvraagType,
                         // aanvraaggegevens must contain at least one key with a map value
                         "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue"))
-                    )
+                    ),
+                    // registration date is a mandatory field in inbox productaanvraag records
+                    // and is always present in the object record
+                    registrationAt = registrationDate
                 ),
                 uuid = productAanvraagObjectUUID
             )
@@ -1429,7 +1433,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     inboxProductaanvraagSlot.captured.run {
                         productaanvraagObjectUUID shouldBe productAanvraagObjectUUID
                         aanvraagdocumentUUID shouldBe null
-                        ontvangstdatum shouldBe null
+                        ontvangstdatum shouldBe registrationDate
                         type shouldBe productAanvraagType
                         initiatorID shouldBe null
                         aantalBijlagen shouldBe 0

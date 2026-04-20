@@ -58,7 +58,7 @@ export class ZaakCreateComponent {
 
   protected activeSideAction: string | null = null;
 
-  private readonly inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">;
+  private readonly inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">;
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
   protected users: GeneratedType<"RestUser">[] = [];
@@ -252,7 +252,7 @@ export class ZaakCreateComponent {
   }
 
   private async handleProductRequest(
-    productRequest?: GeneratedType<"RESTInboxProductaanvraag">,
+    productRequest?: GeneratedType<"RestInboxProductaanvraag">,
   ) {
     if (!productRequest?.initiatorID) return;
 

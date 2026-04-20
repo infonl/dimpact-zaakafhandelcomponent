@@ -13,12 +13,6 @@ import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.productaanvraag.InboxProductaanvraagService
-import net.atos.zac.productaanvraag.model.InboxProductaanvraag
-import net.atos.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
-import net.atos.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
-import net.atos.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
-import net.atos.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import net.atos.zac.util.JsonbUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.or.`object`.ObjectsClientService
@@ -42,9 +36,14 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
+import nl.info.zac.productaanvraag.util.BetalingStatusEnumJsonAdapter
+import nl.info.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
+import nl.info.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
+import nl.info.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
