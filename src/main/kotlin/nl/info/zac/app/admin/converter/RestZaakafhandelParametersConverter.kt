@@ -16,8 +16,9 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
-import nl.info.zac.app.admin.model.RestSmartDocuments
+import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
@@ -78,10 +79,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             },
             productaanvraagtype = zaaktypeCmmnConfiguration.productaanvraagtype,
             domein = zaaktypeCmmnConfiguration.domein,
-            smartDocuments = RestSmartDocuments(
-                enabledGlobally = smartDocumentsService.isEnabled(),
-                enabledForZaaktype = zaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
-            ),
+            smartDocuments = zaaktypeCmmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeCmmnConfiguration.getBrpParameters()
@@ -166,10 +164,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
             domein = zaaktypeBpmnConfiguration.domein,
-            smartDocuments = RestSmartDocuments(
-                enabledGlobally = smartDocumentsService.isEnabled(),
-                enabledForZaaktype = zaaktypeBpmnConfiguration.smartDocumentsIngeschakeld
-            ),
+            smartDocuments = zaaktypeBpmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeBpmnConfiguration.getBrpParameters()

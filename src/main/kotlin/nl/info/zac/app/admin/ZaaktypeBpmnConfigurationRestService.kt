@@ -23,7 +23,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
-import nl.info.zac.app.admin.model.RestSmartDocuments
+import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
@@ -115,7 +115,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-            restZaaktypeBpmnConfiguration.smartDocuments?.let { smartDocumentsIngeschakeld = it.enabledForZaaktype }
+            smartDocumentsIngeschakeld = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
             setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
@@ -153,10 +153,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
             this.getZaakbeeindigParameters()
         ),
-        smartDocuments = RestSmartDocuments(
-            enabledGlobally = smartDocumentsService.isEnabled(),
-            enabledForZaaktype = this.smartDocumentsIngeschakeld
-        )
+        smartDocuments = this.toRestSmartDocuments(smartDocumentsService.isEnabled())
     ).apply {
         zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
         zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
