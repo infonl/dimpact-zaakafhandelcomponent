@@ -64,15 +64,19 @@ class StaticResourceCacheFilter : Filter {
         override fun setHeader(name: String, value: String) { if (!isCacheHeader(name)) super.setHeader(name, value) }
         override fun addHeader(name: String, value: String) { if (!isCacheHeader(name)) super.addHeader(name, value) }
         override fun setIntHeader(name: String, value: Int) {
-            if (!isCacheHeader(name)) {
-                super.setIntHeader(name, value)
-            }
+            if (!isCacheHeader(name)) super.setIntHeader(name, value)
+        }
+
+        override fun addIntHeader(name: String, value: Int) {
+            if (!isCacheHeader(name)) super.addIntHeader(name, value)
         }
 
         override fun setDateHeader(name: String, date: Long) {
-            if (!isCacheHeader(name)) {
-                super.setDateHeader(name, date)
-            }
+            if (!isCacheHeader(name)) super.setDateHeader(name, date)
+        }
+
+        override fun addDateHeader(name: String, date: Long) {
+            if (!isCacheHeader(name)) super.addDateHeader(name, date)
         }
 
         private fun applyCacheHeaders() {
