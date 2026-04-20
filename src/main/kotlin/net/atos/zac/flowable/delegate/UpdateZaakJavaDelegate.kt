@@ -15,7 +15,7 @@ import java.util.logging.Logger
  * Flowable BPMN delegate to update a zaak.
  *
  * This class may be used in existing BPMN process definitions, so be careful renaming or moving it to another package
- * because that will break all zaken and tasks that were created with (previous versions of) the related BPMN process.
+ * because that will break all zaken and tasks created with (previous versions of) the related BPMN process.
  */
 class UpdateZaakJavaDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
@@ -37,21 +37,21 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
         val resultaattypeOmschrijving = resultaattypeOmschrijving?.resolveValueAsString(execution)
         if (resultaattypeOmschrijving != null) {
             LOG.fine(
-                "Zaak '${zaak.getUuid()}': Closing zaak with resultaattype omschrijving '$resultaattypeOmschrijving'"
+                "Closing zaak with UUID '${zaak.getUuid()}' using resultaattype omschrijving '$resultaattypeOmschrijving'"
             )
             try {
-                flowableHelper.zgwApiService.endZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
+                flowableHelper.zgwApiService.closeZaak(zaak, resultaattypeOmschrijving, TOELICHTING)
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
                 // rethrow as a FlowableException
                 // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR
                 throw FlowableZgwValidationErrorException("Failed to end zaak", zgwValidationErrorException)
             }
-            return
+        } else {
+            val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
+            LOG.fine(
+                "Creating status for zaak with UUID '${zaak.getUuid()}' using statustype description: '$statustypeOmschrijving'"
+            )
+            flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
         }
-
-        val statustypeOmschrijving = statustypeOmschrijving.resolveValueAsString(execution)
-        // For non-end statuses, use the regular createStatusForZaak endpoint
-        LOG.fine("Zaak '${zaak.getUuid()}': setting statustype '$statustypeOmschrijving'")
-        flowableHelper.zgwApiService.createStatusForZaak(zaak, statustypeOmschrijving, TOELICHTING)
     }
 }

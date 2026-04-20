@@ -683,7 +683,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 And("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any<String>(), any())
                     }
                 }
             }
@@ -762,7 +762,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any<String>(), any())
                     }
                 }
 
@@ -808,7 +808,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any<String>(), any())
                     }
                 }
             }
