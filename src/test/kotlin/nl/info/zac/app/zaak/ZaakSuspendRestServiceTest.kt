@@ -5,10 +5,12 @@
 package nl.info.zac.app.zaak
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
@@ -102,14 +104,20 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
-                suspensionZaakHelper.resumeZaak(zaak, resumeData.reason)
+                suspensionZaakHelper.resumeZaak(zaak, resumeData.reason, any())
             } returns resumedZaak
             every { restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 
             When("resumeZaak is called") {
                 val result = zaakSuspendRestService.resumeZaak(zaakUUID, resumeData)
 
-                Then("the resumed zaak is returned") {
+                Then("the suspension zaak helper is called") {
+                    verify(exactly = 1) {
+                        suspensionZaakHelper.resumeZaak(zaak, resumeData.reason, any())
+                    }
+                }
+
+                And("the resumed zaak is returned") {
                     result shouldBe restZaak
                 }
             }
