@@ -66,13 +66,17 @@ class StaticResourceCacheFilter : Filter {
             if (!isCacheHeader(
                     name
                 )
-            ) super.setIntHeader(name, value)
+            ) {
+                super.setIntHeader(name, value)
+            }
         }
         override fun setDateHeader(name: String, date: Long) {
             if (!isCacheHeader(
                     name
                 )
-            ) super.setDateHeader(name, date)
+            ) {
+                super.setDateHeader(name, date)
+            }
         }
 
         override fun getOutputStream(): ServletOutputStream {
