@@ -1099,6 +1099,7 @@
   "verplicht": "Required",
   "meerkeuzeOpties": "Multiple choice options",
   "volgorde": "Order",
+  "bpmn.process-definition": "BPMN processdefinition",
   "bpmn.process-definition.key": "Key",
   "bpmn.process-definition.key.extended": "Process definition key",
   "bpmn.process-definition.chip.onvolledig": "This BPMN process definition is not complete.",
