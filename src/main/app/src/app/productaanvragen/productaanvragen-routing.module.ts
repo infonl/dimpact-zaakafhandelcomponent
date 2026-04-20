@@ -15,8 +15,7 @@ const routes: Routes = [
     component: InboxProductaanvragenListComponent,
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
-      werklijst:
-        "INBOX_PRODUCTAANVRAGEN" satisfies GeneratedType<"Werklijst">,
+      werklijst: "INBOX_PRODUCTAANVRAGEN" satisfies GeneratedType<"Werklijst">,
     },
   },
 ];

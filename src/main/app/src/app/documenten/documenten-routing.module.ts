@@ -16,8 +16,7 @@ const routes: Routes = [
     component: OntkoppeldeDocumentenListComponent,
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
-      werklijst:
-        "ONTKOPPELDE_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
+      werklijst: "ONTKOPPELDE_DOCUMENTEN" satisfies GeneratedType<"Werklijst">,
     },
   },
   {
