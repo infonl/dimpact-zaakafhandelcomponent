@@ -20,6 +20,11 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_SUSPEND_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
@@ -58,6 +63,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -332,7 +341,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         arrayOf(
             BPMN_TEST_PROCESS_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH,
-            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
+            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH,
+            BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
@@ -367,6 +377,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY to listOf(
                 BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH,
                 BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
+            ),
+            BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_SUSPEND_RESUME_SUSPEND_FORM_RESOURCE_PATH,
+                BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH,
+                BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
             ),
         ).forEach { (processDefinitionKey, formResourcePaths) ->
             formResourcePaths.forEach { formResourcePath ->
@@ -484,6 +499,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             defaultBehandelaarId = BEHANDELAAR_1.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE,
             nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
+        ).let { response ->
+            val responseBody = response.bodyAsString
+            logger.info { "Response: $responseBody" }
+            response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_4_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_4_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.name,
+            defaultBehandelaarId = BEHANDELAAR_1.username,
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
         ).let { response ->
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
