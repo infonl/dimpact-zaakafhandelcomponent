@@ -537,7 +537,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
           );
 
           if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
-            this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
+            this.smartDocumentsFormComponent
+              .saveSmartDocumentsMapping()
+              .subscribe();
           }
         },
         error: () => {

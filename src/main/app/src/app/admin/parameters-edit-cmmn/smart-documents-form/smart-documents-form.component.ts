@@ -71,7 +71,10 @@ export class SmartDocumentsFormComponent {
   });
 
   get enabledForZaaktypeValue(): boolean {
-    return this.enabledGlobally && Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype);
+    return (
+      this.enabledGlobally &&
+      Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype)
+    );
   }
 
   formGroup = this.formBuilder.group({});

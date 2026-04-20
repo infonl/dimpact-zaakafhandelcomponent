@@ -13,8 +13,6 @@ import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.BpmnDocumentCreationDataAttended
