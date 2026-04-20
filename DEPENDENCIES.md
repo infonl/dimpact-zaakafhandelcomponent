@@ -11,14 +11,14 @@ This document lists the Docker images and versions that the corresponding versio
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.15.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
-- **gotenberg**: 8.30.1
+- **gotenberg**: 8.31.0
 - **otel/opentelemetry-collector-contrib**: 0.150.1
 - **grafana/tempo**: 2.10.4
 - **prom/prometheus**: v3.11.2
 - **grafana/grafana**: 13.0.1
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.2.5-alpine
-- **nginxinc/nginx-unprivileged**: 1.29.8
+- **nginxinc/nginx-unprivileged**: 1.30.0
 
 ## Common Ground components
 
