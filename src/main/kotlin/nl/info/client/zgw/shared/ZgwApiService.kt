@@ -117,11 +117,6 @@ class ZgwApiService @Inject constructor(
 
     fun getResultaatType(resultaatTypeUUID: UUID): ResultaatType = ztcClientService.readResultaattype(resultaatTypeUUID)
 
-    fun closeZaak(zaak: Zaak, resultaatTypeDescription: String, description: String) {
-        val resultaattype = getResultaatType(zaak.zaaktype, resultaatTypeDescription)
-        closeZaak(zaak, resultaattype.url.extractUuid(), description)
-    }
-
     /**
      * Closes a [Zaak].
      *
