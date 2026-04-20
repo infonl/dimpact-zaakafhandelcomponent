@@ -102,7 +102,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every {
-                suspensionZaakHelper.resumeZaak(any(), any(), any())
+                suspensionZaakHelper.resumeZaak(zaak, resumeData.reason)
             } returns resumedZaak
             every { restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
 

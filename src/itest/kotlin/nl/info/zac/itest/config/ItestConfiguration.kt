@@ -119,7 +119,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 42
+    const val ROLTYPE_COUNT = 44
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -380,7 +380,7 @@ object ItestConfiguration {
     const val BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME = "Summary of selected documents to sign"
 
     const val BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY = "suspendResume"
-    const val BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH = "bpmn/suspend-resume-extend/suspendResume.bpmn"
+    const val BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH = "bpmn/suspend-resume-extend/suspendResumeExtend.bpmn"
     const val BPMN_SUSPEND_RESUME_SUSPEND_FORM_RESOURCE_PATH = "bpmn/suspend-resume-extend/suspendForm.json"
     const val BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH = "bpmn/suspend-resume-extend/resumeForm.json"
     const val BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH = "bpmn/suspend-resume-extend/extendForm.json"

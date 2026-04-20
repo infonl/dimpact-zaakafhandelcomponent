@@ -138,7 +138,7 @@ export class ZakenService {
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/{uuid}/zaaklocatie",
-      { geometrie, reden },
+      { geometrie: geometrie ?? null, reden },
       { path: { uuid } },
     );
   }
