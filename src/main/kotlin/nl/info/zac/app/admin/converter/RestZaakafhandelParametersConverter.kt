@@ -16,14 +16,13 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
-import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders

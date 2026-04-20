@@ -5,7 +5,6 @@
 package nl.info.zac.app.admin.model
 
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
