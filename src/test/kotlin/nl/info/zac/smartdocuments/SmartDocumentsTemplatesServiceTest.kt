@@ -270,7 +270,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             }
 
             Then("exception is thrown with the missing UUID") {
-                exception.message shouldContain unknownUUID.toString()
+                exception.message shouldBe "No zaaktype configuration found for zaaktype UUID $unknownUUID"
             }
         }
     }

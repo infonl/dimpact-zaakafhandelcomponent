@@ -111,13 +111,6 @@ class BpmnDocumentCreationService @Inject constructor(
             )
         )
 
-    fun getInformationObjecttypeUuid(zaak: Zaak, templateGroupId: String, templateId: String) =
-        smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaaktypeUUID = zaak.zaaktype.extractUuid(),
-            templateGroupId = templateGroupId,
-            templateId = templateId
-        )
-
     fun documentCreationCallbackUrl(
         zaakUuid: UUID,
         taskId: String?,
