@@ -16,7 +16,7 @@ import { AdviesFormulier } from "./model/advies";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
-import { ExternAdviesVastleggen } from "./model/extern-advies-vastleggen";
+import { ExternAdviesVastleggenTaskFields } from "./model/extern-advies-vastleggen-task-fields";
 import { GoedkeurenFormulier } from "./model/goedkeuren";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
 
@@ -37,6 +37,9 @@ export class TaakFormulierenService {
     AanvullendeInformatieFormulier,
   );
   private readonly adviesFormulier = inject(AdviesFormulier);
+  private readonly externAdviesVastleggenFormulier = inject(
+    ExternAdviesVastleggenTaskFields,
+  );
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
@@ -50,6 +53,8 @@ export class TaakFormulierenService {
         return this.aanvullendeInformatieFormulier.requestForm(zaak, planItem!);
       case "ADVIES":
         return this.adviesFormulier.requestForm(zaak);
+      case "EXTERN_ADVIES_VASTLEGGEN":
+        return this.externAdviesVastleggenFormulier.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -68,6 +73,8 @@ export class TaakFormulierenService {
         return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
       case "ADVIES":
         return this.adviesFormulier.handleForm(taak);
+      case "EXTERN_ADVIES_VASTLEGGEN":
+        return this.externAdviesVastleggenFormulier.handleForm(taak);
       default:
         throw new Error(
           `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
@@ -95,12 +102,8 @@ export class TaakFormulierenService {
           `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "EXTERN_ADVIES_VASTLEGGEN":
-        return new TaakFormulierBuilder(
-          new ExternAdviesVastleggen(
-            this.translateService,
-            this.takenService,
-            this.informatieObjectenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "EXTERN_ADVIES_MAIL":
         return new TaakFormulierBuilder(
