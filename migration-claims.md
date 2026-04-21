@@ -85,7 +85,9 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] ZacAutoComplete
 
 ### Batch 9 — claimed
-- [ ] KlantZoekComponent
+- [x] KlantZoekComponent
+- [x] PersoonZoekComponent
+- [x] BedrijfZoekComponent
 
 ## Dax
 
