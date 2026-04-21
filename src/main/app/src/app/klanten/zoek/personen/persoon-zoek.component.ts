@@ -21,12 +21,12 @@ import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { SharedModule } from "../../../shared/shared.module";
 import {
   BSN_LENGTH,
   POSTAL_CODE_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { SharedModule } from "../../../shared/shared.module";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";

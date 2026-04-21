@@ -5,16 +5,12 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import {
-  Component,
-  EventEmitter,
-  Output,
-} from "@angular/core";
-import { By } from "@angular/platform-browser";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
-import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { MatTabsModule } from "@angular/material/tabs";
+import { MatTabGroupHarness } from "@angular/material/tabs/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "src/test-helpers";
@@ -47,7 +43,10 @@ const makePersoon = (
 const makeBedrijf = (
   fields: Partial<GeneratedType<"RestBedrijf">> = {},
 ): GeneratedType<"RestBedrijf"> =>
-  fromPartial<GeneratedType<"RestBedrijf">>({ kvkNummer: "12345678", ...fields });
+  fromPartial<GeneratedType<"RestBedrijf">>({
+    kvkNummer: "12345678",
+    ...fields,
+  });
 
 describe(KlantZoekComponent.name, () => {
   let component: KlantZoekComponent;

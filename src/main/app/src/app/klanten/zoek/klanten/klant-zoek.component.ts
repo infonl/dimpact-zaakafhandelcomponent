@@ -7,9 +7,9 @@ import { Component, EventEmitter, Output } from "@angular/core";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { TranslateModule } from "@ngx-translate/core";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
-import { GeneratedType } from "../../../shared/utils/generated-types";
 
 @Component({
   selector: "zac-klant-zoek",

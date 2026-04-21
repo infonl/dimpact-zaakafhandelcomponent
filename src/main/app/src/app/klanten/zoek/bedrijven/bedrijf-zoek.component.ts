@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf, TitleCasePipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -13,12 +14,18 @@ import {
   Output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import {
   BSN_LENGTH,
   KVK_LENGTH,
@@ -26,15 +33,6 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { NgIf, TitleCasePipe } from "@angular/common";
-import { ReactiveFormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatExpansionPanelActionRow } from "@angular/material/expansion";
-import { MatIconModule } from "@angular/material/icon";
-import { MatSortModule } from "@angular/material/sort";
-import { MatTableModule } from "@angular/material/table";
-import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
