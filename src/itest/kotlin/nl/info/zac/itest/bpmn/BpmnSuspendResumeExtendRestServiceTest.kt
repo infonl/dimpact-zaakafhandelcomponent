@@ -43,10 +43,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
     }
 
     Given("A BPMN suspend-resume zaak exists") {
-        lateinit var zaakUuid: UUID
-        lateinit var zaakIdentificatie: String
-
-        zacClient.createZaak(
+        val (zaakUuid, zaakIdentificatie) = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
@@ -56,6 +53,9 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
+            JSONObject(responseBody).getJSONObject("zaakdata").run {
+                UUID.fromString(getString("zaakUUID")) to getString("zaakIdentificatie")
+            }
         }
 
         When("the suspend form is submitted with 5 suspend days") {
