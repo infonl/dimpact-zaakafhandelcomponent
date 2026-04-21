@@ -54,7 +54,7 @@ import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
-import { SmartDocumentsFormComponent } from "../parameters-edit-cmmn/smart-documents-form/smart-documents-form.component";
+import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
