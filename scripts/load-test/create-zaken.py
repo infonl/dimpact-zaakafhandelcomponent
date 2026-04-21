@@ -536,7 +536,7 @@ def _bpmn_body(zaaktype: dict) -> dict:
         "zaaktypeOmschrijving": zaaktype["description"],
         "bpmnProcessDefinitionKey": zaaktype["process_key"],
         "productaanvraagtype": zaaktype["productaanvraagtype"],
-        "groepNaam": ZAAK_GROUP_NAME,
+        "groepNaam": ZAAK_GROUP_ID,
         "defaultBehandelaarId": ZAAK_USER,
         "betrokkeneKoppelingen": {"brpKoppelen": True, "kvkKoppelen": True},
         "brpDoelbindingen": {
