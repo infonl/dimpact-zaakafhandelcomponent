@@ -153,8 +153,11 @@ describe(KlantZoekComponent.name, () => {
       await bedrijfTab.select();
       fixture.detectChanges();
 
+      const bedrijfStub = fixture.debugElement.query(
+        By.directive(BedrijfZoekStubComponent),
+      ).componentInstance as BedrijfZoekStubComponent;
       const bedrijf = makeBedrijf({ kvkNummer: "87654321" });
-      component["klantGeselecteerd"](bedrijf);
+      bedrijfStub.bedrijf.emit(bedrijf);
 
       expect(emittedValues).toHaveLength(1);
       expect(emittedValues[0]).toBe(bedrijf);
