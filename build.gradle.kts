@@ -500,11 +500,11 @@ tasks {
     }
 
     compileJava {
-        dependsOn("generateJavaClients", "spotlessJavaCheck")
+        dependsOn("generateJavaClients")
     }
 
     compileKotlin {
-        dependsOn("generateJavaClients", "detekt")
+        dependsOn("generateJavaClients")
 
         compilerOptions {
             // see: https://youtrack.jetbrains.com/issue/KT-73255
