@@ -5,7 +5,6 @@
 package nl.info.zac.app.zaak
 
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
