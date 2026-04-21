@@ -40,7 +40,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   imports: [SharedModule],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
-  @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled = false;
 

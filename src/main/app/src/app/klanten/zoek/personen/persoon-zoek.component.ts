@@ -39,7 +39,7 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   imports: [SharedModule],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
-  @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
+  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() zaaktypeUUID?: string | null = null;
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
