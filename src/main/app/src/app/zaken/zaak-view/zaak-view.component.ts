@@ -869,7 +869,7 @@ export class ZaakViewComponent
 
     const dialogData = new DialogData<
       unknown,
-      { redenOpschortingField?: string }
+      { redenOpschortingField: string }
     >({
       formFields: [
         new InputFormFieldBuilder()

@@ -145,7 +145,7 @@ export class ZaakOpschortenDialogComponent {
 
     this.zakenService
       .suspendZaak(this.data.zaak.uuid, {
-        reason: value.reason,
+        reason: value.reason!,
         numberOfDays: value.numberOfDays,
       })
       .subscribe({
