@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 55 remaining** (2026-04-16)
+**Progress: 61 remaining** (2026-04-21)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
