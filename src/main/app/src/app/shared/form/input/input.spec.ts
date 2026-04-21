@@ -395,13 +395,15 @@ describe(ZacInput.name, () => {
     });
 
     it("should project mat-hint content", async () => {
-      // The template includes ng-content for mat-hint
-      expect(fixture.nativeElement.querySelector("mat-hint")).toBeTruthy();
+      const formField = await loader.getHarness(MatFormFieldHarness);
+      const hints = await formField.getTextHints();
+      expect(hints.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("should project suffix content", async () => {
-      // The template includes ng-content for button, span, and mat-icon in suffix
-      expect(fixture.nativeElement.querySelector("[matSuffix]")).toBeTruthy();
+    it("should project suffix content", () => {
+      expect(
+        fixture.nativeElement.querySelector("span[matSuffix]"),
+      ).toBeTruthy();
     });
   });
 });
