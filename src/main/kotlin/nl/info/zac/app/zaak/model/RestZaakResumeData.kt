@@ -10,5 +10,5 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestZaakResumeData(
-    var reason: String? = null
+    var reason: String
 )

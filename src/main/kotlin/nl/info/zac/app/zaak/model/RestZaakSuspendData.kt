@@ -10,7 +10,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 @AllOpen
 data class RestZaakSuspendData(
-    var reason: String? = null,
+    var reason: String,
 
     var numberOfDays: Long = 0
 )
