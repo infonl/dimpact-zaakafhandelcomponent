@@ -279,7 +279,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {
-    this.persoon?.emit(persoon);
+    this.persoon.emit(persoon);
     this.clearFormAndData();
 
     if (this.syncEnabled) {

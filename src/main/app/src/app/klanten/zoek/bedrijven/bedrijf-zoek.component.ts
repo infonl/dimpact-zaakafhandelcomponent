@@ -176,7 +176,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {
-    this.bedrijf?.emit(bedrijf);
+    this.bedrijf.emit(bedrijf);
     this.wissen();
 
     if (!this.syncEnabled) return;
