@@ -5,7 +5,8 @@
 package nl.info.zac.app.zaak
 
 import jakarta.enterprise.inject.Instance
-import jakarta.inject.*
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import jakarta.validation.Valid
 import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
