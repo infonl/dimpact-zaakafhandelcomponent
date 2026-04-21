@@ -12,12 +12,13 @@
 # Prerequisites: all Docker Compose services (including ZAC) must be running.
 #
 # Usage:
-#   python load_test.py <zaken_count> [--skip-config] [--concurrency N]
-#                       [--zac-url URL] [--keycloak-url URL]
+#   ./scripts/load-test/create-zaken.py <zaken_count> [--skip-config]
+#                                       [--concurrency N] [--zac-url URL]
+#                                       [--keycloak-url URL]
 #
 # Examples:
-#   python load_test.py 10
-#   python load_test.py 100 --skip-config --concurrency 4
+#   ./scripts/load-test/create-zaken.py 10
+#   ./scripts/load-test/create-zaken.py 100 --skip-config --concurrency 4
 
 import argparse
 import json
