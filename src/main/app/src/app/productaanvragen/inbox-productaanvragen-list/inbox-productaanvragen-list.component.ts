@@ -103,7 +103,7 @@ export class InboxProductaanvragenListComponent
 {
   protected isLoadingResults = true;
   protected dataSource = new MatTableDataSource<
-    GeneratedType<"RESTInboxProductaanvraag">
+    GeneratedType<"RestInboxProductaanvraag">
   >();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -127,7 +127,7 @@ export class InboxProductaanvragenListComponent
     `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
     this.createDefaultParameters(),
   );
-  protected expandedRow: GeneratedType<"RESTInboxProductaanvraag"> | null =
+  protected expandedRow: GeneratedType<"RestInboxProductaanvraag"> | null =
     null;
   protected filterType: string[] = [];
   protected filterChange = new EventEmitter<void>();
@@ -187,13 +187,13 @@ export class InboxProductaanvragenListComponent
     );
   }
 
-  protected getDownloadURL(ip: GeneratedType<"RESTInboxProductaanvraag">) {
+  protected getDownloadURL(ip: GeneratedType<"RestInboxProductaanvraag">) {
     return this.infoService.getDownloadURL(ip.aanvraagdocumentUUID!);
   }
 
   protected filtersChanged(options: {
     event: MatSelectChange | string | DatumRange;
-    filter: keyof GeneratedType<"RESTInboxProductaanvraagListParameters">;
+    filter: keyof GeneratedType<"RestInboxProductaanvraagListParameters">;
   }) {
     this.listParameters[options.filter] =
       typeof options.event === "object" && "value" in options.event
@@ -231,7 +231,7 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  protected createDefaultParameters(): GeneratedType<"RESTInboxProductaanvraagListParameters"> {
+  protected createDefaultParameters(): GeneratedType<"RestInboxProductaanvraagListParameters"> {
     return { sort: "id", order: "desc" };
   }
 
@@ -240,7 +240,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected updateActive(
-    selectedRow: GeneratedType<"RESTInboxProductaanvraag">,
+    selectedRow: GeneratedType<"RestInboxProductaanvraag">,
   ) {
     if (this.expandedRow === selectedRow) {
       this.expandedRow = null;
@@ -256,7 +256,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected aanmakenZaak(
-    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
+    inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">,
   ) {
     this.router.navigateByUrl("zaken/create", {
       state: { inboxProductaanvraag },
@@ -264,7 +264,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected inboxProductaanvragenVerwijderen(
-    inboxProductaanvraag: GeneratedType<"RESTInboxProductaanvraag">,
+    inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">,
   ) {
     this.dialog
       .open(ConfirmDialogComponent, {

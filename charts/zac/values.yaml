@@ -270,6 +270,20 @@ resources:
     cpu: 100m
     memory: 1Gi
 
+# -- liveness probe configuration for the main ZAC container
+livenessProbe:
+  # -- Path used for the liveness probe.
+  # Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak
+  # catalogus is unreachable for longer than failureThreshold * periodSeconds.
+  # The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout /
+  # readTimeout configured, causing stale TCP connections in the pool after extended outages.
+  # Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts
+  # are configured on ZGW-API-Client in the ZAC application.
+  path: /health/ready
+  failureThreshold: 16
+  periodSeconds: 30
+  timeoutSeconds: 1
+
 # autoscaling parameters
 autoscaling:
   enabled: false
@@ -400,7 +414,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d
+      tag: 9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -543,11 +557,14 @@ office_converter:
   # the url should be the url office-converter can be reached on from ZAC ( for example: http://release-office-converter.default.svc.cluster.local )
   # url: ""
   image:
-    repository: ghcr.io/eugenmayer/kontextwork-converter
-    tag: "1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"
+    repository: gotenberg/gotenberg
+    tag: "8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
+  # Gotenberg environment variables (see https://gotenberg.dev/docs/configuration)
+  env:
+    CHROMIUM_DISABLE_ROUTES: "true"
   resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
@@ -559,6 +576,9 @@ office_converter:
     requests:
       cpu: 100m
       memory: 512Mi
+  # -- Container port the office-converter listens on. Gotenberg default is 3000;
+  # override to 8080 if using an alternative image (e.g. kontextwork-converter).
+  containerPort: 3000
   service:
     type: ClusterIP
     port: 80
@@ -615,7 +635,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.29.8@sha256:49b1dda3714696e4930e5cd419ede1c62f3fdc64e98ff636b201966f17e0b9a2
+    tag: 1.30.0@sha256:9b269aa3263e1dcba790fda66aa91b6b02f904adcd8329e5cf256e14a65e2974
   service:
     type: ClusterIP
     port: 80

@@ -7,6 +7,7 @@ package nl.info.client.officeconverter
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE
+import jakarta.ws.rs.core.MediaType.TEXT_PLAIN_TYPE
 import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -20,9 +21,14 @@ import java.io.ByteArrayInputStream
 class OfficeConverterClientService @Inject constructor(
     @RestClient private val officeConverterClient: OfficeConverterClient
 ) {
+    companion object {
+        private const val PDFA_FORMAT = "PDF/A-2b"
+    }
+
     fun convertToPDF(document: ByteArrayInputStream, filename: String): ByteArrayInputStream {
         val multipartFormDataOutput = MultipartFormDataOutput().apply {
-            addFormData("file", document, APPLICATION_OCTET_STREAM_TYPE, filename)
+            addFormData("files", document, APPLICATION_OCTET_STREAM_TYPE, filename)
+            addFormData("pdfa", PDFA_FORMAT, TEXT_PLAIN_TYPE)
         }
         val response = officeConverterClient.convert(multipartFormDataOutput)
         if (!response.bufferEntity()) {

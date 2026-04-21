@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.221](https://img.shields.io/badge/Version-1.0.221-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
+![Version: 1.0.225](https://img.shields.io/badge/Version-1.0.225-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.150.0 |
+| @opentelemetry | opentelemetry-collector | 0.150.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -102,6 +102,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | klantinteractiesApi.url | string | `""` |  |
 | kvkApi.apiKey | string | `""` |  |
 | kvkApi.url | string | `""` |  |
+| livenessProbe | object | `{"failureThreshold":16,"path":"/health/ready","periodSeconds":30,"timeoutSeconds":1}` | liveness probe configuration for the main ZAC container |
+| livenessProbe.path | string | `"/health/ready"` | Path used for the liveness probe. Defaults to /health/ready so Kubernetes restarts ZAC automatically when the OpenZaak catalogus is unreachable for longer than failureThreshold * periodSeconds. The root cause is that the ZGW-API-Client MicroProfile REST client has no connectTimeout / readTimeout configured, causing stale TCP connections in the pool after extended outages. Revert to /health/live (and lower failureThreshold back to 3) once proper HTTP timeouts are configured on ZGW-API-Client in the ZAC application. |
 | mail.smtp.password | string | `""` | SMTP server password if authentication is required. Optional |
 | mail.smtp.port | string | `"587"` | SMTP server port: 587 for TLS, port 25 for relaying. Required |
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
@@ -168,7 +170,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.29.8@sha256:49b1dda3714696e4930e5cd419ede1c62f3fdc64e98ff636b201966f17e0b9a2"` |  |
+| nginx.image.tag | string | `"1.30.0@sha256:9b269aa3263e1dcba790fda66aa91b6b02f904adcd8329e5cf256e14a65e2974"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -196,10 +198,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
+| office_converter.containerPort | int | `3000` | Container port the office-converter listens on. Gotenberg default is 3000; override to 8080 if using an alternative image (e.g. kontextwork-converter). |
 | office_converter.enabled | bool | `true` |  |
+| office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
-| office_converter.image.repository | string | `"ghcr.io/eugenmayer/kontextwork-converter"` |  |
-| office_converter.image.tag | string | `"1.8.3@sha256:706feffafdc2458938f3f836779031cd4ff3a0cc349cff017be8dd85ba28fc04"` |  |
+| office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
+| office_converter.image.tag | string | `"8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -308,7 +312,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:b2739fd721ee60453f9e921abc27467d8f4e3d259e27777dbe43e9e4f216007d"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
