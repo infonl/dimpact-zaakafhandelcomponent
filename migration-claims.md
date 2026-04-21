@@ -84,6 +84,9 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] ZacInput
 - [x] ZacAutoComplete
 
+### Batch 9 — claimed
+- [ ] KlantZoekComponent
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
