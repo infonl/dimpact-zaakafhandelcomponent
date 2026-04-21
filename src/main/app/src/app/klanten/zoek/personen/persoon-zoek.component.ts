@@ -26,6 +26,7 @@ import {
   POSTAL_CODE_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { SharedModule } from "../../../shared/shared.module";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
@@ -34,7 +35,8 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   selector: "zac-persoon-zoek",
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();

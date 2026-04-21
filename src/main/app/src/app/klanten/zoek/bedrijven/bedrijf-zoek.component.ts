@@ -26,6 +26,7 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { SharedModule } from "../../../shared/shared.module";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
@@ -35,7 +36,8 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   selector: "zac-bedrijf-zoek",
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
@@ -162,7 +164,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
       })
       .subscribe((bedrijven) => {
         this.bedrijven.data = bedrijven.resultaten ?? [];
-        this.foutmelding = bedrijven.foutmelding;
+        this.foutmelding = bedrijven.foutmelding ?? undefined;
         this.loading = false;
         this.utilService.setLoading(false);
       });
