@@ -8,7 +8,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -20,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
@@ -296,47 +296,72 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         )
                     }
                 }
-            }
 
-            When("doFilter is called for a mix of roles per-zaaktype and without zaaktype") {
-                clearMocks(httpSession, answers = false, recordedCalls = true)
-                val loggedInUserSlot2 = slot<LoggedInUser>()
-                val applicationRolesResponse = GetApplicationRolesResponse().apply {
-                    results = listOf(
-                        createApplicationRolesResponseModel(
-                            entityTypeId = "fakeZaaktype1",
-                            entityTypeType = "ZAAKTYPE",
-                            roleNames = listOf("fakeApplicationRole1", "fakeApplicationRole2")
-                        ),
-                        createApplicationRolesResponseModel(
-                            entityTypeId = null,
-                            entityTypeType = "ZAAKTYPE",
-                            roleNames = listOf("fakeApplicationRole3")
-                        )
-                    )
+                And("the overall roles contain the application roles without an entity type") {
+                    loggedInUserSlot.captured.overallRoles shouldContainAll setOf("fakeApplicationRole")
                 }
-                every { pabcClientService.getApplicationRoles(any()) } returns applicationRolesResponse
-                every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
-                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
-                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2"),
-                    createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype3")
-                )
-                every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
+            }
+        }
 
+        Given(
+            """
+            User details in the OIDC token in the security context and
+            PABC authorisation mappings contain both entity-type-specific roles and overall roles (without entity type)
+            """
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            val zaaktypeId = "fakeZaaktypeId"
+            val entityTypeRoleNames = listOf("fakeEntityTypeRole1", "fakeEntityTypeRole2")
+            val overallRoleNames = listOf("fakeOverallRole1", "fakeOverallRole2")
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
+                    }
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            every { httpSession.getAttribute("logged-in-user") } returns null
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = zaaktypeId,
+                        entityTypeType = ENTITY_TYPE_ZAAKTYPE,
+                        roleNames = entityTypeRoleNames
+                    ),
+                    createApplicationRolesResponseModel(
+                        entityTypeId = null,
+                        roleNames = overallRoleNames
+                    )
+                )
+            }
+            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
+            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
+
+            When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("stores loggedInUser and merges roles per-zaaktype and for all zaaktypes into the session") {
-                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot2)) }
-                    with(loggedInUserSlot2.captured) {
-                        applicationRolesPerZaaktype["fakeZaaktype1"]?.shouldContainAll(
-                            setOf("fakeApplicationRole1", "fakeApplicationRole2", "fakeApplicationRole3")
-                        )
-                        applicationRolesPerZaaktype["fakeZaaktype2"]?.shouldContainAll(
-                            setOf("fakeApplicationRole3")
-                        )
-                        applicationRolesPerZaaktype["fakeZaaktype3"]?.shouldContainAll(
-                            setOf("fakeApplicationRole3")
-                        )
+                Then("the entity-type-specific roles are stored in applicationRolesPerZaaktype on the logged-in user") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    loggedInUserSlot.captured.applicationRolesPerZaaktype[zaaktypeId]
+                        ?.shouldContainAll(entityTypeRoleNames)
+                }
+
+                And("the overall roles contain only the roles without an entity type") {
+                    with(loggedInUserSlot.captured) {
+                        overallRoles shouldContainAll overallRoleNames
+                        overallRoles.none { it in entityTypeRoleNames } shouldBe true
                     }
                 }
             }
