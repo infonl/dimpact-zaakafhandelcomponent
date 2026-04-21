@@ -56,12 +56,6 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HTTP_OK
-            JSONObject(responseBody).run {
-                getJSONObject("zaakdata").run {
-                    zaakUuid = getString("zaakUUID").run(UUID::fromString)
-                    zaakIdentificatie = getString("zaakIdentificatie")
-                }
-            }
         }
 
         When("the suspend form is submitted with 5 suspend days") {
