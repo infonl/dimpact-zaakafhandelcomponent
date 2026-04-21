@@ -53,6 +53,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
@@ -152,6 +154,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "doel": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
@@ -197,6 +204,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                              "doel": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION",
                              "identificatie": "$ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE",
                              "omschrijving": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION"
+                           },
+                           {
+                             "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
+                             "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
+                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
                            }
                         """.trimIndent()
                     }

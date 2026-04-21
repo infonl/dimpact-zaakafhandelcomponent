@@ -81,7 +81,7 @@ class TaskRestServiceTest : BehaviorSpec({
     val restTaskConverter = mockk<RestTaskConverter>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
+    val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val signaleringService = mockk<SignaleringService>()
     val taakHistorieConverter = mockk<RestTaskHistoryConverter>()
@@ -102,7 +102,7 @@ class TaskRestServiceTest : BehaviorSpec({
         restTaskConverter = restTaskConverter,
         flowableTaskService = flowableTaskService,
         zrcClientService = zrcClientService,
-        opschortenZaakHelper = opschortenZaakHelper,
+        suspensionZaakHelper = suspensionZaakHelper,
         restInformatieobjectConverter = restInformatieobjectConverter,
         signaleringService = signaleringService,
         taakHistorieConverter = taakHistorieConverter,

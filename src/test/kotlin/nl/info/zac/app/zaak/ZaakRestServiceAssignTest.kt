@@ -80,7 +80,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
-    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
+    val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
@@ -116,7 +116,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
         detachedDocumentService = detachedDocumentService,
-        opschortenZaakHelper = opschortenZaakHelper,
+        suspensionZaakHelper = suspensionZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
         productaanvraagDocumentService = productaanvraagDocumentService,
