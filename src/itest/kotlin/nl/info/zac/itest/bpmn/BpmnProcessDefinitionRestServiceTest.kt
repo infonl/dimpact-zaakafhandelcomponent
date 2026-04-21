@@ -44,6 +44,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "version": 1
                   },
                   {
+                    "key": "suspendResume",
+                    "name": "Suspend & Resume",
+                    "version": 1
+                  },
+                  {
                     "key": "userManagement",
                     "name": "User Management",
                     "version": 1
@@ -106,6 +111,32 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                         {
                           "formKey": "selectDocumentsForm",
                           "title": "SelectDocumentsForm",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
+                  },
+                  {
+                    "key": "suspendResume",
+                    "name": "Suspend & Resume",
+                    "version": 1,
+                    "details": {
+                      "inUse": true,
+                      "forms": [
+                        {
+                          "formKey": "suspendForm",
+                          "title": "Suspend form",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "resumeForm",
+                          "title": "Resume form",
+                          "uploaded": true
+                        },
+                        {
+                          "formKey": "extendForm",
+                          "title": "Extend form",
                           "uploaded": true
                         }
                       ],

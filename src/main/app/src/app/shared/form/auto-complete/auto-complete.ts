@@ -4,15 +4,38 @@
  *
  */
 
+import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
 import { Component, effect, signal } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { TranslateModule } from "@ngx-translate/core";
 import { takeUntil } from "rxjs";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-auto-complete",
   templateUrl: "./auto-complete.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    LowerCasePipe,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+  ],
 })
 export class ZacAutoComplete<
   Form extends Record<string, AbstractControl>,

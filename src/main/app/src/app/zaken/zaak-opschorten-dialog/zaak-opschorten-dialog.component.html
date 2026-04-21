@@ -16,14 +16,18 @@
 
 <form [formGroup]="form" (submit)="opschorten()">
   <mat-dialog-content>
-    <zac-input [form]="form" key="duurDagen" label="opschortduur"></zac-input>
+    <zac-input
+      [form]="form"
+      key="numberOfDays"
+      label="opschortduur"
+    ></zac-input>
     <zac-date
       [form]="form"
       key="einddatumGepland"
       *ngIf="data.zaak.einddatumGepland"
     ></zac-date>
     <zac-date [form]="form" key="uiterlijkeEinddatumAfdoening"></zac-date>
-    <zac-textarea [form]="form" key="redenOpschorting"></zac-textarea>
+    <zac-textarea [form]="form" key="reason"></zac-textarea>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button

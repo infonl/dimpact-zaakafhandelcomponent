@@ -46,8 +46,8 @@ describe(ZacSelect.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacSelect],
       imports: [
+        ZacSelect,
         ReactiveFormsModule,
         MaterialModule,
         TranslateModule.forRoot(),

@@ -7,7 +7,7 @@ import { AfterViewInit, Directive, ElementRef } from "@angular/core";
 
 @Directive({
   selector: "[appEnhanceMatError]",
-  standalone: false,
+  standalone: true,
 })
 export class EnhanceMatErrorDirective implements AfterViewInit {
   constructor(private elRef: ElementRef) {}

@@ -869,7 +869,7 @@ export class ZaakViewComponent
 
     const dialogData = new DialogData<
       unknown,
-      { redenOpschortingField?: string }
+      { redenOpschortingField: string }
     >({
       formFields: [
         new InputFormFieldBuilder()
@@ -879,35 +879,10 @@ export class ZaakViewComponent
           .maxlength(200)
           .build(),
       ],
-      callback: ({ redenOpschortingField }) => {
-        const duurVerkortingOpschorting: number =
-          werkelijkeOpschortDuur - (this.zaakOpschorting?.duurDagen ?? 0);
-
-        const zaakOpschortGegevens: GeneratedType<"RESTZaakOpschortGegevens"> =
-          {
-            indicatieOpschorting: false,
-            duurDagen: werkelijkeOpschortDuur,
-            uiterlijkeEinddatumAfdoening: moment(
-              this.zaak.uiterlijkeEinddatumAfdoening,
-            )
-              .add(duurVerkortingOpschorting, "days")
-              .format("YYYY-MM-DD"),
-            redenOpschorting: redenOpschortingField,
-          };
-
-        if (this.zaak.einddatumGepland) {
-          zaakOpschortGegevens.einddatumGepland = moment(
-            this.zaak.einddatumGepland,
-          )
-            .add(duurVerkortingOpschorting, "days")
-            .format("YYYY-MM-DD");
-        }
-
-        return this.zakenService.opschortenZaak(
-          this.zaak.uuid,
-          zaakOpschortGegevens,
-        );
-      },
+      callback: ({ redenOpschortingField }) =>
+        this.zakenService.resumeZaak(this.zaak.uuid, {
+          reason: redenOpschortingField,
+        }),
       melding: this.translate.instant("msg.zaak.hervatten", {
         duur: werkelijkeOpschortDuur,
         verwachteDuur: this.zaakOpschorting.duurDagen,
