@@ -94,7 +94,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val objectsClientService = mockk<ObjectsClientService>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
-    val opschortenZaakHelper = mockk<SuspensionZaakHelper>()
+    val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
@@ -130,7 +130,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance,
         objectsClientService = objectsClientService,
         detachedDocumentService = detachedDocumentService,
-        suspensionZaakHelper = opschortenZaakHelper,
+        suspensionZaakHelper = suspensionZaakHelper,
         policyService = policyService,
         productaanvraagService = productaanvraagService,
         productaanvraagDocumentService = productaanvraagDocumentService,
@@ -197,7 +197,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
 
             When("zaak final date is set to a later date") {
                 every {
-                    opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+                    suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
                 } returns listOf(task, task)
 
                 val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
@@ -336,7 +336,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten, loggedInUser) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
                 every {
-                    opschortenZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
+                    suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
                 } returns emptyList()
                 every { eventingService.send(any<ScreenEvent>()) } just runs
                 every {
