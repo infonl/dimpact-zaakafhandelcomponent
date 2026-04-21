@@ -713,11 +713,13 @@ def create_zaak(index: int, zaaktype_uuid: str, token: str, zac_url: str) -> dic
     status, response_body = _http("POST", f"{zac_url}/rest/zaken/zaak", body=body, headers=_auth_headers(token))
     elapsed = int((time.monotonic() - t0) * 1000)
     zaak_uuid = None
+    parse_error = None
     if status == 200:
         try:
-            zaak_uuid = json.loads(response_body).get("zaakUUID") or json.loads(response_body).get("uuid")
-        except (json.JSONDecodeError, KeyError):
-            pass
+            parsed_response = json.loads(response_body)
+            zaak_uuid = parsed_response.get("zaakUUID") or parsed_response.get("uuid")
+        except json.JSONDecodeError as exc:
+            parse_error = f"Failed to parse zaak creation response JSON: {exc}"
     return {
         "index": index,
         "zaaktype_uuid": zaaktype_uuid,
@@ -725,7 +727,7 @@ def create_zaak(index: int, zaaktype_uuid: str, token: str, zac_url: str) -> dic
         "status_code": status,
         "zaak_uuid": zaak_uuid,
         "elapsed_ms": elapsed,
-        "error": response_body[:200] if status != 200 else None,
+        "error": response_body[:200] if status != 200 else parse_error,
     }
 
 
