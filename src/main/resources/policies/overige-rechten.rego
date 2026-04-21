@@ -32,3 +32,6 @@ default zoeken := false
 zoeken if {
     raadpleger.rol in user.rollen
 }
+zoeken if {
+    behandelaar.rol in user.rollen
+}

@@ -33,6 +33,10 @@ lezen if {
     raadpleger.rol in user.rollen
     zaaktype_allowed
 }
+lezen if {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+}
 
 default wijzigen := false
 wijzigen if {

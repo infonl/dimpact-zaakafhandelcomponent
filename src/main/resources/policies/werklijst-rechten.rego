@@ -8,6 +8,7 @@
 package net.atos.zac.werklijst
 
 import data.net.atos.zac.rol.beheerder
+import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
@@ -40,6 +41,9 @@ inbox_productaanvragen_verwijderen if {
 default zaken_taken := false
 zaken_taken if {
     raadpleger.rol in user.rollen
+}
+zaken_taken if {
+    behandelaar.rol in user.rollen
 }
 
 default zaken_taken_verdelen := false

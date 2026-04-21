@@ -59,6 +59,10 @@ lezen if {
     raadpleger.rol in user.rollen
     zaaktype_allowed
 }
+lezen if {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+}
 
 default wijzigen := false
 wijzigen if {
@@ -66,7 +70,6 @@ wijzigen if {
     zaaktype_allowed
     zaak.open
 }
-
 wijzigen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -78,7 +81,6 @@ toekennen if {
     zaaktype_allowed
     zaak.open
 }
-
 toekennen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -164,7 +166,6 @@ koppelen if {
     zaaktype_allowed
     zaak.open
 }
-
 koppelen if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -190,7 +191,6 @@ toevoegen_initiator_persoon if {
     zaaktype_allowed
     zaak.open
 }
-
 toevoegen_initiator_persoon if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -202,7 +202,6 @@ toevoegen_initiator_bedrijf if {
     zaaktype_allowed
     zaak.open
 }
-
 toevoegen_initiator_bedrijf if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -214,7 +213,6 @@ verwijderen_initiator if {
     zaaktype_allowed
     zaak.open
 }
-
 verwijderen_initiator if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -226,7 +224,6 @@ toevoegen_betrokkene_persoon if {
     zaaktype_allowed
     zaak.open
 }
-
 toevoegen_betrokkene_persoon if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -238,7 +235,6 @@ toevoegen_betrokkene_bedrijf if {
     zaaktype_allowed
     zaak.open
 }
-
 toevoegen_betrokkene_bedrijf if {
     recordmanager.rol in user.rollen
     zaaktype_allowed
@@ -295,7 +291,6 @@ default wijzigen_locatie := false
 wijzigen_locatie if {
     wijzigen
 }
-
 wijzigen_locatie if {
     wijzigen
     recordmanager.rol in user.rollen

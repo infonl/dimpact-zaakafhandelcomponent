@@ -20,6 +20,9 @@ default lezen := false
 lezen if {
     raadpleger.rol in user.rollen
 }
+lezen if {
+    behandelaar.rol in user.rollen
+}
 
 default wijzigen := false
 wijzigen if {
