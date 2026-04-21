@@ -513,10 +513,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             defaultBehandelaarId = BEHANDELAAR_1.username,
             testUser = BEHEERDER_ELK_ZAAKTYPE,
             nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
-        ).let { response ->
-            val responseBody = response.bodyAsString
+        ).run {
+            val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_OK
+            code shouldBe HTTP_OK
         }
         zacClient.createZaaktypeCmmnConfiguration(
             zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,

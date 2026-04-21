@@ -255,6 +255,86 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("actie.zaak.hervatten", () => {
+    const hervattenZaak = {
+      ...zaak,
+      isOpgeschort: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      isProcesGestuurd: false,
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: hervattenZaak });
+    });
+
+    it("should show the button", async () => {
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.zaak.hervatten" }),
+      );
+      expect(button).toBeTruthy();
+    });
+
+    describe("when behandelen right is false", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...hervattenZaak,
+            rechten: {
+              ...hervattenZaak.rechten,
+              behandelen: false,
+            },
+          },
+        });
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "actie.zaak.hervatten" }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+
+    describe("when isOpgeschort is false", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...hervattenZaak,
+            isOpgeschort: false,
+          },
+        });
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "actie.zaak.hervatten" }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+
+    describe("when isProcesGestuurd is true", () => {
+      beforeEach(() => {
+        mockActivatedRoute.data.next({
+          zaak: {
+            ...hervattenZaak,
+            isProcesGestuurd: true,
+          },
+        });
+      });
+
+      it("should not show the button", async () => {
+        const button = await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "actie.zaak.hervatten" }),
+        );
+        expect(button).toBeNull();
+      });
+    });
+  });
+
   describe("dateFieldIconMap icon logic", () => {
     let component: ZaakViewComponent;
     const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
