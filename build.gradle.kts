@@ -37,7 +37,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     // Add the Public JBoss Maven repository.
-    // This is a best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
+    // This is the best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
     maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
@@ -500,11 +500,11 @@ tasks {
     }
 
     compileJava {
-        dependsOn("generateJavaClients")
+        dependsOn("generateJavaClients", "spotlessJavaCheck")
     }
 
     compileKotlin {
-        dependsOn("generateJavaClients")
+        dependsOn("generateJavaClients", "detekt")
 
         compilerOptions {
             // see: https://youtrack.jetbrains.com/issue/KT-73255
