@@ -26,7 +26,15 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { SharedModule } from "../../../shared/shared.module";
+import { NgIf, TitleCasePipe } from "@angular/common";
+import { ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableModule } from "@angular/material/table";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
@@ -37,7 +45,18 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
   standalone: true,
-  imports: [SharedModule],
+  imports: [
+    MaterialFormBuilderModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatExpansionPanelActionRow,
+    TranslateModule,
+    NgIf,
+    TitleCasePipe,
+  ],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
   @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
