@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpSession
 class LoggedInUserProviderTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>()
 
-    beforeSpec {
+    beforeEach {
         checkUnnecessaryStub()
     }
 
