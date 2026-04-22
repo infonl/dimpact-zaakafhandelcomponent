@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -13,14 +14,27 @@ import {
   Output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { DatumPipe } from "../../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
   BSN_LENGTH,
   POSTAL_CODE_LENGTH,
@@ -34,10 +48,23 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   selector: "zac-persoon-zoek",
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    MaterialFormBuilderModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatExpansionPanelActionRow,
+    TranslateModule,
+    NgIf,
+    EmptyPipe,
+    DatumPipe,
+  ],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
-  @Output() persoon? = new EventEmitter<GeneratedType<"RestPersoon">>();
+  @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
   @Input() zaaktypeUUID?: string | null = null;
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled: boolean = false;
@@ -277,7 +304,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {
-    this.persoon?.emit(persoon);
+    this.persoon.emit(persoon);
     this.clearFormAndData();
 
     if (this.syncEnabled) {
