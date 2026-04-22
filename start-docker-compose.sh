@@ -138,9 +138,14 @@ fi
 # Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
 echo "Starting Docker Compose environment with profiles [$profilesList] ..."
-if [ ! -z $DOCKER_USE_ARM64_CONTAINERS ]; then
+if [ -n "${DOCKER_USE_ARM64_CONTAINERS:-}" ]; then
   echo "Using arm64 containers ..."
-  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=$disableZacOpenTelemetry && op run --env-file="./.env.tpl" --no-masking -- docker compose -f docker-compose.yaml -f docker-compose.arm64-override.yaml --project-name zac up -d
+  compose_files="-f docker-compose.yaml"
+  if [ -f docker-compose.override.yml ]; then
+    compose_files="$compose_files -f docker-compose.override.yml"
+  fi
+  compose_files="$compose_files -f docker-compose.arm64-override.yaml"
+  export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=$disableZacOpenTelemetry && op run --env-file="./.env.tpl" --no-masking -- docker compose $compose_files --project-name zac up -d
 else
   export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=$disableZacOpenTelemetry && op run --env-file="./.env.tpl" --no-masking -- docker compose --project-name zac up -d
 fi
