@@ -233,7 +233,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
             productaanvraagtype = previousZaaktypeCmmnConfiguration.productaanvraagtype
             domein = previousZaaktypeCmmnConfiguration.domein
-            smartDocumentsIngeschakeld = previousZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
+            smartDocumentsEnabled = previousZaaktypeCmmnConfiguration.smartDocumentsEnabled
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
             creatiedatum = ZonedDateTime.now()

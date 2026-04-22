@@ -100,7 +100,8 @@ fun createRestZaaktypeBpmnConfiguration(
     groepNaam: String? = "fakeGroupName",
     productaanvraagtype: String? = null,
     zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
-    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
+    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
+    smartDocuments: RestSmartDocuments? = null
 ) = RestZaaktypeBpmnConfiguration(
     id = id,
     zaaktypeUuid = zaaktypeUuid,
@@ -109,7 +110,8 @@ fun createRestZaaktypeBpmnConfiguration(
     groepNaam = groepNaam,
     productaanvraagtype = productaanvraagtype,
     zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
-    zaakbeeindigParameters = zaakBeeindigParameters
+    zaakbeeindigParameters = zaakBeeindigParameters,
+    smartDocuments = smartDocuments
 )
 
 @Suppress("LongParameterList")
