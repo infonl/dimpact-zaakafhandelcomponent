@@ -32,12 +32,15 @@ public class WebSocketServerEndPoint {
 
     private static final Logger LOG = Logger.getLogger(WebSocketServerEndPoint.class.getName());
 
+    private final SessionRegistry registry;
+
     @Inject
-    private SessionRegistry registry;
+    public WebSocketServerEndPoint(final SessionRegistry registry) {
+        this.registry = registry;
+    }
 
     @OnOpen
     public void open(final Session session, final EndpointConfig conf) {
-        // Check that there is a logged in employee (and that authentication has taken place).
         final HttpSession httpSession = (HttpSession) conf.getUserProperties().get(HTTP_SESSION);
         final LoggedInUser loggedInUser = httpSession != null ? (LoggedInUser) httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) :
                 null;
@@ -81,8 +84,8 @@ public class WebSocketServerEndPoint {
         try {
             // According to the RFC, this close reason should be used if the other reasons are not applicable.
             session.close(new CloseReason(VIOLATED_POLICY, reason));
-        } catch (IOException e) {
-            log(session, e);
+        } catch (IOException ioException) {
+            log(session, ioException);
         }
     }
 
