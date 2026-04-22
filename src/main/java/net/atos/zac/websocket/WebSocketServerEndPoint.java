@@ -9,6 +9,7 @@ import static jakarta.websocket.CloseReason.CloseCodes.VIOLATED_POLICY;
 import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
 import static net.atos.zac.websocket.WebsocketHandshakeInterceptor.HTTP_SESSION;
 import static nl.info.zac.authentication.LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE;
+import static nl.info.zac.authentication.LoggedInUserProviderKt.getLoggedInUser;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -42,8 +43,7 @@ public class WebSocketServerEndPoint {
     @OnOpen
     public void open(final Session session, final EndpointConfig conf) {
         final HttpSession httpSession = (HttpSession) conf.getUserProperties().get(HTTP_SESSION);
-        final LoggedInUser loggedInUser = httpSession != null ? (LoggedInUser) httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) :
-                null;
+        final LoggedInUser loggedInUser = httpSession != null ? getLoggedInUser(httpSession) : null;
         if (loggedInUser == null) {
             denyAccess(session, "no logged in user");
         } else {

@@ -63,6 +63,24 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
     }
 
+    Given("a WebSocket open event with an invalidated HTTP session") {
+        val wsSession = mockk<Session>(relaxed = true)
+        val endpointConfig = mockk<EndpointConfig>()
+        val httpSession = mockk<HttpSession>()
+        every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
+        every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } throws IllegalStateException("session invalidated")
+
+        When("open is called") {
+            endpoint.open(wsSession, endpointConfig)
+
+            Then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
+                verify(exactly = 1) {
+                    wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
+                }
+            }
+        }
+    }
+
     Given("a WebSocket open event with an authenticated HTTP session") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
