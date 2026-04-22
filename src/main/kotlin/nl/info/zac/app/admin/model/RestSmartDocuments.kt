@@ -15,5 +15,5 @@ data class RestSmartDocuments(
 
 fun ZaaktypeConfiguration.toRestSmartDocuments(enabledGlobally: Boolean) = RestSmartDocuments(
     enabledGlobally = enabledGlobally,
-    enabledForZaaktype = smartDocumentsIngeschakeld
+    enabledForZaaktype = smartDocumentsEnabled
 )

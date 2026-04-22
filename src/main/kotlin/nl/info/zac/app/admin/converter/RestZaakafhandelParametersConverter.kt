@@ -120,7 +120,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             domein = restZaakafhandelParameters.domein
             defaultBehandelaarId = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
-            smartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            smartDocumentsEnabled = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
             creatiedatum = restZaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }.also {
             it.setHumanTaskParametersCollection(

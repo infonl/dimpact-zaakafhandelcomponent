@@ -90,7 +90,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
                         groepNaam shouldBe zaaktypeBpmnProcessDefinition.groepID
                         smartDocuments?.enabledGlobally shouldBe true
-                        smartDocuments?.enabledForZaaktype shouldBe zaaktypeBpmnProcessDefinition.smartDocumentsIngeschakeld
+                        smartDocuments?.enabledForZaaktype shouldBe zaaktypeBpmnProcessDefinition.smartDocumentsEnabled
                     }
                 }
             }
@@ -274,8 +274,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                     restZaaktypeBpmnConfiguration
                 )
 
-                Then("smartDocumentsIngeschakeld is persisted as true") {
-                    capturedConfiguration.captured.smartDocumentsIngeschakeld shouldBe true
+                Then("smartDocumentsEnabled is persisted as true") {
+                    capturedConfiguration.captured.smartDocumentsEnabled shouldBe true
                 }
             }
         }

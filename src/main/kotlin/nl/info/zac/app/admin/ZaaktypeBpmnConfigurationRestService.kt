@@ -115,7 +115,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
-            smartDocumentsIngeschakeld = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
+            smartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
             setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
