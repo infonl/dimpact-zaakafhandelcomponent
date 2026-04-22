@@ -21,9 +21,11 @@
 #   ./scripts/load-test/create-load.py 100 --skip-config --concurrency 4
 
 import argparse
+import base64
 import json
 import pathlib
 import sys
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -154,8 +156,8 @@ def _http(method: str, url: str, body: Any = None, headers: dict | None = None) 
         return e.code, e.read().decode()
 
 
-def get_token(username: str, password: str, keycloak_url: str) -> str:
-    """Obtain a Keycloak Bearer token via Resource Owner Password flow."""
+def _get_tokens(username: str, password: str, keycloak_url: str) -> tuple[str, str]:
+    """Obtain Keycloak access + refresh tokens via Resource Owner Password flow."""
     url = f"{keycloak_url}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
     body = {
         "grant_type": "password",
@@ -168,7 +170,66 @@ def get_token(username: str, password: str, keycloak_url: str) -> str:
     if status != 200:
         print(f"ERROR: Keycloak auth failed for '{username}' (HTTP {status}): {response[:200]}")
         sys.exit(1)
-    return json.loads(response)["access_token"]
+    data = json.loads(response)
+    return data["access_token"], data["refresh_token"]
+
+
+def get_token(username: str, password: str, keycloak_url: str) -> str:
+    """Obtain a Keycloak Bearer token via Resource Owner Password flow."""
+    return _get_tokens(username, password, keycloak_url)[0]
+
+
+def _jwt_expiry(token: str) -> float:
+    """Return the exp claim from a JWT without verifying the signature."""
+    payload = token.split(".")[1]
+    payload += "=" * (-len(payload) % 4)
+    return float(json.loads(base64.urlsafe_b64decode(payload))["exp"])
+
+
+_TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refresh
+
+
+class TokenManager:
+    """Thread-safe Keycloak token holder that auto-refreshes before expiry."""
+
+    def __init__(self, username: str, password: str, keycloak_url: str) -> None:
+        self._username = username
+        self._password = password
+        self._keycloak_url = keycloak_url
+        self._lock = threading.Lock()
+        self._access_token, self._refresh_token = _get_tokens(username, password, keycloak_url)
+        self._expiry = _jwt_expiry(self._access_token)
+
+    def get_token(self) -> str:
+        """Return a valid access token, refreshing proactively when near expiry."""
+        with self._lock:
+            if time.time() >= self._expiry - _TOKEN_REFRESH_MARGIN:
+                self._do_refresh()
+            return self._access_token
+
+    def _do_refresh(self) -> None:
+        url = f"{self._keycloak_url}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
+        body = {
+            "grant_type": "refresh_token",
+            "client_id": KEYCLOAK_CLIENT_ID,
+            "client_secret": KEYCLOAK_CLIENT_SECRET,
+            "refresh_token": self._refresh_token,
+        }
+        status, response = _http(
+            "POST", url, body=body, headers={"Content-Type": "application/x-www-form-urlencoded"}
+        )
+        if status == 200:
+            data = json.loads(response)
+            self._access_token = data["access_token"]
+            self._refresh_token = data["refresh_token"]
+            self._expiry = _jwt_expiry(self._access_token)
+            print(f"  [Token] Refreshed (expires in {int(self._expiry - time.time())}s)")
+        else:
+            print(f"  [Token] Refresh failed (HTTP {status}), re-authenticating...")
+            self._access_token, self._refresh_token = _get_tokens(
+                self._username, self._password, self._keycloak_url
+            )
+            self._expiry = _jwt_expiry(self._access_token)
 
 
 def _auth_headers(token: str) -> dict:
@@ -604,7 +665,7 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def create_zaak(index: int, zaaktype_uuid: str, token: str, zac_url: str) -> dict:
+def create_zaak(index: int, zaaktype_uuid: str, token_manager: TokenManager, zac_url: str) -> dict:
     """Create a single zaak. Returns result dict with timing info."""
     body = {
         "zaak": {
@@ -619,7 +680,9 @@ def create_zaak(index: int, zaaktype_uuid: str, token: str, zac_url: str) -> dic
         "bagObjecten": [],
     }
     t0 = time.monotonic()
-    status, response_body = _http("POST", f"{zac_url}/rest/zaken/zaak", body=body, headers=_auth_headers(token))
+    status, response_body = _http(
+        "POST", f"{zac_url}/rest/zaken/zaak", body=body, headers=_auth_headers(token_manager.get_token())
+    )
     elapsed = int((time.monotonic() - t0) * 1000)
     zaak_uuid = None
     parse_error = None
@@ -640,7 +703,7 @@ def create_zaak(index: int, zaaktype_uuid: str, token: str, zac_url: str) -> dic
     }
 
 
-def create_zaken(n: int, token: str, zac_url: str, concurrency: int) -> list[dict]:
+def create_zaken(n: int, token_manager: TokenManager, zac_url: str, concurrency: int) -> list[dict]:
     """Create n zaken, distributed round-robin across all 7 zaaktypes."""
     print(f"\n=== Creating {n} zaken (concurrency={concurrency}) ===")
     results = []
@@ -648,7 +711,7 @@ def create_zaken(n: int, token: str, zac_url: str, concurrency: int) -> list[dic
 
     def _task(i: int) -> dict:
         zaaktype_uuid = ALL_ZAAKTYPE_UUIDS[i % len(ALL_ZAAKTYPE_UUIDS)]
-        return create_zaak(i + 1, zaaktype_uuid, token, zac_url)
+        return create_zaak(i + 1, zaaktype_uuid, token_manager, zac_url)
 
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
         futures = {executor.submit(_task, i): i for i in range(n)}
@@ -788,9 +851,9 @@ def main() -> None:
         print("\nSkipping BPMN upload and zaakafhandelparameters creation (--skip-config)")
 
     print("\nObtaining zaak creation token (beheerder1newiam)...")
-    zaak_token = get_token(ZAAK_USER, ZAAK_PASSWORD, args.keycloak_url)
+    zaak_token_manager = TokenManager(ZAAK_USER, ZAAK_PASSWORD, args.keycloak_url)
 
-    results = create_zaken(args.zaken_count, zaak_token, args.zac_url, args.concurrency)
+    results = create_zaken(args.zaken_count, zaak_token_manager, args.zac_url, args.concurrency)
 
     print_stats(results)
 
