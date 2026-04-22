@@ -44,13 +44,13 @@ class StaticCacheFilter : Filter {
     }
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val wrappedResponse = (request as? HttpServletRequest)
-            ?.let { httpRequest -> resolveCacheControl(httpRequest) }
-            ?.let { cacheControl ->
-                (response as? HttpServletResponse)?.let { ResponseWrapper(it, cacheControl) }
-            }
-            ?: response
-        chain.doFilter(request, wrappedResponse)
+        val httpRequest = request as? HttpServletRequest
+        val cacheControl = httpRequest?.let { resolveCacheControl(it) }
+        if (cacheControl != null && httpRequest != null && response is HttpServletResponse) {
+            chain.doFilter(RequestWrapper(httpRequest), ResponseWrapper(response, cacheControl))
+        } else {
+            chain.doFilter(request, response)
+        }
     }
 
     private fun resolveCacheControl(request: HttpServletRequest): String? {

@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServletResponseWrapper
 import java.io.PrintWriter
 
 /**
- * Blocks Undertow from setting cache-related headers; injects the correct value on [getOutputStream] and [getWriter].
+ * Blocks Undertow from setting cache-related headers and injects the correct Cache-Control value.
+ * Headers are applied lazily on [getOutputStream] or [getWriter] — whichever Undertow calls first —
+ * so they are set after Undertow's own header writes, ensuring our value wins.
  */
 class ResponseWrapper(
     response: HttpServletResponse,
@@ -25,24 +27,15 @@ class ResponseWrapper(
 
     override fun setHeader(name: String, value: String) { if (!isCacheHeader(name)) super.setHeader(name, value) }
     override fun addHeader(name: String, value: String) { if (!isCacheHeader(name)) super.addHeader(name, value) }
-    override fun setIntHeader(name: String, value: Int) {
-        if (!isCacheHeader(name)) super.setIntHeader(name, value)
-    }
-
-    override fun addIntHeader(name: String, value: Int) {
-        if (!isCacheHeader(name)) super.addIntHeader(name, value)
-    }
-
-    override fun setDateHeader(name: String, date: Long) {
-        if (!isCacheHeader(name)) super.setDateHeader(name, date)
-    }
-
-    override fun addDateHeader(name: String, date: Long) {
-        if (!isCacheHeader(name)) super.addDateHeader(name, date)
-    }
+    override fun setIntHeader(name: String, value: Int) { if (!isCacheHeader(name)) super.setIntHeader(name, value) }
+    override fun addIntHeader(name: String, value: Int) { if (!isCacheHeader(name)) super.addIntHeader(name, value) }
+    override fun setDateHeader(name: String, date: Long) { if (!isCacheHeader(name)) super.setDateHeader(name, date) }
+    override fun addDateHeader(name: String, date: Long) { if (!isCacheHeader(name)) super.addDateHeader(name, date) }
 
     private fun applyCacheHeaders() {
         super.setHeader("Cache-Control", cacheControl)
+        super.setHeader("Pragma", "")
+        super.setHeader("Expires", "")
     }
 
     override fun getOutputStream(): ServletOutputStream {
