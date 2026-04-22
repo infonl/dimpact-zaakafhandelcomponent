@@ -29,6 +29,11 @@ import java.time.ZoneOffset
 import java.util.logging.Logger
 import kotlin.jvm.java
 
+private data class ApplicationRoleMappings(
+    val rolesPerZaaktype: Map<String, Set<String>>,
+    val overallRoles: Set<String>,
+)
+
 @ApplicationScoped
 @WebFilter(filterName = "UserPrincipalFilter")
 @AllOpen
@@ -100,7 +105,8 @@ constructor(
             LOG.info {
                 "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
                     "functional roles: '${loggedInUser.roles}' " +
-                    "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
+                    "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
+                    "overall roles: ${loggedInUser.overallRoles}"
             }
         }
     }
@@ -116,12 +122,12 @@ constructor(
                 // ZAC application roles are client roles, and are part of the standard 'roles' claim.
                 accessToken.rolesClaim.toSet()
             }
-            val applicationRolesPerZaaktype: Map<String, Set<String>> = when {
-                pabcIntegrationEnabled && functionalRoles.isNotEmpty() -> buildApplicationRoleMappingsFromPabc(
-                    functionalRoles
-                )
-                else -> emptyMap()
+            val applicationRoleMappings = if (pabcIntegrationEnabled && functionalRoles.isNotEmpty()) {
+                buildApplicationRoleMappingsFromPabc(functionalRoles)
+            } else {
+                ApplicationRoleMappings(rolesPerZaaktype = emptyMap(), overallRoles = emptySet())
             }
+            val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
@@ -134,18 +140,19 @@ constructor(
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
                 geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
-                applicationRolesPerZaaktype = applicationRolesPerZaaktype
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+                overallRoles = applicationRoleMappings.overallRoles,
             )
         }
 
     /**
-     * Builds a map of zaaktype -> set(application role names) from the PABC.
-     * - Only include results for 'ZAAKTYPE' entity types
-     * - Key uses entityType.name
+     * Builds [ApplicationRoleMappings] from the PABC response for the given functional roles.
+     * - [ApplicationRoleMappings.rolesPerZaaktype]: results with a 'ZAAKTYPE' entity type, keyed by entityType.id.
+     * - [ApplicationRoleMappings.overallRoles]: results without an entity type (apply to all entity types).
      */
     private fun buildApplicationRoleMappingsFromPabc(
         functionalRoles: Set<String>
-    ): Map<String, Set<String>> {
+    ): ApplicationRoleMappings {
         val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
         val rolesPerZaaktype: Map<String, Set<String>> =
             applicationRolesResponse.results
@@ -160,7 +167,7 @@ constructor(
                     result.entityType.id to roles
                 }
 
-        val rolesForAllZaaktypen: Set<String> =
+        val overallRoles: Set<String> =
             applicationRolesResponse.results
                 // an 'application roles response model' without an entity type means that these application roles
                 // apply to all entity types (and hence all zaaktypen)
@@ -169,35 +176,10 @@ constructor(
                 .filter { it.isNotEmpty() }
                 .toSet()
 
-        return if (rolesForAllZaaktypen.isEmpty()) {
-            rolesPerZaaktype
-        } else {
-            val allZaaktypes = getAllConfiguredZaaktypes()
-            allZaaktypes.associateWith { zaaktype -> (rolesPerZaaktype[zaaktype] ?: emptySet()) + rolesForAllZaaktypen }
-        }
-    }
-
-    private fun getAllConfiguredZaaktypes(): Set<String> {
-        val configuredCmmnZaaktypes = zaaktypeCmmnConfigurationService
-            .listZaaktypeCmmnConfiguration()
-            .groupBy { it.zaaktypeOmschrijving }
-            .values
-            .map {
-                    list ->
-                list.maxBy {
-                        cmmnConfiguration ->
-                    cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
-                }
-            }
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
-
-        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationBeheerService
-            .listConfigurations()
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
-
-        return configuredCmmnZaaktypes + configuredBpmnZaaktypes
+        return ApplicationRoleMappings(
+            rolesPerZaaktype = rolesPerZaaktype,
+            overallRoles = overallRoles
+        )
     }
 
     /**
