@@ -70,6 +70,18 @@ start up ZAC or even build the ZAC Docker Image first beforehand:
 ./start-docker-compose.sh -h
 ```
 
+### Using arm64 containers on a Mac
+
+If you want to run arm64 containers, you can set the environment variable `DOCKER_USE_ARM64_CONTAINERS=true`
+before starting the shell script:
+
+```
+DOCKER_USE_ARM64_CONTAINERS=true ./start-docker-compose.sh
+
+```
+
+You can also add this environment variable to your shell for convenience.
+
 ### Notes
 
 #### Using the latest version of ZAC
