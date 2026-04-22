@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -13,15 +14,27 @@ import {
   Output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
-import { SharedModule } from "../../../shared/shared.module";
+import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
+import { DatumPipe } from "../../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import {
   BSN_LENGTH,
   POSTAL_CODE_LENGTH,
@@ -36,7 +49,19 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   templateUrl: "./persoon-zoek.component.html",
   styleUrls: ["./persoon-zoek.component.less"],
   standalone: true,
-  imports: [SharedModule],
+  imports: [
+    MaterialFormBuilderModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatExpansionPanelActionRow,
+    TranslateModule,
+    NgIf,
+    EmptyPipe,
+    DatumPipe,
+  ],
 })
 export class PersoonZoekComponent implements OnInit, OnDestroy {
   @Output() persoon = new EventEmitter<GeneratedType<"RestPersoon">>();
