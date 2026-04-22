@@ -122,12 +122,12 @@ constructor(
                 // ZAC application roles are client roles, and are part of the standard 'roles' claim.
                 accessToken.rolesClaim.toSet()
             }
-            val applicationRoleMapping = if (pabcIntegrationEnabled && functionalRoles.isNotEmpty()) {
+            val applicationRoleMappings = if (pabcIntegrationEnabled && functionalRoles.isNotEmpty()) {
                 buildApplicationRoleMappingsFromPabc(functionalRoles)
             } else {
                 ApplicationRoleMappings(rolesPerZaaktype = emptyMap(), overallRoles = emptySet())
             }
-            val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMapping.rolesPerZaaktype
+            val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
@@ -141,7 +141,7 @@ constructor(
                     .toSet(),
                 geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
                 applicationRolesPerZaaktype = applicationRolesPerZaaktype,
-                overallRoles = applicationRoleMapping.overallRoles,
+                overallRoles = applicationRoleMappings.overallRoles,
             )
         }
 
