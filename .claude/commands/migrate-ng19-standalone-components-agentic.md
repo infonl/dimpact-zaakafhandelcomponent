@@ -6,12 +6,19 @@ When invoked (with or without a component name as `$ARGUMENTS`), run the pipelin
 If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component directly.
 
 **Working directory for all shell commands:** `src/main/app/` inside the repo root
-**Migration rules source of truth:** `.claude/commands/migrate-ng19-standalone-components.md`
 **Collaboration claims branch:** `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`
 
-> **Every agent spawned in this pipeline MUST read these two files before doing any work:**
+> **Migration MDs are ALWAYS read from the claims branch — never from the local working tree or `main`.**
+> The claims branch is kept up to date after every PR and during parallel migrations; the `main` copy lags behind.
+> Read them with:
+> ```
+> git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+> git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components-agentic.md
+> ```
+
+> **Every agent spawned in this pipeline MUST read these files before doing any work:**
 > 1. `AGENTS.md` — shared project-wide rules (no `any`, no `NO_ERRORS_SCHEMA`, SPDX headers, commit conventions, etc.)
-> 2. `.claude/commands/migrate-ng19-standalone-components.md` — migration-specific rules and patterns
+> 2. Migration plan — via `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md`
 >
 > Rules in `AGENTS.md` take precedence and apply to all code and specs produced.
 
@@ -27,6 +34,21 @@ If `$ARGUMENTS` names a specific component, skip Stage 1 and use that component 
 
 ---
 
+## Stage 0 — Load Authoritative Migration Files
+
+**Run these two commands immediately, before anything else, and use their output for the rest of this pipeline.**
+The local copies of these files may be stale; the claims branch is always up to date.
+
+```bash
+git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
+git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components-agentic.md
+```
+
+Treat the output of these commands as the rules for the entire pipeline — not the local files on disk.
+
+---
+
 ## Stage 1 — Target Picker
 
 > Skip if `$ARGUMENTS` already names a component.
@@ -35,7 +57,8 @@ Launch a **general-purpose** agent:
 
 ```
 Read AGENTS.md.
-Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
+Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+(This is the authoritative migration plan — always read from the claims branch, never from the local working tree.).
 Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md
 Run from repo root: gh pr list --limit 20 --json title,headRefName
 
@@ -78,7 +101,7 @@ Claims branch: chore/angular-19-migration--collaboration-claims-list--no-merging
 Use git worktree — never git checkout:
 1. git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 2. git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
-3. In /tmp/zac-claims/migration-claims.md: find the ## Marcel section (or create it); add `- [ ] {COMPONENT_CLASS}` under it.
+3. Ask the user: _"What name should I file this migration under in the claims file?"_ — use their answer as `{USER_NAME}`. In /tmp/zac-claims/migration-claims.md: find the `## {USER_NAME}` section (or create it); add `- [ ] {COMPONENT_CLASS}` under it.
 4. cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim {COMPONENT_CLASS} for standalone migration"
 5. git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me
 6. git worktree remove /tmp/zac-claims
@@ -110,7 +133,8 @@ Launch a **general-purpose** agent (substitute paths):
 
 ```
 Read AGENTS.md.
-Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
+Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+(This is the authoritative migration plan — always read from the claims branch, never from the local working tree.).
 Read:
 - {COMPONENT_TS_PATH}
 - {COMPONENT_HTML_PATH} (if exists)
@@ -179,7 +203,8 @@ Launch a **general-purpose** agent with no prior context of how the spec was wri
 
 ```
 Read AGENTS.md.
-Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md — pay special attention to the Rules table and Spec Conventions section.
+Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+(This is the authoritative migration plan — always read from the claims branch, never from the local working tree.) — pay special attention to the Rules table and Spec Conventions section.
 Read the spec at {COMPONENT_SPEC_PATH}.
 Read the component at {COMPONENT_TS_PATH} and its template at {COMPONENT_HTML_PATH} (if exists).
 
@@ -225,7 +250,8 @@ Launch a **general-purpose** agent (substitute paths):
 
 ```
 Read AGENTS.md.
-Read the migration plan at .claude/commands/migrate-ng19-standalone-components.md.
+Run: git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:.claude/commands/migrate-ng19-standalone-components.md
+(This is the authoritative migration plan — always read from the claims branch, never from the local working tree.).
 Read:
 - {COMPONENT_TS_PATH}
 - {COMPONENT_HTML_PATH}
@@ -257,7 +283,7 @@ TASK: Migrate {COMPONENT_CLASS} to standalone, then self-review.
 
 --- SELF-REVIEW CHECKLIST ---
 [ ] standalone: true present
-[ ] imports[] covers all template dependencies
+[ ] imports[] covers all template dependencies (individual symbols only — NO SharedModule or other barrel modules)
 [ ] No `any` / `as any` in any touched file
 [ ] No `: void` return type annotations in any touched file
 [ ] Access modifiers correct
