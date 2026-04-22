@@ -109,9 +109,11 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 - Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
 
 ### Kotest (Backend Tests)
-Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
+Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `beforeEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
+    beforeEach { checkUnnecessaryStub() }
+
     Context("A function in the service under test") {
         Given("some state") {
             When("action occurs") {
