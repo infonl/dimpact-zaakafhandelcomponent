@@ -30,6 +30,11 @@ class LoggedInUser(
      * When the PABC feature is enabled, this maps zaaktypes to sets of application roles (PABC).
      */
     val applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
+
+    /**
+     * Application roles that are not tied to a specific entity type / zaaktype.
+     * In PABC, these are roles returned without an entity type and therefore apply across all entity types / zaaktypen.
+     */
     val overallRoles: Set<String> = emptySet(),
 
 ) : User(id, firstName, lastName, displayName, email) {

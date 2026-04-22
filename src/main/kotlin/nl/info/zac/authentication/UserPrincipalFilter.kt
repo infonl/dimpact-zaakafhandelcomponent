@@ -29,7 +29,7 @@ import java.time.ZoneOffset
 import java.util.logging.Logger
 import kotlin.jvm.java
 
-data class ApplicationRoleMappings(
+private data class ApplicationRoleMappings(
     val rolesPerZaaktype: Map<String, Set<String>>,
     val overallRoles: Set<String>,
 )

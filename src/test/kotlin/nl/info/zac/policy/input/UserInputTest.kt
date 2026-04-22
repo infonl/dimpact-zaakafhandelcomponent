@@ -56,6 +56,37 @@ class UserInputTest : BehaviorSpec({
             }
         }
 
+        When("a zaaktype is provided and the user has overallRoles but no per-zaaktype roles for that zaaktype") {
+            val zaaktype = "fakeZaaktype"
+            val overallRoles = setOf("fakeOverallRole1", "fakeOverallRole2")
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = emptyMap(),
+                overallRoles = overallRoles
+            )
+            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+
+            Then("rollen contains only the overallRoles and zaaktypen contains only that zaaktype") {
+                input.user.rollen shouldBeEqual overallRoles
+                input.user.zaaktypen shouldBe setOf(zaaktype)
+            }
+        }
+
+        When("a zaaktype is provided and the user has both overallRoles and per-zaaktype roles for that zaaktype") {
+            val zaaktype = "fakeZaaktype"
+            val rolesForZaaktype = setOf("fakeRole1", "fakeRole2")
+            val overallRoles = setOf("fakeOverallRole1", "fakeOverallRole2")
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = mapOf(zaaktype to rolesForZaaktype),
+                overallRoles = overallRoles
+            )
+            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+
+            Then("rollen contains both per-zaaktype roles and overallRoles and zaaktypen contains only that zaaktype") {
+                input.user.rollen shouldContainExactlyInAnyOrder (rolesForZaaktype + overallRoles).toList()
+                input.user.zaaktypen shouldBe setOf(zaaktype)
+            }
+        }
+
         When("no zaaktype is provided and the user has both applicationRolesPerZaaktype and overallRoles") {
             val rolesForZaaktype1 = setOf("fakeRole1", "fakeRole2")
             val rolesForZaaktype2 = setOf("fakeRole2", "fakeRole3")
