@@ -258,9 +258,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)
             ?.takeIf { it.isNotBlank() }
             ?.let {
-            composeFiles.add(File("docker-compose.arm64-override.yaml"))
-            logger.info { "Using arm64 containers" }
-        }
+                composeFiles.add(File("docker-compose.arm64-override.yaml"))
+                logger.info { "Using arm64 containers" }
+            }
 
         return ComposeContainer("zac-itest-", composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
