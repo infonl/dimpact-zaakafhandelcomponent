@@ -8,7 +8,7 @@ package net.atos.zac.websocket;
 import static jakarta.websocket.CloseReason.CloseCodes.VIOLATED_POLICY;
 import static net.atos.zac.websocket.SubscriptionType.DELETE_ALL;
 import static net.atos.zac.websocket.WebsocketHandshakeInterceptor.HTTP_SESSION;
-import static nl.info.zac.authentication.SecurityUtil.LOGGED_IN_USER_SESSION_ATTRIBUTE;
+import static nl.info.zac.authentication.LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE;
 
 import java.io.IOException;
 import java.util.logging.Level;
