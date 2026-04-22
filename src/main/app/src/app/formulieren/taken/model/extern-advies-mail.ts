@@ -21,6 +21,7 @@ import { TakenService } from "../../../taken/taken.service";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
+/** @deprecated Migrate to Angular task form pattern (AbstractTaskForm) */
 export class ExternAdviesMail extends AbstractTaakFormulier {
   fields = {
     ADVISEUR: "adviseur",

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,6 +10,7 @@ import { ReadonlyFormFieldBuilder } from "../../../shared/material-form-builder/
 import { TextareaFormFieldBuilder } from "../../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
+/** @deprecated Migrate to Angular task form pattern (AbstractTaskForm) */
 export class DefaultTaakformulier extends AbstractTaakFormulier {
   fields = {
     REDEN_START: "redenStart",

@@ -15,9 +15,9 @@ import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandelin
 import { testQueryClient } from "../../../../setupJest";
 import { fromPartial } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
-import { AdviesFormulier } from "./model/advies";
-import { GoedkeurenFormulier } from "./model/goedkeuren";
+import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
+import { AdviesTaskForm } from "./model/advies-task-form";
+import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
 import { TaakFormulierenService } from "./taak-formulieren.service";
 
 describe("TaakFormulierenService", () => {
@@ -47,7 +47,7 @@ describe("TaakFormulierenService", () => {
 
     it("should delegate to goedkeurenFormulier for GOEDKEUREN", async () => {
       const spy = jest
-        .spyOn(TestBed.inject(GoedkeurenFormulier), "requestForm")
+        .spyOn(TestBed.inject(GoedkeurenTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
       const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
         formulierDefinitie: "GOEDKEUREN",
@@ -60,7 +60,7 @@ describe("TaakFormulierenService", () => {
 
     it("should delegate to aanvullendeInformatieFormulier and pass planItem for AANVULLENDE_INFORMATIE", async () => {
       const spy = jest
-        .spyOn(TestBed.inject(AanvullendeInformatieFormulier), "requestForm")
+        .spyOn(TestBed.inject(AanvullendeInformatieTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
       const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
         formulierDefinitie: "AANVULLENDE_INFORMATIE",
@@ -73,7 +73,7 @@ describe("TaakFormulierenService", () => {
 
     it("should delegate to adviesFormulier for ADVIES", async () => {
       const spy = jest
-        .spyOn(TestBed.inject(AdviesFormulier), "requestForm")
+        .spyOn(TestBed.inject(AdviesTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
       const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
         formulierDefinitie: "ADVIES",
