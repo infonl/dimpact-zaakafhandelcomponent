@@ -34,6 +34,14 @@ import java.io.PrintWriter
 @WebFilter(filterName = "StaticResourceCacheFilter", urlPatterns = ["/*"])
 class StaticResourceCacheFilter : Filter {
 
+    companion object {
+        /** 8 is Angular's default hash length (hardcoded in `@angular/build`); filename example: main-A1B2C3D4.js */
+        private val HASHED_RESOURCE_REGEX = Regex("""-[A-Za-z0-9]{8}\.(js|css)(\.map)?$""")
+
+        /** 8 must match `.substring(0, 8)` in `scripts/cache-busting.js`; `?v=` param example: 395afa0f */
+        private val MD5_VERSION_REGEX = Regex("""^[0-9a-f]{8}$""")
+    }
+
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val wrappedResponse = (request as? HttpServletRequest)
             ?.let { httpRequest -> resolveCacheControl(httpRequest) }
@@ -99,11 +107,4 @@ class StaticResourceCacheFilter : Filter {
         }
     }
 
-    companion object {
-        // Angular build output: 8-character uppercase content hash in filename, e.g. main-A1B2C3D4.js
-        private val HASHED_RESOURCE_REGEX = Regex("""-[A-Z0-9]{8}\.(js|css)(\.map)?$""")
-
-        // cache-busting.js generates an 8-character lowercase hex MD5 substring, e.g. 395afa0f
-        private val MD5_VERSION_REGEX = Regex("""^[0-9a-f]{8}$""")
-    }
 }
