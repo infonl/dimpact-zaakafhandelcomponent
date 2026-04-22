@@ -14,10 +14,10 @@ import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
-import { AanvullendeInformatieFormulier } from "./aanvullende-informatie";
+import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
 
-describe("AanvullendeInformatieFormulier", () => {
-  let formulier: AanvullendeInformatieFormulier;
+describe("AanvullendeInformatieTaskForm", () => {
+  let formulier: AanvullendeInformatieTaskForm;
   let zakenService: { listAfzendersVoorZaak: jest.Mock };
   let mailtemplateService: { findMailtemplate: jest.Mock };
   let informatieObjectenService: {
@@ -77,7 +77,7 @@ describe("AanvullendeInformatieFormulier", () => {
       ],
     });
 
-    formulier = TestBed.inject(AanvullendeInformatieFormulier);
+    formulier = TestBed.inject(AanvullendeInformatieTaskForm);
   });
 
   describe("requestForm", () => {

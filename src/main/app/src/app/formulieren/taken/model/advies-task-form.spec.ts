@@ -10,10 +10,10 @@ import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandelin
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { AdviesFormulier } from "./advies";
+import { AdviesTaskForm } from "./advies-task-form";
 
-describe("AdviesFormulier", () => {
-  let formulier: AdviesFormulier;
+describe("AdviesTaskForm", () => {
+  let formulier: AdviesTaskForm;
   let informatieObjectenService: {
     listEnkelvoudigInformatieobjecten: jest.Mock;
   };
@@ -41,7 +41,7 @@ describe("AdviesFormulier", () => {
       ],
     });
 
-    formulier = TestBed.inject(AdviesFormulier);
+    formulier = TestBed.inject(AdviesTaskForm);
   });
 
   describe("requestForm", () => {

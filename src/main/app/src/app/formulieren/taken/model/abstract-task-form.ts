@@ -13,7 +13,7 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 @Injectable({
   providedIn: "root",
 })
-export abstract class AbstractTaakFormulier implements OnDestroy {
+export abstract class AbstractTaskForm implements OnDestroy {
   protected readonly formBuilder = inject(FormBuilder);
   protected readonly translateService = inject(TranslateService);
   protected readonly destroy$ = new Subject<void>();
