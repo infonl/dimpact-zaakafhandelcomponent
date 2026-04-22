@@ -26,7 +26,6 @@ import nl.info.zac.documentcreation.model.createBpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.smartdocuments.SmartDocumentsService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
 import java.net.URLEncoder
 import java.time.ZoneOffset
@@ -36,7 +35,6 @@ import java.util.UUID
 
 class BpmnDocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
@@ -49,7 +47,6 @@ class BpmnDocumentCreationServiceTest : BehaviorSpec({
     )
     val bpmnDocumentCreationService = BpmnDocumentCreationService(
         smartDocumentsService = smartDocumentsService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         documentCreationDataConverter = documentCreationDataConverter,
         documentCreationService = documentCreationService,
         loggedInUserInstance = loggedInUserInstance

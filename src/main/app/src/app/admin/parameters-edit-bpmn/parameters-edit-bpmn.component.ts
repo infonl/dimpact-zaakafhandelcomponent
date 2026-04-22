@@ -6,12 +6,15 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { NgFor, NgIf } from "@angular/common";
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   inject,
   Input,
   OnDestroy,
   Output,
+  ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -51,6 +54,7 @@ import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
+import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 
@@ -93,12 +97,16 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     TranslateModule,
     MaterialFormBuilderModule,
     StaticTextComponent,
+    SmartDocumentsFormComponent,
   ],
 })
-export class ParametersEditBpmnComponent implements OnDestroy {
+export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   @Input({ required: false }) selectedIndexStart: number = 0;
   @Output() switchModellingMethod =
     new EventEmitter<ProcessModelMethodSelection>();
+
+  @ViewChild("smartDocumentsFormRef")
+  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
   private readonly dialog = inject(MatDialog);
@@ -197,6 +205,7 @@ export class ParametersEditBpmnComponent implements OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly formBuilder: FormBuilder,
     private readonly zaakafhandelParametersService: ZaakafhandelParametersService,
+    private readonly cdr: ChangeDetectorRef,
     private readonly identityService: IdentityService,
     protected readonly utilService: UtilService,
     private readonly configuratieService: ConfiguratieService,
@@ -249,6 +258,10 @@ export class ParametersEditBpmnComponent implements OnDestroy {
       }
       this.switchModellingMethod.emit({ type: value?.value ?? null });
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
   }
 
   async createForm() {
@@ -505,6 +518,13 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           this.bpmnZaakafhandelParameters.zaakNietOntvankelijkResultaattype,
         zaakbeeindigParameters:
           this.bpmnZaakafhandelParameters.zaakbeeindigParameters,
+        smartDocuments: {
+          enabledGlobally:
+            this.bpmnZaakafhandelParameters.smartDocuments?.enabledGlobally ??
+            false,
+          enabledForZaaktype:
+            this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false,
+        },
       })
       .subscribe({
         next: (data) => {
@@ -515,6 +535,12 @@ export class ParametersEditBpmnComponent implements OnDestroy {
           this.utilService.openSnackbar(
             "msg.zaakafhandelparameters.opgeslagen",
           );
+
+          if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+            this.smartDocumentsFormComponent
+              .saveSmartDocumentsMapping()
+              .subscribe();
+          }
         },
         error: () => {
           this.isLoading = false;

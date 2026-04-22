@@ -26,6 +26,7 @@ import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
 import nl.info.zac.app.admin.model.RestZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toZaaktypeBetrokkenParameters
 import nl.info.zac.app.admin.model.toZaaktypeBpmnConfiguration
 import nl.info.zac.app.admin.model.toZaaktypeBrpParameters
@@ -33,6 +34,7 @@ import nl.info.zac.app.admin.model.toZaaktypeCompletionParametersList
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -42,6 +44,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @AllOpen
+@Suppress("LongParameterList")
 @NoArgConstructor
 class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
@@ -49,7 +52,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val policyService: PolicyService,
     private val ztcClientService: ZtcClientService,
-    private val restZaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter
+    private val restZaakbeeindigParameterConverter: RestZaakbeeindigParameterConverter,
+    private val smartDocumentsService: SmartDocumentsService
 ) {
     @GET
     fun listZaaktypeBpmnConfigurations(): List<RestZaaktypeBpmnConfiguration> {
@@ -111,6 +115,7 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
             zaaktypeBetrokkeneParameters = restZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
             zaaktypeBrpParameters = restZaaktypeBpmnConfiguration.brpDoelbindingen?.toZaaktypeBrpParameters(this)
             nietOntvankelijkResultaattype = restZaaktypeBpmnConfiguration.zaakNietOntvankelijkResultaattype?.id
+            smartDocumentsEnabled = restZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
             setZaakbeeindigParameters(restZaaktypeBpmnConfiguration.zaakbeeindigParameters.toZaaktypeCompletionParametersList())
         } ?: restZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration()
         return zaaktypeBpmnConfigurationBeheerService.storeConfiguration(
@@ -147,7 +152,8 @@ class ZaaktypeBpmnConfigurationRestService @Inject constructor(
         },
         zaakbeeindigParameters = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(
             this.getZaakbeeindigParameters()
-        )
+        ),
+        smartDocuments = this.toRestSmartDocuments(smartDocumentsService.isEnabled())
     ).apply {
         zaaktypeBetrokkeneParameters?.let { betrokkeneKoppelingen = it.toRestBetrokkeneKoppelingen() }
         zaaktypeBrpParameters?.let { brpDoelbindingen = it.toRestBrpDoelbindingen() }
