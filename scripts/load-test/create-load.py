@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
-# Local load & performance test script for ZAC.
+# Local load test script for ZAC.
 #
 # Uploads a BPMN process definition and form.io task forms to ZAC, creates
 # zaakafhandelparameters for all 7 zaaktypes in Open Zaak (3 CMMN, 4 BPMN),
@@ -12,16 +12,17 @@
 # Prerequisites: all Docker Compose services (including ZAC) must be running.
 #
 # Usage:
-#   ./scripts/load-test/create-zaken.py <zaken_count> [--skip-config]
+#   ./scripts/load-test/create-load.py <zaken_count> [--skip-config]
 #                                       [--concurrency N] [--zac-url URL]
 #                                       [--keycloak-url URL]
 #
 # Examples:
-#   ./scripts/load-test/create-zaken.py 10
-#   ./scripts/load-test/create-zaken.py 100 --skip-config --concurrency 4
+#   ./scripts/load-test/create-load.py 10
+#   ./scripts/load-test/create-load.py 100 --skip-config --concurrency 4
 
 import argparse
 import json
+import pathlib
 import sys
 import time
 import urllib.error
@@ -29,6 +30,8 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
+
+_SCRIPT_DIR = pathlib.Path(__file__).parent
 
 # ---------------------------------------------------------------------------
 # Constants — sourced from src/itest/kotlin/nl/info/zac/itest/config/
@@ -116,111 +119,16 @@ BPMN_ZAAKTYPES = [
 ALL_ZAAKTYPE_UUIDS = [z["uuid"] for z in CMMN_ZAAKTYPES] + [z["uuid"] for z in BPMN_ZAAKTYPES]
 
 # ---------------------------------------------------------------------------
-# Embedded BPMN process definition and form.io task form
+# BPMN process definition and form.io task form — loaded from bpmn/ subfolder
 #
 # A minimal Flowable BPMN 2.0 process with:
 #   - one user task assigned to the zaak's behandelaar / groep
-#   - formKey referencing the embedded loadTestForm
+#   - formKey referencing the loadTestForm
 # All 4 BPMN zaaktypes in this script share this single process definition.
 # ---------------------------------------------------------------------------
 
-LOAD_TEST_BPMN = """\
-<?xml version="1.0" encoding="UTF-8"?>
-<definitions
-  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:flowable="http://flowable.org/bpmn"
-  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-  xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
-  xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
-  typeLanguage="http://www.w3.org/2001/XMLSchema"
-  expressionLanguage="http://www.w3.org/1999/XPath"
-  targetNamespace="http://flowable.org/loadtest">
-
-  <process id="loadTestProcess" name="Load Test Process" isExecutable="true"
-           flowable:candidateStarterGroups="flowableUser">
-    <documentation>Simple BPMN process used by the ZAC local load test script.</documentation>
-
-    <startEvent id="start" name="Start" flowable:initiator="initiator"/>
-
-    <userTask id="loadTestTask" name="Load Test Task"
-              flowable:assignee="${var:get(zaakBehandelaar)}"
-              flowable:candidateGroups="${zaakGroep}"
-              flowable:formKey="loadTestForm"
-              flowable:formFieldValidation="false">
-      <extensionElements>
-        <flowable:static-form-key><![CDATA[loadTestForm]]></flowable:static-form-key>
-        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
-      </extensionElements>
-    </userTask>
-
-    <endEvent id="end" name="End"/>
-
-    <sequenceFlow id="flow1" sourceRef="start" targetRef="loadTestTask"/>
-    <sequenceFlow id="flow2" sourceRef="loadTestTask" targetRef="end"/>
-  </process>
-
-  <bpmndi:BPMNDiagram id="BPMNDiagram_loadTestProcess">
-    <bpmndi:BPMNPlane bpmnElement="loadTestProcess" id="BPMNPlane_loadTestProcess">
-      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
-        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="135.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="loadTestTask" id="BPMNShape_loadTestTask">
-        <omgdc:Bounds height="80.0" width="100.0" x="200.0" y="110.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
-        <omgdc:Bounds height="28.0" width="28.0" x="370.0" y="136.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
-        <omgdi:waypoint x="130.0" y="150.0"/>
-        <omgdi:waypoint x="200.0" y="150.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="300.0" y="150.0"/>
-        <omgdi:waypoint x="370.0" y="150.0"/>
-      </bpmndi:BPMNEdge>
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</definitions>
-"""
-
-LOAD_TEST_FORM = """\
-{
-  "display": "form",
-  "name": "loadTestForm",
-  "title": "Load Test Form",
-  "type": "form",
-  "components": [
-    {
-      "title": "Load test task",
-      "label": "Load test task",
-      "type": "panel",
-      "key": "loadTestPanel",
-      "input": false,
-      "tableView": false,
-      "components": [
-        {
-          "label": "Toelichting",
-          "type": "textarea",
-          "key": "toelichting",
-          "input": true,
-          "validate": {
-            "required": false
-          }
-        }
-      ]
-    },
-    {
-      "type": "button",
-      "label": "Afronden",
-      "key": "submit",
-      "disableOnInvalid": false,
-      "input": true,
-      "tableView": false
-    }
-  ]
-}
-"""
+LOAD_TEST_BPMN = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_PROCESS_KEY}.bpmn").read_text()
+LOAD_TEST_FORM = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_FORM_KEY}.json").read_text()
 
 # ---------------------------------------------------------------------------
 # HTTP helpers
