@@ -111,6 +111,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
+        private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
 
         private val logger = KotlinLogging.logger {}
         private val itestHttpClient = ItestHttpClient()
@@ -244,7 +245,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "LongMethod")
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
@@ -253,7 +254,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         val envFile = Files.createTempFile("zac-itest", ".env").toFile()
         emptyEnvFile = envFile
 
-        return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
+        val composeFiles: MutableList<File> = mutableListOf(File("docker-compose.yaml"))
+        System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)?.let {
+            composeFiles.add(File("docker-compose.arm64-override.yaml"))
+            logger.info { "Using arm64 containers" }
+        }
+
+        return ComposeContainer("zac-itest-", composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
