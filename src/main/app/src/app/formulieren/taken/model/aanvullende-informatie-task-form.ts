@@ -19,7 +19,7 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 @Injectable({
   providedIn: "root",
 })
-export class AanvullendeInformatieFormulier extends AbstractTaakFormulier {
+export class AanvullendeInformatieTaskForm extends AbstractTaakFormulier {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(

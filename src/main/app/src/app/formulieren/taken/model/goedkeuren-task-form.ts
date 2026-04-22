@@ -16,7 +16,7 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 @Injectable({
   providedIn: "root",
 })
-export class GoedkeurenFormulier extends AbstractTaakFormulier {
+export class GoedkeurenTaskForm extends AbstractTaakFormulier {
   private informatieObjectenService = inject(InformatieObjectenService);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {

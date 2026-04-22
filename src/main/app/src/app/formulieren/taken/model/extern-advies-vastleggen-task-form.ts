@@ -12,7 +12,7 @@ import { AbstractTaakFormulier } from "./abstract-taak-formulier";
 @Injectable({
   providedIn: "root",
 })
-export class ExternAdviesVastleggenTaskFields extends AbstractTaakFormulier {
+export class ExternAdviesVastleggenTaskForm extends AbstractTaakFormulier {
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     void zaak;
     return [
