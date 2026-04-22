@@ -28,14 +28,12 @@ import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { DashboardModule } from "./dashboard/dashboard.module";
-import { DocumentenModule } from "./documenten/documenten.module";
 import { FoutAfhandelingModule } from "./fout-afhandeling/fout-afhandeling.module";
 import { GebruikersvoorkeurenModule } from "./gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { IdentityModule } from "./identity/identity.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
 import { MailModule } from "./mail/mail.module";
 import { PlanItemsModule } from "./plan-items/plan-items.module";
-import { ProductaanvragenModule } from "./productaanvragen/productaanvragen.module";
 import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
 import { ZakenModule } from "./zaken/zaken.module";
@@ -60,10 +58,8 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     ZakenModule,
     ZoekenModule,
     InformatieObjectenModule,
-    DocumentenModule,
     MailModule,
     PlanItemsModule,
-    ProductaanvragenModule,
     IdentityModule,
     GebruikersvoorkeurenModule,
     AppRoutingModule,

@@ -107,7 +107,7 @@ class TaskRestService @Inject constructor(
     private val taakHistorieConverter: RestTaskHistoryConverter,
     private val policyService: PolicyService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
-    private val opschortenZaakHelper: SuspensionZaakHelper,
+    private val suspensionZaakHelper: SuspensionZaakHelper,
     private val bpmnTaskFormRuntimeService: BpmnTaskFormRuntimeService,
     private val zaakVariabelenService: ZaakVariabelenService,
 
@@ -271,7 +271,7 @@ class TaskRestService @Inject constructor(
         val updatedTask = updateDescriptionAndDueDate(restTask)
         createDocuments(restTask, zaak)
         if (isZaakHervatten(restTask.taakdata)) {
-            opschortenZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
+            suspensionZaakHelper.resumeZaak(zaak, REDEN_ZAAK_HERVATTEN)
         }
         restTask.taakdata?.let { taakdata ->
             taakdata[TAAK_DATA_DOCUMENTEN_VERZENDEN_POST]?.let {

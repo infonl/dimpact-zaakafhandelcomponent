@@ -324,7 +324,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     afrondenMail shouldBe originalZaaktypeCmmnConfiguration.afrondenMail
                     productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.productaanvraagtype
                     domein shouldBe originalZaaktypeCmmnConfiguration.domein
-                    smartDocumentsIngeschakeld shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
+                    smartDocumentsEnabled shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsEnabled
                 }
             }
 

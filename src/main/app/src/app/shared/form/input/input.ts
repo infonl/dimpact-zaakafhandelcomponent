@@ -4,15 +4,33 @@
  *
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import { booleanAttribute, Component, computed, input } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { TranslateModule } from "@ngx-translate/core";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
 
 @Component({
   selector: "zac-input",
   templateUrl: "./input.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgClass,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+  ],
 })
 export class ZacInput<
   Form extends Record<string, AbstractControl>,

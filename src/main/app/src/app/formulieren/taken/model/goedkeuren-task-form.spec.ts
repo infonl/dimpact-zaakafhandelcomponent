@@ -11,10 +11,10 @@ import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
-import { GoedkeurenFormulier } from "./goedkeuren";
+import { GoedkeurenTaskForm } from "./goedkeuren-task-form";
 
-describe("GoedkeurenFormulier", () => {
-  let formulier: GoedkeurenFormulier;
+describe("GoedkeurenTaskForm", () => {
+  let formulier: GoedkeurenTaskForm;
   let informatieObjectenService: {
     listEnkelvoudigInformatieobjecten: jest.Mock;
   };
@@ -51,7 +51,7 @@ describe("GoedkeurenFormulier", () => {
       ],
     });
 
-    formulier = TestBed.inject(GoedkeurenFormulier);
+    formulier = TestBed.inject(GoedkeurenTaskForm);
   });
 
   describe("requestForm", () => {

@@ -33,6 +33,20 @@ const routes: Routes = [
         (module) => module.SIGNALERINGEN_ROUTES,
       ),
   },
+  {
+    path: "documenten",
+    loadChildren: () =>
+      import("./documenten/documenten-routing.module").then(
+        (module) => module.DocumentenRoutingModule,
+      ),
+  },
+  {
+    path: "productaanvragen",
+    loadChildren: () =>
+      import("./productaanvragen/productaanvragen-routing.module").then(
+        (module) => module.ProductaanvragenRoutingModule,
+      ),
+  },
 ];
 
 @NgModule({

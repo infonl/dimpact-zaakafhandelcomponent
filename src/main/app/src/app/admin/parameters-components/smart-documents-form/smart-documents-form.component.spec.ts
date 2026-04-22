@@ -85,4 +85,87 @@ describe(SmartDocumentsFormComponent.name, () => {
       informatieObjectenService.listInformatieobjecttypes,
     ).toHaveBeenCalledWith("test-zaaktype-uuid");
   });
+
+  it("should not render the card when enabledGlobally is false", () => {
+    fixture.componentRef.setInput("enabledGlobally", false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector("mat-card")).toBeNull();
+  });
+
+  describe("when enabledGlobally is true and enabledForZaaktype is false", () => {
+    let localFixture: ComponentFixture<SmartDocumentsFormComponent>;
+
+    beforeEach(async () => {
+      localFixture = TestBed.createComponent(SmartDocumentsFormComponent);
+      localFixture.componentRef.setInput("zaakTypeUuid", "test-zaaktype-uuid");
+      localFixture.componentRef.setInput("enabledGlobally", true);
+      localFixture.componentRef.setInput("enabledForZaaktype", false);
+      localFixture.detectChanges();
+      await localFixture.whenStable();
+      localFixture.detectChanges();
+    });
+
+    it("should render the card", () => {
+      expect(localFixture.nativeElement.querySelector("mat-card")).toBeTruthy();
+    });
+
+    it("should initialize enabledForZaaktypeForm with false", () => {
+      expect(
+        localFixture.componentInstance.enabledForZaaktypeForm.value
+          .enabledForZaaktype,
+      ).toBe(false);
+    });
+
+    it("enabledForZaaktypeValue should return false", () => {
+      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(
+        false,
+      );
+    });
+
+    it("should show disabled feedback", () => {
+      expect(
+        localFixture.nativeElement.querySelector(".form-disabled-feedback"),
+      ).toBeTruthy();
+    });
+
+    it("should hide the tree form", () => {
+      const treeForms = localFixture.nativeElement.querySelectorAll("mat-tree");
+      expect(treeForms.length).toBe(0);
+    });
+  });
+
+  describe("when enabledGlobally is true and enabledForZaaktype is true", () => {
+    let localFixture: ComponentFixture<SmartDocumentsFormComponent>;
+
+    beforeEach(async () => {
+      localFixture = TestBed.createComponent(SmartDocumentsFormComponent);
+      localFixture.componentRef.setInput("zaakTypeUuid", "test-zaaktype-uuid");
+      localFixture.componentRef.setInput("enabledGlobally", true);
+      localFixture.componentRef.setInput("enabledForZaaktype", true);
+      localFixture.detectChanges();
+      await localFixture.whenStable();
+      localFixture.detectChanges();
+    });
+
+    it("should initialize enabledForZaaktypeForm with true", () => {
+      expect(
+        localFixture.componentInstance.enabledForZaaktypeForm.value
+          .enabledForZaaktype,
+      ).toBe(true);
+    });
+
+    it("enabledForZaaktypeValue should return true", () => {
+      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(true);
+    });
+
+    it("should hide disabled feedback", () => {
+      expect(
+        localFixture.nativeElement.querySelector(".form-disabled-feedback"),
+      ).toBeNull();
+    });
+
+    it("should show the tree form", () => {
+      expect(localFixture.nativeElement.querySelector("mat-tree")).toBeTruthy();
+    });
+  });
 });

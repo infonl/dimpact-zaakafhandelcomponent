@@ -167,7 +167,7 @@ class ZaakRestService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val objectsClientService: ObjectsClientService,
     private val detachedDocumentService: DetachedDocumentService,
-    private val opschortenZaakHelper: SuspensionZaakHelper,
+    private val suspensionZaakHelper: SuspensionZaakHelper,
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
     private val productaanvraagDocumentService: ProductaanvraagDocumentService,
@@ -355,7 +355,7 @@ class ZaakRestService @Inject constructor(
         }
         restZaakEditMetRedenGegevens.zaak.uiterlijkeEinddatumAfdoening?.let { newFinalDate ->
             if (newFinalDate.isBefore(zaak.uiterlijkeEinddatumAfdoening)) {
-                opschortenZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
+                suspensionZaakHelper.adjustFinalDateForOpenTasks(zaakUUID, newFinalDate)
                     .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
                     .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
             }
@@ -395,7 +395,7 @@ class ZaakRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.verlengen)
-        val updatedZaak = opschortenZaakHelper.extendZaak(
+        val updatedZaak = suspensionZaakHelper.extendZaak(
             zaak = zaak,
             dueDate = restZaakVerlengGegevens.einddatumGepland,
             fatalDate = restZaakVerlengGegevens.uiterlijkeEinddatumAfdoening,
@@ -404,7 +404,7 @@ class ZaakRestService @Inject constructor(
         )
 
         if (restZaakVerlengGegevens.takenVerlengen) {
-            opschortenZaakHelper.extendTasks(updatedZaak, restZaakVerlengGegevens.duurDagen)
+            suspensionZaakHelper.extendTasks(updatedZaak, restZaakVerlengGegevens.duurDagen)
                 .forEach { eventingService.send(ScreenEventType.TAAK.updated(it)) }
                 .also { eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(updatedZaak)) }
         }

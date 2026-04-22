@@ -112,18 +112,18 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                 jpaModel.size shouldBe 1
                 with(jpaModel.first()) {
                     name shouldBe "root"
-                    zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                    zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                     templates!!.size shouldBe 2
                     with(templates!!.first()) {
                         name shouldBe "root template 1"
-                        zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                        zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                         informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
                     with(templates!!.last()) {
                         name shouldBe "root template 2"
-                        zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                        zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                         informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                         templateGroup.name shouldBe "root"
                     }
@@ -131,18 +131,18 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     children!!.size shouldBe 2
                     with(children!!.first()) {
                         name shouldBe "group 1"
-                        zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                        zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                         templates!!.size shouldBe 2
                         with(templates!!.first()) {
                             name shouldBe "group 1 template 1"
-                            zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                            zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 1 template 2"
-                            zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                            zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 1"
                         }
@@ -152,17 +152,17 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
                     }
                     with(children!!.last()) {
                         name shouldBe "group 2"
-                        zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                        zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
 
                         with(templates!!.first()) {
                             name shouldBe "group 2 template 1"
-                            zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                            zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }
                         with(templates!!.last()) {
                             name shouldBe "group 2 template 2"
-                            zaaktypeCmmnConfiguration shouldBe zaaktypeCmmnConfigurationFixture
+                            zaaktypeConfiguration shouldBe zaaktypeCmmnConfigurationFixture
                             informatieObjectTypeUUID shouldBe expectedInformatieobjectTypeUUID
                             templateGroup.name shouldBe "group 2"
                         }

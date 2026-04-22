@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
@@ -61,5 +61,5 @@ class SmartDocumentsTemplateGroup {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zaaktype_configuration_id", nullable = false)
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 }
