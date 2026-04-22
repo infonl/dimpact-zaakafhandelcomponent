@@ -122,7 +122,11 @@ class StaticCacheFilterTest : BehaviorSpec({
     Given("a hashed JS chunk served as 304 (no body, stream never opened)") {
         val response = StubHttpServletResponse()
         When("the filter processes the request without accessing the output stream") {
-            filter.doFilter(request("/chunk-A1B2C3D4.js"), response, mockk { every { doFilter(any(), any()) } just runs })
+            filter.doFilter(
+                request("/chunk-A1B2C3D4.js"),
+                response,
+                mockk { every { doFilter(any(), any()) } just runs }
+            )
             // 304 responses never call getOutputStream/getWriter, so our header is not injected.
             // This is acceptable: the browser already holds the correct immutable Cache-Control
             // from the original 200 response and serves subsequent requests from memory.
@@ -135,7 +139,9 @@ class StaticCacheFilterTest : BehaviorSpec({
     Given("a resource served via getWriter") {
         val response = StubHttpServletResponse()
         When("the filter processes the request") {
-            filter.doFilter(request("/index.html"), response, mockk { every { doFilter(any(), any()) } answers { (secondArg() as HttpServletResponse).writer } })
+            val chain =
+                mockk<FilterChain> { every { doFilter(any(), any()) } answers { (secondArg() as HttpServletResponse).writer } }
+            filter.doFilter(request("/index.html"), response, chain)
             Then("Cache-Control is set to no-cache") {
                 response.headers["Cache-Control"] shouldBe "no-cache"
             }

@@ -63,5 +63,4 @@ class StaticCacheFilter : Filter {
             else -> null
         }
     }
-
 }
