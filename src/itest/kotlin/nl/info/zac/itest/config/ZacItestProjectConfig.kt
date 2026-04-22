@@ -255,7 +255,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         emptyEnvFile = envFile
 
         val composeFiles: MutableList<File> = mutableListOf(File("docker-compose.yaml"))
-        System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)?.let {
+        System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
             composeFiles.add(File("docker-compose.arm64-override.yaml"))
             logger.info { "Using arm64 containers" }
         }
