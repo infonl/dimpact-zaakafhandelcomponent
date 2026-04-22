@@ -205,6 +205,15 @@ class TokenManager:
         with self._lock:
             if time.time() >= self._expiry - _TOKEN_REFRESH_MARGIN:
                 self._do_refresh()
+            # Refresh token may itself have been expired, leaving us with a still-expired
+            # access token. Fall back to full re-authentication in that case.
+            if time.time() >= self._expiry:
+                print("  [Token] Token still expired after refresh — re-authenticating...")
+                self._access_token, self._refresh_token = _get_tokens(
+                    self._username, self._password, self._keycloak_url
+                )
+                self._expiry = _jwt_expiry(self._access_token)
+                print(f"  [Token] Re-authenticated (expires in {int(self._expiry - time.time())}s)")
             return self._access_token
 
     def _do_refresh(self) -> None:
@@ -223,7 +232,13 @@ class TokenManager:
             self._access_token = data["access_token"]
             self._refresh_token = data["refresh_token"]
             self._expiry = _jwt_expiry(self._access_token)
-            print(f"  [Token] Refreshed (expires in {int(self._expiry - time.time())}s)")
+            remaining = int(self._expiry - time.time())
+            if remaining > 0:
+                print(f"  [Token] Refreshed (expires in {remaining}s)")
+            else:
+                # Keycloak session has expired; the returned token is already stale.
+                # get_token() will detect this and re-authenticate after we return.
+                print(f"  [Token] Refresh returned expired token ({remaining}s), will re-authenticate")
         else:
             print(f"  [Token] Refresh failed (HTTP {status}), re-authenticating...")
             self._access_token, self._refresh_token = _get_tokens(
