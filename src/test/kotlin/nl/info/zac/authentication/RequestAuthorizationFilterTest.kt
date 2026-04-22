@@ -369,6 +369,77 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("An authenticated user with only overallRoles (no applicationRolesPerZaaktype) accesses '/app/home'") {
+            val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = emptyMap(),
+                overallRoles = setOf(ZacApplicationRole.RAADPLEGER.value)
+            )
+            setSessionUser(user)
+            every { httpServletRequest.requestURI } returns "/app/home"
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.method } returns "GET"
+            every { filterChain.doFilter(any(), any()) } just runs
+
+            When("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                Then("the request is allowed") {
+                    verify(exactly = 1) {
+                        filterChain.doFilter(httpServletRequest, httpServletResponse)
+                    }
+                }
+            }
+        }
+
+        Given(
+            "An authenticated user with beheerder in overallRoles (no applicationRolesPerZaaktype) accesses '/rest/admin/*'"
+        ) {
+            val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = emptyMap(),
+                overallRoles = setOf(ZacApplicationRole.BEHEERDER.value)
+            )
+            setSessionUser(user)
+            every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.method } returns "GET"
+            every { filterChain.doFilter(any(), any()) } just runs
+
+            When("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                Then("the request is allowed") {
+                    verify(exactly = 1) {
+                        filterChain.doFilter(httpServletRequest, httpServletResponse)
+                    }
+                }
+            }
+        }
+
+        Given("An authenticated user with only a non-beheerder role in overallRoles accesses '/rest/admin/*'") {
+            val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
+            val user = createLoggedInUser(
+                applicationRolesPerZaaktype = emptyMap(),
+                overallRoles = setOf(ZacApplicationRole.RAADPLEGER.value)
+            )
+            setSessionUser(user)
+            every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
+            every { httpServletRequest.contextPath } returns "fakeContextPath"
+            every { httpServletRequest.method } returns "GET"
+            every { httpServletResponse.sendError(any()) } just runs
+
+            When("the filter processes the request") {
+                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                Then("a 403 is returned") {
+                    verify {
+                        httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                    }
+                }
+            }
+        }
     }
 
     Context("PABC OFF — legacy token role access") {

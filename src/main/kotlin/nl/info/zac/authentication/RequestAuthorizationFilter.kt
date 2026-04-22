@@ -111,10 +111,10 @@ class RequestAuthorizationFilter @Inject constructor(
     }
 
     private fun hasAnyPabcApplicationRole(user: LoggedInUser): Boolean =
-        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() }
+        user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() } || user.overallRoles.isNotEmpty()
 
     private fun hasAnyBeheerderApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { roles ->
             roles.any { it == ZacApplicationRole.BEHEERDER.value }
-        }
+        } || user.overallRoles.contains(ZacApplicationRole.BEHEERDER.value)
 }
