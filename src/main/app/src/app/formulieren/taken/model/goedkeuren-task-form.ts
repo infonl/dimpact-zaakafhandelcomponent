@@ -11,12 +11,12 @@ import { InformatieObjectenService } from "../../../informatie-objecten/informat
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({
   providedIn: "root",
 })
-export class GoedkeurenTaskForm extends AbstractTaakFormulier {
+export class GoedkeurenTaskForm extends AbstractTaskForm {
   private informatieObjectenService = inject(InformatieObjectenService);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {

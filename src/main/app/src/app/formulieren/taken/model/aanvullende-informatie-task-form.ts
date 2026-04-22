@@ -14,12 +14,12 @@ import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({
   providedIn: "root",
 })
-export class AanvullendeInformatieTaskForm extends AbstractTaakFormulier {
+export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(

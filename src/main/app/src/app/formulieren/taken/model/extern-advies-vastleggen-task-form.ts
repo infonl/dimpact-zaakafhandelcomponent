@@ -7,12 +7,12 @@ import { Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({
   providedIn: "root",
 })
-export class ExternAdviesVastleggenTaskForm extends AbstractTaakFormulier {
+export class ExternAdviesVastleggenTaskForm extends AbstractTaskForm {
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     void zaak;
     return [

@@ -15,6 +15,7 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 import { TakenService } from "../../../taken/taken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
+/** @deprecated Migrate to Angular task form pattern (AbstractTaskForm) */
 export class DocumentVerzendenPost extends AbstractTaakFormulier {
   fields = {
     DOCUMENTEN_VERZENDEN_POST: "documentenVerzendenPost",
