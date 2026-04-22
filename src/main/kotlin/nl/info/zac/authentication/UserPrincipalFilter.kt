@@ -146,9 +146,9 @@ constructor(
         }
 
     /**
-     * Builds a map of zaaktype -> set(application role names) from the PABC.
-     * - Only include results for 'ZAAKTYPE' entity types
-     * - Key uses entityType.name
+     * Builds [ApplicationRoleMappings] from the PABC response for the given functional roles.
+     * - [ApplicationRoleMappings.rolesPerZaaktype]: results with a 'ZAAKTYPE' entity type, keyed by entityType.id.
+     * - [ApplicationRoleMappings.overallRoles]: results without an entity type (apply to all entity types).
      */
     private fun buildApplicationRoleMappingsFromPabc(
         functionalRoles: Set<String>
