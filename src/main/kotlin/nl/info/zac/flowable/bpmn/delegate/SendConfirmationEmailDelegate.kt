@@ -41,14 +41,20 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
 
         val templateName = template.resolveValueAsString(execution)
         val fromAddress = from.resolveValueAsString(execution)
-        // TODO
-        // - Kijk of er zaak-specifieke contactgegevens zijn (klantService.findZaakSpecificContactDetails(zaak.uuid))
-        // - zo ja, gebruik dat e-mail. Als dat er niet is, haal betrokkenen op en check of er een initiator bij zit
-        //   en haal daar het e-mailadres uit. Zie ProductaanvraagEmailService
-        // - zet na het succesvol versturen het vlaggetje dat deze is verstuurd
-        //   met zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaakFromProductaanvraag)
-        val toAddress = "klant-email"
         val replyToAddress = replyTo?.resolveValueAsString(execution)
+
+        val toAddress = flowableHelper.klantClientService
+            .findZaakSpecificContactDetails(zaak.uuid)
+            ?.emailAddress
+            ?.also { LOG.fine("Zaak ${zaak.identificatie}: using zaak-specific contact details email for confirmation email") }
+            ?: flowableHelper.zgwApiService.findInitiatorRoleForZaak(zaak)
+                ?.let { flowableHelper.klantClientService.findEmailForInitiatorRole(it) }
+                ?.also { LOG.fine("Zaak ${zaak.identificatie}: using initiator email for confirmation email") }
+
+        if (toAddress == null) {
+            LOG.fine("Zaak ${zaak.identificatie}: no email address found, skipping confirmation email")
+            return
+        }
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
