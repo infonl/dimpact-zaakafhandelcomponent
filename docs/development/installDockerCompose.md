@@ -80,7 +80,13 @@ DOCKER_USE_ARM64_CONTAINERS=true ./start-docker-compose.sh
 
 ```
 
-You can also add this environment variable to your shell for convenience.
+You can also add this environment variable to your shell for convenience by adding to your
+local `~/.zshrc`:
+
+```
+# ZAC
+export DOCKER_USE_ARM64_CONTAINERS=true
+```
 
 ### Notes
 
