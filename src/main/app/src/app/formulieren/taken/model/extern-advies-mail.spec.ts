@@ -5,32 +5,24 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { SelectFormField } from "../../../shared/material-form-builder/form-components/select/select-form-field";
-import { FieldType } from "../../../shared/material-form-builder/model/field-type.enum";
+import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { TakenService } from "../../../taken/taken.service";
 import { ZakenService } from "../../../zaken/zaken.service";
-import { ExternAdviesMail } from "./extern-advies-mail";
+import { ExternAdviesMailTaskForm } from "./extern-advies-mail-task-form";
 
-describe(ExternAdviesMail.name, () => {
-  let formulier: ExternAdviesMail;
-  let translateService: TranslateService;
+describe(ExternAdviesMailTaskForm.name, () => {
+  let formulier: ExternAdviesMailTaskForm;
   let zakenService: ZakenService;
   let mailtemplateService: MailtemplateService;
   let informatieObjectenService: InformatieObjectenService;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
-  });
-
-  const mockTaak = fromPartial<GeneratedType<"RestTask">>({
-    toelichting: undefined,
-    taakdocumenten: [],
   });
 
   const mockAfzender = fromPartial<GeneratedType<"RestZaakAfzender">>({
@@ -49,25 +41,14 @@ describe(ExternAdviesMail.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [
-        provideHttpClient(),
-        TakenService,
-        ZakenService,
-        MailtemplateService,
-        InformatieObjectenService,
-      ],
+      providers: [provideHttpClient()],
     });
 
-    translateService = TestBed.inject(TranslateService);
     zakenService = TestBed.inject(ZakenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
 
-    jest.spyOn(translateService, "instant").mockReturnValue("translated-value");
     jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
-    jest
-      .spyOn(zakenService, "readDefaultAfzenderVoorZaak")
-      .mockReturnValue(of(null));
     jest.spyOn(mailtemplateService, "findMailtemplate").mockReturnValue(
       of(
         fromPartial<GeneratedType<"RESTMailtemplate">>({
@@ -80,68 +61,35 @@ describe(ExternAdviesMail.name, () => {
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
       .mockReturnValue(of([]));
 
-    formulier = new ExternAdviesMail(
-      translateService,
-      TestBed.inject(TakenService),
-      informatieObjectenService,
-      mailtemplateService,
-      zakenService,
-    );
-
-    formulier.zaak = mockZaak;
-    formulier.taak = mockTaak;
-    formulier.humanTaskData = {};
-    formulier.dataElementen = {};
+    formulier = TestBed.inject(ExternAdviesMailTaskForm);
   });
 
-  describe("taakinformatieMapping", () => {
-    it("should map uitkomst to the externAdvies field key", () => {
-      expect(formulier.taakinformatieMapping.uitkomst).toBe("externAdvies");
-    });
-  });
+  describe("requestForm (_initStartForm)", () => {
+    let fields: FormField[];
 
-  describe("getBehandelTitel", () => {
-    it("should call translate.instant with the extern advies behandel title key", () => {
-      formulier.getBehandelTitel();
-
-      expect(translateService.instant).toHaveBeenCalledWith(
-        "title.taak.extern-advies.verwerken",
-      );
-    });
-
-    it("should return the translated title", () => {
-      const result = formulier.getBehandelTitel();
-
-      expect(result).toBe("translated-value");
-    });
-  });
-
-  describe("initStartForm (_initStartForm)", () => {
-    beforeEach(() => {
-      formulier.initStartForm();
+    beforeEach(async () => {
+      fields = await formulier.requestForm(mockZaak);
     });
 
     describe("taakStuurGegevens", () => {
       it("should set sendMail to true", () => {
-        expect(formulier.humanTaskData.taakStuurGegevens?.sendMail).toBe(true);
+        expect(
+          fields.find((f) => f.key === "taakStuurGegevens.sendMail")?.control
+            ?.value,
+        ).toBe(true);
       });
 
       it("should set mail to TAAK_ADVIES_EXTERN", () => {
-        expect(formulier.humanTaskData.taakStuurGegevens?.mail).toBe(
-          "TAAK_ADVIES_EXTERN",
-        );
+        expect(
+          fields.find((f) => f.key === "taakStuurGegevens.mail")?.control
+            ?.value,
+        ).toBe("TAAK_ADVIES_EXTERN");
       });
     });
 
     describe("service calls", () => {
       it("should call listAfzendersVoorZaak with the zaak uuid", () => {
         expect(zakenService.listAfzendersVoorZaak).toHaveBeenCalledWith(
-          "zaak-uuid",
-        );
-      });
-
-      it("should call readDefaultAfzenderVoorZaak with the zaak uuid", () => {
-        expect(zakenService.readDefaultAfzenderVoorZaak).toHaveBeenCalledWith(
           "zaak-uuid",
         );
       });
@@ -162,275 +110,254 @@ describe(ExternAdviesMail.name, () => {
 
     describe("adviseur field", () => {
       it("should exist in the form", () => {
-        expect(() => formulier.getFormField("adviseur")).not.toThrow();
+        expect(fields.find((f) => f.key === "adviseur")).toBeDefined();
       });
 
       it("should be required", () => {
-        const field = formulier.getFormField("adviseur");
-        field.formControl.setValue("");
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeDefined();
+        const control = fields.find((f) => f.key === "adviseur")?.control;
+        control?.setValue("");
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeDefined();
       });
 
       it("should enforce maxlength of 1000", () => {
-        const field = formulier.getFormField("adviseur") as unknown as {
-          maxlength: number;
-        };
-
-        expect(field.maxlength).toBe(1000);
+        const control = fields.find((f) => f.key === "adviseur")?.control;
+        control?.setValue("a".repeat(1001));
+        expect(control?.errors?.["maxlength"]).toBeDefined();
       });
     });
 
     describe("verzender field", () => {
       it("should exist in the form", () => {
-        expect(() => formulier.getFormField("verzender")).not.toThrow();
+        expect(fields.find((f) => f.key === "verzender")).toBeDefined();
       });
 
       it("should be required", () => {
-        const field = formulier.getFormField("verzender");
-        field.formControl.setValue(null);
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeDefined();
+        const control = fields.find((f) => f.key === "verzender")?.control;
+        control?.setValue(null);
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeDefined();
       });
 
-      it("should pre-fill with the default afzender mail string from readDefaultAfzenderVoorZaak", () => {
-        formulier.humanTaskData = {};
-        jest
-          .spyOn(zakenService, "readDefaultAfzenderVoorZaak")
-          .mockReturnValue(of(mockDefaultAfzender));
-        formulier.initStartForm();
-
-        const field = formulier.getFormField("verzender");
-
-        expect(field.formControl.value).toBe(mockDefaultAfzender.mail);
-      });
-
-      it("should remain null when readDefaultAfzenderVoorZaak emits null", () => {
-        const field = formulier.getFormField("verzender");
-
-        expect(field.formControl.value).toBeNull();
-      });
-
-      it("should have options from listAfzendersVoorZaak", () => {
-        formulier.humanTaskData = {};
+      it("should pre-fill with the default afzender mail string", async () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
-        formulier.initStartForm();
+        fields = await formulier.requestForm(mockZaak);
+        const control = fields.find((f) => f.key === "verzender")?.control;
+        expect((control?.value as { mail?: string } | null)?.mail).toBe(
+          mockDefaultAfzender.mail,
+        );
+      });
 
-        const field = formulier.getFormField("verzender") as SelectFormField<
-          GeneratedType<"RestZaakAfzender">
-        >;
-        let emittedOptions: GeneratedType<"RestZaakAfzender">[] = [];
-        field.options.subscribe((opts) => (emittedOptions = opts));
+      it("should remain null when no default afzender exists", () => {
+        const control = fields.find((f) => f.key === "verzender")?.control;
+        expect(control?.value).toBeNull();
+      });
 
-        expect(emittedOptions.length).toBe(2);
+      it("should have options from listAfzendersVoorZaak", async () => {
+        jest
+          .spyOn(zakenService, "listAfzendersVoorZaak")
+          .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
+        fields = await formulier.requestForm(mockZaak);
+        const field = fields.find((f) => f.key === "verzender");
+        expect(
+          "options" in field! ? (field.options as unknown[]).length : 0,
+        ).toBe(2);
       });
     });
 
     describe("replyTo field", () => {
       it("should exist in the form", () => {
-        expect(() => formulier.getFormField("replyTo")).not.toThrow();
+        expect(fields.find((f) => f.key === "replyTo")).toBeDefined();
       });
 
       it("should not be required", () => {
-        const field = formulier.getFormField("replyTo");
-        field.formControl.setValue(null);
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeUndefined();
+        const control = fields.find((f) => f.key === "replyTo")?.control;
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeUndefined();
       });
     });
 
     describe("emailadres field", () => {
       it("should exist in the form", () => {
-        expect(() => formulier.getFormField("emailadres")).not.toThrow();
+        expect(fields.find((f) => f.key === "emailadres")).toBeDefined();
       });
 
       it("should be required", () => {
-        const field = formulier.getFormField("emailadres");
-        field.formControl.setValue("");
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeDefined();
+        const control = fields.find((f) => f.key === "emailadres")?.control;
+        control?.setValue("");
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeDefined();
       });
 
       it("should reject an invalid email address", () => {
-        const field = formulier.getFormField("emailadres");
-        field.formControl.setValue("not-an-email");
-
-        expect(field.formControl.errors?.["email"]).toBeDefined();
+        const control = fields.find((f) => f.key === "emailadres")?.control;
+        control?.setValue("not-an-email");
+        expect(control?.errors?.["email"]).toBeDefined();
       });
 
       it("should accept a valid email address", () => {
-        const field = formulier.getFormField("emailadres");
-        field.formControl.setValue("valid@example.com");
-
-        expect(field.formControl.errors).toBeNull();
+        const control = fields.find((f) => f.key === "emailadres")?.control;
+        control?.setValue("valid@example.com");
+        expect(control?.errors).toBeNull();
       });
     });
 
     describe("body field", () => {
       it("should be an html-editor field", () => {
-        expect(formulier.getFormField("body").fieldType).toBe(
-          FieldType.HTML_EDITOR,
-        );
+        expect(fields.find((f) => f.key === "body")?.type).toBe("html-editor");
       });
 
       it("should be required", () => {
-        const field = formulier.getFormField("body");
-        field.formControl.setValue("");
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeDefined();
+        const control = fields.find((f) => f.key === "body")?.control;
+        control?.setValue("");
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeDefined();
       });
 
-      it("should wire the mailtemplate observable to the body field", () => {
-        const field = formulier.getFormField("body") as unknown as {
-          mailtemplateBody$: unknown;
-        };
-
-        expect(field.mailtemplateBody$).toBeDefined();
+      it("should wire the mailtemplate body to the body field", () => {
+        expect(fields.find((f) => f.key === "body")?.control?.value).toBe(
+          "mail-template-body",
+        );
       });
     });
 
     describe("bijlagen field", () => {
-      it("should be a documenten-lijst field", () => {
-        expect(formulier.getFormField("bijlagen").fieldType).toBe(
-          FieldType.DOCUMENTEN_LIJST,
+      it("should be a documents field", () => {
+        expect(fields.find((f) => f.key === "bijlagen")?.type).toBe(
+          "documents",
         );
       });
     });
 
     describe("verzender → replyTo subscription", () => {
-      it("should update replyTo when verzender changes to a known afzender", () => {
-        formulier.humanTaskData = {};
+      it("should update replyTo when verzender changes to a known afzender", async () => {
         jest
           .spyOn(zakenService, "listAfzendersVoorZaak")
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
-        formulier.initStartForm();
+        fields = await formulier.requestForm(mockZaak);
 
-        const verzenderField = formulier.getFormField(
-          "verzender",
-        ) as SelectFormField<GeneratedType<"RestZaakAfzender">>;
-        const replyToField = formulier.getFormField("replyTo");
+        const verzenderControl = fields.find((f) => f.key === "verzender")
+          ?.control;
+        const replyToControl = fields.find((f) => f.key === "replyTo")?.control;
 
-        // Subscribing to options causes the tap to fire, populating valueOptions
-        verzenderField.options.subscribe();
-
-        verzenderField.formControl.setValue(
-          mockAfzender as unknown as GeneratedType<"RestZaakAfzender">,
-        );
-
-        expect(replyToField.formControl.value).toBe("reply@example.com");
-      });
-
-      it("should set replyTo to undefined when verzender changes to an unknown value", () => {
-        formulier.humanTaskData = {};
-        jest
-          .spyOn(zakenService, "listAfzendersVoorZaak")
-          .mockReturnValue(of([mockAfzender]));
-        formulier.initStartForm();
-
-        const verzenderField = formulier.getFormField(
-          "verzender",
-        ) as SelectFormField<GeneratedType<"RestZaakAfzender">>;
-        const replyToField = formulier.getFormField("replyTo");
-
-        verzenderField.options.subscribe();
-
-        verzenderField.formControl.setValue(
+        verzenderControl?.setValue(
           fromPartial<GeneratedType<"RestZaakAfzender">>({
-            mail: "unknown@example.com",
+            mail: "afzender@example.com",
+            replyTo: "reply@example.com",
           }),
         );
 
-        expect(replyToField.formControl.value).toBeUndefined();
+        expect(replyToControl?.value).toBe("reply@example.com");
+      });
+
+      it("should set replyTo to null when verzender is cleared", async () => {
+        fields = await formulier.requestForm(mockZaak);
+        fields.find((f) => f.key === "verzender")?.control?.setValue(null);
+        expect(
+          fields.find((f) => f.key === "replyTo")?.control?.value,
+        ).toBeNull();
       });
     });
   });
 
-  describe("initBehandelForm (_initBehandelForm)", () => {
+  describe("handleForm (_initBehandelForm)", () => {
     describe("field types and readonly state (editable mode)", () => {
-      beforeEach(() => {
-        formulier.initBehandelForm(false);
-      });
+      let fields: FormField[];
 
-      it("should render adviseur as a ReadonlyFormField", () => {
-        expect(formulier.getFormField("adviseur").fieldType).toBe(
-          FieldType.READONLY,
+      beforeEach(async () => {
+        fields = await formulier.handleForm(
+          fromPartial<GeneratedType<"RestTask">>({
+            taakdata: {},
+            status: "OPEN" as GeneratedType<"TaakStatus">,
+            rechten: fromPartial({ wijzigen: true }),
+          }),
         );
       });
 
-      it("should render verzender as a ReadonlyFormField", () => {
-        expect(formulier.getFormField("verzender").fieldType).toBe(
-          FieldType.READONLY,
+      it("should render adviseur as plain-text", () => {
+        expect(fields.find((f) => f.key === "adviseur")?.type).toBe(
+          "plain-text",
         );
       });
 
-      it("should render emailadres as a ReadonlyFormField", () => {
-        expect(formulier.getFormField("emailadres").fieldType).toBe(
-          FieldType.READONLY,
+      it("should render verzender as plain-text", () => {
+        expect(fields.find((f) => f.key === "verzender")?.type).toBe(
+          "plain-text",
         );
       });
 
-      it("should render body as a ReadonlyFormField", () => {
-        expect(formulier.getFormField("body").fieldType).toBe(
-          FieldType.READONLY,
+      it("should render emailadres as plain-text", () => {
+        expect(fields.find((f) => f.key === "emailadres")?.type).toBe(
+          "plain-text",
         );
+      });
+
+      it("should render body as plain-text", () => {
+        expect(fields.find((f) => f.key === "body")?.type).toBe("plain-text");
       });
 
       it("should render externAdvies as a textarea (not readonly)", () => {
-        expect(formulier.getFormField("externAdvies").fieldType).toBe(
-          FieldType.TEXTAREA,
-        );
-        expect(formulier.getFormField("externAdvies").readonly).toBe(false);
+        const field = fields.find((f) => f.key === "externAdvies");
+        expect(field?.type).toBe("textarea");
+        expect(field?.readonly).toBe(false);
       });
 
       it("should require externAdvies", () => {
-        const field = formulier.getFormField("externAdvies");
-        field.formControl.setValue("");
-        field.formControl.markAsTouched();
-
-        expect(field.formControl.errors?.["required"]).toBeDefined();
+        const control = fields.find((f) => f.key === "externAdvies")?.control;
+        control?.setValue("");
+        control?.markAsTouched();
+        expect(control?.errors?.["required"]).toBeDefined();
       });
 
       it("should enforce maxlength of 1000 on externAdvies", () => {
-        const field = formulier.getFormField("externAdvies") as unknown as {
-          maxlength: number;
-        };
-
-        expect(field.maxlength).toBe(1000);
+        const control = fields.find((f) => f.key === "externAdvies")?.control;
+        control?.setValue("a".repeat(1001));
+        expect(control?.errors?.["maxlength"]).toBeDefined();
       });
     });
 
-    describe("externAdvies pre-fill from dataElementen", () => {
-      it("should pre-fill externAdvies when dataElementen contains a previously saved value", () => {
-        formulier.dataElementen = { externAdvies: "eerder opgeslagen advies" };
-
-        formulier.initBehandelForm(false);
-
-        expect(formulier.getFormField("externAdvies").formControl.value).toBe(
-          "eerder opgeslagen advies",
+    describe("externAdvies pre-fill from taakdata", () => {
+      it("should pre-fill externAdvies when taakdata contains a previously saved value", async () => {
+        const fields = await formulier.handleForm(
+          fromPartial<GeneratedType<"RestTask">>({
+            taakdata: { externAdvies: "eerder opgeslagen advies" },
+            status: "OPEN" as GeneratedType<"TaakStatus">,
+            rechten: fromPartial({ wijzigen: true }),
+          }),
         );
+        expect(
+          fields.find((f) => f.key === "externAdvies")?.control?.value,
+        ).toBe("eerder opgeslagen advies");
       });
 
-      it("should initialize externAdvies as null when dataElementen is empty", () => {
-        formulier.initBehandelForm(false);
-
+      it("should initialize externAdvies as null when taakdata is empty", async () => {
+        const fields = await formulier.handleForm(
+          fromPartial<GeneratedType<"RestTask">>({
+            taakdata: {},
+            status: "OPEN" as GeneratedType<"TaakStatus">,
+            rechten: fromPartial({ wijzigen: true }),
+          }),
+        );
         expect(
-          formulier.getFormField("externAdvies").formControl.value,
+          fields.find((f) => f.key === "externAdvies")?.control?.value,
         ).toBeNull();
       });
     });
 
     describe("readonly mode", () => {
-      it("should render externAdvies as readonly when initBehandelForm is called with readonly=true", () => {
-        formulier.initBehandelForm(true);
-
-        expect(formulier.getFormField("externAdvies").readonly).toBe(true);
+      it("should render externAdvies as readonly when task is AFGEROND", async () => {
+        const fields = await formulier.handleForm(
+          fromPartial<GeneratedType<"RestTask">>({
+            taakdata: {},
+            status: "AFGEROND" as GeneratedType<"TaakStatus">,
+            rechten: fromPartial({ wijzigen: true }),
+          }),
+        );
+        expect(fields.find((f) => f.key === "externAdvies")?.readonly).toBe(
+          true,
+        );
       });
     });
   });
