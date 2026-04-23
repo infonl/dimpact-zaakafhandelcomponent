@@ -410,6 +410,15 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
+            And("The smart documents template mappings are copied to the new zaaktype") {
+                verify(exactly = 1) {
+                    zaaktypeConfigurationBeheerService.mapSmartDocuments(
+                        originalZaaktypeCmmnConfiguration.zaaktypeUuid,
+                        zaakType.url.extractUuid()
+                    )
+                }
+            }
+
             And("The automatic email confirmation should be copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeCmmnEmailParameters.let {
                     it?.enabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled
