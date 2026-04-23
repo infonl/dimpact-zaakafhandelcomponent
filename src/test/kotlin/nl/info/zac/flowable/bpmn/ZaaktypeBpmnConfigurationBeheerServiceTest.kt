@@ -23,7 +23,6 @@ import jakarta.persistence.criteria.Root
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -31,6 +30,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VAR
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 

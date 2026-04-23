@@ -177,7 +177,10 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 mapCompletionParameters(previousConfiguration, this)
             }.run(::storeConfiguration)
 
-            smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousConfiguration.zaaktypeUuid, newZaaktypeUuid)
+            smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
+                previousConfiguration.zaaktypeUuid,
+                newZaaktypeUuid
+            )
         }
     }
 }
