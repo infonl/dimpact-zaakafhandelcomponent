@@ -111,10 +111,6 @@ function getToelichtingMapping(
         uitkomst: "advies",
       };
     case "EXTERN_ADVIES_VASTLEGGEN":
-      return {
-        ...DEFAULT_TOELICHTING_MAPPING,
-        uitkomst: "externAdvies",
-      };
     case "EXTERN_ADVIES_MAIL":
       return {
         ...DEFAULT_TOELICHTING_MAPPING,

@@ -28,15 +28,15 @@ export class TaakFormulierenService {
   );
   private readonly takenService = inject(TakenService);
 
-  private readonly goedkeurenFormulier = inject(GoedkeurenTaskForm);
-  private readonly aanvullendeInformatieFormulier = inject(
+  private readonly goedkeurenTaskForm = inject(GoedkeurenTaskForm);
+  private readonly aanvullendeInformatieTaskForm = inject(
     AanvullendeInformatieTaskForm,
   );
-  private readonly adviesFormulier = inject(AdviesTaskForm);
-  private readonly externAdviesVastleggenFormulier = inject(
+  private readonly adviesTaskForm = inject(AdviesTaskForm);
+  private readonly externAdviesVastleggenTaskForm = inject(
     ExternAdviesVastleggenTaskForm,
   );
-  private readonly externAdviesMailFormulier = inject(ExternAdviesMailTaskForm);
+  private readonly externAdviesMailTaskForm = inject(ExternAdviesMailTaskForm);
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
@@ -45,15 +45,15 @@ export class TaakFormulierenService {
     const formulierDefinitie = planItem?.formulierDefinitie;
     switch (formulierDefinitie) {
       case "GOEDKEUREN":
-        return this.goedkeurenFormulier.requestForm(zaak);
+        return this.goedkeurenTaskForm.requestForm(zaak);
       case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieFormulier.requestForm(zaak, planItem!);
+        return this.aanvullendeInformatieTaskForm.requestForm(zaak, planItem!);
       case "ADVIES":
-        return this.adviesFormulier.requestForm(zaak);
+        return this.adviesTaskForm.requestForm(zaak);
       case "EXTERN_ADVIES_VASTLEGGEN":
-        return this.externAdviesVastleggenFormulier.requestForm(zaak);
+        return this.externAdviesVastleggenTaskForm.requestForm(zaak);
       case "EXTERN_ADVIES_MAIL":
-        return this.externAdviesMailFormulier.requestForm(zaak);
+        return this.externAdviesMailTaskForm.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -67,15 +67,15 @@ export class TaakFormulierenService {
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
       case "GOEDKEUREN":
-        return this.goedkeurenFormulier.handleForm(taak);
+        return this.goedkeurenTaskForm.handleForm(taak);
       case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieFormulier.handleForm(taak, zaak);
+        return this.aanvullendeInformatieTaskForm.handleForm(taak, zaak);
       case "ADVIES":
-        return this.adviesFormulier.handleForm(taak);
+        return this.adviesTaskForm.handleForm(taak);
       case "EXTERN_ADVIES_VASTLEGGEN":
-        return this.externAdviesVastleggenFormulier.handleForm(taak);
+        return this.externAdviesVastleggenTaskForm.handleForm(taak);
       case "EXTERN_ADVIES_MAIL":
-        return this.externAdviesMailFormulier.handleForm(taak);
+        return this.externAdviesMailTaskForm.handleForm(taak);
       default:
         throw new Error(
           `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,

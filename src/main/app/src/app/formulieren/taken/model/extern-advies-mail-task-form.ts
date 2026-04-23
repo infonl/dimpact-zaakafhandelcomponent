@@ -33,7 +33,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       this.zakenService.listAfzendersVoorZaak(zaak.uuid),
     );
     const afzendersVoorZaakOptions = afzendersVoorZaak.map(
-      (afzender) =>
+      (afzender: GeneratedType<"RestZaakAfzender">) =>
         ({
           ...afzender,
           key: afzender.mail,
@@ -50,7 +50,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       });
 
     const defaultAfzender = afzendersVoorZaakOptions.find(
-      ({ defaultMail }) => defaultMail,
+      ({ defaultMail }: GeneratedType<"RestZaakAfzender">) => defaultMail,
     );
     verzenderControl.setValue(defaultAfzender ?? null);
 
@@ -104,7 +104,6 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
         key: "emailadres",
         control: this.formBuilder.control<string | null>(null, [
           Validators.required,
-          Validators.email,
           CustomValidators.emails,
         ]),
       },
