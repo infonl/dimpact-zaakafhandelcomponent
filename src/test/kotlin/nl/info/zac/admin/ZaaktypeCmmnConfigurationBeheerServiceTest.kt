@@ -34,6 +34,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.exception.ZaaktypeConfigurationNotFoundException
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
@@ -57,13 +58,13 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
 
     val zaaktypeCmmnConfigurationBeheerService = ZaaktypeCmmnConfigurationBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
+        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
         zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
     )
 
@@ -292,7 +293,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 every { resultList } returns emptyList() andThen listOf(originalZaaktypeCmmnConfiguration)
             }
 
-            every { zaaktypeConfigurationBeheerService.mapSmartDocuments(any(), any()) } just runs
+            every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just runs
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
@@ -412,7 +413,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             And("The smart documents template mappings are copied to the new zaaktype") {
                 verify(exactly = 1) {
-                    zaaktypeConfigurationBeheerService.mapSmartDocuments(
+                    smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
                         originalZaaktypeCmmnConfiguration.zaaktypeUuid,
                         zaakType.url.extractUuid()
                     )

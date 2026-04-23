@@ -23,7 +23,7 @@ import jakarta.persistence.criteria.Root
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.ZaaktypeConfigurationBeheerService
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
@@ -45,9 +45,9 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
-    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeBpmnConfigurationBeheerService =
-        ZaaktypeBpmnConfigurationBeheerService(entityManager, zaaktypeConfigurationBeheerService)
+        ZaaktypeBpmnConfigurationBeheerService(entityManager, smartDocumentsTemplatesService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -338,7 +338,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every {
                 entityManager.merge(capture(configurationSlot))
             } returns newConfiguration
-            every { zaaktypeConfigurationBeheerService.mapSmartDocuments(any(), any()) } just Runs
+            every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just Runs
 
             When("copying configuration") {
                 zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)

@@ -18,6 +18,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARI
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTYPE_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -31,7 +32,7 @@ import kotlin.jvm.optionals.getOrNull
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
-    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -176,7 +177,7 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
                 mapCompletionParameters(previousConfiguration, this)
             }.run(::storeConfiguration)
 
-            zaaktypeConfigurationBeheerService.mapSmartDocuments(previousConfiguration.zaaktypeUuid, newZaaktypeUuid)
+            smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousConfiguration.zaaktypeUuid, newZaaktypeUuid)
         }
     }
 }
