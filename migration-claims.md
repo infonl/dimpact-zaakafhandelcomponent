@@ -89,10 +89,10 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] PersoonZoekComponent
 - [x] BedrijfZoekComponent
 
-### Batch 10 — claimed
-- [ ] `klanten/persoon-view/persoon-view.component.ts`
-- [ ] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
-- [ ] `klanten/bedrijf-view/bedrijf-view.component.ts`
+### Batch 10 — done
+- [x] `klanten/persoon-view/persoon-view.component.ts`
+- [x] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
+- [x] `klanten/bedrijf-view/bedrijf-view.component.ts`
 
 ## Dax
 
