@@ -128,8 +128,9 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should pass the Observable directly as options without resolving it", async () => {
         const documentsObservable = of([mockDocument1]);
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(documentsObservable);
-
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          documentsObservable,
+        );
 
         const fields = await formulier.requestForm(mockZaak);
 
@@ -274,7 +275,9 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should set ondertekenen options to fetched documents", async () => {
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
 
         const fields = await formulier.handleForm(mockTaak);
 
@@ -286,7 +289,9 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should pre-check documents that were previously signed (ondertekenen taakdata)", async () => {
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
           taakdata: { ondertekenen: "doc-uuid-1" },
@@ -299,7 +304,9 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should not pre-check documents that were not previously signed", async () => {
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
           taakdata: { ondertekenen: "doc-uuid-1" },
@@ -312,7 +319,9 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
 
         const fields = await formulier.handleForm(mockTaak);
 

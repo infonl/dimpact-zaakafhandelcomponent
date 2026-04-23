@@ -126,7 +126,9 @@ describe(AdviesTaskForm.name, () => {
       });
 
       it("should pass fetched documents as options", async () => {
-        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument]),
+        );
 
         const fields = await formulier.requestForm(mockZaak);
 
