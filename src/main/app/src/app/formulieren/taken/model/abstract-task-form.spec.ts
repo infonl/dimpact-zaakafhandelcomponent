@@ -23,6 +23,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
+import { fromPartial } from "../../../../test-helpers";
 import { FormField, ZacForm } from "../../../shared/form/form";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -140,11 +141,9 @@ describe(AbstractTaskForm.name, () => {
 
   describe("requestForm rendering", () => {
     beforeEach(async () => {
-      const fields = await formulier.requestForm({
-        uuid: "zaak-uuid",
-      } as Partial<
-        GeneratedType<"RestZaak">
-      > as unknown as GeneratedType<"RestZaak">);
+      const fields = await formulier.requestForm(
+        fromPartial<GeneratedType<"RestZaak">>({ uuid: "zaak-uuid" }),
+      );
 
       formGroup = new FormGroup({});
       for (const field of fields) {

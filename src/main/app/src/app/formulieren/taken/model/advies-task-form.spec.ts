@@ -16,6 +16,7 @@ import { AdviesTaskForm } from "./advies-task-form";
 describe(AdviesTaskForm.name, () => {
   let formulier: AdviesTaskForm;
   let informatieObjectenService: InformatieObjectenService;
+  let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
   });
@@ -31,7 +32,7 @@ describe(AdviesTaskForm.name, () => {
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    jest
+    listEnkelvoudigInformatieobjectenSpy = jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
       .mockReturnValue(of([]));
 
@@ -125,9 +126,7 @@ describe(AdviesTaskForm.name, () => {
       });
 
       it("should pass fetched documents as options", async () => {
-        jest
-          .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-          .mockReturnValue(of([mockDocument]));
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument]));
 
         const fields = await formulier.requestForm(mockZaak);
 
