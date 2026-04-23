@@ -238,8 +238,9 @@ describe(ExternAdviesMailTaskForm.name, () => {
           .mockReturnValue(of([mockAfzender, mockDefaultAfzender]));
         fields = await formulier.requestForm(mockZaak);
 
-        const verzenderControl = fields.find((f) => f.key === "verzender")
-          ?.control;
+        const verzenderControl = fields.find(
+          (f) => f.key === "verzender",
+        )?.control;
         const replyToControl = fields.find((f) => f.key === "replyTo")?.control;
 
         verzenderControl?.setValue(
