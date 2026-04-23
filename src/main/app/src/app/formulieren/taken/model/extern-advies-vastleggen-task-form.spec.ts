@@ -8,10 +8,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { fromPartial } from "../../../../test-helpers";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ExternAdviesVastleggenTaskFields } from "./extern-advies-vastleggen-task-fields";
+import { ExternAdviesVastleggenTaskForm } from "./extern-advies-vastleggen-task-form";
 
-describe("ExternAdviesVastleggenTaskFields", () => {
-  let formulier: ExternAdviesVastleggenTaskFields;
+describe("ExternAdviesVastleggenTaskForm", () => {
+  let formulier: ExternAdviesVastleggenTaskForm;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -25,7 +25,7 @@ describe("ExternAdviesVastleggenTaskFields", () => {
       ],
     });
 
-    formulier = TestBed.inject(ExternAdviesVastleggenTaskFields);
+    formulier = TestBed.inject(ExternAdviesVastleggenTaskForm);
   });
 
   describe("requestForm", () => {

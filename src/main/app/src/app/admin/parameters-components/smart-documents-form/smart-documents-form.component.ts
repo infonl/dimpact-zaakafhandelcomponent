@@ -4,11 +4,20 @@
  */
 
 import { FlatTreeControl } from "@angular/cdk/tree";
+import { NgIf } from "@angular/common";
 import { Component, effect, Input } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -37,10 +46,14 @@ interface FlatNode {
   styleUrl: "./smart-documents-form.component.less",
   standalone: true,
   imports: [
+    NgIf,
     ReactiveFormsModule,
     MatButtonModule,
+    MatCardModule,
     MatChipsModule,
+    MatDividerModule,
     MatIconModule,
+    MatSlideToggleModule,
     MatTreeModule,
     TranslateModule,
     SmartDocumentsFormItemComponent,
@@ -48,6 +61,21 @@ interface FlatNode {
 })
 export class SmartDocumentsFormComponent {
   @Input({ required: true }) zaakTypeUuid!: string;
+  @Input({ required: true }) enabledGlobally!: boolean;
+  @Input() set enabledForZaaktype(value: boolean) {
+    this.enabledForZaaktypeForm.controls.enabledForZaaktype.setValue(value);
+  }
+
+  enabledForZaaktypeForm = new FormGroup({
+    enabledForZaaktype: new FormControl<boolean>(false),
+  });
+
+  get enabledForZaaktypeValue(): boolean {
+    return (
+      this.enabledGlobally &&
+      Boolean(this.enabledForZaaktypeForm.value.enabledForZaaktype)
+    );
+  }
 
   formGroup = this.formBuilder.group({});
 

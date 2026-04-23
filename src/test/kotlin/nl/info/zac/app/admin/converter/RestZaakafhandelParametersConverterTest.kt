@@ -157,7 +157,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
                     domein shouldBe "fakeDomein"
-                    smartDocumentsIngeschakeld shouldBe false
+                    smartDocumentsEnabled shouldBe false
                 }
             }
         }
@@ -209,7 +209,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     smartDocuments shouldBe RestSmartDocuments(
                         enabledGlobally = true,
-                        enabledForZaaktype = true
+                        enabledForZaaktype = false
                     )
                 }
             }

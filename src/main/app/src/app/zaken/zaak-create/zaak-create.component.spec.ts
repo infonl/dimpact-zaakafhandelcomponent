@@ -25,7 +25,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { BpmnService } from "src/app/admin/bpmn.service";
-import { ZacInput } from "src/app/shared/form/input/input";
 import { fromPartial } from "src/test-helpers";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
@@ -63,7 +62,7 @@ describe(ZaakCreateComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ZaakCreateComponent, ZacInput],
+      declarations: [ZaakCreateComponent],
       providers: [
         ZakenService,
         BpmnService,

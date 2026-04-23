@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 64 remaining** (2026-04-15)
+**Progress: 52 remaining** (2026-04-21)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
@@ -44,6 +44,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
 | **Skip routing** | Do not touch `*-routing.module.ts`. |
+| **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
 | **Methods: `protected` by default** | All methods are `protected`. Never `public` just because a spec calls it. |
@@ -63,11 +64,11 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 ### Phase A — Start branch (once per PR)
 
-| # | Step | Gate |
-|---|---|---|
-| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
-| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
+| # | Step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Gate |
+|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+| 0 | **Read** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target                                                                                                                                                                          | — |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale                                                                                                                                                                                                                                  | **Ask user to confirm first target** |
+| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main`                                                                                                                                                                                                                                                                                                                                                                                                              | — |
 | 3 | **Claim** — `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; ask user to name the batch (`## {name}`); edit `/tmp/zac-claims/migration-claims.md` to add components; `cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim ..." && git push origin HEAD:<claims-branch>`; `git worktree remove /tmp/zac-claims` (where `<claims-branch>` = `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`) | — |
 
 ### Phase B — Per-component loop (repeat until PR)
@@ -89,7 +90,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 16 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
 | 17 | **Tick off claim** — worktree pattern: `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; mark `[x]` in `/tmp/zac-claims/migration-claims.md`; commit + push; `git worktree remove /tmp/zac-claims` | — |
 | 18 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## Marcel` in `/tmp/zac-claims/migration-claims.md`, commit + push, remove worktree; then go to step 4 | — |
+| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## {USER_NAME}` in `/tmp/zac-claims/migration-claims.md` (ask the user for their name if not already known), commit + push, remove worktree; then go to step 4 | — |
 | 20 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)

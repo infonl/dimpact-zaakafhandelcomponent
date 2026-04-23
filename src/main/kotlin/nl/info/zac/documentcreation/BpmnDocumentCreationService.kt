@@ -13,15 +13,12 @@ import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
-import nl.info.client.zgw.util.extractUuid
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.BpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.smartdocuments.SmartDocumentsService
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -44,7 +41,6 @@ import java.util.logging.Logger
 @Suppress("LongParameterList")
 class BpmnDocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
     private val documentCreationService: DocumentCreationService,
     private val documentCreationDataConverter: DocumentCreationDataConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
@@ -109,13 +105,6 @@ class BpmnDocumentCreationService @Inject constructor(
                     userName = creationDataUnattended.author ?: loggedInUserInstance.get().getFullName(),
                 ).toString()
             )
-        )
-
-    fun getInformationObjecttypeUuid(zaak: Zaak, templateGroupId: String, templateId: String) =
-        smartDocumentsTemplatesService.getInformationObjectTypeUUID(
-            zaaktypeCmmnConfigurationUUID = zaak.zaaktype.extractUuid(),
-            templateGroupId = templateGroupId,
-            templateId = templateId
         )
 
     fun documentCreationCallbackUrl(

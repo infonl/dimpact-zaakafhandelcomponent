@@ -58,17 +58,19 @@ export class ZakenService {
     });
   }
 
-  opschortenZaak(
+  suspendZaak(
     uuid: string,
-    body: PatchBody<"/rest/zaken/zaak/{uuid}/opschorting">,
+    body: PatchBody<"/rest/zaken/zaak/{uuid}/suspend">,
   ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}/opschorting",
-      body,
-      {
-        path: { uuid },
-      },
-    );
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/suspend", body, {
+      path: { uuid },
+    });
+  }
+
+  resumeZaak(uuid: string, body: PatchBody<"/rest/zaken/zaak/{uuid}/resume">) {
+    return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/resume", body, {
+      path: { uuid },
+    });
   }
 
   verlengenZaak(uuid: string) {
@@ -136,7 +138,7 @@ export class ZakenService {
   ) {
     return this.zacHttpClient.PATCH(
       "/rest/zaken/{uuid}/zaaklocatie",
-      { geometrie, reden },
+      { geometrie: geometrie ?? null, reden },
       { path: { uuid } },
     );
   }

@@ -21,6 +21,11 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RE
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_SUSPEND_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_RESOURCE_PATH
@@ -58,6 +63,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -102,6 +111,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
+        private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
 
         private val logger = KotlinLogging.logger {}
         private val itestHttpClient = ItestHttpClient()
@@ -235,7 +245,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "LongMethod")
     private fun createDockerComposeContainer(): ComposeContainer {
         logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
 
@@ -244,7 +254,15 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         val envFile = Files.createTempFile("zac-itest", ".env").toFile()
         emptyEnvFile = envFile
 
-        return ComposeContainer("zac-itest-", File("docker-compose.yaml"))
+        val composeFiles: MutableList<File> = mutableListOf(File("docker-compose.yaml"))
+        System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)
+            ?.takeIf { it.isNotBlank() }
+            ?.let {
+                composeFiles.add(File("docker-compose.arm64-override.yaml"))
+                logger.info { "Using arm64 containers" }
+            }
+
+        return ComposeContainer("zac-itest-", composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
             .withOptions(
                 "--profile zac",
@@ -332,7 +350,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         arrayOf(
             BPMN_TEST_PROCESS_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH,
-            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
+            BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH,
+            BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
@@ -367,6 +386,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY to listOf(
                 BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH,
                 BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
+            ),
+            BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_SUSPEND_RESUME_SUSPEND_FORM_RESOURCE_PATH,
+                BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH,
+                BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
             ),
         ).forEach { (processDefinitionKey, formResourcePaths) ->
             formResourcePaths.forEach { formResourcePath ->
@@ -488,6 +512,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
             response.code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_4_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_4_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = BEHANDELAARS_DOMAIN_TEST_1.name,
+            defaultBehandelaarId = BEHANDELAAR_1.username,
+            testUser = BEHEERDER_ELK_ZAAKTYPE,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
         }
         zacClient.createZaaktypeCmmnConfiguration(
             zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,

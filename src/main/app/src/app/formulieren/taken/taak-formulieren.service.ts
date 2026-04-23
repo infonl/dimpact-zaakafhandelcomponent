@@ -11,13 +11,13 @@ import { FormField } from "../../shared/form/form";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZakenService } from "../../zaken/zaken.service";
-import { AanvullendeInformatieFormulier } from "./model/aanvullende-informatie";
-import { AdviesFormulier } from "./model/advies";
+import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
+import { AdviesTaskForm } from "./model/advies-task-form";
 import { DefaultTaakformulier } from "./model/default-taakformulier";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMail } from "./model/extern-advies-mail";
-import { ExternAdviesVastleggenTaskFields } from "./model/extern-advies-vastleggen-task-fields";
-import { GoedkeurenFormulier } from "./model/goedkeuren";
+import { ExternAdviesVastleggenTaskForm } from "./model/extern-advies-vastleggen-task-form";
+import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
 import { TaakFormulierBuilder } from "./taak-formulier-builder";
 
 @Injectable({
@@ -32,13 +32,13 @@ export class TaakFormulierenService {
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
 
-  private readonly goedkeurenFormulier = inject(GoedkeurenFormulier);
+  private readonly goedkeurenFormulier = inject(GoedkeurenTaskForm);
   private readonly aanvullendeInformatieFormulier = inject(
-    AanvullendeInformatieFormulier,
+    AanvullendeInformatieTaskForm,
   );
-  private readonly adviesFormulier = inject(AdviesFormulier);
+  private readonly adviesFormulier = inject(AdviesTaskForm);
   private readonly externAdviesVastleggenFormulier = inject(
-    ExternAdviesVastleggenTaskFields,
+    ExternAdviesVastleggenTaskForm,
   );
 
   public async getAngularRequestFormBuilder(

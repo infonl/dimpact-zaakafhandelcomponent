@@ -65,6 +65,9 @@ export class ZaakafhandelParametersResolver {
               zaaktype: zaakafhandelParameters.zaaktype,
               zaakbeeindigParameters:
                 zaakafhandelParameters.zaakbeeindigParameters,
+              smartDocuments:
+                bpmnZaakafhandelParameters?.smartDocuments ??
+                zaakafhandelParameters.smartDocuments,
             },
             bpmnProcessDefinitions,
             isBpmn,

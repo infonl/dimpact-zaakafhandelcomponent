@@ -44,7 +44,9 @@ data class RestZaaktypeBpmnConfiguration(
     /**
      * The frontend currently requires this field to be non-null
      */
-    var zaakbeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
+    var zaakbeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
+
+    var smartDocuments: RestSmartDocuments? = null
 )
 
 fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnConfiguration().apply {
@@ -56,6 +58,7 @@ fun RestZaaktypeBpmnConfiguration.toZaaktypeBpmnConfiguration() = ZaaktypeBpmnCo
     defaultBehandelaarId = this@toZaaktypeBpmnConfiguration.defaultBehandelaarId
     groepID = this@toZaaktypeBpmnConfiguration.groepNaam
     creatiedatum = this@toZaaktypeBpmnConfiguration.creatiedatum ?: ZonedDateTime.now()
+    smartDocumentsEnabled = this@toZaaktypeBpmnConfiguration.smartDocuments?.enabledForZaaktype ?: false
     zaaktypeBetrokkeneParameters =
         this@toZaaktypeBpmnConfiguration.betrokkeneKoppelingen?.toZaaktypeBetrokkenParameters(this)
     zaaktypeBrpParameters =
