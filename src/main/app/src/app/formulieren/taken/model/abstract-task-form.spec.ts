@@ -142,7 +142,9 @@ describe(AbstractTaskForm.name, () => {
     beforeEach(async () => {
       const fields = await formulier.requestForm({
         uuid: "zaak-uuid",
-      } as GeneratedType<"RestZaak">);
+      } as Partial<
+        GeneratedType<"RestZaak">
+      > as unknown as GeneratedType<"RestZaak">);
 
       formGroup = new FormGroup({});
       for (const field of fields) {
