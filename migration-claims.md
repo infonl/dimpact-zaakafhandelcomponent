@@ -9,27 +9,33 @@
 ## Marcel
 
 ### Batch 1 — PR: `chore/PZ-10681--FE--Angular-v19-migration--DateRangeFilterComponent--ParametersComponent`
+
 - [x] `shared/table-zoek-filters/date-range-filter/date-range-filter.component.ts`
 - [x] `admin/parameters/parameters.component.ts`
 
 ### Batch 2 — done (branch: `temp/standalone-migration`)
+
 - [x] `admin/parameters-select-process-model-method/parameters-select-process-model-method.component.ts`
 - [x] `admin/parameters-edit-bpmn/parameters-edit-bpmn.component.ts`
 - [x] `admin/parameters-edit-shell/parameters-edit-shell.component.ts`
 
 ### Batch 4 — done (branch: `temp/standalone-migration`)
+
 - [x] `zoeken/zoek-object/zoek-object-link/zoek-object-link.component.ts`
 
 ### Batch 5 — done (branch: `temp/standalone-migration`)
+
 - [x] `zoeken/zoek/filters/date-filter/date-filter.component.ts`
 
 ### Batch 3 — done (branch: `temp/standalone-migration`)
+
 - [x] `shared/indicaties/indicaties.component.ts` (abstract base)
 - [x] `shared/indicaties/besluit-indicaties/besluit-indicaties.component.ts`
 - [x] `shared/indicaties/persoon-indicaties/persoon-indicaties.component.ts`
 - [x] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
 
 ### In progress
+
 - [x] FacetFilterComponent
 - [x] TaakEditComponent
 - [x] IdentityComponent
@@ -38,6 +44,7 @@
 - [x] FoutAfhandelingComponent
 
 ### Batch 6 — claimed
+
 - [x] KlantContactmomentenTabelComponent
 - [x] ZaakBetrokkeneFilterComponent
 - [x] OntvangstbevestigingComponent
@@ -45,16 +52,19 @@
 - [x] ZoekopdrachtSaveDialogComponent
 
 ### PZ-10533 feature branch — done
+
 - [x] `klanten/persoonsgegevens/persoonsgegevens.component.ts`
 - [x] `klanten/bedrijfsgegevens/bedrijfsgegevens.component.ts`
 
 ### PZ-10629 feature branch — done
+
 - [x] `mail/mail-create/mail-create.component.ts`
 - [x] `shared/form/form-actions/form-actions.component.ts`
 - [x] `zaken/intake-afronden-dialog/intake-afronden-dialog.component.ts`
 - [x] `zaken/zaak-afhandelen-dialog/zaak-afhandelen-dialog.component.ts`
 
 ### Batch 7 — PR: `chore/PZ-10848--FE--Angular-v19-migration--InboxDocumentenList--OntkoppeldeDocumentenList--InboxProductaanvragenList--ColumnPicker--Dialog--Edit--TakenCard`
+
 - [x] DialogComponent
 - [x] EditComponent (EditInputComponent)
 - [x] ColumnPickerComponent
@@ -64,7 +74,9 @@
 - [x] InboxProductaanvragenListComponent
 
 ### Bundle size — done
+
 Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
+
 - [x] `shared/pipes/empty.pipe.ts` — made standalone (enabler for BagZoekComponent)
 - [x] `bag/zoek/bag-zoek/bag-zoek.component.ts` — made standalone (enabler for BAGModule lazy load)
 - [x] `bag/bag-locatie/bag-locatie.component.ts` — lazy-loaded via BAGModule `loadChildren`
@@ -74,6 +86,7 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] `zaken/zaak-locatie-wijzigen/zaak-locatie-wijzigen.component.ts`
 
 ### Batch 8 — claimed
+
 - [x] EnhanceMatErrorDirective
 - [x] ZacRadio
 - [x] ZacCheckbox
@@ -85,28 +98,37 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] ZacAutoComplete
 
 ### Batch 9 — claimed
+
 - [x] KlantZoekComponent
 - [x] PersoonZoekComponent
 - [x] BedrijfZoekComponent
 
 ### Batch 10 — done
+
 - [x] `klanten/persoon-view/persoon-view.component.ts`
 - [x] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
 - [x] `klanten/bedrijf-view/bedrijf-view.component.ts`
+- [x] `klanten/klant-zaken-tabel/klant-zaken-tabel.component.ts`
+- [x] `zaken/zaak-verkort/zaak-verkort.component.ts`
+- [x] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
+- [x] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
 
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
+
 - ⏭ `shared/material/mat-zac-error.ts` — skipped, declared in ATOS `MaterialFormBuilderModule`
 - [x] `shared/notification-dialog/notification-dialog.component.ts`
 - [x] `shared/table-zoek-filters/tekst-filter/tekst-filter.component.ts`
 - [x] `shared/confirm-dialog/confirm-dialog.component.ts`
 
 ### Batch 2 — done (branch: `temp/standalone-migration`)
+
 - [x] `fout-afhandeling/dialog/fout-dialog.component.ts`
 - [x] `fout-afhandeling/dialog/actie-onmogelijk-dialog.component.ts`
 
 ### Batch 3 — done (branch: `temp/standalone-migration`)
+
 - [x] `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts`
 - [x] `notities/notities.component.ts`
 
@@ -115,6 +137,7 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 <!-- Add your claimed components here before starting a batch -->
 
 ### Batch 11 — claimed
+
 - [ ] `zaken/zaak-verkort/zaak-verkort.component.ts`
 - [ ] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
 - [ ] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
