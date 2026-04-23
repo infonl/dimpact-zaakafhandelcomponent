@@ -180,7 +180,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
             previousZaaktypeCmmnConfiguration.zaaktypeUuid.let { previousZaaktypeCmmnConfigurationUuid ->
                 zaaktypeCmmnConfiguration.zaaktypeUuid.let { newZaaktypeCmmnConfigurationUuid ->
-                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
+                        previousZaaktypeCmmnConfigurationUuid,
+                        newZaaktypeCmmnConfigurationUuid
+                    )
                     storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
                 }
             }
@@ -322,14 +325,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
-
-    private fun mapSmartDocuments(
-        previousZaakafhandelUUID: UUID,
-        newZaaktypeCmmnConfigurationUUID: UUID
-    ) {
-        val templateMappings = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID)
-        smartDocumentsTemplatesService.storeTemplatesMapping(templateMappings, newZaaktypeCmmnConfigurationUUID)
-    }
 
     private fun mapZaakAfzenders(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
