@@ -1,0 +1,35 @@
+{
+  "display": "form",
+  "name": "loadTestForm",
+  "title": "Load Test Form",
+  "type": "form",
+  "components": [
+    {
+      "title": "Load test task",
+      "label": "Load test task",
+      "type": "panel",
+      "key": "loadTestPanel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Toelichting",
+          "type": "textarea",
+          "key": "toelichting",
+          "input": true,
+          "validate": {
+            "required": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Afronden",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

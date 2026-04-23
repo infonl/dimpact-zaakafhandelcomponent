@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import jakarta.ws.rs.NotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -23,6 +24,7 @@ import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.createZaakbeeindigReden
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
+import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.createRestResultaattype
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.admin.model.createRestZaaktypeBpmnConfiguration
@@ -32,6 +34,7 @@ import nl.info.zac.app.zaak.model.isVervaldatumBesluitVerplicht
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.smartdocuments.SmartDocumentsService
 import java.util.UUID
 
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
@@ -42,6 +45,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zaakbeeindigParameterConverter = mockk<RestZaakbeeindigParameterConverter>()
+    val smartDocumentsService = mockk<SmartDocumentsService>()
     val zaaktypeBpmnConfigurationRestService =
         ZaaktypeBpmnConfigurationRestService(
             zaaktypeBpmnConfigurationService,
@@ -50,6 +54,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             policyService,
             ztcClientService,
             zaakbeeindigParameterConverter,
+            smartDocumentsService
         )
 
     beforeEach {
@@ -69,6 +74,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any())
             } returns listOf(restZaakbeeindigParameter)
             every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { smartDocumentsService.isEnabled() } returns true
 
             When("reading BPMN zaaktypes") {
                 val result = zaaktypeBpmnConfigurationRestService.getZaaktypeBpmnConfiguration(
@@ -83,6 +89,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                         bpmnProcessDefinitionKey shouldBe zaaktypeBpmnProcessDefinition.bpmnProcessDefinitionKey
                         productaanvraagtype shouldBe zaaktypeBpmnProcessDefinition.productaanvraagtype
                         groepNaam shouldBe zaaktypeBpmnProcessDefinition.groepID
+                        smartDocuments?.enabledGlobally shouldBe true
+                        smartDocuments?.enabledForZaaktype shouldBe zaaktypeBpmnProcessDefinition.smartDocumentsEnabled
                     }
                 }
             }
@@ -149,6 +157,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             } returns savedConfiguration
             every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { smartDocumentsService.isEnabled() } returns true
 
             When("creating a new zaaktype BPMN configuration") {
                 val result = zaaktypeBpmnConfigurationRestService.createOrUpdateZaaktypeBpmnConfiguration(
@@ -208,6 +217,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             } returns updatedZaaktypeBpmnConfiguration
             every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
             every { ztcClientService.readResultaattype(any<UUID>()) } returns resultaatType
+            every { smartDocumentsService.isEnabled() } returns true
 
             When("updating an existing zaaktype BPMN configuration") {
                 val updatedRestZaaktypeBpmnConfiguration = zaaktypeBpmnConfigurationRestService.createOrUpdateZaaktypeBpmnConfiguration(
@@ -236,6 +246,36 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                             this.size shouldBe 0
                         }
                     }
+                }
+            }
+        }
+
+        Given("A REST zaaktype BPMN configuration with smartDocuments enabled for zaaktype") {
+            val existingConfiguration = createZaaktypeBpmnConfiguration()
+            val savedConfiguration = createZaaktypeBpmnConfiguration()
+            val restZaaktypeBpmnConfiguration = createRestZaaktypeBpmnConfiguration(
+                zaaktypeUuid = existingConfiguration.zaaktypeUuid,
+                smartDocuments = RestSmartDocuments(enabledGlobally = true, enabledForZaaktype = true)
+            )
+            val capturedConfiguration = slot<nl.info.zac.admin.model.ZaaktypeBpmnConfiguration>()
+            every { policyService.readOverigeRechten().beheren } returns true
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfiguration(restZaaktypeBpmnConfiguration.zaaktypeUuid)
+            } returns existingConfiguration
+            every {
+                zaaktypeBpmnConfigurationBeheerService.storeConfiguration(capture(capturedConfiguration))
+            } returns savedConfiguration
+            every { ztcClientService.readResultaattype(any<UUID>()) } returns createResultaatType()
+            every { zaakbeeindigParameterConverter.convertZaakbeeindigParameters(any()) } returns emptyList()
+            every { smartDocumentsService.isEnabled() } returns true
+
+            When("updating the configuration") {
+                zaaktypeBpmnConfigurationRestService.createOrUpdateZaaktypeBpmnConfiguration(
+                    restZaaktypeBpmnConfiguration
+                )
+
+                Then("smartDocumentsEnabled is persisted as true") {
+                    capturedConfiguration.captured.smartDocumentsEnabled shouldBe true
                 }
             }
         }

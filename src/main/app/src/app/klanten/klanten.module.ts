@@ -20,10 +20,7 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
 
 @NgModule({
   declarations: [
-    BedrijfZoekComponent,
-    PersoonZoekComponent,
     KlantZakenTabelComponent,
-    KlantZoekComponent,
     PersoonViewComponent,
     BedrijfViewComponent,
   ],
@@ -43,6 +40,9 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     BedrijfsgegevensComponent,
     ContactgegevensComponent,
     PersoonsgegevensComponent,
+    BedrijfZoekComponent,
+    PersoonZoekComponent,
+    KlantZoekComponent,
   ],
 })
 export class KlantenModule {}

@@ -10,8 +10,8 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
@@ -35,7 +35,7 @@ import java.util.logging.Logger
 class SmartDocumentsTemplatesService @Inject constructor(
     private val entityManager: EntityManager,
     private val smartDocumentsService: SmartDocumentsService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
 ) {
     companion object {
         private val LOG = Logger.getLogger(CmmnDocumentCreationService::class.java.name)
@@ -78,21 +78,23 @@ class SmartDocumentsTemplatesService @Inject constructor(
         }
 
     /**
-     * Stores template mapping for zaaktypeCmmnConfiguration
+     * Stores template mapping for zaaktypeConfiguration
      *
      * @param restTemplateGroups a set of RESTSmartDocumentsTemplateGroup objects to store
-     * @param zaaktypeCmmnConfigurationUUID UUID of the zaaktypeCmmnConfiguration
+     * @param zaaktypeUUID UUID of the zaaktype
      */
     @Transactional(REQUIRED)
     fun storeTemplatesMapping(
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>,
-        zaaktypeCmmnConfigurationUUID: UUID
+        zaaktypeUUID: UUID
     ) {
-        LOG.fine { "Storing template mapping for zaaktypeCmmnConfiguration UUID $zaaktypeCmmnConfigurationUUID" }
+        LOG.fine { "Storing template mapping for zaaktype UUID $zaaktypeUUID" }
 
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfigurationUUID).let {
+        requireNotNull(zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)) {
+            "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID"
+        }.let {
             restTemplateGroups.toSmartDocumentsTemplateGroupSet(it).let { modelTemplateGroups ->
-                deleteTemplateMapping(zaaktypeCmmnConfigurationUUID)
+                deleteTemplateMapping(zaaktypeUUID)
                 modelTemplateGroups.forEach { templateGroup ->
                     entityManager.merge(templateGroup)
                 }
@@ -100,29 +102,29 @@ class SmartDocumentsTemplatesService @Inject constructor(
         }
     }
 
-    private fun getZaaktypeCmmnConfigurationId(zaaktypeCmmnConfigurationUUID: UUID) =
-        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfigurationUUID).id
+    private fun getZaaktypeConfigurationId(zaaktypeUUID: UUID): Long? =
+        zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)?.id
 
     /**
-     * Deletes all template groups and templates for a zaaktypeCmmnConfiguration
+     * Deletes all template groups and templates for a zaaktypeConfiguration
      *
-     * @param zaaktypeCmmnConfigurationUUID UUID of the zaaktypeCmmnConfiguration
+     * @param zaaktypeUUID UUID of the zaaktype
      * @return the number of entities deleted
      */
     @Transactional(REQUIRED)
     fun deleteTemplateMapping(
-        zaaktypeCmmnConfigurationUUID: UUID
+        zaaktypeUUID: UUID
     ): Int {
-        LOG.fine { "Deleting template mapping for zaaktypeCmmnConfiguration UUID $zaaktypeCmmnConfigurationUUID" }
+        LOG.fine { "Deleting template mapping for zaaktype UUID $zaaktypeUUID" }
 
         entityManager.criteriaBuilder.let { builder ->
             builder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
                     query.where(
                         builder.equal(
-                            root.get<ZaaktypeCmmnConfiguration>(SmartDocumentsTemplate::zaaktypeCmmnConfiguration.name)
+                            root.get<ZaaktypeConfiguration>(SmartDocumentsTemplateGroup::zaaktypeConfiguration.name)
                                 .get<Long>("id"),
-                            getZaaktypeCmmnConfigurationId(zaaktypeCmmnConfigurationUUID)
+                            getZaaktypeConfigurationId(zaaktypeUUID)
                         )
                     )
                     return entityManager.createQuery(query).executeUpdate().also {
@@ -134,23 +136,27 @@ class SmartDocumentsTemplatesService @Inject constructor(
     }
 
     /**
-     * Lists all template groups for a zaaktypeCmmnConfiguration
+     * Lists all template groups for a zaaktypeConfiguration
      *
-     * @param zaaktypeCmmnConfigurationUUID UUID of a zaaktypeCmmnConfiguration
-     * @return a set of all RESTSmartDocumentsTemplateGroup for the zaaktypeCmmnConfiguration
+     * @param zaaktypeUUID UUID of a zaaktype
+     * @return a set of all RESTSmartDocumentsTemplateGroup for the zaaktypeConfiguration
      */
     fun getTemplatesMapping(
-        zaaktypeCmmnConfigurationUUID: UUID
+        zaaktypeUUID: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
             LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
             emptySet()
+        } else if (zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID) == null) {
+            // A zaaktype configuration is only persisted after first save — return empty set rather than querying with a null id
+            LOG.fine { "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID. Returning empty set of template groups" }
+            emptySet()
         } else {
-            LOG.fine { "Fetching template mapping for zaaktypeCmmnConfiguration UUID $zaaktypeCmmnConfigurationUUID" }
-            fetchTemplatesMapping(zaaktypeCmmnConfigurationUUID)
+            LOG.fine { "Fetching template mapping for zaaktype UUID $zaaktypeUUID" }
+            fetchTemplatesMapping(zaaktypeUUID)
         }
 
-    private fun fetchTemplatesMapping(zaaktypeCmmnConfigurationUUID: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
+    private fun fetchTemplatesMapping(zaaktypeUUID: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
@@ -159,11 +165,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
                             .where(
                                 builder.and(
                                     builder.equal(
-                                        root.get<ZaaktypeCmmnConfiguration>(
-                                            SmartDocumentsTemplateGroup::zaaktypeCmmnConfiguration.name
+                                        root.get<ZaaktypeConfiguration>(
+                                            SmartDocumentsTemplateGroup::zaaktypeConfiguration.name
                                         )
                                             .get<Long>("id"),
-                                        getZaaktypeCmmnConfigurationId(zaaktypeCmmnConfigurationUUID)
+                                        getZaaktypeConfigurationId(zaaktypeUUID)
                                     ),
                                     builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
                                 )
@@ -174,22 +180,22 @@ class SmartDocumentsTemplatesService @Inject constructor(
         }
 
     /**
-     * Get the information object type UUID for a pair of group-template in a zaaktypeCmmnConfiguration
+     * Get the information object type UUID for a pair of group-template in a zaaktypeConfiguration
      *
-     * @param zaaktypeCmmnConfigurationUUID UUID of a zaaktypeCmmnConfiguration
+     * @param zaaktypeUUID UUID of a zaaktype
      * @param templateGroupId name of a template group
      * @param templateId name of a template under the group
      * @return information object type UUID associated with this pair
      */
     @Suppress("NestedBlockDepth")
     fun getInformationObjectTypeUUID(
-        zaaktypeCmmnConfigurationUUID: UUID,
+        zaaktypeUUID: UUID,
         templateGroupId: String,
         templateId: String
     ): UUID {
         LOG.fine {
-            "Fetching information object type UUID mapping for zaaktypeCmmnConfiguration UUID " +
-                "$zaaktypeCmmnConfigurationUUID, template group id $templateGroupId and template id $templateId"
+            "Fetching information object type UUID mapping for zaaktype UUID " +
+                "$zaaktypeUUID, template group id $templateGroupId and template id $templateId"
         }
 
         return entityManager.criteriaBuilder.let { builder ->
@@ -199,11 +205,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
                         criteriaQuery.multiselect(namePath).where(
                             builder.and(
                                 builder.equal(
-                                    root.get<ZaaktypeCmmnConfiguration>(
-                                        SmartDocumentsTemplate::zaaktypeCmmnConfiguration.name
+                                    root.get<ZaaktypeConfiguration>(
+                                        SmartDocumentsTemplate::zaaktypeConfiguration.name
                                     )
                                         .get<Long>("id"),
-                                    getZaaktypeCmmnConfigurationId(zaaktypeCmmnConfigurationUUID)
+                                    getZaaktypeConfigurationId(zaaktypeUUID)
                                 ),
                                 builder.equal(
                                     root.get<SmartDocumentsTemplateGroup>(

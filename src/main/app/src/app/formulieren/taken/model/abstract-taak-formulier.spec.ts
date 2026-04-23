@@ -26,9 +26,9 @@ import { of } from "rxjs";
 import { FormField, ZacForm } from "../../../shared/form/form";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
-class TestFormulier extends AbstractTaakFormulier {
+class TestForm extends AbstractTaskForm {
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     void zaak;
     return [
@@ -112,8 +112,8 @@ class TestFormulier extends AbstractTaakFormulier {
   }
 }
 
-describe(AbstractTaakFormulier.name, () => {
-  let formulier: TestFormulier;
+describe(AbstractTaskForm.name, () => {
+  let formulier: TestForm;
   let fixture: ComponentFixture<
     ZacForm<Record<string, AbstractControl<unknown, unknown>>>
   >;
@@ -135,7 +135,7 @@ describe(AbstractTaakFormulier.name, () => {
       providers: [FormBuilder],
     }).compileComponents();
 
-    formulier = TestBed.runInInjectionContext(() => new TestFormulier());
+    formulier = TestBed.runInInjectionContext(() => new TestForm());
   });
 
   describe("requestForm rendering", () => {

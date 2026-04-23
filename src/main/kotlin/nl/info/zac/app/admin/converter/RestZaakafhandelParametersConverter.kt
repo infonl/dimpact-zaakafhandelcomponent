@@ -17,12 +17,12 @@ import nl.info.zac.admin.model.ZaakafhandelparametersStatusMailOption
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestAutomaticEmailConfirmation
-import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.toAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestAutomaticEmailConfirmation
 import nl.info.zac.app.admin.model.toRestBetrokkeneKoppelingen
 import nl.info.zac.app.admin.model.toRestBrpDoelbindingen
+import nl.info.zac.app.admin.model.toRestSmartDocuments
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.admin.model.toRestZaaktypeOverzicht
 import nl.info.zac.app.admin.model.toZaakAfzenders
@@ -78,10 +78,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             },
             productaanvraagtype = zaaktypeCmmnConfiguration.productaanvraagtype,
             domein = zaaktypeCmmnConfiguration.domein,
-            smartDocuments = RestSmartDocuments(
-                enabledGlobally = smartDocumentsService.isEnabled(),
-                enabledForZaaktype = zaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
-            ),
+            smartDocuments = zaaktypeCmmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeCmmnConfiguration.getBrpParameters()
@@ -123,7 +120,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             domein = restZaakafhandelParameters.domein
             defaultBehandelaarId = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
-            smartDocumentsIngeschakeld = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
+            smartDocumentsEnabled = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
             creatiedatum = restZaakafhandelParameters.creatiedatum ?: ZonedDateTime.now()
         }.also {
             it.setHumanTaskParametersCollection(
@@ -166,7 +163,7 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
             domein = zaaktypeBpmnConfiguration.domein,
-            smartDocuments = RestSmartDocuments(true, true),
+            smartDocuments = zaaktypeBpmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
             brpDoelbindingen = zaaktypeBpmnConfiguration.getBrpParameters()

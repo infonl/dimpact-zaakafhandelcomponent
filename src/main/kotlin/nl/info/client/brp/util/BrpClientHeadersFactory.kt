@@ -9,7 +9,7 @@ import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.MultivaluedMap
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.configuration.BrpConfiguration
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 
