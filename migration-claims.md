@@ -113,3 +113,8 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
+
+### Batch 11 — claimed
+- [ ] `zaken/zaak-verkort/zaak-verkort.component.ts`
+- [ ] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
+- [ ] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
