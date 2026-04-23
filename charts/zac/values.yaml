@@ -360,8 +360,12 @@ opa:
 solr:
   # -- The location of an existing solr instance (unmanaged by this chart) to be used by zac
   url: ""
-  # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
+  # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr collection and alias during startup (works for both external and operator-managed Solr)
   createZacCore: true
+  # -- Number of shards for the Solr collection (used when creating a new collection during blue-green reindexing)
+  numShards: 2
+  # -- Replication factor for the Solr collection (used when creating a new collection during blue-green reindexing)
+  replicationFactor: 2
 
 # It is recommended to use solr-operator to help provision a solr-cloud cluster,
 # you will have to configure the zac core seperately then.

@@ -67,8 +67,8 @@ services:
     # see: https://stackoverflow.com/a/67158212
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # Create the 'zac' core and start solr
-    command: solr-precreate zac
+    # Start Solr in SolrCloud mode with embedded ZooKeeper
+    command: solr-fg -c
 
   opa:
     # Linux workaround for host.docker.internal support

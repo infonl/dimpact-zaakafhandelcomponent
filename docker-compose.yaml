@@ -271,10 +271,19 @@ services:
       - ./scripts/docker-compose/volume-data/solr-data:/var/solr
     # run as root to change the permissions of the solr folder
     user: root
-    # Change permissions of the solr folder, create the 'zac' core and start solr
+    # Change permissions of the solr folder and start Solr in SolrCloud mode with embedded ZooKeeper.
+    # Collection 'zac_a' and alias 'zac' are created by SolrDeployerService on first ZAC startup.
+    # NOTE: if upgrading from a standalone-mode setup, delete the solr-data volume before starting:
+    #   rm -rf ./scripts/docker-compose/volume-data/solr-data
     command: bash -c "
       chown -R 8983:8983 /var/solr
-      && runuser -u solr -- solr-precreate zac"
+      && runuser -u solr -- solr-fg -c"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/admin/info/system || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   # Open Policy Agent (OPA)
   opa:
