@@ -33,7 +33,11 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
 
-    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
+    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(
+        entityManager,
+        zaaktypeConfigurationBeheerService
+    )
 
     beforeEach {
         checkUnnecessaryStub()

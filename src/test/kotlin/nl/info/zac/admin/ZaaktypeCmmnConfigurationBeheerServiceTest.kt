@@ -13,7 +13,9 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
@@ -36,8 +38,7 @@ import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
-import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
+
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
@@ -57,14 +58,14 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
     val order = mockk<Order>()
     val expressionString = mockk<Expression<String>>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+    val zaaktypeConfigurationBeheerService = mockk<ZaaktypeConfigurationBeheerService>()
 
     val zaaktypeCmmnConfigurationBeheerService = ZaaktypeCmmnConfigurationBeheerService(
         entityManager = entityManager,
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeHelperService = ZaaktypeHelperService(ztcClientService),
+        zaaktypeConfigurationBeheerService = zaaktypeConfigurationBeheerService,
+        zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
     )
 
     beforeEach {
@@ -292,21 +293,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 every { resultList } returns emptyList() andThen listOf(originalZaaktypeCmmnConfiguration)
             }
 
-            val template = RestMappedSmartDocumentsTemplateGroup(
-                id = "test",
-                name = "test",
-                groups = null,
-                templates = null
-            )
-
-            every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } answers { setOf(template) }
-
-            every {
-                smartDocumentsTemplatesService.storeTemplatesMapping(
-                    any<Set<RestMappedSmartDocumentsTemplateGroup>>(),
-                    any<UUID>()
-                )
-            } returns mockk {}
+            every { zaaktypeConfigurationBeheerService.mapSmartDocuments(any(), any()) } just runs
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
