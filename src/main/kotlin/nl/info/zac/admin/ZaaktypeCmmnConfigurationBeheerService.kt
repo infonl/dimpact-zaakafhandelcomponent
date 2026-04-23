@@ -28,7 +28,6 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJ
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -46,7 +45,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
     private val ztcClientService: ZtcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService,
     private val zaaktypeHelperService: ZaaktypeHelperService,
 ) {
     companion object {
@@ -180,7 +179,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
             previousZaaktypeCmmnConfiguration.zaaktypeUuid.let { previousZaaktypeCmmnConfigurationUuid ->
                 zaaktypeCmmnConfiguration.zaaktypeUuid.let { newZaaktypeCmmnConfigurationUuid ->
-                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    zaaktypeConfigurationBeheerService.mapSmartDocuments(
+                        previousZaaktypeCmmnConfigurationUuid,
+                        newZaaktypeCmmnConfigurationUuid
+                    )
                     storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
                 }
             }
@@ -322,14 +324,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
-
-    private fun mapSmartDocuments(
-        previousZaakafhandelUUID: UUID,
-        newZaaktypeCmmnConfigurationUUID: UUID
-    ) {
-        val templateMappings = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID)
-        smartDocumentsTemplatesService.storeTemplatesMapping(templateMappings, newZaaktypeCmmnConfigurationUUID)
-    }
 
     private fun mapZaakAfzenders(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,

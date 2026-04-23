@@ -30,7 +30,8 @@ import kotlin.jvm.optionals.getOrNull
 @NoArgConstructor
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
-    private val entityManager: EntityManager
+    private val entityManager: EntityManager,
+    private val zaaktypeConfigurationBeheerService: ZaaktypeConfigurationBeheerService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -159,19 +160,23 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     fun copyConfiguration(zaaktype: ZaakType) {
         // only copy settings if there is a previous configuration
         findConfiguration(zaaktype.omschrijving)?.let { previousConfiguration ->
+            val newZaaktypeUuid = zaaktype.url.extractUuid()
             ZaaktypeBpmnConfiguration().apply {
                 id = previousConfiguration.id
-                this.zaaktypeUuid = zaaktype.url.extractUuid()
+                this.zaaktypeUuid = newZaaktypeUuid
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 bpmnProcessDefinitionKey = previousConfiguration.bpmnProcessDefinitionKey
                 productaanvraagtype = previousConfiguration.productaanvraagtype
                 groepID = previousConfiguration.groepID
                 creatiedatum = ZonedDateTime.now()
+                smartDocumentsEnabled = previousConfiguration.smartDocumentsEnabled
                 mapBetrokkeneKoppelingen(previousConfiguration, this)
                 mapBrpDoelbindingen(previousConfiguration, this)
                 nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
                 mapCompletionParameters(previousConfiguration, this)
             }.run(::storeConfiguration)
+
+            zaaktypeConfigurationBeheerService.mapSmartDocuments(previousConfiguration.zaaktypeUuid, newZaaktypeUuid)
         }
     }
 }
