@@ -52,12 +52,12 @@ class IndexingService @Inject constructor(
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
 
         private lateinit var solrClient: SolrClient
+        private lateinit var solrUrl: String
     }
 
     init {
-        solrClient = Http2SolrClient.Builder(
-            "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
-        ).build()
+        solrUrl = ConfigProvider.getConfig().getValue("solr.url", String::class.java)
+        solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
     }
 
     /**
@@ -70,13 +70,11 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectId: String, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(
-            getConverter(objectType).let { converter ->
-                listOf(
-                    continueOnExceptions(objectType) { converter.convert(objectId) }
-                )
-            },
-            performCommit
+        indexeerDirectWith(
+            objectIds = listOf(objectId),
+            objectType = objectType,
+            performCommit = performCommit,
+            client = solrClient
         )
 
     /**
@@ -89,32 +87,23 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(
-            getConverter(objectType).let { converter ->
-                objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
-            },
-            performCommit
+        indexeerDirectWith(
+            objectIds = objectIds,
+            objectType = objectType,
+            performCommit = performCommit,
+            client = solrClient
         )
 
-    fun reindex(objectType: ZoekObjectType) {
-        if (reindexingViewfinder.contains(objectType)) {
-            LOG.warning("[$objectType] Reindexing not started, still in progress")
-            return
-        }
-        reindexingViewfinder.add(objectType)
-        try {
-            systemUser.set(true)
-            LOG.info("[$objectType] Reindexing started")
-            removeEntitiesFromSolrIndex(objectType)
-            when (objectType) {
-                ZoekObjectType.ZAAK -> reindexAllZaken()
-                ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
-                ZoekObjectType.TAAK -> reindexAllTaken()
-            }
-            LOG.info("[$objectType] Reindexing finished")
-        } finally {
-            reindexingViewfinder.remove(objectType)
-            systemUser.remove()
+    fun reindex(objectType: ZoekObjectType) = reindexWith(objectType, solrClient)
+
+    /**
+     * Reindexes all objects of the given type into the specified Solr collection.
+     * Used for alias-based blue-green reindexing where data is built in an inactive
+     * collection before switching the alias.
+     */
+    fun reindex(objectType: ZoekObjectType, targetCollection: String) {
+        Http2SolrClient.Builder("$solrUrl/solr/$targetCollection").build().use { targetClient ->
+            reindexWith(objectType, targetClient)
         }
     }
 
@@ -150,18 +139,53 @@ class IndexingService @Inject constructor(
         }
     }
 
+    private fun reindexWith(objectType: ZoekObjectType, client: SolrClient) {
+        if (reindexingViewfinder.contains(objectType)) {
+            LOG.warning("[$objectType] Reindexing not started, still in progress")
+            return
+        }
+        reindexingViewfinder.add(objectType)
+        try {
+            systemUser.set(true)
+            LOG.info("[$objectType] Reindexing started")
+            removeEntitiesFromSolrIndex(objectType, client)
+            when (objectType) {
+                ZoekObjectType.ZAAK -> reindexAllZaken(client)
+                ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten(client)
+                ZoekObjectType.TAAK -> reindexAllTaken(client)
+            }
+            LOG.info("[$objectType] Reindexing finished")
+        } finally {
+            reindexingViewfinder.remove(objectType)
+            systemUser.remove()
+        }
+    }
+
     private fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
         converterInstances
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
 
-    private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
+    private fun indexeerDirectWith(
+        objectIds: List<String>,
+        objectType: ZoekObjectType,
+        performCommit: Boolean,
+        client: SolrClient
+    ) = addToSolrIndex(
+        getConverter(objectType).let { converter ->
+            objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
+        },
+        performCommit,
+        client
+    )
+
+    private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean, client: SolrClient = solrClient) {
         val beansToBeAdded = zoekObjecten.filterNotNull()
         if (beansToBeAdded.isEmpty()) {
             return
         }
         runTranslatingToIndexingException {
-            solrClient.addBeans(beansToBeAdded)
+            client.addBeans(beansToBeAdded)
             if (performCommit) {
                 commit()
             }
@@ -183,7 +207,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
+    private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType, client: SolrClient = solrClient) {
         val query = SolrQuery("*:*").apply {
             setFields("id")
             addFilterQuery("type:$objectType")
@@ -193,7 +217,7 @@ class IndexingService @Inject constructor(
         var cursorMark = CursorMarkParams.CURSOR_MARK_START
         while (true) {
             query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
-            val response = continueOnExceptions(objectType) { solrClient.query(query) }
+            val response = continueOnExceptions(objectType) { client.query(query) }
             if (response == null) {
                 LOG.warning(
                     "[$objectType] Cannot fetch next page. " +
@@ -203,7 +227,10 @@ class IndexingService @Inject constructor(
             }
 
             continueOnExceptions(objectType) {
-                removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
+                val ids = response.results.mapNotNull { it["id"].toString() }
+                if (ids.isNotEmpty()) {
+                    client.deleteById(ids)
+                }
             }
             if (cursorMark == response.nextCursorMark) {
                 break
@@ -212,7 +239,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun reindexAllZaken() {
+    private fun reindexAllZaken(client: SolrClient = solrClient) {
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
             zrcClientService.listZakenUuids(
                 ZaakListParameters().apply {
@@ -230,11 +257,11 @@ class IndexingService @Inject constructor(
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfZaken) }
+            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfZaken, client) }
         }
     }
 
-    private fun reindexZakenPage(pageNumber: Int, totalCount: Int) {
+    private fun reindexZakenPage(pageNumber: Int, totalCount: Int, client: SolrClient = solrClient) {
         val zaakResults = zrcClientService.listZakenUuids(
             ZaakListParameters().apply {
                 ordering = "-identificatie"
@@ -242,16 +269,17 @@ class IndexingService @Inject constructor(
             }
         )
         val ids = zaakResults.results().map { it.uuid.toString() }
-        indexeerDirect(
+        indexeerDirectWith(
             objectIds = ids,
             objectType = ZoekObjectType.ZAAK,
-            performCommit = false
+            performCommit = false,
+            client = client
         )
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
         LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
     }
 
-    private fun reindexAllInformatieobjecten() {
+    private fun reindexAllInformatieobjecten(client: SolrClient = solrClient) {
         val numberOfInformatieobjecten = continueOnExceptions(ZoekObjectType.DOCUMENT) {
             drcClientService.listEnkelvoudigInformatieObjecten(
                 EnkelvoudigInformatieobjectListParameters().apply {
@@ -269,26 +297,27 @@ class IndexingService @Inject constructor(
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
             continueOnExceptions(ZoekObjectType.DOCUMENT) {
-                reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten)
+                reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten, client)
             }
         }
     }
 
-    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int) {
+    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int, client: SolrClient = solrClient) {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
         )
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
-        indexeerDirect(
+        indexeerDirectWith(
             objectIds = ids,
             objectType = ZoekObjectType.DOCUMENT,
-            performCommit = false
+            performCommit = false,
+            client = client
         )
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
         LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
     }
 
-    private fun reindexAllTaken() {
+    private fun reindexAllTaken(client: SolrClient = solrClient) {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
             LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count. Aborting reindexing")
@@ -297,11 +326,11 @@ class IndexingService @Inject constructor(
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
 
         for (pageNumber in 0..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfTasks.toInt()) }
+            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfTasks.toInt(), client) }
         }
     }
 
-    private fun reindexTakenPage(pageNumber: Int, totalCount: Int): Boolean {
+    private fun reindexTakenPage(pageNumber: Int, totalCount: Int, client: SolrClient = solrClient): Boolean {
         val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
@@ -312,10 +341,11 @@ class IndexingService @Inject constructor(
         if (tasks.isEmpty()) {
             return false
         }
-        indexeerDirect(
+        indexeerDirectWith(
             objectIds = tasks.map { it.id },
             objectType = ZoekObjectType.TAAK,
-            performCommit = false
+            performCommit = false,
+            client = client
         )
         val progress = firstResult + tasks.size
         LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")

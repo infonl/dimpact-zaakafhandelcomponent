@@ -78,6 +78,8 @@ data:
   {{- else }}
   SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common
   {{- end }}
+  SOLR_COLLECTION_NUM_SHARDS: {{ .Values.solr.numShards | default 2 | quote }}
+  SOLR_COLLECTION_REPLICATION_FACTOR: {{ .Values.solr.replicationFactor | default 2 | quote }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}

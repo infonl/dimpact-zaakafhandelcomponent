@@ -38,9 +38,31 @@ spec:
         resources:
           {{- toYaml .Values.initContainer.resources | nindent 10 }}
         {{- if .Values.solr.url }}
-        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command:
+          - "sh"
+          - "-c"
+          - |
+            SOLR_URL="{{ .Values.solr.url }}"
+            # Exit early if alias 'zac' already exists (idempotent re-run)
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=LISTALIASES&wt=json" | grep -q '"zac"' && exit 0
+            # Create collection 'zac_a' if it does not exist
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=LIST&wt=json" | grep -q '"zac_a"' || \
+              curl -sf -k "${SOLR_URL}/solr/admin/collections?action=CREATE&name=zac_a&numShards=2&replicationFactor=2&wt=json"
+            # Create alias 'zac' -> 'zac_a'
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=CREATEALIAS&name=zac&collections=zac_a&wt=json"
         {{- else }}
-        command: ["sh","-c","curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
+        command:
+          - "sh"
+          - "-c"
+          - |
+            SOLR_URL="http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common"
+            # Exit early if alias 'zac' already exists (idempotent re-run)
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=LISTALIASES&wt=json" | grep -q '"zac"' && exit 0
+            # Create collection 'zac_a' if it does not exist
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=LIST&wt=json" | grep -q '"zac_a"' || \
+              curl -sf -k "${SOLR_URL}/solr/admin/collections?action=CREATE&name=zac_a&numShards=2&replicationFactor=2&wt=json"
+            # Create alias 'zac' -> 'zac_a'
+            curl -sf -k "${SOLR_URL}/solr/admin/collections?action=CREATEALIAS&name=zac&collections=zac_a&wt=json"
         {{- end }}
       {{- end }}
       {{- if and .Values.opa.enabled (not .Values.opa.sidecar) }}
