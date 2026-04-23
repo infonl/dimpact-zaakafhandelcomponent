@@ -274,7 +274,6 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should set ondertekenen options to fetched documents", async () => {
-        jest
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
 
         const fields = await formulier.handleForm(mockTaak);
@@ -287,7 +286,6 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should pre-check documents that were previously signed (ondertekenen taakdata)", async () => {
-        jest
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -301,7 +299,6 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should not pre-check documents that were not previously signed", async () => {
-        jest
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -315,7 +312,6 @@ describe(GoedkeurenTaskForm.name, () => {
       });
 
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
-        jest
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
 
         const fields = await formulier.handleForm(mockTaak);
