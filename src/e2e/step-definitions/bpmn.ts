@@ -50,7 +50,6 @@ When(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
-    await viewTaskLink.scrollIntoViewIfNeeded();
     await viewTaskLink.click();
   },
 );
