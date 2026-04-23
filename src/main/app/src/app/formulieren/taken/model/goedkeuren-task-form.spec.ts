@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
+import { provideRouter } from "@angular/router";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
 import { GoedkeurenTaskForm } from "./goedkeuren-task-form";
 
-describe("GoedkeurenTaskForm", () => {
+describe(GoedkeurenTaskForm.name, () => {
   let formulier: GoedkeurenTaskForm;
-  let informatieObjectenService: {
-    listEnkelvoudigInformatieobjecten: jest.Mock;
-  };
-  let translateService: { instant: jest.Mock };
+  let informatieObjectenService: InformatieObjectenService;
+  let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
+  let translateService: TranslateService;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -33,23 +33,18 @@ describe("GoedkeurenTaskForm", () => {
   >({ uuid: "doc-uuid-2", titel: "Document 2" });
 
   beforeEach(() => {
-    informatieObjectenService = {
-      listEnkelvoudigInformatieobjecten: jest.fn().mockReturnValue(of([])),
-    };
-    translateService = {
-      instant: jest.fn().mockReturnValue("translated-value"),
-    };
-
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FoutAfhandelingService, useValue: {} },
-        { provide: TranslateService, useValue: translateService },
-        {
-          provide: InformatieObjectenService,
-          useValue: informatieObjectenService,
-        },
-      ],
+      imports: [TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideRouter([])],
     });
+
+    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    listEnkelvoudigInformatieobjectenSpy = jest
+      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
+      .mockReturnValue(of([]));
+
+    translateService = TestBed.inject(TranslateService);
+    jest.spyOn(translateService, "instant").mockReturnValue("translated-value");
 
     formulier = TestBed.inject(GoedkeurenTaskForm);
   });
@@ -133,7 +128,7 @@ describe("GoedkeurenTaskForm", () => {
 
       it("should pass the Observable directly as options without resolving it", async () => {
         const documentsObservable = of([mockDocument1]);
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           documentsObservable,
         );
 
@@ -280,7 +275,7 @@ describe("GoedkeurenTaskForm", () => {
       });
 
       it("should set ondertekenen options to fetched documents", async () => {
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
         );
 
@@ -294,7 +289,7 @@ describe("GoedkeurenTaskForm", () => {
       });
 
       it("should pre-check documents that were previously signed (ondertekenen taakdata)", async () => {
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
         );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
@@ -309,7 +304,7 @@ describe("GoedkeurenTaskForm", () => {
       });
 
       it("should not pre-check documents that were not previously signed", async () => {
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
         );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
@@ -324,7 +319,7 @@ describe("GoedkeurenTaskForm", () => {
       });
 
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
         );
 
