@@ -49,7 +49,10 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
-    await viewTaskLink.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
+    await viewTaskLink.waitFor({
+      state: "visible",
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await viewTaskLink.click();
   },
 );
@@ -141,7 +144,7 @@ Then(
     const searchbox = form.getByRole("searchbox", {
       name: "Select one or more documents",
     });
-    
+
     await searchbox.click();
     await searchbox.fill(documentName);
 
@@ -266,7 +269,9 @@ Then(
     );
     await expect(
       form.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE, { timeout: FORTY_SECONDS_IN_MS });
+    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(
       form.getByRole("textbox", { name: "Zaak Result" }),
     ).toHaveValue(RESULT_VALUE, { timeout: FORTY_SECONDS_IN_MS });
