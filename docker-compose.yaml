@@ -264,7 +264,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
+    image: solr:10.0.0-slim@sha256:ccf1d0f9045e08693946704429a8a29dd188f21a04d164b1f1b0053673c498f0
     ports:
       - "8983:8983"
     volumes:
