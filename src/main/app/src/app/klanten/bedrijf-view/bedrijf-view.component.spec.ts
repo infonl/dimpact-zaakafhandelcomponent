@@ -4,10 +4,14 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter } from "@angular/router";
+import { ActivatedRoute, provideRouter, Routes } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, Subject } from "rxjs";
@@ -20,6 +24,16 @@ import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel
 import { KlantenService } from "../klanten.service";
 import { BedrijfViewComponent } from "./bedrijf-view.component";
 
+@Component({
+  standalone: true,
+  template: "",
+})
+class TestErrorRouteComponent {}
+
+const testRoutes: Routes = [
+  { path: "fout", component: TestErrorRouteComponent },
+];
+
 function makeBedrijf(
   overrides: Partial<GeneratedType<"RestBedrijf">> = {},
 ): GeneratedType<"RestBedrijf"> {
@@ -28,7 +42,7 @@ function makeBedrijf(
     kvkNummer: "12345678",
     vestigingsnummer: "000011112222",
     rsin: "123456789",
-    type: "Vestiging",
+    type: "RECHTSPERSOON",
     adres: "Teststraat 1, 1234AB Amsterdam",
     telefoonnummer: "0201234567",
     emailadres: "info@testbedrijf.nl",
@@ -58,6 +72,7 @@ function makeVestigingsprofiel(
 describe(BedrijfViewComponent.name, () => {
   let component: BedrijfViewComponent;
   let fixture: ComponentFixture<BedrijfViewComponent>;
+  let harnessLoader: HarnessLoader;
   let utilService: UtilService;
   let klantenService: KlantenService;
 
@@ -69,6 +84,7 @@ describe(BedrijfViewComponent.name, () => {
     await TestBed.configureTestingModule({
       imports: [
         BedrijfViewComponent,
+        TestErrorRouteComponent,
         KlantZakenTabelComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
@@ -77,7 +93,7 @@ describe(BedrijfViewComponent.name, () => {
       providers: [
         provideNativeDateAdapter(),
         provideHttpClient(),
-        provideRouter([]),
+        provideRouter(testRoutes),
         provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
@@ -92,6 +108,7 @@ describe(BedrijfViewComponent.name, () => {
 
     fixture = TestBed.createComponent(BedrijfViewComponent);
     component = fixture.componentInstance;
+    harnessLoader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   describe("initialisation", () => {
@@ -221,38 +238,49 @@ describe(BedrijfViewComponent.name, () => {
   });
 
   describe("profiel ophalen button", () => {
-    it("is enabled when vestigingsnummer is present", () => {
+    it("is enabled when vestigingsnummer is present", async () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: "000011112222" }),
+        bedrijf: makeBedrijf({
+          type: "RECHTSPERSOON",
+          vestigingsnummer: "000011112222",
+        }),
       });
       fixture.detectChanges();
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-icon-button]",
-      ) as HTMLButtonElement;
-      expect(button.disabled).toBe(false);
+      const button = await harnessLoader.getHarness(
+        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
+      );
+      await expect(button.isDisabled()).resolves.toBe(false);
     });
 
-    it("is disabled when vestigingsnummer is absent", () => {
+    it("is disabled when vestigingsnummer is absent", async () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined }),
+        bedrijf: makeBedrijf({
+          type: "RECHTSPERSOON",
+          vestigingsnummer: undefined,
+        }),
       });
       fixture.detectChanges();
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-icon-button]",
-      ) as HTMLButtonElement;
-      expect(button.disabled).toBe(true);
+      const button = await harnessLoader.getHarness(
+        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
+      );
+      await expect(button.isDisabled()).resolves.toBe(true);
     });
 
-    it("calls ophalenVestigingsprofiel when clicked", () => {
-      routeDataSubject.next({ bedrijf: makeBedrijf() });
+    it("calls ophalenVestigingsprofiel when clicked", async () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          type: "RECHTSPERSOON",
+          vestigingsnummer: "000011112222",
+        }),
+      });
       fixture.detectChanges();
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
         .mockReturnValue(of(makeVestigingsprofiel()));
-      const button = fixture.nativeElement.querySelector(
-        "button[mat-icon-button]",
-      ) as HTMLButtonElement;
-      button.click();
+      const button = await harnessLoader.getHarness(
+        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
+      );
+      await button.click();
       fixture.detectChanges();
       expect(klantenService.readVestigingsprofiel).toHaveBeenCalledWith(
         "000011112222",
