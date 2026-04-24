@@ -30,6 +30,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VAR
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
 import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -44,8 +45,9 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val pathCreatieDatum = mockk<Path<Any>>()
     val creatieDatumOrder = mockk<Order>()
     val entityManager = mockk<EntityManager>()
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val zaaktypeBpmnConfigurationBeheerService =
-        ZaaktypeBpmnConfigurationBeheerService(entityManager)
+        ZaaktypeBpmnConfigurationBeheerService(entityManager, smartDocumentsTemplatesService)
 
     beforeEach {
         checkUnnecessaryStub()
@@ -336,6 +338,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             every {
                 entityManager.merge(capture(configurationSlot))
             } returns newConfiguration
+            every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just Runs
 
             When("copying configuration") {
                 zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)

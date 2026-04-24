@@ -21,6 +21,7 @@ import { TakenService } from "../../../taken/taken.service";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { AbstractTaakFormulier } from "../abstract-taak-formulier";
 
+/** @deprecated Migrate to Angular task form pattern (AbstractTaskForm) */
 export class ExternAdviesMail extends AbstractTaakFormulier {
   fields = {
     ADVISEUR: "adviseur",
@@ -111,14 +112,32 @@ export class ExternAdviesMail extends AbstractTaakFormulier {
 
     this.getFormField(fields.VERZENDER).formControl.valueChanges.subscribe(
       (afzender) => {
+        if (!afzender || typeof afzender !== "object") return;
+        const typed = afzender as Record<string, unknown>;
         const verzender = this.getFormField(
           fields.VERZENDER,
         ) as SelectFormField;
         this.getFormField(fields.REPLYTO).formControl.setValue(
-          verzender.getOption(afzender as Record<string, unknown>)?.replyTo,
+          verzender.getOption(typed)?.replyTo,
+        );
+        // Normalize to mail string so taakdata serializes as Map<String,String>
+        this.getFormField(fields.VERZENDER).formControl.setValue(
+          typed["mail"] as never,
+          { emitEvent: false },
         );
       },
     );
+
+    // value$() fires before the subscription above; normalize the initial value now
+    const initial = this.getFormField(fields.VERZENDER).formControl.value;
+    if (initial && typeof initial === "object") {
+      const typed = initial as Record<string, unknown>;
+      this.getFormField(fields.REPLYTO).formControl.setValue(typed["replyTo"]);
+      this.getFormField(fields.VERZENDER).formControl.setValue(
+        typed["mail"] as never,
+        { emitEvent: false },
+      );
+    }
   }
 
   _initBehandelForm() {

@@ -21,6 +21,7 @@ import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.BPMN_PROCESS_
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
+import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import kotlin.jvm.optionals.getOrNull
 
 class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
@@ -33,7 +34,11 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val predicate = mockk<Predicate>()
     val order = mockk<Order>()
 
-    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(entityManager)
+    val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+    val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(
+        entityManager,
+        smartDocumentsTemplatesService
+    )
 
     beforeEach {
         checkUnnecessaryStub()

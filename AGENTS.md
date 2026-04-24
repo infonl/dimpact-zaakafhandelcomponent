@@ -326,6 +326,32 @@ Follow these rules:
 - Do not use any transactional annotations at function level for functions that only read from the database. 
 For these functions, the transactional annotation at class level is used.
 
+### In Kotlin unit tests the 'shouldThrow' should be in the 'When' block
+In Kotlin unit tests the 'shouldThrow' should be in the 'When' and not in the 'Then' block.
+Also the exception message should be checked in the 'Then' block.
+
+```kotlin// Before
+{
+When("calling the service") {
+    Then("should throw IllegalArgumentException") {
+        shouldThrow<IllegalArgumentException> {
+            service.add(1, 2)
+        }
+    }
+}
+// After
+When("calling the service") {
+    val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+        service.add(1, 2)
+    }
+    
+    Then("should throw IllegalArgumentException") {
+        illegalArgumentException.message shouldBe "Expected exception message"
+    }
+}    
+ 
+``` 
+
 ## Git branch conventions
 When creating a new branch, use the branch name convention: `feature/PZ-XXX-description` for all changes.
 Replace `PZ-XXX` with the relevant Jira ticket number.

@@ -10,12 +10,12 @@ import { mapStringToDocumentenStrings } from "../../../documenten/document-utils
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({
   providedIn: "root",
 })
-export class AdviesFormulier extends AbstractTaakFormulier {
+export class AdviesTaskForm extends AbstractTaskForm {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );

@@ -3,27 +3,26 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
+import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { of } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
-import { AanvullendeInformatieFormulier } from "./aanvullende-informatie";
+import { AanvullendeInformatieTaskForm } from "./aanvullende-informatie-task-form";
 
-describe("AanvullendeInformatieFormulier", () => {
-  let formulier: AanvullendeInformatieFormulier;
-  let zakenService: { listAfzendersVoorZaak: jest.Mock };
-  let mailtemplateService: { findMailtemplate: jest.Mock };
-  let informatieObjectenService: {
-    listEnkelvoudigInformatieobjecten: jest.Mock;
-  };
-  let klantenService: { getContactDetailsForPerson: jest.Mock };
+describe(AanvullendeInformatieTaskForm.name, () => {
+  let formulier: AanvullendeInformatieTaskForm;
+  let listAfzendersVoorZaakSpy: jest.SpyInstance;
+  let findMailtemplateSpy: jest.SpyInstance;
+  let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
+  let getContactDetailsForPersonSpy: jest.SpyInstance;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -48,36 +47,35 @@ describe("AanvullendeInformatieFormulier", () => {
   });
 
   beforeEach(() => {
-    zakenService = {
-      listAfzendersVoorZaak: jest.fn().mockReturnValue(of([])),
-    };
-    mailtemplateService = {
-      findMailtemplate: jest
-        .fn()
-        .mockReturnValue(of({ body: "template body", variabelen: [] })),
-    };
-    informatieObjectenService = {
-      listEnkelvoudigInformatieobjecten: jest.fn().mockReturnValue(of([])),
-    };
-    klantenService = {
-      getContactDetailsForPerson: jest.fn().mockReturnValue(of({})),
-    };
-
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FoutAfhandelingService, useValue: {} },
-        { provide: TranslateService, useValue: { instant: jest.fn() } },
-        { provide: ZakenService, useValue: zakenService },
-        { provide: MailtemplateService, useValue: mailtemplateService },
-        {
-          provide: InformatieObjectenService,
-          useValue: informatieObjectenService,
-        },
-        { provide: KlantenService, useValue: klantenService },
-      ],
+      imports: [TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideRouter([])],
     });
 
-    formulier = TestBed.inject(AanvullendeInformatieFormulier);
+    listAfzendersVoorZaakSpy = jest
+      .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
+      .mockReturnValue(of([]));
+    findMailtemplateSpy = jest
+      .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
+      .mockReturnValue(
+        of(
+          fromPartial<GeneratedType<"RESTMailtemplate">>({
+            body: "template body",
+            variabelen: [],
+          }),
+        ),
+      );
+    listEnkelvoudigInformatieobjectenSpy = jest
+      .spyOn(
+        TestBed.inject(InformatieObjectenService),
+        "listEnkelvoudigInformatieobjecten",
+      )
+      .mockReturnValue(of([]));
+    getContactDetailsForPersonSpy = jest
+      .spyOn(TestBed.inject(KlantenService), "getContactDetailsForPerson")
+      .mockReturnValue(of({}));
+
+    formulier = TestBed.inject(AanvullendeInformatieTaskForm);
   });
 
   describe("requestForm", () => {
@@ -163,7 +161,7 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should call findMailtemplate with TAAK_AANVULLENDE_INFORMATIE and zaak uuid", async () => {
         await formulier.requestForm(mockZaak);
 
-        expect(mailtemplateService.findMailtemplate).toHaveBeenCalledWith(
+        expect(findMailtemplateSpy).toHaveBeenCalledWith(
           "TAAK_AANVULLENDE_INFORMATIE",
           "zaak-uuid",
         );
@@ -172,14 +170,19 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should call listEnkelvoudigInformatieobjecten with zaak uuid for bijlagen", async () => {
         await formulier.requestForm(mockZaak);
 
-        expect(
-          informatieObjectenService.listEnkelvoudigInformatieobjecten,
-        ).toHaveBeenCalledWith({ zaakUUID: "zaak-uuid" });
+        expect(listEnkelvoudigInformatieobjectenSpy).toHaveBeenCalledWith({
+          zaakUUID: "zaak-uuid",
+        });
       });
 
       it("should use empty array for body variables when mailtemplate variabelen is null", async () => {
-        mailtemplateService.findMailtemplate.mockReturnValue(
-          of({ body: "template body", variabelen: null }),
+        findMailtemplateSpy.mockReturnValue(
+          of(
+            fromPartial<GeneratedType<"RESTMailtemplate">>({
+              body: "template body",
+              variabelen: null,
+            }),
+          ),
         );
 
         const fields = await formulier.requestForm(mockZaak);
@@ -191,7 +194,7 @@ describe("AanvullendeInformatieFormulier", () => {
 
     describe("verzender", () => {
       it("should set verzender options from listAfzendersVoorZaak", async () => {
-        zakenService.listAfzendersVoorZaak.mockReturnValue(
+        listAfzendersVoorZaakSpy.mockReturnValue(
           of([mockAfzender, mockDefaultAfzender]),
         );
 
@@ -204,7 +207,7 @@ describe("AanvullendeInformatieFormulier", () => {
       });
 
       it("should pre-select the default afzender", async () => {
-        zakenService.listAfzendersVoorZaak.mockReturnValue(
+        listAfzendersVoorZaakSpy.mockReturnValue(
           of([mockAfzender, mockDefaultAfzender]),
         );
 
@@ -217,7 +220,7 @@ describe("AanvullendeInformatieFormulier", () => {
       });
 
       it("should set verzender to null when no default afzender exists", async () => {
-        zakenService.listAfzendersVoorZaak.mockReturnValue(of([mockAfzender]));
+        listAfzendersVoorZaakSpy.mockReturnValue(of([mockAfzender]));
 
         const fields = await formulier.requestForm(mockZaak);
 
@@ -226,7 +229,7 @@ describe("AanvullendeInformatieFormulier", () => {
       });
 
       it("should update replyTo when verzender changes", async () => {
-        zakenService.listAfzendersVoorZaak.mockReturnValue(
+        listAfzendersVoorZaakSpy.mockReturnValue(
           of([mockAfzender, mockDefaultAfzender]),
         );
 
@@ -245,9 +248,7 @@ describe("AanvullendeInformatieFormulier", () => {
       });
 
       it("should set replyTo to null when verzender is cleared", async () => {
-        zakenService.listAfzendersVoorZaak.mockReturnValue(
-          of([mockDefaultAfzender]),
-        );
+        listAfzendersVoorZaakSpy.mockReturnValue(of([mockDefaultAfzender]));
 
         const fields = await formulier.requestForm(mockZaak);
 
@@ -394,7 +395,7 @@ describe("AanvullendeInformatieFormulier", () => {
       });
 
       it("should pre-fill the email from initiatorIdentificatie when both type and temporaryPersonId are set", async () => {
-        klantenService.getContactDetailsForPerson.mockReturnValue(
+        getContactDetailsForPersonSpy.mockReturnValue(
           of(
             fromPartial<GeneratedType<"RestContactDetails">>({
               emailadres: "test@example.com",
@@ -411,7 +412,7 @@ describe("AanvullendeInformatieFormulier", () => {
 
         const fields = await formulier.requestForm(zaakWithInitiator);
 
-        expect(klantenService.getContactDetailsForPerson).toHaveBeenCalledWith(
+        expect(getContactDetailsForPersonSpy).toHaveBeenCalledWith(
           "person-123",
         );
         const emailField = fields.find((f) => f.key === "emailadres");
@@ -421,13 +422,11 @@ describe("AanvullendeInformatieFormulier", () => {
       it("should not call getContactDetailsForPerson when initiatorIdentificatie is absent", async () => {
         await formulier.requestForm(mockZaak);
 
-        expect(
-          klantenService.getContactDetailsForPerson,
-        ).not.toHaveBeenCalled();
+        expect(getContactDetailsForPersonSpy).not.toHaveBeenCalled();
       });
 
       it("should not set email when getContactDetailsForPerson returns no emailadres", async () => {
-        klantenService.getContactDetailsForPerson.mockReturnValue(
+        getContactDetailsForPersonSpy.mockReturnValue(
           of(fromPartial<GeneratedType<"RestContactDetails">>({})),
         );
         const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({

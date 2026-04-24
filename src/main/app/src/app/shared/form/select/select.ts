@@ -4,14 +4,35 @@
  *
  */
 
+import { LowerCasePipe, NgFor, NgIf } from "@angular/common";
 import { Component, input } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatSelectModule } from "@angular/material/select";
+import { TranslateModule } from "@ngx-translate/core";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { MultiInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-select",
   templateUrl: "./select.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
+    LowerCasePipe,
+  ],
 })
 export class ZacSelect<
   Form extends Record<string, AbstractControl>,

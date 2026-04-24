@@ -23,6 +23,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
@@ -75,6 +78,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             And("the response body should contain all the performed checks") {
                 responseBody shouldEqualJson """
                     [
+                      {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
+                        "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
+                        "informatieobjecttypeEmailAanwezig": false,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolOverigeAanwezig": false,
+                        "statustypeAanvullendeInformatieVereist": false,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
+                        "statustypeHeropendAanwezig": false,
+                        "statustypeInBehandelingAanwezig": false,
+                        "statustypeIntakeAanwezig": false,
+                        "valide": false,
+                        "zaakafhandelParametersValide": true,
+                        "zaaktype": {
+                          "beginGeldigheid": "$DATE_2025_01_01",
+                          "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_BPMN_TEST_4_UUID",
+                          "versiedatum": "$DATE_2025_01_01",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,

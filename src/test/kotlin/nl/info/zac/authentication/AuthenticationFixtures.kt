@@ -18,7 +18,8 @@ fun createLoggedInUser(
     roles: Set<String> = setOf("fakeRole1", "fakeRole2"),
     groups: Set<String> = setOf("fakeGroup1", "fakeGroup2"),
     geautoriseerdeZaaktypen: Set<String>? = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING),
-    applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap()
+    applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
+    overallRoles: Set<String> = emptySet()
 ) = LoggedInUser(
     id,
     firstName,
@@ -28,5 +29,6 @@ fun createLoggedInUser(
     roles,
     groups,
     geautoriseerdeZaaktypen,
-    applicationRolesPerZaaktype
+    applicationRolesPerZaaktype,
+    overallRoles
 )

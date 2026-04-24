@@ -4,14 +4,13 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "../../../../test-helpers";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ExternAdviesVastleggenTaskFields } from "./extern-advies-vastleggen-task-fields";
+import { ExternAdviesVastleggenTaskForm } from "./extern-advies-vastleggen-task-form";
 
-describe("ExternAdviesVastleggenTaskFields", () => {
-  let formulier: ExternAdviesVastleggenTaskFields;
+describe(ExternAdviesVastleggenTaskForm.name, () => {
+  let formulier: ExternAdviesVastleggenTaskForm;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -19,13 +18,10 @@ describe("ExternAdviesVastleggenTaskFields", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FoutAfhandelingService, useValue: {} },
-        { provide: TranslateService, useValue: {} },
-      ],
+      imports: [TranslateModule.forRoot()],
     });
 
-    formulier = TestBed.inject(ExternAdviesVastleggenTaskFields);
+    formulier = TestBed.inject(ExternAdviesVastleggenTaskForm);
   });
 
   describe("requestForm", () => {

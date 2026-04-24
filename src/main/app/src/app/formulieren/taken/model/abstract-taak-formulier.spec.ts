@@ -20,15 +20,16 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatRadioGroupHarness } from "@angular/material/radio/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { RouterModule } from "@angular/router";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
+import { fromPartial } from "../../../../test-helpers";
 import { FormField, ZacForm } from "../../../shared/form/form";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { AbstractTaakFormulier } from "./abstract-taak-formulier";
+import { AbstractTaskForm } from "./abstract-task-form";
 
-class TestFormulier extends AbstractTaakFormulier {
+class TestForm extends AbstractTaskForm {
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     void zaak;
     return [
@@ -112,8 +113,8 @@ class TestFormulier extends AbstractTaakFormulier {
   }
 }
 
-describe(AbstractTaakFormulier.name, () => {
-  let formulier: TestFormulier;
+describe(AbstractTaskForm.name, () => {
+  let formulier: TestForm;
   let fixture: ComponentFixture<
     ZacForm<Record<string, AbstractControl<unknown, unknown>>>
   >;
@@ -129,20 +130,19 @@ describe(AbstractTaakFormulier.name, () => {
         ReactiveFormsModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
-        RouterModule.forRoot([]),
         MaterialFormBuilderModule,
       ],
-      providers: [FormBuilder],
+      providers: [FormBuilder, provideRouter([])],
     }).compileComponents();
 
-    formulier = TestBed.runInInjectionContext(() => new TestFormulier());
+    formulier = TestBed.runInInjectionContext(() => new TestForm());
   });
 
   describe("requestForm rendering", () => {
     beforeEach(async () => {
-      const fields = await formulier.requestForm({
-        uuid: "zaak-uuid",
-      } as GeneratedType<"RestZaak">);
+      const fields = await formulier.requestForm(
+        fromPartial<GeneratedType<"RestZaak">>({ uuid: "zaak-uuid" }),
+      );
 
       formGroup = new FormGroup({});
       for (const field of fields) {
