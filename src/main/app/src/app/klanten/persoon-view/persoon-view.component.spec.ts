@@ -87,11 +87,11 @@ describe(PersoonViewComponent.name, () => {
   describe("with a full persoon", () => {
     let component: PersoonViewComponent;
     let fixture: ComponentFixture<PersoonViewComponent>;
-    let utilService: UtilService;
+    let utilService: jest.Mocked<UtilService>;
 
     beforeEach(async () => {
       await configureTestBed();
-      utilService = TestBed.inject(UtilService);
+      utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
       jest.spyOn(utilService, "setTitle");
       fixture = TestBed.createComponent(PersoonViewComponent);
       component = fixture.componentInstance;
