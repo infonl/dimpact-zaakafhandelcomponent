@@ -13,11 +13,11 @@ This document lists the Docker images and versions that the corresponding versio
 - **brp-api/personen-mock**: 2.7.0-202603230846
 - **gotenberg**: 8.31.0
 - **otel/opentelemetry-collector-contrib**: 0.150.1
-- **grafana/tempo**: 2.10.4
+- **grafana/tempo**: 2.10.5
 - **prom/prometheus**: v3.11.2
 - **grafana/grafana**: 13.0.1
 - **greenmail/standalone**: 2.1.8
-- **rabbitmq**: 4.2.5-alpine
+- **rabbitmq**: 4.3.0-alpine
 - **nginxinc/nginx-unprivileged**: 1.30.0
 
 ## Common Ground components
