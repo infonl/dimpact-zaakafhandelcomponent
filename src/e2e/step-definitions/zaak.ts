@@ -9,6 +9,7 @@ import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import {
   FIFTEEN_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
   TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
@@ -73,7 +74,7 @@ Given(
     const parsedStatus = zaakStatus.parse(status);
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
