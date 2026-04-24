@@ -78,8 +78,7 @@ async function waitForFormioContent(page: Page, target: Locator) {
     if (found) return;
     await page.reload();
   }
-  await waitForFormioReady(page);
-  await target.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
+  throw new Error("Formio content did not become visible after 3 attempts");
 }
 
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
@@ -163,7 +162,6 @@ Given(
     const wizardResultDiv = smartDocumentsWizardPage.locator(
       '[role="status"][aria-live="polite"]',
     );
-    await wizardResultDiv.waitFor({ state: "attached" });
     await expect(wizardResultDiv.getByText("succes")).toBeVisible({
       timeout: FORTY_SECONDS_IN_MS,
     });
@@ -216,8 +214,7 @@ Then(
       if (found) break;
       await this.page.reload();
     }
-    await expect(option).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await option.click();
+    await option.click({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
@@ -257,7 +254,6 @@ When(
       name: "Select one or more documents",
     });
     await documentsSearchbox.click();
-    await documentsSearchbox.fill("");
     const fileAOption = this.page.getByRole("option", {
       name: "file A",
       exact: true,
@@ -314,7 +310,6 @@ Then(
     });
     // BPMN engine can lag behind the previous form submission.
     await reloadUntilVisible(this.page, taskCell);
-    await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
