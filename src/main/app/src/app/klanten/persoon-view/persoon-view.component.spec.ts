@@ -17,7 +17,11 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { PersoonViewComponent } from "./persoon-view.component";
 
-@Component({ selector: "zac-klant-zaken-tabel", template: "", standalone: true })
+@Component({
+  selector: "zac-klant-zaken-tabel",
+  template: "",
+  standalone: true,
+})
 class KlantZakenTabelStubComponent {
   @Input() klant: unknown;
 }
@@ -67,8 +71,15 @@ const configureTestBed = (
     ],
   })
     .overrideComponent(PersoonViewComponent, {
-      remove: { imports: [KlantZakenTabelComponent, KlantContactmomentenTabelComponent] },
-      add: { imports: [KlantZakenTabelStubComponent, KlantContactmomentenTabelStubComponent] },
+      remove: {
+        imports: [KlantZakenTabelComponent, KlantContactmomentenTabelComponent],
+      },
+      add: {
+        imports: [
+          KlantZakenTabelStubComponent,
+          KlantContactmomentenTabelStubComponent,
+        ],
+      },
     })
     .compileComponents();
 
@@ -101,12 +112,17 @@ describe(PersoonViewComponent.name, () => {
       const getStaticTexts = (
         fixtureRef: ComponentFixture<PersoonViewComponent>,
       ) =>
-        fixtureRef.debugElement.queryAll(
-          (de) => de.name === "zac-static-text",
-        );
+        fixtureRef.debugElement.queryAll((de) => de.name === "zac-static-text");
 
       it("renders all required persoon fields", () => {
-        const labels = ["naam", "burgerservicenummer", "geboortedatum", "verblijfplaats", "telefoonnummer", "emailadres"];
+        const labels = [
+          "naam",
+          "burgerservicenummer",
+          "geboortedatum",
+          "verblijfplaats",
+          "telefoonnummer",
+          "emailadres",
+        ];
         const renderedLabels = getStaticTexts(fixture).map(
           (de) => de.componentInstance.label,
         );
@@ -148,7 +164,9 @@ describe(PersoonViewComponent.name, () => {
     describe("contactmomenten tabel", () => {
       it("renders zac-klant-contactmomenten-tabel when persoon has bsn", () => {
         expect(
-          fixture.nativeElement.querySelector("zac-klant-contactmomenten-tabel"),
+          fixture.nativeElement.querySelector(
+            "zac-klant-contactmomenten-tabel",
+          ),
         ).toBeTruthy();
       });
 

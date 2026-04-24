@@ -12,11 +12,11 @@ import { MatSidenavModule } from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { KlantContactmomentenTabelComponent } from "../../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { UtilService } from "../../core/service/util.service";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { KlantZakenTabelComponent } from "../klant-zaken-tabel/klant-zaken-tabel.component";
 import { KlantenService } from "../klanten.service";
 
 @Component({

@@ -5,13 +5,13 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
 import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
-import { provideRouter } from "@angular/router";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
