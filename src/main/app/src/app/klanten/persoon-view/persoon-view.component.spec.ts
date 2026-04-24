@@ -23,7 +23,7 @@ import { PersoonViewComponent } from "./persoon-view.component";
   standalone: true,
 })
 class KlantZakenTabelStubComponent {
-  @Input() klant: unknown;
+  @Input() klant: GeneratedType<"RestPersoon"> | null = null;
 }
 
 @Component({
@@ -32,7 +32,7 @@ class KlantZakenTabelStubComponent {
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
-  @Input() bsn: unknown;
+  @Input() bsn: GeneratedType<"RestPersoon">["bsn"];
 }
 
 const makePersoon = (
@@ -87,12 +87,13 @@ describe(PersoonViewComponent.name, () => {
   describe("with a full persoon", () => {
     let component: PersoonViewComponent;
     let fixture: ComponentFixture<PersoonViewComponent>;
-    let utilService: jest.Mocked<UtilService>;
+    let utilService: UtilService;
+    let setTitleSpy: jest.SpiedFunction<UtilService["setTitle"]>;
 
     beforeEach(async () => {
       await configureTestBed();
-      utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
-      jest.spyOn(utilService, "setTitle");
+      utilService = TestBed.inject(UtilService);
+      setTitleSpy = jest.spyOn(utilService, "setTitle");
       fixture = TestBed.createComponent(PersoonViewComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -100,7 +101,7 @@ describe(PersoonViewComponent.name, () => {
 
     describe("initialisation", () => {
       it("sets the page title to 'persoonsgegevens'", () => {
-        expect(utilService.setTitle).toHaveBeenCalledWith("persoonsgegevens");
+        expect(setTitleSpy).toHaveBeenCalledWith("persoonsgegevens");
       });
 
       it("loads persoon from route resolver data", () => {

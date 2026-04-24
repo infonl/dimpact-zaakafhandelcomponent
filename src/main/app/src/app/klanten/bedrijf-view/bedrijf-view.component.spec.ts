@@ -4,7 +4,7 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
@@ -29,6 +29,24 @@ import { BedrijfViewComponent } from "./bedrijf-view.component";
   template: "",
 })
 class TestErrorRouteComponent {}
+
+@Component({
+  selector: "zac-klant-zaken-tabel",
+  template: "",
+  standalone: true,
+})
+class KlantZakenTabelStubComponent {
+  @Input() klant: GeneratedType<"RestBedrijf"> | null = null;
+}
+
+@Component({
+  selector: "zac-klant-contactmomenten-tabel",
+  template: "",
+  standalone: true,
+})
+class KlantContactmomentenTabelStubComponent {
+  @Input() vestigingsnummer: GeneratedType<"RestBedrijf">["vestigingsnummer"];
+}
 
 const testRoutes: Routes = [
   { path: "fout", component: TestErrorRouteComponent },
@@ -85,10 +103,10 @@ describe(BedrijfViewComponent.name, () => {
       imports: [
         BedrijfViewComponent,
         TestErrorRouteComponent,
-        KlantZakenTabelComponent,
+        KlantZakenTabelStubComponent,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
-        KlantContactmomentenTabelComponent,
+        KlantContactmomentenTabelStubComponent,
       ],
       providers: [
         provideNativeDateAdapter(),
@@ -100,7 +118,22 @@ describe(BedrijfViewComponent.name, () => {
           useValue: { data: routeDataSubject.asObservable() },
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(BedrijfViewComponent, {
+        remove: {
+          imports: [
+            KlantZakenTabelComponent,
+            KlantContactmomentenTabelComponent,
+          ],
+        },
+        add: {
+          imports: [
+            KlantZakenTabelStubComponent,
+            KlantContactmomentenTabelStubComponent,
+          ],
+        },
+      })
+      .compileComponents();
 
     utilService = TestBed.inject(UtilService);
     klantenService = TestBed.inject(KlantenService);
