@@ -37,9 +37,25 @@ async function isOnBackendErrorPage(page: Page): Promise<boolean> {
     .catch(() => false);
 }
 
-// Some formio task forms hydrate their fields only after the wrapper has
-// already become visible, so waitForFormioReady may pass before the
-// interactive element we actually need is in the DOM.
+// Waits for a locator, reloading between attempts when the backend lags.
+async function reloadUntilVisible(
+  page: Page,
+  target: Locator,
+  { attempts = 3, timeoutPerAttempt = TWENTY_SECONDS_IN_MS } = {},
+): Promise<boolean> {
+  for (let i = 0; i < attempts; i++) {
+    const found = await target
+      .waitFor({ state: "visible", timeout: timeoutPerAttempt })
+      .then(() => true)
+      .catch(() => false);
+    if (found) return true;
+    await page.reload();
+  }
+  return false;
+}
+
+// Like waitForFormioReady, but also waits for a specific target element
+// and reloads on nginx error pages or when the wrapper stays empty.
 async function waitForFormioContent(page: Page, target: Locator) {
   for (let attempt = 0; attempt < 3; attempt++) {
     if (await isOnBackendErrorPage(page)) {
@@ -87,14 +103,7 @@ When(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const found = await viewTaskLink
-        .waitFor({ state: "visible", timeout: TWENTY_SECONDS_IN_MS })
-        .then(() => true)
-        .catch(() => false);
-      if (found) break;
-      await this.page.reload();
-    }
+    await reloadUntilVisible(this.page, viewTaskLink);
     await viewTaskLink.click();
     for (let attempt = 0; attempt < 3; attempt++) {
       if (!(await isOnBackendErrorPage(this.page))) break;
@@ -187,23 +196,28 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    await waitForFormioReady(this.page);
-
-    const form = formioForm(this.page);
-    const searchbox = form.getByRole("searchbox", {
-      name: "Select one or more documents",
+    const option = this.page.getByRole("option", {
+      name: documentName,
+      exact: true,
     });
-
-    await searchbox.click();
-    await searchbox.fill(documentName);
-
-    await expect(
-      this.page.getByRole("option", { name: documentName, exact: true }),
-    ).toBeVisible({ timeout: ONE_MINUTE_IN_MS });
-
-    await this.page
-      .getByRole("option", { name: documentName, exact: true })
-      .click();
+    // A freshly-created SmartDocuments file can take a moment to be indexed
+    // in the documents list; reload and re-query until it shows up.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await waitForFormioReady(this.page);
+      const searchbox = formioForm(this.page).getByRole("searchbox", {
+        name: "Select one or more documents",
+      });
+      await searchbox.click();
+      await searchbox.fill(documentName);
+      const found = await option
+        .waitFor({ state: "visible", timeout: TWENTY_SECONDS_IN_MS })
+        .then(() => true)
+        .catch(() => false);
+      if (found) break;
+      await this.page.reload();
+    }
+    await expect(option).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await option.click();
   },
 );
 
@@ -230,23 +244,26 @@ When(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
     await form.getByLabel("Group").selectOption(beheerdersGroupName);
-    // User options populate dynamically based on Group selection - wait for them
-    await form
-      .getByLabel("User")
-      .locator("option", { hasText: beheerderUser })
-      .waitFor({ state: "attached", timeout: FORTY_SECONDS_IN_MS });
-    await form.getByLabel("User").selectOption(beheerderUser);
+    // User options populate from the Group selection via a backend call;
+    // wait for it to return before assuming the specific option exists.
+    const userSelect = form.getByLabel("User");
+    await expect
+      .poll(() => userSelect.locator("option").count(), {
+        timeout: FORTY_SECONDS_IN_MS,
+      })
+      .toBeGreaterThan(1);
+    await userSelect.selectOption(beheerderUser);
     const documentsSearchbox = form.getByRole("searchbox", {
       name: "Select one or more documents",
     });
     await documentsSearchbox.click();
     await documentsSearchbox.fill("");
-    await this.page
-      .getByRole("option", { name: "file A", exact: true })
-      .waitFor({ state: "visible" });
-    await this.page
-      .getByRole("option", { name: "file A", exact: true })
-      .click();
+    const fileAOption = this.page.getByRole("option", {
+      name: "file A",
+      exact: true,
+    });
+    await fileAOption.waitFor({ state: "visible" });
+    await fileAOption.click();
     await form
       .getByLabel("Communication channel")
       .selectOption(COMMUNICATION_CHANNEL_KEY);
@@ -295,23 +312,15 @@ Then(
     const taskCell = this.page.getByRole("cell", {
       name: "Select documents to sign",
     });
-    // The BPMN engine can lag behind the previous form submission; reload
-    // until the new task cell shows up.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const found = await taskCell
-        .waitFor({ state: "visible", timeout: TWENTY_SECONDS_IN_MS })
-        .then(() => true)
-        .catch(() => false);
-      if (found) break;
-      await this.page.reload();
-    }
+    // BPMN engine can lag behind the previous form submission.
+    await reloadUntilVisible(this.page, taskCell);
     await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await expect(
-      this.page.getByRole("cell", { name: groupName }),
-    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(this.page.getByRole("cell", { name: groupName })).toBeVisible({
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(
       this.page.getByRole("cell", { name: userName, exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
@@ -323,14 +332,11 @@ Then(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await waitForFormioContent(
-      this.page,
-      form.getByRole("textbox", { name: "Group" }),
-    );
-    await expect(form.getByRole("textbox", { name: "Group" })).toHaveValue(
-      beheerdersGroupId,
-      { timeout: FORTY_SECONDS_IN_MS },
-    );
+    const groupTextbox = form.getByRole("textbox", { name: "Group" });
+    await waitForFormioContent(this.page, groupTextbox);
+    await expect(groupTextbox).toHaveValue(beheerdersGroupId, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
       { timeout: FORTY_SECONDS_IN_MS },
