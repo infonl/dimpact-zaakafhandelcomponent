@@ -28,7 +28,9 @@ For each item, mark **PASS** or **FAIL** with a one-line reason and the exact li
 - [ ] No `: void` return type annotations anywhere in the spec
 - [ ] No trivial smoke tests (`it("should create", ...)` or similar)
 - [ ] No `NO_ERRORS_SCHEMA`
+- [ ] **DOM query preference order**: harness → `querySelector`/`querySelectorAll` (plain HTML / custom elements) → `By.directive` — **never `By.css`**. `By.css('[input="value"]')` matches on DOM attributes that Angular never writes for `@Input` bindings → silent false positives. For custom components with `@Input` checks use `debugElement.queryAll(de => de.name === "tag-name")` + `.componentInstance.prop`.
 - [ ] No `querySelectorAll` / `querySelector` for Material components (use harnesses; plain HTML elements are OK)
+- [ ] **Variable naming**: no single-letter or abbreviated names (`el`, `f`, `res`, `btn`). Use full descriptive names (`element`, `fixtureRef`, `result`, `button`).
 - [ ] SPDX header: new file → `2026 INFO.nl` only; existing file → `INFO.nl` added only if completely absent from the existing line
 
 **Spec structure**

@@ -5,7 +5,9 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
@@ -76,8 +78,8 @@ describe(KlantZakenTabelComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KlantZakenTabelComponent],
       imports: [
+        KlantZakenTabelComponent,
         NoopAnimationsModule,
         MatTableModule,
         MatSortModule,
@@ -89,6 +91,8 @@ describe(KlantZakenTabelComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideNativeDateAdapter(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
@@ -116,6 +120,9 @@ describe(KlantZakenTabelComponent.name, () => {
 
     fixture = TestBed.createComponent(KlantZakenTabelComponent);
     component = fixture.componentInstance;
+    jest
+      .spyOn(component["changeDetectorRef"], "detectChanges")
+      .mockImplementation(() => {});
     fixture.componentRef.setInput("klant", mockPersoon);
 
     fixture.detectChanges();
