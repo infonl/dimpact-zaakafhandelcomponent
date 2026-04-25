@@ -61,11 +61,13 @@ class BrpClientHeadersFactory @Inject constructor(
         if (value != null && !containsKey(name)) add(name, value)
     }
 
-    private fun MultivaluedMap<String, String>.trimHeadersToMaxSize() =
-        onEach { (key, values) ->
-            val maxSize = if (key == brpConfiguration.getHeaderNameGebruiker()) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
+    private fun MultivaluedMap<String, String>.trimHeadersToMaxSize(): MultivaluedMap<String, String> {
+        val gebruikerHeaderName = brpConfiguration.getHeaderNameGebruiker()
+        return onEach { (key, values) ->
+            val maxSize = if (key == gebruikerHeaderName) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
             values?.replaceAll { it.take(maxSize) }
         }
+    }
 
     private fun getUser(): String =
         try {
