@@ -98,16 +98,30 @@ objectenApi:
 # Integration with the BRP API provider (Haal Centraal)
 brpApi:
   url: ""
-  apiKey: ""
   protocollering:
-    # -- OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled.
-    originOin: ""
     # -- Supported providers: iConnect, 2Secure
     aanbieder: "iConnect"
     doelbinding:
       zoekmet: "BRPACT-ZoekenAlgemeen"
       raadpleegmet: "BRPACT-Totaal"
-    verwerkingsregister: "Algemeen"
+      # -- Header name for the doelbinding value. Set to empty string to disable this header.
+      header: "x-doelbinding"
+    # -- OIN of the originator, required for BRP protocollering. If oin is empty, BRP protocollering is disabled.
+    originOin:
+      oin: ""
+      # -- Header name for the origin OIN value. Set to empty string to disable this header.
+      header: "x-origin-oin"
+    verwerking:
+      register: "Algemeen"
+      # -- Header name for the verwerking value. Set to empty string to disable this header.
+      header: "x-verwerking"
+    toepassing:
+      value: "ZAC"
+      # -- Header name for the toepassing value. Set to empty string to disable this header.
+      header: "x-toepassing"
+    gebruiker:
+      # -- Header name for the gebruiker value. Set to empty string to disable this header.
+      header: "x-gebruiker"
 
 
 # Integration with the KVK API provider (KVK)
@@ -718,7 +732,6 @@ nginx:
       ssl_verify: false
       apikey_header_name: ""
       apikey_value: ""
-      x_doelbinding: "test"
     bag:
       enabled: true
       key_secret: bag_key

@@ -379,7 +379,6 @@ data:
         {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
-        proxy_set_header X-API-KEY "";
         proxy_set_header Host {{ .Values.nginx.api_proxy.bag.host }};
         {{- if not (eq .Values.nginx.api_proxy.bag.apikey_value "") }}
         proxy_set_header {{ .Values.nginx.api_proxy.bag.apikey_header_name }} {{ .Values.nginx.api_proxy.bag.apikey_value }};
@@ -408,11 +407,7 @@ data:
         {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
-        proxy_set_header X-API-KEY "";
         proxy_set_header Host {{ .Values.nginx.api_proxy.brp.host }};
-        {{- if not (eq .Values.nginx.api_proxy.brp.x_doelbinding "") }}
-        proxy_set_header x-doelbinding "{{ .Values.nginx.api_proxy.brp.x_doelbinding }}";
-        {{- end }}
         {{- if not (eq .Values.nginx.api_proxy.brp.apikey_value "") }}
         proxy_set_header {{ .Values.nginx.api_proxy.brp.apikey_header_name }} {{ .Values.nginx.api_proxy.brp.apikey_value }};
         {{- end }}
@@ -439,7 +434,6 @@ data:
         {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
-        proxy_set_header X-API-KEY "";
         proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.zoeken.host }};
         {{- if not (eq .Values.nginx.api_proxy.kvk.zoeken.apikey_value "") }}
         proxy_set_header {{ .Values.nginx.api_proxy.kvk.zoeken.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.zoeken.apikey_value }};
@@ -468,7 +462,6 @@ data:
         {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
-        proxy_set_header X-API-KEY "";
         proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.basisprofiel.host }};
         {{- if not (eq .Values.nginx.api_proxy.kvk.basisprofiel.apikey_value "") }}
         proxy_set_header {{ .Values.nginx.api_proxy.kvk.basisprofiel.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.basisprofiel.apikey_value }};
@@ -497,7 +490,6 @@ data:
         {{- end }}
         proxy_ssl_session_reuse on;
         proxy_ssl_server_name on;
-        proxy_set_header X-API-KEY "";
         proxy_set_header Host {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.host }};
         {{- if not (eq .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_value "") }}
         proxy_set_header {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_header_name }} {{ .Values.nginx.api_proxy.kvk.vestigingsprofiel.apikey_value }};

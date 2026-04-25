@@ -16,19 +16,14 @@ import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
 class BrpClientHeadersFactory @Inject constructor(
     private val brpConfiguration: BrpConfiguration,
     private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val brpProtocolleringContext: BrpProtocolleringContext,
 ) : ClientHeadersFactory {
 
     companion object {
-        const val X_DOELBINDING = "X-DOELBINDING"
-        const val X_VERWERKING = "X-VERWERKING"
-        const val X_API_KEY = "X-API-KEY"
-        const val X_ORIGIN_OIN = "X-ORIGIN-OIN"
-        const val X_GEBRUIKER = "X-GEBRUIKER"
-
         // Used when no logged in user is available. According to iConnect documentation:
         //
         // >> Wordt de aanroep van de BRPv2-API getriggerd door een systeemfunctie (bv. na ontvangst van
-        // een gebeurtenisnotificatie), dan als gebruiker ‘Systeem’ te vullen.
+        // een gebeurtenisnotificatie), dan als gebruiker 'Systeem' te vullen.
         const val SYSTEM_USER = "Systeem"
 
         // Audit log headers are limited to 242 characters as this is the maximum length of the DB columns:
@@ -46,21 +41,29 @@ class BrpClientHeadersFactory @Inject constructor(
     ): MultivaluedMap<String, String> {
         if (brpConfiguration.isBrpProtocolleringEnabled()) {
             clientOutgoingHeaders.apply {
-                brpConfiguration.getApiKey()?.let { addHeader(X_API_KEY, it) }
-                brpConfiguration.getOriginOIN()?.let { addHeader(X_ORIGIN_OIN, it) }
-                addHeader(X_GEBRUIKER, getUser())
+                brpConfiguration.getHeaderNameOriginOin()?.let { addHeader(it, brpConfiguration.getOriginOIN()) }
+                brpConfiguration.getHeaderNameGebruiker()?.let { addHeader(it, getUser()) }
+                brpConfiguration.getHeaderNameDoelbinding()?.let { name ->
+                    brpProtocolleringContext.doelbinding?.let { addHeader(name, it) }
+                }
+                brpConfiguration.getHeaderNameVerwerking()?.let { name ->
+                    brpProtocolleringContext.verwerking?.let { addHeader(name, it) }
+                }
+                brpConfiguration.getHeaderNameToepassing()?.let { name ->
+                    brpConfiguration.getToepassing()?.let { addHeader(name, it) }
+                }
             }
         }
         return clientOutgoingHeaders.trimHeadersToMaxSize()
     }
 
-    private fun MultivaluedMap<String, String>.addHeader(name: String, value: String) {
-        if (!containsKey(name)) add(name, value)
+    private fun MultivaluedMap<String, String>.addHeader(name: String, value: String?) {
+        if (value != null && !containsKey(name)) add(name, value)
     }
 
     private fun MultivaluedMap<String, String>.trimHeadersToMaxSize() =
         onEach { (key, values) ->
-            val maxSize = if (key == X_GEBRUIKER) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
+            val maxSize = if (key == brpConfiguration.getHeaderNameGebruiker()) MAX_USER_HEADER_SIZE else MAX_HEADER_SIZE
             values?.replaceAll { it.take(maxSize) }
         }
 
