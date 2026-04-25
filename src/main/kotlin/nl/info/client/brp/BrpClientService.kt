@@ -24,6 +24,7 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -39,7 +40,8 @@ import java.util.logging.Logger
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
     private val brpConfiguration: BrpConfiguration,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
+    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val brpProtocolleringContext: BrpProtocolleringContext,
 ) {
     companion object {
         private val LOG = Logger.getLogger(BrpClientService::class.java.name)
@@ -65,23 +67,19 @@ class BrpClientService @Inject constructor(
     fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String? = null): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
-                personenApi.personen(
-                    personenQuery = updatedQuery,
-                    doelbinding = resolveDoelbinding(
-                        zaaktypeUuid,
-                        brpConfiguration.getDoelbindingZoekMetDefault()
-                    ) {
-                        it.zaaktypeBrpParameters?.zoekWaarde
-                    },
-                    verwerking = resoleVerwerkingregister(
-                        zaaktypeUuid,
-                        brpConfiguration.getVerwerkingsRegister()
-                    ),
-                    gebruikersnaam = user
+                brpProtocolleringContext.doelbinding = resolveDoelbinding(
+                    zaaktypeUuid,
+                    brpConfiguration.getDoelbindingZoekMetDefault()
+                ) {
+                    it.zaaktypeBrpParameters?.zoekWaarde
+                }
+                brpProtocolleringContext.verwerking = resoleVerwerkingregister(
+                    zaaktypeUuid,
+                    brpConfiguration.getVerwerkingsRegister()
                 )
-            } else {
-                personenApi.personen(updatedQuery)
+                brpProtocolleringContext.gebruikersnaam = user
             }
+            personenApi.personen(updatedQuery)
         }
 
     /**
@@ -99,26 +97,20 @@ class BrpClientService @Inject constructor(
         userName: String? = null
     ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
-            (
-                if (brpConfiguration.isBrpProtocolleringEnabled()) {
-                    personenApi.personen(
-                        personenQuery = personenQuery,
-                        doelbinding = resolveDoelbinding(
-                            zaaktypeUuid = zaaktypeUuid,
-                            defaultDoelbinding = brpConfiguration.getDoelbindingRaadpleegMetDefault()
-                        ) {
-                            it.zaaktypeBrpParameters?.raadpleegWaarde
-                        },
-                        verwerking = resoleVerwerkingregister(
-                            zaaktypeUuid = zaaktypeUuid,
-                            defaultVerwerkingregisterValue = brpConfiguration.getVerwerkingsRegister()
-                        ),
-                        gebruikersnaam = userName
-                    )
-                } else {
-                    personenApi.personen(personenQuery)
-                } as RaadpleegMetBurgerservicenummerResponse
-                ).personen?.firstOrNull()
+            if (brpConfiguration.isBrpProtocolleringEnabled()) {
+                brpProtocolleringContext.doelbinding = resolveDoelbinding(
+                    zaaktypeUuid = zaaktypeUuid,
+                    defaultDoelbinding = brpConfiguration.getDoelbindingRaadpleegMetDefault()
+                ) {
+                    it.zaaktypeBrpParameters?.raadpleegWaarde
+                }
+                brpProtocolleringContext.verwerking = resoleVerwerkingregister(
+                    zaaktypeUuid = zaaktypeUuid,
+                    defaultVerwerkingregisterValue = brpConfiguration.getVerwerkingsRegister()
+                )
+                brpProtocolleringContext.gebruikersnaam = userName
+            }
+            (personenApi.personen(personenQuery) as RaadpleegMetBurgerservicenummerResponse).personen?.firstOrNull()
         }
 
     private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
