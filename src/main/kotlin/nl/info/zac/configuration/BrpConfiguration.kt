@@ -18,15 +18,14 @@ import kotlin.jvm.optionals.getOrNull
 @AllOpen
 @NoArgConstructor
 class BrpConfiguration @Inject constructor(
-    /**
-     * OIN of the originator, which is required for BRP protocollering.
-     * If this variable is not set, BRP protocollering will be disabled.
-     */
+    @ConfigProperty(name = "BRP_PROTOCOLLERING_ENABLED", defaultValue = "false")
+    private val protocolleringEnabled: Boolean,
+
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN)
     private val originOIN: Optional<String>,
 
-    @ConfigProperty(name = ENV_VAR_BRP_PROTOCOLLERING_PROVIDER)
-    private val brpProtocolleringProvider: Optional<String>,
+    @ConfigProperty(name = "BRP_DOELBINDING_PER_ZAAKTYPE", defaultValue = "false")
+    private val doelbindingPerZaaktype: Boolean,
 
     // Header name env vars — no defaultValue; Helm provides defaults.
     // An empty string disables that header.
@@ -59,7 +58,6 @@ class BrpConfiguration @Inject constructor(
 ) {
     companion object {
         const val ENV_VAR_BRP_ORIGIN_OIN = "BRP_ORIGIN_OIN"
-        const val ENV_VAR_BRP_PROTOCOLLERING_PROVIDER = "BRP_PROTOCOLLERING"
         const val ENV_VAR_BRP_ORIGIN_OIN_HEADER = "BRP_ORIGIN_OIN_HEADER"
         const val ENV_VAR_BRP_DOELBINDING_HEADER = "BRP_DOELBINDING_HEADER"
         const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "BRP_DOELBINDING_ZOEKMET"
@@ -69,23 +67,11 @@ class BrpConfiguration @Inject constructor(
         const val ENV_VAR_BRP_GEBRUIKER_HEADER = "BRP_GEBRUIKER_HEADER"
         const val ENV_VAR_BRP_TOEPASSING_HEADER = "BRP_TOEPASSING_HEADER"
         const val ENV_VAR_BRP_TOEPASSING = "BRP_TOEPASSING"
-        const val BRP_PROTOCOLLERING_PROVIDER_2SECURE = "2Secure"
-        const val BRP_PROTOCOLLERING_PROVIDER_ICONNECT = "iConnect"
-        val SUPPORTED_PROTOCOLLERING_PROVIDERS =
-            arrayOf(BRP_PROTOCOLLERING_PROVIDER_ICONNECT, BRP_PROTOCOLLERING_PROVIDER_2SECURE)
     }
 
     @PostConstruct
     fun validateConfiguration() {
         if (isBrpProtocolleringEnabled()) {
-            throwIf(!brpProtocolleringProvider.isPresent) {
-                "BRP_PROTOCOLLERING environment variable is required when BRP_ORIGIN_OIN is set"
-            }
-            throwIf(brpProtocolleringProvider.getOrNull() !in SUPPORTED_PROTOCOLLERING_PROVIDERS) {
-                SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
-                    "Invalid environment variable 'BRP_PROTOCOLLERING' value '${brpProtocolleringProvider.getOrNull()}'. Supported: $it"
-                }
-            }
             if (getHeaderNameDoelbinding() != null) {
                 throwIf(!doelbindingZoekMetDefault.isPresent) {
                     "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_DOELBINDING_HEADER is set"
@@ -128,8 +114,9 @@ class BrpConfiguration @Inject constructor(
     fun getToepassing() = toepassingValue.getOrNull()
 
     override fun toString() = """
+        |- BRP_PROTOCOLLERING_ENABLED: '$protocolleringEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
-        |- $ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}'
+        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$doelbindingPerZaaktype'
         |- $ENV_VAR_BRP_ORIGIN_OIN_HEADER: '${getHeaderNameOriginOin()}'
         |- $ENV_VAR_BRP_DOELBINDING_HEADER: '${getHeaderNameDoelbinding()}'
         |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}'
@@ -141,14 +128,9 @@ class BrpConfiguration @Inject constructor(
         |- $ENV_VAR_BRP_TOEPASSING: '${getToepassing()}'
     """.trimMargin()
 
-    fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
+    fun isBrpProtocolleringEnabled(): Boolean = protocolleringEnabled
 
-    fun readBrpProtocolleringProvider(): String =
-        if (isBrpProtocolleringEnabled()) {
-            brpProtocolleringProvider.get()
-        } else {
-            ""
-        }
+    fun isDoelbindingPerZaaktype(): Boolean = doelbindingPerZaaktype && getHeaderNameDoelbinding() != null
 
     private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
         if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())

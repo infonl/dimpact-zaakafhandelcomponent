@@ -7,6 +7,8 @@ package nl.info.zac.configuratie
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
@@ -52,33 +54,6 @@ class BrpConfigurationTest : BehaviorSpec({
                 }
                 Then("Exception is thrown") {
                     exception.message shouldContain "BRP_VERWERKINGSREGISTER"
-                }
-            }
-        }
-
-        Given("No default audit log provider configured") {
-            val brpConfiguration = createBrpConfiguration(brpProtocolleringProvider = Optional.empty())
-
-            When("configuration is validated by Weld") {
-                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                    brpConfiguration.validateConfiguration()
-                }
-                Then("Exception is thrown") {
-                    exception.message shouldContain "BRP_PROTOCOLLERING"
-                }
-            }
-        }
-
-        Given("Invalid BRP audit log provider specified") {
-            val brpConfiguration = createBrpConfiguration(brpProtocolleringProvider = Optional.of("FakeProvider"))
-
-            When("configuration is validated by Weld") {
-                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
-                    brpConfiguration.validateConfiguration()
-                }
-
-                Then("Exception is thrown") {
-                    exception.message shouldContain "FakeProvider"
                 }
             }
         }
@@ -164,15 +139,45 @@ class BrpConfigurationTest : BehaviorSpec({
         }
     }
 
-    Context("BRP protocollering proxy") {
-        Given("BRP protocollering disabled") {
-            val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+    Context("doelbinding per zaaktype flag") {
 
-            When("reading BRP audit log provider") {
-                val protocolleringProvider = brpConfiguration.readBrpProtocolleringProvider()
+        Given("doelbindingPerZaaktype is false") {
+            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktype = false)
 
-                Then("empty string is returned") {
-                    protocolleringProvider shouldContain ""
+            When("isDoelbindingPerZaaktype is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktype()
+
+                Then("false is returned") {
+                    result.shouldBeFalse()
+                }
+            }
+        }
+
+        Given("doelbindingPerZaaktype is true and doelbinding header is set") {
+            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktype = true)
+
+            When("isDoelbindingPerZaaktype is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktype()
+
+                Then("true is returned") {
+                    result.shouldBeTrue()
+                }
+            }
+        }
+
+        Given("doelbindingPerZaaktype is true but doelbinding header is not set") {
+            val brpConfiguration = createBrpConfiguration(
+                doelbindingPerZaaktype = true,
+                headerNameDoelbinding = Optional.of(""),
+                doelbindingZoekMetDefault = Optional.empty(),
+                doelbindingRaadpleegMetDefault = Optional.empty()
+            )
+
+            When("isDoelbindingPerZaaktype is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktype()
+
+                Then("false is returned because doelbinding header is disabled") {
+                    result.shouldBeFalse()
                 }
             }
         }

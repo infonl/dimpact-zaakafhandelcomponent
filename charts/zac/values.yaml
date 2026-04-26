@@ -99,29 +99,30 @@ objectenApi:
 brpApi:
   url: ""
   protocollering:
-    # -- Supported providers: iConnect, 2Secure
-    aanbieder: "iConnect"
+    # -- Set to true to enable BRP protocollering header injection
+    enabled: false
     doelbinding:
-      zoekmet: "BRPACT-ZoekenAlgemeen"
-      raadpleegmet: "BRPACT-Totaal"
+      # -- Set to true to require doelbinding values to be configured per zaaktype in the admin UI
+      perZaaktype: false
+      zoekmet: ""
+      raadpleegmet: ""
       # -- Header name for the doelbinding value. Set to empty string to disable this header.
-      header: "x-doelbinding"
-    # -- OIN of the originator, required for BRP protocollering. If oin is empty, BRP protocollering is disabled.
+      header: ""
     originOin:
       oin: ""
       # -- Header name for the origin OIN value. Set to empty string to disable this header.
-      header: "x-origin-oin"
+      header: ""
     verwerking:
-      register: "Algemeen"
+      register: ""
       # -- Header name for the verwerking value. Set to empty string to disable this header.
-      header: "x-verwerking"
+      header: ""
     toepassing:
-      value: "ZAC"
+      value: ""
       # -- Header name for the toepassing value. Set to empty string to disable this header.
-      header: "x-toepassing"
+      header: ""
     gebruiker:
       # -- Header name for the gebruiker value. Set to empty string to disable this header.
-      header: "x-gebruiker"
+      header: ""
 
 
 # Integration with the KVK API provider (KVK)

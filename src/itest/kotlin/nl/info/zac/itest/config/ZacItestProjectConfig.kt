@@ -39,7 +39,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_NEW
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
+
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
@@ -135,7 +135,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
             "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
             "PABC_API_KEY" to PABC_API_KEY,
-            "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
+            "BRP_DOELBINDING_PER_ZAAKTYPE" to "true",
             "SMARTDOCUMENTS_ENABLED" to "true",
             "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
             "SMTP_SERVER" to "greenmail",

@@ -42,6 +42,91 @@ helm install my-release zac/zaakafhandelcomponent
 
 The Github workflow will perform helm-linting and will bump the version if needed. This `README.md` file is generated automatically as well.
 
+## BRP Protocollering Configuration
+
+BRP protocollering is enabled by setting `brpApi.protocollering.enabled: true`. All header names are configurable; setting a header name to an empty string disables that header.
+
+### iConnect
+
+iConnect requires doelbinding values to be configured per zaaktype in the ZAC admin UI (`doelbindingPerZaaktype: true`). After deploying, configure doelbinding values per zaaktype in the ZAC admin UI under _Zaakafhandelparameters > BRP doelbinding_.
+
+```yaml
+brpApi:
+  url: "https://<iconnect-brp-api-url>"
+  protocollering:
+    enabled: true
+    originOin:
+      oin: "<your-municipality-OIN>"
+      header: "x-origin-oin"
+    doelbinding:
+      perZaaktype: true
+      header: "x-doelbinding"
+      zoekmet: "BRPACT-ZoekenAlgemeen"   # fallback when no per-zaaktype value is configured
+      raadpleegmet: "BRPACT-Totaal"       # fallback when no per-zaaktype value is configured
+    verwerking:
+      header: "x-verwerking"
+      register: "Algemeen"
+    toepassing:
+      header: "x-toepassing"
+      value: "ZAC"
+    gebruiker:
+      header: "x-gebruiker"
+```
+
+### 2Secure
+
+2Secure does not require per-zaaktype doelbinding; a single global configuration is sufficient.
+
+```yaml
+brpApi:
+  url: "https://<2secure-brp-api-url>"
+  protocollering:
+    enabled: true
+    originOin:
+      oin: "<your-municipality-OIN>"
+      header: "x-origin-oin"
+    doelbinding:
+      perZaaktype: false
+      header: "x-doelbinding"
+      zoekmet: "BRPACT-ZoekenAlgemeen"
+      raadpleegmet: "BRPACT-Totaal"
+    verwerking:
+      header: "x-verwerking"
+      register: "Algemeen"
+    toepassing:
+      header: "x-toepassing"
+      value: "ZAC"
+    gebruiker:
+      header: "x-gebruiker"
+```
+
+### eServices
+
+eServices works similarly to 2Secure (no per-zaaktype doelbinding) but uses different header names. The `x-request-afnemerscode` is a municipality-supplied code that maps to the verwerking register field. Doelbinding headers are not used.
+
+```yaml
+brpApi:
+  url: "https://<eservices-brp-api-url>"
+  protocollering:
+    enabled: true
+    doelbindingPerZaaktype: false
+    originOin:
+      oin: "<your-municipality-OIN>"
+      header: "x-request-organization"
+    doelbinding:
+      header: ""   # not used by eServices
+    verwerking:
+      header: "x-request-afnemerscode"
+      register: "<your-afnemerscode>"   # municipality-supplied afnemerscode
+    toepassing:
+      header: "x-request-application"
+      value: "ZAC"
+    gebruiker:
+      header: "x-request-user"
+```
+
+For a full description of all BRP protocollering options see the [BRP configuration guide](../../docs/manuals/brp-configuration/brp-configuration.md).
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -60,17 +145,19 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | backendConfig.enabled | bool | `false` |  |
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
-| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
-| brpApi.protocollering.doelbinding.header | string | `"x-doelbinding"` | Header name for the doelbinding value. Set to empty string to disable this header. |
-| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
-| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
-| brpApi.protocollering.gebruiker.header | string | `"x-gebruiker"` | Header name for the gebruiker value. Set to empty string to disable this header. |
-| brpApi.protocollering.originOin | object | `{"header":"x-origin-oin","oin":""}` | OIN of the originator, required for BRP protocollering. If oin is empty, BRP protocollering is disabled. |
-| brpApi.protocollering.originOin.header | string | `"x-origin-oin"` | Header name for the origin OIN value. Set to empty string to disable this header. |
-| brpApi.protocollering.toepassing.header | string | `"x-toepassing"` | Header name for the toepassing value. Set to empty string to disable this header. |
-| brpApi.protocollering.toepassing.value | string | `"ZAC"` |  |
-| brpApi.protocollering.verwerking.header | string | `"x-verwerking"` | Header name for the verwerking value. Set to empty string to disable this header. |
-| brpApi.protocollering.verwerking.register | string | `"Algemeen"` |  |
+| brpApi.apiKey | string | `""` |  |
+| brpApi.protocollering.enabled | bool | `false` | Set to true to enable BRP protocollering header injection |
+| brpApi.protocollering.doelbinding.perZaaktype | bool | `false` | Set to true to require doelbinding values to be configured per zaaktype in the admin UI |
+| brpApi.protocollering.doelbinding.header | string | `""` | Header name for the doelbinding value. Set to empty string to disable this header. |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `""` |  |
+| brpApi.protocollering.doelbinding.zoekmet | string | `""` |  |
+| brpApi.protocollering.gebruiker.header | string | `""` | Header name for the gebruiker value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.header | string | `""` | Header name for the origin OIN value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.oin | string | `""` | OIN of the originator, required for BRP protocollering when the origin OIN header is enabled. |
+| brpApi.protocollering.toepassing.header | string | `""` | Header name for the toepassing value. Set to empty string to disable this header. |
+| brpApi.protocollering.toepassing.value | string | `""` |  |
+| brpApi.protocollering.verwerking.header | string | `""` | Header name for the verwerking value. Set to empty string to disable this header. |
+| brpApi.protocollering.verwerking.register | string | `""` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |

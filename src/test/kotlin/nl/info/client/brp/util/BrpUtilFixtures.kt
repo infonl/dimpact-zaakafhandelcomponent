@@ -10,8 +10,9 @@ import java.util.Optional
 
 @Suppress("LongParameterList")
 fun createBrpConfiguration(
+    protocolleringEnabled: Boolean = true,
     originOin: Optional<String> = Optional.of("fakeOriginOin"),
-    brpProtocolleringProvider: Optional<String> = Optional.of("iConnect"),
+    doelbindingPerZaaktype: Boolean = false,
     doelbindingZoekMetDefault: Optional<String> = Optional.of("fakeDoelbindingZoekMetDefault"),
     doelbindingRaadpleegMetDefault: Optional<String> = Optional.of("fakeDoelbindingRaadpleegMetDefault"),
     verwerkingregisterDefault: Optional<String> = Optional.of("fakeVerwerkingregisterDefault"),
@@ -22,8 +23,9 @@ fun createBrpConfiguration(
     headerNameToepassing: Optional<String> = Optional.of("x-toepassing"),
     toepassingValue: Optional<String> = Optional.of("ZAC"),
 ) = BrpConfiguration(
+    protocolleringEnabled = protocolleringEnabled,
     originOIN = originOin,
-    brpProtocolleringProvider = brpProtocolleringProvider,
+    doelbindingPerZaaktype = doelbindingPerZaaktype,
     doelbindingZoekMetDefault = doelbindingZoekMetDefault,
     doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
     verwerkingsregister = verwerkingregisterDefault,

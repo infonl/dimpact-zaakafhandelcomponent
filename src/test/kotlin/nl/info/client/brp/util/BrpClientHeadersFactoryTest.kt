@@ -30,8 +30,8 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("originOin is empty") {
-        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+    Given("protocollering is disabled") {
+        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
         val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
         val existingHeaders = Headers<String>().apply {
@@ -202,7 +202,7 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
             add("x-gebruiker", longUserName)
         }
 
-        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
         val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
 
@@ -226,7 +226,7 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
             add("x-verwerking", "General@$longZaakDescription")
         }
 
-        val brpConfiguration = createBrpConfiguration(originOin = Optional.empty())
+        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
         val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
 

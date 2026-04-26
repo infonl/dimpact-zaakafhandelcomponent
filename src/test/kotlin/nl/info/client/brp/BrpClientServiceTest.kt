@@ -261,7 +261,7 @@ class BrpClientServiceTest : BehaviorSpec({
             val localContext = BrpProtocolleringContext()
             val localService = BrpClientService(
                 personenApi = personenApi,
-                brpConfiguration = createBrpConfiguration(brpProtocolleringProvider = Optional.of("2Secure")),
+                brpConfiguration = createBrpConfiguration(),
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
