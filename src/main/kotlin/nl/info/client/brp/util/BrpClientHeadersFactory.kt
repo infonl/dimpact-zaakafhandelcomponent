@@ -43,15 +43,9 @@ class BrpClientHeadersFactory @Inject constructor(
             clientOutgoingHeaders.apply {
                 brpConfiguration.getHeaderNameOriginOin()?.let { addHeader(it, brpConfiguration.getOriginOIN()) }
                 brpConfiguration.getHeaderNameGebruiker()?.let { addHeader(it, getUser()) }
-                brpConfiguration.getHeaderNameDoelbinding()?.let { name ->
-                    brpProtocolleringContext.doelbinding?.let { addHeader(name, it) }
-                }
-                brpConfiguration.getHeaderNameVerwerking()?.let { name ->
-                    brpProtocolleringContext.verwerking?.let { addHeader(name, it) }
-                }
-                brpConfiguration.getHeaderNameToepassing()?.let { name ->
-                    brpConfiguration.getToepassing()?.let { addHeader(name, it) }
-                }
+                brpConfiguration.getHeaderNameDoelbinding()?.let { addHeader(it, brpProtocolleringContext.doelbinding) }
+                brpConfiguration.getHeaderNameVerwerking()?.let { addHeader(it, brpProtocolleringContext.verwerking) }
+                brpConfiguration.getHeaderNameToepassing()?.let { addHeader(it, brpConfiguration.getToepassing()) }
             }
         }
         return clientOutgoingHeaders.trimHeadersToMaxSize()

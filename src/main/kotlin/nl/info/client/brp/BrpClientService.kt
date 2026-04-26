@@ -17,13 +17,13 @@ import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijving
 import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatie
 import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummer
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijving
+import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.RAADPLEEG_MET_BURGERSERVICENUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_GESLACHTSNAAM_EN_GEBOORTEDATUM
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NAAM_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_NUMMERAANDUIDING_IDENTIFICATIE
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
-import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.util.AllOpen

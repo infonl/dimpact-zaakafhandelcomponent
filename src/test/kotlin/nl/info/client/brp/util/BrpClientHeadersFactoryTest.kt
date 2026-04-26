@@ -33,7 +33,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
     Given("protocollering is disabled") {
         val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
         val existingHeaders = Headers<String>().apply {
             add("header", "value")
         }
@@ -52,7 +57,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration()
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -72,7 +82,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration()
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -92,7 +107,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration()
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -115,7 +135,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration()
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
@@ -138,7 +163,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
             doelbinding = "fakePurpose"
             verwerking = "fakeVerwerking"
         }
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -158,7 +188,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
     Given("x-gebruiker header name is blank (disabled)") {
         val brpConfiguration = createBrpConfiguration(headerNameGebruiker = Optional.of(""))
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -181,7 +216,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
             headerNameToepassing = Optional.of("custom-toepassing")
         )
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), Headers())
@@ -204,7 +244,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
@@ -228,7 +273,12 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
 
         val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory = BrpClientHeadersFactory(brpConfiguration, loggedInUserInstance, brpProtocolleringContext)
+        val brpClientHeadersFactory =
+            BrpClientHeadersFactory(
+                brpConfiguration,
+                loggedInUserInstance,
+                brpProtocolleringContext
+            )
 
         When("headers are updated") {
             val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)

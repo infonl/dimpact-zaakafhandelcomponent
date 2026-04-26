@@ -14,6 +14,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
+@Suppress("LongParameterList", "TooManyFunctions")
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
