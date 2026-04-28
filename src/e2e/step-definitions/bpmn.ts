@@ -11,7 +11,6 @@ import {
   ONE_MINUTE_IN_MS,
   TWENTY_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
-  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -29,63 +28,15 @@ async function waitForFormioReady(page: Page) {
     .waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
 }
 
-async function isOnBackendErrorPage(page: Page): Promise<boolean> {
-  return page
-    .getByText(/50[234] (Bad Gateway|Gateway Time-?out|Service Unavailable)/i)
-    .first()
-    .isVisible()
-    .catch(() => false);
-}
-
-// Waits for a locator, reloading between attempts when the backend lags.
-async function reloadUntilVisible(
-  page: Page,
-  target: Locator,
-  { attempts = 3, timeoutPerAttempt = TWENTY_SECONDS_IN_MS } = {},
-): Promise<boolean> {
-  for (let i = 0; i < attempts; i++) {
-    const found = await target
-      .waitFor({ state: "visible", timeout: timeoutPerAttempt })
-      .then(() => true)
-      .catch(() => false);
-    if (found) return true;
-    await page.reload();
-  }
-  return false;
-}
-
 // Like waitForFormioReady, but also waits for a specific target element
-// and reloads on nginx error pages or when the wrapper stays empty.
 async function waitForFormioContent(page: Page, target: Locator) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (await isOnBackendErrorPage(page)) {
-      await page.waitForTimeout(TWO_SECONDS_IN_MS);
-      await page.reload();
-      continue;
-    }
-    const wrapperReady = await formioForm(page)
-      .waitFor({ state: "visible", timeout: TWENTY_SECONDS_IN_MS })
-      .then(() => true)
-      .catch(() => false);
-    if (!wrapperReady) {
-      await page.reload();
-      continue;
-    }
-    const found = await target
-      .waitFor({ state: "visible", timeout: TWENTY_SECONDS_IN_MS })
-      .then(() => true)
-      .catch(() => false);
-    if (found) return;
-    await page.reload();
-  }
-  throw new Error("Formio content did not become visible after 3 attempts");
+  await waitForFormioReady(page);
+  await target.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
 }
 
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
 const UUID_V4_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
-
-const PAGE_RELOAD_RETRIES = 5;
 
 const beheerdersGroupId = "beheerders_elk_domein";
 const beheerdersGroupName = "Beheerders elk domein - new IAM";
@@ -102,13 +53,11 @@ When(
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
-    await reloadUntilVisible(this.page, viewTaskLink);
+    await viewTaskLink.waitFor({
+      state: "visible",
+      timeout: TWO_MINUTES_IN_MS,
+    });
     await viewTaskLink.click();
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (!(await isOnBackendErrorPage(this.page))) break;
-      await this.page.waitForTimeout(TWO_SECONDS_IN_MS);
-      await this.page.reload();
-    }
   },
 );
 
@@ -174,15 +123,6 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.reload();
-    if (await this.page.isVisible("text='Bad Request'")) {
-      for (let attempt = 1; attempt <= PAGE_RELOAD_RETRIES; attempt++) {
-        await this.page.waitForTimeout(attempt * TWO_SECONDS_IN_MS);
-        await this.page.goto(this.page.url().split("?")[0]);
-        if (!(await this.page.isVisible("text='Bad Request'"))) {
-          break;
-        }
-      }
-    }
   },
 );
 
@@ -308,8 +248,7 @@ Then(
     const taskCell = this.page.getByRole("cell", {
       name: "Select documents to sign",
     });
-    // BPMN engine can lag behind the previous form submission.
-    await reloadUntilVisible(this.page, taskCell);
+    await expect(taskCell).toBeVisible({ timeout: TWO_MINUTES_IN_MS });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
