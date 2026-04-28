@@ -27,7 +27,11 @@ const dialogData: Omit<GeneratedType<"RestZaakUnlinkData">, "reden"> = {
 const setup = () => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   TestBed.configureTestingModule({
-    imports: [ZaakOntkoppelenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      ZaakOntkoppelenDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       provideHttpClient(),
       provideRouter([]),
@@ -39,7 +43,12 @@ const setup = () => {
   const fixture: ComponentFixture<ZaakOntkoppelenDialogComponent> =
     TestBed.createComponent(ZaakOntkoppelenDialogComponent);
   fixture.detectChanges();
-  return { fixture, component: fixture.componentInstance, zakenService, dialogRefMock };
+  return {
+    fixture,
+    component: fixture.componentInstance,
+    zakenService,
+    dialogRefMock,
+  };
 };
 
 describe(ZaakOntkoppelenDialogComponent.name, () => {
@@ -47,12 +56,16 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
     const { fixture } = setup();
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain("title.zaak.ontkoppelen");
+    expect(await (await toolbar.host()).text()).toContain(
+      "title.zaak.ontkoppelen",
+    );
   });
 
   it("disables the submit button when the form is invalid", () => {
     const { fixture } = setup();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("button[type='submit']");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    );
     expect(button.disabled).toBe(true);
   });
 
@@ -60,7 +73,9 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
     const { fixture, component } = setup();
     component["form"].controls.reden.setValue("reden tekst");
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("button[type='submit']");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    );
     expect(button.disabled).toBe(false);
   });
 
@@ -68,7 +83,9 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
     const { fixture, component } = setup();
     component["loading"] = true;
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("button[type='submit']");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    );
     expect(button.disabled).toBe(true);
   });
 
@@ -83,17 +100,24 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
 
   it("calls ontkoppelZaak and closes dialog on submit", () => {
     const { component, zakenService, dialogRefMock } = setup();
-    jest.spyOn(zakenService, "ontkoppelZaak").mockReturnValue(of(undefined) as never);
+    jest
+      .spyOn(zakenService, "ontkoppelZaak")
+      .mockReturnValue(of(undefined) as never);
     component["form"].controls.reden.setValue("mijn reden");
     component["ontkoppel"]();
-    expect(zakenService.ontkoppelZaak).toHaveBeenCalledWith({ ...dialogData, reden: "mijn reden" });
+    expect(zakenService.ontkoppelZaak).toHaveBeenCalledWith({
+      ...dialogData,
+      reden: "mijn reden",
+    });
     expect(dialogRefMock.close).toHaveBeenCalledWith(true);
   });
 
   it("closes the dialog when cancel is clicked", async () => {
     const { fixture, dialogRefMock } = setup();
     const loader = TestbedHarnessEnvironment.loader(fixture);
-    const cancelButton = await loader.getHarness(MatButtonHarness.with({ text: /actie.annuleren/i }));
+    const cancelButton = await loader.getHarness(
+      MatButtonHarness.with({ text: /actie.annuleren/i }),
+    );
     await cancelButton.click();
     expect(dialogRefMock.close).toHaveBeenCalled();
   });
@@ -101,7 +125,9 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
   it("closes the dialog when the X button is clicked", async () => {
     const { fixture, dialogRefMock } = setup();
     const loader = TestbedHarnessEnvironment.loader(fixture);
-    const closeButton = await loader.getHarness(MatButtonHarness.with({ selector: "mat-toolbar button" }));
+    const closeButton = await loader.getHarness(
+      MatButtonHarness.with({ selector: "mat-toolbar button" }),
+    );
     await closeButton.click();
     expect(dialogRefMock.close).toHaveBeenCalled();
   });

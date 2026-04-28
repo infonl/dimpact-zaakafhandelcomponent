@@ -21,14 +21,24 @@ import { ZakenService } from "../zaken.service";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog.component";
 
 const makeZaakZoekObject = (fields: Partial<ZaakZoekObject> = {}) =>
-  fromPartial<ZaakZoekObject>({ id: "uuid-1", identificatie: "ZAAK-001", ...fields });
+  fromPartial<ZaakZoekObject>({
+    id: "uuid-1",
+    identificatie: "ZAAK-001",
+    ...fields,
+  });
 
-const mockGroups: GeneratedType<"RestGroup">[] = [{ id: "groep-1", naam: "Groep Een" }];
+const mockGroups: GeneratedType<"RestGroup">[] = [
+  { id: "groep-1", naam: "Groep Een" },
+];
 
 const setup = (data: ZaakZoekObject[]) => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   TestBed.configureTestingModule({
-    imports: [ZakenVerdelenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      ZakenVerdelenDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       provideHttpClient(),
       provideRouter([]),
@@ -43,7 +53,12 @@ const setup = (data: ZaakZoekObject[]) => {
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
   fixture.detectChanges();
-  return { fixture, component: fixture.componentInstance, zakenService, dialogRefMock };
+  return {
+    fixture,
+    component: fixture.componentInstance,
+    zakenService,
+    dialogRefMock,
+  };
 };
 
 describe(ZakenVerdelenDialogComponent.name, () => {
@@ -51,25 +66,36 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     const { fixture } = setup([makeZaakZoekObject()]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain("title.zaak.verdelen");
+    expect(await (await toolbar.host()).text()).toContain(
+      "title.zaak.verdelen",
+    );
   });
 
   it("shows plural title when multiple zaken are selected", async () => {
-    const { fixture } = setup([makeZaakZoekObject({ id: "a" }), makeZaakZoekObject({ id: "b" })]);
+    const { fixture } = setup([
+      makeZaakZoekObject({ id: "a" }),
+      makeZaakZoekObject({ id: "b" }),
+    ]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain("title.zaken.verdelen");
+    expect(await (await toolbar.host()).text()).toContain(
+      "title.zaken.verdelen",
+    );
   });
 
   it("disables verdelen button when form is invalid (no groep selected)", () => {
     const { fixture } = setup([makeZaakZoekObject()]);
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("#zakenVerdelen_button");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "#zakenVerdelen_button",
+    );
     expect(button.disabled).toBe(true);
   });
 
   it("disables verdelen button when data is empty", () => {
     const { fixture } = setup([]);
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("#zakenVerdelen_button");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "#zakenVerdelen_button",
+    );
     expect(button.disabled).toBe(true);
   });
 
@@ -78,7 +104,9 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     component["loading"] = true;
     component["form"].controls.groep.setValue(mockGroups[0]);
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector("#zakenVerdelen_button");
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+      "#zakenVerdelen_button",
+    );
     expect(button.disabled).toBe(true);
   });
 
@@ -98,8 +126,12 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("calls verdelenVanuitLijst with correct args and closes dialog on verdeel", () => {
-    const { component, zakenService, dialogRefMock } = setup([makeZaakZoekObject({ id: "uuid-1" })]);
-    jest.spyOn(zakenService, "verdelenVanuitLijst").mockReturnValue(of(undefined) as never);
+    const { component, zakenService, dialogRefMock } = setup([
+      makeZaakZoekObject({ id: "uuid-1" }),
+    ]);
+    jest
+      .spyOn(zakenService, "verdelenVanuitLijst")
+      .mockReturnValue(of(undefined) as never);
     component["form"].controls.groep.setValue(mockGroups[0]);
     component["verdeel"]();
     expect(zakenService.verdelenVanuitLijst).toHaveBeenCalledWith(

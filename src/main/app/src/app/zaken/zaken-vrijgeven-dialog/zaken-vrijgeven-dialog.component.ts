@@ -6,7 +6,11 @@
 import { NgIf } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -26,6 +30,7 @@ import { ZakenService } from "../zaken.service";
     ReactiveFormsModule,
     MatToolbarModule,
     MatIconModule,
+    MatDialogModule,
     MatDividerModule,
     TranslateModule,
     ZacInput,

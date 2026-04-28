@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -12,7 +13,6 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -31,7 +31,11 @@ const setup = (data: ZaakZoekObject[]) => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
   const mutationFn = jest.fn().mockResolvedValue(undefined);
   TestBed.configureTestingModule({
-    imports: [ZakenVrijgevenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+    imports: [
+      ZakenVrijgevenDialogComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
     providers: [
       provideHttpClient(),
       provideRouter([]),
@@ -59,14 +63,21 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
     const { fixture } = setup([makeZaakZoekObject()]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain("title.zaak.vrijgeven");
+    expect(await (await toolbar.host()).text()).toContain(
+      "title.zaak.vrijgeven",
+    );
   });
 
   it("shows plural title when multiple zaken are selected", async () => {
-    const { fixture } = setup([makeZaakZoekObject({ id: "a" }), makeZaakZoekObject({ id: "b" })]);
+    const { fixture } = setup([
+      makeZaakZoekObject({ id: "a" }),
+      makeZaakZoekObject({ id: "b" }),
+    ]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
-    expect(await (await toolbar.host()).text()).toContain("title.zaken.vrijgeven");
+    expect(await (await toolbar.host()).text()).toContain(
+      "title.zaken.vrijgeven",
+    );
   });
 
   it("closes dialog with false when close is called", () => {
@@ -82,14 +93,27 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
 
   it("shows singular info message when one zaak is selected", () => {
     const { fixture } = setup([makeZaakZoekObject()]);
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
-    expect(Array.from(paragraphs).some((p) => p.textContent?.includes("msg.vrijgeven.zaak"))).toBe(true);
+    const paragraphs: NodeListOf<HTMLParagraphElement> =
+      fixture.nativeElement.querySelectorAll("p");
+    expect(
+      Array.from(paragraphs).some((p) =>
+        p.textContent?.includes("msg.vrijgeven.zaak"),
+      ),
+    ).toBe(true);
   });
 
   it("shows plural info message when multiple zaken are selected", () => {
-    const { fixture } = setup([makeZaakZoekObject({ id: "a" }), makeZaakZoekObject({ id: "b" })]);
-    const paragraphs: NodeListOf<HTMLParagraphElement> = fixture.nativeElement.querySelectorAll("p");
-    expect(Array.from(paragraphs).some((p) => p.textContent?.includes("msg.vrijgeven.zaken"))).toBe(true);
+    const { fixture } = setup([
+      makeZaakZoekObject({ id: "a" }),
+      makeZaakZoekObject({ id: "b" }),
+    ]);
+    const paragraphs: NodeListOf<HTMLParagraphElement> =
+      fixture.nativeElement.querySelectorAll("p");
+    expect(
+      Array.from(paragraphs).some((p) =>
+        p.textContent?.includes("msg.vrijgeven.zaken"),
+      ),
+    ).toBe(true);
   });
 
   it("vrijgeven filters zaken without behandelaar", () => {
@@ -98,7 +122,9 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
       makeZaakZoekObject({ id: "b", behandelaarGebruikersnaam: undefined }),
     ]);
     component["vrijgeven"]();
-    const variables = (component["mutation"] as unknown as { variables: () => unknown }).variables();
+    const variables = (
+      component["mutation"] as unknown as { variables: () => unknown }
+    ).variables();
     expect(variables).toMatchObject({ uuids: ["a"] });
   });
 });

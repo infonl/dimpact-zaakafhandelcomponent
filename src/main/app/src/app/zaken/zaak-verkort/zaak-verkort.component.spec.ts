@@ -18,7 +18,9 @@ import { ZaakVerkortComponent } from "./zaak-verkort.component";
 const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
   fromPartial<GeneratedType<"RestZaak">>({
     identificatie: "ZAAK-001",
-    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({ omschrijving: "Testtype" }),
+    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+      omschrijving: "Testtype",
+    }),
     status: fromPartial<GeneratedType<"RestZaakStatus">>({ naam: "Open" }),
     startdatum: "2026-01-01",
     einddatumGepland: null,
@@ -29,8 +31,16 @@ const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
 
 const setup = (zaak = makeZaak()) => {
   TestBed.configureTestingModule({
-    imports: [ZaakVerkortComponent, NoopAnimationsModule, TranslateModule.forRoot()],
-    providers: [provideHttpClient(), provideRouter([]), { provide: LOCALE_ID, useValue: "nl" }],
+    imports: [
+      ZaakVerkortComponent,
+      NoopAnimationsModule,
+      TranslateModule.forRoot(),
+    ],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      { provide: LOCALE_ID, useValue: "nl" },
+    ],
   });
   const fixture: ComponentFixture<ZaakVerkortComponent> =
     TestBed.createComponent(ZaakVerkortComponent);
@@ -49,7 +59,11 @@ describe(ZaakVerkortComponent.name, () => {
 
   it("renders zaaktype omschrijving as subtitle", async () => {
     const { fixture } = setup(
-      makeZaak({ zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({ omschrijving: "Bijzonder type" }) }),
+      makeZaak({
+        zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+          omschrijving: "Bijzonder type",
+        }),
+      }),
     );
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const card = await loader.getHarness(MatCardHarness);
@@ -58,13 +72,19 @@ describe(ZaakVerkortComponent.name, () => {
 
   it("renders link to zaak detail page", () => {
     const { fixture } = setup(makeZaak({ identificatie: "ZAAK-999" }));
-    const anchor: HTMLAnchorElement = fixture.nativeElement.querySelector("a[id='zaakDetail_button']");
+    const anchor: HTMLAnchorElement = fixture.nativeElement.querySelector(
+      "a[id='zaakDetail_button']",
+    );
     expect(anchor.getAttribute("href")).toBe("/zaken/ZAAK-999");
   });
 
   it("renders status naam via empty pipe", () => {
     const { fixture } = setup(
-      makeZaak({ status: fromPartial<GeneratedType<"RestZaakStatus">>({ naam: "In behandeling" }) }),
+      makeZaak({
+        status: fromPartial<GeneratedType<"RestZaakStatus">>({
+          naam: "In behandeling",
+        }),
+      }),
     );
     expect(fixture.nativeElement.textContent).toContain("In behandeling");
   });
@@ -80,7 +100,9 @@ describe(ZaakVerkortComponent.name, () => {
   });
 
   it("sets einddatumGeplandIcon when einddatum is exceeded", () => {
-    const { component } = setup(makeZaak({ einddatumGepland: "2020-01-01", einddatum: "" }));
+    const { component } = setup(
+      makeZaak({ einddatumGepland: "2020-01-01", einddatum: "" }),
+    );
     expect(component["einddatumGeplandIcon"]).not.toBeNull();
   });
 });
