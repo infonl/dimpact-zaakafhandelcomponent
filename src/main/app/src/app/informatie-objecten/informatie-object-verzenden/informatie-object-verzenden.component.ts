@@ -14,7 +14,14 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
+import { NgIf } from "@angular/common";
 import { FormGroup, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -37,7 +44,16 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-verzenden",
   templateUrl: "./informatie-object-verzenden.component.html",
   styleUrls: ["./informatie-object-verzenden.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy
@@ -56,10 +72,10 @@ export class InformatieObjectVerzendenComponent
   constructor(
     private translate: TranslateService,
     private informatieObjectenService: InformatieObjectenService,
-    public utilService: UtilService,
+    private readonly utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.verzenden")
       .cancelText("actie.annuleren")
@@ -102,7 +118,7 @@ export class InformatieObjectVerzendenComponent
     ];
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
+  protected onFormSubmit(formGroup: FormGroup) {
     if (formGroup) {
       const informatieobjecten = mapStringToDocumentenStrings(
         formGroup.controls["documenten"].value,
@@ -145,7 +161,7 @@ export class InformatieObjectVerzendenComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes.zaak.previousValue) {
       this.documentSelectFormField.updateDocumenten(
         this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
@@ -155,7 +171,7 @@ export class InformatieObjectVerzendenComponent
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Trigger completion of all subscriptions
     this.destroy$.next();
     this.destroy$.complete();

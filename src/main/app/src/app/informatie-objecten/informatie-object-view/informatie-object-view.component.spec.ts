@@ -75,11 +75,9 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
         InformatieObjectViewComponent,
         InformatieObjectEditComponent,
-      ],
-      imports: [
         SideNavComponent,
         StaticTextComponent,
         MaterialModule,

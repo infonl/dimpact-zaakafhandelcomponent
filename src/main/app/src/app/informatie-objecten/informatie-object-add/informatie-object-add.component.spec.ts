@@ -111,8 +111,8 @@ describe(InformatieObjectAddComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectAddComponent],
       imports: [
+        InformatieObjectAddComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,

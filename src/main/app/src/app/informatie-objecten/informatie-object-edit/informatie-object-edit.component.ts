@@ -13,8 +13,19 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
@@ -30,7 +41,21 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 @Component({
   selector: "zac-informatie-object-edit",
   templateUrl: "./informatie-object-edit.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    ZacDate,
+    ZacInput,
+    ZacSelect,
+    MaterialFormBuilderModule,
+  ],
 })
 export class InformatieObjectEditComponent implements OnChanges {
   @Input()
@@ -220,7 +245,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     }
   }
 
-  submit() {
+  protected submit() {
     const { value } = this.form;
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(

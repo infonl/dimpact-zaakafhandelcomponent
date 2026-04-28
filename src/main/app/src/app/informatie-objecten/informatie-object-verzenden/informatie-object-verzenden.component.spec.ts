@@ -9,7 +9,6 @@ import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -41,12 +40,14 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         uuid: "zaaktype-uuid-001",
       }),
       ...fields,
-    }) as Partial<GeneratedType<"RestZaak">> as unknown as GeneratedType<"RestZaak">;
+    }) as Partial<
+      GeneratedType<"RestZaak">
+    > as unknown as GeneratedType<"RestZaak">;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectVerzendenComponent],
       imports: [
+        InformatieObjectVerzendenComponent,
         MaterialModule,
         MaterialFormBuilderModule,
         TranslateModule.forRoot(),
@@ -84,10 +85,8 @@ describe(InformatieObjectVerzendenComponent.name, () => {
 
   describe("toolbar", () => {
     it("should render the toolbar title", () => {
-      const toolbar = fixture.debugElement.query(By.css("mat-toolbar span"));
-      expect(toolbar.nativeElement.textContent.trim()).toBe(
-        "actie.document.verzenden",
-      );
+      const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");
+      expect(toolbar.textContent.trim()).toBe("actie.document.verzenden");
     });
   });
 

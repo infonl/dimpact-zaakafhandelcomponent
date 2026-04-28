@@ -10,6 +10,7 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
+import { NgClass, NgIf } from "@angular/common";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -22,7 +23,8 @@ import { GeneratedType } from "../utils/generated-types";
   selector: "zac-document-viewer",
   templateUrl: "./document-viewer.component.html",
   styleUrls: ["./document-viewer.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [NgClass, NgIf],
 })
 export class DocumentViewerComponent implements OnInit, OnChanges {
   @Input({ required: true })

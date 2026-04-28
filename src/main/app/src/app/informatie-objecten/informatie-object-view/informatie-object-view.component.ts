@@ -10,13 +10,35 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import { Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSortModule } from "@angular/material/sort";
+import { MatSidenav, MatSidenavContainer, MatSidenavModule } from "@angular/material/sidenav";
+import { MatTableModule } from "@angular/material/table";
+import { MatTabsModule } from "@angular/material/tabs";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { ActivatedRoute, Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
+import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
@@ -46,7 +68,37 @@ import { FileFormat, FileFormatUtil } from "../model/file-format";
 @Component({
   templateUrl: "./informatie-object-view.component.html",
   styleUrls: ["./informatie-object-view.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatSortModule,
+    MatSidenavModule,
+    MatTableModule,
+    MatTabsModule,
+    MatTooltipModule,
+    RouterModule,
+    TranslateModule,
+    DocumentViewerComponent,
+    DocumentIconComponent,
+    InformatieObjectIndicatiesComponent,
+    BestandsomvangPipe,
+    DatumPipe,
+    EmptyPipe,
+    MimetypeToExtensionPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+    ReadMoreComponent,
+    SideNavComponent,
+    StaticTextComponent,
+    InformatieObjectEditComponent,
+  ],
 })
 export class InformatieObjectViewComponent
   extends ActionsViewComponent
@@ -83,7 +135,7 @@ export class InformatieObjectViewComponent
   constructor(
     private informatieObjectenService: InformatieObjectenService,
     private route: ActivatedRoute,
-    public utilService: UtilService,
+    private readonly utilService: UtilService,
     private websocketService: WebsocketService,
     private router: Router,
     private translate: TranslateService,
@@ -337,7 +389,7 @@ export class InformatieObjectViewComponent
       });
   }
 
-  haalVersieOp(versie: number) {
+  protected haalVersieOp(versie: number) {
     this.websocketService.removeListener(this.documentListener);
     this.router.navigate([
       "/informatie-objecten",
@@ -347,7 +399,7 @@ export class InformatieObjectViewComponent
     ]);
   }
 
-  versieToegevoegd(
+  protected versieToegevoegd(
     informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
     if (!informatieobject.versie) return;

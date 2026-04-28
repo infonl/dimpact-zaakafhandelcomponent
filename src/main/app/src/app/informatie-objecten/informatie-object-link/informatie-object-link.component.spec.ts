@@ -96,8 +96,8 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectLinkComponent],
       imports: [
+        InformatieObjectLinkComponent,
         FormsModule,
         ReactiveFormsModule,
         NoopAnimationsModule,

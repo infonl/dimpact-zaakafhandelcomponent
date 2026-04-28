@@ -12,16 +12,24 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import {
   NotificationDialogComponent,
@@ -34,7 +42,20 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-object-create-attended",
   templateUrl: "./informatie-object-create-attended.component.html",
   styleUrls: ["./informatie-object-create-attended.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    ZacAutoComplete,
+    ZacDate,
+    ZacInput,
+  ],
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
@@ -96,7 +117,6 @@ export class InformatieObjectCreateAttendedComponent
   constructor(
     private readonly smartDocumentsService: SmartDocumentsService,
     private readonly informatieObjectenService: InformatieObjectenService,
-    public readonly utilService: UtilService,
     private readonly identityService: IdentityService,
     private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
     private readonly translateService: TranslateService,
@@ -200,7 +220,7 @@ export class InformatieObjectCreateAttendedComponent
       });
   }
 
-  onFormSubmit(formData?: typeof this.form) {
+  protected onFormSubmit(formData?: typeof this.form) {
     const values = formData?.getRawValue();
 
     if (!formData?.valid || !values) {
@@ -215,9 +235,9 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      informatieobjecttypeUuid: this.smartDocumentsInformatieobjecttypeUuid,
-      smartDocumentsTemplateName: this.smartDocumentsTemplateName,
-      smartDocumentsTemplateGroupName: this.smartDocumentsGroupPath.at(-1),
+      informatieobjecttypeUuid: this.smartDocumentsInformatieobjecttypeUuid ?? null,
+      smartDocumentsTemplateName: this.smartDocumentsTemplateName ?? null,
+      smartDocumentsTemplateGroupName: this.smartDocumentsGroupPath.at(-1) ?? null,
       zaakUuid: this.zaak.uuid,
       taskId: this.taak?.id,
     };

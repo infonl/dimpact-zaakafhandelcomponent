@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
@@ -11,11 +13,11 @@ import {
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
-import { provideRouter } from "@angular/router";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -40,6 +42,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   let component: InformatieObjectCreateAttendedComponent;
   let componentRef: ComponentRef<InformatieObjectCreateAttendedComponent>;
   let fixture: ComponentFixture<InformatieObjectCreateAttendedComponent>;
+  let loader: HarnessLoader;
   let informatieObjectenService: InformatieObjectenService;
   let smartDocumentsService: SmartDocumentsService;
   let identityService: IdentityService;
@@ -57,7 +60,9 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         uuid: "zaaktype-uuid-001",
       }),
       ...fields,
-    }) as Partial<GeneratedType<"RestZaak">> as unknown as GeneratedType<"RestZaak">;
+    }) as Partial<
+      GeneratedType<"RestZaak">
+    > as unknown as GeneratedType<"RestZaak">;
 
   const mockTemplateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
     [
@@ -82,8 +87,8 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectCreateAttendedComponent],
       imports: [
+        InformatieObjectCreateAttendedComponent,
         ReactiveFormsModule,
         MaterialModule,
         MaterialFormBuilderModule,
@@ -114,7 +119,11 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
     jest
       .spyOn(smartDocumentsService, "getTemplatesMapping")
-      .mockReturnValue(of(mockTemplateGroups) as ReturnType<typeof smartDocumentsService.getTemplatesMapping>);
+      .mockReturnValue(
+        of(mockTemplateGroups) as ReturnType<
+          typeof smartDocumentsService.getTemplatesMapping
+        >,
+      );
 
     testQueryClient.setQueryData(
       identityService.readLoggedInUser().queryKey,
@@ -124,6 +133,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     fixture = TestBed.createComponent(InformatieObjectCreateAttendedComponent);
     component = fixture.componentInstance;
     componentRef = fixture.componentRef;
+    loader = TestbedHarnessEnvironment.loader(fixture);
 
     componentRef.setInput("sideNav", mockSideNav);
     componentRef.setInput("zaak", makeZaak());
@@ -133,11 +143,9 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   });
 
   describe("toolbar", () => {
-    it("should render the toolbar title", () => {
-      const toolbar = fixture.debugElement.query(By.css("mat-toolbar span"));
-      expect(toolbar.nativeElement.textContent.trim()).toBe(
-        "actie.document.maken",
-      );
+    it("should render the toolbar title", async () => {
+      const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");
+      expect(toolbar.textContent.trim()).toBe("actie.document.maken");
     });
   });
 
@@ -151,16 +159,25 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     it("should call getTemplateGroup when all three SmartDocuments inputs are set", async () => {
       const getTemplateGroupSpy = jest
         .spyOn(smartDocumentsService, "getTemplateGroup")
-        .mockReturnValue(of(mockTemplateGroups) as ReturnType<typeof smartDocumentsService.getTemplateGroup>);
+        .mockReturnValue(
+          of(mockTemplateGroups) as ReturnType<
+            typeof smartDocumentsService.getTemplateGroup
+          >,
+        );
 
       // Need a fresh fixture with all inputs set before ngOnInit runs
-      const freshFixture = TestBed.createComponent(InformatieObjectCreateAttendedComponent);
+      const freshFixture = TestBed.createComponent(
+        InformatieObjectCreateAttendedComponent,
+      );
       const freshRef = freshFixture.componentRef;
       freshRef.setInput("sideNav", mockSideNav);
       freshRef.setInput("zaak", makeZaak());
       freshRef.setInput("smartDocumentsGroupPath", ["Group One"]);
       freshRef.setInput("smartDocumentsTemplateName", "Template One");
-      freshRef.setInput("smartDocumentsInformatieobjecttypeUuid", "info-type-uuid");
+      freshRef.setInput(
+        "smartDocumentsInformatieobjecttypeUuid",
+        "info-type-uuid",
+      );
 
       freshFixture.detectChanges();
       await freshFixture.whenStable();
@@ -175,11 +192,13 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   });
 
   describe("form submit button", () => {
-    it("should be disabled when form is invalid", () => {
-      const button = fixture.debugElement.query(
-        By.css("button[type='submit']"),
+    it("should be disabled when form is invalid", async () => {
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ selector: "[type='submit']" }),
       );
-      expect(button.nativeElement.disabled).toBe(true);
+      expect(await (await button.host()).getProperty<boolean>("disabled")).toBe(
+        true,
+      );
     });
   });
 
@@ -198,7 +217,10 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       jest
         .spyOn(informatieObjectenService, "createDocumentAttended")
         .mockReturnValue(
-          of({ redirectURL: "https://example.com/doc", message: null }) as ReturnType<
+          of({
+            redirectURL: "https://example.com/doc",
+            message: null,
+          }) as ReturnType<
             typeof informatieObjectenService.createDocumentAttended
           >,
         );
@@ -207,9 +229,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
       // Fill the form to make it valid
       component["form"].controls.templateGroup.enable();
-      component["form"].controls.templateGroup.setValue(
-        mockTemplateGroups[0],
-      );
+      component["form"].controls.templateGroup.setValue(mockTemplateGroups[0]);
       component["form"].controls.template.enable();
       component["form"].controls.template.setValue(
         mockTemplateGroups[0].templates![0],
@@ -219,7 +239,9 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
       component["onFormSubmit"](component["form"]);
 
-      expect(informatieObjectenService.createDocumentAttended).toHaveBeenCalled();
+      expect(
+        informatieObjectenService.createDocumentAttended,
+      ).toHaveBeenCalled();
       expect(emitSpy).toHaveBeenCalled();
     });
 
@@ -227,7 +249,10 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       jest
         .spyOn(informatieObjectenService, "createDocumentAttended")
         .mockReturnValue(
-          of({ redirectURL: null, message: "Document created without redirect" }) as ReturnType<
+          of({
+            redirectURL: null,
+            message: "Document created without redirect",
+          }) as ReturnType<
             typeof informatieObjectenService.createDocumentAttended
           >,
         );
