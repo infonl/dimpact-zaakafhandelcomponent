@@ -100,8 +100,9 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TaakViewComponent, ZaakVerkortComponent],
+      declarations: [TaakViewComponent],
       imports: [
+        ZaakVerkortComponent,
         SideNavComponent,
         StaticTextComponent,
         MatSidenav,
