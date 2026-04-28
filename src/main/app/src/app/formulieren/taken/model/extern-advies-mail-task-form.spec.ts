@@ -9,6 +9,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -20,6 +21,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
   let zakenService: ZakenService;
   let mailtemplateService: MailtemplateService;
   let informatieObjectenService: InformatieObjectenService;
+  let klantenService: KlantenService;
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
@@ -47,6 +49,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     zakenService = TestBed.inject(ZakenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    klantenService = TestBed.inject(KlantenService);
 
     jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
     jest.spyOn(mailtemplateService, "findMailtemplate").mockReturnValue(
@@ -201,6 +204,50 @@ describe(ExternAdviesMailTaskForm.name, () => {
         const control = fields.find((f) => f.key === "emailadres")?.control;
         control?.setValue("valid@example.com");
         expect(control?.errors).toBeNull();
+      });
+
+      it("should pre-fill with zaakSpecificContactDetails emailAddress when present", async () => {
+        const zaakWithContactEmail = fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "zaak-uuid",
+          zaakSpecificContactDetails: { emailAddress: "contact@example.com" },
+        });
+        const formFields = await formulier.requestForm(zaakWithContactEmail);
+        expect(
+          formFields.find((f) => f.key === "emailadres")?.control?.value,
+        ).toBe("contact@example.com");
+      });
+
+      it("should load emailadres from initiator contact details when no zaakSpecificContactDetails emailAddress", async () => {
+        jest
+          .spyOn(klantenService, "getContactDetailsForPerson")
+          .mockReturnValue(
+            of(
+              fromPartial<GeneratedType<"RestContactDetails">>({
+                emailadres: "initiator@example.com",
+              }),
+            ),
+          );
+        const zaakWithInitiator = fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "zaak-uuid",
+          initiatorIdentificatie: { temporaryPersonId: "person-123" },
+        });
+        const formFields = await formulier.requestForm(zaakWithInitiator);
+        expect(
+          formFields.find((f) => f.key === "emailadres")?.control?.value,
+        ).toBe("initiator@example.com");
+        expect(klantenService.getContactDetailsForPerson).toHaveBeenCalledWith(
+          "person-123",
+        );
+      });
+
+      it("should leave emailadres null when neither contact details nor initiator temporaryPersonId is set", async () => {
+        const zaakWithoutEmail = fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "zaak-uuid",
+        });
+        const formFields = await formulier.requestForm(zaakWithoutEmail);
+        expect(
+          formFields.find((f) => f.key === "emailadres")?.control?.value,
+        ).toBeNull();
       });
     });
 
