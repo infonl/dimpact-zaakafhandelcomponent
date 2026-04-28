@@ -1584,6 +1584,52 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 42,
+    "fields": {
+      "uuid": "9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678",
+      "object_type": 4,
+      "created_on": "2025-08-29T12:16:12.567Z",
+      "modified_on": "2025-08-29T12:16:12.575Z"
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 53,
+    "fields": {
+      "index": 1,
+      "object": 42,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
+        },
+        "type": "bpmn-test-5-productaanvraagtype",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "fakeConfirmationEmailApplicantName",
+            "telefoonnummer": "0612345678"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "inpBsn": "999993896",
+            "rolOmschrijvingGeneriek": "initiator"
+          }
+        ]
+      },
+      "start_at": "2001-01-01",
+      "end_at": null,
+      "registration_at": "2001-01-01",
+      "correct": null,
+      "geometry": null,
+      "created_on": "2025-08-29T12:16:12.567Z",
+      "modified_on": "2025-08-29T12:16:12.575Z"
+    }
+  },
+  {
     "model": "zgw_consumers.service",
     "pk": 1,
     "fields": {

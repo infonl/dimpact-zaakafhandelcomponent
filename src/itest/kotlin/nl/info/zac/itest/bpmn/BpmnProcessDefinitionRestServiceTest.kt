@@ -34,6 +34,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [
                   {
+                    "key": "automatischeOntvangstBevestiging",
+                    "name": "Automatische Ontvangst Bevestiging",
+                    "version": 1
+                  },
+                  {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1
@@ -74,6 +79,16 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [
+                  {
+                    "key": "automatischeOntvangstBevestiging",
+                    "name": "Automatische Ontvangst Bevestiging",
+                    "version": 1,
+                    "details": {
+                      "inUse": true,
+                      "forms": [],
+                      "orphanedForms": []
+                    }
+                  },
                   {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",

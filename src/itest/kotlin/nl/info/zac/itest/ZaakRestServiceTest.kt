@@ -55,6 +55,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
@@ -159,6 +161,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
@@ -438,6 +445,17 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Context("Updating zaken and adding betrokkenen") {
         Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+            zaak2UUID = zacClient.createZaak(
+                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                startDate = DATE_TIME_2020_01_01,
+                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                description = ZAAK_DESCRIPTION_2,
+                toelichting = ZAAK_EXPLANATION_1,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
             When(
                 "the add betrokkene to zaak endpoint is called with a natuurlijk persoon without a 'rol toelichting'"
             ) {
