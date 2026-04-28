@@ -55,7 +55,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 | **SPDX header (existing files)** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. If `INFO.nl` already appears (any year), leave unchanged. |
 | **SPDX header (new spec files)** | New `.spec.ts` files get `2026 INFO.nl` only — never copy the component's `Atos`/prior-year header. |
 | **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
-| **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
+| **Variable naming in specs** | No single-letter or abbreviated names (`el`, `f`, `res`, `btn`). Use full descriptive names (`element`, `fixtureRef`, `result`, `button`). |
+| **DOM query preference order** | **1. Harness** (Material components — always preferred) → **2. `querySelector`/`querySelectorAll`** (plain HTML elements: `p`, `button`, `form`, or custom `zac-*` elements when checking text/presence only) → **3. `By.directive`** (when checking that a directive/component is rendered, and no harness exists) → **Never `By.css`** (`By.css` is the worst option: it matches on DOM attribute strings that Angular may never write to the DOM for `@Input` bindings, giving silent false positives/negatives). For custom components with `@Input` properties, use `By.directive(MyComponent)` + `.componentInstance.myInput` — never `By.css('[myInput="value"]')`. |
 | **No `: void` return types** | Never write `: void` on methods (component `.ts` and spec `.ts`). TypeScript infers `void` — the annotation is redundant. Remove any existing `: void` annotations in files you touch. |
 
 ---
