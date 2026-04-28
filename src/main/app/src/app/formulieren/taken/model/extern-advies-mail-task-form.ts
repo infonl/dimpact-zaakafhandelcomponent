@@ -14,6 +14,7 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
 import { AbstractTaskForm } from "./abstract-task-form";
+import { KlantenService } from "src/app/klanten/klanten.service";
 
 @Injectable({
   providedIn: "root",
@@ -21,6 +22,7 @@ import { AbstractTaskForm } from "./abstract-task-form";
 export class ExternAdviesMailTaskForm extends AbstractTaskForm {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
+  private readonly klantenService = inject(KlantenService);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -65,6 +67,25 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       [Validators.required],
     );
 
+    const emailadresControl = this.formBuilder.control<string | null>(null, [
+      Validators.required,
+      CustomValidators.emails,
+    ]);
+    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      emailadresControl.setValue(emailAddress);
+    } else {
+      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
+      if (temporaryPersonId) {
+        this.klantenService
+          .getContactDetailsForPerson(temporaryPersonId)
+          .subscribe((value) => {
+            if (!value.emailadres) return;
+            emailadresControl.setValue(value.emailadres);
+          });
+      }
+    }
+
     return [
       {
         type: "checkbox",
@@ -102,10 +123,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       {
         type: "input",
         key: "emailadres",
-        control: this.formBuilder.control<string | null>(null, [
-          Validators.required,
-          CustomValidators.emails,
-        ]),
+        control: emailadresControl,
       },
       {
         type: "html-editor",
