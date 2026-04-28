@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inject, Injectable } from "@angular/core";
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
-import { lastValueFrom, takeUntil } from "rxjs";
+import { lastValueFrom } from "rxjs";
+import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/form";
@@ -21,9 +23,11 @@ import { AbstractTaskForm } from "./abstract-task-form";
 export class ExternAdviesMailTaskForm extends AbstractTaskForm {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
+  private readonly klantenService = inject(KlantenService);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly destroyRef = inject(DestroyRef);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     const replyToControl = this.formBuilder.control<string | null>(null);
@@ -44,7 +48,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       (GeneratedType<"RestZaakAfzender"> & OptionValue) | null
     >(null, [Validators.required]);
     verzenderControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         replyToControl.patchValue(value?.replyTo ?? null);
       });
@@ -64,6 +68,26 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       mailTemplate.body,
       [Validators.required],
     );
+
+    const emailadresControl = this.formBuilder.control<string | null>(null, [
+      Validators.required,
+      CustomValidators.emails,
+    ]);
+    const emailAddress = zaak.zaakSpecificContactDetails?.emailAddress;
+    if (emailAddress) {
+      emailadresControl.setValue(emailAddress);
+    } else {
+      const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
+      if (temporaryPersonId) {
+        this.klantenService
+          .getContactDetailsForPerson(temporaryPersonId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((value) => {
+            if (!value.emailadres) return;
+            emailadresControl.setValue(value.emailadres);
+          });
+      }
+    }
 
     return [
       {
@@ -102,10 +126,7 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
       {
         type: "input",
         key: "emailadres",
-        control: this.formBuilder.control<string | null>(null, [
-          Validators.required,
-          CustomValidators.emails,
-        ]),
+        control: emailadresControl,
       },
       {
         type: "html-editor",
