@@ -112,6 +112,8 @@ class SolrDeployerService @Inject constructor(
         createCollection(adminClient, inactiveCollection)
         applySchemaToCollection(inactiveCollection)
 
+        indexingService.startDualWrite(inactiveCollection)
+
         val reindexFutures = typesToReindex.map { type ->
             managedExecutor.submit(Runnable { indexingService.reindex(type, inactiveCollection) })
         }
@@ -124,12 +126,14 @@ class SolrDeployerService @Inject constructor(
                         LOG.log(Level.SEVERE, "Reindexing task failed during blue-green migration", exception)
                     }
             }
-            runCatching {
+            try {
                 switchAlias(adminClient, inactiveCollection)
                 deleteCollection(adminClient, activeCollection)
                 LOG.info("Alias '$SOLR_CORE' switched to '$inactiveCollection', deleted old collection '$activeCollection'")
-            }.onFailure { exception ->
+            } catch (exception: Exception) {
                 LOG.log(Level.SEVERE, "Failed to switch Solr alias after reindexing", exception)
+            } finally {
+                indexingService.stopDualWrite()
             }
         })
     }

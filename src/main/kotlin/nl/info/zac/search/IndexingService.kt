@@ -51,6 +51,9 @@ class IndexingService @Inject constructor(
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
 
+        @Volatile
+        private var dualWriteClient: SolrClient? = null
+
         private lateinit var solrClient: SolrClient
         private lateinit var solrUrl: String
     }
@@ -139,6 +142,30 @@ class IndexingService @Inject constructor(
         }
     }
 
+    fun startDualWrite(targetCollection: String) {
+        val previous = dualWriteClient
+        dualWriteClient = Http2SolrClient.Builder("$solrUrl/solr/$targetCollection").build()
+        previous?.close()
+        LOG.info("Dual-write to Solr collection '$targetCollection' started")
+    }
+
+    fun stopDualWrite() {
+        val previous = dualWriteClient
+        dualWriteClient = null
+        previous?.close()
+        LOG.info("Dual-write stopped")
+    }
+
+    private fun writeToSecondary(fn: (SolrClient) -> Unit) {
+        dualWriteClient?.let { secondary ->
+            try {
+                fn(secondary)
+            } catch (exception: Exception) {
+                LOG.log(Level.WARNING, "Dual-write to secondary Solr collection failed", exception)
+            }
+        }
+    }
+
     private fun reindexWith(objectType: ZoekObjectType, client: SolrClient) {
         if (reindexingViewfinder.contains(objectType)) {
             LOG.warning("[$objectType] Reindexing not started, still in progress")
@@ -190,6 +217,9 @@ class IndexingService @Inject constructor(
                 commit()
             }
         }
+        if (client === solrClient) {
+            writeToSecondary { it.addBeans(beansToBeAdded) }
+        }
     }
 
     private fun removeFromSolrIndex(idsToBeDeleted: List<String>) {
@@ -199,12 +229,14 @@ class IndexingService @Inject constructor(
         runTranslatingToIndexingException {
             solrClient.deleteById(idsToBeDeleted)
         }
+        writeToSecondary { it.deleteById(idsToBeDeleted) }
     }
 
     private fun removeFromSolrIndex(id: String) {
         runTranslatingToIndexingException {
             solrClient.deleteById(id)
         }
+        writeToSecondary { it.deleteById(id) }
     }
 
     private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType, client: SolrClient = solrClient) {

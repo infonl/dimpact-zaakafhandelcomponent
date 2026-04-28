@@ -103,6 +103,8 @@ class SolrDeployerServiceTest : BehaviorSpec({
         // Executor: run tasks inline (synchronously for testability)
         every { managedExecutorService.submit(any<Runnable>()) } returns CompletableFuture.completedFuture(null)
 
+        every { indexingService.startDualWrite(any()) } returns Unit
+
         solrDeployerService.setManagedExecutorService(managedExecutorService)
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
@@ -110,11 +112,12 @@ class SolrDeployerServiceTest : BehaviorSpec({
             solrDeployerService.onStartup(Any())
 
             Then(
-                "schema is applied to the new inactive collection and two tasks are submitted: one reindex and one alias switch"
+                "schema is applied to the new inactive collection, dual-write is started and two tasks are submitted"
             ) {
                 verify(exactly = 1) { anyConstructed<MultiUpdate>().process(any()) }
                 // 1st submit: reindex ZAAK into zac_b; 2nd submit: alias switch + delete zac_a
                 verify(exactly = 2) { managedExecutorService.submit(any<Runnable>()) }
+                verify(exactly = 1) { indexingService.startDualWrite(any()) }
             }
         }
     }

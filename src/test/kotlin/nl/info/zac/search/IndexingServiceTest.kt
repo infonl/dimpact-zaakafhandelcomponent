@@ -131,6 +131,54 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    Given("Dual-write is active and a zaak is indexed") {
+        val ctx = setupContext()
+        // relaxed = true so close() and other unstubbed calls work without explicit stubs
+        val secondarySolrClient = mockk<Http2SolrClient>(relaxed = true)
+        val zaakUUID = UUID.randomUUID()
+        val zaakZoekObject = createZaakZoekObject()
+
+        // setupContext() consumed the first build() call during IndexingService init;
+        // override now so startDualWrite gets secondarySolrClient as the dual-write client
+        every { anyConstructed<Http2SolrClient.Builder>().build() } returns secondarySolrClient
+        ctx.indexingService.startDualWrite("zac_b")
+
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString()) } returns zaakZoekObject
+        every { ctx.solrClient.addBeans(listOf(zaakZoekObject)) } returns UpdateResponse()
+
+        ctx.indexingService.addOrUpdateZaak(zaakUUID, false)
+
+        When("the zaak is indexed") {
+            Then("the document is written to both primary and secondary Solr clients") {
+                verify(exactly = 1) { ctx.solrClient.addBeans(any<Collection<*>>()) }
+                verify(exactly = 1) { secondarySolrClient.addBeans(any<Collection<*>>()) }
+            }
+        }
+    }
+
+    Given("Dual-write is active and a zaak is removed") {
+        val ctx = setupContext()
+        val secondarySolrClient = mockk<Http2SolrClient>(relaxed = true)
+        val zaakUUID = UUID.randomUUID()
+
+        every { anyConstructed<Http2SolrClient.Builder>().build() } returns secondarySolrClient
+        ctx.indexingService.startDualWrite("zac_b")
+        every { ctx.solrClient.deleteById(zaakUUID.toString()) } returns UpdateResponse()
+
+        ctx.indexingService.removeZaak(zaakUUID)
+
+        When("the zaak is removed from the Solr index") {
+            Then("the delete is sent to both primary and secondary Solr clients") {
+                verify(exactly = 1) { ctx.solrClient.deleteById(zaakUUID.toString()) }
+                verify(exactly = 1) { secondarySolrClient.deleteById(zaakUUID.toString()) }
+            }
+        }
+    }
+
     Given("Solr indexing exists") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()

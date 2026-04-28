@@ -141,7 +141,20 @@ echo "Applying current ZAC schema to collection '$NEW_COLLECTION'..."
 curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" \
   "${zacBaseURL}/rest/internal/indexeren/schema/${NEW_COLLECTION}"
 
-# Step 6: Reindex selected types into the new collection
+# Step 6: Enable dual-write so live ZAC updates go to both old and new collection during reindex.
+# A trap ensures dual-write is always stopped on exit, even if the script fails.
+stop_dual_write() {
+  echo "Stopping dual-write (cleanup)..."
+  curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" \
+    "${zacBaseURL}/rest/internal/indexeren/dual-write/stop" || true
+}
+trap stop_dual_write EXIT
+
+echo "Starting dual-write to '$NEW_COLLECTION'..."
+curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" \
+  "${zacBaseURL}/rest/internal/indexeren/dual-write/start/${NEW_COLLECTION}"
+
+# Step 7: Reindex selected types into the new collection
 if [ "$reindexDocuments" = true ] ; then
     echo "Reindexing document data into '$NEW_COLLECTION'..."
     curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" \
@@ -158,11 +171,15 @@ if [ "$reindexZaken" = true ] ; then
       "${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK/${NEW_COLLECTION}"
 fi
 
-# Step 7: Switch alias 'zac' -> new collection (atomic)
+# Step 8: Switch alias 'zac' -> new collection (atomic)
 echo "Switching alias 'zac' from '$CURRENT_COLLECTION' to '$NEW_COLLECTION'..."
 curl -sf "${solrBaseURL}/solr/admin/collections?action=CREATEALIAS&name=zac&collections=${NEW_COLLECTION}&wt=json"
 
-# Step 8: Delete old collection
+# Step 9: Stop dual-write (alias now points to new collection; trap also covers failure paths)
+trap - EXIT
+stop_dual_write
+
+# Step 10: Delete old collection
 echo "Deleting old collection '$CURRENT_COLLECTION'..."
 curl -sf "${solrBaseURL}/solr/admin/collections?action=DELETE&name=${CURRENT_COLLECTION}&wt=json"
 

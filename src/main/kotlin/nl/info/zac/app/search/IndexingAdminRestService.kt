@@ -8,7 +8,6 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
-import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
@@ -50,4 +49,13 @@ class IndexingAdminRestService @Inject constructor(
     @Path("schema/{collection}")
     fun applySchema(@PathParam("collection") collection: String) =
         solrDeployerService.applySchemaToCollection(collection)
+
+    @GET
+    @Path("dual-write/start/{targetCollection}")
+    fun startDualWrite(@PathParam("targetCollection") targetCollection: String) =
+        indexingService.startDualWrite(targetCollection)
+
+    @GET
+    @Path("dual-write/stop")
+    fun stopDualWrite() = indexingService.stopDualWrite()
 }
