@@ -103,12 +103,15 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 - [x] PersoonZoekComponent
 - [x] BedrijfZoekComponent
 
-### Batch 10 — done
+### Batch 10 — split into two PRs
 
+Klanten (PR: `chore/PZ-10963--FE--Angular-v19-migration--PersoonView-BedrijfView-KlantZakenTabel`):
 - [x] `klanten/persoon-view/persoon-view.component.ts`
-- [x] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
 - [x] `klanten/bedrijf-view/bedrijf-view.component.ts`
 - [x] `klanten/klant-zaken-tabel/klant-zaken-tabel.component.ts`
+
+Zaken (branch: `temp/standalone-migration-zaken`, in progress):
+- [x] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
 - [x] `zaken/zaak-verkort/zaak-verkort.component.ts`
 - [x] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
 - [x] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
@@ -135,9 +138,3 @@ Standalone + lazy-load OpenLayers/proj4 map components via route-lazy BAGModule:
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
-
-### Batch 11 — claimed
-
-- [ ] `zaken/zaak-verkort/zaak-verkort.component.ts`
-- [ ] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
-- [ ] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
