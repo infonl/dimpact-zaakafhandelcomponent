@@ -6,6 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { lastValueFrom, takeUntil } from "rxjs";
+import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/form";
@@ -14,7 +15,6 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
 import { AbstractTaskForm } from "./abstract-task-form";
-import { KlantenService } from "src/app/klanten/klanten.service";
 
 @Injectable({
   providedIn: "root",
