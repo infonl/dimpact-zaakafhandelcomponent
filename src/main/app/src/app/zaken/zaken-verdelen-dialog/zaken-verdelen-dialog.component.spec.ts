@@ -7,6 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -83,31 +84,34 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     );
   });
 
-  it("disables verdelen button when form is invalid (no groep selected)", () => {
+  it("disables verdelen button when form is invalid (no groep selected)", async () => {
     const { fixture } = setup([makeZaakZoekObject()]);
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "#zakenVerdelen_button",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
     );
-    expect(button.disabled).toBe(true);
+    expect(await button.isDisabled()).toBe(true);
   });
 
-  it("disables verdelen button when data is empty", () => {
+  it("disables verdelen button when data is empty", async () => {
     const { fixture } = setup([]);
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "#zakenVerdelen_button",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
     );
-    expect(button.disabled).toBe(true);
+    expect(await button.isDisabled()).toBe(true);
   });
 
-  it("disables verdelen button when loading", () => {
+  it("disables verdelen button when loading", async () => {
     const { fixture, component } = setup([makeZaakZoekObject()]);
     component["loading"] = true;
     component["form"].controls.groep.setValue(mockGroups[0]);
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "#zakenVerdelen_button",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
     );
-    expect(button.disabled).toBe(true);
+    expect(await button.isDisabled()).toBe(true);
   });
 
   it("shows spinner when loading", async () => {
