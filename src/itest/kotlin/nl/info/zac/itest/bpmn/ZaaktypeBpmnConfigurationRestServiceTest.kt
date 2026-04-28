@@ -135,7 +135,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4, $bpmnZaakType5]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields
+                    "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4, $bpmnZaakType5]"
             }
         }
     }
