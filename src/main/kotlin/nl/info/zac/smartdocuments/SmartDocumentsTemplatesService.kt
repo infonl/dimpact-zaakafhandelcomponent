@@ -136,6 +136,18 @@ class SmartDocumentsTemplatesService @Inject constructor(
     }
 
     /**
+     * Copies SmartDocuments template mappings from a previous zaaktype to a new zaaktype.
+     *
+     * @param previousZaaktypeUuid UUID of the zaaktype to copy mappings from
+     * @param newZaaktypeUuid UUID of the zaaktype to copy mappings to
+     */
+    @Transactional(REQUIRED)
+    fun copySmartDocumentsTemplateMappings(previousZaaktypeUuid: UUID, newZaaktypeUuid: UUID) {
+        val templateMappings = getTemplatesMapping(previousZaaktypeUuid)
+        storeTemplatesMapping(templateMappings, newZaaktypeUuid)
+    }
+
+    /**
      * Lists all template groups for a zaaktypeConfiguration
      *
      * @param zaaktypeUUID UUID of a zaaktype

@@ -49,7 +49,10 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
-    await viewTaskLink.scrollIntoViewIfNeeded();
+    await viewTaskLink.waitFor({
+      state: "visible",
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await viewTaskLink.click();
   },
 );
@@ -135,16 +138,23 @@ Then(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
+    await waitForFormioReady(this.page);
+
     const form = formioForm(this.page);
     const searchbox = form.getByRole("searchbox", {
       name: "Select one or more documents",
     });
+
     await searchbox.click();
     await searchbox.fill(documentName);
 
     await expect(
       this.page.getByRole("option", { name: documentName, exact: true }),
     ).toBeVisible({ timeout: ONE_MINUTE_IN_MS });
+
+    await this.page
+      .getByRole("option", { name: documentName, exact: true })
+      .click();
   },
 );
 
@@ -248,22 +258,26 @@ Then(
     const form = formioForm(this.page);
     await expect(form.getByRole("textbox", { name: "Group" })).toHaveValue(
       beheerdersGroupId,
+      { timeout: FORTY_SECONDS_IN_MS },
     );
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
       beheerderUserId,
+      { timeout: FORTY_SECONDS_IN_MS },
     );
     await expect(form.getByRole("option", { name: UUID_V4_REGEX })).toBeVisible(
       { timeout: FORTY_SECONDS_IN_MS },
     );
     await expect(
       form.getByRole("textbox", { name: "Reference table value" }),
-    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE);
+    ).toHaveValue(COMMUNICATION_CHANNEL_VALUE, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(
       form.getByRole("textbox", { name: "Zaak Result" }),
-    ).toHaveValue(RESULT_VALUE);
+    ).toHaveValue(RESULT_VALUE, { timeout: FORTY_SECONDS_IN_MS });
     await expect(
       form.getByRole("textbox", { name: "Zaak Status" }),
-    ).toHaveValue(STATUS_VALUE);
+    ).toHaveValue(STATUS_VALUE, { timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
@@ -271,9 +285,10 @@ When(
   "{string} confirms the data in the form",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await waitForFormioReady(this.page);
     await formioForm(this.page)
       .getByRole("button", { name: "Confirm" })
-      .click();
+      .click({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 

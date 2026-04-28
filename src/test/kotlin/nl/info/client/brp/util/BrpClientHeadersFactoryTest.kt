@@ -18,7 +18,7 @@ import jakarta.enterprise.inject.UnsatisfiedResolutionException
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_HEADER_SIZE
 import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_USER_HEADER_SIZE
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import org.jboss.resteasy.core.Headers
 import java.util.Optional
 

@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
+import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AdviesTaskForm } from "./advies-task-form";
 
-describe("AdviesTaskForm", () => {
+describe(AdviesTaskForm.name, () => {
   let formulier: AdviesTaskForm;
-  let informatieObjectenService: {
-    listEnkelvoudigInformatieobjecten: jest.Mock;
-  };
+  let informatieObjectenService: InformatieObjectenService;
+  let listEnkelvoudigInformatieobjectenSpy: jest.SpyInstance;
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "zaak-uuid",
   });
@@ -26,20 +26,15 @@ describe("AdviesTaskForm", () => {
   >({ uuid: "doc-uuid-1", titel: "Document 1" });
 
   beforeEach(() => {
-    informatieObjectenService = {
-      listEnkelvoudigInformatieobjecten: jest.fn().mockReturnValue(of([])),
-    };
-
     TestBed.configureTestingModule({
-      providers: [
-        { provide: FoutAfhandelingService, useValue: {} },
-        { provide: TranslateService, useValue: {} },
-        {
-          provide: InformatieObjectenService,
-          useValue: informatieObjectenService,
-        },
-      ],
+      imports: [TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideRouter([])],
     });
+
+    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    listEnkelvoudigInformatieobjectenSpy = jest
+      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
+      .mockReturnValue(of([]));
 
     formulier = TestBed.inject(AdviesTaskForm);
   });
@@ -131,7 +126,7 @@ describe("AdviesTaskForm", () => {
       });
 
       it("should pass fetched documents as options", async () => {
-        informatieObjectenService.listEnkelvoudigInformatieobjecten.mockReturnValue(
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument]),
         );
 

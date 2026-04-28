@@ -34,10 +34,23 @@ For each item, mark **PASS** or **FAIL** with a one-line reason and the exact li
 **Spec structure**
 - [ ] `describe(ClassName.name, ...)` — class name reference, not a string literal
 - [ ] `declarations: [Component]` used (component is `standalone: false`), OR `imports: [Component]` if already standalone
-- [ ] Services mocked via `TestBed.inject()` + `jest.spyOn()` — NOT `useValue: mockObject` (exception: `MAT_DIALOG_DATA`, `LOCALE_ID`, and other Angular built-in tokens)
-- [ ] `provideHttpClient()` present if any service uses `ZacHttpClient`
-- [ ] `provideRouter([])` present if any service uses `Router`
-- [ ] Factory helpers use `as Partial<T> as unknown as T` — never bare `as unknown as T` on an object literal
+- [ ] **Services should use `TestBed.inject()` + `jest.spyOn()` — avoid `useValue: mockObject`.**
+  - **Reason: type safety.** `useValue` accepts any object — typos, missing methods, wrong return types all silently pass. `jest.spyOn` is checked against the real service type, so the compiler catches mismatches.
+  - Strongly preferred pattern:
+    ```typescript
+    providers: [provideHttpClient(), provideRouter([]), MyService],
+    // ...
+    myService = TestBed.inject(MyService);
+    jest.spyOn(myService, "someMethod").mockReturnValue(of(result));
+    ```
+  - `useValue` is acceptable when genuinely difficult to avoid (e.g. a service with a deeply complex DI tree that cannot be satisfied without significant setup). Flag it with a comment explaining why.
+  - **Always acceptable exceptions**: Angular built-in injection tokens (`MAT_DIALOG_DATA`, `LOCALE_ID`, `APP_BASE_HREF`, etc.) where no real class exists to inject.
+  - `TranslateService` → use `TranslateModule.forRoot()` in `imports`, then `TestBed.inject(TranslateService)` + `jest.spyOn`.
+  - Services using `ZacHttpClient` → add `provideHttpClient()` to providers.
+  - Services using `Router` → add `provideRouter([])` to providers.
+- [ ] `provideHttpClient()` present if any service in the tree uses `ZacHttpClient`
+- [ ] `provideRouter([])` present if any service in the tree uses `Router`
+- [ ] Factory helpers use `fromPartial<T>(obj)` — never bare `{ ... } as unknown as T` on an object literal (non-literal re-casts like `mockVar as unknown as T` are OK)
 
 **Coverage**
 - [ ] Every test asserts meaningful behaviour
