@@ -24,7 +24,9 @@ export class ExternAdviesMailTaskForm extends AbstractTaskForm {
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zakenService = inject(ZakenService);
   private readonly klantenService = inject(KlantenService);
-  private readonly informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
   private readonly destroyRef = inject(DestroyRef);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
