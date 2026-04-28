@@ -7,6 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatCardHarness } from "@angular/material/card/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -70,12 +71,15 @@ describe(ZaakVerkortComponent.name, () => {
     expect(await card.getSubtitleText()).toBe("Bijzonder type");
   });
 
-  it("renders link to zaak detail page", () => {
+  it("renders link to zaak detail page", async () => {
     const { fixture } = setup(makeZaak({ identificatie: "ZAAK-999" }));
-    const anchor: HTMLAnchorElement = fixture.nativeElement.querySelector(
-      "a[id='zaakDetail_button']",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const anchor = await loader.getHarness(
+      MatButtonHarness.with({ selector: "#zaakDetail_button" }),
     );
-    expect(anchor.getAttribute("href")).toBe("/zaken/ZAAK-999");
+    expect(await (await anchor.host()).getAttribute("href")).toBe(
+      "/zaken/ZAAK-999",
+    );
   });
 
   it("renders status naam via empty pipe", () => {

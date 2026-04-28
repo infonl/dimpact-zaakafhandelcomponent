@@ -61,32 +61,35 @@ describe(ZaakOntkoppelenDialogComponent.name, () => {
     );
   });
 
-  it("disables the submit button when the form is invalid", () => {
+  it("disables the submit button when the form is invalid", async () => {
     const { fixture } = setup();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "button[type='submit']",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "button[type='submit']" }),
     );
-    expect(button.disabled).toBe(true);
+    expect(await button.isDisabled()).toBe(true);
   });
 
-  it("enables the submit button when reden is filled in", () => {
+  it("enables the submit button when reden is filled in", async () => {
     const { fixture, component } = setup();
     component["form"].controls.reden.setValue("reden tekst");
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "button[type='submit']",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "button[type='submit']" }),
     );
-    expect(button.disabled).toBe(false);
+    expect(await button.isDisabled()).toBe(false);
   });
 
-  it("disables the submit button when loading", () => {
+  it("disables the submit button when loading", async () => {
     const { fixture, component } = setup();
     component["loading"] = true;
     fixture.detectChanges();
-    const button: HTMLButtonElement = fixture.nativeElement.querySelector(
-      "button[type='submit']",
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const button = await loader.getHarness(
+      MatButtonHarness.with({ selector: "button[type='submit']" }),
     );
-    expect(button.disabled).toBe(true);
+    expect(await button.isDisabled()).toBe(true);
   });
 
   it("shows spinner when loading", async () => {
