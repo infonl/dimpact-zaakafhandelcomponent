@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -108,10 +109,7 @@ describe(InformatieObjectLinkComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MatDrawer,
-          useValue: mockSideNav,
-        },
+        provideRouter([]),
       ],
     }).compileComponents();
 
