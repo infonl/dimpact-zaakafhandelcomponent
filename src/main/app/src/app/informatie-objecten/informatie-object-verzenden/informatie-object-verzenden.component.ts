@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -14,16 +15,13 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { NgIf } from "@angular/common";
 import { FormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
@@ -34,6 +32,7 @@ import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";

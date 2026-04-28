@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   Input,
@@ -10,7 +11,6 @@ import {
   OnInit,
   SimpleChanges,
 } from "@angular/core";
-import { NgClass, NgIf } from "@angular/common";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {

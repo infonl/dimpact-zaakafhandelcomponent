@@ -12,25 +12,25 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatDialog } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatDialog } from "@angular/material/dialog";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
-import { ZacDate } from "../../shared/form/date/date";
-import { ZacInput } from "../../shared/form/input/input";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -235,9 +235,11 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      informatieobjecttypeUuid: this.smartDocumentsInformatieobjecttypeUuid ?? null,
+      informatieobjecttypeUuid:
+        this.smartDocumentsInformatieobjecttypeUuid ?? null,
       smartDocumentsTemplateName: this.smartDocumentsTemplateName ?? null,
-      smartDocumentsTemplateGroupName: this.smartDocumentsGroupPath.at(-1) ?? null,
+      smartDocumentsTemplateGroupName:
+        this.smartDocumentsGroupPath.at(-1) ?? null,
       zaakUuid: this.zaak.uuid,
       taskId: this.taak?.id,
     };

@@ -213,7 +213,11 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
-    it("should call createDocumentAttended and emit document when form is valid and redirectURL is provided", () => {
+    it("should call createDocumentAttended, emit document and open redirectURL when form is valid", () => {
+      const windowOpenSpy = jest
+        .spyOn(window, "open")
+        .mockImplementation(() => null);
+
       jest
         .spyOn(informatieObjectenService, "createDocumentAttended")
         .mockReturnValue(
@@ -227,7 +231,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
 
       const emitSpy = jest.spyOn(component.document, "emit");
 
-      // Fill the form to make it valid
       component["form"].controls.templateGroup.enable();
       component["form"].controls.templateGroup.setValue(mockTemplateGroups[0]);
       component["form"].controls.template.enable();
@@ -243,6 +246,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
         informatieObjectenService.createDocumentAttended,
       ).toHaveBeenCalled();
       expect(emitSpy).toHaveBeenCalled();
+      expect(windowOpenSpy).toHaveBeenCalledWith("https://example.com/doc");
     });
 
     it("should open NotificationDialog when createDocumentAttended returns no redirectURL", () => {

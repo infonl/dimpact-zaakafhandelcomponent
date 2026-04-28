@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -12,26 +13,24 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { NgClass, NgIf } from "@angular/common";
-import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
-import { MatTableModule } from "@angular/material/table";
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
-import { ZacInput } from "../../shared/form/input/input";
-import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
-import { TranslateService } from "@ngx-translate/core";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
+import { ZacInput } from "../../shared/form/input/input";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
 type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
@@ -49,6 +48,7 @@ type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
     MatDividerModule,
     MatExpansionModule,
     MatIconModule,
+    MatSortModule,
     MatTableModule,
     MatToolbarModule,
     TranslateModule,
