@@ -135,6 +135,15 @@ Zaken (branch: `temp/standalone-migration-zaken`, in progress):
 - [x] `taken/taken-verdelen-dialog/taken-verdelen-dialog.component.ts`
 - [x] `notities/notities.component.ts`
 
+### Batch 11 — informatie-objecten (branch: `temp/standalone-informatie-objecten`)
+
+- [ ] `informatie-objecten/informatie-object-link/informatie-object-link.component.ts`
+- [ ] `informatie-objecten/informatie-object-add/informatie-object-add.component.ts`
+- [ ] `informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component.ts`
+- [ ] `informatie-objecten/informatie-object-edit/informatie-object-edit.component.ts`
+- [ ] `informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts`
+- [ ] `informatie-objecten/informatie-object-view/informatie-object-view.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
