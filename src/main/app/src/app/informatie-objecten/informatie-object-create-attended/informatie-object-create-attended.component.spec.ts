@@ -54,15 +54,13 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   const makeZaak = (
     fields: Partial<GeneratedType<"RestZaak">> = {},
   ): GeneratedType<"RestZaak"> =>
-    ({
+    fromPartial<GeneratedType<"RestZaak">>({
       uuid: "zaak-uuid-001",
       zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
         uuid: "zaaktype-uuid-001",
       }),
       ...fields,
-    }) as Partial<
-      GeneratedType<"RestZaak">
-    > as unknown as GeneratedType<"RestZaak">;
+    });
 
   const mockTemplateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
     [
