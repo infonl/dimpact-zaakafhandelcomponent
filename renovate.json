@@ -9,6 +9,7 @@
     ":pinDependencies",
     ":maintainLockFilesWeekly",
     ":automergeDigest",
+    ":semanticCommits",
     "docker:pinDigests",
     "docker:enableMajor"
   ],
