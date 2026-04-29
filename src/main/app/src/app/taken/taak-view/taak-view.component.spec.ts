@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -100,8 +100,9 @@ describe(TaakViewComponent.name, () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TaakViewComponent, ZaakVerkortComponent],
+      declarations: [TaakViewComponent],
       imports: [
+        ZaakVerkortComponent,
         SideNavComponent,
         StaticTextComponent,
         MatSidenav,

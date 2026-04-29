@@ -3,11 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject, OnDestroy } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
@@ -15,12 +28,25 @@ import { ZakenService } from "../zaken.service";
 @Component({
   templateUrl: "zaken-verdelen-dialog.component.html",
   styleUrls: ["./zaken-verdelen-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    ZacAutoComplete,
+    ZacInput,
+  ],
 })
 export class ZakenVerdelenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  loading = false;
+  protected loading = false;
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -60,15 +86,15 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
       });
   }
 
-  close(): void {
+  protected close() {
     this.dialogRef.close(false);
   }
 
-  isDisabled() {
+  protected isDisabled() {
     return this.form.invalid || this.loading || !this.data.length;
   }
 
-  verdeel(): void {
+  protected verdeel() {
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService
