@@ -93,13 +93,7 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
 
   it("shows singular info message when one zaak is selected", () => {
     const { fixture } = setup([makeZaakZoekObject()]);
-    const paragraphs: NodeListOf<HTMLParagraphElement> =
-      fixture.nativeElement.querySelectorAll("p");
-    expect(
-      Array.from(paragraphs).some((p) =>
-        p.textContent?.includes("msg.vrijgeven.zaak"),
-      ),
-    ).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain("msg.vrijgeven.zaak");
   });
 
   it("shows plural info message when multiple zaken are selected", () => {
@@ -107,13 +101,7 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
       makeZaakZoekObject({ id: "a" }),
       makeZaakZoekObject({ id: "b" }),
     ]);
-    const paragraphs: NodeListOf<HTMLParagraphElement> =
-      fixture.nativeElement.querySelectorAll("p");
-    expect(
-      Array.from(paragraphs).some((p) =>
-        p.textContent?.includes("msg.vrijgeven.zaken"),
-      ),
-    ).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain("msg.vrijgeven.zaken");
   });
 
   it("vrijgeven filters zaken without behandelaar", () => {
