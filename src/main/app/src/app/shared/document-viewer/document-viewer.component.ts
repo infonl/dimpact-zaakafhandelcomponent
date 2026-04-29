@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   Input,
@@ -22,7 +23,8 @@ import { GeneratedType } from "../utils/generated-types";
   selector: "zac-document-viewer",
   templateUrl: "./document-viewer.component.html",
   styleUrls: ["./document-viewer.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [NgClass, NgIf],
 })
 export class DocumentViewerComponent implements OnInit, OnChanges {
   @Input({ required: true })

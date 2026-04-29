@@ -9,7 +9,7 @@ import { ViewComponent } from "./view-component";
 
 @Component({
   template: "",
-  standalone: false,
+  standalone: true,
 })
 export abstract class ActionsViewComponent
   extends ViewComponent
