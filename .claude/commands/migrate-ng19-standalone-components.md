@@ -1,6 +1,10 @@
 # Generic TDD Standalone Migration Plan
 
+<<<<<<< chore/PZ-11005--FE--Angular-v19-migration--informatie-objecten-batch
+**Progress: 41 remaining** (2026-04-28)
+=======
 **Progress: 48 remaining** (2026-04-28)
+>>>>>>> main
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
@@ -175,6 +179,14 @@ Solves PZ-XXXXX
 
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
+
+---
+
+## Completed
+
+| Batch | Components | Branch/PR |
+|---|---|---|
+| batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
 
 ---
 

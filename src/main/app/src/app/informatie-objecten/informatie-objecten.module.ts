@@ -20,14 +20,7 @@ import { InformatieObjectenRoutingModule } from "./informatie-objecten-routing.m
 import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
 
 @NgModule({
-  declarations: [
-    InformatieObjectViewComponent,
-    InformatieObjectEditComponent,
-    InformatieObjectAddComponent,
-    InformatieObjectCreateAttendedComponent,
-    InformatieObjectVerzendenComponent,
-    InformatieObjectLinkComponent,
-  ],
+  declarations: [],
   exports: [
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
@@ -43,6 +36,12 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     MimetypeToExtensionPipe,
+    InformatieObjectViewComponent,
+    InformatieObjectEditComponent,
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectVerzendenComponent,
+    InformatieObjectLinkComponent,
   ],
 })
 export class InformatieObjectenModule {}

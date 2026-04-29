@@ -18,6 +18,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
@@ -95,8 +96,8 @@ describe(InformatieObjectEditComponent.name, () => {
   // As a refactor, it would be nice to have a custom method to fill the form (via the UI elements)
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectEditComponent],
       imports: [
+        InformatieObjectEditComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
@@ -109,11 +110,8 @@ describe(InformatieObjectEditComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
-        {
-          provide: MatDrawer,
-          useValue: mockSideNav,
-        },
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
