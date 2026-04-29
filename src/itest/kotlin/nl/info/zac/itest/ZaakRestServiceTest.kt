@@ -216,7 +216,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                              "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
                              "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
                              "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
-                           }
+                           },
+                            {
+                              "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                              "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                              "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION"
+                            }
                         """.trimIndent()
                     }
 

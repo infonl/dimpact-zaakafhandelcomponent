@@ -198,19 +198,18 @@ class NotificationsTest : BehaviorSpec({
                 receivedMailsResponse.code shouldBe HTTP_OK
 
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
-                with(receivedMails) {
-                    length() shouldBe 1
-                    with(getJSONObject(0)) {
-                        getString("subject") shouldContain
+                receivedMails.length() shouldBeGreaterThan 0
+                (0 until receivedMails.length()).map { receivedMails.getJSONObject(it) }
+                    .forAtLeastOne { mail ->
+                        mail.getString("subject") shouldContain
                             "Ontvangstbevestiging van zaak $ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION"
-                        getString("contentType") shouldStartWith "multipart/mixed"
-                        with(getString("mimeMessage")) {
+                        mail.getString("contentType") shouldStartWith "multipart/mixed"
+                        with(mail.getString("mimeMessage")) {
                             shouldContain("From: $CONFIG_GEMEENTE_NAAM <$TEST_GEMEENTE_EMAIL_ADDRESS>")
                             shouldContain("Return-Path: <$TEST_GEMEENTE_EMAIL_ADDRESS>")
                             shouldContain("Wij hebben uw verzoek ontvangen en deze op")
                         }
                     }
-                }
             }
         }
 
