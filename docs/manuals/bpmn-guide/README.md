@@ -312,7 +312,7 @@ To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see
 }
 ```
 
-#### Send automatische ontvangstbevestiging
+### Send automatische ontvangstbevestiging
 
 To automatically send a confirmation email to the zaak initiator or zaak-specific contact:
 * create a service task
@@ -320,7 +320,7 @@ To automatically send a confirmation email to the zaak initiator or zaak-specifi
 * add fields:
   * `from` - the sender's email address
   * `replyTo` - the reply-to email address (optional)
-  * `template` - the name of the mail template to use
+  * `template` - the name of the email template to use
 
 Unlike `SendEmailDelegate`, the recipient address is resolved automatically from the zaak:
 1. The email address from the zaak-specific contact details is used if available.
