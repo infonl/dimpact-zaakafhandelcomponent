@@ -10,7 +10,8 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
-import io.kotest.core.listeners.TestListener
+import io.kotest.core.extensions.Extension
+import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
@@ -176,8 +177,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * Purge GreenMail's email store before each spec to prevent emails sent by one spec
      * from leaking into another spec's assertions.
      */
-    override val listeners: List<TestListener> = listOf(
-        object : TestListener {
+    override val extensions: List<Extension> = listOf(
+        object : BeforeSpecListener {
             override suspend fun beforeSpec(spec: Spec) {
                 logger.info { "Purging GreenMail email store before spec '${spec::class.simpleName}'" }
                 itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
