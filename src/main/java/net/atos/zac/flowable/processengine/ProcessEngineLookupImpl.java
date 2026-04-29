@@ -100,7 +100,6 @@ public class ProcessEngineLookupImpl implements ProcessEngineLookup {
             customFlowableFunctionDelegates = new ArrayList<>();
         }
         customFlowableFunctionDelegates.add(new TaskFunctionsDelegate());
-        // TODO customFlowableFunctionDelegates.add(new ContactFunctionsDelegate());
         processEngineConfiguration.setCustomFlowableFunctionDelegates(customFlowableFunctionDelegates);
     }
 
