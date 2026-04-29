@@ -33,8 +33,9 @@ openNotificatiesApiSecretKey="openNotificatiesApiSecretKey"
 objectUuid="7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e"
 altAObjectUuid="5658d286-9a84-4cde-b9af-6771bd599a06"
 altBObjectUuid="a3278b18-0562-48cd-ab9b-ee05f2d433bb"
+altCObjectUuid="39ded1f1-049f-4952-a6f6-a14fbede041e"
 
-while getopts 'u:o:k:abh' OPTION; do
+while getopts 'u:o:k:abch' OPTION; do
   case $OPTION in
     u)
       zacBaseURL=$OPTARG
@@ -50,6 +51,9 @@ while getopts 'u:o:k:abh' OPTION; do
       ;;
     b)
       objectUuid=$altBObjectUuid
+      ;;
+    c)
+      objectUuid=$altCObjectUuid
       ;;
     h)
       help
