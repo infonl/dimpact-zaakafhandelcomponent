@@ -10,6 +10,7 @@ import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificat
 import nl.info.zac.identity.model.Group
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import org.eclipse.microprofile.openapi.annotations.media.Schema
 
 @NoArgConstructor
 @AllOpen
@@ -30,6 +31,7 @@ data class RestGroup(
     @field:Size(max = NAAM_MAX_LENGTH)
     var naam: String,
 
+    @Schema(readOnly = true)
     var active: Boolean = true
 )
 
