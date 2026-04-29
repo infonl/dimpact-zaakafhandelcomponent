@@ -3,15 +3,39 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-ontkoppelen-dialog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    ZacTextarea,
+  ],
 })
 export class ZaakOntkoppelenDialogComponent {
   protected loading = false;
@@ -30,7 +54,7 @@ export class ZaakOntkoppelenDialogComponent {
     private readonly formBuilder: FormBuilder,
   ) {}
 
-  ontkoppel(): void {
+  protected ontkoppel() {
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.zakenService
