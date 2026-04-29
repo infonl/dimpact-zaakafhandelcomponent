@@ -8,12 +8,12 @@ import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.servlet.http.HttpSession
-import nl.info.zac.authentication.SecurityUtil.Companion.FUNCTIONEEL_GEBRUIKER
-import nl.info.zac.authentication.SecurityUtil.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 import java.io.Serial
 import java.io.Serializable
 
-class SecurityUtil @Inject constructor(
+class LoggedInUserProvider @Inject constructor(
     @ActiveSession
     val httpSession: Instance<HttpSession>
 ) : Serializable {
@@ -68,10 +68,16 @@ class SecurityUtil @Inject constructor(
 
 /**
  * If there is a logged-in user in the given [httpSession], return it.
- * Otherwise, if there is an HTTP Session but if it does not contain a logged-in user attribute, return `null`.
+ * Returns `null` if the session does not contain a logged-in user attribute or if the session has been
+ * invalidated (e.g. the user logged out while a request was still in-flight).
  */
 fun getLoggedInUser(httpSession: HttpSession) =
-    httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
+    try {
+        httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
+    } catch (_: IllegalStateException) {
+        // Session was invalidated (user logged out) while the request was still in-flight; treat as no session.
+        null
+    }
 
 fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
     httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)

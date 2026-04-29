@@ -16,7 +16,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
-import nl.info.zac.authentication.SecurityUtil.Companion.systemUser
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType

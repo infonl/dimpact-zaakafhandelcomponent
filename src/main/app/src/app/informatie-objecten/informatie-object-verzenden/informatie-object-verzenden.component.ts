@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -15,8 +16,12 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
@@ -27,6 +32,7 @@ import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfig } from "../../shared/material-form-builder/model/form-config";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
@@ -37,7 +43,16 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-verzenden",
   templateUrl: "./informatie-object-verzenden.component.html",
   styleUrls: ["./informatie-object-verzenden.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    MaterialFormBuilderModule,
+  ],
 })
 export class InformatieObjectVerzendenComponent
   implements OnInit, OnChanges, OnDestroy
@@ -56,10 +71,10 @@ export class InformatieObjectVerzendenComponent
   constructor(
     private translate: TranslateService,
     private informatieObjectenService: InformatieObjectenService,
-    public utilService: UtilService,
+    private readonly utilService: UtilService,
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.formConfig = new FormConfigBuilder()
       .saveText("actie.verzenden")
       .cancelText("actie.annuleren")
@@ -102,7 +117,7 @@ export class InformatieObjectVerzendenComponent
     ];
   }
 
-  onFormSubmit(formGroup: FormGroup): void {
+  protected onFormSubmit(formGroup: FormGroup) {
     if (formGroup) {
       const informatieobjecten = mapStringToDocumentenStrings(
         formGroup.controls["documenten"].value,
@@ -145,7 +160,7 @@ export class InformatieObjectVerzendenComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes.zaak.previousValue) {
       this.documentSelectFormField.updateDocumenten(
         this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
@@ -155,7 +170,7 @@ export class InformatieObjectVerzendenComponent
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Trigger completion of all subscriptions
     this.destroy$.next();
     this.destroy$.complete();

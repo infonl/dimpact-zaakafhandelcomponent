@@ -23,6 +23,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -110,8 +111,8 @@ describe(InformatieObjectAddComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectAddComponent],
       imports: [
+        InformatieObjectAddComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
@@ -125,13 +126,10 @@ describe(InformatieObjectAddComponent.name, () => {
         provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
         VertrouwelijkaanduidingToTranslationKeyPipe,
-        {
-          provide: MatDrawer,
-          useValue: mockSideNav,
-        },
       ],
     }).compileComponents();
 
