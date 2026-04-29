@@ -8,9 +8,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
-  ONE_MINUTE_IN_MS,
   TWENTY_SECONDS_IN_MS,
-  TWO_MINUTES_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -50,12 +48,12 @@ const STATUS_VALUE = "Afgerond";
 
 When(
   "{string} opens the active task",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.waitFor({
       state: "visible",
-      timeout: TWO_MINUTES_IN_MS,
+      timeout: FORTY_SECONDS_IN_MS,
     });
     await viewTaskLink.click();
   },
@@ -80,7 +78,7 @@ Then(
 
 Given(
   "{string} creates a SmartDocuments Word file named {string}",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -128,7 +126,7 @@ When(
 
 Then(
   "{string} sees document {string} in the documents list",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -160,7 +158,7 @@ Then(
 
 Then(
   "{string} sees the desired form fields values",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
@@ -177,7 +175,7 @@ Then(
 
 When(
   "{string} fills all mandatory form fields",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
     await form.getByLabel("Group").selectOption(beheerdersGroupName);
@@ -238,7 +236,7 @@ Then(
 
 Then(
   "{string} sees that the select documents to sign task is started with group {string} and user {string}",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -248,7 +246,7 @@ Then(
     const taskCell = this.page.getByRole("cell", {
       name: "Select documents to sign",
     });
-    await expect(taskCell).toBeVisible({ timeout: TWO_MINUTES_IN_MS });
+    await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
@@ -263,7 +261,7 @@ Then(
 
 Then(
   "{string} sees that the summary form contains all filled-in data",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
@@ -294,7 +292,7 @@ Then(
 
 When(
   "{string} confirms the data in the form",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const confirmButton = formioForm(this.page).getByRole("button", {
       name: "Confirm",
@@ -357,7 +355,7 @@ Then(
 
 Then(
   "{string} sees the select documents to sign form",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioReady(this.page);
     await expect(
@@ -388,7 +386,7 @@ When(
 
 Then(
   "{string} sees {int} documents in the to be signed list",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -414,7 +412,7 @@ When(
 
 Then(
   "{string} sees document {string} has been signed",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     _user: z.infer<typeof worldUsers>,
