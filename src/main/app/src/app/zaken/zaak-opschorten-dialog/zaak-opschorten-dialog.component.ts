@@ -3,18 +3,50 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-opschorten-dialog.component.html",
   styleUrls: ["./zaak-opschorten-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDividerModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    ZacInput,
+    ZacDate,
+    ZacTextarea,
+  ],
 })
 export class ZaakOpschortenDialogComponent {
   loading = true;
@@ -36,9 +68,9 @@ export class ZaakOpschortenDialogComponent {
   });
 
   constructor(
-    public readonly dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
+    protected readonly dialogRef: MatDialogRef<ZaakOpschortenDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public readonly data: { zaak: GeneratedType<"RestZaak"> },
+    protected readonly data: { zaak: GeneratedType<"RestZaak"> },
     private readonly zakenService: ZakenService,
     private readonly formBuilder: FormBuilder,
   ) {
@@ -137,7 +169,7 @@ export class ZaakOpschortenDialogComponent {
     this.form.updateValueAndValidity({ emitEvent: false });
   }
 
-  opschorten() {
+  protected opschorten() {
     this.dialogRef.disableClose = true;
     this.loading = true;
 
@@ -160,7 +192,7 @@ export class ZaakOpschortenDialogComponent {
       });
   }
 
-  close() {
+  protected close() {
     this.dialogRef.close();
   }
 }

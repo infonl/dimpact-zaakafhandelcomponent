@@ -13,14 +13,14 @@ import { TabelGegevens } from "../model/tabel-gegevens";
 
 @Component({
   template: "",
-  standalone: false,
+  standalone: true,
 })
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;
   abstract route: ActivatedRoute;
   aantalPerPagina = 0;
   pageSizeOptions = [0];
-  werklijstRechten: GeneratedType<"RestWerklijstRechten">;
+  werklijstRechten!: GeneratedType<"RestWerklijstRechten">;
 
   protected constructor() {}
 
@@ -33,7 +33,7 @@ export abstract class WerklijstComponent implements OnInit {
     });
   }
 
-  paginatorChanged($event: PageEvent): void {
+  paginatorChanged($event: PageEvent) {
     if (this.aantalPerPagina !== $event.pageSize) {
       this.aantalPerPagina = $event.pageSize;
       this.gebruikersvoorkeurenService

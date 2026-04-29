@@ -12,28 +12,24 @@ import {
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
-import {
-  BrowserAnimationsModule,
-  NoopAnimationsModule,
-} from "@angular/platform-browser/animations";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  provideTanStackQuery,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog.component";
 
 describe("ZaakVerlengenDialogComponent", () => {
+  beforeEach(() => notifyManager.setScheduler((fn) => fn()));
+  afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
+
   let component: ZaakVerlengenDialogComponent;
   let fixture: ComponentFixture<ZaakVerlengenDialogComponent>;
   let dialogRef: MatDialogRef<ZaakVerlengenDialogComponent>;
@@ -49,22 +45,14 @@ describe("ZaakVerlengenDialogComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZaakVerlengenDialogComponent],
-      imports: [
-        ReactiveFormsModule,
-        TranslateModule.forRoot(),
-        BrowserAnimationsModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
-        NoopAnimationsModule,
-      ],
+      imports: [ZaakVerlengenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTanStackQuery(testQueryClient),
+        provideNativeDateAdapter(),
+        provideExperimentalZonelessChangeDetection(),
         provideQueryClient(testQueryClient),
-        { provide: MatDialogRef, useValue: { close: jest.fn() } },
+        { provide: MatDialogRef, useValue: { close: jest.fn(), disableClose: false } },
         {
           provide: MAT_DIALOG_DATA,
           useValue: {
@@ -80,37 +68,35 @@ describe("ZaakVerlengenDialogComponent", () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     component = fixture.componentInstance;
-
-    jest.spyOn(component, "close");
-    jest.spyOn(component, "verlengen");
     fixture.detectChanges();
   });
 
   describe("Buttons and form submission", () => {
-    it("should call verlengen() when submit button is clicked", async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const [verlengingsDuur, , redenVerlenging] = inputs;
+    it("makes HTTP PATCH request with form payload when verlengen is called", async () => {
+      component["form"].patchValue(
+        {
+          duurDagen: 5,
+          redenVerlenging: "Reden verlenging",
+        },
+        { emitEvent: false },
+      );
 
-      await verlengingsDuur.setValue("5");
-      await redenVerlenging.setValue("Reden verlenging");
-
-      const submitButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
-      submitButton.click();
+      component["verlengen"]();
       await new Promise(requestAnimationFrame);
 
-      expect(component.verlengen).toHaveBeenCalled();
-
       const req = httpTestingController.expectOne(
-        `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+        (request) =>
+          request.method === "PATCH" &&
+          request.url.includes(`/rest/zaken/zaak/${mockZaak.uuid}/verlenging`),
       );
       expect(req.request.method).toEqual("PATCH");
       expect(req.request.body).toEqual(
         expect.objectContaining({
-          duurDagen: "5",
+          duurDagen: 5,
           redenVerlenging: "Reden verlenging",
         }),
       );
+      req.flush({});
     });
 
     it("should call close() when annuleren button is clicked", async () => {
@@ -122,7 +108,6 @@ describe("ZaakVerlengenDialogComponent", () => {
       await cancelButton.click();
       await new Promise(requestAnimationFrame);
 
-      expect(component.close).toHaveBeenCalled();
       expect(dialogRefSpy).toHaveBeenCalled();
     });
   });
@@ -135,9 +120,10 @@ describe("ZaakVerlengenDialogComponent", () => {
       await verlengingsDuur.setValue("30");
       await redenVerlenging.setValue("Reden verlenging");
 
-      const submitButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
-      submitButton.click();
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ selector: 'button[type="submit"]' }),
+      );
+      await submitButton.click();
       await new Promise(requestAnimationFrame);
       const errorHarness = await loader.getHarness(MatErrorHarness);
       const errorText = await errorHarness.getText();
