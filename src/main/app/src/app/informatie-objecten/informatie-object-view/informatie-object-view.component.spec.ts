@@ -11,7 +11,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, ReplaySubject } from "rxjs";
@@ -75,11 +75,9 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
         InformatieObjectViewComponent,
         InformatieObjectEditComponent,
-      ],
-      imports: [
         SideNavComponent,
         StaticTextComponent,
         MaterialModule,
@@ -94,6 +92,7 @@ describe(InformatieObjectViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,

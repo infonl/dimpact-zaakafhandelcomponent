@@ -5,8 +5,14 @@
 
 import { Component, effect, inject, input, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import {
   injectMutation,
   injectQuery,
@@ -15,7 +21,13 @@ import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -24,7 +36,22 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
 @Component({
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    ZacCheckbox,
+    ZacDate,
+    ZacFormActions,
+    ZacInput,
+    ZacSelect,
+    MaterialFormBuilderModule,
+  ],
 })
 export class InformatieObjectAddComponent {
   private readonly informatieObjectenService = inject(
@@ -248,7 +275,7 @@ export class InformatieObjectAddComponent {
     return formData;
   }
 
-  submit() {
+  protected submit() {
     const { value } = this.form;
     const payload = {
       bestand: value.bestand!,

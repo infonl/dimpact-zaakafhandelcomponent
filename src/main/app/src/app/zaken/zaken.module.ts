@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -28,7 +28,6 @@ import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
-import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
@@ -38,8 +37,6 @@ import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
 import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
-import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
-import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 @NgModule({
@@ -49,14 +46,10 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BesluitViewComponent,
     ZaakViewComponent,
     BetrokkeneLinkComponent,
-    ZaakVerkortComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
     ZakenMijnComponent,
     ZakenAfgehandeldComponent,
-    ZakenVerdelenDialogComponent,
-    ZaakOntkoppelenDialogComponent,
-    ZakenVrijgevenDialogComponent,
     ZaakOpschortenDialogComponent,
     ZaakVerlengenDialogComponent,
     ZaakInitiatorToevoegenComponent,
@@ -83,6 +76,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     CaseLocationEditComponent,
     LocatieTonenComponent,
     ZaakProcessFlowComponent,
+    ZaakVerkortComponent,
   ],
 })
 export class ZakenModule {}

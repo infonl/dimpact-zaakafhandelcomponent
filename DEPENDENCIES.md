@@ -12,7 +12,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.15.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
 - **gotenberg**: 8.31.0
-- **otel/opentelemetry-collector-contrib**: 0.150.1
+- **otel/opentelemetry-collector-contrib**: 0.151.0
 - **grafana/tempo**: 2.10.5
 - **prom/prometheus**: v3.11.3
 - **grafana/grafana**: 13.0.1
@@ -22,7 +22,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Common Ground components
 
-- **open-zaak**: 1.26.0
+- **open-zaak**: 1.27.0
 - **objects-api**: 3.3.1
 - **open-klant**: 2.14.0
 - **open-notificaties**: 1.13.0
