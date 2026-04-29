@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inject, Injectable } from "@angular/core";
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Validators } from "@angular/forms";
 import moment, { Moment } from "moment";
-import { lastValueFrom, takeUntil } from "rxjs";
+import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -26,6 +27,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
     InformatieObjectenService,
   );
   private readonly klantenService = inject(KlantenService);
+  private readonly destroyRef = inject(DestroyRef);
 
   async requestForm(
     zaak: GeneratedType<"RestZaak">,
@@ -49,7 +51,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       (GeneratedType<"RestZaakAfzender"> & OptionValue) | null
     >(null, [Validators.required]);
     verzenderControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         replyToControl.patchValue(value?.replyTo ?? null);
       });
@@ -85,7 +87,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
     );
 
     taakFataleDatumControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         messageControl.setValue(
           this.getMessageFieldLabel(zaak, value ? moment(value) : null),
@@ -104,6 +106,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
       if (temporaryPersonId) {
         this.klantenService
           .getContactDetailsForPerson(temporaryPersonId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((value) => {
             if (!value.emailadres) return;
             emailControl.setValue(value.emailadres);
@@ -179,7 +182,7 @@ export class AanvullendeInformatieTaskForm extends AbstractTaskForm {
     if (this.isZaakSuspendable(zaak)) {
       const zaakOpschortenControl = this.formBuilder.control(false);
       zaakOpschortenControl.valueChanges
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((value) => {
           if (value) {
             taakFataleDatumControl.addValidators([Validators.required]);
