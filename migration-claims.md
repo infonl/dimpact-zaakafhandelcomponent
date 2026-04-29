@@ -144,6 +144,13 @@ Zaken (branch: `temp/standalone-migration-zaken`, in progress):
 - [x] `informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts`
 - [x] `informatie-objecten/informatie-object-view/informatie-object-view.component.ts`
 
+### Batch 12 — claimed
+
+- [ ] `shared/dynamic-table/datasource/werklijst-component.ts`
+- [ ] `zaken/zaak-view/betrokkene-link.component.ts`
+- [ ] `zaken/zaak-opschorten-dialog/zaak-opschorten-dialog.component.ts`
+- [ ] `zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
