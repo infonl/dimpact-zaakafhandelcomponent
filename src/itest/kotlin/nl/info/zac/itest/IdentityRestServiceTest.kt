@@ -21,9 +21,9 @@ import nl.info.zac.itest.config.COORDINATOR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
-import nl.info.zac.itest.config.GROUP_INACTIVE_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_2
+import nl.info.zac.itest.config.GROUP_INACTIVE_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
