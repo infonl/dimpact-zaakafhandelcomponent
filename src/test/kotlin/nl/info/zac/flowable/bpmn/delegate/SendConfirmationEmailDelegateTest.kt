@@ -179,6 +179,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
         When("no zaak-specific contact details exist and the initiator role has no email address") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, answers = false)
+            every { flowableHelper.zgwApiService } returns zgwApiService
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
             every { klantClientService.findEmailForInitiatorRole(initiatorRole) } returns null
