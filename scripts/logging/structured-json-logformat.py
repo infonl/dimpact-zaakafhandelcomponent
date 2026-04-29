@@ -4,7 +4,7 @@
 #  SPDX-License-Identifier: EUPL-1.2+
 
 """
-Formats mixed structured/unstructured log output for human-readable terminal display.
+Formats mixed JSON-structured and unstructured ZAC log output for human-readable terminal display.
 
 Usage:
     tail -f <logfile> | python3 structured-json-logformat.py
