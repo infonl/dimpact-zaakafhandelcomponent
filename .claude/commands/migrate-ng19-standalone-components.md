@@ -1,6 +1,10 @@
 # Generic TDD Standalone Migration Plan
 
+<<<<<<< chore/PZ-11005--FE--Angular-v19-migration--informatie-objecten-batch
 **Progress: 41 remaining** (2026-04-28)
+=======
+**Progress: 48 remaining** (2026-04-28)
+>>>>>>> main
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
@@ -149,7 +153,6 @@ foutAfhandelingService.foutmelding = "Test fout";  // set directly before create
 - Describe-scope order: `fixture` → `loader` → services; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
-- **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
 - **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T> = {}): T => ({ ...defaults, ...fields }) as Partial<T> as unknown as T` — the intermediate `as Partial<T>` validates the object literal's property names; `as unknown as T` forces assignment. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T`. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
