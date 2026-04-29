@@ -13,13 +13,13 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.COORDINATOR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
-import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
 import nl.info.zac.itest.config.GROUP_INACTIVE_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1

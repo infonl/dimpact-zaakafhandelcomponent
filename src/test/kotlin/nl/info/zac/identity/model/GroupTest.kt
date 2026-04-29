@@ -54,5 +54,4 @@ class GroupTest : BehaviorSpec({
             }
         }
     }
-
 })

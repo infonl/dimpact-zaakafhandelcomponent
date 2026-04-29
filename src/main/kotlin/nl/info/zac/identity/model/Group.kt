@@ -69,7 +69,7 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
         name = name,
         description = description?.takeIf { it.isNotBlank() } ?: name,
         email = attributes?.get("email")?.singleOrNull(),
-        active = attributes?.get("active")?.firstOrNull() != "false",
+        active = attributes?.get("active")?.singleOrNull() != "false",
         // ZAC client roles are only used in the old IAM architecture (PABC feature flag off)
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
