@@ -28,11 +28,13 @@ data class RestGroup(
      * we need to make sure it adheres to the same constraints.
      */
     @field:Size(max = NAAM_MAX_LENGTH)
-    var naam: String
+    var naam: String,
+
+    var active: Boolean = true
 )
 
 fun Group.toRestGroup(): RestGroup =
-    RestGroup(this.name, this.description)
+    RestGroup(id = this.name, naam = this.description, active = this.active)
 
 fun List<Group>.toRestGroups(): List<RestGroup> =
     this.map { it.toRestGroup() }

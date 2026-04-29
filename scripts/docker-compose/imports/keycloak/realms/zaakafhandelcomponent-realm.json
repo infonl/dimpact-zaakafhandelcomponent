@@ -773,6 +773,16 @@
         "email": ["${ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS}"]
       },
       "realmRoles": ["beheerder_elk_domein"]
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "inactive-group-test-1",
+      "path": "/inactive-group-test-1",
+      "description": "Test group inactive - new IAM",
+      "attributes": {
+        "active": ["false"]
+      },
+      "realmRoles": []
     }
   ],
   "defaultRole": {
@@ -3280,6 +3290,32 @@
       "clientRoles": {
         "pabc": ["administrator"]
       }
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "username": "behandelaar1inactivegroup",
+      "firstName": "Test",
+      "lastName": "Behandelaar 1 - inactive group",
+      "email": "behandelaar-inactive-group-test-1@example.com",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/inactive-group-test-1"]
     }
   ]
 }
