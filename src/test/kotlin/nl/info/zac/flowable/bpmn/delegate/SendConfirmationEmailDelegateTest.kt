@@ -19,7 +19,11 @@ import io.mockk.verify
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.klant.KlantClientService
+import nl.info.client.klant.createDigitalAddresses
+import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -114,7 +118,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 emailAddress = null
             )
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
-            every { klantClientService.findEmailForInitiatorRole(initiatorRole) } returns initiatorEmail
+            every { klantClientService.findDigitalAddressesForNaturalPerson(any()) } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
             SendConfirmationEmailDelegate().apply {
@@ -140,7 +144,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             every { flowableHelper.zgwApiService } returns zgwApiService
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
-            every { klantClientService.findEmailForInitiatorRole(initiatorRole) } returns initiatorEmail
+            every { klantClientService.findDigitalAddressesForNaturalPerson(any()) } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
             SendConfirmationEmailDelegate().apply {
@@ -182,7 +186,92 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             every { flowableHelper.zgwApiService } returns zgwApiService
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
-            every { klantClientService.findEmailForInitiatorRole(initiatorRole) } returns null
+            every { klantClientService.findDigitalAddressesForNaturalPerson(any()) } returns emptyList()
+
+            SendConfirmationEmailDelegate().apply {
+                from = fromExpression
+                template = templateExpression
+            }.execute(delegateExecution)
+
+            Then("no mail is sent") {
+                capturedMailGegevens shouldHaveSize 0
+                verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
+            }
+        }
+
+        When("no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role with a vestiging") {
+            capturedMailGegevens.clear()
+            clearMocks(klantClientService, zgwApiService, mailService, answers = false)
+            val initiatorEmail = "initiator@example.com"
+            val vestigingsNummer = "123456789123"
+            val kvkNummer = "12345678"
+            val nietNatuurlijkPersoonRoleWithVestiging = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsnummer = vestigingsNummer,
+                    kvkNummer = kvkNummer
+                )
+            )
+            every { flowableHelper.zgwApiService } returns zgwApiService
+            every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns nietNatuurlijkPersoonRoleWithVestiging
+            every {
+                klantClientService.findDigitalAddressesForVestiging(vestigingsNummer, kvkNummer)
+            } returns createDigitalAddresses(email = initiatorEmail)
+            every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
+
+            SendConfirmationEmailDelegate().apply {
+                from = fromExpression
+                template = templateExpression
+            }.execute(delegateExecution)
+
+            Then("the mail is sent to the vestiging email") {
+                capturedMailGegevens shouldHaveSize 1
+                with(capturedMailGegevens.first()) {
+                    to.email shouldBeEqual initiatorEmail
+                    from.email shouldBeEqual fromEmail
+                    isCreateDocumentFromMail shouldBe true
+                }
+            }
+        }
+
+        When("no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role without a vestiging") {
+            capturedMailGegevens.clear()
+            clearMocks(klantClientService, zgwApiService, mailService, answers = false)
+            val initiatorEmail = "initiator@example.com"
+            val kvkNummer = "12345678"
+            val nietNatuurlijkPersoonRoleWithoutVestiging = createRolNietNatuurlijkPersoon(
+                nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                    vestigingsnummer = null,
+                    kvkNummer = kvkNummer
+                )
+            )
+            every { flowableHelper.zgwApiService } returns zgwApiService
+            every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns nietNatuurlijkPersoonRoleWithoutVestiging
+            every { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) } returns createDigitalAddresses(email = initiatorEmail)
+            every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
+
+            SendConfirmationEmailDelegate().apply {
+                from = fromExpression
+                template = templateExpression
+            }.execute(delegateExecution)
+
+            Then("the mail is sent to the niet-natuurlijk persoon email") {
+                capturedMailGegevens shouldHaveSize 1
+                with(capturedMailGegevens.first()) {
+                    to.email shouldBeEqual initiatorEmail
+                    from.email shouldBeEqual fromEmail
+                    isCreateDocumentFromMail shouldBe true
+                }
+            }
+        }
+
+        When("no zaak-specific contact details exist and the initiator has an unsupported betrokkene type") {
+            capturedMailGegevens.clear()
+            clearMocks(klantClientService, zgwApiService, mailService, answers = false)
+            every { flowableHelper.zgwApiService } returns zgwApiService
+            every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+            every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns createRolOrganisatorischeEenheid()
 
             SendConfirmationEmailDelegate().apply {
                 from = fromExpression
