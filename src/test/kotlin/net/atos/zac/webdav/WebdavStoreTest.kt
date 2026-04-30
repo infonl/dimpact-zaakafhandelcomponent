@@ -4,10 +4,10 @@
  */
 package net.atos.zac.webdav
 
-import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -27,7 +27,10 @@ import java.io.File
 import java.util.UUID
 
 class WebdavStoreTest : BehaviorSpec({
-    isolationMode = IsolationMode.InstancePerTest
+    mockkStatic(::setLoggedInUser)
+    val webdavHelper = mockk<WebdavHelper>()
+    val drcClientService = mockk<DrcClientService>()
+    val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
 
     fun setupCdi(
         webdavHelper: WebdavHelper,
@@ -55,14 +58,13 @@ class WebdavStoreTest : BehaviorSpec({
         }
     }
 
-    Given("a valid WebDAV token for read operations") {
-        val webdavHelper = mockk<WebdavHelper>()
-        val drcClientService = mockk<DrcClientService>()
-        val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    beforeEach {
+        checkUnnecessaryStub()
+    }
 
+    Given("a valid WebDAV token for read operations") {
         setupCdi(webdavHelper, drcClientService, enkelvoudigInformatieObjectUpdateService)
         val webdavStore = WebdavStore(File("/fake"))
-
         val documentUUID = UUID.randomUUID()
         val token = UUID.randomUUID().toString()
         val gegevens = WebdavHelper.Gegevens(documentUUID, mockk<LoggedInUser>())
@@ -99,12 +101,7 @@ class WebdavStoreTest : BehaviorSpec({
     }
 
     Given("a valid WebDAV token for write operations") {
-        val webdavHelper = mockk<WebdavHelper>()
-        val drcClientService = mockk<DrcClientService>()
-        val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
         val httpSession = mockk<HttpSession>()
-
-        mockkStatic(::setLoggedInUser)
         setupCdi(webdavHelper, drcClientService, enkelvoudigInformatieObjectUpdateService, httpSession)
         val webdavStore = WebdavStore(File("/fake"))
 
