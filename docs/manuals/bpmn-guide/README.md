@@ -312,9 +312,9 @@ To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see
 }
 ```
 
-### Send automatische ontvangstbevestiging
+### Send confirmation email (automatische ontvangstbevestiging)
 
-To automatically send a confirmation email to the zaak initiator or zaak-specific contact:
+To send a confirmation email to the zaak initiator or zaak-specific contact email address from a BPMN process:
 * create a service task
 * set class `nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate`
 * add fields:
@@ -324,10 +324,10 @@ To automatically send a confirmation email to the zaak initiator or zaak-specifi
 
 Unlike `SendEmailDelegate`, the recipient address is resolved automatically from the zaak:
 1. The email address from the zaak-specific contact details is used if available.
-2. Otherwise, the email address of the zaak's initiator role is used.
-3. If no address can be found, no email is sent and the process continues.
+2. Otherwise, the default email address of the initiator of zaak is used. Or if the initiator does not have a default email address, the first email address of the initiator is used3. If no address can be found, no email is sent and the process continues.
+3. If no email address could be found, no email is sent and the process continues.
 
-The email is stored as a document on the zaak.
+The email is stored as a document attached to the zaak.
 
 For example:
 ```xml
