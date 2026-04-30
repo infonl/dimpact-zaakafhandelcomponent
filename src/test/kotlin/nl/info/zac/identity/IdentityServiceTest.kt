@@ -104,10 +104,10 @@ class IdentityServiceTest : BehaviorSpec({
     Context("Listing groups") {
         Given("a mix of active and inactive groups in the Keycloak realm") {
             val activeGroupRepresentation = createGroupRepresentation(name = "fakeActiveGroup")
-            val inactiveGroupRepresentation = createGroupRepresentation(name = "fakeInactiveGroup")
-            every {
-                realmResource.groups().query("active:false", false)
-            } returns listOf(inactiveGroupRepresentation)
+            val inactiveGroupRepresentation = createGroupRepresentation(
+                name = "fakeInactiveGroup",
+                attributes = mapOf("active" to listOf("false"))
+            )
             every {
                 realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
             } returns listOf(activeGroupRepresentation, inactiveGroupRepresentation)
@@ -353,33 +353,41 @@ class IdentityServiceTest : BehaviorSpec({
                 name = "fakeGroupId2",
                 description = null
             )
+            val inactivePabcGroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeInactiveGroupId",
+                description = "fakeInactiveGroupDescription"
+            )
             every { configurationService.featureFlagPabcIntegration() } returns true
-            every { realmResource.groups().query("active:false", false) } returns emptyList()
+            every {
+                realmResource.groups().query("active:false", false)
+            } returns listOf(createGroupRepresentation(name = "fakeInactiveGroupId"))
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                     applicationRole = "behandelaar",
                     zaaktypeDescription = zaaktype.omschrijving
                 )
-            } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2)
+            } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
 
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
-                Then("all groups are returned, sorted by name") {
-                    groups.size shouldBe 2
-                    groups[0].name shouldBe "fakeGroupId1"
-                    groups[1].name shouldBe "fakeGroupId2"
+                Then("all groups are returned with active flag correctly set") {
+                    groups.size shouldBe 3
+                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
+                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
 
             When("groups for the zaaktype are listed") {
                 val groups = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("all groups are returned, sorted by name") {
-                    groups.size shouldBe 2
-                    groups[0].name shouldBe "fakeGroupId1"
-                    groups[1].name shouldBe "fakeGroupId2"
+                Then("all groups are returned with active flag correctly set") {
+                    groups.size shouldBe 3
+                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
+                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
         }
@@ -402,7 +410,6 @@ class IdentityServiceTest : BehaviorSpec({
                 name = "fakeGroupName2",
                 clientRoles = mapOf(zacKeycloakClientId to listOf("otherRole"))
             )
-            every { realmResource.groups().query("active:false", false) } returns emptyList()
             every {
                 realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
             } returns listOf(groupRepresentation1, groupRepresentation2)
@@ -433,7 +440,6 @@ class IdentityServiceTest : BehaviorSpec({
                 name = "fakeGroupId2",
                 clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole2")),
             )
-            every { realmResource.groups().query("active:false", false) } returns emptyList()
             every {
                 realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
             } returns listOf(groupRepresentation1, groupRepresentation2)
@@ -456,7 +462,6 @@ class IdentityServiceTest : BehaviorSpec({
         Given("Zaaktype UUID with empty group list and PABC feature flag off") {
             val zaaktypeUuid = UUID.randomUUID()
             val domain = "anyDomain"
-            every { realmResource.groups().query("active:false", false) } returns emptyList()
             every { realmResource.groups().groups("", 0, Integer.MAX_VALUE, false) } returns emptyList()
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domain
             every { configurationService.featureFlagPabcIntegration() } returns false

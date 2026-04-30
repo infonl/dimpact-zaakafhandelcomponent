@@ -25,7 +25,6 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.admin.client.resource.RealmResource
 import java.util.UUID
-import kotlin.collections.filter
 
 @AllOpen
 @NoArgConstructor
@@ -47,13 +46,10 @@ class IdentityService @Inject constructor(
         .map { it.toUser() }
         .sortedBy { it.getFullName() }
 
-    fun listGroups(): List<Group> {
-        val inactiveGroupNames = listInactiveGroupNames()
-        return keycloakZacRealmResource.groups()
-            .groups("", 0, Integer.MAX_VALUE, false)
-            .map { it.toGroup(zacKeycloakClientId).copy(active = it.name !in inactiveGroupNames) }
-            .sortedBy { it.description }
-    }
+    fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
+        .groups("", 0, Integer.MAX_VALUE, false)
+        .map { it.toGroup(zacKeycloakClientId) }
+        .sortedBy { it.description }
 
     /**
      * New IAM (PABC feature flag on): returns the list of groups that are authorised for the application role 'behandelaar' and
@@ -76,11 +72,10 @@ class IdentityService @Inject constructor(
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             listGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
         } else {
-            val inactiveGroupNames = listInactiveGroupNames()
             // retrieve groups with 'full representation' or else the group attributes will not be filled
             val groups = keycloakZacRealmResource.groups()
                 .groups("", 0, Integer.MAX_VALUE, false)
-                .map { it.toGroup(zacKeycloakClientId).copy(active = it.name !in inactiveGroupNames) }
+                .map { it.toGroup(zacKeycloakClientId) }
             // only filter groups on domain authorisation when PABC integration is disabled
             val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
             groups.filter {
@@ -102,6 +97,14 @@ class IdentityService @Inject constructor(
             zaaktypeDescription = zaaktypeDescription
         ).map { it.toGroup().copy(active = it.name !in inactiveGroupNames) }
     }
+
+    // PABC does not carry Keycloak group attributes, so active status cannot be derived from the PABC response.
+    // This helper makes one extra KC call to identify inactive groups by their attribute.
+    private fun listInactiveGroupNames(): Set<String> =
+        keycloakZacRealmResource.groups()
+            .query("active:false", false)
+            .map { it.name }
+            .toSet()
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
@@ -146,12 +149,4 @@ class IdentityService @Inject constructor(
             throw UserNotInGroupException()
         }
     }
-
-    // Keycloak's list endpoint does not return group attributes even with briefRepresentation=false.
-    // This helper queries for groups with active=false to correctly identify inactive groups.
-    private fun listInactiveGroupNames(): Set<String> =
-        keycloakZacRealmResource.groups()
-            .query("active:false", false)
-            .map { it.name }
-            .toSet()
 }

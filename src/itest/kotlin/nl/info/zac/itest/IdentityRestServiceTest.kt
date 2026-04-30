@@ -175,7 +175,6 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-
     Context("Getting authorised behandelaar groups for a zaaktype") {
         Given(
             """
