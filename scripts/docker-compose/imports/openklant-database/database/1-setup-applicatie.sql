@@ -21,7 +21,7 @@ INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp
 -- klantcontact to test product request with request specific email address
 INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
     VALUES(4, 'f453481d-4385-4ab8-8c31-58b649eb763e', '0000000004', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-25 09:49:02.000');
--- klantcontact to test product request with request specific email address
+-- klantcontact to test product request with changed preferred email address
 INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
     VALUES(5, '9276d349-4d31-48d5-8167-41058e70bfb6', '0000000005', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-25 09:49:02.000');
 
@@ -111,9 +111,10 @@ INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, ad
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(7, '228b39dc-374a-4147-bac1-9ce4abea712e', 'email', 'test-alternative-2@example.com', '', 6, NULL, false, '', NULL);
 
--- add email digital address to betrokkene for a changed preferred email address through Open Formulieren
+-- add email digital address to partij
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(8, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
+-- add email digital address to betrokkene for a changed preferred email address through Open Formulieren
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(9, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
 

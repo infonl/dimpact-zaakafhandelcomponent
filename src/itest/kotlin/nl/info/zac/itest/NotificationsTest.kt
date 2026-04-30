@@ -1000,7 +1000,7 @@ class NotificationsTest : BehaviorSpec({
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                         using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC
-                        with the correct identification for the zaak for the correct identification."""
+                        with the correct zaak identification and no zaak specific contact details."""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
 
