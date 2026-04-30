@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2024-2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,11 +8,20 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
 import moment from "moment";
-import { forkJoin } from "rxjs";
+import { forkJoin, Subscription } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
@@ -27,8 +36,20 @@ import { DashboardCardType } from "./model/dashboard-card-type";
   styleUrls: ["./dashboard.component.less"],
   standalone: false,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+  @ViewChildren("cardEl", { read: ElementRef })
+  cardEls!: QueryList<ElementRef<HTMLElement>>;
+
+  private resizeObserver?: ResizeObserver;
+  private cardElsChangesSub?: Subscription;
+  private syncScheduled = false;
+  private suppressObserverUntil = 0;
+  private pendingSyncTimer?: ReturnType<typeof setTimeout>;
+  private static readonly TRANSITION_DURATION_MS = 200;
+  // Must match the `@media (max-width: 1200px)` breakpoint in the .less file
+  // where cards stack into a single column.
+  private static readonly STACK_LAYOUT_MEDIA_QUERY = "(max-width: 1200px)";
 
   /** all cards that may be put on the dashboard */
   private cards = [
@@ -83,6 +104,107 @@ export class DashboardComponent implements OnInit {
     // TODO instead of session storage use userpreferences in a db
     SessionStorageUtil.setItem("dashboardOpened", moment());
     this.signaleringenService.updateSignaleringen();
+  }
+
+  private readonly onWindowResize = () => this.scheduleRowSync();
+
+  ngAfterViewInit() {
+    this.resizeObserver = new ResizeObserver(() => {
+      const now = performance.now();
+      if (now < this.suppressObserverUntil) {
+        // A real size change (e.g. a card finished loading) happened while we
+        // were suppressing observer feedback from our own min-height writes.
+        // Schedule a sync once the suppression window ends so we don't drop it.
+        if (this.pendingSyncTimer) return;
+        this.pendingSyncTimer = setTimeout(() => {
+          this.pendingSyncTimer = undefined;
+          this.scheduleRowSync();
+        }, this.suppressObserverUntil - now);
+        return;
+      }
+      this.scheduleRowSync();
+    });
+    this.observeCards();
+    this.cardElsChangesSub = this.cardEls.changes.subscribe(() =>
+      this.observeCards(),
+    );
+    window.addEventListener("resize", this.onWindowResize);
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+    this.cardElsChangesSub?.unsubscribe();
+    if (this.pendingSyncTimer) clearTimeout(this.pendingSyncTimer);
+    window.removeEventListener("resize", this.onWindowResize);
+  }
+
+  private observeCards() {
+    if (!this.resizeObserver) return;
+    this.resizeObserver.disconnect();
+    this.cardEls.forEach((ref) =>
+      this.resizeObserver!.observe(ref.nativeElement),
+    );
+    this.scheduleRowSync();
+  }
+
+  private scheduleRowSync() {
+    if (this.syncScheduled) return;
+    this.syncScheduled = true;
+    requestAnimationFrame(() => {
+      this.syncScheduled = false;
+      this.syncRowHeights();
+    });
+  }
+
+  private isStackedLayout() {
+    return window.matchMedia(DashboardComponent.STACK_LAYOUT_MEDIA_QUERY)
+      .matches;
+  }
+
+  private syncRowHeights() {
+    if (!this.cardEls) return;
+    const els = this.cardEls.toArray().map((r) => r.nativeElement);
+    const previousMins = els.map((el) => el.style.minHeight);
+
+    // Disable transitions while we briefly reset min-height to read each
+    // card's natural content height.
+    els.forEach((el) => el.classList.add("dashboard-card--measuring"));
+    els.forEach((el) => (el.style.minHeight = "0px"));
+
+    this.suppressObserverUntil =
+      performance.now() + DashboardComponent.TRANSITION_DURATION_MS;
+
+    if (this.isStackedLayout()) {
+      els.forEach((el) => el.classList.remove("dashboard-card--measuring"));
+      return;
+    }
+
+    const rendered: { row: number; el: HTMLElement }[] = [];
+    let idx = 0;
+    for (const column of this.grid) {
+      if (!this.editMode.value && column.length === 0) continue;
+      for (let r = 0; r < column.length && idx < els.length; r++) {
+        rendered.push({ row: r, el: els[idx++] });
+      }
+    }
+
+    const rowMax = new Map<number, number>();
+    rendered.forEach(({ row, el }) => {
+      const h = el.getBoundingClientRect().height;
+      rowMax.set(row, Math.max(rowMax.get(row) ?? 0, h));
+    });
+
+    // Restore previous min-heights before re-enabling transitions and committing
+    // them via a forced layout, so the browser's transition starting point is
+    // the actual previous value.
+    els.forEach((el, i) => (el.style.minHeight = previousMins[i]));
+    void els[0]?.offsetHeight;
+    els.forEach((el) => el.classList.remove("dashboard-card--measuring"));
+
+    rendered.forEach(({ row, el }) => {
+      const h = rowMax.get(row);
+      if (h != null) el.style.minHeight = `${h}px`;
+    });
   }
 
   private loadCards(width: number) {
@@ -151,6 +273,7 @@ export class DashboardComponent implements OnInit {
       (count, column) => count + (column.length > 0 ? 1 : 0),
       0,
     );
+    this.scheduleRowSync();
   }
 
   private updateAvailable() {

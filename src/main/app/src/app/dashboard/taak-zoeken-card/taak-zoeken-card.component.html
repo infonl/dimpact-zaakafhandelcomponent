@@ -65,6 +65,7 @@
 
   <mat-paginator
     [pageSize]="pageSize"
+    [length]="zoekQuery.data()?.totaal ?? 0"
     [hidePageSize]="true"
     (page)="onPageChange($event)"
   ></mat-paginator>
