@@ -155,7 +155,7 @@ class KlantClientService @Inject constructor(
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
             klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)
-                ?.takeIf { it.wasPartij == null }
+                .takeIf { it.wasPartij == null }
                 ?.expand?.digitaleAdressen?.toContactDetails()
         } catch (exception: NotFoundException) {
             LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }

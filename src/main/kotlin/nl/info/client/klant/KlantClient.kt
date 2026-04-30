@@ -40,7 +40,7 @@ interface KlantClient {
     fun getBetrokkeneWithDigitaleAdressen(
         @PathParam("uuid") uuid: UUID,
         @QueryParam("expand") expand: String = "digitaleAdressen",
-    ): ExpandBetrokkene?
+    ): ExpandBetrokkene
 
     @GET
     @Path("/digitaleadressen")

@@ -638,7 +638,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
-            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } returns null
+            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } throws NotFoundException()
 
             When("productaanvraag-specific contact details are requested") {
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
@@ -911,7 +911,7 @@ class KlantClientServiceTest : BehaviorSpec({
                     onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
-            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } returns null
+            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } throws NotFoundException()
 
             When("zaak-specific contact details are requested") {
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
