@@ -146,10 +146,10 @@ Zaken (branch: `temp/standalone-migration-zaken`, in progress):
 
 ### Batch 12 — claimed
 
-- [ ] `shared/dynamic-table/datasource/werklijst-component.ts`
-- [ ] `zaken/zaak-view/betrokkene-link.component.ts`
-- [ ] `zaken/zaak-opschorten-dialog/zaak-opschorten-dialog.component.ts`
-- [ ] `zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.ts`
+- [x] `shared/dynamic-table/datasource/werklijst-component.ts`
+- [x] `zaken/zaak-view/betrokkene-link.component.ts`
+- [x] `zaken/zaak-opschorten-dialog/zaak-opschorten-dialog.component.ts`
+- [x] `zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.ts`
 
 ## Colleague
 
