@@ -38,13 +38,13 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 
 ### Checklist
 
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/groups` (used by bulk distribution dialogs)
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups`
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on deprecated `GET /rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}`
-- [ ] Unit test (`IdentityRestServiceTest.kt` unit level, with MockK): endpoint returns only active groups when list contains a mix
-- [ ] Unit test: endpoint returns all groups when all are active (no regression)
-- [ ] Integration test (`IdentityRestServiceTest.kt` itest): `GET /rest/identity/groups` with a Keycloak group marked `active=false` — group is absent from the response
-- [ ] Integration test: `GET /rest/identity/groups` with no `active` attribute set — group is present in the response
+- [x] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/groups` (used by bulk distribution dialogs)
+- [x] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups`
+- [x] `IdentityRestService.kt` — add `.filter { it.active }` on deprecated `GET /rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}`
+- [x] Unit test (`IdentityRestServiceTest.kt` unit level, with MockK): endpoint returns only active groups when list contains a mix
+- [x] Unit test: endpoint returns all groups when all are active (no regression)
+- [x] Integration test (`IdentityRestServiceTest.kt` itest): `GET /rest/identity/groups` with a Keycloak group marked `active=false` — group is absent from the response
+- [x] Integration test: `GET /rest/identity/groups` with no `active` attribute set — group is present in the response
 - [ ] Backend unit and integration tests pass (`./gradlew build`)
 
 ---
