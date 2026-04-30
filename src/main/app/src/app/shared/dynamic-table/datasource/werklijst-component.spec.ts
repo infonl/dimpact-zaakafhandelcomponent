@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { Component, inject } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { PageEvent } from "@angular/material/paginator";
-import { provideHttpClient } from "@angular/common/http";
-import { ActivatedRoute, provideRouter } from "@angular/router";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
@@ -47,7 +47,11 @@ describe(WerklijstComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConcreteWerklijstComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        ConcreteWerklijstComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideRouter([]),
@@ -77,7 +81,9 @@ describe(WerklijstComponent.name, () => {
   });
 
   it("reads werklijstRechten from route tabelGegevens on init", () => {
-    expect(component.werklijstRechten).toEqual(mockTabelGegevens.werklijstRechten);
+    expect(component.werklijstRechten).toEqual(
+      mockTabelGegevens.werklijstRechten,
+    );
   });
 
   it("calls updateAantalPerPagina and updates aantalPerPagina when page size changes", () => {
@@ -85,10 +91,9 @@ describe(WerklijstComponent.name, () => {
 
     component.paginatorChanged(event);
 
-    expect(gebruikersvoorkeurenService.updateAantalPerPagina).toHaveBeenCalledWith(
-      "TAKEN_MIJN",
-      50,
-    );
+    expect(
+      gebruikersvoorkeurenService.updateAantalPerPagina,
+    ).toHaveBeenCalledWith("TAKEN_MIJN", 50);
     expect(component.aantalPerPagina).toBe(50);
   });
 
@@ -97,6 +102,8 @@ describe(WerklijstComponent.name, () => {
 
     component.paginatorChanged(event);
 
-    expect(gebruikersvoorkeurenService.updateAantalPerPagina).not.toHaveBeenCalled();
+    expect(
+      gebruikersvoorkeurenService.updateAantalPerPagina,
+    ).not.toHaveBeenCalled();
   });
 });

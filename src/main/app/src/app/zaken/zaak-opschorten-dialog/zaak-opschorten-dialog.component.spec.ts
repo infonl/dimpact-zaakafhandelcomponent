@@ -6,17 +6,17 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
-import { By } from "@angular/platform-browser";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatButtonHarness } from "@angular/material/button/testing";
+import { provideNativeDateAdapter } from "@angular/material/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZacDate } from "../../shared/form/date/date";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog.component";
 
@@ -60,7 +60,12 @@ const setup = (zaak = makeZaak()) => {
     TestBed.createComponent(ZaakOpschortenDialogComponent);
   fixture.detectChanges();
 
-  return { fixture, component: fixture.componentInstance, dialogRefMock, zakenService };
+  return {
+    fixture,
+    component: fixture.componentInstance,
+    dialogRefMock,
+    zakenService,
+  };
 };
 
 describe(ZaakOpschortenDialogComponent.name, () => {
@@ -107,7 +112,10 @@ describe(ZaakOpschortenDialogComponent.name, () => {
 
     expect(zakenService.suspendZaak).toHaveBeenCalledWith(
       "test-uuid",
-      expect.objectContaining({ numberOfDays: 5, reason: "Test reden voor opschorten" }),
+      expect.objectContaining({
+        numberOfDays: 5,
+        reason: "Test reden voor opschorten",
+      }),
     );
   });
 

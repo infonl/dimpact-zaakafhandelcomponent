@@ -12,11 +12,11 @@ import {
 } from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatButtonHarness } from "@angular/material/button/testing";
+import { provideNativeDateAdapter } from "@angular/material/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -45,14 +45,21 @@ describe("ZaakVerlengenDialogComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZaakVerlengenDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        ZaakVerlengenDialogComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
         provideExperimentalZonelessChangeDetection(),
         provideQueryClient(testQueryClient),
-        { provide: MatDialogRef, useValue: { close: jest.fn(), disableClose: false } },
+        {
+          provide: MatDialogRef,
+          useValue: { close: jest.fn(), disableClose: false },
+        },
         {
           provide: MAT_DIALOG_DATA,
           useValue: {

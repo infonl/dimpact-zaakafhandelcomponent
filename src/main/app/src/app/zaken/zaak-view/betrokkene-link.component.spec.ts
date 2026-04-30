@@ -17,8 +17,8 @@ import {
 import { notifyManager } from "@tanstack/query-core";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../../klanten/klanten.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneLinkComponent } from "./betrokkene-link.component";
 
 const makePersoonBetrokkene = (
@@ -86,22 +86,18 @@ describe(BetrokkeneLinkComponent.name, () => {
     }).compileComponents();
 
     klantenService = TestBed.inject(KlantenService);
-    jest
-      .spyOn(klantenService, "readPersoon")
-      .mockReturnValue(
-        queryOptions({
-          queryKey: persoonQueryKey,
-          queryFn: async () => mockPersoon,
-        }) as ReturnType<KlantenService["readPersoon"]>,
-      );
-    jest
-      .spyOn(klantenService, "readBedrijf")
-      .mockReturnValue(
-        queryOptions({
-          queryKey: bedrijfQueryKey,
-          queryFn: async () => mockBedrijf,
-        }) as ReturnType<KlantenService["readBedrijf"]>,
-      );
+    jest.spyOn(klantenService, "readPersoon").mockReturnValue(
+      queryOptions({
+        queryKey: persoonQueryKey,
+        queryFn: async () => mockPersoon,
+      }) as ReturnType<KlantenService["readPersoon"]>,
+    );
+    jest.spyOn(klantenService, "readBedrijf").mockReturnValue(
+      queryOptions({
+        queryKey: bedrijfQueryKey,
+        queryFn: async () => mockBedrijf,
+      }) as ReturnType<KlantenService["readBedrijf"]>,
+    );
   });
 
   afterEach(() => {
@@ -120,7 +116,9 @@ describe(BetrokkeneLinkComponent.name, () => {
 
     it("links persoon anchor to persoon route", async () => {
       testQueryClient.setQueryData(persoonQueryKey, mockPersoon);
-      const { fixture } = setup(makePersoonBetrokkene({ temporaryPersonId: "temp-456" }));
+      const { fixture } = setup(
+        makePersoonBetrokkene({ temporaryPersonId: "temp-456" }),
+      );
       const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
       expect(anchor?.getAttribute("href")).toContain("persoon");
     });
@@ -129,7 +127,9 @@ describe(BetrokkeneLinkComponent.name, () => {
   describe("when betrokkene is RSIN type with kvkNummer", () => {
     it("shows bedrijf link anchor when bedrijf data is available and betrokkene has kvkNummer", async () => {
       testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
-      const { fixture } = setup(makeBedrijfBetrokkene({ kvkNummer: "12345678" }));
+      const { fixture } = setup(
+        makeBedrijfBetrokkene({ kvkNummer: "12345678" }),
+      );
       const loader = TestbedHarnessEnvironment.loader(fixture);
       const buttons = await loader.getAllHarnesses(MatButtonHarness);
       expect(buttons.length).toBeGreaterThanOrEqual(1);
@@ -137,8 +137,12 @@ describe(BetrokkeneLinkComponent.name, () => {
 
     it("shows warning icon instead of link when betrokkene has no kvkNummer", () => {
       testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
-      const { fixture } = setup(makeBedrijfBetrokkene({ kvkNummer: undefined }));
-      const warningIcon = fixture.nativeElement.querySelector("mat-icon[color='warn']");
+      const { fixture } = setup(
+        makeBedrijfBetrokkene({ kvkNummer: undefined }),
+      );
+      const warningIcon = fixture.nativeElement.querySelector(
+        "mat-icon[color='warn']",
+      );
       expect(warningIcon).toBeTruthy();
       const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
       expect(anchor).toBeNull();
@@ -147,7 +151,9 @@ describe(BetrokkeneLinkComponent.name, () => {
 
   describe("when betrokkene is BSN type without temporaryPersonId", () => {
     it("does not show any link anchor when persoon query is disabled", () => {
-      const { fixture } = setup(makePersoonBetrokkene({ temporaryPersonId: undefined }));
+      const { fixture } = setup(
+        makePersoonBetrokkene({ temporaryPersonId: undefined }),
+      );
       const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
       expect(anchor).toBeNull();
     });
