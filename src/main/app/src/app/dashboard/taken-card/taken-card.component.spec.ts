@@ -60,8 +60,6 @@ describe(TakenCardComponent.name, () => {
         provideHttpClient(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        // useValue: real WebsocketService opens a websocket connection in its
-        // constructor; the cards only need addListener as a no-op in tests.
         { provide: WebsocketService, useValue: { addListener: jest.fn() } },
       ],
     }).compileComponents();

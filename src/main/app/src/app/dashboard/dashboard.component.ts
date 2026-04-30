@@ -38,11 +38,11 @@ import { DashboardCardType } from "./model/dashboard-card-type";
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
-  @ViewChildren("cardEl", { read: ElementRef })
-  cardEls!: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren("cardElement", { read: ElementRef })
+  cardElements!: QueryList<ElementRef<HTMLElement>>;
 
   private resizeObserver?: ResizeObserver;
-  private cardElsChangesSub?: Subscription;
+  private cardElementsChangesSub?: Subscription;
   private syncScheduled = false;
   private suppressObserverUntil = 0;
   private pendingSyncTimer?: ReturnType<typeof setTimeout>;
@@ -125,7 +125,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.scheduleRowSync();
     });
     this.observeCards();
-    this.cardElsChangesSub = this.cardEls.changes.subscribe(() =>
+    this.cardElementsChangesSub = this.cardElements.changes.subscribe(() =>
       this.observeCards(),
     );
     window.addEventListener("resize", this.onWindowResize);
@@ -133,7 +133,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
-    this.cardElsChangesSub?.unsubscribe();
+    this.cardElementsChangesSub?.unsubscribe();
     if (this.pendingSyncTimer) clearTimeout(this.pendingSyncTimer);
     window.removeEventListener("resize", this.onWindowResize);
   }
@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private observeCards() {
     if (!this.resizeObserver) return;
     this.resizeObserver.disconnect();
-    this.cardEls.forEach((ref) =>
+    this.cardElements.forEach((ref) =>
       this.resizeObserver!.observe(ref.nativeElement),
     );
     this.scheduleRowSync();
@@ -162,8 +162,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private syncRowHeights() {
-    if (!this.cardEls) return;
-    const els = this.cardEls.toArray().map((r) => r.nativeElement);
+    if (!this.cardElements) return;
+    const els = this.cardElements.toArray().map((r) => r.nativeElement);
     const previousMins = els.map((el) => el.style.minHeight);
 
     // Disable transitions while we briefly reset min-height to read each

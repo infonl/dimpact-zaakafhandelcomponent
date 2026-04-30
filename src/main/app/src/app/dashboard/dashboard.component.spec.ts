@@ -50,8 +50,6 @@ class FakeResizeObserver {
 function makeCardEl(naturalHeight: number): HTMLElement {
   const el = document.createElement("mat-card");
   el.classList.add("dashboard-card");
-  // getBoundingClientRect reflects the larger of natural height and applied
-  // min-height — that's how the real browser would size a flex card.
   el.getBoundingClientRect = jest.fn(() => {
     const minHeightPx = parseFloat(el.style.minHeight) || 0;
     return { height: Math.max(naturalHeight, minHeightPx) } as DOMRect;
@@ -126,10 +124,10 @@ describe("DashboardComponent row-height sync", () => {
       ),
     );
 
-    const cardEls = makeQueryList(flatEls.map((el) => new ElementRef(el)));
-    Object.defineProperty(component, "cardEls", {
+    const cardElements = makeQueryList(flatEls.map((el) => new ElementRef(el)));
+    Object.defineProperty(component, "cardElements", {
       configurable: true,
-      value: cardEls,
+      value: cardElements,
     });
 
     component.ngAfterViewInit();
@@ -161,16 +159,14 @@ describe("DashboardComponent row-height sync", () => {
     const { elsByPosition, flatEls } = setupCards([[200], [500]]);
     expect(elsByPosition[0][0].style.minHeight).toBe("500px");
 
-    // Simulate the tall card being removed: drop its data + element, re-sync.
     component.grid = [component.grid[0], []];
     const reducedQueryList = makeQueryList([new ElementRef(flatEls[0])]);
-    Object.defineProperty(component, "cardEls", {
+    Object.defineProperty(component, "cardElements", {
       configurable: true,
       value: reducedQueryList,
     });
     (component as unknown as { syncRowHeights: () => void }).syncRowHeights();
 
-    // The remaining card should shrink back to its natural height (200).
     expect(elsByPosition[0][0].style.minHeight).toBe("200px");
   });
 
@@ -203,7 +199,6 @@ describe("DashboardComponent row-height sync", () => {
   it("queues a deferred re-sync when a resize fires during the suppression window", () => {
     setupCards([[200], [500]]);
     const observer = FakeResizeObserver.lastInstance!;
-    // Force performance.now() inside the suppression window.
     jest.spyOn(performance, "now").mockReturnValue(0);
     const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout");
     const scheduleSpy = jest.spyOn(
@@ -215,11 +210,9 @@ describe("DashboardComponent row-height sync", () => {
     expect(scheduleSpy).not.toHaveBeenCalled();
     expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
 
-    // A second fire while a timer is already pending should not schedule again.
     observer.fire();
     expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
 
-    // Run the deferred callback — it should call scheduleRowSync.
     const deferred = setTimeoutSpy.mock.calls[0][0] as () => void;
     deferred();
     expect(scheduleSpy).toHaveBeenCalledTimes(1);
@@ -240,7 +233,7 @@ describe("DashboardComponent row-height sync", () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it("re-runs sync when the cardEls QueryList emits changes", () => {
+  it("re-runs sync when the cardElements QueryList emits changes", () => {
     setupCards([[200], [500]]);
 
     const spy = jest.spyOn(
@@ -249,8 +242,8 @@ describe("DashboardComponent row-height sync", () => {
     );
 
     // Simulate Angular emitting a change on the QueryList.
-    const changes = component.cardEls.changes as Subject<unknown>;
-    changes.next(component.cardEls);
+    const changes = component.cardElements.changes as Subject<unknown>;
+    changes.next(component.cardElements);
     expect(spy).toHaveBeenCalled();
   });
 
