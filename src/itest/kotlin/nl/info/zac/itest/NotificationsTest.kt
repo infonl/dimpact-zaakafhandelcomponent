@@ -834,7 +834,7 @@ class NotificationsTest : BehaviorSpec({
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_3_TOELICHTING"
                         zaakProductaanvraag3Uuid = getString("uuid").let(UUID::fromString)
                         getJSONObject("zaakSpecificContactDetails").getString("emailAddress") shouldBe
-                        ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL
+                            ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL
                     }
                 }
             }
@@ -929,7 +929,7 @@ class NotificationsTest : BehaviorSpec({
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
                         getJSONObject("zaakSpecificContactDetails").getString("emailAddress") shouldBe
-                        ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
+                            ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
                     }
                 }
             }
