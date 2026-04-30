@@ -13,6 +13,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.runs
+import io.mockk.unmockkAll
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.spi.CDI
@@ -38,7 +40,6 @@ class WebdavStoreTest : BehaviorSpec({
         enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
         httpSession: HttpSession? = null
     ) {
-        mockkStatic(CDI::class)
         val cdi = mockk<CDI<Any>>()
         every { CDI.current() } returns cdi
         every { cdi.select(WebdavHelper::class.java) } returns mockk<Instance<WebdavHelper>>().also {
@@ -60,6 +61,14 @@ class WebdavStoreTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
+    }
+
+    beforeSpec {
+        mockkStatic(CDI::class)
+    }
+
+    afterSpec {
+        unmockkStatic(CDI::class)
     }
 
     Given("a valid WebDAV token for read operations") {
