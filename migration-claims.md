@@ -154,7 +154,7 @@ Zaken (branch: `temp/standalone-migration-zaken`, in progress):
 ### Batch 13 — claimed
 
 - [x] `zaken/zaak-initiator-toevoegen/zaak-initiator-toevoegen.component.ts`
-- [ ] `zoeken/zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component.ts`
+- [x] `zoeken/zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component.ts`
 - [ ] `zaken/zaakdata/zaakdata.component.ts`
 
 ## Colleague
