@@ -147,19 +147,22 @@ LOAD_TEST_FORM = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_FORM_KEY}.json").read_text
 # Test documents — loaded from documents/ subfolder
 # ---------------------------------------------------------------------------
 
+def _load_doc(filename: str, formaat: str, titel: str) -> dict:
+    data = (_SCRIPT_DIR / "documents" / filename).read_bytes()
+    return {"filename": filename, "formaat": formaat, "titel": titel, "bytes": data, "size": len(data)}
+
+
 LOAD_TEST_DOCUMENTS = [
-    {
-        "path": _SCRIPT_DIR / "documents" / "fakeWordDocument.docx",
-        "filename": "fakeWordDocument.docx",
-        "formaat": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "titel": "load-test-document-docx",
-    },
-    {
-        "path": _SCRIPT_DIR / "documents" / "fäkeTestDocument.pdf",
-        "filename": "fäkeTestDocument.pdf",
-        "formaat": "application/pdf",
-        "titel": "load-test-document-pdf",
-    },
+    _load_doc(
+        "fakeWordDocument.docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "load-test-document-docx",
+    ),
+    _load_doc(
+        "fäkeTestDocument.pdf",
+        "application/pdf",
+        "load-test-document-pdf",
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -807,12 +810,12 @@ def create_zaken(n: int, token_manager: TokenManager, zac_url: str, concurrency:
 def upload_document_to_zaak(zaak_uuid: str, zaaktype_uuid: str, doc: dict, token_manager: TokenManager, zac_url: str) -> dict:
     """Upload a single document to a zaak. Returns result dict with timing info."""
     iot_uuid = BIJLAGE_UUID_BY_ZAAKTYPE.get(zaaktype_uuid, INFORMATIEOBJECTTYPE_BIJLAGE_UUID)
-    file_bytes = doc["path"].read_bytes()
+    file_bytes = doc["bytes"]
     creatiedatum = time.strftime("%Y-%m-%dT%H:%M+01:00")
     fields = [
         ("bestandsnaam", doc["filename"], None, None),
         ("titel", doc["titel"], None, None),
-        ("bestandsomvang", str(len(file_bytes)), None, None),
+        ("bestandsomvang", str(doc["size"]), None, None),
         ("formaat", doc["formaat"], None, None),
         ("informatieobjectTypeUUID", iot_uuid, None, None),
         ("vertrouwelijkheidaanduiding", "OPENBAAR", None, None),
