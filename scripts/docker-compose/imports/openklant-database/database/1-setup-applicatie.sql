@@ -113,7 +113,9 @@ INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, ad
 
 -- add email digital address to betrokkene for a changed preferred email address through Open Formulieren
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(8, '59a48272-5bd2-46cb-a44e-3c58c6737b47', 'email', 'changed-email-addresss@example.com', '', 7, NULL, false, '', NULL);
+    VALUES(8, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
+INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
+    VALUES(9, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.

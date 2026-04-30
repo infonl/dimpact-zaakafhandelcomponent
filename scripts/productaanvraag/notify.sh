@@ -10,13 +10,14 @@ help()
 {
    echo "Notifies ZAC about a product request. Note that the ZAC used endpoint requires API key authentication."
    echo
-   echo "Syntax: $0 [-u|o|k|a|b|h]"
+   echo "Syntax: $0 [-u|o|k|a|b|c|h]"
    echo "options:"
    echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
    echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
    echo "-a     Use alternative object for application-specific email address test."
    echo "-b     Use alternative object for application-specific email address test with betrokkene."
+   echo "-c     Use alternative object for changed email address during application."
    echo "-h     Print this help."
    echo
 }

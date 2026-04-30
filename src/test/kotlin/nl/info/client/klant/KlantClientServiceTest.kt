@@ -447,15 +447,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
-                )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(
-                    createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                    createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                    )
                 )
             )
 
@@ -488,13 +487,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                    )
                 )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
             )
 
             When("productaanvraag-specific contact details are requested") {
@@ -526,13 +526,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                    )
                 )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
             )
 
             When("productaanvraag-specific contact details are requested") {
@@ -565,15 +566,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
-                )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(
-                    createDigitalAddress(address = firstEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                    createDigitalAddress(address = secondEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = firstEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                        createDigitalAddress(address = secondEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                    )
                 )
             )
 
@@ -605,12 +605,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
-                )
-            } returns createPaginatedDigitaalAdresList(emptyList())
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(digitaleAdressen = emptyList())
+            )
 
             When("productaanvraag-specific contact details are requested") {
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
@@ -619,6 +618,60 @@ class KlantClientServiceTest : BehaviorSpec({
                     result?.klantcontactUuid shouldBe klantcontactUuid
                     result?.contactDetails?.emailAddress.shouldBeNull()
                     result?.contactDetails?.telephoneNumber.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that does not exist in klantinteracties") {
+            val kenmerk = "fakeKenmerk"
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } returns null
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that is linked to a partij") {
+            val kenmerk = "fakeKenmerk"
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(uuid = betrokkeneUuid, wasPartij = createPartijForeignKey())
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
                 }
             }
         }
@@ -689,15 +742,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
-                )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(
-                    createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                    createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
+                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                    )
                 )
             )
 
@@ -728,13 +780,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                    )
                 )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL))
             )
 
             When("zaak-specific contact details are requested") {
@@ -764,13 +817,14 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                    )
                 )
-            } returns createPaginatedDigitaalAdresList(
-                listOf(createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER))
             )
 
             When("zaak-specific contact details are requested") {
@@ -799,12 +853,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 )
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
-                klantClient.digitaalAdresList(
-                    page = 1,
-                    pageSize = 100,
-                    verstrektDoorBetrokkeneUuid = betrokkeneUuid.toString()
-                )
-            } returns createPaginatedDigitaalAdresList(emptyList())
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(digitaleAdressen = emptyList())
+            )
 
             When("zaak-specific contact details are requested") {
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
@@ -812,6 +865,60 @@ class KlantClientServiceTest : BehaviorSpec({
                 Then("it should return the contact details with no email and no phone") {
                     result?.emailAddress.shouldBeNull()
                     result?.telephoneNumber.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that does not exist in klantinteracties") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every { klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid) } returns null
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that is linked to a partij") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(uuid = betrokkeneUuid, wasPartij = createPartijForeignKey())
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return null") {
+                    result.shouldBeNull()
                 }
             }
         }

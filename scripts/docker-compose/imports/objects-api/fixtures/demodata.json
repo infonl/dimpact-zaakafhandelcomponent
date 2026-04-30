@@ -1507,12 +1507,7 @@
             "customerProfile": [
               {
                 "type": "email",
-                "address": "changed-email-addresss@example.com",
-                "preferenceUpdate": "isNewPreferred"
-              },
-              {
-                "type": "phoneNumber",
-                "address": "0612345678",
+                "address": "changed-email-address@example.com",
                 "preferenceUpdate": "isNewPreferred"
               }
             ]

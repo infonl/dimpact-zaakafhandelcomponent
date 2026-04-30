@@ -150,16 +150,15 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findDigitalAddressesForBetrokkene(betrokkeneUuid: String) =
-        klantClient.digitaalAdresList(
-            page = 1,
-            pageSize = DEFAULT_PAGE_SIZE,
-            verstrektDoorBetrokkeneUuid = betrokkeneUuid
-        ).getResults()
-
     private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? =
         klantcontact.hadBetrokkenen.firstOrNull()?.let {
-            findDigitalAddressesForBetrokkene(it.uuid.toString()).toContactDetails()
+            klantClient.getBetrokkeneWithDigitaleAdressen(it.uuid)?.let { betrokkene ->
+                if (betrokkene.wasPartij == null) {
+                    betrokkene.expand?.digitaleAdressen?.toContactDetails()
+                } else {
+                    null
+                }
+            }
         }
 
     fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
