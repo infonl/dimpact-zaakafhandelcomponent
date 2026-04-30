@@ -118,7 +118,9 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 emailAddress = null
             )
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
-            every { klantClientService.findDigitalAddressesForNaturalPerson(any()) } returns createDigitalAddresses(email = initiatorEmail)
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(any())
+            } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
             SendConfirmationEmailDelegate().apply {
@@ -144,7 +146,9 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             every { flowableHelper.zgwApiService } returns zgwApiService
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns initiatorRole
-            every { klantClientService.findDigitalAddressesForNaturalPerson(any()) } returns createDigitalAddresses(email = initiatorEmail)
+            every {
+                klantClientService.findDigitalAddressesForNaturalPerson(any())
+            } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
             SendConfirmationEmailDelegate().apply {
@@ -199,7 +203,9 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role with a vestiging") {
+        When(
+            "no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role with a vestiging"
+        ) {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             val initiatorEmail = "initiator@example.com"
@@ -234,7 +240,9 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role without a vestiging") {
+        When(
+            "no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role without a vestiging"
+        ) {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             val initiatorEmail = "initiator@example.com"
@@ -248,7 +256,9 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             every { flowableHelper.zgwApiService } returns zgwApiService
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns nietNatuurlijkPersoonRoleWithoutVestiging
-            every { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) } returns createDigitalAddresses(email = initiatorEmail)
+            every {
+                klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+            } returns createDigitalAddresses(email = initiatorEmail)
             every { mailService.sendMail(capture(capturedMailGegevens), any<Bronnen>()) } returns "mailBody"
 
             SendConfirmationEmailDelegate().apply {
