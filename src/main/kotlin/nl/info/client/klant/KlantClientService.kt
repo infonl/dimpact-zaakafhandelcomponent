@@ -6,6 +6,7 @@ package nl.info.client.klant
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.ws.rs.NotFoundException
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.klanten.model.generated.CodeObjecttypeEnum.NIET_NATUURLIJK_PERSOON
@@ -150,16 +151,17 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? =
-        klantcontact.hadBetrokkenen.firstOrNull()?.let {
-            klantClient.getBetrokkeneWithDigitaleAdressen(it.uuid)?.let { betrokkene ->
-                if (betrokkene.wasPartij == null) {
-                    betrokkene.expand?.digitaleAdressen?.toContactDetails()
-                } else {
-                    null
-                }
-            }
+    private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? {
+        val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
+        return try {
+            klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)
+                ?.takeIf { it.wasPartij == null }
+                ?.expand?.digitaleAdressen?.toContactDetails()
+        } catch (exception: NotFoundException) {
+            LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }
+            null
         }
+    }
 
     fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
