@@ -9,7 +9,6 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
@@ -147,6 +146,11 @@ val TEST_GROUPS_ALL =
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
                     "active": true
+                },
+                {
+                    "id": "${GROUP_INACTIVE_TEST_1.name}",
+                    "naam": "${GROUP_INACTIVE_TEST_1.description}",
+                    "active": false
                 }
             ]
         """
@@ -162,30 +166,15 @@ class IdentityServiceTest : BehaviorSpec({
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
-                    "all available active groups in the Keycloak ZAC realm are returned and the inactive group is absent"
+                    "all groups in the Keycloak ZAC realm are returned including the inactive group with active=false"
                 ) {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
-                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
     }
 
-    Context("Getting all available groups - inactive group filtering") {
-        Given("The ZAC Keycloak realm contains '${GROUP_INACTIVE_TEST_1.name}' with attribute active=false") {
-            When("the 'list groups' endpoint is called") {
-                val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups",
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
-                )
-                Then("the inactive group is absent from the response") {
-                    response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
-                }
-            }
-        }
-    }
 
     Context("Getting authorised behandelaar groups for a zaaktype") {
         Given(

@@ -47,11 +47,13 @@ class IdentityService @Inject constructor(
         .map { it.toUser() }
         .sortedBy { it.getFullName() }
 
-    fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
-        // retrieve groups with 'full representation' or else the group attributes will not be filled
-        .groups("", 0, Integer.MAX_VALUE, false)
-        .map { it.toGroup(zacKeycloakClientId) }
-        .sortedBy { it.description }
+    fun listGroups(): List<Group> {
+        val inactiveGroupNames = listInactiveGroupNames()
+        return keycloakZacRealmResource.groups()
+            .groups("", 0, Integer.MAX_VALUE, false)
+            .map { it.toGroup(zacKeycloakClientId).copy(active = it.name !in inactiveGroupNames) }
+            .sortedBy { it.description }
+    }
 
     /**
      * New IAM (PABC feature flag on): returns the list of groups that are authorised for the application role 'behandelaar' and
@@ -74,10 +76,11 @@ class IdentityService @Inject constructor(
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
             listGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
         } else {
+            val inactiveGroupNames = listInactiveGroupNames()
             // retrieve groups with 'full representation' or else the group attributes will not be filled
             val groups = keycloakZacRealmResource.groups()
                 .groups("", 0, Integer.MAX_VALUE, false)
-                .map { it.toGroup(zacKeycloakClientId) }
+                .map { it.toGroup(zacKeycloakClientId).copy(active = it.name !in inactiveGroupNames) }
             // only filter groups on domain authorisation when PABC integration is disabled
             val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
             groups.filter {
@@ -92,11 +95,13 @@ class IdentityService @Inject constructor(
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      * This function requires that the PABC integration feature flag is enabled.
      */
-    fun listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
-        pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+    fun listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> {
+        val inactiveGroupNames = listInactiveGroupNames()
+        return pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = ZacApplicationRole.BEHANDELAAR.value,
             zaaktypeDescription = zaaktypeDescription
-        ).map { it.toGroup() }
+        ).map { it.toGroup().copy(active = it.name !in inactiveGroupNames) }
+    }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
@@ -141,4 +146,12 @@ class IdentityService @Inject constructor(
             throw UserNotInGroupException()
         }
     }
+
+    // Keycloak's list endpoint does not return group attributes even with briefRepresentation=false.
+    // This helper queries for groups with active=false to correctly identify inactive groups.
+    private fun listInactiveGroupNames(): Set<String> =
+        keycloakZacRealmResource.groups()
+            .query("active:false", false)
+            .map { it.name }
+            .toSet()
 }
