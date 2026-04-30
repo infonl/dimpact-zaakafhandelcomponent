@@ -43,6 +43,10 @@ val GROUP_BEHEERDERS_ELK_DOMEIN = TestGroup(
     name = "beheerders-elk-domein",
     description = "Test group beheerders elk domein - new IAM"
 )
+val GROUP_INACTIVE_TEST_1 = TestGroup(
+    name = "inactive-group-test-1",
+    description = "Test group inactive - new IAM"
+)
 
 // old IAM test groups; will be removed in the future; do not use these to test new IAM functionality
 val OLD_IAM_TEST_GROUP_A = TestGroup(

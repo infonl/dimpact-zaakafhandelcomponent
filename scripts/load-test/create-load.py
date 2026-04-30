@@ -14,11 +14,12 @@
 # Usage:
 #   ./scripts/load-test/create-load.py <zaken_count> [--skip-config]
 #                                       [--concurrency N] [--zac-url URL]
-#                                       [--keycloak-url URL]
+#                                       [--keycloak-url URL] [--add-documents]
 #
 # Examples:
 #   ./scripts/load-test/create-load.py 10
 #   ./scripts/load-test/create-load.py 100 --skip-config --concurrency 4
+#   ./scripts/load-test/create-load.py 50 --add-documents --concurrency 4
 
 import argparse
 import base64
@@ -30,6 +31,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
@@ -62,6 +64,15 @@ CMMN_NIET_ONTVANKELIJK_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
 # Single BPMN process definition uploaded and shared by all 4 BPMN zaaktypes
 LOAD_TEST_PROCESS_KEY = "loadTestProcess"
 LOAD_TEST_FORM_KEY = "loadTestForm"
+
+# Default bijlage informatieobjecttype UUID — shared by all zaaktypes except zaaktype-test-1
+INFORMATIEOBJECTTYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
+
+# Zaaktype-test-1 (8f24ad2f) defines its own separate bijlage IOT UUID in the Open Zaak DB setup
+# (5-setup-zaaktype-test-1.sql). All other zaaktypes reuse the shared UUID from zaaktype-test-3.
+BIJLAGE_UUID_BY_ZAAKTYPE = {
+    "8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a": "4a689f8a-11d3-4ddd-ae26-00fb258305a5",
+}
 
 CMMN_ZAAKTYPES = [
     {
@@ -133,6 +144,28 @@ LOAD_TEST_BPMN = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_PROCESS_KEY}.bpmn").read_t
 LOAD_TEST_FORM = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_FORM_KEY}.json").read_text()
 
 # ---------------------------------------------------------------------------
+# Test documents — loaded from documents/ subfolder
+# ---------------------------------------------------------------------------
+
+def _load_doc(filename: str, formaat: str, titel: str) -> dict:
+    data = (_SCRIPT_DIR / "documents" / filename).read_bytes()
+    return {"filename": filename, "formaat": formaat, "titel": titel, "bytes": data, "size": len(data)}
+
+
+LOAD_TEST_DOCUMENTS = [
+    _load_doc(
+        "fakeWordDocument.docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "load-test-document-docx",
+    ),
+    _load_doc(
+        "fäkeTestDocument.pdf",
+        "application/pdf",
+        "load-test-document-pdf",
+    ),
+]
+
+# ---------------------------------------------------------------------------
 # HTTP helpers
 # ---------------------------------------------------------------------------
 
@@ -143,7 +176,9 @@ def _http(method: str, url: str, body: Any = None, headers: dict | None = None) 
         headers = {}
     data = None
     if body is not None:
-        if isinstance(body, dict) and headers.get("Content-Type") == "application/x-www-form-urlencoded":
+        if isinstance(body, bytes):
+            data = body
+        elif isinstance(body, dict) and headers.get("Content-Type") == "application/x-www-form-urlencoded":
             data = urllib.parse.urlencode(body).encode()
         else:
             data = json.dumps(body).encode()
@@ -249,6 +284,27 @@ class TokenManager:
 
 def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+
+def _build_multipart(fields: list) -> tuple:
+    """Build a multipart/form-data body from a list of (name, value, filename, content_type) tuples.
+    value may be str or bytes. Returns (body_bytes, content_type_header_value).
+    """
+    boundary = uuid.uuid4().hex
+    parts = []
+    for name, value, filename, content_type in fields:
+        disposition = f'form-data; name="{name}"'
+        if filename is not None:
+            disposition += f'; filename="{filename}"'
+        header_lines = f"Content-Disposition: {disposition}\r\n"
+        if content_type is not None:
+            header_lines += f"Content-Type: {content_type}\r\n"
+        part_header = f"--{boundary}\r\n{header_lines}\r\n".encode("utf-8")
+        if isinstance(value, str):
+            value = value.encode("utf-8")
+        parts.append(part_header + value + b"\r\n")
+    body = b"".join(parts) + f"--{boundary}--\r\n".encode("utf-8")
+    return body, f"multipart/form-data; boundary={boundary}"
 
 
 # ---------------------------------------------------------------------------
@@ -747,6 +803,114 @@ def create_zaken(n: int, token_manager: TokenManager, zac_url: str, concurrency:
 
 
 # ---------------------------------------------------------------------------
+# Document upload
+# ---------------------------------------------------------------------------
+
+
+def upload_document_to_zaak(zaak_uuid: str, zaaktype_uuid: str, doc: dict, token_manager: TokenManager, zac_url: str) -> dict:
+    """Upload a single document to a zaak. Returns result dict with timing info."""
+    iot_uuid = BIJLAGE_UUID_BY_ZAAKTYPE.get(zaaktype_uuid, INFORMATIEOBJECTTYPE_BIJLAGE_UUID)
+    file_bytes = doc["bytes"]
+    creatiedatum = time.strftime("%Y-%m-%dT%H:%M+01:00")
+    fields = [
+        ("bestandsnaam", doc["filename"], None, None),
+        ("titel", doc["titel"], None, None),
+        ("bestandsomvang", str(doc["size"]), None, None),
+        ("formaat", doc["formaat"], None, None),
+        ("informatieobjectTypeUUID", iot_uuid, None, None),
+        ("vertrouwelijkheidaanduiding", "OPENBAAR", None, None),
+        ("status", "in_bewerking", None, None),
+        ("creatiedatum", creatiedatum, None, None),
+        ("auteur", "load-test", None, None),
+        ("taal", "dut", None, None),
+        ("file", file_bytes, doc["filename"], doc["formaat"]),
+    ]
+    body, content_type = _build_multipart(fields)
+    t0 = time.monotonic()
+    status, response = _http(
+        "POST",
+        f"{zac_url}/rest/informatieobjecten/informatieobject/{zaak_uuid}/{zaak_uuid}",
+        body=body,
+        headers={"Authorization": f"Bearer {token_manager.get_token()}", "Content-Type": content_type},
+    )
+    elapsed = int((time.monotonic() - t0) * 1000)
+    return {
+        "zaak_uuid": zaak_uuid,
+        "filename": doc["filename"],
+        "success": status == 200,
+        "status_code": status,
+        "elapsed_ms": elapsed,
+        "error": response[:200] if status != 200 else None,
+    }
+
+
+def upload_documents_to_zaken(
+    zaak_results: list[dict], token_manager: TokenManager, zac_url: str, concurrency: int
+) -> list[dict]:
+    """Upload all test documents to every successfully created zaak."""
+    successful = [r for r in zaak_results if r["success"] and r["zaak_uuid"]]
+    tasks = [(r["zaak_uuid"], r["zaaktype_uuid"], doc) for r in successful for doc in LOAD_TEST_DOCUMENTS]
+    total = len(tasks)
+    print(f"\n=== Uploading documents ({len(LOAD_TEST_DOCUMENTS)} per zaak) to {len(successful)} zaken"
+          f" ({total} total, concurrency={concurrency}) ===")
+
+    doc_results: list[dict] = []
+    completed = 0
+
+    def _task(zaak_uuid: str, zaaktype_uuid: str, doc: dict) -> dict:
+        return upload_document_to_zaak(zaak_uuid, zaaktype_uuid, doc, token_manager, zac_url)
+
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        futures = {executor.submit(_task, zaak_uuid, zaaktype_uuid, doc): (zaak_uuid, doc) for zaak_uuid, zaaktype_uuid, doc in tasks}
+        for future in as_completed(futures):
+            result = future.result()
+            doc_results.append(result)
+            completed += 1
+            if completed % 10 == 0 or completed == total:
+                successes = sum(1 for r in doc_results if r["success"])
+                print(f"  Progress: {completed}/{total} (success: {successes})")
+            if not result["success"]:
+                print(
+                    f"  ERROR doc '{result['filename']}' zaak {result['zaak_uuid'][:8]}...: "
+                    f"HTTP {result['status_code']} — {result['error']}"
+                )
+
+    return doc_results
+
+
+def print_document_stats(doc_results: list[dict]) -> None:
+    """Print a summary table of document upload results grouped by filename."""
+    print("\n=== Document upload results ===")
+
+    by_filename: dict[str, list[dict]] = {}
+    for r in doc_results:
+        by_filename.setdefault(r["filename"], []).append(r)
+
+    total_ok = sum(1 for r in doc_results if r["success"])
+    total_fail = len(doc_results) - total_ok
+
+    header = f"{'Document':<55} {'OK':>5} {'FAIL':>5} {'Mean(ms)':>10} {'Min(ms)':>8} {'Max(ms)':>8}"
+    print(header)
+    print("-" * len(header))
+
+    for filename, rows in by_filename.items():
+        ok = sum(1 for r in rows if r["success"])
+        fail = len(rows) - ok
+        times = [r["elapsed_ms"] for r in rows if r["success"]]
+        mean_ms = int(sum(times) / len(times)) if times else 0
+        min_ms = min(times) if times else 0
+        max_ms = max(times) if times else 0
+        print(f"{filename:<55} {ok:>5} {fail:>5} {mean_ms:>10} {min_ms:>8} {max_ms:>8}")
+
+    print("-" * len(header))
+    print(f"{'TOTAL':<55} {total_ok:>5} {total_fail:>5}")
+
+    if total_fail > 0:
+        print(f"WARNING: {total_fail} document upload(s) failed.")
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
 # Stats reporting
 # ---------------------------------------------------------------------------
 
@@ -845,6 +1009,11 @@ def main() -> None:
         metavar="URL",
         help="Keycloak base URL (default: http://localhost:8081)",
     )
+    parser.add_argument(
+        "--add-documents",
+        action="store_true",
+        help="Upload a .docx and a .pdf document to each successfully created zaak",
+    )
     args = parser.parse_args()
 
     if args.zaken_count < 1:
@@ -852,7 +1021,8 @@ def main() -> None:
     if args.concurrency < 1:
         parser.error("--concurrency must be >= 1")
 
-    print(f"ZAC load test — {args.zaken_count} zaken, concurrency={args.concurrency}")
+    print(f"ZAC load test — {args.zaken_count} zaken, concurrency={args.concurrency}"
+          + (" + documents" if args.add_documents else ""))
     print(f"ZAC: {args.zac_url}  Keycloak: {args.keycloak_url}")
 
     wall_start = time.monotonic()
@@ -869,6 +1039,10 @@ def main() -> None:
     zaak_token_manager = TokenManager(ZAAK_USER, ZAAK_PASSWORD, args.keycloak_url)
 
     results = create_zaken(args.zaken_count, zaak_token_manager, args.zac_url, args.concurrency)
+
+    if args.add_documents:
+        doc_results = upload_documents_to_zaken(results, zaak_token_manager, args.zac_url, args.concurrency)
+        print_document_stats(doc_results)
 
     print_stats(results)
 

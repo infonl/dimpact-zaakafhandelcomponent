@@ -9,11 +9,13 @@ fun createGroup(
     id: String = "fakeId",
     name: String = "fakeName",
     email: String = "fake-group@example.com",
+    active: Boolean = true,
     zacClientRoles: List<String> = listOf("fakeDomein")
 ) = Group(
     name = id,
     description = name,
     email = email,
+    active = active,
     zacClientRoles = zacClientRoles
 )
 
