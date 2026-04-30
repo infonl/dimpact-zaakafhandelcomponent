@@ -13,7 +13,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.runs
-import io.mockk.unmockkAll
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
@@ -29,7 +28,6 @@ import java.io.File
 import java.util.UUID
 
 class WebdavStoreTest : BehaviorSpec({
-    mockkStatic(::setLoggedInUser)
     val webdavHelper = mockk<WebdavHelper>()
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
