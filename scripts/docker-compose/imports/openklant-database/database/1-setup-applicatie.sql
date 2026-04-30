@@ -75,7 +75,7 @@ INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, be
 INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
     VALUES(6, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '3e8bc4cc-26a4-4bef-8b85-45f6a94c29a0', 'klant', '', false, 4, NULL, NULL, '', '', '', '', NULL, '', '', '', '');
 
--- add betrokkene to klantcontact to test product request with request specific email address
+-- add betrokkene to klantcontact to test product request with changed preferred email address
 INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
     VALUES(7, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'ef444c74-ebfa-45e2-91a1-8bddbc184815', 'klant', '', false, 5, 4, NULL, '', '', '', '', NULL, '', '', '', '');
 
@@ -87,7 +87,7 @@ INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_o
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
     VALUES(2, 'testKenmerkAlternativeEmailAddress2', '4c63e96a-feb6-4df6-922b-9a8585a9cce7', 4, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
--- add onderwerpobject to klantcontact to test product request with request specific email address
+-- add onderwerpobject to klantcontact to test changed preferred email address
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
     VALUES(3, 'testKenmerkChangedPreferredEmailAddress', '5ad82034-bfac-4c72-9fbb-5cd0fb23adef', 5, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
