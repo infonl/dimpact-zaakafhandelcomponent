@@ -35,19 +35,20 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 
 ## Stage 2 — Backend: Correctly set `active` on list endpoints
 
-> The KC list endpoint does not return group attributes. This stage adds a single extra `query("active:false")` KC call to resolve the correct `active` value on all list endpoints.
+> KC list endpoint with `briefRepresentation=false` returns group attributes — `active` is read directly for Keycloak-direct paths.
+> PABC path is the exception: PABC does not carry KC attributes, so one extra `query("active:false")` call is made.
 > Safe to deploy — no filtering yet, all groups still appear in dropdowns.
 
 ### Checklist
 
-- [x] `IdentityService.kt` — add private `listInactiveGroupNames()` using `keycloakZacRealmResource.groups().query("active:false", false)`
-- [x] `IdentityService.listGroups()` — use `listInactiveGroupNames()` to set `active` correctly
-- [x] `IdentityService.listGroupsForBehandelaarRoleAndZaaktypeUuid()` (old IAM path) — use `listInactiveGroupNames()` to set `active` correctly
-- [x] `IdentityService.listGroupsForBehandelaarRoleAndZaaktype()` (PABC path) — use `listInactiveGroupNames()` to set `active` correctly; PABC does not carry the active attribute
-- [x] Unit tests (`IdentityServiceTest.kt`): mock `query("active:false", false)` in all affected test cases
+- [x] `IdentityService.listGroups()` — `active` read directly from KC attributes via `toGroup()` (no extra call)
+- [x] `IdentityService.listGroupsForBehandelaarRoleAndZaaktypeUuid()` (old IAM path) — same, `active` read directly from KC attributes
+- [x] `IdentityService.listGroupsForBehandelaarRoleAndZaaktype()` (PABC path) — add private `listInactiveGroupNames()` using `query("active:false", false)`; PABC does not carry the active attribute
+- [x] Unit test (`IdentityServiceTest.kt`): `listGroups()` — inactive group has `attributes = mapOf("active" to listOf("false"))`, `active=false` derived directly, no extra KC call
+- [x] Unit test (`IdentityServiceTest.kt`): PABC behandelaar path — `query` mock returns inactive group, asserts `active=false`
 - [x] Integration test (`IdentityRestServiceTest.kt`): `GET /rest/identity/groups` returns `active: false` for a group with Keycloak attribute `active=false`
 - [x] Integration test: `GET /rest/identity/groups` with no `active` attribute set — group is present with `active: true`
-- [ ] Backend unit and integration tests pass (`./gradlew build`)
+- [x] Backend unit and integration tests pass (`./gradlew itest`)
 
 ---
 
