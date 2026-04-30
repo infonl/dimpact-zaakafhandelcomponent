@@ -1,14 +1,14 @@
 /*
- * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.webdav
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -24,20 +24,14 @@ import java.net.URI
 import java.util.UUID
 
 class WebdavHelperTest : BehaviorSpec({
-    isolationMode = IsolationMode.InstancePerTest
-
     val drcClientService = mockk<DrcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val loggedInUser = createLoggedInUser()
 
-    val webdavHelper = WebdavHelper()
-    WebdavHelper::class.java.getDeclaredField("drcClientService").apply {
-        isAccessible = true
-        set(webdavHelper, drcClientService)
-    }
-    WebdavHelper::class.java.getDeclaredField("loggedInUserInstance").apply {
-        isAccessible = true
-        set(webdavHelper, loggedInUserInstance)
+    val webdavHelper = WebdavHelper(drcClientService, loggedInUserInstance)
+
+    beforeEach {
+        checkUnnecessaryStub()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -55,6 +49,8 @@ class WebdavHelperTest : BehaviorSpec({
         return uriInfo to uriBuilder
     }
 
+    // In SingleInstance BehaviorSpec, Given/When bodies run once at collection time.
+    // createRedirectURL is called there; schemeSlot and storedGegevens are captured via closure.
     Given("a Word document (.doc format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
@@ -70,18 +66,19 @@ class WebdavHelperTest : BehaviorSpec({
         every { uriBuilder.scheme(capture(schemeSlot)) } returns uriBuilder
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-word:http://localhost:8080/webdav/folder/token.doc")
 
-        When("createRedirectURL is called") {
-            webdavHelper.createRedirectURL(documentUUID, uriInfo)
+        val tokensBefore = storedTokens().keys.toSet()
+        webdavHelper.createRedirectURL(documentUUID, uriInfo)
+        val newToken = (storedTokens().keys.toSet() - tokensBefore).first()
+        val storedGegevens = webdavHelper.readGegevens(newToken)
 
+        When("createRedirectURL is called") {
             Then("scheme uses ms-word protocol") {
                 schemeSlot.captured shouldStartWith "ms-word:"
             }
 
-            Then("token is stored and retrievable via readGegevens") {
-                val token = storedTokens().keys.first()
-                val gegevens = webdavHelper.readGegevens(token)
-                gegevens.enkelvoudigInformatieibjectUUID shouldBe documentUUID
-                gegevens.loggedInUser shouldBe loggedInUser
+            Then("token is stored with the correct document UUID and logged-in user") {
+                storedGegevens.enkelvoudigInformatieibjectUUID shouldBe documentUUID
+                storedGegevens.loggedInUser shouldBe loggedInUser
             }
         }
     }
@@ -100,10 +97,9 @@ class WebdavHelperTest : BehaviorSpec({
         val schemeSlot = slot<String>()
         every { uriBuilder.scheme(capture(schemeSlot)) } returns uriBuilder
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-word:http://localhost:8080/webdav/folder/token.docx")
+        webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
         When("createRedirectURL is called") {
-            webdavHelper.createRedirectURL(documentUUID, uriInfo)
-
             Then("scheme uses ms-word protocol") {
                 schemeSlot.captured shouldStartWith "ms-word:"
             }
@@ -124,10 +120,9 @@ class WebdavHelperTest : BehaviorSpec({
         val schemeSlot = slot<String>()
         every { uriBuilder.scheme(capture(schemeSlot)) } returns uriBuilder
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-excel:http://localhost:8080/webdav/folder/token.xls")
+        webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
         When("createRedirectURL is called") {
-            webdavHelper.createRedirectURL(documentUUID, uriInfo)
-
             Then("scheme uses ms-excel protocol") {
                 schemeSlot.captured shouldStartWith "ms-excel:"
             }
@@ -148,10 +143,9 @@ class WebdavHelperTest : BehaviorSpec({
         val schemeSlot = slot<String>()
         every { uriBuilder.scheme(capture(schemeSlot)) } returns uriBuilder
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-excel:http://localhost:8080/webdav/folder/token.xlsx")
+        webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
         When("createRedirectURL is called") {
-            webdavHelper.createRedirectURL(documentUUID, uriInfo)
-
             Then("scheme uses ms-excel protocol") {
                 schemeSlot.captured shouldStartWith "ms-excel:"
             }
@@ -171,39 +165,14 @@ class WebdavHelperTest : BehaviorSpec({
         val (uriInfo, uriBuilder) = mockUriInfo()
         val schemeSlot = slot<String>()
         every { uriBuilder.scheme(capture(schemeSlot)) } returns uriBuilder
-        every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-powerpoint:http://localhost:8080/webdav/folder/token.pptx")
-
-        When("createRedirectURL is called") {
-            webdavHelper.createRedirectURL(documentUUID, uriInfo)
-
-            Then("scheme uses ms-powerpoint protocol") {
-                schemeSlot.captured shouldStartWith "ms-powerpoint:"
-            }
-        }
-    }
-
-    Given("a stored WebDAV token") {
-        val documentUUID = UUID.randomUUID()
-        val document = createEnkelvoudigInformatieObject(
-            uuid = documentUUID,
-            formaat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
-        ).apply { bestandsnaam("document.docx") }
-
-        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns document
-        every { loggedInUserInstance.get() } returns loggedInUser
-
-        val (uriInfo, uriBuilder) = mockUriInfo()
-        every { uriBuilder.scheme(any()) } returns uriBuilder
-        every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-word:http://localhost:8080/webdav/folder/token.docx")
+        every {
+            uriBuilder.build(*anyVararg<Any>())
+        } returns URI("ms-powerpoint:http://localhost:8080/webdav/folder/token.pptx")
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
-        When("readGegevens is called with the stored token") {
-            val token = storedTokens().keys.first()
-            val gegevens = webdavHelper.readGegevens(token)
-
-            Then("it returns the correct Gegevens with the document UUID and logged-in user") {
-                gegevens.enkelvoudigInformatieibjectUUID shouldBe documentUUID
-                gegevens.loggedInUser shouldBe loggedInUser
+        When("createRedirectURL is called") {
+            Then("scheme uses ms-powerpoint protocol") {
+                schemeSlot.captured shouldStartWith "ms-powerpoint:"
             }
         }
     }
