@@ -20,8 +20,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_SEND_C
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -46,9 +46,9 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
 
     Given(
         """
-            A productaanvraag object exists in Objecten with type 'bpmn-test-5-productaanvraagtype',
-            a zaaktypeBpmnConfiguration is defined in ZAC for zaaktype 5 with the
-            'automatischeOntvangstBevestiging' BPMN process, and the initiator BSN 999993896
+            A productaanvraag object exists in Objecten with type 'bpmn-test-3-productaanvraagtype',
+            a zaaktypeBpmnConfiguration is defined in ZAC for zaaktype 3 with the
+            'sendConfirmationEmailAndSignDocumentsProcess' BPMN process, and the initiator BSN 999993896
             (Hendrika Janse) has a known email address
         """.trimIndent()
     ) {
@@ -88,8 +88,8 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                     getZaakResponse.code shouldBe HTTP_OK
                     with(JSONObject(responseBody)) {
                         getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION
-                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_5_UUID.toString()
-                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+                        getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_3_UUID.toString()
+                        getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe

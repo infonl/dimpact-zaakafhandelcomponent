@@ -1488,7 +1488,7 @@
           "naam": "open-forms",
           "kenmerk": "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
         },
-        "type": "bpmn-test-5-productaanvraagtype",
+        "type": "bpmn-test-3-productaanvraagtype",
         "aanvraaggegevens": {
           "stap1": {
             "naam": "fakeConfirmationEmailApplicantName",

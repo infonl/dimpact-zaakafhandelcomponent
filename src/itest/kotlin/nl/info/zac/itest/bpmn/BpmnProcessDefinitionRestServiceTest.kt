@@ -34,18 +34,13 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [
                   {
-                    "key": "automatischeOntvangstBevestiging",
-                    "name": "Automatische Ontvangst Bevestiging",
-                    "version": 1
-                  },
-                  {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1
                   },
                   {
-                    "key": "signDocumentsProcess",
-                    "name": "Sign Documents Process",
+                    "key": "sendConfirmationEmailAndSignDocumentsProcess",
+                    "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1
                   },
                   {
@@ -80,16 +75,6 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJsonIgnoringExtraneousFields """
                  [
                   {
-                    "key": "automatischeOntvangstBevestiging",
-                    "name": "Automatische Ontvangst Bevestiging",
-                    "version": 1,
-                    "details": {
-                      "inUse": true,
-                      "forms": [],
-                      "orphanedForms": []
-                    }
-                  },
-                  {
                     "key": "itProcessDefinition",
                     "name": "Integration Tests BPMN Process Definition",
                     "version": 1,
@@ -112,20 +97,20 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     }
                   },
                   {
-                    "key": "signDocumentsProcess",
-                    "name": "Sign Documents Process",
+                    "key": "sendConfirmationEmailAndSignDocumentsProcess",
+                    "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1,
                     "details": {
                       "inUse": true,
                       "forms": [
                         {
-                          "formKey": "signDocumentForm",
-                          "title": "signDocumentForm",
+                          "formKey": "selectDocumentsForm",
+                          "title": "SelectDocumentsForm",
                           "uploaded": true
                         },
                         {
-                          "formKey": "selectDocumentsForm",
-                          "title": "SelectDocumentsForm",
+                          "formKey": "signDocumentForm",
+                          "title": "signDocumentForm",
                           "uploaded": true
                         }
                       ],

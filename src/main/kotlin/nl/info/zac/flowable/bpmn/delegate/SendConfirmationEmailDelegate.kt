@@ -89,7 +89,10 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
             BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
                 val nnpId = initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie
                 if (nnpId.vestigingsNummer?.isNotBlank() == true && nnpId.kvkNummer?.isNotBlank() == true) {
-                    flowableHelper.klantClientService.findDigitalAddressesForVestiging(nnpId.vestigingsNummer, nnpId.kvkNummer)
+                    flowableHelper.klantClientService.findDigitalAddressesForVestiging(
+                        nnpId.vestigingsNummer,
+                        nnpId.kvkNummer
+                    )
                 } else {
                     flowableHelper.klantClientService.findDigitalAddressesForNonNaturalPerson(identificatie)
                 }

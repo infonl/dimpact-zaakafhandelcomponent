@@ -119,7 +119,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 46
+    const val ROLTYPE_COUNT = 44
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -358,14 +358,6 @@ object ItestConfiguration {
         "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     )
 
-    val ZAAKTYPE_BPMN_TEST_5_UUID = UUID.fromString("f8e7d6c5-b4a3-9281-7605-e4f3d2c1b0a9")
-    const val ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE = "bpmn-test-zaaktype-5"
-    const val ZAAKTYPE_BPMN_TEST_5_DESCRIPTION = "BPMN test zaaktype 5"
-    const val ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE = "bpmn-test-5-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
-        "a9b8c7d6-e5f4-3210-9876-543210fedcba"
-    )
-
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
@@ -380,8 +372,8 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
-    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentsProcess"
-    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "sendConfirmationEmailAndSignDocumentsProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/sendConfirmationEmailAndSignDocumentsProcess.bpmn"
     const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
@@ -396,9 +388,6 @@ object ItestConfiguration {
     const val BPMN_SUSPEND_RESUME_RESUME_TASK_NAME = "Resume parameters"
     const val BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME = "Extend parameters"
 
-    const val BPMN_SEND_CONFIRMATION_EMAIL_PROCESS_DEFINITION_KEY = "automatischeOntvangstBevestiging"
-    const val BPMN_SEND_CONFIRMATION_EMAIL_PROCESS_RESOURCE_PATH =
-        "bpmn/send-confirmation-email/automatischeOntvangstBevestiging.bpmn"
     val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
         UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")
     const val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK =
