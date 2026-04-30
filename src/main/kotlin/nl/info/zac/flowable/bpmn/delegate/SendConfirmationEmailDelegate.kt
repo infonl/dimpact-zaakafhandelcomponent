@@ -4,9 +4,13 @@
  */
 package nl.info.zac.flowable.bpmn.delegate
 
+import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.AbstractDelegate
 import net.atos.zac.flowable.delegate.resolveValueAsString
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
+import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -33,10 +37,10 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
 
     companion object {
         private val LOG = Logger.getLogger(SendConfirmationEmailDelegate::class.java.name)
+        val flowableHelper = FlowableHelper.getInstance()
     }
 
     override fun execute(execution: DelegateExecution) {
-        val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
 
         val templateName = template.resolveValueAsString(execution)
@@ -48,7 +52,7 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
             ?.emailAddress
             ?.also { LOG.fine("Zaak ${zaak.identificatie}: using zaak-specific contact details email for confirmation email") }
             ?: flowableHelper.zgwApiService.findInitiatorRoleForZaak(zaak)
-                ?.let { flowableHelper.klantClientService.findEmailForInitiatorRole(it) }
+                ?.let { findEmailForInitiatorRole(it) }
                 ?.also { LOG.fine("Zaak ${zaak.identificatie}: using initiator email for confirmation email") }
 
         if (toAddress == null) {
@@ -74,5 +78,24 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
             ),
             bronnen = zaak.getBronnenFromZaak()
         )
+    }
+
+    private fun findEmailForInitiatorRole(initiatorRole: Rol<*>): String? {
+        val identificatie = initiatorRole.getIdentificatienummer() ?: return null
+        return when (initiatorRole.betrokkeneType) {
+            BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
+                flowableHelper.klantClientService.findDigitalAddressesForNaturalPerson(identificatie)
+
+            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
+                val nnpId = initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie
+                if (nnpId.vestigingsNummer?.isNotBlank() == true && nnpId.kvkNummer?.isNotBlank() == true) {
+                    flowableHelper.klantClientService.findDigitalAddressesForVestiging(nnpId.vestigingsNummer, nnpId.kvkNummer)
+                } else {
+                    flowableHelper.klantClientService.findDigitalAddressesForNonNaturalPerson(identificatie)
+                }
+            }
+
+            else -> emptyList()
+        }.toContactDetails().emailAddress
     }
 }

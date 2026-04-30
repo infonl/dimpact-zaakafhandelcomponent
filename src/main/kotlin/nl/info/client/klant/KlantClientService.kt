@@ -175,25 +175,6 @@ class KlantClientService @Inject constructor(
             }
         }
 
-    fun findEmailForInitiatorRole(initiatorRole: Rol<*>): String? {
-        val identificatie = initiatorRole.getIdentificatienummer() ?: return null
-        return when (initiatorRole.betrokkeneType) {
-            BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                findDigitalAddressesForNaturalPerson(identificatie)
-
-            BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON -> {
-                val nnpId = initiatorRole.betrokkeneIdentificatie as NietNatuurlijkPersoonIdentificatie
-                if (nnpId.vestigingsNummer?.isNotBlank() == true && nnpId.kvkNummer?.isNotBlank() == true) {
-                    findDigitalAddressesForVestiging(nnpId.vestigingsNummer, nnpId.kvkNummer)
-                } else {
-                    findDigitalAddressesForNonNaturalPerson(identificatie)
-                }
-            }
-
-            else -> emptyList()
-        }.toContactDetails().emailAddress
-    }
-
     fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
         findKlantcontactForZaak(zaakUuid)?.let {
             findPreferredContactDetails(it)
