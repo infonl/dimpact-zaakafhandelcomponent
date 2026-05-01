@@ -14,17 +14,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-}
 
-.empty-state {
-  flex: 1 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  table {
+    table-layout: fixed;
+  }
 
-  p {
-    margin: 0;
+  ::ng-deep tr.mat-row td.mat-cell[colspan] {
+    vertical-align: middle;
   }
 }
 

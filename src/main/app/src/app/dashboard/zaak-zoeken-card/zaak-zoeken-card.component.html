@@ -57,14 +57,15 @@
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="5">
+        <p *ngIf="zoekQuery.isLoading()">{{ "msg.loading" | translate }}</p>
+        <p *ngIf="!zoekQuery.isLoading()">
+          {{ "msg.geen.gegevens.gevonden" | translate }}
+        </p>
+      </td>
+    </tr>
   </table>
-
-  <div class="empty-state" *ngIf="!dataSource.data.length">
-    <p *ngIf="zoekQuery.isLoading()">{{ "msg.loading" | translate }}</p>
-    <p *ngIf="!zoekQuery.isLoading()">
-      {{ "msg.geen.gegevens.gevonden" | translate }}
-    </p>
-  </div>
 
   <mat-paginator
     [pageSize]="pageSize"

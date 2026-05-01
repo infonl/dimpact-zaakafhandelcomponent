@@ -163,47 +163,54 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private syncRowHeights() {
     if (!this.cardElements) return;
-    const els = this.cardElements.toArray().map((r) => r.nativeElement);
-    const previousMins = els.map((el) => el.style.minHeight);
+    const elements = this.cardElements.toArray().map((r) => r.nativeElement);
+
+    if (this.isStackedLayout()) {
+      elements.forEach((element) => (element.style.minHeight = ""));
+      return;
+    }
+
+    const previousMins = elements.map((element) => element.style.minHeight);
 
     // Disable transitions while we briefly reset min-height to read each
     // card's natural content height.
-    els.forEach((el) => el.classList.add("dashboard-card--measuring"));
-    els.forEach((el) => (el.style.minHeight = "0px"));
+    elements.forEach((element) =>
+      element.classList.add("dashboard-card--measuring"),
+    );
+    elements.forEach((element) => (element.style.minHeight = "0px"));
 
     this.suppressObserverUntil =
       performance.now() + DashboardComponent.TRANSITION_DURATION_MS;
 
-    if (this.isStackedLayout()) {
-      els.forEach((el) => el.classList.remove("dashboard-card--measuring"));
-      return;
-    }
-
-    const rendered: { row: number; el: HTMLElement }[] = [];
+    const rendered: { row: number; element: HTMLElement }[] = [];
     let idx = 0;
     for (const column of this.grid) {
       if (!this.editMode.value && column.length === 0) continue;
-      for (let r = 0; r < column.length && idx < els.length; r++) {
-        rendered.push({ row: r, el: els[idx++] });
+      for (let r = 0; r < column.length && idx < elements.length; r++) {
+        rendered.push({ row: r, element: elements[idx++] });
       }
     }
 
     const rowMax = new Map<number, number>();
-    rendered.forEach(({ row, el }) => {
-      const h = el.getBoundingClientRect().height;
+    rendered.forEach(({ row, element }) => {
+      const h = element.getBoundingClientRect().height;
       rowMax.set(row, Math.max(rowMax.get(row) ?? 0, h));
     });
 
     // Restore previous min-heights before re-enabling transitions and committing
     // them via a forced layout, so the browser's transition starting point is
     // the actual previous value.
-    els.forEach((el, i) => (el.style.minHeight = previousMins[i]));
-    void els[0]?.offsetHeight;
-    els.forEach((el) => el.classList.remove("dashboard-card--measuring"));
+    elements.forEach(
+      (element, i) => (element.style.minHeight = previousMins[i]),
+    );
+    void elements[0]?.offsetHeight;
+    elements.forEach((element) =>
+      element.classList.remove("dashboard-card--measuring"),
+    );
 
-    rendered.forEach(({ row, el }) => {
+    rendered.forEach(({ row, element }) => {
       const h = rowMax.get(row);
-      if (h != null) el.style.minHeight = `${h}px`;
+      if (h != null) element.style.minHeight = `${h}px`;
     });
   }
 
@@ -324,13 +331,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   delete(card: DashboardCard) {
-    const colIdx = this.grid.findIndex((column) =>
+    const columnIndex = this.grid.findIndex((column) =>
       column.some((c) => c.id === card.id),
     );
-    if (colIdx === -1) return;
-    const rowIdx = this.grid[colIdx].findIndex((c) => c.id === card.id);
-    if (rowIdx === -1) return;
-    this.grid[colIdx].splice(rowIdx, 1);
+    if (columnIndex === -1) return;
+    const rowIndex = this.grid[columnIndex].findIndex((c) => c.id === card.id);
+    if (rowIndex === -1) return;
+    this.grid[columnIndex].splice(rowIndex, 1);
     this.deleteCard(card);
     this.updateWidth();
     this.updateAvailable();

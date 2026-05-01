@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
@@ -17,6 +16,7 @@ import {
   MatHeaderCellDef,
   MatHeaderRow,
   MatHeaderRowDef,
+  MatNoDataRow,
   MatRow,
   MatRowDef,
   MatTable,
@@ -40,7 +40,6 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
   ],
   standalone: true,
   imports: [
-    NgIf,
     MatTable,
     MatSort,
     MatColumnDef,
@@ -53,6 +52,7 @@ import { DashboardCardComponent } from "../dashboard-card/dashboard-card.compone
     MatHeaderRow,
     MatRowDef,
     MatRow,
+    MatNoDataRow,
     MatPaginator,
     MatIconAnchor,
     MatIcon,

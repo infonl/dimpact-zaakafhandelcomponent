@@ -10,15 +10,15 @@ import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardType } from "./model/dashboard-card-type";
 
-type RAFCallback = (time: number) => void;
+type RequestAnimationFrameCallback = (time: number) => void;
 
 class FakeResizeObserver {
   static lastInstance: FakeResizeObserver | null = null;
   callback: ResizeObserverCallback;
   observed = new Set<Element>();
 
-  constructor(cb: ResizeObserverCallback) {
-    this.callback = cb;
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
     FakeResizeObserver.lastInstance = this;
   }
 
@@ -47,14 +47,14 @@ class FakeResizeObserver {
   }
 }
 
-function makeCardEl(naturalHeight: number): HTMLElement {
-  const el = document.createElement("mat-card");
-  el.classList.add("dashboard-card");
-  el.getBoundingClientRect = jest.fn(() => {
-    const minHeightPx = parseFloat(el.style.minHeight) || 0;
+function makeCardElement(naturalHeight: number): HTMLElement {
+  const element = document.createElement("mat-card");
+  element.classList.add("dashboard-card");
+  element.getBoundingClientRect = jest.fn(() => {
+    const minHeightPx = parseFloat(element.style.minHeight) || 0;
     return { height: Math.max(naturalHeight, minHeightPx) } as DOMRect;
   });
-  return el;
+  return element;
 }
 
 function makeQueryList<T>(items: T[]): QueryList<T> {
@@ -65,21 +65,23 @@ function makeQueryList<T>(items: T[]): QueryList<T> {
 
 describe("DashboardComponent row-height sync", () => {
   let component: DashboardComponent;
-  let originalRO: typeof ResizeObserver;
-  let originalRAF: typeof requestAnimationFrame;
-  let pendingRAFs: RAFCallback[];
+  let originalResizeObserver: typeof ResizeObserver;
+  let originalRequestAnimationFrame: typeof requestAnimationFrame;
+  let pendingRequestAnimationFrames: RequestAnimationFrameCallback[];
   let stacked: boolean;
 
   beforeEach(() => {
-    originalRO = globalThis.ResizeObserver;
+    originalResizeObserver = globalThis.ResizeObserver;
     (globalThis as { ResizeObserver: unknown }).ResizeObserver =
       FakeResizeObserver;
 
-    originalRAF = globalThis.requestAnimationFrame;
-    pendingRAFs = [];
-    globalThis.requestAnimationFrame = ((cb: RAFCallback) => {
-      pendingRAFs.push(cb);
-      return pendingRAFs.length;
+    originalRequestAnimationFrame = globalThis.requestAnimationFrame;
+    pendingRequestAnimationFrames = [];
+    globalThis.requestAnimationFrame = ((
+      callback: RequestAnimationFrameCallback,
+    ) => {
+      pendingRequestAnimationFrames.push(callback);
+      return pendingRequestAnimationFrames.length;
     }) as typeof requestAnimationFrame;
 
     stacked = false;
@@ -102,84 +104,103 @@ describe("DashboardComponent row-height sync", () => {
 
   afterEach(() => {
     component.ngOnDestroy();
-    globalThis.ResizeObserver = originalRO;
-    globalThis.requestAnimationFrame = originalRAF;
+    globalThis.ResizeObserver = originalResizeObserver;
+    globalThis.requestAnimationFrame = originalRequestAnimationFrame;
     jest.restoreAllMocks();
   });
 
-  function setupCards(grid: number[][], runRAFs = true) {
+  function setupCards(grid: number[][], runRequestAnimationFrames = true) {
     // grid[col][row] = natural height of that card in px
-    const elsByPosition = grid.map((column) =>
-      column.map((h) => makeCardEl(h)),
+    const elementsByPosition = grid.map((column) =>
+      column.map((h) => makeCardElement(h)),
     );
-    const flatEls = elsByPosition.flat();
+    const flatElements = elementsByPosition.flat();
 
-    component.grid = grid.map((column, colIdx) =>
+    component.grid = grid.map((column, columnIndex) =>
       column.map(
-        (_, rowIdx) =>
+        (_, rowIndex) =>
           new DashboardCard(
-            `card-${colIdx}-${rowIdx}` as unknown as DashboardCardId,
+            `card-${columnIndex}-${rowIndex}` as unknown as DashboardCardId,
             DashboardCardType.TAKEN,
           ),
       ),
     );
 
-    const cardElements = makeQueryList(flatEls.map((el) => new ElementRef(el)));
+    const cardElements = makeQueryList(
+      flatElements.map((element) => new ElementRef(element)),
+    );
     Object.defineProperty(component, "cardElements", {
       configurable: true,
       value: cardElements,
     });
 
     component.ngAfterViewInit();
-    if (runRAFs) flushRAFs();
-    return { elsByPosition, flatEls };
+    if (runRequestAnimationFrames) flushRequestAnimationFrames();
+    return { elementsByPosition, flatElements };
   }
 
-  function flushRAFs() {
-    while (pendingRAFs.length > 0) {
-      const cb = pendingRAFs.shift()!;
-      cb(performance.now());
+  function flushRequestAnimationFrames() {
+    while (pendingRequestAnimationFrames.length > 0) {
+      const callback = pendingRequestAnimationFrames.shift()!;
+      callback(performance.now());
     }
   }
 
   it("sets each card's min-height to the tallest card's natural height in its row", () => {
     // 2 columns, 2 rows — row 0 has heights [200, 350], row 1 has [400, 250]
-    const { elsByPosition } = setupCards([
+    const { elementsByPosition } = setupCards([
       [200, 400],
       [350, 250],
     ]);
 
-    expect(elsByPosition[0][0].style.minHeight).toBe("350px");
-    expect(elsByPosition[1][0].style.minHeight).toBe("350px");
-    expect(elsByPosition[0][1].style.minHeight).toBe("400px");
-    expect(elsByPosition[1][1].style.minHeight).toBe("400px");
+    expect(elementsByPosition[0][0].style.minHeight).toBe("350px");
+    expect(elementsByPosition[1][0].style.minHeight).toBe("350px");
+    expect(elementsByPosition[0][1].style.minHeight).toBe("400px");
+    expect(elementsByPosition[1][1].style.minHeight).toBe("400px");
   });
 
   it("recomputes natural heights when a previously-applied min-height is no longer valid", () => {
-    const { elsByPosition, flatEls } = setupCards([[200], [500]]);
-    expect(elsByPosition[0][0].style.minHeight).toBe("500px");
+    const { elementsByPosition, flatElements } = setupCards([[200], [500]]);
+    expect(elementsByPosition[0][0].style.minHeight).toBe("500px");
 
     component.grid = [component.grid[0], []];
-    const reducedQueryList = makeQueryList([new ElementRef(flatEls[0])]);
+    const reducedQueryList = makeQueryList([new ElementRef(flatElements[0])]);
     Object.defineProperty(component, "cardElements", {
       configurable: true,
       value: reducedQueryList,
     });
     (component as unknown as { syncRowHeights: () => void }).syncRowHeights();
 
-    expect(elsByPosition[0][0].style.minHeight).toBe("200px");
+    expect(elementsByPosition[0][0].style.minHeight).toBe("200px");
   });
 
-  it("resets min-heights to 0px and skips equalization when stacked", () => {
+  it("clears inline min-heights and skips equalization when stacked", () => {
     stacked = true;
 
-    const { elsByPosition } = setupCards([
+    const { elementsByPosition } = setupCards([
       [200, 400],
       [350, 250],
     ]);
 
-    elsByPosition.flat().forEach((el) => {
-      expect(el.style.minHeight).toBe("0px");
+    elementsByPosition.flat().forEach((element) => {
+      expect(element.style.minHeight).toBe("");
+    });
+  });
+
+  it("clears previously equalized heights when transitioning to stacked layout", () => {
+    // Start in desktop layout — heights get equalized.
+    const { elementsByPosition } = setupCards([
+      [200, 400],
+      [350, 250],
+    ]);
+    expect(elementsByPosition[0][0].style.minHeight).not.toBe("");
+
+    // Switch to stacked layout and re-sync; inline min-heights should clear.
+    stacked = true;
+    (component as unknown as { syncRowHeights: () => void }).syncRowHeights();
+
+    elementsByPosition.flat().forEach((element) => {
+      expect(element.style.minHeight).toBe("");
     });
   });
 
