@@ -13,6 +13,7 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.klant.exception.KlantRuntimeResponseExceptionMapper
 import nl.info.client.klant.util.KlantClientHeadersFactory
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.PaginatedDigitaalAdresList
 import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
@@ -32,6 +33,14 @@ import java.util.UUID
 @Path("/klantinteracties/api/v1")
 @Suppress("LongParameterList")
 interface KlantClient {
+
+    @GET
+    @Path("/betrokkenen/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getBetrokkeneWithDigitaleAdressen(
+        @PathParam("uuid") uuid: UUID,
+        @QueryParam("expand") expand: String = "digitaleAdressen",
+    ): ExpandBetrokkene
 
     @GET
     @Path("/digitaleadressen")
