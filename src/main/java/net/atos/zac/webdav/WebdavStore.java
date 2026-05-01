@@ -34,9 +34,7 @@ import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateServi
 
 
 public class WebdavStore implements IWebdavStore {
-
     private static final StoredObject folderStoredObject;
-
     private static final String UPDATE_INHOUD_TOELICHTING = "Document bewerkt";
 
     static {
