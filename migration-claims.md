@@ -116,6 +116,15 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
 - [x] `zaken/zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component.ts`
 
+### Batch 14 — claimed (branch: `temp/standalone-migration`)
+
+- [ ] `zaken/zaak-initiator-toevoegen/zaak-initiator-toevoegen.component.ts`
+- [ ] `zoeken/zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component.ts`
+- [ ] `zaken/zaakdata/zaakdata.component.ts`
+- [ ] `zaken/zaken-afgehandeld/zaken-afgehandeld.component.ts`
+- [ ] `zaken/zaken-mijn/zaken-mijn.component.ts`
+- [ ] `taken/taken-mijn/taken-mijn.component.ts`
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
