@@ -10,6 +10,9 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.extensions.Extension
+import io.kotest.core.listeners.BeforeSpecListener
+import io.kotest.core.spec.Spec
 import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -40,6 +43,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
+import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OFFICE_CONVERTER_BASE_URI
@@ -163,6 +167,19 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * and do not depend on each other's side effects.
      */
     override val specExecutionOrder = SpecExecutionOrder.Random
+
+    /**
+     * Purge GreenMail's email store before each spec to prevent emails sent by one spec
+     * from leaking into another spec's assertions.
+     */
+    override val extensions: List<Extension> = listOf(
+        object : BeforeSpecListener {
+            override suspend fun beforeSpec(spec: Spec) {
+                logger.info { "Purging GreenMail email store before spec '${spec::class.simpleName}'" }
+                itestHttpClient.performDeleteRequest(url = "$GREENMAIL_API_URI/service")
+            }
+        }
+    )
 
     override suspend fun beforeProject() {
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
