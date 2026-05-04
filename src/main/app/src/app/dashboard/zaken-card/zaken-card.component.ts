@@ -47,7 +47,6 @@ export class ZakenCardComponent
     queryFn: () =>
       firstValueFrom(
         this.signaleringenService.listZakenSignalering(
-          // Safe: `enabled` above prevents this from running without a type.
           this.parameters().signaleringType!,
           {
             page: this.parameters().page,
