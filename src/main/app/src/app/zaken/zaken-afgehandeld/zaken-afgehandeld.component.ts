@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import {
   AfterViewInit,
   Component,
@@ -10,21 +11,39 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, SlicePipe } from "@angular/common";
 
 import { detailExpand } from "../../shared/animations/animations";
 
+import { MatIconButton } from "@angular/material/button";
+import { MatIconAnchor } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTable } from "@angular/material/table";
+import { MatSort, MatSortHeader } from "@angular/material/sort";
+import { MatTable, MatTableModule } from "@angular/material/table";
+import { RouterLink } from "@angular/router";
 import { ActivatedRoute } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { DagenPipe } from "../../shared/pipes/dagen.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -34,28 +53,59 @@ import { ZakenAfgehandeldDatasource } from "./zaken-afgehandeld-datasource";
   templateUrl: "./zaken-afgehandeld.component.html",
   styleUrls: ["./zaken-afgehandeld.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CdkDrag,
+    CdkDropList,
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    SlicePipe,
+    MatIconButton,
+    MatIconAnchor,
+    MatIcon,
+    MatPaginator,
+    MatSort,
+    MatSortHeader,
+    MatTableModule,
+    RouterLink,
+    TranslateModule,
+    ZoekopdrachtComponent,
+    ColumnPickerComponent,
+    ExportButtonComponent,
+    ZaakIndicatiesComponent,
+    DagenPipe,
+    DatumPipe,
+    EmptyPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+    StaticTextComponent,
+    DateRangeFilterComponent,
+    FacetFilterComponent,
+    TekstFilterComponent,
+  ],
 })
 export class ZakenAfgehandeldComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  dataSource: ZakenAfgehandeldDatasource;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<ZaakZoekObject>;
-  expandedRow: ZaakZoekObject | null = null;
-  readonly zoekenColumn = ZoekenColumn;
-  readonly indicatiesLayout = IndicatiesLayout;
+  protected dataSource: ZakenAfgehandeldDatasource;
+  @ViewChild(MatPaginator) private paginator!: MatPaginator;
+  @ViewChild(MatSort) private sort!: MatSort;
+  @ViewChild(MatTable) private table!: MatTable<ZaakZoekObject>;
+  protected expandedRow: ZaakZoekObject | null = null;
+  protected readonly zoekenColumn = ZoekenColumn;
+  protected readonly indicatiesLayout = IndicatiesLayout;
 
-  einddatumGeplandIcon: TextIcon = new TextIcon(
+  protected einddatumGeplandIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
     "msg.datum.overschreden",
     "warning",
   );
-  uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
+  protected uiterlijkeEinddatumAfdoeningIcon: TextIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "errorVerlopen_icon",
@@ -67,7 +117,7 @@ export class ZakenAfgehandeldComponent
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private zoekenService: ZoekenService,
-    public utilService: UtilService,
+    protected utilService: UtilService,
   ) {
     super();
     this.dataSource = new ZakenAfgehandeldDatasource(
@@ -79,10 +129,10 @@ export class ZakenAfgehandeldComponent
   ngOnInit(): void {
     super.ngOnInit();
     this.utilService.setTitle("title.zaken.afgehandeld");
-    this.dataSource.initColumns(this.defaultColumns());
+    this.dataSource.initColumns(this["defaultColumns"]());
   }
 
-  defaultColumns(): Map<ZoekenColumn, ColumnPickerValue> {
+  protected defaultColumns(): Map<ZoekenColumn, ColumnPickerValue> {
     return new Map([
       [ZoekenColumn.ZAAK_DOT_IDENTIFICATIE, ColumnPickerValue.VISIBLE],
       [ZoekenColumn.STATUS, ColumnPickerValue.HIDDEN],
@@ -115,18 +165,18 @@ export class ZakenAfgehandeldComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDateLimit(
+  protected isAfterDateLimit(
     date: Date | moment.Moment | string,
     dateLimit: Date | moment.Moment | string,
   ): boolean {
     return DateConditionals.isExceeded(date, dateLimit);
   }
 
-  resetColumns(): void {
+  protected resetColumns(): void {
     this.dataSource.resetColumns();
   }
 
-  filtersChange(): void {
+  protected filtersChange(): void {
     this.dataSource.filtersChanged();
   }
 

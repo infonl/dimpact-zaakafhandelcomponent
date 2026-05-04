@@ -24,7 +24,6 @@ import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
-import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
@@ -46,8 +45,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
     ZakenMijnComponent,
-    ZakenAfgehandeldComponent,
-    ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
     ZaakDocumentenComponent,
@@ -56,6 +53,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
   imports: [
     NotitiesComponent,
     SharedModule,
+    ZakenAfgehandeldComponent,
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
