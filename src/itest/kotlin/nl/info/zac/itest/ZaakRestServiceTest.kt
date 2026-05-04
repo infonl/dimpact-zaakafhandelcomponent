@@ -438,6 +438,17 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Context("Updating zaken and adding betrokkenen") {
         Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+            zaak2UUID = zacClient.createZaak(
+                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+                groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                startDate = DATE_TIME_2020_01_01,
+                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                description = ZAAK_DESCRIPTION_2,
+                toelichting = ZAAK_EXPLANATION_1,
+                testUser = BEHANDELAAR_DOMAIN_TEST_1
+            ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
             When(
                 "the add betrokkene to zaak endpoint is called with a natuurlijk persoon without a 'rol toelichting'"
             ) {

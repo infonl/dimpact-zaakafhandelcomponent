@@ -8,11 +8,11 @@ services:
     platform: linux/arm64
 
   openzaak.local:
-    image: ghcr.io/infonl/open-zaak:1.26.0@sha256:2ea59a8213d7b4fb02dd1a348c143b443cbb6cfce993f2fec28ca07dd8e4066b
+    image: ghcr.io/infonl/open-zaak:1.27.1@sha256:e1883476897ea0141c3d127251b96e0c2bcaf62a0f4a34e0255c689ac38b6ed5
     platform: linux/arm64
 
   openzaak-celery:
-    image: ghcr.io/infonl/open-zaak:1.26.0@sha256:2ea59a8213d7b4fb02dd1a348c143b443cbb6cfce993f2fec28ca07dd8e4066b
+    image: ghcr.io/infonl/open-zaak:1.27.1@sha256:e1883476897ea0141c3d127251b96e0c2bcaf62a0f4a34e0255c689ac38b6ed5
     platform: linux/arm64
 
   objecten-api.local:

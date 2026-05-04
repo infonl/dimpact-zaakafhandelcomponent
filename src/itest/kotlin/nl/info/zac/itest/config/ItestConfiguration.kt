@@ -376,8 +376,8 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
-    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentsProcess"
-    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "sendConfirmationEmailAndSignDocumentsProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/sendConfirmationEmailAndSignDocumentsProcess.bpmn"
     const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
@@ -391,6 +391,13 @@ object ItestConfiguration {
     const val BPMN_SUSPEND_RESUME_SUSPEND_TASK_NAME = "Suspend parameters"
     const val BPMN_SUSPEND_RESUME_RESUME_TASK_NAME = "Resume parameters"
     const val BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME = "Extend parameters"
+
+    val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
+        UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")
+    const val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK =
+        "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION = "ZAAK-2001-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-31"
 
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
