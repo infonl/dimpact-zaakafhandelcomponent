@@ -47,6 +47,7 @@ class IdentityService @Inject constructor(
         .sortedBy { it.getFullName() }
 
     fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
+        // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
         .map { it.toGroup(zacKeycloakClientId) }
         .sortedBy { it.description }
