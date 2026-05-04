@@ -23,7 +23,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZonedDateTime
-import java.util.TimeZone
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -106,7 +105,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             }
 
             When("the resume form is submitted with a resume date set to now") {
-                val resumeDate = ZonedDateTime.now(TimeZone.getDefault().toZoneId())
+                val resumeDate = ZonedDateTime.now()
                 val resumeTaskPatchResponse = zacClient.submitFormData(
                     bpmnZaakUuid = zaakUuid,
                     taakData = """{ "resumeDate": "$resumeDate" }""",
