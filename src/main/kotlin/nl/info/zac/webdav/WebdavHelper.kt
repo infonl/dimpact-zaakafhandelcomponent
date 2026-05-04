@@ -10,6 +10,7 @@ import jakarta.inject.Singleton
 import jakarta.ws.rs.core.UriInfo
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.webdav.exceptions.WebdavException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.collections4.map.LRUMap
@@ -26,6 +27,7 @@ class WebdavHelper @Inject constructor(
 ) {
     companion object {
         const val FOLDER = "folder"
+        const val TOKEN_MAP_MAX_SIZE = 1000
         private val WEBDAV_WORD = setOf(
             MediaTypes.Application.MS_WORD.mediaType,
             MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
@@ -40,37 +42,37 @@ class WebdavHelper @Inject constructor(
         )
     }
 
-    private val tokenMap: MutableMap<String, Gegevens> = Collections.synchronizedMap(LRUMap(1000))
+    private val tokenMap: MutableMap<String, WebdavTokenData> = Collections.synchronizedMap(LRUMap(TOKEN_MAP_MAX_SIZE))
 
     fun createRedirectURL(enkelvoudigInformatieobjectUUID: UUID, uriInfo: UriInfo): URI {
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         )
-        val scheme = "${getWebDAVApp(enkelvoudigInformatieobject.formaat)}:${uriInfo.baseUri.scheme}"
+        val scheme = "${getWebdavApp(enkelvoudigInformatieobject.formaat)}:${uriInfo.baseUri.scheme}"
         val token = "${createToken(
             enkelvoudigInformatieobjectUUID
         )}.${getExtension(enkelvoudigInformatieobject.bestandsnaam)}"
         return uriInfo.baseUriBuilder.scheme(scheme).replacePath("webdav/folder/{token}").build(token)
     }
 
-    fun readGegevens(token: String): Gegevens =
-        tokenMap[token] ?: throw RuntimeException("WebDAV token does not exist (anymore).")
+    fun readWebdavTokenData(token: String): WebdavTokenData =
+        tokenMap[token] ?: throw WebdavException("WebDAV token does not exist (anymore).")
 
     private fun createToken(enkelvoudigInformatieobjectUUID: UUID): String {
         val token = UUID.randomUUID().toString()
-        tokenMap[token] = Gegevens(
-            enkelvoudigInformatieibjectUUID = enkelvoudigInformatieobjectUUID,
+        tokenMap[token] = WebdavTokenData(
+            enkelvoudigInformatieobjectUUID = enkelvoudigInformatieobjectUUID,
             loggedInUser = loggedInUserInstance.get()
         )
         return token
     }
 
-    private fun getWebDAVApp(formaat: String): String? = when {
+    private fun getWebdavApp(formaat: String): String? = when {
         WEBDAV_WORD.contains(formaat) -> "ms-word"
         WEBDAV_EXCEL.contains(formaat) -> "ms-excel"
         WEBDAV_POWERPOINT.contains(formaat) -> "ms-powerpoint"
         else -> null
     }
 
-    data class Gegevens(val enkelvoudigInformatieibjectUUID: UUID, val loggedInUser: LoggedInUser)
+    data class WebdavTokenData(val enkelvoudigInformatieobjectUUID: UUID, val loggedInUser: LoggedInUser)
 }

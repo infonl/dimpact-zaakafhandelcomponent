@@ -66,7 +66,7 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     override fun getResourceContent(transaction: ITransaction, resourceUri: String): InputStream? {
         val token = extraheerToken(resourceUri).takeIf { it.isNotEmpty() } ?: return null
         return drcClientService.downloadEnkelvoudigInformatieobject(
-            webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID
+            webdavHelper.readWebdavTokenData(token).enkelvoudigInformatieobjectUUID
         )
     }
 
@@ -78,7 +78,7 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
         characterEncoding: String?
     ): Long {
         val token = extraheerToken(resourceUri).takeIf { it.isNotEmpty() } ?: return 0L
-        val webdavGegevens = webdavHelper.readGegevens(token)
+        val webdavGegevens = webdavHelper.readWebdavTokenData(token)
         try {
             setLoggedInUser(
                 CDI.current().select(HttpSession::class.java).get(),
@@ -90,7 +90,7 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
                 bestandsomvang = inhoud.size
             }
             return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                enkelvoudigInformatieObjectUUID = webdavGegevens.enkelvoudigInformatieibjectUUID,
+                enkelvoudigInformatieObjectUUID = webdavGegevens.enkelvoudigInformatieobjectUUID,
                 enkelvoudigInformatieObjectWithLockRequest = update,
                 toelichting = UPDATE_INHOUD_TOELICHTING
             ).bestandsomvang?.toLong() ?: 0L
@@ -124,15 +124,15 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
 
     private fun getFileStoredObject(token: String): StoredObject =
         fileStoredObjectMap.getOrPut(token) {
-            val enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID
+            val enkelvoudigInformatieobjectUUID = webdavHelper.readWebdavTokenData(token).enkelvoudigInformatieobjectUUID
             val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID
             )
             StoredObject().apply {
-                setFolder(false)
-                setCreationDate(convertToDate(enkelvoudigInformatieobject.creatiedatum))
-                setLastModified(convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime()))
-                setResourceLength(enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L)
+                isFolder = false
+                creationDate = convertToDate(enkelvoudigInformatieobject.creatiedatum)
+                lastModified = convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime())
+                resourceLength = enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L
             }
         }
 }

@@ -76,9 +76,9 @@ class WebdavStoreTest : BehaviorSpec({
         val webdavStore = WebdavStore(File("/fake"))
         val documentUUID = UUID.randomUUID()
         val token = UUID.randomUUID().toString()
-        val gegevens = WebdavHelper.Gegevens(documentUUID, mockk<LoggedInUser>())
+        val webdavTokenData = WebdavHelper.WebdavTokenData(documentUUID, mockk<LoggedInUser>())
 
-        every { webdavHelper.readGegevens(token) } returns gegevens
+        every { webdavHelper.readWebdavTokenData(token) } returns webdavTokenData
 
         When("getResourceContent is called with a valid token URI") {
             val inputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
@@ -117,9 +117,9 @@ class WebdavStoreTest : BehaviorSpec({
         val documentUUID = UUID.randomUUID()
         val token = UUID.randomUUID().toString()
         val loggedInUser = mockk<LoggedInUser>()
-        val gegevens = WebdavHelper.Gegevens(documentUUID, loggedInUser)
+        val webdavTokenData = WebdavHelper.WebdavTokenData(documentUUID, loggedInUser)
 
-        every { webdavHelper.readGegevens(token) } returns gegevens
+        every { webdavHelper.readWebdavTokenData(token) } returns webdavTokenData
 
         When("setResourceContent is called with a valid token URI and document content") {
             val contentStream = ByteArrayInputStream(byteArrayOf(1, 2, 3, 4, 5))
