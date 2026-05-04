@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
+import { MatIconAnchor } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
@@ -14,10 +20,18 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
   selector: "betrokkene-link",
   templateUrl: "./betrokkene-link.component.html",
   styleUrls: [],
-  standalone: false,
+  standalone: true,
+  imports: [
+    MatIconAnchor,
+    MatIcon,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    RouterLink,
+    TranslateModule,
+  ],
 })
 export class BetrokkeneLinkComponent {
-  constructor(private readonly klantenService: KlantenService) {}
+  private readonly klantenService = inject(KlantenService);
 
   protected readonly persoonQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();

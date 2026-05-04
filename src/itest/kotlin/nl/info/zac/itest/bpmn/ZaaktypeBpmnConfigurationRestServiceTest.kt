@@ -84,7 +84,6 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
-
     Given("A BPMN zaaktype configuration was created in the overall test setup") {
         lateinit var responseBody: String
 
@@ -120,7 +119,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields
+                    "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4]"
             }
         }
     }

@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.webdav
+package nl.info.zac.webdav
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.UriInfo
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.webdav.exceptions.WebdavException
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import java.net.URI
@@ -35,10 +36,10 @@ class WebdavHelperTest : BehaviorSpec({
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun storedTokens(): Map<String, WebdavHelper.Gegevens> =
+    fun storedTokens(): Map<String, WebdavHelper.WebdavTokenData> =
         WebdavHelper::class.java.getDeclaredField("tokenMap").apply {
             isAccessible = true
-        }.get(webdavHelper) as Map<String, WebdavHelper.Gegevens>
+        }.get(webdavHelper) as Map<String, WebdavHelper.WebdavTokenData>
 
     fun mockUriInfo(): Pair<UriInfo, UriBuilder> {
         val uriInfo = mockk<UriInfo>()
@@ -69,7 +70,7 @@ class WebdavHelperTest : BehaviorSpec({
         val tokensBefore = storedTokens().keys.toSet()
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
         val newToken = (storedTokens().keys.toSet() - tokensBefore).first()
-        val storedGegevens = webdavHelper.readGegevens(newToken)
+        val storedGegevens = webdavHelper.readWebdavTokenData(newToken)
 
         When("createRedirectURL is called") {
             Then("scheme uses ms-word protocol") {
@@ -77,7 +78,7 @@ class WebdavHelperTest : BehaviorSpec({
             }
 
             Then("token is stored with the correct document UUID and logged-in user") {
-                storedGegevens.enkelvoudigInformatieibjectUUID shouldBe documentUUID
+                storedGegevens.enkelvoudigInformatieobjectUUID shouldBe documentUUID
                 storedGegevens.loggedInUser shouldBe loggedInUser
             }
         }
@@ -179,10 +180,12 @@ class WebdavHelperTest : BehaviorSpec({
 
     Given("no token has been stored") {
         When("readGegevens is called with an unknown token") {
-            Then("it throws a RuntimeException") {
-                shouldThrow<RuntimeException> {
-                    webdavHelper.readGegevens("nonexistent-token")
-                }
+            val webdavException = shouldThrow<WebdavException> {
+                webdavHelper.readWebdavTokenData("nonexistent-token")
+            }
+
+            Then("it throws a WebdavException with the correct message") {
+                webdavException.message shouldBe "WebDAV token does not exist (anymore)."
             }
         }
     }

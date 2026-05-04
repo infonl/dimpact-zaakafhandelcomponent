@@ -154,7 +154,7 @@
         <servlet-class>nl.info.webdav.WebdavServlet</servlet-class>
         <init-param>
             <param-name>ResourceHandlerImplementation</param-name>
-            <param-value>net.atos.zac.webdav.WebdavStore</param-value>
+            <param-value>nl.info.zac.webdav.WebdavStore</param-value>
         </init-param>
         <init-param>
             <param-name>rootpath</param-name>
