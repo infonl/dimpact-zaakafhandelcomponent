@@ -29,6 +29,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_CREATED
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.URLDecoder
 import java.time.ZonedDateTime
@@ -163,6 +165,53 @@ class WebDavServletTest : BehaviorSpec({
 
             Then("the response should be ok") {
                 responseCode shouldBe HTTP_OK
+            }
+        }
+
+        When("the DOCX Word document is updated using a WebDAV PUT request with updated file content") {
+            // the WebDAV servlet does not require any authorization; the logged-in user is retrieved from the token
+            val file = Thread.currentThread().contextClassLoader.getResource(TEST_WORD_FILE_NAME).let {
+                File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
+            }
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    MediaType.DOCX.value
+                ),
+                requestBody = file.asRequestBody(MediaType.DOCX.toMediaType())
+            )
+
+            Then("the response should be created (and the document should be updated in the DRC)") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_CREATED
+            }
+        }
+    }
+
+    Given("A WebDAV request is performed with a non-existent token") {
+        val nonExistentToken = UUID.randomUUID()
+
+        When("a GET request is performed using the non-existent WebDAV token") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/webdav/folder/$nonExistentToken.docx"
+            )
+
+            Then("the response should be an internal server error") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_INTERNAL_ERROR
+            }
+        }
+
+        When("a HEAD request is performed using the non-existent WebDAV token") {
+            val responseCode = itestHttpClient.performHeadRequest(
+                url = "$ZAC_BASE_URI/webdav/folder/$nonExistentToken.docx"
+            )
+
+            Then("the response should be an internal server error") {
+                responseCode shouldBe HTTP_INTERNAL_ERROR
             }
         }
     }

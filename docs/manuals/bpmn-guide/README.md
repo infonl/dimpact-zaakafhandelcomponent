@@ -81,6 +81,7 @@ The following functionality is supported by the BPMN process definition:
    * resuming
    * extending
 * Send email
+* Send automatische ontvangstbevestiging
 * User/group
    * listing groups/users
    * assigning a group/user to a zaak
@@ -309,6 +310,42 @@ To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see
     "ZAC_TYPE": "ZAC_process_data"
   }
 }
+```
+
+### Send confirmation email (automatische ontvangstbevestiging)
+
+To send a confirmation email to the zaak initiator or zaak-specific contact email address from a BPMN process:
+* create a service task
+* set class `nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate`
+* add fields:
+  * `from` - the sender's email address
+  * `replyTo` - the reply-to email address (optional)
+  * `template` - the name of the email template to use
+
+Unlike `SendEmailDelegate`, the recipient address is resolved automatically from the zaak:
+1. The email address from the zaak-specific contact details is used if available.
+2. Otherwise, the default email address of the initiator of zaak is used. Or if the initiator does not have a default email address, the first email address of the initiator is used3. If no address can be found, no email is sent and the process continues.
+3. If no email address could be found, no email is sent and the process continues.
+
+The email is stored as a document attached to the zaak.
+
+For example:
+```xml
+    <serviceTask id="ServiceTask_359" name="Send confirmation email" flowable:class="nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate">
+      <extensionElements>
+        <flowable:field name="from">
+          <flowable:string><![CDATA[noreply@example.nl]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="replyTo">
+          <flowable:string><![CDATA[contact@example.nl]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="template">
+          <flowable:string><![CDATA[Ontvangstbevestiging]]></flowable:string>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
 ```
 
 ### User/group
