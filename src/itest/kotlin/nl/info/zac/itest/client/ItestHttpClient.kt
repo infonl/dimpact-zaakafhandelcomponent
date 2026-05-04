@@ -343,6 +343,44 @@ class ItestHttpClient {
     }
 
     /**
+     * Performs a PUT request with a binary body on the given URL with optional headers.
+     * If a [testUser] is provided, the user will be authenticated in Keycloak before the request is performed,
+     * and will be logged out from Keycloak afterwards.
+     *
+     * @param url The URL to perform the PUT request on.
+     * @param headers Optional headers to include in the request. Defaults to standard headers.
+     * @param requestBody The binary body of the PUT request.
+     * @param testUser Optional [TestUser] to authenticate to Keycloak before performing the request.
+     * If provided, the user will be logged out afterwards.
+     * @return A [ResponseContent] containing the response body, headers, and status code.
+     */
+    fun performPutRequest(
+        url: String,
+        headers: Headers = buildHeaders(),
+        requestBody: RequestBody,
+        testUser: TestUser? = null
+    ): ResponseContent {
+        val tokens = testUser?.let(::authenticate)
+        logger.info { "Performing PUT request on: '$url'" }
+        val request = Request.Builder()
+            .headers(
+                tokens?.let {
+                    cloneHeadersWithAuthorization(headers, url, tokens.first)
+                } ?: run {
+                    headers
+                }
+            ).url(url)
+            .put(requestBody)
+            .build()
+        val responseContent = okHttpClient.newCall(request).execute().use {
+            logger.info { "Received response with status code: '${it.code}'" }
+            ResponseContent(it.body.string(), it.headers, it.code)
+        }
+        tokens?.let { logout(testUser, it.second) }
+        return responseContent
+    }
+
+    /**
      * Performs a ZGW API GET request on the given URL with optional headers.
      *
      * @param url The URL to perform the GET request on.

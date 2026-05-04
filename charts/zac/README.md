@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.229](https://img.shields.io/badge/Version-1.0.229-informational?style=flat-square) ![AppVersion: 4.8](https://img.shields.io/badge/AppVersion-4.8-informational?style=flat-square)
+![Version: 1.0.230](https://img.shields.io/badge/Version-1.0.230-informational?style=flat-square) ![AppVersion: 4.8](https://img.shields.io/badge/AppVersion-4.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.152.1 |
+| @opentelemetry | opentelemetry-collector | 0.153.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -203,7 +203,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3"` |  |
+| office_converter.image.tag | string | `"8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
