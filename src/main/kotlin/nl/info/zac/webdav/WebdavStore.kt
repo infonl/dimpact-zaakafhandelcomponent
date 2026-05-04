@@ -123,18 +123,20 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     private fun extraheerToken(uri: String): String = FilenameUtils.getBaseName(File(uri).name)
 
     private fun getFileStoredObject(token: String): StoredObject =
-        fileStoredObjectMap.getOrPut(token) {
-            val enkelvoudigInformatieobjectUUID = webdavHelper.readWebdavTokenData(
-                token
-            ).enkelvoudigInformatieobjectUUID
-            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                enkelvoudigInformatieobjectUUID
-            )
-            StoredObject().apply {
-                isFolder = false
-                creationDate = convertToDate(enkelvoudigInformatieobject.creatiedatum)
-                lastModified = convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime())
-                resourceLength = enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L
+        synchronized(fileStoredObjectMap) {
+            fileStoredObjectMap[token] ?: run {
+                val enkelvoudigInformatieobjectUUID = webdavHelper.readWebdavTokenData(token).enkelvoudigInformatieobjectUUID
+                val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieobjectUUID
+                )
+                StoredObject().apply {
+                    isFolder = false
+                    creationDate = convertToDate(enkelvoudigInformatieobject.creatiedatum)
+                    lastModified = convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime())
+                    resourceLength = enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L
+                }.also { storedObject ->
+                    fileStoredObjectMap[token] = storedObject
+                }
             }
         }
 }
