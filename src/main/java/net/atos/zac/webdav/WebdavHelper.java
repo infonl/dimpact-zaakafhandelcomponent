@@ -41,11 +41,18 @@ public class WebdavHelper {
             MediaTypes.Application.MS_EXCEL_OPEN_XML.getMediaType()
     );
 
-    @Inject
     private DrcClientService drcClientService;
+    private Instance<LoggedInUser> loggedInUserInstance;
+
+    // no-arg constructor for CDI
+    public WebdavHelper() {
+    }
 
     @Inject
-    private Instance<LoggedInUser> loggedInUserInstance;
+    public WebdavHelper(DrcClientService drcClientService, Instance<LoggedInUser> loggedInUserInstance) {
+        this.drcClientService = drcClientService;
+        this.loggedInUserInstance = loggedInUserInstance;
+    }
 
     private final Map<String, Gegevens> tokenMap = Collections.synchronizedMap(new LRUMap<>(1000));
 

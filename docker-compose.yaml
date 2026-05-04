@@ -392,7 +392,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3
+    image: gotenberg/gotenberg:8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
