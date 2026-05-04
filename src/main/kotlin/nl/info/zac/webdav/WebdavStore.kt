@@ -2,190 +2,115 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.webdav;
+package nl.info.zac.webdav
 
-import static net.atos.zac.util.time.DateTimeConverterUtil.convertToDate;
-import static nl.info.zac.authentication.LoggedInUserProviderKt.setLoggedInUser;
-import static nl.info.zac.util.Base64ConvertersKt.toBase64String;
+import jakarta.enterprise.inject.spi.CDI
+import jakarta.servlet.http.HttpSession
+import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
+import nl.info.webdav.ITransaction
+import nl.info.webdav.IWebdavStore
+import nl.info.webdav.StoredObject
+import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.authentication.setLoggedInUser
+import nl.info.zac.util.toBase64String
+import org.apache.commons.collections4.map.LRUMap
+import org.apache.commons.io.FilenameUtils
+import java.io.File
+import java.io.InputStream
+import java.security.Principal
+import java.util.Collections
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Principal;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+// WebdavServlet instantiates this class via reflection, passing the configured rootpath File as the constructor argument
+class WebdavStore(ignoredFake: File) : IWebdavStore {
+    companion object {
+        private const val UPDATE_INHOUD_TOELICHTING = "Document bewerkt"
+        private val folderStoredObject = StoredObject().apply { setFolder(true) }
 
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.servlet.http.HttpSession;
-
-import org.apache.commons.collections4.map.LRUMap;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import nl.info.client.zgw.drc.DrcClientService;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest;
-import nl.info.webdav.ITransaction;
-import nl.info.webdav.IWebdavStore;
-import nl.info.webdav.StoredObject;
-import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService;
-
-
-public class WebdavStore implements IWebdavStore {
-    private static final StoredObject folderStoredObject;
-    private static final String UPDATE_INHOUD_TOELICHTING = "Document bewerkt";
-
-    static {
-        folderStoredObject = new StoredObject();
-        folderStoredObject.setFolder(true);
+        // Caches token -> StoredObject to avoid re-fetching documents on each WebDAV property request
+        private val fileStoredObjectMap: MutableMap<String, StoredObject> = Collections.synchronizedMap(LRUMap(100))
     }
 
-    /*
-     * Tijdens het ophalen van het document via WebDAV wordt er vaak een File StoredObject aangemaakt.
-     * Om te voorkomen dat er vaak een Document moet worden opgehaald wordt er een map bijgeouden van token naar File StoredObject.
-     */
-    private static final Map<String, StoredObject> fileStoredObjectMap = Collections.synchronizedMap(new LRUMap<>(100));
+    private val webdavHelper: WebdavHelper = CDI.current().select(WebdavHelper::class.java).get()
+    private val drcClientService: DrcClientService = CDI.current().select(DrcClientService::class.java).get()
+    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService =
+        CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
-    private final WebdavHelper webdavHelper;
+    override fun begin(principal: Principal?): ITransaction? = null
+    override fun checkAuthentication(transaction: ITransaction?) {}
+    override fun commit(transaction: ITransaction?) {}
+    override fun rollback(transaction: ITransaction?) {}
+    override fun createFolder(transaction: ITransaction?, folderUri: String?) {}
+    override fun createResource(transaction: ITransaction?, resourceUri: String?) {}
 
-    private final DrcClientService drcClientService;
-
-    private final EnkelvoudigInformatieObjectUpdateService enkelvoudigInformatieObjectUpdateService;
-
-    // De fake parameter is nodig omdat de constructie waarmee deze class wordt geinstantieerd deze parameter verwacht
-    public WebdavStore(final File ignoredFake) {
-        webdavHelper = CDI.current().select(WebdavHelper.class).get();
-        drcClientService = CDI.current().select(DrcClientService.class).get();
-        enkelvoudigInformatieObjectUpdateService = CDI.current().select(EnkelvoudigInformatieObjectUpdateService.class).get();
+    override fun getResourceContent(transaction: ITransaction?, resourceUri: String?): InputStream? {
+        val token = extraheerToken(resourceUri)?.takeIf { it.isNotEmpty() } ?: return null
+        return drcClientService.downloadEnkelvoudigInformatieobject(
+            webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID
+        )
     }
 
-    @Override
-    public ITransaction begin(final Principal principal) {
-        return null;
-    }
-
-    @Override
-    public void checkAuthentication(final ITransaction transaction) {
-    }
-
-    @Override
-    public void commit(final ITransaction transaction) {
-    }
-
-    @Override
-    public void rollback(final ITransaction transaction) {
-    }
-
-    @Override
-    public void createFolder(final ITransaction transaction, final String folderUri) {
-    }
-
-    @Override
-    public void createResource(final ITransaction transaction, final String resourceUri) {
-    }
-
-    @Override
-    public InputStream getResourceContent(final ITransaction transaction, final String resourceUri) {
-        final String token = extraheerToken(resourceUri);
-        if (StringUtils.isNotEmpty(token)) {
-            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID();
-            return drcClientService.downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public long setResourceContent(
-            final ITransaction transaction,
-            final String resourceUri,
-            final InputStream content,
-            final String contentType,
-            final String characterEncoding
-    ) {
-        final String token = extraheerToken(resourceUri);
-        if (StringUtils.isNotEmpty(token)) {
-            final WebdavHelper.Gegevens webdavGegevens = webdavHelper.readGegevens(token);
-            try {
-                setLoggedInUser(
-                        CDI.current().select(HttpSession.class).get(),
-                        webdavGegevens.loggedInUser()
-                );
-                final var update = new EnkelvoudigInformatieObjectWithLockRequest();
-                final byte[] inhoud = IOUtils.toByteArray(content);
-                update.setInhoud(toBase64String(inhoud));
-                update.setBestandsomvang(inhoud.length);
-                return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        webdavGegevens.enkelvoudigInformatieibjectUUID(),
-                        update,
-                        UPDATE_INHOUD_TOELICHTING
-                )
-                        .getBestandsomvang();
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                fileStoredObjectMap.remove(token);
+    override fun setResourceContent(
+        transaction: ITransaction?,
+        resourceUri: String?,
+        content: InputStream?,
+        contentType: String?,
+        characterEncoding: String?
+    ): Long {
+        val token = extraheerToken(resourceUri)?.takeIf { it.isNotEmpty() } ?: return 0L
+        val webdavGegevens = webdavHelper.readGegevens(token)
+        try {
+            setLoggedInUser(
+                CDI.current().select(HttpSession::class.java).get(),
+                webdavGegevens.loggedInUser
+            )
+            val inhoud = content!!.readBytes()
+            val update = EnkelvoudigInformatieObjectWithLockRequest().apply {
+                this.inhoud = inhoud.toBase64String()
+                bestandsomvang = inhoud.size
             }
-        } else {
-            return 0;
+            return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObjectUUID = webdavGegevens.enkelvoudigInformatieibjectUUID,
+                enkelvoudigInformatieObjectWithLockRequest = update,
+                toelichting = UPDATE_INHOUD_TOELICHTING
+            ).bestandsomvang?.toLong() ?: 0L
+        } finally {
+            fileStoredObjectMap.remove(token)
         }
     }
 
-    @Override
-    public String[] getChildrenNames(final ITransaction transaction, final String folderUri) {
-        return null;
-    }
+    override fun getChildrenNames(transaction: ITransaction?, folderUri: String?): Array<String>? = null
 
-    @Override
-    public long getResourceLength(final ITransaction transaction, final String resourceUri) {
-        return 0;
-    }
+    override fun getResourceLength(transaction: ITransaction?, resourceUri: String?): Long = 0L
 
-    @Override
-    public void removeObject(final ITransaction transaction, final String uri) {
-        // no-op
-    }
+    override fun removeObject(transaction: ITransaction?, uri: String?) {}
 
-    @Override
-    public StoredObject getStoredObject(final ITransaction transaction, final String uri) {
-        final String token = extraheerToken(uri);
-        if (StringUtils.isEmpty(token)) {
-            return null;
-        } else if (StringUtils.equals(token, WebdavHelper.FOLDER)) {
-            return folderStoredObject;
-        } else {
-            return getFileStoredObject(token);
+    override fun getStoredObject(transaction: ITransaction?, uri: String?): StoredObject? {
+        val token = extraheerToken(uri) ?: return null
+        return when {
+            token.isEmpty() -> null
+            token == WebdavHelper.FOLDER -> folderStoredObject
+            else -> getFileStoredObject(token)
         }
     }
 
-    @Override
-    public void destroy() {
-        // no-op
-    }
+    override fun destroy() {}
 
-    private String extraheerToken(final String uri) {
-        if (uri != null) {
-            final File url = new File(uri);
-            return FilenameUtils.getBaseName(url.getName());
-        } else {
-            return null;
+    private fun extraheerToken(uri: String?): String? =
+        uri?.let { FilenameUtils.getBaseName(File(it).name) }
+
+    private fun getFileStoredObject(token: String): StoredObject =
+        fileStoredObjectMap.getOrPut(token) {
+            val enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID
+            val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
+                enkelvoudigInformatieobjectUUID
+            )
+            StoredObject().apply {
+                setFolder(false)
+                setCreationDate(convertToDate(enkelvoudigInformatieobject.creatiedatum))
+                setLastModified(convertToDate(enkelvoudigInformatieobject.beginRegistratie.toZonedDateTime()))
+                setResourceLength(enkelvoudigInformatieobject.bestandsomvang?.toLong() ?: 0L)
+            }
         }
-    }
-
-    private StoredObject getFileStoredObject(final String token) {
-        return fileStoredObjectMap.computeIfAbsent(token, key -> {
-            final UUID enkelvoudigInformatieobjectUUID = webdavHelper.readGegevens(token)
-                    .enkelvoudigInformatieibjectUUID();
-            final EnkelvoudigInformatieObject enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
-                    enkelvoudigInformatieobjectUUID);
-            final StoredObject storedObject = new StoredObject();
-            storedObject.setFolder(false);
-            storedObject.setCreationDate(convertToDate(enkelvoudigInformatieobject.getCreatiedatum()));
-            storedObject.setLastModified(convertToDate(enkelvoudigInformatieobject.getBeginRegistratie().toZonedDateTime()));
-            storedObject.setResourceLength(enkelvoudigInformatieobject.getBestandsomvang());
-            return storedObject;
-        });
-    }
 }
