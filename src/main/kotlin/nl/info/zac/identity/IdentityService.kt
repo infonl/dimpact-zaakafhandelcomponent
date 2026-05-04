@@ -89,21 +89,11 @@ class IdentityService @Inject constructor(
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      * This function requires that the PABC integration feature flag is enabled.
      */
-    fun listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> {
-        val inactiveGroupNames = listInactiveGroupNames()
-        return pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+    fun listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
+        pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = ZacApplicationRole.BEHANDELAAR.value,
             zaaktypeDescription = zaaktypeDescription
-        ).map { it.toGroup(active = it.name !in inactiveGroupNames) }
-    }
-
-    // PABC does not carry Keycloak group attributes, so active status cannot be derived from the PABC response.
-    // This helper makes one extra KC call to identify inactive groups by their attribute.
-    private fun listInactiveGroupNames(): Set<String> =
-        keycloakZacRealmResource.groups()
-            .query("active:false", false)
-            .map { it.name }
-            .toSet()
+        ).map { it.toGroup() }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)

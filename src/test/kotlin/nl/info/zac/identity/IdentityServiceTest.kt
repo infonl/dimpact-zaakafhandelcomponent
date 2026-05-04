@@ -355,12 +355,10 @@ class IdentityServiceTest : BehaviorSpec({
             )
             val inactivePabcGroupRepresentation = createPabcGroupRepresentation(
                 name = "fakeInactiveGroupId",
-                description = "fakeInactiveGroupDescription"
+                description = "fakeInactiveGroupDescription",
+                attributes = mapOf("active" to listOf("false"))
             )
             every { configurationService.featureFlagPabcIntegration() } returns true
-            every {
-                realmResource.groups().query("active:false", false)
-            } returns listOf(createGroupRepresentation(name = "fakeInactiveGroupId"))
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(

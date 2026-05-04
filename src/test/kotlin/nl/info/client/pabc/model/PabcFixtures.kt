@@ -100,8 +100,10 @@ fun createGetGroupsByApplicationRoleAndEntityTypeResponse(
 
 fun createPabcGroupRepresentation(
     name: String = "fakeGroupName",
-    description: String? = null
+    description: String? = null,
+    attributes: Map<String, List<String>> = emptyMap()
 ) = GroupRepresentation().apply {
     this.name = name
     this.description = description
+    this.attributes = attributes
 }
