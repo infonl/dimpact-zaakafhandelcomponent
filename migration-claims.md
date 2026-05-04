@@ -34,7 +34,7 @@
 - [x] `shared/indicaties/persoon-indicaties/persoon-indicaties.component.ts`
 - [x] `shared/indicaties/zaak-indicaties/zaak-indicaties.component.ts`
 
-### In progress
+### Batch pre-6 — done
 
 - [x] FacetFilterComponent
 - [x] TaakEditComponent
@@ -110,7 +110,7 @@ Klanten (PR: `chore/PZ-10963--FE--Angular-v19-migration--PersoonView-BedrijfView
 - [x] `klanten/bedrijf-view/bedrijf-view.component.ts`
 - [x] `klanten/klant-zaken-tabel/klant-zaken-tabel.component.ts`
 
-Zaken (branch: `temp/standalone-migration-zaken`, in progress):
+Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `zaken/zaak-ontkoppelen/zaak-ontkoppelen-dialog.component.ts`
 - [x] `zaken/zaak-verkort/zaak-verkort.component.ts`
 - [x] `zaken/zaken-verdelen-dialog/zaken-verdelen-dialog.component.ts`
