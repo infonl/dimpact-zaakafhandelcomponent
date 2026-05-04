@@ -367,7 +367,7 @@ class IdentityServiceTest : BehaviorSpec({
                 )
             } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
 
-            When("groups for the zaaktype UUID are listed") {
+            When("active groups for the zaaktype UUID are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned with the active flag correctly set") {
