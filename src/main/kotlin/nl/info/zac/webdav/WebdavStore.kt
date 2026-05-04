@@ -22,11 +22,15 @@ import java.io.InputStream
 import java.security.Principal
 import java.util.Collections
 
-// WebdavServlet instantiates this class via reflection, passing the configured rootpath File as the constructor argument
+/**
+ * ZAC WebdavStore implementation.
+ * The WebdavServlet instantiates this class via reflection, passing the configured rootpath File as the constructor argument.
+ */
+@Suppress("TooManyFunctions", "unused")
 class WebdavStore(ignoredFake: File) : IWebdavStore {
     companion object {
         private const val UPDATE_INHOUD_TOELICHTING = "Document bewerkt"
-        private val folderStoredObject = StoredObject().apply { setFolder(true) }
+        private val folderStoredObject = StoredObject().apply { isFolder = true }
 
         // Caches token -> StoredObject to avoid re-fetching documents on each WebDAV property request
         private val fileStoredObjectMap: MutableMap<String, StoredObject> = Collections.synchronizedMap(LRUMap(100))
@@ -37,11 +41,16 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService =
         CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
-    override fun begin(principal: Principal?): ITransaction? = null
+    override fun begin(principal: Principal?) = null
+
     override fun checkAuthentication(transaction: ITransaction?) {}
+
     override fun commit(transaction: ITransaction?) {}
+
     override fun rollback(transaction: ITransaction?) {}
+
     override fun createFolder(transaction: ITransaction?, folderUri: String?) {}
+
     override fun createResource(transaction: ITransaction?, resourceUri: String?) {}
 
     override fun getResourceContent(transaction: ITransaction?, resourceUri: String?): InputStream? {
@@ -80,9 +89,9 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
         }
     }
 
-    override fun getChildrenNames(transaction: ITransaction?, folderUri: String?): Array<String>? = null
+    override fun getChildrenNames(transaction: ITransaction?, folderUri: String?) = null
 
-    override fun getResourceLength(transaction: ITransaction?, resourceUri: String?): Long = 0L
+    override fun getResourceLength(transaction: ITransaction?, resourceUri: String?) = 0L
 
     override fun removeObject(transaction: ITransaction?, uri: String?) {}
 
@@ -97,8 +106,7 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
 
     override fun destroy() {}
 
-    private fun extraheerToken(uri: String?): String? =
-        uri?.let { FilenameUtils.getBaseName(File(it).name) }
+    private fun extraheerToken(uri: String?): String? = uri?.let { FilenameUtils.getBaseName(File(it).name) }
 
     private fun getFileStoredObject(token: String): StoredObject =
         fileStoredObjectMap.getOrPut(token) {
