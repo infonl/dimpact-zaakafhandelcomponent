@@ -18,9 +18,9 @@ import { TabelGegevens } from "../model/tabel-gegevens";
 export abstract class WerklijstComponent implements OnInit {
   abstract gebruikersvoorkeurenService: GebruikersvoorkeurenService;
   abstract route: ActivatedRoute;
-  aantalPerPagina = 0;
-  pageSizeOptions = [0];
-  werklijstRechten!: GeneratedType<"RestWerklijstRechten">;
+  protected aantalPerPagina = 0;
+  protected pageSizeOptions = [0];
+  protected werklijstRechten!: GeneratedType<"RestWerklijstRechten">;
 
   protected constructor() {}
 
@@ -33,7 +33,7 @@ export abstract class WerklijstComponent implements OnInit {
     });
   }
 
-  paginatorChanged($event: PageEvent) {
+  protected paginatorChanged($event: PageEvent) {
     if (this.aantalPerPagina !== $event.pageSize) {
       this.aantalPerPagina = $event.pageSize;
       this.gebruikersvoorkeurenService

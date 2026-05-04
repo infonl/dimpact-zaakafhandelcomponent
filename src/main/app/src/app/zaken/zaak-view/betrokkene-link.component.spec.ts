@@ -7,6 +7,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -106,44 +107,46 @@ describe(BetrokkeneLinkComponent.name, () => {
   });
 
   describe("when betrokkene is BSN type with temporaryPersonId", () => {
-    it("shows persoon link anchor when persoon data is available", async () => {
-      testQueryClient.setQueryData(persoonQueryKey, mockPersoon);
-      const { fixture } = setup(makePersoonBetrokkene());
-      const loader = TestbedHarnessEnvironment.loader(fixture);
-      const buttons = await loader.getAllHarnesses(MatButtonHarness);
-      expect(buttons.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("links persoon anchor to persoon route", async () => {
+    it("shows persoon link anchor pointing to the persoon route", async () => {
       testQueryClient.setQueryData(persoonQueryKey, mockPersoon);
       const { fixture } = setup(
         makePersoonBetrokkene({ temporaryPersonId: "temp-456" }),
       );
-      const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
-      expect(anchor?.getAttribute("href")).toContain("persoon");
+      const loader = TestbedHarnessEnvironment.loader(fixture);
+      const anchor = await loader.getHarness(
+        MatButtonHarness.with({ selector: "a[mat-icon-button]" }),
+      );
+      const host = await anchor.host();
+      expect(await host.getAttribute("href")).toContain("persoon");
+      expect(await host.getAttribute("title")).toBe("actie.persoon.bekijken");
     });
   });
 
   describe("when betrokkene is RSIN type with kvkNummer", () => {
-    it("shows bedrijf link anchor when bedrijf data is available and betrokkene has kvkNummer", async () => {
+    it("shows bedrijf link anchor pointing to the bedrijf route", async () => {
       testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
       const { fixture } = setup(
         makeBedrijfBetrokkene({ kvkNummer: "12345678" }),
       );
       const loader = TestbedHarnessEnvironment.loader(fixture);
-      const buttons = await loader.getAllHarnesses(MatButtonHarness);
-      expect(buttons.length).toBeGreaterThanOrEqual(1);
+      const anchor = await loader.getHarness(
+        MatButtonHarness.with({ selector: "a[mat-icon-button]" }),
+      );
+      const host = await anchor.host();
+      expect(await host.getAttribute("href")).toContain("12345678");
+      expect(await host.getAttribute("title")).toBe("actie.bedrijf.bekijken");
     });
 
-    it("shows warning icon instead of link when betrokkene has no kvkNummer", () => {
+    it("shows warning icon instead of link when betrokkene has no kvkNummer", async () => {
       testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
       const { fixture } = setup(
         makeBedrijfBetrokkene({ kvkNummer: undefined }),
       );
-      const warningIcon = fixture.nativeElement.querySelector(
-        "mat-icon[color='warn']",
+      const loader = TestbedHarnessEnvironment.loader(fixture);
+      const warningIcon = await loader.getHarness(
+        MatIconHarness.with({ name: "warning" }),
       );
-      expect(warningIcon).toBeTruthy();
+      expect(await warningIcon.getName()).toBe("warning");
       const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
       expect(anchor).toBeNull();
     });

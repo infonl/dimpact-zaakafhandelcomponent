@@ -73,15 +73,15 @@ describe(WerklijstComponent.name, () => {
   });
 
   it("reads aantalPerPagina from route tabelGegevens on init", () => {
-    expect(component.aantalPerPagina).toBe(25);
+    expect(component["aantalPerPagina"]).toBe(25);
   });
 
   it("reads pageSizeOptions from route tabelGegevens on init", () => {
-    expect(component.pageSizeOptions).toEqual([10, 25, 50]);
+    expect(component["pageSizeOptions"]).toEqual([10, 25, 50]);
   });
 
   it("reads werklijstRechten from route tabelGegevens on init", () => {
-    expect(component.werklijstRechten).toEqual(
+    expect(component["werklijstRechten"]).toEqual(
       mockTabelGegevens.werklijstRechten,
     );
   });
@@ -89,18 +89,18 @@ describe(WerklijstComponent.name, () => {
   it("calls updateAantalPerPagina and updates aantalPerPagina when page size changes", () => {
     const event: PageEvent = { pageIndex: 0, pageSize: 50, length: 100 };
 
-    component.paginatorChanged(event);
+    component["paginatorChanged"](event);
 
     expect(
       gebruikersvoorkeurenService.updateAantalPerPagina,
     ).toHaveBeenCalledWith("TAKEN_MIJN", 50);
-    expect(component.aantalPerPagina).toBe(50);
+    expect(component["aantalPerPagina"]).toBe(50);
   });
 
   it("does not call updateAantalPerPagina when page size is unchanged", () => {
     const event: PageEvent = { pageIndex: 1, pageSize: 25, length: 100 };
 
-    component.paginatorChanged(event);
+    component["paginatorChanged"](event);
 
     expect(
       gebruikersvoorkeurenService.updateAantalPerPagina,

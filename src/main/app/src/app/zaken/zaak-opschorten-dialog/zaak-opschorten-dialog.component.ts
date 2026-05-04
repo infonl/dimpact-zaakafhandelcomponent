@@ -49,7 +49,7 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZaakOpschortenDialogComponent {
-  loading = true;
+  protected loading = true;
 
   protected readonly form = this.formBuilder.group({
     numberOfDays: this.formBuilder.control<number | null>(null, [
