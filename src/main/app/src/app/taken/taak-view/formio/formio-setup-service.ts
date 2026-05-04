@@ -8,6 +8,7 @@ import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
+import { SmartDocumentsService } from "../../../admin/smart-documents.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
@@ -22,6 +23,8 @@ export enum KNOWN_ZAC_FIELDS {
   GROEP = "ZAC_groep",
   MEDEWERKER = "ZAC_medewerker",
   SMART_DOCUMENTS_TEMPLATE = "ZAC_smart_documents_template",
+  SMART_DOCUMENTS_TEMPLATE_GROUPS = "ZAC_smart_documents_template_groups",
+  SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES = "ZAC_smart_documents_template_group_templates",
   REFERENTIE_TABEL = "ZAC_referentie_tabel",
   DOCUMENTEN = "ZAC_documenten",
   RESULTAAT = "ZAC_resultaat",
@@ -45,6 +48,7 @@ export class FormioSetupService {
     private zakenService: ZakenService,
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
+    private smartDocumentService: SmartDocumentsService,
   ) {}
 
   createFormioForm(
@@ -84,6 +88,14 @@ export class FormioSetupService {
               break;
             case KNOWN_ZAC_FIELDS.PROCESS_DATA:
               this.initializeProcessDataField(component);
+              break;
+            case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
+              this.initializeSmartDocumentsTemplateGroupsField(component);
+              break;
+            case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES:
+              this.initializeSmartDocumentsTemplateGroupTemplatesField(
+                component,
+              );
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE:
               this.initializeSmartDocumentsField(component);
@@ -159,6 +171,66 @@ export class FormioSetupService {
           ),
         );
         return data.sort(OrderUtil.orderBy("naam"));
+      },
+    };
+  }
+
+  private async getSmartDocumentTemplates(zaaktypeUuid: string) {
+    const data = await this.queryClient.ensureQueryData(
+      this.zacQueryClient.GET(
+        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+        {
+          path: { zaakafhandelUUID: zaaktypeUuid },
+        },
+      ),
+    );
+    return this.smartDocumentService.flattenGroups(
+      this.smartDocumentService.convertApiData(data),
+    );
+  }
+
+  private initializeSmartDocumentsTemplateGroupsField(
+    component: ExtendedComponentSchema,
+  ) {
+    component.valueProperty = "id";
+    component.template = "{{ item.naam }}";
+    component.data = {
+      custom: async () => {
+        const data = await this.getSmartDocumentTemplates(
+          this.taak!.zaaktypeUUID!,
+        );
+        return data
+          .map((templateGroup) => ({
+            id: templateGroup.id,
+            naam: templateGroup.name,
+            active: false,
+          }))
+          .sort(OrderUtil.orderBy("naam"));
+      },
+    };
+  }
+
+  private initializeSmartDocumentsTemplateGroupTemplatesField(
+    component: ExtendedComponentSchema,
+  ) {
+    component.valueProperty = "id";
+    component.template = "{{ item.naam }}";
+    component.data = {
+      custom: async () => {
+        const data = await this.getSmartDocumentTemplates(
+          this.taak!.zaaktypeUUID!,
+        );
+        const templateGroupId = this.formioChangeData?.[component.refreshOn];
+        const templateGroup = data.find(
+          (group) => group.id === templateGroupId,
+        );
+        return (
+          templateGroup?.templates.map((template) => ({
+            id: template.id,
+            naam: template.name,
+            active: false,
+          })) ?? []
+        );
       },
     };
   }
