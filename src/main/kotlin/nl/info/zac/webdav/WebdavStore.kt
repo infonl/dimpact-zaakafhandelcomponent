@@ -41,29 +41,29 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService =
         CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
-    override fun begin(principal: Principal) = null
+    override fun begin(principal: Principal?) = null
 
-    override fun checkAuthentication(transaction: ITransaction) {
+    override fun checkAuthentication(transaction: ITransaction?) {
         // no-op
     }
 
-    override fun commit(transaction: ITransaction) {
+    override fun commit(transaction: ITransaction?) {
         // no-op
     }
 
-    override fun rollback(transaction: ITransaction) {
+    override fun rollback(transaction: ITransaction?) {
         // no-op
     }
 
-    override fun createFolder(transaction: ITransaction, folderUri: String) {
+    override fun createFolder(transaction: ITransaction?, folderUri: String) {
         // no-op
     }
 
-    override fun createResource(transaction: ITransaction, resourceUri: String) {
+    override fun createResource(transaction: ITransaction?, resourceUri: String) {
         // no-op
     }
 
-    override fun getResourceContent(transaction: ITransaction, resourceUri: String): InputStream? {
+    override fun getResourceContent(transaction: ITransaction?, resourceUri: String): InputStream? {
         val token = extraheerToken(resourceUri).takeIf { it.isNotEmpty() } ?: return null
         return drcClientService.downloadEnkelvoudigInformatieobject(
             webdavHelper.readWebdavTokenData(token).enkelvoudigInformatieobjectUUID
@@ -71,7 +71,7 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     }
 
     override fun setResourceContent(
-        transaction: ITransaction,
+        transaction: ITransaction?,
         resourceUri: String,
         content: InputStream,
         contentType: String?,
@@ -99,15 +99,15 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
         }
     }
 
-    override fun getChildrenNames(transaction: ITransaction, folderUri: String) = null
+    override fun getChildrenNames(transaction: ITransaction?, folderUri: String) = null
 
-    override fun getResourceLength(transaction: ITransaction, resourceUri: String) = 0L
+    override fun getResourceLength(transaction: ITransaction?, resourceUri: String) = 0L
 
-    override fun removeObject(transaction: ITransaction, uri: String) {
+    override fun removeObject(transaction: ITransaction?, uri: String) {
         // no-op
     }
 
-    override fun getStoredObject(transaction: ITransaction, uri: String): StoredObject? {
+    override fun getStoredObject(transaction: ITransaction?, uri: String): StoredObject? {
         val token = extraheerToken(uri)
         return when {
             token.isEmpty() -> null
@@ -124,7 +124,9 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
 
     private fun getFileStoredObject(token: String): StoredObject =
         fileStoredObjectMap.getOrPut(token) {
-            val enkelvoudigInformatieobjectUUID = webdavHelper.readWebdavTokenData(token).enkelvoudigInformatieobjectUUID
+            val enkelvoudigInformatieobjectUUID = webdavHelper.readWebdavTokenData(
+                token
+            ).enkelvoudigInformatieobjectUUID
             val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID
             )
