@@ -115,9 +115,10 @@ class IdentityServiceTest : BehaviorSpec({
             When("the groups are listed") {
                 val groups = identityService.listGroups()
 
-                Then("only the active group is returned") {
-                    groups.size shouldBe 1
-                    groups.first().name shouldBe "fakeActiveGroup"
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 2
+                    groups.first { it.name == "fakeActiveGroup" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroup" }.active shouldBe false
                 }
             }
         }
@@ -371,22 +372,22 @@ class IdentityServiceTest : BehaviorSpec({
             When("groups for the zaaktype UUID are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
-                Then("only active groups are returned") {
-                    groups.size shouldBe 2
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 3
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
 
             When("groups for the zaaktype are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("only active groups are returned") {
-                    groups.size shouldBe 2
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 3
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
         }

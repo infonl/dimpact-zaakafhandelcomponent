@@ -74,8 +74,9 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
 
-fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
+fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(active: Boolean = true): Group =
     Group(
         name = name,
-        description = description?.takeIf { it.isNotBlank() } ?: name
+        description = description?.takeIf { it.isNotBlank() } ?: name,
+        active = active
     )
