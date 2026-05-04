@@ -115,10 +115,9 @@ class IdentityServiceTest : BehaviorSpec({
             When("the groups are listed") {
                 val groups = identityService.listGroups()
 
-                Then("the active group has active=true and the inactive group has active=false") {
-                    groups.size shouldBe 2
-                    groups.first { it.name == "fakeActiveGroup" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroup" }.active shouldBe false
+                Then("only the active group is returned") {
+                    groups.size shouldBe 1
+                    groups.first().name shouldBe "fakeActiveGroup"
                 }
             }
         }
@@ -370,24 +369,24 @@ class IdentityServiceTest : BehaviorSpec({
             } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
-                Then("all groups are returned with active flag correctly set") {
-                    groups.size shouldBe 3
+                Then("only active groups are returned") {
+                    groups.size shouldBe 2
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
+                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
                 }
             }
 
             When("groups for the zaaktype are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("all groups are returned with active flag correctly set") {
-                    groups.size shouldBe 3
+                Then("only active groups are returned") {
+                    groups.size shouldBe 2
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
+                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
                 }
             }
         }
@@ -417,7 +416,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("only groups with matching domain roles are returned") {
                     groups.size shouldBe 1
@@ -449,7 +448,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
@@ -467,7 +466,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("no groups are returned") {
                     groups.size shouldBe 0
