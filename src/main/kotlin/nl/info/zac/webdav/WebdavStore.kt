@@ -41,40 +41,50 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService =
         CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
 
-    override fun begin(principal: Principal?) = null
+    override fun begin(principal: Principal) = null
 
-    override fun checkAuthentication(transaction: ITransaction?) {}
+    override fun checkAuthentication(transaction: ITransaction) {
+        // no-op
+    }
 
-    override fun commit(transaction: ITransaction?) {}
+    override fun commit(transaction: ITransaction) {
+        // no-op
+    }
 
-    override fun rollback(transaction: ITransaction?) {}
+    override fun rollback(transaction: ITransaction) {
+        // no-op
+    }
 
-    override fun createFolder(transaction: ITransaction?, folderUri: String?) {}
+    override fun createFolder(transaction: ITransaction, folderUri: String) {
+        // no-op
+    }
 
-    override fun createResource(transaction: ITransaction?, resourceUri: String?) {}
+    override fun createResource(transaction: ITransaction, resourceUri: String) {
+        // no-op
+    }
 
-    override fun getResourceContent(transaction: ITransaction?, resourceUri: String?): InputStream? {
-        val token = extraheerToken(resourceUri)?.takeIf { it.isNotEmpty() } ?: return null
+    override fun getResourceContent(transaction: ITransaction, resourceUri: String): InputStream? {
+        val token = extraheerToken(resourceUri).takeIf { it.isNotEmpty() } ?: return null
         return drcClientService.downloadEnkelvoudigInformatieobject(
             webdavHelper.readGegevens(token).enkelvoudigInformatieibjectUUID
         )
     }
 
     override fun setResourceContent(
-        transaction: ITransaction?,
-        resourceUri: String?,
-        content: InputStream?,
+        transaction: ITransaction,
+        resourceUri: String,
+        content: InputStream,
         contentType: String?,
         characterEncoding: String?
     ): Long {
-        val token = extraheerToken(resourceUri)?.takeIf { it.isNotEmpty() } ?: return 0L
+        val token = extraheerToken(resourceUri).takeIf { it.isNotEmpty() } ?: return 0L
         val webdavGegevens = webdavHelper.readGegevens(token)
         try {
             setLoggedInUser(
                 CDI.current().select(HttpSession::class.java).get(),
                 webdavGegevens.loggedInUser
             )
-            val inhoud = content!!.readBytes()
+            val inhoud = content.readBytes()
             val update = EnkelvoudigInformatieObjectWithLockRequest().apply {
                 this.inhoud = inhoud.toBase64String()
                 bestandsomvang = inhoud.size
@@ -89,14 +99,16 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
         }
     }
 
-    override fun getChildrenNames(transaction: ITransaction?, folderUri: String?) = null
+    override fun getChildrenNames(transaction: ITransaction, folderUri: String) = null
 
-    override fun getResourceLength(transaction: ITransaction?, resourceUri: String?) = 0L
+    override fun getResourceLength(transaction: ITransaction, resourceUri: String) = 0L
 
-    override fun removeObject(transaction: ITransaction?, uri: String?) {}
+    override fun removeObject(transaction: ITransaction, uri: String) {
+        // no-op
+    }
 
-    override fun getStoredObject(transaction: ITransaction?, uri: String?): StoredObject? {
-        val token = extraheerToken(uri) ?: return null
+    override fun getStoredObject(transaction: ITransaction, uri: String): StoredObject? {
+        val token = extraheerToken(uri)
         return when {
             token.isEmpty() -> null
             token == WebdavHelper.FOLDER -> folderStoredObject
@@ -104,9 +116,11 @@ class WebdavStore(ignoredFake: File) : IWebdavStore {
         }
     }
 
-    override fun destroy() {}
+    override fun destroy() {
+        // no-op
+    }
 
-    private fun extraheerToken(uri: String?): String? = uri?.let { FilenameUtils.getBaseName(File(it).name) }
+    private fun extraheerToken(uri: String): String = FilenameUtils.getBaseName(File(uri).name)
 
     private fun getFileStoredObject(token: String): StoredObject =
         fileStoredObjectMap.getOrPut(token) {
