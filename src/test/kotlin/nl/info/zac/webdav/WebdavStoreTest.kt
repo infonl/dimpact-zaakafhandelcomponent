@@ -20,6 +20,7 @@ import jakarta.enterprise.inject.spi.CDI
 import jakarta.servlet.http.HttpSession
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.webdav.ITransaction
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.setLoggedInUser
@@ -28,6 +29,7 @@ import java.io.File
 import java.util.UUID
 
 class WebdavStoreTest : BehaviorSpec({
+    val noTransaction = mockk<ITransaction>()
     val webdavHelper = mockk<WebdavHelper>()
     val drcClientService = mockk<DrcClientService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
@@ -82,7 +84,7 @@ class WebdavStoreTest : BehaviorSpec({
             val inputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
             every { drcClientService.downloadEnkelvoudigInformatieobject(documentUUID) } returns inputStream
 
-            val result = webdavStore.getResourceContent(null, "/webdav/folder/$token.docx")
+            val result = webdavStore.getResourceContent(noTransaction, "/webdav/folder/$token.docx")
 
             Then("it returns the InputStream downloaded from DRC") {
                 result shouldBe inputStream
@@ -97,7 +99,7 @@ class WebdavStoreTest : BehaviorSpec({
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
 
-            val result = webdavStore.getStoredObject(null, "/webdav/folder/$token.docx")
+            val result = webdavStore.getStoredObject(noTransaction, "/webdav/folder/$token.docx")
 
             Then("it returns a file StoredObject with the correct metadata") {
                 result shouldNotBe null
@@ -135,7 +137,7 @@ class WebdavStoreTest : BehaviorSpec({
             } returns updatedDocument
 
             val result = webdavStore.setResourceContent(
-                null,
+                noTransaction,
                 "/webdav/folder/$token.docx",
                 contentStream,
                 null,
@@ -160,7 +162,7 @@ class WebdavStoreTest : BehaviorSpec({
         val webdavStore = WebdavStore(File("/fake"))
 
         When("getStoredObject is called") {
-            val result = webdavStore.getStoredObject(null, "/webdav/folder")
+            val result = webdavStore.getStoredObject(noTransaction, "/webdav/folder")
 
             Then("it returns a folder StoredObject") {
                 result shouldNotBe null
@@ -169,12 +171,12 @@ class WebdavStoreTest : BehaviorSpec({
         }
     }
 
-    Given("a null URI") {
+    Given("an empty URI") {
         setupCdi(mockk(), mockk(), mockk())
         val webdavStore = WebdavStore(File("/fake"))
 
         When("getResourceContent is called") {
-            val result = webdavStore.getResourceContent(null, null)
+            val result = webdavStore.getResourceContent(noTransaction, "")
 
             Then("it returns null") {
                 result shouldBe null
@@ -182,7 +184,7 @@ class WebdavStoreTest : BehaviorSpec({
         }
 
         When("getStoredObject is called") {
-            val result = webdavStore.getStoredObject(null, null)
+            val result = webdavStore.getStoredObject(noTransaction, "")
 
             Then("it returns null") {
                 result shouldBe null
@@ -191,8 +193,8 @@ class WebdavStoreTest : BehaviorSpec({
 
         When("setResourceContent is called") {
             val result = webdavStore.setResourceContent(
-                null,
-                null,
+                noTransaction,
+                "",
                 ByteArrayInputStream(byteArrayOf(1, 2, 3)),
                 null,
                 null
@@ -209,7 +211,7 @@ class WebdavStoreTest : BehaviorSpec({
         val webdavStore = WebdavStore(File("/fake"))
 
         When("getChildrenNames is called") {
-            val result = webdavStore.getChildrenNames(null, "/webdav/folder")
+            val result = webdavStore.getChildrenNames(noTransaction, "/webdav/folder")
 
             Then("it returns null") {
                 result shouldBe null
@@ -217,7 +219,7 @@ class WebdavStoreTest : BehaviorSpec({
         }
 
         When("getResourceLength is called") {
-            val result = webdavStore.getResourceLength(null, "/webdav/folder/sometoken.docx")
+            val result = webdavStore.getResourceLength(noTransaction, "/webdav/folder/sometoken.docx")
 
             Then("it returns 0") {
                 result shouldBe 0L
