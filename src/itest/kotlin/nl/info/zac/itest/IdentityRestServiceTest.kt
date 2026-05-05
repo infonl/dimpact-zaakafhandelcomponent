@@ -228,13 +228,14 @@ class IdentityServiceTest : BehaviorSpec({
                             ]
                         """.trimIndent()
                     }
+                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
 
         Given(
             """
-              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype,
               using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
               Old IAM (PABC feature flag off): groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
               zaaktype configuration for a given domain role, and a logged-in beheerder
@@ -281,6 +282,7 @@ class IdentityServiceTest : BehaviorSpec({
                     } else {
                         response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
                     }
+                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
