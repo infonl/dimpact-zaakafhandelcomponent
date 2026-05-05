@@ -45,9 +45,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakViewComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
-    ZakenMijnComponent,
-    ZakenAfgehandeldComponent,
-    ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
     ZaakDocumentenComponent,
@@ -56,6 +53,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
   imports: [
     NotitiesComponent,
     SharedModule,
+    ZakenAfgehandeldComponent,
+    ZakenMijnComponent,
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
@@ -73,6 +72,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakProcessFlowComponent,
     ZaakVerkortComponent,
     BetrokkeneLinkComponent,
+    ZaakInitiatorToevoegenComponent,
   ],
 })
 export class ZakenModule {}
