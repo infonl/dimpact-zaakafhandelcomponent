@@ -13,6 +13,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.COORDINATOR_1
@@ -22,6 +23,7 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_2
+import nl.info.zac.itest.config.GROUP_INACTIVE_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
@@ -62,71 +64,93 @@ val TEST_GROUPS_ALL =
             [
                 {
                     "id": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_COORDINATORS.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_COORDINATORS.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_TEST_GROUP_A.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_A.description}"
+                    "naam": "${OLD_IAM_TEST_GROUP_A.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
-                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}",
+                    "active": true
                 },
                 {
                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
-                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}"
+                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
-                    "naam": "${GROUP_RAADPLEGERS_TEST_1.description}"
+                    "naam": "${GROUP_RAADPLEGERS_TEST_1.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_2.name}",
-                    "naam": "${GROUP_RAADPLEGERS_TEST_2.description}"
+                    "naam": "${GROUP_RAADPLEGERS_TEST_2.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_BEHANDELAARS_TEST_2.name}",
-                    "naam": "${GROUP_BEHANDELAARS_TEST_2.description}"
+                    "naam": "${GROUP_BEHANDELAARS_TEST_2.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                    "naam": "${GROUP_COORDINATORS_TEST_1.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_COORDINATORS_TEST_2.name}",
-                    "naam": "${GROUP_COORDINATORS_TEST_2.description}"
+                    "naam": "${GROUP_COORDINATORS_TEST_2.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_RECORDMANAGERS_TEST_2.name}",
-                    "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}"
+                    "naam": "${GROUP_RECORDMANAGERS_TEST_2.description}",
+                    "active": true
                 },
                 {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                    "active": true
+                },
+                {
+                    "id": "${GROUP_INACTIVE_TEST_1.name}",
+                    "naam": "${GROUP_INACTIVE_TEST_1.description}",
+                    "active": false
                 }
             ]
         """
@@ -142,7 +166,7 @@ class IdentityServiceTest : BehaviorSpec({
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
-                    "all available groups in the Keycloak ZAC realm are returned"
+                    "all groups in the Keycloak ZAC realm are returned including the inactive group with active=false"
                 ) {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
@@ -175,31 +199,36 @@ class IdentityServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     if (FEATURE_FLAG_PABC_INTEGRATION) {
                         response.bodyAsString shouldEqualSpecifiedJson """
-                            [                                                   
+                            [
                                 {
                                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
-                                }                              
+                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
+                                    "active": true
+                                }
                             ]
                         """.trimIndent()
                     } else {
                         response.bodyAsString shouldEqualSpecifiedJson """
-                            [                               
+                            [
                                 {
                                     "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
-                                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}"
+                                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}",
+                                    "active": true
                                 }
                             ]
                         """.trimIndent()
@@ -234,19 +263,23 @@ class IdentityServiceTest : BehaviorSpec({
                     [
                         {
                             "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                            "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                            "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
+                            "active": true
                         },
                         {
                             "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                            "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                            "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                            "active": true
                         },
                         {
                             "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                            "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                            "naam": "${GROUP_COORDINATORS_TEST_1.description}",
+                            "active": true
                         },
                         {
                             "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                            "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
+                            "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
+                            "active": true
                         }
                     ]
                         """.trimIndent()
@@ -279,23 +312,27 @@ class IdentityServiceTest : BehaviorSpec({
                     ) {
                         response.code shouldBe HTTP_OK
                         response.bodyAsString shouldEqualSpecifiedJson """
-                            [                                                   
+                            [
                                 {
                                     "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
+                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}"
+                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}"
+                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}",
+                                    "active": true
                                 },
                                 {
                                     "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}"
-                                }                              
+                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
+                                    "active": true
+                                }
                             ]
                         """.trimIndent()
                     }
@@ -398,6 +435,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                    "id": "${PABC_ADMIN.username}",
                                     "naam": "${PABC_ADMIN.displayName}"
+                                },
+                                {
+                                    "id": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
+                                    "naam": "${BEHANDELAAR_INACTIVE_GROUP_1.displayName}"
                                 }
                             ]
                     """.trimIndent()
@@ -426,6 +467,30 @@ class IdentityServiceTest : BehaviorSpec({
                             {
                                 "id": "${OLD_IAM_TEST_USER_2.username}",
                                 "naam": "${OLD_IAM_TEST_USER_2.displayName}"
+                            }
+                        ]
+                    """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Getting users in an inactive group") {
+        Given(
+            "Keycloak contains an inactive group '${GROUP_INACTIVE_TEST_1.name}' with one member, and a logged-in beheerder"
+        ) {
+            When("the 'list users in group' endpoint is called for the inactive group") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/identity/groups/${GROUP_INACTIVE_TEST_1.name}/users",
+                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                )
+                Then("the member of the inactive group is returned") {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualJson """
+                        [
+                            {
+                                "id": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
+                                "naam": "${BEHANDELAAR_INACTIVE_GROUP_1.displayName}"
                             }
                         ]
                     """.trimIndent()

@@ -3,19 +3,51 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, Inject, OnDestroy } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatFormFieldModule, MatHint } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
+import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   templateUrl: "zaak-verlengen-dialog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDividerModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatHint,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    ZacInput,
+    ZacDate,
+    ZacCheckbox,
+  ],
 })
 export class ZaakVerlengenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -140,7 +172,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.form.updateValueAndValidity();
   }
 
-  verlengen() {
+  protected verlengen() {
     this.dialogRef.disableClose = true;
 
     const formValues = this.form.value;
@@ -158,7 +190,7 @@ export class ZaakVerlengenDialogComponent implements OnDestroy {
     this.extendZaakMutation.mutate(body);
   }
 
-  close() {
+  protected close() {
     this.dialogRef.close();
   }
 

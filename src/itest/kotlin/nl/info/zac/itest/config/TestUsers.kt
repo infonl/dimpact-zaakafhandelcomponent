@@ -118,6 +118,12 @@ val PABC_ADMIN = TestUser(
     password = "pabcadmin",
     displayName = "PABC Admin"
 )
+val BEHANDELAAR_INACTIVE_GROUP_1 = TestUser(
+    username = "behandelaar1inactivegroup",
+    password = "behandelaar1inactivegroup",
+    displayName = "Test Behandelaar 1 - inactive group",
+    email = "behandelaar-inactive-group-test-1@example.com"
+)
 
 // old IAM test users; will be removed in the future; do not use these to test new IAM functionality
 val OLD_IAM_TEST_USER_1 = TestUser(

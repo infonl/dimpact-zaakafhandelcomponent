@@ -133,7 +133,7 @@ export class SmartDocumentsFormComponent {
   }));
 
   private readonly currentTemplateMappingsQuery = injectQuery(() => ({
-    queryKey: ["currentTemplateMappingsQuery", this.zaakTypeUuid],
+    queryKey: ["smartDocumentsTemplatesMapping", this.zaakTypeUuid],
     refetchOnWindowFocus: false,
     queryFn: () =>
       firstValueFrom(

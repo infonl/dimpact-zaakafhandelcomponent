@@ -16,7 +16,7 @@ global:
     # -- curl docker repository used throughout the chart
     repository: curlimages/curl
     # -- curl docker tag to pull
-    tag: 8.19.0@sha256:c03110c736db81bbe1be0296f1f1608c81b954b01626bdfb0a8f84e5bd00ff3c
+    tag: 8.20.0@sha256:b3f1fb2a51d923260350d21b8654bbc607164a987e2f7c84a0ac199a67df812a
     pullPolicy: IfNotPresent
 
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
@@ -330,7 +330,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.15.2-static@sha256:f3429de096f6d274bd9927f7a50c334e340a6cf206fad9460ccf17e2f3e807bf"
+    tag: "1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
   autoscaling:
@@ -558,7 +558,7 @@ office_converter:
   # url: ""
   image:
     repository: gotenberg/gotenberg
-    tag: "8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3"
+    tag: "8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -635,7 +635,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.30.0@sha256:9b269aa3263e1dcba790fda66aa91b6b02f904adcd8329e5cf256e14a65e2974
+    tag: 1.30.0@sha256:3def659164dfb7d6be8563983ea9d2fe7e4dfcf2af96770d728723a5c5ad3bad
   service:
     type: ClusterIP
     port: 80

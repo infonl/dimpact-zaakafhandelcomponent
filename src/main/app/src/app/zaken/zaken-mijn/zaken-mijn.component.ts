@@ -3,34 +3,87 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
+import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
 import { AfterViewInit, Component, OnDestroy, ViewChild } from "@angular/core";
-
-import { detailExpand } from "../../shared/animations/animations";
-
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTable } from "@angular/material/table";
-import { ActivatedRoute } from "@angular/router";
+import { MatSort, MatSortHeader } from "@angular/material/sort";
+import { MatTable, MatTableModule } from "@angular/material/table";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
+import { DagenPipe } from "../../shared/pipes/dagen.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ZakenService } from "../zaken.service";
 import { ZakenMijnDatasource } from "./zaken-mijn-datasource";
+
+import { detailExpand } from "../../shared/animations/animations";
 
 @Component({
   templateUrl: "./zaken-mijn.component.html",
   styleUrls: ["./zaken-mijn.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CdkDrag,
+    CdkDropList,
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    SlicePipe,
+    MatIconButton,
+    MatIconAnchor,
+    MatIcon,
+    MatPaginator,
+    MatSort,
+    MatSortHeader,
+    MatTableModule,
+    RouterLink,
+    TranslateModule,
+    ZoekopdrachtComponent,
+    ColumnPickerComponent,
+    ExportButtonComponent,
+    ZaakIndicatiesComponent,
+    DagenPipe,
+    DatumPipe,
+    EmptyPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+    StaticTextComponent,
+    DateRangeFilterComponent,
+    FacetFilterComponent,
+    TekstFilterComponent,
+  ],
 })
 export class ZakenMijnComponent
   extends WerklijstComponent
@@ -60,7 +113,6 @@ export class ZakenMijnComponent
   );
 
   constructor(
-    private zakenService: ZakenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     public route: ActivatedRoute,
     private zoekenService: ZoekenService,

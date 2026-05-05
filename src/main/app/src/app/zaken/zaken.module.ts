@@ -28,10 +28,8 @@ import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
-import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
-import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
@@ -45,14 +43,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BesluitEditComponent,
     BesluitViewComponent,
     ZaakViewComponent,
-    BetrokkeneLinkComponent,
     ZaakCreateComponent,
     ZakenWerkvoorraadComponent,
-    ZakenMijnComponent,
-    ZakenAfgehandeldComponent,
-    ZaakOpschortenDialogComponent,
-    ZaakVerlengenDialogComponent,
-    ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
     ZaakDocumentenComponent,
@@ -61,6 +53,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
   imports: [
     NotitiesComponent,
     SharedModule,
+    ZakenAfgehandeldComponent,
+    ZakenMijnComponent,
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
@@ -77,6 +71,8 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     LocatieTonenComponent,
     ZaakProcessFlowComponent,
     ZaakVerkortComponent,
+    BetrokkeneLinkComponent,
+    ZaakInitiatorToevoegenComponent,
   ],
 })
 export class ZakenModule {}

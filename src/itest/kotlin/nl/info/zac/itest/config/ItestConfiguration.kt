@@ -69,12 +69,14 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECT_PRODUCTAANVRAAG_3_UUID = "5658d286-9a84-4cde-b9af-6771bd599a06"
     const val OBJECT_PRODUCTAANVRAAG_4_UUID = "a3278b18-0562-48cd-ab9b-ee05f2d433bb"
+    const val OBJECT_PRODUCTAANVRAAG_5_UUID = "39ded1f1-049f-4952-a6f6-a14fbede041e"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
     const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK = "testKenmerkAlternativeEmailAddress1"
     const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testKenmerkAlternativeEmailAddress2"
+    const val OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testKenmerkChangedPreferredEmailAddress"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_1_UUID = "b2f6c1d4-a5e7-4890-bcde-f01234567890"
@@ -218,6 +220,8 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email-2"
     const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-alternative-email-2"
     const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL = "test-alternative-2@example.com"
+
+    const val ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION = "ZAAK-1975-0000000001"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
@@ -372,8 +376,8 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
-    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentsProcess"
-    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "sendConfirmationEmailAndSignDocumentsProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/sendConfirmationEmailAndSignDocumentsProcess.bpmn"
     const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
@@ -387,6 +391,13 @@ object ItestConfiguration {
     const val BPMN_SUSPEND_RESUME_SUSPEND_TASK_NAME = "Suspend parameters"
     const val BPMN_SUSPEND_RESUME_RESUME_TASK_NAME = "Resume parameters"
     const val BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME = "Extend parameters"
+
+    val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
+        UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")
+    const val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK =
+        "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION = "ZAAK-2001-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-31"
 
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"

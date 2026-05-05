@@ -13,6 +13,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -59,10 +60,7 @@ describe(TakenCardComponent.name, () => {
         provideHttpClient(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        {
-          provide: WebsocketService,
-          useValue: { addListener: jest.fn() },
-        },
+        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
       ],
     }).compileComponents();
 
@@ -72,10 +70,12 @@ describe(TakenCardComponent.name, () => {
       .mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue({
-      queryKey: ["user"],
-      queryFn: async () => null,
-    } as never);
+    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue(
+      fromPartial<ReturnType<IdentityService["readLoggedInUser"]>>({
+        queryKey: ["user"],
+        queryFn: async () => fromPartial<GeneratedType<"RestUser">>({}),
+      }),
+    );
 
     fixture = TestBed.createComponent(TakenCardComponent);
     component = fixture.componentInstance;
@@ -99,6 +99,23 @@ describe(TakenCardComponent.name, () => {
     component["onLoad"](() => {});
 
     expect(component.dataSource.data).toEqual(taken);
+  });
+
+  it("skips the service call and clears dataSource when signaleringType is missing", () => {
+    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
+    spy.mockClear();
+    component.data = new DashboardCard(
+      DashboardCardId.MIJN_TAKEN,
+      DashboardCardType.TAKEN,
+    );
+    component.dataSource.data = [makeTaak()];
+
+    const afterLoad = jest.fn();
+    component["onLoad"](afterLoad);
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(component.dataSource.data).toEqual([]);
+    expect(afterLoad).toHaveBeenCalled();
   });
 
   it("exposes the expected column definitions", () => {

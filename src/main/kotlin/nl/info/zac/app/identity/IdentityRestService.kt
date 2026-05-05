@@ -49,7 +49,7 @@ class IdentityRestService @Inject constructor(
     @GET
     @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
     fun listBehandelaarGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
-        identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
+        identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
 
     /**
      * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
@@ -60,7 +60,8 @@ class IdentityRestService @Inject constructor(
     @Path("zaaktype/{zaaktypeDescription}/behandelaar-groups")
     fun listBehandelaarGroupsForZaaktype(
         @PathParam("zaaktypeDescription") zaaktypeDescription: String
-    ): List<RestGroup> = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).toRestGroups()
+    ): List<RestGroup> =
+        identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

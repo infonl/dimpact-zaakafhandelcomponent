@@ -194,7 +194,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       },
-                      {                     
+                      {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
@@ -222,7 +222,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "versiedatum": "$DATE_2025_01_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
-                      },  
+                      },
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
@@ -281,7 +281,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
-                    ]    
+                    ]
                 """.trimIndent()
             }
         }

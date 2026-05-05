@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.227](https://img.shields.io/badge/Version-1.0.227-informational?style=flat-square) ![AppVersion: 4.7](https://img.shields.io/badge/AppVersion-4.7-informational?style=flat-square)
+![Version: 1.0.233](https://img.shields.io/badge/Version-1.0.233-informational?style=flat-square) ![AppVersion: 4.8](https://img.shields.io/badge/AppVersion-4.8-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.152.0 |
+| @opentelemetry | opentelemetry-collector | 0.153.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -81,7 +81,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.19.0@sha256:c03110c736db81bbe1be0296f1f1608c81b954b01626bdfb0a8f84e5bd00ff3c"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.20.0@sha256:b3f1fb2a51d923260350d21b8654bbc607164a987e2f7c84a0ac199a67df812a"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -170,7 +170,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.30.0@sha256:9b269aa3263e1dcba790fda66aa91b6b02f904adcd8329e5cf256e14a65e2974"` |  |
+| nginx.image.tag | string | `"1.30.0@sha256:3def659164dfb7d6be8563983ea9d2fe7e4dfcf2af96770d728723a5c5ad3bad"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -203,7 +203,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3"` |  |
+| office_converter.image.tag | string | `"8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -223,7 +223,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.15.2-static@sha256:f3429de096f6d274bd9927f7a50c334e340a6cf206fad9460ccf17e2f3e807bf"` |  |
+| opa.image.tag | string | `"1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
