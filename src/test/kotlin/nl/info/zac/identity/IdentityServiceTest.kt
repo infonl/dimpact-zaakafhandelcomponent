@@ -101,6 +101,29 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
+    Context("Listing groups") {
+        Given("a mix of active and inactive groups in the Keycloak realm") {
+            val activeGroupRepresentation = createGroupRepresentation(name = "fakeActiveGroup")
+            val inactiveGroupRepresentation = createGroupRepresentation(
+                name = "fakeInactiveGroup",
+                attributes = mapOf("active" to listOf("false"))
+            )
+            every {
+                realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
+            } returns listOf(activeGroupRepresentation, inactiveGroupRepresentation)
+
+            When("the groups are listed") {
+                val groups = identityService.listGroups()
+
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 2
+                    groups.first { it.name == "fakeActiveGroup" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroup" }.active shouldBe false
+                }
+            }
+        }
+    }
+
     Context("Listing users in a group") {
         Given("Users in a group in the Keycloak realm") {
             val groupId = "fakeGroupId"
@@ -330,6 +353,11 @@ class IdentityServiceTest : BehaviorSpec({
                 name = "fakeGroupId2",
                 description = null
             )
+            val inactivePabcGroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeInactiveGroupId",
+                description = "fakeInactiveGroupDescription",
+                attributes = mapOf("active" to listOf("false"))
+            )
             every { configurationService.featureFlagPabcIntegration() } returns true
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
@@ -337,25 +365,27 @@ class IdentityServiceTest : BehaviorSpec({
                     applicationRole = "behandelaar",
                     zaaktypeDescription = zaaktype.omschrijving
                 )
-            } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2)
+            } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
 
-            When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+            When("active groups for the zaaktype UUID are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
-                Then("all groups are returned, sorted by name") {
-                    groups.size shouldBe 2
-                    groups[0].name shouldBe "fakeGroupId1"
-                    groups[1].name shouldBe "fakeGroupId2"
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 3
+                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
+                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
 
             When("groups for the zaaktype are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("all groups are returned, sorted by name") {
-                    groups.size shouldBe 2
-                    groups[0].name shouldBe "fakeGroupId1"
-                    groups[1].name shouldBe "fakeGroupId2"
+                Then("all groups are returned with the active flag correctly set") {
+                    groups.size shouldBe 3
+                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
+                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
+                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
                 }
             }
         }
@@ -385,7 +415,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("only groups with matching domain roles are returned") {
                     groups.size shouldBe 1
@@ -417,7 +447,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("all groups are returned, sorted by name") {
                     groups.size shouldBe 2
@@ -435,7 +465,7 @@ class IdentityServiceTest : BehaviorSpec({
             every { configurationService.featureFlagPabcIntegration() } returns false
 
             When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
                 Then("no groups are returned") {
                     groups.size shouldBe 0

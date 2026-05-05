@@ -25,7 +25,6 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.admin.client.resource.RealmResource
 import java.util.UUID
-import kotlin.collections.filter
 
 @AllOpen
 @NoArgConstructor
@@ -54,7 +53,7 @@ class IdentityService @Inject constructor(
         .sortedBy { it.description }
 
     /**
-     * New IAM (PABC feature flag on): returns the list of groups that are authorised for the application role 'behandelaar' and
+     * New IAM (PABC feature flag on): Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      *
      * Old IAM (PABC feature flag off): returns the list of groups that have access to the given zaaktype UUID
@@ -63,18 +62,17 @@ class IdentityService @Inject constructor(
      */
     @Deprecated(
         """Once the PABC feature flag has been removed, this function should be deleted and the
-        [listGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
+        [listActiveGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
     )
-    fun listGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
+    fun listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
         if (configurationService.featureFlagPabcIntegration()) {
             // Retrieve the zaaktype just to get the description field because we treat this as the unique
             // ID of the zaaktype (not the specific zaaktype 'version').
             // In future once the PABC feature flag has been removed this should be refactored
             // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
             val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-            listGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
+            listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
         } else {
-            // retrieve groups with 'full representation' or else the group attributes will not be filled
             val groups = keycloakZacRealmResource.groups()
                 .groups("", 0, Integer.MAX_VALUE, false)
                 .map { it.toGroup(zacKeycloakClientId) }
@@ -88,11 +86,11 @@ class IdentityService @Inject constructor(
             .sortedBy { it.description }
 
     /**
-     * Returns the list of groups that are authorised for the application role 'behandelaar' and
+     * Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      * This function requires that the PABC integration feature flag is enabled.
      */
-    fun listGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
+    fun listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = ZacApplicationRole.BEHANDELAAR.value,
             zaaktypeDescription = zaaktypeDescription

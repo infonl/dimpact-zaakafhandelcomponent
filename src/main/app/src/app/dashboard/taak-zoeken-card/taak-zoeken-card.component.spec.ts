@@ -1,0 +1,147 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatPaginatorHarness } from "@angular/material/paginator/testing";
+import { MatTableHarness } from "@angular/material/table/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
+import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { SharedModule } from "../../shared/shared.module";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
+import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
+import { ZoekenService } from "../../zoeken/zoeken.service";
+import { DashboardCard } from "../model/dashboard-card";
+import { DashboardCardId } from "../model/dashboard-card-id";
+import { DashboardCardType } from "../model/dashboard-card-type";
+import { TaakZoekenCardComponent } from "./taak-zoeken-card.component";
+
+const makeResultaat = (totaal: number, count = totaal) =>
+  fromPartial<{
+    resultaten: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">[];
+    totaal: number;
+  }>({
+    resultaten: Array.from({ length: count }, (_, i) =>
+      fromPartial<
+        GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
+      >({ identificatie: `TAAK-${i}` }),
+    ),
+    totaal,
+  });
+
+const cardData = new DashboardCard(
+  DashboardCardId.MIJN_TAKEN,
+  DashboardCardType.TAAK_ZOEKEN,
+);
+
+function buildExpectedQueryKey() {
+  const params = TakenMijnDatasource.mijnLopendeTaken(
+    getDefaultZoekParameters(),
+  );
+  params.sorteerVeld = "TAAK_FATALEDATUM";
+  params.sorteerRichting = "asc";
+  params.rows = 5;
+  params.page = 0;
+  return ["taak zoeken dashboard", params];
+}
+
+describe(TaakZoekenCardComponent.name, () => {
+  let fixture: ComponentFixture<TaakZoekenCardComponent>;
+  let loader: HarnessLoader;
+  let zoekenService: ZoekenService;
+
+  beforeEach(async () => {
+    notifyManager.setScheduler((fn) => fn());
+
+    await TestBed.configureTestingModule({
+      declarations: [TaakZoekenCardComponent],
+      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTanStackQuery(testQueryClient),
+        // useValue: real WebsocketService opens a websocket connection in its
+        // constructor; the cards only need addListener as a no-op in tests.
+        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
+      ],
+    }).compileComponents();
+
+    zoekenService = TestBed.inject(ZoekenService);
+    jest.spyOn(zoekenService, "list").mockReturnValue(of(makeResultaat(0)));
+  });
+
+  afterEach(() => {
+    notifyManager.setScheduler((fn) => Promise.resolve().then(fn));
+    fixture?.destroy();
+  });
+
+  function createComponent() {
+    fixture = TestBed.createComponent(TaakZoekenCardComponent);
+    fixture.componentInstance.data = cardData;
+    loader = TestbedHarnessEnvironment.loader(fixture);
+    fixture.detectChanges();
+    // Stop the timed reload interval so harnesses (which await whenStable)
+    // don't hang on a never-completing observable.
+    fixture.componentInstance["reloader"]?.unsubscribe();
+  }
+
+  it("renders paginator length from the query result total", async () => {
+    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(11));
+
+    createComponent();
+
+    const paginator = await loader.getHarness(MatPaginatorHarness);
+    expect(await paginator.getRangeLabel()).toContain("11");
+  });
+
+  it("populates the data source with rows from the query result", () => {
+    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(3));
+
+    createComponent();
+
+    expect(fixture.componentInstance.dataSource.data).toHaveLength(3);
+  });
+
+  it("renders a table row for each result", async () => {
+    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(2));
+
+    createComponent();
+
+    const table = await loader.getHarness(MatTableHarness);
+    expect((await table.getRows()).length).toBe(2);
+  });
+
+  it("declares the expected columns in display order", () => {
+    createComponent();
+
+    expect(fixture.componentInstance.columns).toEqual([
+      "naam",
+      "creatiedatum",
+      "zaakIdentificatie",
+      "zaaktypeOmschrijving",
+      "url",
+    ]);
+  });
+
+  it("updates pageNumber when onPageChange is called", () => {
+    createComponent();
+
+    fixture.componentInstance.onPageChange({ pageIndex: 3 });
+
+    expect(fixture.componentInstance.pageNumber()).toBe(3);
+  });
+});

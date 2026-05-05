@@ -82,8 +82,14 @@ export class TakenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad(afterLoad: () => void): void {
+    const signaleringType = this.data.signaleringType;
+    if (!signaleringType) {
+      this.dataSource.data = [];
+      afterLoad();
+      return;
+    }
     this.signaleringenService
-      .listTakenSignalering(this.data.signaleringType!)
+      .listTakenSignalering(signaleringType)
       .subscribe((taken) => {
         this.dataSource.data = taken;
         afterLoad();
