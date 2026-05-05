@@ -11,29 +11,54 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
+import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { MaterialModule } from "../../shared/material/material.module";
+import { DagenPipe } from "../../shared/pipes/dagen.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld.component";
+import { ZoekenService } from "../../zoeken/zoeken.service";
+import { TakenMijnComponent } from "./taken-mijn.component";
 
-describe(ZakenAfgehandeldComponent.name, () => {
-  let component: ZakenAfgehandeldComponent;
-  let fixture: ComponentFixture<ZakenAfgehandeldComponent>;
+describe(TakenMijnComponent.name, () => {
+  let component: TakenMijnComponent;
+  let fixture: ComponentFixture<TakenMijnComponent>;
   let utilService: UtilService;
+  let zoekenService: ZoekenService;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [
-        ZakenAfgehandeldComponent,
+        TakenMijnComponent,
+        MaterialModule,
+        RouterModule,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
+        EmptyPipe,
+        DatumPipe,
+        DagenPipe,
+        FacetFilterComponent,
+        TekstFilterComponent,
+        DateRangeFilterComponent,
+        ZoekopdrachtComponent,
+        ColumnPickerComponent,
+        ExportButtonComponent,
+        StaticTextComponent,
       ],
       providers: [
         {
@@ -60,31 +85,32 @@ describe(ZakenAfgehandeldComponent.name, () => {
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "setTitle").mockReturnValue(undefined);
 
-    fixture = TestBed.createComponent(ZakenAfgehandeldComponent);
+    zoekenService = TestBed.inject(ZoekenService);
+    jest
+      .spyOn(zoekenService, "list")
+      .mockReturnValue(of({ resultaten: [], totaal: 0 }) as never);
+
+    fixture = TestBed.createComponent(TakenMijnComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   describe("ngOnInit", () => {
-    it("sets the page title to title.zaken.afgehandeld", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith(
-        "title.zaken.afgehandeld",
-      );
+    it("sets the page title to title.taken.mijn", () => {
+      expect(utilService.setTitle).toHaveBeenCalledWith("title.taken.mijn");
     });
   });
 
   describe("getWerklijst", () => {
-    it("returns AFGEHANDELDE_ZAKEN", () => {
-      expect(component["getWerklijst"]()).toBe("AFGEHANDELDE_ZAKEN");
+    it("returns WERKVOORRAAD_TAKEN", () => {
+      expect(component["getWerklijst"]()).toBe("WERKVOORRAAD_TAKEN");
     });
   });
 
   describe("defaultColumns", () => {
-    it("includes ZAAK_DOT_IDENTIFICATIE as VISIBLE", () => {
+    it("includes NAAM as VISIBLE", () => {
       const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.ZAAK_DOT_IDENTIFICATIE)).toBe(
-        ColumnPickerValue.VISIBLE,
-      );
+      expect(columns.get(ZoekenColumn.NAAM)).toBe(ColumnPickerValue.VISIBLE);
     });
 
     it("includes URL as STICKY", () => {
@@ -92,51 +118,30 @@ describe(ZakenAfgehandeldComponent.name, () => {
       expect(columns.get(ZoekenColumn.URL)).toBe(ColumnPickerValue.STICKY);
     });
 
-    it("includes EINDDATUM as VISIBLE", () => {
+    it("includes FATALEDATUM as VISIBLE", () => {
       const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.EINDDATUM)).toBe(
+      expect(columns.get(ZoekenColumn.FATALEDATUM)).toBe(
         ColumnPickerValue.VISIBLE,
       );
     });
 
-    it("includes BEHANDELAAR as VISIBLE", () => {
+    it("includes ZAAK_TOELICHTING as HIDDEN", () => {
       const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.BEHANDELAAR)).toBe(
-        ColumnPickerValue.VISIBLE,
-      );
-    });
-
-    it("includes RESULTAAT as VISIBLE", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.RESULTAAT)).toBe(
-        ColumnPickerValue.VISIBLE,
-      );
-    });
-
-    it("includes STATUS as HIDDEN", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.STATUS)).toBe(ColumnPickerValue.HIDDEN);
-    });
-
-    it("includes INDICATIES as HIDDEN", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.INDICATIES)).toBe(
+      expect(columns.get(ZoekenColumn.ZAAK_TOELICHTING)).toBe(
         ColumnPickerValue.HIDDEN,
       );
     });
   });
 
-  describe("isAfterDateLimit", () => {
-    it("returns true when date exceeds the limit", () => {
-      const exceededDate = "2020-01-01";
-      const limitDate = "2021-01-01";
-      expect(component["isAfterDateLimit"](exceededDate, limitDate)).toBe(true);
+  describe("isAfterDate", () => {
+    it("returns true for past dates", () => {
+      const pastDate = new Date("2020-01-01");
+      expect(component["isAfterDate"](pastDate)).toBe(true);
     });
 
-    it("returns false when date does not exceed the limit", () => {
-      const futureDate = "2030-01-01";
-      const limitDate = "2020-01-01";
-      expect(component["isAfterDateLimit"](futureDate, limitDate)).toBe(false);
+    it("returns false for future dates", () => {
+      const futureDate = new Date("2030-01-01");
+      expect(component["isAfterDate"](futureDate)).toBe(false);
     });
   });
 

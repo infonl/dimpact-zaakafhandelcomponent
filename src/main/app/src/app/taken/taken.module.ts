@@ -19,12 +19,9 @@ import { TakenRoutingModule } from "./taken-routing.module";
 import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
 
 @NgModule({
-  declarations: [
-    TaakViewComponent,
-    TakenWerkvoorraadComponent,
-    TakenMijnComponent,
-  ],
+  declarations: [TaakViewComponent, TakenWerkvoorraadComponent],
   imports: [
+    TakenMijnComponent,
     SharedModule,
     TakenRoutingModule,
     ZakenModule,

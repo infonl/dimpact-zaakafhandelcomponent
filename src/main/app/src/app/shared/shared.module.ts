@@ -47,8 +47,9 @@ import { ToggleFilterComponent } from "./table-zoek-filters/toggle-filter/toggle
 import { VersionComponent } from "./version/version.component";
 
 @NgModule({
-  declarations: [ZaakdataComponent],
+  declarations: [],
   imports: [
+    ZaakdataComponent,
     DocumentViewerComponent,
     CommonModule,
     DragDropModule,

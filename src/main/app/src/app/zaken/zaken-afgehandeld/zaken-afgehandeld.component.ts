@@ -5,37 +5,42 @@
 
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
+import {
   AfterViewInit,
   Component,
   OnDestroy,
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, SlicePipe } from "@angular/common";
 
 import { detailExpand } from "../../shared/animations/animations";
 
-import { MatIconButton } from "@angular/material/button";
-import { MatIconAnchor } from "@angular/material/button";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
-import { RouterLink } from "@angular/router";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
-import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
-import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
