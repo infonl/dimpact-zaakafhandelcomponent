@@ -4,6 +4,14 @@
  */
 
 import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
+import {
   AfterViewInit,
   Component,
   OnDestroy,
@@ -13,20 +21,32 @@ import {
 
 import { detailExpand } from "../../shared/animations/animations";
 
+import { DragDropModule } from "@angular/cdk/drag-drop";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTable } from "@angular/material/table";
-import { ActivatedRoute } from "@angular/router";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTable, MatTableModule } from "@angular/material/table";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
-import { IdentityService } from "../../identity/identity.service";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { DagenPipe } from "../../shared/pipes/dagen.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { TakenService } from "../taken.service";
 
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -36,17 +56,44 @@ import { TakenMijnDatasource } from "./taken-mijn-datasource";
   templateUrl: "./taken-mijn.component.html",
   styleUrls: ["./taken-mijn.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    DragDropModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginator,
+    MatIcon,
+    MatIconButton,
+    MatIconAnchor,
+    RouterLink,
+    TranslateModule,
+    NgIf,
+    NgFor,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    SlicePipe,
+    EmptyPipe,
+    DatumPipe,
+    DagenPipe,
+    FacetFilterComponent,
+    TekstFilterComponent,
+    DateRangeFilterComponent,
+    ZoekopdrachtComponent,
+    ColumnPickerComponent,
+    ExportButtonComponent,
+    StaticTextComponent,
+  ],
 })
 export class TakenMijnComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   dataSource: TakenMijnDatasource;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<TaakZoekObject>;
-  expandedRow: TaakZoekObject | null;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<TaakZoekObject>;
+  expandedRow: TaakZoekObject | null = null;
   readonly zoekenColumn = ZoekenColumn;
 
   fataledatumIcon: TextIcon = new TextIcon(
@@ -59,9 +106,7 @@ export class TakenMijnComponent
 
   constructor(
     public route: ActivatedRoute,
-    private takenService: TakenService,
     public utilService: UtilService,
-    private identityService: IdentityService,
     private zoekenService: ZoekenService,
     public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
   ) {
@@ -83,7 +128,7 @@ export class TakenMijnComponent
     this.table.dataSource = this.dataSource;
   }
 
-  isAfterDate(datum): boolean {
+  protected isAfterDate(datum: Date | string | null): boolean {
     return DateConditionals.isExceeded(datum);
   }
 
