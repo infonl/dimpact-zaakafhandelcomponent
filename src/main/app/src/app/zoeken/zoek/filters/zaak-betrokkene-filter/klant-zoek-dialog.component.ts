@@ -8,7 +8,6 @@ import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
 
 @Component({
-  selector: "zac-klant-zoek-dialog",
   templateUrl: "klant-zoek-dialog.component.html",
   styleUrls: ["./klant-zoek-dialog.component.less"],
   standalone: true,

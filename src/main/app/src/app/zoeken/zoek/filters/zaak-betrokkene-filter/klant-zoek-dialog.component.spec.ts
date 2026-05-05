@@ -10,10 +10,10 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { testQueryClient } from "../../../../../../setupJest";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { testQueryClient } from "../../../../../../setupJest";
 import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 
 describe(KlantZoekDialog.name, () => {

@@ -38,7 +38,8 @@ const makeZaak = (
     ...fields,
   });
 
-const makeSideNav = (): MatDrawer => ({ close: jest.fn() }) as unknown as MatDrawer;
+const makeSideNav = (): MatDrawer =>
+  ({ close: jest.fn() }) as unknown as MatDrawer;
 
 describe(ZaakdataComponent.name, () => {
   let fixture: ComponentFixture<ZaakdataComponent>;
