@@ -43,6 +43,7 @@ export class ZakenCardComponent
 
   zakenQuery = injectQuery(() => ({
     queryKey: ["aan mij toegekende zaken signaleringen", this.parameters()],
+    enabled: this.parameters().signaleringType != null,
     queryFn: () =>
       firstValueFrom(
         this.signaleringenService.listZakenSignalering(
@@ -63,10 +64,7 @@ export class ZakenCardComponent
     super(identityService, websocketService);
 
     effect(() => {
-      const { resultaten = [], totaal = 0 } = this.zakenQuery.data() ?? {};
-
-      this.dataSource.data = resultaten;
-      if (this.paginator) this.paginator.length = totaal;
+      this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
     });
   }
 

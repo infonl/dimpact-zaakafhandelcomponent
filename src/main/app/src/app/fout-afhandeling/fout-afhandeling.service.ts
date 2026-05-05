@@ -142,7 +142,7 @@ export class FoutAfhandelingService {
       return of();
     }
 
-    if (err.status === 0 && err.url?.startsWith("/rest/")) {
+    if (err.status === 0 && err.url?.includes("/rest/")) {
       // status 0 means that the user is no longer logged in
       if (!isDevMode()) {
         window.location.reload();
