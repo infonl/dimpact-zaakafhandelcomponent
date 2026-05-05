@@ -5,14 +5,7 @@
  */
 
 import "@angular/compiler";
-import { getTestBed } from "@angular/core/testing";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
-
-if (getTestBed().platform) {
-  getTestBed().resetTestEnvironment();
-}
-setupZoneTestEnv();
 
 const cryptoPolyfill = {
   randomUUID: () => {
