@@ -3,10 +3,10 @@
   "request": {
     "urlPathPattern": "/haalcentraal/api/brp/personen.*",
     "headers": {
-      "X-DOELBINDING": {
+      "x-doelbinding": {
         "absent": true
       },
-      "X-VERWERKING": {
+      "x-verwerking": {
         "absent": true
       }
     }

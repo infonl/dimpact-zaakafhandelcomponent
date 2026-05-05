@@ -6,176 +6,83 @@ package nl.info.client.brp.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.maps.shouldContainExactly
-import io.kotest.matchers.maps.shouldContainKey
-import io.kotest.matchers.maps.shouldHaveSize
-import io.kotest.matchers.string.shouldHaveLength
-import io.kotest.matchers.string.shouldStartWith
-import io.mockk.checkUnnecessaryStub
-import io.mockk.every
-import io.mockk.mockk
-import jakarta.enterprise.inject.Instance
-import jakarta.enterprise.inject.UnsatisfiedResolutionException
-import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_HEADER_SIZE
-import nl.info.client.brp.util.BrpClientHeadersFactory.Companion.MAX_USER_HEADER_SIZE
-import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
+import io.kotest.matchers.maps.shouldNotContainKey
+import io.kotest.matchers.shouldBe
 import org.jboss.resteasy.core.Headers
-import java.util.Optional
 
 class BrpClientHeadersFactoryTest : BehaviorSpec({
-    val originOin = "fakeOriginOin"
-    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
-    beforeEach {
-        checkUnnecessaryStub()
-    }
-
-    Given("protocollering is disabled") {
-        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
+    Given("An empty protocollering context") {
         val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-        val existingHeaders = Headers<String>().apply {
-            add("header", "value")
-        }
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+        val existingHeaders = Headers<String>().apply { add("header", "value") }
 
         When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), existingHeaders)
+            val headers = factory.update(Headers(), existingHeaders)
 
-            Then("no protocollering headers are changed or set") {
+            Then("no protocollering headers are added") {
                 headers shouldContainExactly mapOf("header" to listOf("value"))
             }
         }
     }
 
-    Given("originOIN is present and a valid user exists") {
-        every { loggedInUserInstance.get().id } returns "username"
-
-        val brpConfiguration = createBrpConfiguration()
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("BRP protocollering headers are set without api key header") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf(originOin),
-                    "x-gebruiker" to listOf("username"),
-                    "x-toepassing" to listOf("ZAC")
-                )
-            }
-        }
-    }
-
-    Given("FUNCTIONEEL_GEBRUIKER is the current active user") {
-        every { loggedInUserInstance.get().id } returns FUNCTIONEEL_GEBRUIKER.id
-
-        val brpConfiguration = createBrpConfiguration()
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("Systeem user is sent as the active user") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf(originOin),
-                    "x-gebruiker" to listOf("Systeem"),
-                    "x-toepassing" to listOf("ZAC")
-                )
-            }
-        }
-    }
-
-    Given("originOIN is present and no active user") {
-        every { loggedInUserInstance.get().id } throws UnsatisfiedResolutionException()
-
-        val brpConfiguration = createBrpConfiguration()
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("Systeem is sent as the active user") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf(originOin),
-                    "x-gebruiker" to listOf("Systeem"),
-                    "x-toepassing" to listOf("ZAC")
-                )
-            }
-        }
-    }
-
-    Given("Pre-set x-origin-oin header, protocollering enabled and a valid user") {
-        val outgoingHeaders = Headers<String>().apply {
-            add("x-origin-oin", "pre-set-oin")
-        }
-        every { loggedInUserInstance.get().id } returns "username"
-
-        val brpConfiguration = createBrpConfiguration()
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
-
-            Then("pre-set header is preserved and not overridden by factory") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf("pre-set-oin"),
-                    "x-gebruiker" to listOf("username"),
-                    "x-toepassing" to listOf("ZAC")
-                )
-            }
-        }
-    }
-
-    Given("Doelbinding and verwerking set in protocollering context") {
-        every { loggedInUserInstance.get().id } returns "username"
-
-        val brpConfiguration = createBrpConfiguration()
+    Given("Protocollering context has origin OIN, gebruiker and toepassing headers") {
         val brpProtocolleringContext = BrpProtocolleringContext().apply {
-            doelbinding = "fakePurpose"
-            verwerking = "fakeVerwerking"
+            headers["x-origin-oin"] = "fakeOriginOin"
+            headers["x-gebruiker"] = "username"
+            headers["x-toepassing"] = "ZAC"
         }
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
 
         When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
+            val result = factory.update(Headers(), Headers())
 
-            Then("all protocollering headers including doelbinding and verwerking are set") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf(originOin),
+            Then("all context headers appear in outgoing headers") {
+                result shouldContainExactly mapOf(
+                    "x-origin-oin" to listOf("fakeOriginOin"),
+                    "x-gebruiker" to listOf("username"),
+                    "x-toepassing" to listOf("ZAC")
+                )
+            }
+        }
+    }
+
+    Given("Pre-set x-origin-oin in outgoing headers and context also has x-origin-oin") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-origin-oin"] = "context-oin"
+            headers["x-gebruiker"] = "username"
+        }
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+        val outgoingHeaders = Headers<String>().apply { add("x-origin-oin", "pre-set-oin") }
+
+        When("headers are updated") {
+            val result = factory.update(Headers(), outgoingHeaders)
+
+            Then("pre-set header is preserved and not overridden by context value") {
+                result shouldContainExactly mapOf(
+                    "x-origin-oin" to listOf("pre-set-oin"),
+                    "x-gebruiker" to listOf("username")
+                )
+            }
+        }
+    }
+
+    Given("Protocollering context has doelbinding and verwerking in addition to other headers") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-origin-oin"] = "fakeOriginOin"
+            headers["x-gebruiker"] = "username"
+            headers["x-doelbinding"] = "fakePurpose"
+            headers["x-verwerking"] = "fakeVerwerking"
+            headers["x-toepassing"] = "ZAC"
+        }
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+
+        When("headers are updated") {
+            val result = factory.update(Headers(), Headers())
+
+            Then("all context headers including doelbinding and verwerking are in outgoing headers") {
+                result shouldContainExactly mapOf(
+                    "x-origin-oin" to listOf("fakeOriginOin"),
                     "x-gebruiker" to listOf("username"),
                     "x-doelbinding" to listOf("fakePurpose"),
                     "x-verwerking" to listOf("fakeVerwerking"),
@@ -185,50 +92,20 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("x-gebruiker header name is blank (disabled)") {
-        val brpConfiguration = createBrpConfiguration(headerNameGebruiker = Optional.of(""))
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
-
-        When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
-
-            Then("gebruiker header is not sent") {
-                headers shouldContainExactly mapOf(
-                    "x-origin-oin" to listOf(originOin),
-                    "x-toepassing" to listOf("ZAC")
-                )
-            }
+    Given("Custom header names are set in the protocollering context") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["custom-origin"] = "fakeOriginOin"
+            headers["custom-user"] = "username"
+            headers["custom-toepassing"] = "ZAC"
         }
-    }
-
-    Given("Custom header names configured") {
-        every { loggedInUserInstance.get().id } returns "username"
-
-        val brpConfiguration = createBrpConfiguration(
-            headerNameOriginOin = Optional.of("custom-origin"),
-            headerNameGebruiker = Optional.of("custom-user"),
-            headerNameToepassing = Optional.of("custom-toepassing")
-        )
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
 
         When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), Headers())
+            val result = factory.update(Headers(), Headers())
 
-            Then("custom header names are used") {
-                headers shouldContainExactly mapOf(
-                    "custom-origin" to listOf(originOin),
+            Then("custom header names are used in outgoing headers") {
+                result shouldContainExactly mapOf(
+                    "custom-origin" to listOf("fakeOriginOin"),
                     "custom-user" to listOf("username"),
                     "custom-toepassing" to listOf("ZAC")
                 )
@@ -236,60 +113,90 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
         }
     }
 
-    Given("User longer than $MAX_USER_HEADER_SIZE characters") {
-        val longUserName = "a".repeat(MAX_USER_HEADER_SIZE + 1)
-        val outgoingHeaders = Headers<String>().apply {
-            add("x-gebruiker", longUserName)
+    Given("Factory passes through values as-is without truncation") {
+        val longValue = "a".repeat(300)
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-verwerking"] = longValue
         }
-
-        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
 
         When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+            val result = factory.update(Headers(), Headers())
 
-            Then("header is truncated to $MAX_USER_HEADER_SIZE characters") {
-                headers shouldHaveSize 1
-                headers shouldContainKey "x-gebruiker"
-                with(headers["x-gebruiker"]?.first()) {
-                    this shouldStartWith "aaa"
-                    this shouldHaveLength MAX_USER_HEADER_SIZE
-                }
+            Then("the value is passed through unchanged — truncation is BrpConfigurationValueImpl's responsibility") {
+                result["x-verwerking"]?.first()?.length shouldBe 300
             }
         }
     }
 
-    Given("Header longer than $MAX_HEADER_SIZE characters") {
-        val longZaakDescription = "a".repeat(MAX_HEADER_SIZE + 1)
-        val outgoingHeaders = Headers<String>().apply {
-            add("x-verwerking", "General@$longZaakDescription")
+    Given("Protocollering context is missing the gebruiker header (disabled via blank header name)") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-origin-oin"] = "fakeOriginOin"
+            headers["x-toepassing"] = "ZAC"
         }
-
-        val brpConfiguration = createBrpConfiguration(protocolleringEnabled = false)
-        val brpProtocolleringContext = BrpProtocolleringContext()
-        val brpClientHeadersFactory =
-            BrpClientHeadersFactory(
-                brpConfiguration,
-                loggedInUserInstance,
-                brpProtocolleringContext
-            )
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
 
         When("headers are updated") {
-            val headers = brpClientHeadersFactory.update(Headers(), outgoingHeaders)
+            val result = factory.update(Headers(), Headers())
 
-            Then("header is truncated to $MAX_HEADER_SIZE characters") {
-                headers shouldHaveSize 1
-                headers shouldContainKey "x-verwerking"
-                with(headers["x-verwerking"]?.first()) {
-                    this shouldStartWith "General@aaa"
-                    this shouldHaveLength MAX_HEADER_SIZE
-                }
+            Then("gebruiker header is absent from outgoing headers") {
+                result shouldNotContainKey "x-gebruiker"
+                result shouldContainExactly mapOf(
+                    "x-origin-oin" to listOf("fakeOriginOin"),
+                    "x-toepassing" to listOf("ZAC")
+                )
+            }
+        }
+    }
+
+    Given("Protocollering context has all headers except doelbinding (doelbinding disabled)") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-origin-oin"] = "fakeOriginOin"
+            headers["x-gebruiker"] = "username"
+            headers["x-verwerking"] = "fakeVerwerking"
+            headers["x-toepassing"] = "ZAC"
+        }
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+
+        When("headers are updated") {
+            val result = factory.update(Headers(), Headers())
+
+            Then("all other headers are present but doelbinding is absent") {
+                result shouldNotContainKey "x-doelbinding"
+                result shouldContainExactly mapOf(
+                    "x-origin-oin" to listOf("fakeOriginOin"),
+                    "x-gebruiker" to listOf("username"),
+                    "x-verwerking" to listOf("fakeVerwerking"),
+                    "x-toepassing" to listOf("ZAC")
+                )
+            }
+        }
+    }
+
+    Given("Protocollering context has toepassing header") {
+        val brpProtocolleringContext = BrpProtocolleringContext().apply {
+            headers["x-toepassing"] = "ZAC"
+        }
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+
+        When("headers are updated") {
+            val result = factory.update(Headers(), Headers())
+
+            Then("toepassing header is in outgoing headers") {
+                result shouldContainExactly mapOf("x-toepassing" to listOf("ZAC"))
+            }
+        }
+    }
+
+    Given("Protocollering context does not have toepassing header (disabled via blank header name)") {
+        val brpProtocolleringContext = BrpProtocolleringContext()
+        val factory = BrpClientHeadersFactory(brpProtocolleringContext)
+
+        When("headers are updated") {
+            val result = factory.update(Headers(), Headers())
+
+            Then("toepassing header is absent from outgoing headers") {
+                result shouldNotContainKey "x-toepassing"
             }
         }
     }

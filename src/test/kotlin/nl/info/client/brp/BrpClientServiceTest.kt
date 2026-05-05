@@ -73,14 +73,12 @@ class BrpClientServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid)
-            val capturedDoelbinding = localContext.doelbinding
-            val capturedVerwerking = localContext.verwerking
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
 
-            Then("it should return the person and set doelbinding and verwerking in context") {
+            Then("it should return the person and set doelbinding and verwerking in context headers") {
                 personResponse shouldBe person
-                capturedDoelbinding shouldBe retrievePersoonPurpose
-                capturedVerwerking shouldBe "$processingValue@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
+                localContext.headers["x-doelbinding"] shouldBe retrievePersoonPurpose
+                localContext.headers["x-verwerking"] shouldBe "$processingValue@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
             }
         }
     }
@@ -94,7 +92,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid)
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "testUser")
 
             Then("it should return null") {
                 personResponse shouldBe null
@@ -115,7 +113,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid)
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "testUser")
 
             Then("it should return the first person") {
                 personResponse shouldBe persons[0]
@@ -152,15 +150,14 @@ class BrpClientServiceTest : BehaviorSpec({
             )
             val personResponse = localService.queryPersonen(
                 createRaadpleegMetBurgerservicenummer(listOf(bsn)),
-                zaaktypeUuid
+                zaaktypeUuid,
+                "testUser"
             )
-            val capturedDoelbinding = localContext.doelbinding
-            val capturedVerwerking = localContext.verwerking
 
-            Then("it should return the person and set doelbinding in context") {
+            Then("it should return the person and set doelbinding in context headers") {
                 personResponse shouldBe raadpleegMetBurgerservicenummerResponse
-                capturedDoelbinding shouldBe queryPersonenPurpose
-                capturedVerwerking shouldBe "Leerplicht@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
+                localContext.headers["x-doelbinding"] shouldBe queryPersonenPurpose
+                localContext.headers["x-verwerking"] shouldBe "Leerplicht@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
             }
         }
     }
@@ -192,12 +189,11 @@ class BrpClientServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid)
-            val capturedVerwerking = localContext.verwerking
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
 
             Then("it should still return the person with default verwerking value used for unicode processing") {
                 personResponse shouldBe person
-                capturedVerwerking shouldBe "$verwerkingregisterDefault@fakeZaaktypeOmschrijving"
+                localContext.headers["x-verwerking"] shouldBe "$verwerkingregisterDefault@fakeZaaktypeOmschrijving"
             }
         }
     }
@@ -229,12 +225,11 @@ class BrpClientServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid)
-            val capturedVerwerking = localContext.verwerking
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
 
             Then("it should still return the person with trimmed processing value") {
                 personResponse shouldBe person
-                capturedVerwerking shouldBe "Process ing\tvalue\t with whitespaces@fakeZaaktypeOmschrijving"
+                localContext.headers["x-verwerking"] shouldBe "Process ing\tvalue\t with whitespaces@fakeZaaktypeOmschrijving"
             }
         }
     }
@@ -265,14 +260,12 @@ class BrpClientServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid)
-            val capturedDoelbinding = localContext.doelbinding
-            val capturedVerwerking = localContext.verwerking
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
 
-            Then("it should still return the person using defaults from context") {
+            Then("it should still return the person using defaults from context headers") {
                 personResponse shouldBe person
-                capturedDoelbinding shouldBe doelbindingRaadpleegMetDefault
-                capturedVerwerking shouldBe "$verwerkingregisterDefault@fakeZaaktypeOmschrijving"
+                localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
+                localContext.headers["x-verwerking"] shouldBe "$verwerkingregisterDefault@fakeZaaktypeOmschrijving"
             }
         }
     }
@@ -296,14 +289,12 @@ class BrpClientServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
                 brpProtocolleringContext = localContext
             )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid)
-            val capturedDoelbinding = localContext.doelbinding
-            val capturedVerwerking = localContext.verwerking
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
 
-            Then("retrieving a person should still work with default doelbinding and verwerking") {
+            Then("retrieving a person should still work with default doelbinding and verwerking in context headers") {
                 personResponse shouldBe person
-                capturedDoelbinding shouldBe doelbindingRaadpleegMetDefault
-                capturedVerwerking shouldBe verwerkingregisterDefault
+                localContext.headers["x-doelbinding"] shouldBe doelbindingRaadpleegMetDefault
+                localContext.headers["x-verwerking"] shouldBe verwerkingregisterDefault
             }
         }
     }
@@ -337,11 +328,39 @@ class BrpClientServiceTest : BehaviorSpec({
                 brpProtocolleringContext = localContext
             )
             val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, userName)
-            val capturedGebruikersnaam = localContext.gebruikersnaam
 
-            Then("it should return the person and set gebruikersnaam in context") {
+            Then("it should return the person and set gebruiker in context headers") {
                 personResponse shouldBe person
-                capturedGebruikersnaam shouldBe userName
+                localContext.headers["x-gebruiker"] shouldBe userName
+            }
+        }
+    }
+
+    Given("An empty userName is passed (no real logged-in user available)") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        val systemUser = "fakeSystemUser"
+        val configWithSystemUser = createBrpConfiguration(systemUser = Optional.of(systemUser))
+
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } throws NotFoundException("Zaak not found")
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+
+        When("retrievePersoon is called with an empty userName") {
+            val localContext = BrpProtocolleringContext()
+            val localService = BrpClientService(
+                personenApi = personenApi,
+                brpConfiguration = configWithSystemUser,
+                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+                brpProtocolleringContext = localContext
+            )
+            localService.retrievePersoon(bsn, zaaktypeUuid, "")
+
+            Then("BRP_SYSTEM_USER is used as the gebruiker header value") {
+                localContext.headers["x-gebruiker"] shouldBe systemUser
             }
         }
     }

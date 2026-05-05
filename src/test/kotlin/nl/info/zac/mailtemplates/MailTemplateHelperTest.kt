@@ -137,7 +137,8 @@ class MailTemplateHelperTest : BehaviorSpec({
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
                         "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
-                    zaak
+                    zaak,
+                    "userName"
                 )
 
                 Then(
@@ -147,8 +148,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                         """
                 ) {
                     resolvedText shouldBe "fakeText, ${zaak.identificatie}, $zaakTonenURL, ${zaakType.omschrijving}, " +
-                        "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, " +
-                        ""
+                        "${statusType.omschrijving}, 12-10-2021, $groupName, $medewerkerVoorletters $medewerkerAchternaam, "
                 }
             }
         }
@@ -193,13 +193,14 @@ class MailTemplateHelperTest : BehaviorSpec({
                     )
                 )
             )
+            val userName = "fakeUserName"
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, zaaktypeUuid)
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
             } returns persoon
 
             When(
@@ -210,7 +211,8 @@ class MailTemplateHelperTest : BehaviorSpec({
             ) {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
-                    zaak
+                    zaak,
+                    userName
                 )
 
                 Then("the zaak initiator variable should be replaced with the person's full name") {
@@ -244,19 +246,21 @@ class MailTemplateHelperTest : BehaviorSpec({
                 bsn = bsn,
                 verblijfplaats = null
             )
+            val userName = "fakeUserName"
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns createZaakType()
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every {
-                brpClientService.retrievePersoon(bsn, zaaktypeUuid)
+                brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
             } returns persoon
 
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
-                    zaak
+                    zaak,
+                    userName
                 )
 
                 Then(
@@ -294,7 +298,8 @@ class MailTemplateHelperTest : BehaviorSpec({
             When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}",
-                    zaak
+                    zaak,
+                    "userName"
                 )
 
                 Then("the variables in the provided text should be replaced by the correct values from the zaak") {

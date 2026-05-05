@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.client.brp.util.createBrpConfiguration
 import nl.info.zac.configuration.exception.BrpProtocolleringConfigurationException
@@ -33,7 +34,7 @@ class BrpConfigurationTest : BehaviorSpec({
         }
 
         Given("No default retrieve persoon doelbinding configured") {
-            val brpConfiguration = createBrpConfiguration(doelbindingRaadpleegMetDefault = Optional.empty())
+            val brpConfiguration = createBrpConfiguration(doelbindingRaadpleegMetDefault = Optional.of("   "))
 
             When("configuration is validated by Weld") {
                 val exception = shouldThrow<BrpProtocolleringConfigurationException> {
@@ -112,16 +113,69 @@ class BrpConfigurationTest : BehaviorSpec({
         }
     }
 
+    Context("configuration builders") {
+        Given("Username is null for gebruiker") {
+            val brpConfiguration = createBrpConfiguration(systemUser = Optional.of("systemUser"))
+
+            When("gebruiker configuration is build without username") {
+                val userBrpConfiguration = brpConfiguration.buildUser { null }
+
+                Then("Gebruiker value should return the systemUser") {
+                    userBrpConfiguration.getValue() shouldBe "systemUser"
+                }
+            }
+        }
+    }
+
     Context("header name getters") {
 
         Given("Blank header name env var for doelbinding") {
             val brpConfiguration = createBrpConfiguration(headerNameDoelbinding = Optional.of("   "))
 
             When("getter is called") {
-                val name = brpConfiguration.getHeaderNameDoelbinding()
-
-                Then("null is returned") {
-                    name.shouldBeNull()
+                val doelbindingRaadpleegMetDefault = brpConfiguration.getDoelbindingRaadpleegMetDefault()
+                val doelbindingZoekMetDefault = brpConfiguration.getDoelbindingZoekMetDefault()
+                val builtDoelbinding = brpConfiguration.buildDoelbinding { "someDoelbinding" }
+                Then("Doelbinding configurations should report invalid") {
+                    doelbindingRaadpleegMetDefault.isAvailable().shouldBeFalse()
+                    doelbindingZoekMetDefault.isAvailable().shouldBeFalse()
+                    builtDoelbinding.isAvailable().shouldBeFalse()
+                }
+                And(
+                    """BrpProtocolleringConfigurationException is thrown on reading 
+                    |DoelbindingRaadpleegMetDefault header, because blank headers should not be requested
+                    """.trimMargin()
+                ) {
+                    shouldThrow<BrpProtocolleringConfigurationException> {
+                        doelbindingRaadpleegMetDefault.getHeaderName()
+                    }
+                }
+                And("DoelbindingRaadpleegMetDefault value returns null") {
+                    doelbindingRaadpleegMetDefault.getValue().shouldBeNull()
+                }
+                And(
+                    """BrpProtocolleringConfigurationException is thrown on reading 
+                    |DoelbindingZoekMetDefault header, because blank headers should not be requested
+                    """.trimMargin()
+                ) {
+                    shouldThrow<BrpProtocolleringConfigurationException> {
+                        doelbindingZoekMetDefault.getHeaderName()
+                    }
+                }
+                And("DoelbindingZoekMetDefault value returns null") {
+                    doelbindingZoekMetDefault.getValue().shouldBeNull()
+                }
+                And(
+                    """BrpProtocolleringConfigurationException is thrown on reading 
+                    |built Doelbinding header, because blank headers should not be requested
+                    """.trimMargin()
+                ) {
+                    shouldThrow<BrpProtocolleringConfigurationException> {
+                        doelbindingZoekMetDefault.getHeaderName()
+                    }
+                }
+                And("built doelbinding value returns null") {
+                    builtDoelbinding.getValue().shouldBeNull()
                 }
             }
         }
@@ -129,11 +183,19 @@ class BrpConfigurationTest : BehaviorSpec({
         Given("Empty header name env var for gebruiker") {
             val brpConfiguration = createBrpConfiguration(headerNameGebruiker = Optional.of(""))
 
-            When("getter is called") {
-                val name = brpConfiguration.getHeaderNameGebruiker()
+            When("gebruiker configuration is build") {
+                val userBrpConfiguration = brpConfiguration.buildUser { "someName" }
 
-                Then("null is returned") {
-                    name.shouldBeNull()
+                Then("Gebruiker header should be reported as unavailable") {
+                    userBrpConfiguration.isAvailable().shouldBeFalse()
+                }
+                And("Gebruiker header should throw an exception on retrieval") {
+                    shouldThrow<BrpProtocolleringConfigurationException> {
+                        userBrpConfiguration.getHeaderName()
+                    }
+                }
+                And("Gebruiker value should return null on retrieval") {
+                    userBrpConfiguration.getValue().shouldBeNull()
                 }
             }
         }

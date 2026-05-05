@@ -72,7 +72,7 @@ class DocumentCreationDataConverter @Inject constructor(
 
     fun createData(loggedInUser: LoggedInUser, zaak: Zaak, taskId: String? = null) =
         Data(
-            aanvragerData = createAanvragerData(zaak),
+            aanvragerData = createAanvragerData(zaak, loggedInUser),
             gebruikerData = createGebruikerData(loggedInUser),
             startformulierData = createStartformulierData(zaak.url),
             taskData = taskId?.let { createTaskData(it) },
@@ -114,15 +114,19 @@ class DocumentCreationDataConverter @Inject constructor(
             zaaktype = ztcClientService.readZaaktype(zaak.zaaktype).omschrijving
         )
 
-    private fun createAanvragerData(zaak: Zaak): AanvragerData? =
+    private fun createAanvragerData(zaak: Zaak, loggedInUser: LoggedInUser): AanvragerData? =
         zgwApiService.findInitiatorRoleForZaak(zaak)?.let { initiator ->
-            convertToAanvragerData(initiator, zaak.zaaktype.extractUuid())
+            convertToAanvragerData(initiator, zaak.zaaktype.extractUuid(), loggedInUser)
         }
 
-    private fun convertToAanvragerData(initiator: Rol<*>, zaaktypeUuid: UUID): AanvragerData? =
+    private fun convertToAanvragerData(initiator: Rol<*>, zaaktypeUuid: UUID, loggerInUser: LoggedInUser): AanvragerData? =
         when (initiator.betrokkeneType) {
             NATUURLIJK_PERSOON -> initiator.identificatienummer?.run {
-                createAanvragerDataNatuurlijkPersoon(bsn = this, zaaktypeUuid = zaaktypeUuid)
+                createAanvragerDataNatuurlijkPersoon(
+                    bsn = this,
+                    zaaktypeUuid = zaaktypeUuid,
+                    userName = loggerInUser.id
+                )
             }
             VESTIGING -> initiator.identificatienummer?.run {
                 createAanvragerDataVestiging(this)
@@ -131,8 +135,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaaktypeUuid: UUID): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, zaaktypeUuid)?.let { convertToAanvragerDataPersoon(it) }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaaktypeUuid: UUID, userName: String): AanvragerData? {
+        return brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)?.let { convertToAanvragerDataPersoon(it) }
     }
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =

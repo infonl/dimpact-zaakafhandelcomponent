@@ -98,17 +98,21 @@ objectenApi:
 # Integration with the BRP API provider (Haal Centraal)
 brpApi:
   url: ""
+  logLevel: "INFO"
   protocollering:
     # -- Set to true to enable BRP protocollering header injection
     enabled: false
     doelbinding:
       # -- Set to true to require doelbinding values to be configured per zaaktype in the admin UI
       perZaaktype: false
+      # -- Default "ZoekMet" doelbinding as a fall-back
       zoekmet: ""
+      # -- Default "RaadpleegMet" doelbinding as a fall-back
       raadpleegmet: ""
       # -- Header name for the doelbinding value. Set to empty string to disable this header.
       header: ""
     originOin:
+      # OIN for this organisation
       oin: ""
       # -- Header name for the origin OIN value. Set to empty string to disable this header.
       header: ""
@@ -117,12 +121,14 @@ brpApi:
       # -- Header name for the verwerking value. Set to empty string to disable this header.
       header: ""
     toepassing:
-      value: ""
+      value: "ZAC"
       # -- Header name for the toepassing value. Set to empty string to disable this header.
       header: ""
     gebruiker:
       # -- Header name for the gebruiker value. Set to empty string to disable this header.
       header: ""
+    # -- Fallback user identifier sent in the gebruiker header when no logged-in user is available.
+    systemUser: "SystemUser"
 
 
 # Integration with the KVK API provider (KVK)

@@ -55,12 +55,6 @@ import java.util.Base64
 import java.util.Optional
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.ByteArray
-import kotlin.String
-import kotlin.Suppress
-import kotlin.apply
-import kotlin.let
-import kotlin.takeIf
 
 @ApplicationScoped
 @NoArgConstructor
@@ -273,7 +267,7 @@ class MailService @Inject constructor(
 
     private fun resolveVariabelen(tekst: String, bronnen: Bronnen, zaakdata: Map<String, Any>): String =
         mailTemplateHelper.resolveGemeenteVariable(tekst).let {
-            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it)
+            mailTemplateHelper.resolveZaakVariables(it, bronnen.zaak ?: return@let it, loggedInUserInstance.get().id)
         }.let {
             mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(it, bronnen.document ?: return@let it)
         }.let {

@@ -32,7 +32,11 @@ data:
   {{- if .Values.brpApi.protocollering.toepassing.header }}
   BRP_TOEPASSING: {{ required "Valid .Values.brpApi.protocollering.toepassing.value entry required!" .Values.brpApi.protocollering.toepassing.value | quote }}
   {{- end }}
+  {{- if .Values.brpApi.protocollering.systemUser }}
+  BRP_SYSTEM_USER: {{ .Values.brpApi.protocollering.systemUser | quote }}
   {{- end }}
+  {{- end }}
+  BRP_LOG_LEVEL: {{ .Values.brpApi.logLevel | default "INFO" | quote }}
   {{- if .Values.catalogusDomein }}
   CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
   {{- end }}

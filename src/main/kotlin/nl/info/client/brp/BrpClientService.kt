@@ -25,7 +25,8 @@ import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_POSTCODE_EN_HUISNUMMER
 import nl.info.client.brp.util.PersonenQueryResponseJsonbDeserializer.Companion.ZOEK_MET_STRAAT_HUISNUMMER_EN_GEMEENTE_VAN_INSCHRIJVING
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
-import nl.info.zac.configuration.BrpConfiguration
+import nl.info.zac.configuration.BrpConfigurationProvider
+import nl.info.zac.configuration.BrpConfigurationValue
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
@@ -37,9 +38,10 @@ import java.util.logging.Logger
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
+@Suppress("TooManyFunctions")
 class BrpClientService @Inject constructor(
     @RestClient val personenApi: PersonenApi,
-    private val brpConfiguration: BrpConfiguration,
+    private val brpConfiguration: BrpConfigurationProvider,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val brpProtocolleringContext: BrpProtocolleringContext,
 ) {
@@ -64,22 +66,17 @@ class BrpClientService @Inject constructor(
         private val FIELDS_PERSOON_BEPERKT = listOf(BURGERSERVICENUMMER, GESLACHT, NAAM, GEBOORTE, ADRESSERING)
     }
 
-    fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String? = null): PersonenQueryResponse =
+    fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
-                brpProtocolleringContext.doelbinding = resolveDoelbinding(
-                    zaaktypeUuid,
-                    brpConfiguration.getDoelbindingZoekMetDefault()
-                ) {
-                    it.zaaktypeBrpParameters?.zoekWaarde
-                }
-                brpProtocolleringContext.verwerking = resoleVerwerkingregister(
-                    zaaktypeUuid,
-                    brpConfiguration.getVerwerkingsRegister()
+                populateProtocolleringHeaders(
+                    zaaktypeUuid = zaaktypeUuid,
+                    user = user,
+                    doelbindingConfig = brpConfiguration.getDoelbindingZoekMetDefault(),
+                    extractDoelbinding = { it.zaaktypeBrpParameters?.zoekWaarde }
                 )
-                brpProtocolleringContext.gebruikersnaam = user
             }
-            personenApi.personen(updatedQuery)
+            queryPersonen(updatedQuery)
         }
 
     /**
@@ -87,31 +84,115 @@ class BrpClientService @Inject constructor(
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @param zaaktypeUuid the zaaktype UUID the person is requested for, if any
-     * @param userName the username making the request, if any
+     * @param userName the username making the request; null or blank will default to system user
      * @return the person if found, otherwise null
-     *
      */
     fun retrievePersoon(
         burgerservicenummer: String,
         zaaktypeUuid: UUID? = null,
-        userName: String? = null
+        userName: String
     ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
-                brpProtocolleringContext.doelbinding = resolveDoelbinding(
+                populateProtocolleringHeaders(
                     zaaktypeUuid = zaaktypeUuid,
-                    defaultDoelbinding = brpConfiguration.getDoelbindingRaadpleegMetDefault()
-                ) {
-                    it.zaaktypeBrpParameters?.raadpleegWaarde
-                }
-                brpProtocolleringContext.verwerking = resoleVerwerkingregister(
-                    zaaktypeUuid = zaaktypeUuid,
-                    defaultVerwerkingregisterValue = brpConfiguration.getVerwerkingsRegister()
+                    user = userName,
+                    doelbindingConfig = brpConfiguration.getDoelbindingRaadpleegMetDefault(),
+                    extractDoelbinding = { it.zaaktypeBrpParameters?.raadpleegWaarde }
                 )
-                brpProtocolleringContext.gebruikersnaam = userName
             }
-            (personenApi.personen(personenQuery) as RaadpleegMetBurgerservicenummerResponse).personen?.firstOrNull()
+            (queryPersonen(personenQuery) as RaadpleegMetBurgerservicenummerResponse).personen?.firstOrNull()
         }
+
+    private fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
+        val start = System.currentTimeMillis()
+        // Log the request and context before the call
+        LOG.log(brpConfiguration.getLogLevel()) {
+            """PersonenApi.personen() >>>
+            |request = $personenQuery
+            |context = [${
+                brpProtocolleringContext.headers.entries.joinToString { e -> "${e.key}=${e.value}" }
+            }]
+            """.trimMargin()
+        }
+        return personenApi.personen(personenQuery)
+            .also {
+                // Log the response and duration after the call
+                LOG.log(brpConfiguration.getLogLevel()) {
+                    """PersonenApi.personen() <<<
+                    |response = $it
+                    |duration = ${System.currentTimeMillis() - start}
+                    """.trimMargin()
+                }
+            }
+    }
+
+    private fun populateProtocolleringHeaders(
+        zaaktypeUuid: UUID?,
+        user: String?,
+        doelbindingConfig: BrpConfigurationValue,
+        extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
+    ) {
+        if (!doelbindingConfig.isAvailable()) {
+            LOG.warning(
+                "BRP protocollering is enabled but no doelbinding header is configured. " +
+                    "Doelbinding will not be included in BRP protocollering headers."
+            )
+        } else {
+            resolveDoelbinding(zaaktypeUuid, doelbindingConfig.getValue(), extractDoelbinding)
+                ?.let { brpProtocolleringContext.headers[doelbindingConfig.getHeaderName()] = it }
+                ?: LOG.warning {
+                    "BRP doelbinding value could not be determined for zaaktype $zaaktypeUuid. " +
+                        "And no default doelbinding value has been configured."
+                }
+        }
+        val verwerkingDefault = brpConfiguration.getVerwerkingRegisterDefault()
+        if (!verwerkingDefault.isAvailable()) {
+            LOG.warning(
+                "BRP protocollering is enabled but no verwerkingregister header is configured. " +
+                    "Verwerking will not be included in BRP protocollering headers."
+            )
+        } else {
+            resoleVerwerkingregister(zaaktypeUuid, verwerkingDefault.getValue())
+                ?.let { brpProtocolleringContext.headers[verwerkingDefault.getHeaderName()] = it }
+                ?: LOG.warning {
+                    "BRP verwerkingregister value could not be determined for zaaktype $zaaktypeUuid. " +
+                        "And no default verwerkingregister value has been configured."
+                }
+        }
+        populateUserOriginAndToepassing(user)
+    }
+
+    private fun populateUserOriginAndToepassing(user: String?) {
+        val userHeader = brpConfiguration.buildUser { user?.takeIf { it.isNotBlank() } }
+        if (userHeader.isAvailable()) {
+            val userValue = userHeader.getValue()
+            if (userValue == null) {
+                LOG.warning { "BRP user value could not be determined. And no default user value has been configured." }
+            } else {
+                brpProtocolleringContext.headers[userHeader.getHeaderName()] = userValue
+            }
+        }
+        brpConfiguration.getOriginOIN().run {
+            if (isAvailable()) {
+                getValue()?.let { originOin ->
+                    brpProtocolleringContext.headers[getHeaderName()] = originOin
+                } ?: LOG.warning {
+                    "BRP Origin OIN value could not be determined. And no default Origin OIN value has been configured."
+                }
+            } else {
+                LOG.warning(
+                    "BRP protocollering is enabled but no Origin OIN header is configured. " +
+                        "Origin OIN will not be included in BRP protocollering headers."
+                )
+            }
+        }
+        brpConfiguration.getToepassing().run {
+            if (isAvailable()) {
+                getValue()?.let { brpProtocolleringContext.headers[getHeaderName()] = it }
+            }
+        }
+    }
 
     private fun updateQuery(personenQuery: PersonenQuery): PersonenQuery = personenQuery.apply {
         type = when (personenQuery) {
@@ -201,7 +282,7 @@ class BrpClientService @Inject constructor(
     ): String? =
         zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(this).let { zaaktypeCmmnConfiguration ->
             resolveFunction(zaaktypeCmmnConfiguration)?.let { resolvedValue ->
-                if (resolvedValue.isPureAscii()) {
+                if (StandardCharsets.US_ASCII.newEncoder().canEncode(resolvedValue)) {
                     resolvedValue.trim().takeIf { it.isNotBlank() }
                 } else {
                     LOG.warning {
@@ -211,6 +292,4 @@ class BrpClientService @Inject constructor(
                 }
             }.let { buildFunction(it, zaaktypeCmmnConfiguration) }
         }
-
-    private fun String.isPureAscii(): Boolean = StandardCharsets.US_ASCII.newEncoder().canEncode(this)
 }

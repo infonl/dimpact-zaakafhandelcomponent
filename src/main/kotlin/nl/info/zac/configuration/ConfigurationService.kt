@@ -29,7 +29,7 @@ import java.util.logging.Logger
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConfigurationService @Inject constructor(
-    private val brpConfiguration: BrpConfiguration,
+    private val brpConfiguration: BrpConfigurationProvider,
 
     private val entityManager: EntityManager,
 
@@ -196,5 +196,5 @@ class ConfigurationService @Inject constructor(
 
     fun readCatalogusDomein(): String = catalogusDomein
 
-    fun readBrpConfiguration(): BrpConfiguration = brpConfiguration
+    fun readBrpConfiguration(): BrpConfigurationProvider = brpConfiguration
 }

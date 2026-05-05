@@ -12,7 +12,5 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class BrpProtocolleringContext {
-    var doelbinding: String? = null
-    var verwerking: String? = null
-    var gebruikersnaam: String? = null
+    val headers: MutableMap<String, String> = mutableMapOf()
 }

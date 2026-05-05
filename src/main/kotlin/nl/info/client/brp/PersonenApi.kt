@@ -54,6 +54,9 @@ interface PersonenApi {
      *
      * @param personenQuery de zoekcriteria voor personen
      *
+     * Protocollering headers (doelbinding, verwerking, gebruiker) are set automatically by [BrpClientHeadersFactory],
+     * which reads them from the request-scoped [nl.info.client.brp.util.BrpProtocolleringContext] populated by the caller.
+     *
      * Default krijg je personen terug die nog in leven zijn, tenzij je de inclusiefoverledenpersonen=true opgeeft.
      * Gebruik de fields parameter om alleen die gegevens op te vragen die je nodig hebt en waarvoor je geautoriseerd bent.
      */

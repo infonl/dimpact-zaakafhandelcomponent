@@ -22,6 +22,8 @@ fun createBrpConfiguration(
     headerNameGebruiker: Optional<String> = Optional.of("x-gebruiker"),
     headerNameToepassing: Optional<String> = Optional.of("x-toepassing"),
     toepassingValue: Optional<String> = Optional.of("ZAC"),
+    systemUser: Optional<String> = Optional.of("fakeSystemUser"),
+    logLevel: Optional<String> = Optional.of("INFO"),
 ) = BrpConfiguration(
     protocolleringEnabled = protocolleringEnabled,
     originOIN = originOin,
@@ -35,4 +37,6 @@ fun createBrpConfiguration(
     headerNameGebruiker = headerNameGebruiker,
     headerNameToepassing = headerNameToepassing,
     toepassingValue = toepassingValue,
+    systemUser = systemUser,
+    logLevel = logLevel,
 )

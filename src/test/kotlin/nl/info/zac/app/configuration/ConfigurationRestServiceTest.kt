@@ -11,6 +11,7 @@ import io.mockk.mockk
 import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
+import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.ConfigurationService
 
 class ConfigurationRestServiceTest : BehaviorSpec({
@@ -172,7 +173,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     }
 
     Given("doelbindingPerZaaktype is true") {
-        val brpConfiguration = mockk<BrpConfiguration>()
+        val brpConfiguration = mockk<BrpConfigurationProvider>()
         every { brpConfiguration.isDoelbindingPerZaaktype() } returns true
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
