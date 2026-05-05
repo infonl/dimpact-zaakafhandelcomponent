@@ -166,7 +166,7 @@ class IdentityServiceTest : BehaviorSpec({
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
-                    "all available groups in the Keycloak ZAC realm are returned"
+                    "all groups in the Keycloak ZAC realm are returned including the inactive group with active=false"
                 ) {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
