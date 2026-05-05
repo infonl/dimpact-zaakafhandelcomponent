@@ -111,6 +111,35 @@ class BrpConfigurationTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("API key header is set but API key value is missing") {
+            val brpConfiguration = createBrpConfiguration(
+                apiKey = Optional.empty(),
+                headerNameApiKey = Optional.of("x-api-key")
+            )
+
+            When("configuration is validated") {
+                val exception = shouldThrow<BrpProtocolleringConfigurationException> {
+                    brpConfiguration.validateConfiguration()
+                }
+                Then("Exception is thrown mentioning BRP_API_KEY") {
+                    exception.message shouldContain "BRP_API_KEY"
+                }
+            }
+        }
+
+        Given("API key header is blank") {
+            val brpConfiguration = createBrpConfiguration(
+                apiKey = Optional.empty(),
+                headerNameApiKey = Optional.of("")
+            )
+
+            When("configuration is validated") {
+                Then("No exception is thrown because API key header is disabled") {
+                    brpConfiguration.validateConfiguration()
+                }
+            }
+        }
     }
 
     Context("configuration builders") {

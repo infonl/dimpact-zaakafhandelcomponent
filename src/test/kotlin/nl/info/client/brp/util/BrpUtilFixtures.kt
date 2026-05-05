@@ -7,6 +7,7 @@ package nl.info.client.brp.util
 
 import nl.info.zac.configuration.BrpConfiguration
 import java.util.Optional
+import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createBrpConfiguration(
@@ -24,6 +25,8 @@ fun createBrpConfiguration(
     toepassingValue: Optional<String> = Optional.of("ZAC"),
     systemUser: Optional<String> = Optional.of("fakeSystemUser"),
     logLevel: Optional<String> = Optional.of("INFO"),
+    apiKey: Optional<String> = Optional.of(UUID.randomUUID().toString()),
+    headerNameApiKey: Optional<String> = Optional.of("x-api-key"),
 ) = BrpConfiguration(
     protocolleringEnabled = protocolleringEnabled,
     originOIN = originOin,
@@ -39,4 +42,6 @@ fun createBrpConfiguration(
     toepassingValue = toepassingValue,
     systemUser = systemUser,
     logLevel = logLevel,
+    apiKey = apiKey,
+    headerNameApiKey = headerNameApiKey,
 )

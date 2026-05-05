@@ -48,7 +48,9 @@ objectenApi:
 
 brpApi:
   url: "https://brp.test.local"
-  apiKey: "brp-api-key"
+  apiKey:
+    header: "x-api-key"
+    value: "brp-api-key"
 
 kvkApi:
   url: "https://kvk.test.local"

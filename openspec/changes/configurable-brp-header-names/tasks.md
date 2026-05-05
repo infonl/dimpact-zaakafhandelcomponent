@@ -84,3 +84,28 @@
 - [x] 11.8 Add `BrpClientHeadersFactoryTest` scenarios verifying that the toepassing header is sent with configured value, and is omitted when `BRP_TOEPASSING_HEADER` is blank
 - [x] 11.9 Add `BrpConfigurationTest` scenarios verifying per-header validation: startup fails when header is enabled but corresponding value env var is absent
 - [x] 11.10 Add `BrpClientServiceTest` scenario verifying `BRP_SYSTEM_USER` is used as fallback when no logged-in user value is supplied
+
+## 12. Restore BRP API Key with Configurable Header Name
+
+- [x] 12.1 Add `BRP_API_KEY` (optional `String`) and `BRP_API_KEY_HEADER` (optional `String`) `@ConfigProperty` fields back to `BrpConfiguration`
+- [x] 12.2 Add `getApiKey(): BrpConfigurationValue` to `BrpConfigurationProvider` interface and implement it in `BrpConfiguration` using `BrpConfigurationValueImpl`
+- [x] 12.3 Add per-header validation in `validateConfiguration()`: when `BRP_API_KEY_HEADER` is non-empty, require `BRP_API_KEY`
+- [x] 12.4 Update `BrpClientService.populateUserOriginAndToepassing()` (or equivalent) to set the API key header from `brpConfigurationProvider.getApiKey()` into `brpProtocolleringContext.headers`
+- [x] 12.5 Re-add the optional `BRP_API_KEY` entry to `charts/zac/templates/secret.yaml` (emitted only when `brpApi.apiKey` is set)
+- [x] 12.6 Add `BRP_API_KEY_HEADER` env var to `charts/zac/templates/config.yaml` inside the protocollering block (always emitted, empty string = disabled)
+- [x] 12.7 Add `brpApi.apiKey` and `brpApi.protocollering.apiKey.header` to `charts/zac/values.yaml`
+- [x] 12.8 Add `BRP_API_KEY` and `BRP_API_KEY_HEADER` to `.env.example` with comments
+- [x] 12.9 Add `BRP_API_KEY` and `BRP_API_KEY_HEADER` to `docker-compose.yaml`
+- [x] 12.10 Correct task 9.3: remove nginx API key injection (task 9.3 was never implemented; nginx does not inject the BRP API key — ZAC does)
+- [x] 12.11 Include `BRP_API_KEY_HEADER` in `BrpConfiguration.toString()`; redact `BRP_API_KEY` value
+- [x] 12.12 Update `BrpConfigurationTest` to cover API key header validation (startup fails when header enabled but `BRP_API_KEY` absent)
+- [x] 12.13 Update `BrpClientServiceTest` to verify the API key header is set on `brpProtocolleringContext.headers`
+
+## 13. Fix Integration Test WireMock Expected Counts
+
+- [x] 13.1 In `KlantRestServiceTest.kt` line 286 change `{ "count": 1 }` to `{ "count": 2 }` — `getTemporaryPersonId()` (spec initialisation) issues one default-header BRP request before any `When` blocks run, so the default-header count after the no-zaaktype GET `When` block is 2, not 1
+- [x] 13.2 In `KlantRestServiceTest.kt` line 401 change `{ "count": 2 }` to `{ "count": 3 }` — by that point three default-header BRP requests have been made: spec init + no-zaaktype GET + no-zaaktype PUT
+
+## 14. Remove Dead `BRP_PROTOCOLLERING` Env Var
+
+- [x] 14.1 Remove `- BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}` from `docker-compose.yaml` — `BrpConfiguration` no longer reads this env var; the provider/aanbieder concept was replaced by `BRP_PROTOCOLLERING_ENABLED` and per-header configuration

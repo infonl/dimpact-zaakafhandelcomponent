@@ -23,6 +23,7 @@ interface BrpConfigurationProvider {
     fun getDoelbindingRaadpleegMetDefault(): BrpConfigurationValue
     fun getVerwerkingRegisterDefault(): BrpConfigurationValue
     fun getToepassing(): BrpConfigurationValue
+    fun getApiKey(): BrpConfigurationValue
     fun buildDoelbinding(doelbindingSupplier: () -> String?): BrpConfigurationValue
     fun buildVerwerkingRegister(verwerkingSupplier: () -> String?): BrpConfigurationValue
     fun buildUser(userSupplier: () -> String?): BrpConfigurationValue

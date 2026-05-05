@@ -68,6 +68,7 @@ class BrpClientService @Inject constructor(
 
     fun queryPersonen(personenQuery: PersonenQuery, zaaktypeUuid: UUID? = null, user: String): PersonenQueryResponse =
         updateQuery(personenQuery).let { updatedQuery ->
+            brpProtocolleringContext.clearHeaders()
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 populateProtocolleringHeaders(
                     zaaktypeUuid = zaaktypeUuid,
@@ -93,6 +94,7 @@ class BrpClientService @Inject constructor(
         userName: String
     ): Persoon? =
         createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
+            brpProtocolleringContext.clearHeaders()
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 populateProtocolleringHeaders(
                     zaaktypeUuid = zaaktypeUuid,
@@ -188,6 +190,11 @@ class BrpClientService @Inject constructor(
             }
         }
         brpConfiguration.getToepassing().run {
+            if (isAvailable()) {
+                getValue()?.let { brpProtocolleringContext.headers[getHeaderName()] = it }
+            }
+        }
+        brpConfiguration.getApiKey().run {
             if (isAvailable()) {
                 getValue()?.let { brpProtocolleringContext.headers[getHeaderName()] = it }
             }

@@ -13,7 +13,7 @@ The `@HeaderParam` annotation on `PersonenApi` requires compile-time string cons
 **Goals:**
 - All ZAC-managed BRP protocollering header names configurable via Helm values (Helm is the single source of truth for defaults, not application code)
 - Empty header name in Helm = header disabled; non-empty = header enabled with mandatory corresponding value
-- `x-api-key` injection moves from ZAC to the nginx proxy layer
+- `x-api-key` header name configurable via `BRP_API_KEY_HEADER`; injection stays in ZAC following the same pattern as all other configurable headers
 - `x-doelbinding` injection removed from nginx; ZAC owns it
 - Single unified validation: per-header at startup
 
@@ -36,13 +36,15 @@ The `@HeaderParam` annotation on `PersonenApi` requires compile-time string cons
 - **Rename in factory:** Works without interface changes but uses the old hardcoded name as an internal transport sentinel, creating confusing indirection.
 - **Only configure factory-injected headers:** Partial solution; doelbinding and verwerking names remain hardcoded.
 
-### Decision 2: API key injection moves from ZAC to nginx
+### Decision 2: API key header name is configurable; injection stays in ZAC
 
-**Problem:** `BrpClientHeadersFactory` injects `x-api-key` from `BRP_API_KEY` (a Kubernetes Secret env var). Authentication headers belong at the proxy layer, not in application code. The nginx BRP proxy already has the `apikey_header_name` / `apikey_value` mechanism used by BAG and KVK — it is simply unpopulated for BRP.
+**Problem:** `BrpClientHeadersFactory` injects `x-api-key` from `BRP_API_KEY` (a Kubernetes Secret env var) with a hardcoded header name. Different BRP providers may use different header names for API key authentication, so the header name must be runtime-configurable like all other protocollering headers.
 
-**Solution:** Remove `x-api-key` injection from `BrpClientHeadersFactory` and `BrpConfiguration`. In the nginx BRP proxy block, wire `x-api-key` directly from `brpApi.apiKey` using the existing conditional mechanism. Remove `BRP_API_KEY` from the Kubernetes Secret.
+**Solution:** Keep `BRP_API_KEY` as a Kubernetes Secret env var. Add `BRP_API_KEY_HEADER` as a regular env var following the same pattern as `BRP_DOELBINDING_HEADER` etc. `BrpConfiguration` exposes `getApiKey(): BrpConfigurationValue`; `BrpClientService` populates the header from this value. When `BRP_API_KEY_HEADER` is empty, the header is disabled; when non-empty, `BRP_API_KEY` is required.
 
-**Trade-off:** `brpApi.apiKey` currently flows into a Kubernetes Secret (better RBAC isolation). After this change it flows into the nginx ConfigMap (same as BAG/KVK api keys). This is a deliberate alignment with the existing nginx api key injection pattern.
+The nginx API key injection via `apikey_header_name`/`apikey_value` is NOT used for BRP — ZAC owns the API key header.
+
+**Trade-off:** API key remains in a Kubernetes Secret (good RBAC isolation). Header name is in a ConfigMap (acceptable — it is not sensitive).
 
 ### Decision 3: Helm values are the source of truth for header name defaults
 

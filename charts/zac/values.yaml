@@ -127,6 +127,10 @@ brpApi:
     gebruiker:
       # -- Header name for the gebruiker value. Set to empty string to disable this header.
       header: ""
+      # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
+    apiKey:
+      value: ""
+      header: "" # -- Header name for the API key value. Set to empty string to disable this header.
     # -- Fallback user identifier sent in the gebruiker header when no logged-in user is available.
     systemUser: "SystemUser"
 
@@ -183,13 +187,13 @@ signaleringen:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 3
   restartPolicy: Never
-  imagePullSecrets: []
-  resources: {}
-  podSecurityContext: {}
-  nodeSelector: {}
-  affinity: {}
-  securityContext: {}
-  tolerations: []
+  imagePullSecrets: [ ]
+  resources: { }
+  podSecurityContext: { }
+  nodeSelector: { }
+  affinity: { }
+  securityContext: { }
+  tolerations: [ ]
 
 # OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
 opentelemetry_zaakafhandelcomponent:
@@ -218,7 +222,7 @@ image:
   tag: ""
 
 # -- specifies image pull secrets
-imagePullSecrets: []
+imagePullSecrets: [ ]
 
 # -- name to use
 nameOverride: ""
@@ -231,23 +235,23 @@ serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
   # -- Annotations to add to the service account
-  annotations: {}
+  annotations: { }
   # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
 # -- pod specific annotations
-podAnnotations: {}
+podAnnotations: { }
 
 # -- pod specific security context
-podSecurityContext: {}
+podSecurityContext: { }
 # fsGroup: 2000
 
 # -- generic security context
-securityContext: {}
+securityContext: { }
   # capabilities:
   #   drop:
   #   - ALL
-  # readOnlyRootFilesystem: true
+# readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
 
@@ -255,13 +259,13 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
-  annotations: {}
+  annotations: { }
 
 # ingress specifications
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations: { }
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
@@ -269,7 +273,7 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls: [ ]
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
@@ -314,13 +318,13 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # -- set node selector parameters
-nodeSelector: {}
+nodeSelector: { }
 
 # -- set toleration parameters
-tolerations: []
+tolerations: [ ]
 
 # -- set affinity parameters
-affinity: {}
+affinity: { }
 
 # -- set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels
 topologySpreadConstraints:
@@ -348,7 +352,7 @@ opa:
   service:
     type: ClusterIP
     port: 8181
-    annotations: {}
+    annotations: { }
   image:
     repository: openpolicyagent/opa
     tag: "1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3"
@@ -368,14 +372,14 @@ opa:
     requests:
       cpu: 10m
       memory: 20Mi
-  podAnnotations: {}
-  imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-  topologySpreadConstraints: []
+  podAnnotations: { }
+  imagePullSecrets: [ ]
+  podSecurityContext: { }
+  securityContext: { }
+  nodeSelector: { }
+  affinity: { }
+  tolerations: [ ]
+  topologySpreadConstraints: [ ]
 
 # If an external solr instance is used, configure the URL here
 solr:
@@ -392,9 +396,9 @@ solr:
 # requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
 solr-operator:
   # -- annotations for solr-operator
-  annotations: {}
+  annotations: { }
   # -- affinity for solr-operator
-  affinity: {}
+  affinity: { }
   # -- set enabled to actually use the solr-operator helm chart
   enabled: false
   # -- set fullname for solr-operator
@@ -411,13 +415,13 @@ solr-operator:
     # -- enable to have solr-operator metric endpoints
     enabled: true
   # -- nodeSelector for solr-operator
-  nodeSelector: {}
+  nodeSelector: { }
   # settings for solrcloud
   solr:
     # -- affinity for solr in solrcloud
-    affinity: {}
+    affinity: { }
     # -- annotations for solr in solrcloud
-    annotations: {}
+    annotations: { }
     # solr busybox image parameters
     busyBoxImage:
       # -- solr busybox image imagePullPolicy
@@ -441,19 +445,19 @@ solr-operator:
     # jobs settings
     jobs:
       # -- affinity for jobs
-      affinity: {}
+      affinity: { }
       # -- annotations for jobs
-      annotations: {}
+      annotations: { }
       # -- nodeSelector for jobs
-      nodeSelector: {}
+      nodeSelector: { }
       # -- tolerations for jobs
-      tolerations: []
+      tolerations: [ ]
     # -- solr loglevel
     logLevel: INFO
     # -- override for solrcloud name
     # name:
     # -- nodeSelector for solr in solrcloud
-    nodeSelector: {}
+    nodeSelector: { }
     # -- replicas for solr in solrcloud, should be an odd number
     replicas: 3
     # solr storage parameters
@@ -465,9 +469,9 @@ solr-operator:
       # -- solr storage size
       size: 1Gi
     # -- resource limits and requests for solr in solrcloud
-    resources: {}
+    resources: { }
     # -- tolerations for solr in solrcloud
-    tolerations: []
+    tolerations: [ ]
     # -- topologySpreadConstraints for solr in solrcloud
     topologySpreadConstraints:
       - maxSkew: 1
@@ -480,7 +484,7 @@ solr-operator:
           - controller-revision-hash
     # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
     # Override only if custom startup timing is needed.
-    startupProbe: {}
+    startupProbe: { }
     # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
     # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
     # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
@@ -494,17 +498,17 @@ solr-operator:
       timeoutSeconds: 1
     # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
     # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
-    readinessProbe: {}
+    readinessProbe: { }
   # -- tolerations for solr-operator
-  tolerations: []
+  tolerations: [ ]
   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
   watchNamespaces: "default"
   # zookeeper-operator settings
   zookeeper-operator:
     # -- affinity for zookeeper-operator
-    affinity: {}
+    affinity: { }
     # -- annotations for zookeeper-operator
-    annotations: {}
+    annotations: { }
     # -- set fullname for zookeeper-operator
     fullnameOverride: zookeeper-operator
     # zookeeper-operator hooks parameters
@@ -526,17 +530,17 @@ solr-operator:
       # -- zookeeper-operator image tag
       tag: 0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e
     # -- nodeSelector for solr-operator
-    nodeSelector: {}
+    nodeSelector: { }
     # -- tolerations for solr-operator
-    tolerations: []
+    tolerations: [ ]
     # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
     watchNamespace: "default"
     # zookeeper parameters
     zookeeper:
       # -- affinity for zookeeper
-      affinity: {}
+      affinity: { }
       # -- annotations for zookeeper
-      annotations: {}
+      annotations: { }
       # zookeeper image parameters
       image:
         # -- zookeeper imagePullPolicy
@@ -546,7 +550,7 @@ solr-operator:
         # -- zookeeper image tag
         tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
       # -- nodeSelector for zookeeper
-      nodeSelector: {}
+      nodeSelector: { }
       # -- replicas for zookeeper, should be an odd number
       replicas: 3
       # zookeeper storage parameters
@@ -558,9 +562,9 @@ solr-operator:
         # -- zookeeper storage size
         size: 1Gi
       # -- resource limits and requests for zookeeper
-      resources: {}
+      resources: { }
       # -- tolerations for zookeeper
-      tolerations: []
+      tolerations: [ ]
       # -- topologySpreadConstraints for zookeeper
       topologySpreadConstraints:
         - maxSkew: 1
@@ -603,19 +607,19 @@ office_converter:
   service:
     type: ClusterIP
     port: 80
-    annotations: {}
-  podAnnotations: {}
-  imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-  topologySpreadConstraints: []
+    annotations: { }
+  podAnnotations: { }
+  imagePullSecrets: [ ]
+  podSecurityContext: { }
+  securityContext: { }
+  nodeSelector: { }
+  affinity: { }
+  tolerations: [ ]
+  topologySpreadConstraints: [ ]
 
 
 # -- Extra objects to deploy (value evaluated as a template)
-extraDeploy: []
+extraDeploy: [ ]
 
 # opentelemetry-collector enable to use the included helm chart and settings to work with zac
 opentelemetry-collector:
@@ -640,16 +644,16 @@ opentelemetry-collector:
       enabled: false
   config:
     receivers:
-      prometheus: {}
-      jaeger: {}
-      zipkin: {}
+      prometheus: { }
+      jaeger: { }
+      zipkin: { }
     service:
       pipelines:
         traces:
           receivers:
             - otlp
-        metrics: {}
-        logs: {}
+        metrics: { }
+        logs: { }
 
 nginx:
   enabled: false
@@ -660,15 +664,15 @@ nginx:
   service:
     type: ClusterIP
     port: 80
-    annotations: {}
+    annotations: { }
   # -- mount existing nginx vhost config
   existingConfigmap: null
   replicaCount: 1
-  podLabels: {}
+  podLabels: { }
   securityContext:
     capabilities:
       drop:
-      - ALL
+        - ALL
     readOnlyRootFilesystem: false
     runAsNonRoot: true
     runAsUser: 101
@@ -686,11 +690,11 @@ nginx:
     timeoutSeconds: 5
     failureThreshold: 3
     successThreshold: 1
-  resources: {}
+  resources: { }
   useXForwardedHost: false
   allowedHosts: ""
   client_max_body_size: 120M
-  topologySpreadConstraints: []
+  topologySpreadConstraints: [ ]
   api_proxy:
     enabled: false
     certificate_secret: nginx-certs

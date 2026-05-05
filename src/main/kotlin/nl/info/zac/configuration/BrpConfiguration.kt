@@ -90,6 +90,12 @@ class BrpConfiguration @Inject constructor(
 
     @ConfigProperty(name = ENV_VAR_BRP_LOG_LEVEL)
     private val logLevel: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_API_KEY_HEADER)
+    private val headerNameApiKey: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_API_KEY)
+    private val apiKey: Optional<String>,
 ) : BrpConfigurationProvider {
     companion object {
         const val ENV_VAR_BRP_ORIGIN_OIN = "BRP_ORIGIN_OIN"
@@ -104,6 +110,8 @@ class BrpConfiguration @Inject constructor(
         const val ENV_VAR_BRP_TOEPASSING = "BRP_TOEPASSING"
         const val ENV_VAR_BRP_SYSTEM_USER = "BRP_SYSTEM_USER"
         const val ENV_VAR_BRP_LOG_LEVEL = "BRP_LOG_LEVEL"
+        const val ENV_VAR_BRP_API_KEY_HEADER = "BRP_API_KEY_HEADER"
+        const val ENV_VAR_BRP_API_KEY = "BRP_API_KEY"
 
         // Audit log headers are limited to 242 characters as this is the maximum length of the DB columns:
         // https://github.com/VNG-Realisatie/gemma-verwerkingenlogging/blob/002df5b01bf7d10142c9ae042a041b096989ced9/docs/api-write/oas-specification/logging-verwerkingen-api/openapi.yaml#L1170-L1175
@@ -186,6 +194,14 @@ class BrpConfiguration @Inject constructor(
             toepassingValue::getOrNull
         )
 
+    override fun getApiKey() =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_API_KEY_HEADER,
+            Int.MAX_VALUE,
+            headerNameApiKey,
+            apiKey::getOrNull
+        )
+
     override fun buildUser(userSupplier: () -> String?) =
         BrpConfigurationValueImpl(
             ENV_VAR_BRP_GEBRUIKER_HEADER,
@@ -209,6 +225,8 @@ class BrpConfiguration @Inject constructor(
         |- $ENV_VAR_BRP_TOEPASSING_HEADER: '${headerNameToepassing.getOrNull()}'
         |- $ENV_VAR_BRP_TOEPASSING: '${toepassingValue.getOrNull()}'
         |- $ENV_VAR_BRP_SYSTEM_USER: '${systemUser.getOrNull()}'
+        |- $ENV_VAR_BRP_API_KEY_HEADER: '${headerNameApiKey.getOrNull()}'
+        |- $ENV_VAR_BRP_API_KEY: [REDACTED]
     """.trimMargin()
 
     override fun isBrpProtocolleringEnabled(): Boolean = protocolleringEnabled

@@ -336,6 +336,37 @@ class BrpClientServiceTest : BehaviorSpec({
         }
     }
 
+    Given("An API key is configured") {
+        val bsn = "123456789"
+        val apiKey = "fake-api-key"
+        val configWithApiKey = createBrpConfiguration(
+            apiKey = Optional.of(apiKey),
+            headerNameApiKey = Optional.of("x-api-key")
+        )
+
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } throws NotFoundException("Zaak not found")
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(createPersoon(bsn = bsn))
+        )
+
+        When("retrievePersoon is called") {
+            val localContext = BrpProtocolleringContext()
+            val localService = BrpClientService(
+                personenApi = personenApi,
+                brpConfiguration = configWithApiKey,
+                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+                brpProtocolleringContext = localContext
+            )
+            localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+
+            Then("API key header is set on context headers") {
+                localContext.headers["x-api-key"] shouldBe apiKey
+            }
+        }
+    }
+
     Given("An empty userName is passed (no real logged-in user available)") {
         val bsn = "123456789"
         val person = createPersoon(bsn = bsn)
