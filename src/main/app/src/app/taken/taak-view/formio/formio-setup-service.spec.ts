@@ -60,7 +60,7 @@ const smartDocumentsFieldset: ExtendedComponentSchema = {
 
 const smartDocumentsTemplateGroupsComponent: ExtendedComponentSchema = {
   type: "select",
-  key: "SD_SmartDocuments_TemplateGroups",
+  key: "Fake_Smart_Documents_Template_Groups",
   input: true,
   attributes: {
     [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS,
@@ -71,7 +71,7 @@ const smartDocumentsTemplateGroupTemplatesComponent: ExtendedComponentSchema = {
   type: "select",
   key: "SD_SmartDocuments_TemplateGroupTemplates",
   input: true,
-  refreshOn: "SD_SmartDocuments_TemplateGroups",
+  refreshOn: "Fake_Smart_Documents_Template_Group_Templates",
   attributes: {
     [ZAC_FIELD_ATTRIBUTE]:
       KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES,
