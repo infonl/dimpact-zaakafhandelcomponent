@@ -175,18 +175,12 @@ export class FormioSetupService {
     };
   }
 
-  private async getSmartDocumentTemplates(zaaktypeUuid: string) {
-    const data = await this.queryClient.ensureQueryData(
-      this.zacQueryClient.GET(
-        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-        {
-          path: { zaakafhandelUUID: zaaktypeUuid },
-        },
-      ),
-    );
-    return this.smartDocumentsService.flattenGroups(
-      this.smartDocumentsService.convertApiData(data),
-    );
+  private getSmartDocumentTemplates(zaaktypeUuid: string) {
+    return this.queryClient.ensureQueryData({
+      queryKey: ["smartDocumentsTemplatesMapping", zaaktypeUuid],
+      queryFn: () =>
+        lastValueFrom(this.smartDocumentsService.getTemplatesMapping(zaaktypeUuid)),
+    });
   }
 
   private initializeSmartDocumentsTemplateGroupsField(

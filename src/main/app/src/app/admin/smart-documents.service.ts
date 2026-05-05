@@ -34,7 +34,7 @@ export class SmartDocumentsService {
       .pipe(map((data) => this.flattenGroups(this.convertApiData(data))));
   }
 
-  convertApiData(
+  private convertApiData(
     data: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
     return data.map((group) => ({
