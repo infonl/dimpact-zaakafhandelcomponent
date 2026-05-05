@@ -18,12 +18,11 @@ import { ZaakZoekObjectComponent } from "./zoek-object/zaak-zoek-object/zaak-zoe
 import { ZoekObjectLinkComponent } from "./zoek-object/zoek-object-link/zoek-object-link.component";
 import { DateFilterComponent } from "./zoek/filters/date-filter/date-filter.component";
 import { MultiFacetFilterComponent } from "./zoek/filters/multi-facet-filter/multi-facet-filter.component";
-import { KlantZoekDialog } from "./zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component";
 import { ZaakBetrokkeneFilterComponent } from "./zoek/filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
 import { ZoekComponent } from "./zoek/zoek.component";
 
 @NgModule({
-  declarations: [ZoekComponent, KlantZoekDialog],
+  declarations: [ZoekComponent],
   exports: [ZoekComponent],
   imports: [
     SharedModule,
