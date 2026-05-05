@@ -7,6 +7,14 @@ package nl.info.zac.identity.model
 import org.keycloak.representations.idm.GroupRepresentation
 
 /**
+ * Indicates whether a group is active or not. A group is considered inactive when this attribute is set to "false".
+ * In all other cases the group is considered as active.
+ */
+const val GROUP_ATTRIBUTE_ACTIVE = "active"
+
+const val GROUP_ATTRIBUTE_EMAIL = "email"
+
+/**
  * Data class representing a group in the identity system.
  */
 data class Group(
@@ -22,16 +30,16 @@ data class Group(
     val description: String,
 
     /**
-     * The email address associated with the group, if any.
-     */
-    val email: String? = null,
-
-    /**
      * Whether the group is active. Derived from the Keycloak group attribute 'active'.
      * A group is considered inactive only when the attribute is explicitly set to "false".
      * If the attribute is absent or has any other value, the group is considered active.
      */
     val active: Boolean = true,
+
+    /**
+     * The email address associated with the group, if any.
+     */
+    val email: String? = null,
 
     /**
      * The list of Keycloak ZAC client roles assigned to the group.
@@ -68,8 +76,8 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
     Group(
         name = name,
         description = description?.takeIf { it.isNotBlank() } ?: name,
-        email = attributes?.get("email")?.singleOrNull(),
-        active = attributes?.get("active")?.singleOrNull() != "false",
+        active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
+        email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull(),
         // ZAC client roles are only used in the old IAM architecture (PABC feature flag off)
         zacClientRoles = clientRoles[keycloakClientId].orEmpty()
     )
@@ -77,5 +85,7 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
 fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
-        description = description?.takeIf { it.isNotBlank() } ?: name
+        description = description?.takeIf(String::isNotBlank) ?: name,
+        active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
+        email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull()
     )
