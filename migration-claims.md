@@ -119,11 +119,11 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 ### Batch 14 — claimed (branch: `temp/standalone-migration`)
 
 - [x] `zaken/zaak-initiator-toevoegen/zaak-initiator-toevoegen.component.ts`
-- [ ] `zoeken/zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component.ts`
-- [ ] `zaken/zaakdata/zaakdata.component.ts`
-- [ ] `zaken/zaken-afgehandeld/zaken-afgehandeld.component.ts`
-- [ ] `zaken/zaken-mijn/zaken-mijn.component.ts`
-- [ ] `taken/taken-mijn/taken-mijn.component.ts`
+- [x] `zoeken/zoek/filters/zaak-betrokkene-filter/klant-zoek-dialog.component.ts`
+- [x] `zaken/zaakdata/zaakdata.component.ts`
+- [x] `zaken/zaken-afgehandeld/zaken-afgehandeld.component.ts`
+- [x] `zaken/zaken-mijn/zaken-mijn.component.ts`
+- [x] `taken/taken-mijn/taken-mijn.component.ts`
 
 ## Dax
 
