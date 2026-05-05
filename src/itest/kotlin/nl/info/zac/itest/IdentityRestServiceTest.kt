@@ -60,7 +60,7 @@ import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_OK
 
-val TEST_GROUPS_ALL =
+val TEST_GROUPS_ACTIVE =
     """
             [
                 {
@@ -163,7 +163,7 @@ class IdentityServiceTest : BehaviorSpec({
                 )
                 Then("only active groups are returned and the inactive group is absent") {
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ACTIVE.trimIndent()
                     response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
@@ -280,7 +280,7 @@ class IdentityServiceTest : BehaviorSpec({
                     ]
                         """.trimIndent()
                     } else {
-                        response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                        response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ACTIVE.trimIndent()
                     }
                     response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
