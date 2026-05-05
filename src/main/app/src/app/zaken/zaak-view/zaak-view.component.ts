@@ -22,7 +22,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -42,7 +42,6 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
@@ -52,15 +51,14 @@ import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
+import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
 
@@ -86,23 +84,6 @@ export class ZaakViewComponent
   activeSideAction: string | null = null;
   teWijzigenBesluit!: GeneratedType<"RestDecision">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
-
-  takenDataSource = new MatTableDataSource<
-    ExpandableTableData<GeneratedType<"RestTask">>
-  >();
-  allTakenExpanded = false;
-  toonAfgerondeTaken = new FormControl(false);
-  takenStatusFilter: GeneratedType<"TaakStatus"> | "" = "";
-  takenLoading = false;
-  takenColumnsToDisplay = [
-    "naam",
-    "status",
-    "creatiedatumTijd",
-    "fataledatum",
-    "groep",
-    "behandelaar",
-    "id",
-  ] as const;
 
   historie = new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
   historieColumns = [
@@ -151,7 +132,6 @@ export class ZaakViewComponent
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
-  private zaakTakenListener!: WebsocketListener;
   private datumPipe = new DatumPipe("nl");
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
@@ -159,16 +139,16 @@ export class ZaakViewComponent
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
 
   @ViewChild("historieSort") historieSort!: MatSort;
-  @ViewChild("takenSort") takenSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
+  @ViewChild("zaakTakenComponent")
+  private zaakTakenComponent!: ZaakTakenComponent;
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
 
   constructor(
-    private takenService: TakenService,
     private zakenService: ZakenService,
     private identityService: IdentityService,
     private planItemsService: PlanItemsService,
@@ -209,32 +189,12 @@ export class ZaakViewComponent
           () => this.loadBesluiten(),
         );
 
-      this.zaakTakenListener = this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_TAKEN,
-        zaak.uuid,
-        () => this.loadTaken(),
-      );
-
       this.utilService.setTitle("title.zaak", {
         zaak: zaak.identificatie,
       });
 
-      this.loadTaken();
       this.loadNotitieRechten();
     });
-
-    this.takenDataSource.filterPredicate = (data, filter) => {
-      if (!filter) return true;
-
-      return !this.toonAfgerondeTaken.value
-        ? data.data.status !== filter
-        : true;
-    };
-
-    this.toonAfgerondeTaken.setValue(
-      Boolean(SessionStorageUtil.getItem("toonAfgerondeTaken")),
-    );
   }
 
   private init(zaak: GeneratedType<"RestZaak">) {
@@ -251,18 +211,6 @@ export class ZaakViewComponent
   ngAfterViewInit() {
     this.viewInitialized = true;
     super.ngAfterViewInit();
-
-    this.takenDataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "groep":
-          return item.data.groep?.naam ?? "";
-        case "behandelaar":
-          return item.data.behandelaar?.naam ?? "";
-        default:
-          return String(item.data[property as keyof typeof item.data]);
-      }
-    };
-    this.takenDataSource.sort = this.takenSort;
 
     this.historie.sortingDataAccessor = (item, property) => {
       switch (property) {
@@ -284,7 +232,6 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakListener);
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
-    this.websocketService.removeListener(this.zaakTakenListener);
   }
 
   private setDateFieldIconSet() {
@@ -773,7 +720,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.updateZaak();
-          this.loadTaken();
+          this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.afgebroken");
         }
       });
@@ -806,7 +753,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (result) {
           this.updateZaak();
-          this.loadTaken();
+          this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.heropend");
         }
       });
@@ -822,7 +769,7 @@ export class ZaakViewComponent
         this.activeSideAction = null;
         if (!result) return;
         this.updateZaak();
-        this.loadTaken();
+        this.zaakTakenComponent.reload();
         this.utilService.openSnackbar("msg.zaak.afgesloten");
       });
   }
@@ -970,62 +917,10 @@ export class ZaakViewComponent
       .subscribe((besluiten) => (this.zaak.besluiten = besluiten));
   }
 
-  private loadTaken() {
-    this.takenLoading = true;
-    this.takenService
-      .listTakenVoorZaak(this.zaak.uuid)
-      .pipe(
-        map((values) => values.map((value) => new ExpandableTableData(value))),
-      )
-      .subscribe((taken) => {
-        taken = taken.sort(
-          (a, b) =>
-            (a.data.fataledatum?.localeCompare(b.data.fataledatum ?? "") ||
-              a.data.creatiedatumTijd?.localeCompare(
-                b.data.creatiedatumTijd ?? "",
-              )) ??
-            0,
-        );
-        this.takenDataSource.data = taken;
-        this.filterTakenOpStatus();
-        this.takenLoading = false;
-      });
-  }
-
   private loadNotitieRechten() {
     this.policyService
       .readNotitieRechten()
       .subscribe((rechten) => (this.notitieRechten = rechten));
-  }
-
-  protected expandTaken(expand: boolean) {
-    this.takenDataSource.data.forEach((value) => (value.expanded = expand));
-    this.checkAllTakenExpanded();
-  }
-
-  private expandTaak(taak: ExpandableTableData<GeneratedType<"RestTask">>) {
-    taak.expanded = !taak.expanded;
-    this.checkAllTakenExpanded();
-  }
-
-  private checkAllTakenExpanded() {
-    const filter = this.toonAfgerondeTaken.value
-      ? this.takenDataSource.data.filter((value) => !value.expanded)
-      : this.takenDataSource.data.filter(
-          (value) => value.data.status !== "AFGEROND" && !value.expanded,
-        );
-
-    this.allTakenExpanded = filter.length === 0;
-  }
-
-  protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
-    if (taak.status === "AFGEROND") return false;
-    if (!taak.rechten.toekennen) return false;
-    if (!taak.groep?.id) return false;
-    const loggedInUser = this.loggedInUser.data();
-    if (!loggedInUser) return false;
-    if (loggedInUser.id === taak.behandelaar?.id) return false;
-    return loggedInUser.groupIds?.includes(taak.groep.id) ?? false;
   }
 
   protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
@@ -1202,40 +1097,6 @@ export class ZaakViewComponent
         this.loadHistorie();
         this.loadBagObjecten();
       });
-  }
-
-  protected assignTaakToMe(
-    taak: GeneratedType<"RestTask">,
-    $event: MouseEvent,
-  ) {
-    $event.stopPropagation();
-
-    this.websocketService.suspendListener(this.zaakTakenListener);
-    this.takenService
-      .toekennenAanIngelogdeMedewerker({
-        taakId: taak.id!,
-        zaakUuid: taak.zaakUuid,
-        groepId: taak.groep!.id!,
-      })
-      .subscribe((returnTaak) => {
-        taak.behandelaar = returnTaak.behandelaar;
-        taak.status = returnTaak.status;
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar?.naam,
-        });
-      });
-  }
-
-  protected filterTakenOpStatus() {
-    if (!this.toonAfgerondeTaken.value) {
-      this.takenStatusFilter = "AFGEROND";
-    }
-
-    this.takenDataSource.filter = this.takenStatusFilter;
-    SessionStorageUtil.setItem(
-      "toonAfgerondeTaken",
-      this.toonAfgerondeTaken.value,
-    );
   }
 
   private sluitSidenav() {
@@ -1450,17 +1311,6 @@ export class ZaakViewComponent
 
   private hasZaakData() {
     return this.zaak.zaakdata && Object.keys(this.zaak.zaakdata).length > 0;
-  }
-
-  protected taskStatusChipColor(status: GeneratedType<"TaakStatus">) {
-    switch (status) {
-      case "AFGEROND":
-        return "success";
-      case "TOEGEKEND":
-        return "primary";
-      default:
-        return "";
-    }
   }
 
   protected async menuItemChanged(event: string | null) {
