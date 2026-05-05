@@ -896,4 +896,34 @@ describe(ZaakViewComponent.name, () => {
       });
     });
   });
+
+  describe("inactive group indicator", () => {
+    it("should show 'inactief' label when groep is inactive", () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak, groep: { id: "g1", naam: "Groep A", active: false } },
+      });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("em")?.textContent?.trim()).toBe("(inactief)");
+    });
+
+    it("should not show 'inactief' label when groep is active", () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak, groep: { id: "g1", naam: "Groep A", active: true } },
+      });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("em")).toBeNull();
+    });
+
+    it("should not crash when groep is null", () => {
+      mockActivatedRoute.data.next({ zaak: { ...zaak, groep: null } });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("em")).toBeNull();
+    });
+  });
 });

@@ -5,9 +5,11 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 ## Key decisions
 
 - Keycloak group attribute `active` with value `"false"` → inactive. Absent or any other value → active.
-- Backend list endpoints filter out inactive groups → frontend dropdowns only ever contain active groups, no `active` field needed on list items.
-- The only place `active` needs to surface to the frontend is on the `RestGroup` embedded in `RestZaak.groep` and `RestTask.groep` (already full objects resolved via live Keycloak lookup).
+- Both Keycloak-direct and PABC `GroupRepresentation.toGroup()` read `active` and `email` directly from the `attributes` map.
+- Backend list endpoints carry the correct `active` flag — no filtering yet (comes in Stage 4).
+- The only place `active` needs to surface to the frontend for detail display is on the `RestGroup` embedded in `RestZaak.groep` and `RestTask.groep` (already full objects resolved via live Keycloak lookup).
 - When a zaak/taak is already assigned to an (now) inactive group, the user may keep it or switch to an active one — but cannot pick a different inactive group.
+- Stage 2 and Stage 4 **must ship together** — filtering without the frontend reassignment special case breaks the reassignment form.
 
 ---
 
@@ -20,7 +22,7 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 - [x] `Group.kt` — add `val active: Boolean = true`
 - [x] `RestGroup.kt` — add `val active: Boolean`
 - [x] Keycloak `GroupRepresentation.toGroup()` extension — read `attributes["active"]?.firstOrNull() == "false"` evaluates to `false`, all other cases (absent, `"true"`, anything else) evaluate to `true`
-- [x] PABC `GroupRepresentation.toGroup()` extension — always `active = true` (active flag is Keycloak-only; PABC does not carry this attribute)
+- [x] PABC `GroupRepresentation.toGroup()` extension — reads `active` and `email` from the PABC `attributes` map (same logic as Keycloak path; corrected in Stage 2)
 - [x] `Group.toRestGroup()` converter — pass `active` through
 - [x] Unit test (`GroupTest.kt`): `toGroup()` with attribute absent → `active = true`
 - [x] Unit test: `toGroup()` with `active = "true"` → `active = true`
@@ -32,65 +34,72 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 
 ---
 
-## Stage 2 — Backend: Filter inactive groups from list endpoints
+## Stage 2 — Backend: Set `active` flag correctly on all group list endpoints ✅ merged
 
-> Filter at the REST layer. Safe to deploy before any Keycloak group is marked inactive — filter is a no-op until then.
+> No filtering yet — filtering ships together with Stage 4. This stage ensures the `active` flag is correctly populated on every group list endpoint, including the PABC path.
 
 ### Checklist
 
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/groups` (used by bulk distribution dialogs)
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on `GET /rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups`
-- [ ] `IdentityRestService.kt` — add `.filter { it.active }` on deprecated `GET /rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}`
-- [ ] Unit test (`IdentityRestServiceTest.kt` unit level, with MockK): endpoint returns only active groups when list contains a mix
-- [ ] Unit test: endpoint returns all groups when all are active (no regression)
-- [ ] Integration test (`IdentityRestServiceTest.kt` itest): `GET /rest/identity/groups` with a Keycloak group marked `active=false` — group is absent from the response
-- [ ] Integration test: `GET /rest/identity/groups` with no `active` attribute set — group is present in the response
-- [ ] Backend unit and integration tests pass (`./gradlew build`)
+- [x] `Group.kt` — add `GROUP_ATTRIBUTE_ACTIVE` and `GROUP_ATTRIBUTE_EMAIL` constants; both Keycloak and PABC `toGroup()` read `active` and `email` directly from the `attributes` map
+- [x] PABC `GroupRepresentation.toGroup()` — reads `active` and `email` from attributes (same logic as Keycloak path; no extra Keycloak call needed)
+- [x] `IdentityService.kt` — `listGroupsForBehandelaarRoleAndZaaktypeUuid` → renamed to `listActiveGroupsForBehandelaarRoleAndZaaktypeUuid`; `listGroupsForBehandelaarRoleAndZaaktype` → renamed to `listActiveGroupsForBehandelaarRoleAndZaaktype` (no filtering yet — "active" refers to intended final behaviour)
+- [x] `IdentityService.kt` — `listInactiveGroupNames()` removed (no longer needed now that PABC reads `active` from attributes)
+- [x] Unit test (`GroupTest.kt`): PABC `toGroup()` with no attributes → `active = true`, `email = null`
+- [x] Unit test: PABC `toGroup()` with `active = "false"` and `email` → `active = false`, correct email
+- [x] Unit tests (`IdentityServiceTest.kt`): PABC path — all groups returned with correct `active` flag
+- [x] Integration test (`IdentityRestServiceTest.kt`): `GET /rest/identity/groups` response includes correct `active` field per group
+- [x] Backend unit and integration tests pass
 
 ---
 
-## Stage 3 — Frontend: Regenerate types + visual warning on detail pages
+## Stage 3 — Frontend: visual warning on detail pages ✅ done
 
 > After Stage 1 is merged and deployed. Only shows warning for explicitly inactive groups — no UI change for active groups.
 
 ### Checklist
 
-- [ ] `./gradlew generateOpenApiSpec` — regenerate backend OpenAPI spec
-- [ ] `cd src/main/app && npm run generate-api-types` — regenerate frontend TS types; confirm `RestGroup` now has `active: boolean`
-- [ ] Zaak detail page — add visual indicator (icon + tooltip, per UX design) next to group name when `zaak.groep.active === false`
-- [ ] Taak detail page — same indicator when `taak.groep.active === false`
-- [ ] Spec test (`zaak-detail.component.spec.ts`): warning renders when `groep.active === false`
-- [ ] Spec test: warning is absent when `groep.active === true`
-- [ ] Spec test: no error/crash when `groep` is `null`
-- [ ] Spec test (`taak-detail.component.spec.ts` or equivalent): same three cases
-- [ ] `npm run lint` passes
-- [ ] `npm test` passes
+- [x] `./gradlew generateOpenApiSpec` — regenerate backend OpenAPI spec
+- [x] `cd src/main/app && npm run generate-api-types` — regenerate frontend TS types; `RestGroup` has `active?: boolean`
+- [x] Zaak detail page (`zaak-view.component.html`) — `<em>(inactief)</em>` rendered via `@if (zaak.groep?.active === false)` inside `zac-static-text` ng-content
+- [x] Taak detail page (`taak-view.component.html`) — same pattern for `taak?.groep?.active === false`
+- [x] Spec test (`zaak-view.component.spec.ts`): `(inactief)` renders when `groep.active === false`
+- [x] Spec test: absent when `groep.active === true`
+- [x] Spec test: no crash when `groep` is `null`
+- [x] Spec test (`taak-view.component.spec.ts`): same three cases — uses `ReplaySubject` pattern inside main describe (no extra `TestBed.configureTestingModule`)
+- [x] `npm test` passes (25 tests in taak-view, 38+ in zaak-view)
 
 ---
 
-## Stage 4 — Frontend: Reassignment special case (zaak + taak)
+## Stage 4 — Backend filter + Frontend: Reassignment special case (zaak + taak) ✅ done
 
-> The currently-assigned group is inactive — user can keep it or switch to active, but cannot pick a different inactive group. Since backend list only contains active groups, the last constraint is automatically satisfied.
+> **Must ship together with the backend filter** — deploying the filter alone removes the currently-assigned inactive group from the dropdown, breaking the reassignment form. Both changes are complete.
 
-### Checklist
+### Backend filter checklist
 
-- [ ] `zaak-details-wijzigen` — if `zaak.groep?.active === false`, prepend the current group to the fetched active groups list so it appears as a selectable "keep current" option
-- [ ] `zaak-details-wijzigen` — ensure the prepended inactive group is visually distinguishable (label/badge) from the active options in the dropdown
-- [ ] `taak-edit` — same prepend logic when `taak.groep?.active === false`
-- [ ] `taak-edit` — same visual distinction in the dropdown
-- [ ] Spec test (`zaak-details-wijzigen.component.spec.ts`): when current group is inactive, it appears in the dropdown alongside active groups
-- [ ] Spec test (`zaak-details-wijzigen.component.spec.ts`): when current group is active, only active groups appear in the dropdown (no duplicates)
-- [ ] Spec test (`zaak-details-wijzigen.component.spec.ts`): inactive group in dropdown is visually distinguishable (e.g. label contains indicator)
-- [ ] Spec test (`taak-edit.component.spec.ts`): same three cases
-- [ ] Manual smoke test: mark a Keycloak group as `active=false`, open a zaak assigned to it — verify warning shown and dropdown contains the inactive group + all active groups only
-- [ ] `npm run lint` passes
-- [ ] `npm test` passes
+- [x] `IdentityRestService.kt` — `.filter { it.active }` on `listGroups()` (`GET /rest/identity/groups`)
+- [x] `IdentityRestService.kt` — `.filter { it.active }` on `listBehandelaarGroupsForZaaktype()` (`GET /rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups`)
+- [x] `IdentityRestService.kt` — `.filter { it.active }` on deprecated `listBehandelaarGroupsForZaaktypeUuid()` (`GET /rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}`)
+- [x] Integration test (`IdentityRestServiceTest.kt`): inactive group absent from `GET /rest/identity/groups` response (`shouldNotContain`)
+
+### Frontend checklist
+
+- [x] `zaak-details-wijzigen` — `map` pipe prepends current group when not found in API response (handles any reason for absence, not just `active` flag — same pattern as `taak-edit`)
+- [x] `zaak-details-wijzigen` — `groupDisplayValue` function appends translated `(inactief)` suffix when `group.active === false`; uses `TranslateService.instant()`
+- [x] `zaak-details-wijzigen` template — `[optionDisplayValue]="groupDisplayValue"` wired to `zac-select`
+- [x] `taak-edit` — already had correct prepend logic (`groups.unshift(taskGroup)` when group missing from list) — no change needed
+- [x] Spec test (`zaak-details-wijzigen.component.spec.ts`): current group prepended when missing from list
+- [x] Spec test: no prepend when group already in list
+- [x] Spec test: no prepend when `zaak.groep` is `undefined`
+- [x] Spec test: `groupDisplayValue` appends `(inactief)` for inactive group
+- [x] Spec test: `groupDisplayValue` returns just `naam` for active group
+- [x] `npm test` passes (22 tests in zaak-details-wijzigen)
+- [x] `medewerker-groep.component.ts` (legacy Atos form builder) — **skipped**: component is on its way out; `taak-edit` covers the active path
 
 ---
 
 ## Finalise
 
-- [ ] Delete this MD files
+- [ ] Delete this MD file
 
 ---
 
@@ -99,12 +108,12 @@ Als beheerder wil ik een groep kunnen deactiveren zodat deze groep door ZAC word
 | Criterion                                                                             | Stage                                          |
 | ------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Keycloak `active=false` attribute → group is inactive; absent or other value → active | 1                                              |
-| Zaak/taak assignment dropdowns only show active groups                                | 2                                              |
+| Zaak/taak assignment dropdowns only show active groups                                | 4 (backend filter + frontend ship together)    |
 | Exception: currently-assigned inactive group remains selectable (keep current)        | 4                                              |
 | Cannot assign to a _different_ inactive group                                         | 4 (free — backend list has no inactive groups) |
 | Visual indicator on zaakdetail + taakdetail for inactive assigned group               | 3                                              |
-| Zaak aanmaken — only active groups selectable                                         | 2 (backend filtered)                           |
-| Bulk distribution (verdelen) — only active groups shown                               | 2 (backend filtered)                           |
-| BPMN human task forms — only active groups shown                                      | 2 (backend filtered)                           |
+| Zaak aanmaken — only active groups selectable                                         | 4 (backend filtered)                           |
+| Bulk distribution (verdelen) — only active groups shown                               | 4 (backend filtered)                           |
+| BPMN human task forms — only active groups shown                                      | 4 (backend filtered)                           |
 | Group authorisations (PABC) unaffected                                                | — (no change to auth flow)                     |
 | Fetching users for a group unaffected                                                 | — (no change to user lookup)                   |
