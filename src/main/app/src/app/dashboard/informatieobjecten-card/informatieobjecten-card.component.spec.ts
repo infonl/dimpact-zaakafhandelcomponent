@@ -17,45 +17,40 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
-import { TakenCardComponent } from "./taken-card.component";
+import { InformatieobjectenCardComponent } from "./informatieobjecten-card.component";
 
-const makeTaak = (
-  fields: Partial<GeneratedType<"RestSignaleringTaskSummary">> = {},
-): GeneratedType<"RestSignaleringTaskSummary"> =>
-  ({
-    naam: "Test taak",
-    zaakIdentificatie: "ZAAK-001",
-    zaaktypeOmschrijving: "Testtype",
+const makeInformatieobject = (
+  fields: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">> = {},
+) =>
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    titel: "Test document",
+    auteur: "Test auteur",
     ...fields,
-  }) as Partial<
-    GeneratedType<"RestSignaleringTaskSummary">
-  > as unknown as GeneratedType<"RestSignaleringTaskSummary">;
+  });
 
-const makeDashboardCard = (): DashboardCard =>
+const makeDashboardCard = (signaleringType?: GeneratedType<"Type">) =>
   new DashboardCard(
-    DashboardCardId.MIJN_TAKEN,
-    DashboardCardType.TAKEN,
-    "TAAK_OP_NAAM" as GeneratedType<"Type">,
+    DashboardCardId.MIJN_DOCUMENTEN_NIEUW,
+    DashboardCardType.ZAKEN,
+    signaleringType,
   );
 
-describe(TakenCardComponent.name, () => {
-  let fixture: ComponentFixture<TakenCardComponent>;
-  let component: TakenCardComponent;
+describe(InformatieobjectenCardComponent.name, () => {
+  let fixture: ComponentFixture<InformatieobjectenCardComponent>;
+  let component: InformatieobjectenCardComponent;
   let loader: HarnessLoader;
   let signaleringenService: SignaleringenService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        TakenCardComponent,
-      ],
+      declarations: [InformatieobjectenCardComponent],
+      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideRouter([]),
@@ -66,7 +61,7 @@ describe(TakenCardComponent.name, () => {
 
     signaleringenService = TestBed.inject(SignaleringenService);
     jest
-      .spyOn(signaleringenService, "listTakenSignalering")
+      .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
@@ -77,38 +72,52 @@ describe(TakenCardComponent.name, () => {
       }),
     );
 
-    fixture = TestBed.createComponent(TakenCardComponent);
+    fixture = TestBed.createComponent(InformatieobjectenCardComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.data = makeDashboardCard();
+    component.data = makeDashboardCard("ZAAK_DOCUMENT_TOEGEVOEGD");
     fixture.detectChanges();
+    component["reloader"]?.unsubscribe();
   });
 
-  it("calls listTakenSignalering with the card's signaleringType on load", () => {
-    expect(signaleringenService.listTakenSignalering).toHaveBeenCalledWith(
-      component.data.signaleringType,
-    );
+  it("calls listInformatieobjectenSignalering with the card's signaleringType on load", () => {
+    expect(
+      signaleringenService.listInformatieobjectenSignalering,
+    ).toHaveBeenCalledWith("ZAAK_DOCUMENT_TOEGEVOEGD");
   });
 
-  it("populates dataSource with tasks returned by the service", () => {
-    const taken = [makeTaak({ naam: "Taak A" }), makeTaak({ naam: "Taak B" })];
+  it("populates dataSource with informatieobjecten returned by the service", () => {
+    const docs = [
+      makeInformatieobject({ titel: "Doc A" }),
+      makeInformatieobject({ titel: "Doc B" }),
+    ];
     jest
-      .spyOn(signaleringenService, "listTakenSignalering")
-      .mockReturnValue(of(taken));
+      .spyOn(signaleringenService, "listInformatieobjectenSignalering")
+      .mockReturnValue(of(docs));
 
     component["onLoad"](() => {});
 
-    expect(component.dataSource.data).toEqual(taken);
+    expect(component.dataSource.data).toEqual(docs);
+  });
+
+  it("coalesces a null service response to an empty array", () => {
+    jest
+      .spyOn(signaleringenService, "listInformatieobjectenSignalering")
+      .mockReturnValue(of(null as never));
+
+    component["onLoad"](() => {});
+
+    expect(component.dataSource.data).toEqual([]);
   });
 
   it("skips the service call and clears dataSource when signaleringType is missing", () => {
-    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
-    spy.mockClear();
-    component.data = new DashboardCard(
-      DashboardCardId.MIJN_TAKEN,
-      DashboardCardType.TAKEN,
+    const spy = jest.spyOn(
+      signaleringenService,
+      "listInformatieobjectenSignalering",
     );
-    component.dataSource.data = [makeTaak()];
+    spy.mockClear();
+    component.data = makeDashboardCard(undefined);
+    component.dataSource.data = [makeInformatieobject()];
 
     const afterLoad = jest.fn();
     component["onLoad"](afterLoad);
@@ -120,22 +129,24 @@ describe(TakenCardComponent.name, () => {
 
   it("exposes the expected column definitions", () => {
     expect(component.columns).toEqual([
-      "naam",
-      "creatiedatumTijd",
-      "zaakIdentificatie",
-      "zaaktypeOmschrijving",
+      "titel",
+      "registratiedatumTijd",
+      "informatieobjectType",
+      "auteur",
       "url",
     ]);
   });
 
-  it("renders a table row for each task in dataSource", async () => {
-    const taken = [makeTaak({ naam: "Taak X" }), makeTaak({ naam: "Taak Y" })];
-    component.dataSource.data = taken;
+  it("renders a table row for each informatieobject in dataSource", async () => {
+    component.dataSource.data = [
+      makeInformatieobject({ titel: "X" }),
+      makeInformatieobject({ titel: "Y" }),
+      makeInformatieobject({ titel: "Z" }),
+    ];
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    expect(rows.length).toBe(2);
+    expect((await table.getRows()).length).toBe(3);
   });
 
   it("renders empty state row when dataSource is empty", async () => {
@@ -143,7 +154,6 @@ describe(TakenCardComponent.name, () => {
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
-    const rows = await table.getRows();
-    expect(rows.length).toBe(0);
+    expect((await table.getRows()).length).toBe(0);
   });
 });

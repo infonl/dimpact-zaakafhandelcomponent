@@ -39,10 +39,16 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad(afterLoad: () => void): void {
+    const signaleringType = this.data.signaleringType;
+    if (!signaleringType) {
+      this.dataSource.data = [];
+      afterLoad();
+      return;
+    }
     this.signaleringenService
-      .listInformatieobjectenSignalering(this.data.signaleringType)
+      .listInformatieobjectenSignalering(signaleringType)
       .subscribe((informatieobjecten) => {
-        this.dataSource.data = informatieobjecten;
+        this.dataSource.data = informatieobjecten ?? [];
         afterLoad();
       });
   }
