@@ -48,7 +48,7 @@ export class FormioSetupService {
     private zakenService: ZakenService,
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
-    private smartDocumentService: SmartDocumentsService,
+    private smartDocumentsService: SmartDocumentsService,
   ) {}
 
   createFormioForm(
@@ -184,8 +184,8 @@ export class FormioSetupService {
         },
       ),
     );
-    return this.smartDocumentService.flattenGroups(
-      this.smartDocumentService.convertApiData(data),
+    return this.smartDocumentsService.flattenGroups(
+      this.smartDocumentsService.convertApiData(data),
     );
   }
 
