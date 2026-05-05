@@ -28,6 +28,7 @@ import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
+import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
@@ -71,6 +72,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakProcessFlowComponent,
     ZaakVerkortComponent,
     BetrokkeneLinkComponent,
+    ZaakInitiatorToevoegenComponent,
   ],
 })
 export class ZakenModule {}
