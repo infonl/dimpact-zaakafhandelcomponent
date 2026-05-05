@@ -20,7 +20,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
-import { SmartDocumentsService } from "../../../admin/smart-documents.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
