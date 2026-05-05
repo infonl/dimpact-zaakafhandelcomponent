@@ -8,7 +8,6 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -26,6 +25,7 @@ import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
+import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { ZaakTakenComponent } from "./zaak-taken.component";
 
 const makeZaak = (
@@ -137,6 +137,16 @@ describe(ZaakTakenComponent.name, () => {
       expect(spy).toHaveBeenCalledWith("new-uuid");
     });
 
+    it("restores toonAfgerondeTaken from session storage on init", () => {
+      jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue(true);
+
+      const newFixture = TestBed.createComponent(ZaakTakenComponent);
+      newFixture.componentRef.setInput("zaak", fakeZaak);
+      newFixture.detectChanges();
+
+      expect(newFixture.componentInstance["toonAfgerondeTaken"].value).toBe(true);
+    });
+
     it("invalidates the query when the websocket callback fires", () => {
       const invalidateSpy = jest.spyOn(component["queryClient"], "invalidateQueries");
       const [[, , , callback]] = (websocketService.addListener as jest.Mock).mock.calls;
@@ -159,19 +169,12 @@ describe(ZaakTakenComponent.name, () => {
     });
 
     it("shows msg.geen.gegevens.gevonden when there is no data and not loading", () => {
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [],
-      );
+      component["takenDataSource"].data = [];
       fixture.detectChanges();
 
-      const paragraph = fixture.nativeElement.querySelector(
-        "tr.mat-row td p, .mat-row p",
-      );
-      // When there is no data, Angular Material renders the noDataRow
-      // The text content checks happen via the translate pipe — we look at the element presence
-      const noDataRow = fixture.nativeElement.querySelector("*[matnoDataRow], tr");
-      expect(noDataRow).not.toBeNull();
+      const table: HTMLElement = fixture.nativeElement.querySelector("table");
+      expect(table).not.toBeNull();
+      expect(table.textContent).toContain("msg.geen.gegevens.gevonden");
     });
   });
 
@@ -247,6 +250,41 @@ describe(ZaakTakenComponent.name, () => {
 
       component["expandTaken"](false);
       expect(component["allTakenExpanded"]).toBe(false);
+    });
+
+    it("counts AFGEROND rows when toonAfgerondeTaken is true", () => {
+      testQueryClient.setQueryData(
+        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
+        [makeTaak(), makeTaak({ id: "taak-afgerond", status: "AFGEROND" })],
+      );
+      fixture.detectChanges();
+
+      component["toonAfgerondeTaken"].setValue(true);
+      component["expandTaken"](true);
+      expect(component["allTakenExpanded"]).toBe(true);
+    });
+  });
+
+  describe("expandTaak", () => {
+    it("toggles the expanded state of a single row", () => {
+      const row = new ExpandableTableData(makeTaak());
+      expect(row.expanded).toBeFalsy();
+      component["expandTaak"](row);
+      expect(row.expanded).toBe(true);
+      component["expandTaak"](row);
+      expect(row.expanded).toBe(false);
+    });
+
+    it("updates allTakenExpanded after toggling a row", () => {
+      testQueryClient.setQueryData(
+        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
+        [makeTaak()],
+      );
+      fixture.detectChanges();
+
+      const row = component["takenDataSource"].data[0];
+      component["expandTaak"](row);
+      expect(component["allTakenExpanded"]).toBe(true);
     });
   });
 
