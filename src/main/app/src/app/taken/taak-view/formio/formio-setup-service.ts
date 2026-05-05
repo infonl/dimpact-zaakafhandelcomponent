@@ -225,11 +225,13 @@ export class FormioSetupService {
           (group) => group.id === templateGroupId,
         );
         return (
-          templateGroup?.templates.map((template) => ({
-            id: template.id,
-            naam: template.name,
-            active: false,
-          })) ?? []
+          templateGroup?.templates
+            .map((template) => ({
+              id: template.id,
+              naam: template.name,
+              active: false,
+            }))
+            .sort(OrderUtil.orderBy("naam")) ?? []
         );
       },
     };

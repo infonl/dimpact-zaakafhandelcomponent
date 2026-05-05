@@ -587,6 +587,49 @@ describe(FormioSetupService.name, () => {
       ]);
     });
 
+    it("should return templates mapped to {id, naam, active} sorted by naam", async () => {
+      const unsortedTemplates = [
+        {
+          id: "tmpl-2",
+          name: "Zebra Template",
+          informatieObjectTypeUUID: "uuid-2",
+        },
+        {
+          id: "tmpl-1",
+          name: "Alpha Template",
+          informatieObjectTypeUUID: "uuid-1",
+        },
+      ];
+      const flattenedGroupsWithUnsortedTemplates = [
+        { id: templateGroupId, name: "Group 1", templates: unsortedTemplates },
+      ];
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(flattenedGroupsWithUnsortedTemplates);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupTemplatesComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+      formioSetupService.setFormioChangeData({
+        [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
+          templateGroupId,
+      });
+
+      const result = await component.data.custom();
+
+      expect(result).toEqual([
+        { id: "tmpl-1", naam: "Alpha Template", active: false },
+        { id: "tmpl-2", naam: "Zebra Template", active: false },
+      ]);
+    });
+
     it("should return empty array when no group matches formioChangeData", async () => {
       const smartDocumentsService = TestBed.inject(SmartDocumentsService);
       jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
