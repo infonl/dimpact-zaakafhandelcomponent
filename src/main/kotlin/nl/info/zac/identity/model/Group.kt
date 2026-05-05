@@ -85,7 +85,7 @@ fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
 fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
-        description = description?.takeIf(::isNotBlank) ?: name,
+        description = description?.takeIf(String::isNotBlank) ?: name,
         active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
         email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull()
     )
