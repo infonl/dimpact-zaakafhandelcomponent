@@ -20,6 +20,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
+import { SmartDocumentsService } from "../../../admin/smart-documents.service";
 import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { IdentityService } from "../../../identity/identity.service";
@@ -54,6 +55,26 @@ const smartDocumentsFieldset: ExtendedComponentSchema = {
   input: true,
   attributes: {
     [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
+  },
+};
+
+const smartDocumentsTemplateGroupsComponent: ExtendedComponentSchema = {
+  type: "select",
+  key: "SD_SmartDocuments_TemplateGroups",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS,
+  },
+};
+
+const smartDocumentsTemplateGroupTemplatesComponent: ExtendedComponentSchema = {
+  type: "select",
+  key: "SD_SmartDocuments_TemplateGroupTemplates",
+  input: true,
+  refreshOn: "SD_SmartDocuments_TemplateGroups",
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]:
+      KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES,
   },
 };
 
@@ -249,6 +270,8 @@ describe(FormioSetupService.name, () => {
         initializeSmartDocumentsField: jest.Mock;
         initializeReferenceTableField: jest.Mock;
         initializeDocumentsField: jest.Mock;
+        initializeSmartDocumentsTemplateGroupsField: jest.Mock;
+        initializeSmartDocumentsTemplateGroupTemplatesField: jest.Mock;
       };
 
       const groepSpy = jest.spyOn(
@@ -273,6 +296,14 @@ describe(FormioSetupService.name, () => {
         mockedComponentsService,
         "initializeDocumentsField",
       );
+      const templateGroupsSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeSmartDocumentsTemplateGroupsField",
+      );
+      const templateGroupTemplatesSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeSmartDocumentsTemplateGroupTemplatesField",
+      );
 
       const mockFormComponents: ExtendedComponentSchema[] = [
         groepComponent,
@@ -280,6 +311,8 @@ describe(FormioSetupService.name, () => {
         smartDocumentsFieldset,
         referenceTableFieldset,
         documentsFieldset,
+        smartDocumentsTemplateGroupsComponent,
+        smartDocumentsTemplateGroupTemplatesComponent,
       ];
 
       formioSetupService.createFormioForm(
@@ -292,6 +325,10 @@ describe(FormioSetupService.name, () => {
       expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[2]);
       expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[3]);
       expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
+      expect(templateGroupsSpy).toHaveBeenCalledWith(mockFormComponents[5]);
+      expect(templateGroupTemplatesSpy).toHaveBeenCalledWith(
+        mockFormComponents[6],
+      );
     });
 
     it("handle cases for components with no children or properties", () => {
@@ -407,6 +444,193 @@ describe(FormioSetupService.name, () => {
         "ZAC_smart_documents_template",
         errorMessage,
       );
+    });
+  });
+
+  describe("initializeSmartDocumentsTemplateGroupsField", () => {
+    const mockFlattenedGroups = [
+      { id: "group-2", name: "Zebra Group", templates: [] },
+      { id: "group-1", name: "Alpha Group", templates: [] },
+    ];
+
+    it("should set valueProperty and template on the component", () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupsComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      expect(component.valueProperty).toBe("id");
+      expect(component.template).toBe("{{ item.naam }}");
+    });
+
+    it("should query smartdocuments templates mapping with zaaktype UUID", async () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      const ensureQueryDataSpy = jest
+        .spyOn(testQueryClient, "ensureQueryData")
+        .mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupsComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      await component.data.custom();
+
+      expect(ensureQueryDataSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+            { path: { zaakafhandelUUID: "test-zaaktype-uuid" } },
+          ],
+        }),
+      );
+    });
+
+    it("should return groups mapped to {id, naam, active} sorted by naam", async () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupsComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      const result = await component.data.custom();
+
+      expect(result).toEqual([
+        { id: "group-1", naam: "Alpha Group", active: false },
+        { id: "group-2", naam: "Zebra Group", active: false },
+      ]);
+    });
+  });
+
+  describe("initializeSmartDocumentsTemplateGroupTemplatesField", () => {
+    const templateGroupId = "group-1";
+    const mockTemplates = [
+      { id: "tmpl-1", name: "Template A", informatieObjectTypeUUID: "uuid-1" },
+      { id: "tmpl-2", name: "Template B", informatieObjectTypeUUID: "uuid-2" },
+    ];
+    const mockFlattenedGroups = [
+      { id: templateGroupId, name: "Group 1", templates: mockTemplates },
+      { id: "group-2", name: "Group 2", templates: [] },
+    ];
+
+    it("should set valueProperty and template on the component", () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupTemplatesComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      expect(component.valueProperty).toBe("id");
+      expect(component.template).toBe("{{ item.naam }}");
+    });
+
+    it("should return templates for the matching group from formioChangeData", async () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupTemplatesComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+      formioSetupService.setFormioChangeData({
+        [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
+          templateGroupId,
+      });
+
+      const result = await component.data.custom();
+
+      expect(result).toEqual([
+        { id: "tmpl-1", naam: "Template A", active: false },
+        { id: "tmpl-2", naam: "Template B", active: false },
+      ]);
+    });
+
+    it("should return empty array when no group matches formioChangeData", async () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupTemplatesComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+      formioSetupService.setFormioChangeData({
+        [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
+          "non-existent-group",
+      });
+
+      const result = await component.data.custom();
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array when formioChangeData is not set", async () => {
+      const smartDocumentsService = TestBed.inject(SmartDocumentsService);
+      jest.spyOn(smartDocumentsService, "convertApiData").mockReturnValue([]);
+      jest
+        .spyOn(smartDocumentsService, "flattenGroups")
+        .mockReturnValue(mockFlattenedGroups);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
+      const component: ExtendedComponentSchema = {
+        ...smartDocumentsTemplateGroupTemplatesComponent,
+      };
+      formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      const result = await component.data.custom();
+
+      expect(result).toEqual([]);
     });
   });
 
