@@ -65,6 +65,8 @@ Available ZAC types are:
 * `ZAC_groep`
 * `ZAC_medewerker`
 * `ZAC_smart_documents_template`
+* `ZAC_smart_documents_template_groups`
+* `ZAC_smart_documents_template_group_templates`
 * `ZAC_referentie_tabel`
 * `ZAC_documenten`
 * `ZAC_resultaat`
@@ -493,7 +495,7 @@ Example:
 #### Creating documents
 This requires two components:
 
-##### Smartdocuments template
+##### SmartDocuments template
 * A `select` component with:
   * the attribute `ZAC_TYPE` of `ZAC_smart_documents_template`
   * custom data source: `"dataSrc": "custom"`
@@ -518,6 +520,42 @@ Example:
     "SmartDocuments_Group": "Dimpact/OpenZaak"
   },
   "clearOnRefresh": true
+}
+```
+
+##### Listing SmartDocuments template groups linked to the current zaaktype
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`
+
+```json
+{
+  "label": "Template Group",
+  "type": "select",
+  "key": "SmartDocuments_Template_Group",
+  "input": true,
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "attributes": {
+    "ZAC_TYPE": "ZAC_smart_documents_template_groups"
+  }
+}
+```
+
+##### Listing SmartDocuments templates linked to a template group and the current zaaktype
+* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_group_templates`
+* An optional attribute `refreshOn` to refresh the template list when the template group changes. The value of this attribute should be the key of the template group component.
+
+```json
+{
+  "label": "Template",
+  "type": "select",
+  "key": "SD_SmartDocuments_Template",
+  "dataSrc": "custom",
+  "clearOnRefresh": true,
+  "input": true,
+  "refreshOn": "SmartDocuments_Template_Group",
+  "attributes": {
+    "ZAC_TYPE": "ZAC_smart_documents_template_group_templates"
+  }
 }
 ```
 
