@@ -65,6 +65,8 @@ Available ZAC types are:
 * `ZAC_groep`
 * `ZAC_medewerker`
 * `ZAC_smart_documents_template`
+* `ZAC_smart_documents_template_groups`
+* `ZAC_smart_documents_template_group_templates`
 * `ZAC_referentie_tabel`
 * `ZAC_documenten`
 * `ZAC_resultaat`
