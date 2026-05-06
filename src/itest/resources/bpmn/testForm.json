@@ -83,7 +83,7 @@
             {
               "label": "Smart Documents Template Group Template",
               "type": "select",
-              "key": "SD_SmartDocuments_Template_Group_Template",
+              "key": "SD_SmartDocuments_Template",
               "input": true,
               "widget": "html5",
               "attributes": {

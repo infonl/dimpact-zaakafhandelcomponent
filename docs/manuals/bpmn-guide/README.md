@@ -492,7 +492,7 @@ Example:
 ```
 
 #### Creating documents
-This requires two components:
+This requires three components:
 
 ##### Listing SmartDocuments template groups linked to the current zaaktype
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`

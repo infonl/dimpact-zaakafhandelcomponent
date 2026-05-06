@@ -9,7 +9,6 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { SmartDocumentsService } from "../../../admin/smart-documents.service";
-import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -43,7 +42,6 @@ export class FormioSetupService {
 
   constructor(
     public utilService: UtilService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
     private zakenService: ZakenService,
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
