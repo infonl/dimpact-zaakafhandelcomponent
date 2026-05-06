@@ -28,7 +28,6 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
@@ -51,7 +50,6 @@ import java.util.logging.Logger
 class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
-    private val cmmnDocumentCreationService: CmmnDocumentCreationService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val flowableTaskService: FlowableTaskService,
@@ -104,7 +102,7 @@ class DocumentCreationRestService @Inject constructor(
             description = restDocumentCreationAttendedData.description,
             author = restDocumentCreationAttendedData.author,
             creationDate = restDocumentCreationAttendedData.creationDate
-        ).let(cmmnDocumentCreationService::createCmmnDocumentAttended)
+        ).let(documentCreationService::createDocumentAttended)
     }
 
     /**
@@ -136,7 +134,7 @@ class DocumentCreationRestService @Inject constructor(
             userName = userName,
             fileId = fileId
         ) {
-            cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
+            documentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
     /**
@@ -170,7 +168,7 @@ class DocumentCreationRestService @Inject constructor(
             userName = userName,
             fileId = fileId
         ) {
-            cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
+            documentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
     private fun createDocument(

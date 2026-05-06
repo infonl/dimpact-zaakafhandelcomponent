@@ -25,7 +25,6 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
@@ -40,7 +39,6 @@ import java.util.UUID
 
 class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationService = mockk<DocumentCreationService>()
-    val cmmnDocumentCreationService = mockk<CmmnDocumentCreationService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -51,7 +49,6 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     val documentCreationRestService = DocumentCreationRestService(
         policyService = policyService,
         documentCreationService = documentCreationService,
-        cmmnDocumentCreationService = cmmnDocumentCreationService,
         zrcClientService = zrcClientService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         flowableTaskService = flowableTaskService,
@@ -83,7 +80,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             createInformatieObjectType(omschrijving = "bijlage")
         )
         every {
-            cmmnDocumentCreationService.createCmmnDocumentAttended(capture(documentCreationDataAttended))
+            documentCreationService.createDocumentAttended(capture(documentCreationDataAttended))
         } returns documentCreationResponse
         every {
             bpmnService.isZaakProcessDriven(any())
