@@ -16,16 +16,16 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { UtilService } from "../../core/service/util.service";
-import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
+import { GeneratedType } from "../../shared/utils/generated-types";
+import { TakenService } from "../../taken/taken.service";
 import { ZaakTakenComponent } from "./zaak-taken.component";
 
 const makeZaak = (
@@ -34,7 +34,9 @@ const makeZaak = (
   ({
     uuid: "fake-zaak-uuid",
     ...fields,
-  }) as Partial<GeneratedType<"RestZaak">> as unknown as GeneratedType<"RestZaak">;
+  }) as Partial<
+    GeneratedType<"RestZaak">
+  > as unknown as GeneratedType<"RestZaak">;
 
 const makeTaak = (
   fields: Partial<GeneratedType<"RestTask">> = {},
@@ -48,13 +50,20 @@ const makeTaak = (
     groep: { id: "fake-groep-id", naam: "Fake Groep" },
     behandelaar: { id: "fake-behandelaar-id", naam: "Fake Behandelaar" },
     zaakUuid: "fake-zaak-uuid",
-    rechten: { lezen: true, toekennen: true, wijzigen: true, toevoegenDocument: true },
+    rechten: {
+      lezen: true,
+      toekennen: true,
+      wijzigen: true,
+      toevoegenDocument: true,
+    },
     taakdata: {},
     tabellen: {},
     taakdocumenten: [],
     taakinformatie: {},
     ...fields,
-  }) as Partial<GeneratedType<"RestTask">> as unknown as GeneratedType<"RestTask">;
+  }) as Partial<
+    GeneratedType<"RestTask">
+  > as unknown as GeneratedType<"RestTask">;
 
 describe(ZaakTakenComponent.name, () => {
   let fixture: ComponentFixture<ZaakTakenComponent>;
@@ -144,12 +153,18 @@ describe(ZaakTakenComponent.name, () => {
       newFixture.componentRef.setInput("zaak", fakeZaak);
       newFixture.detectChanges();
 
-      expect(newFixture.componentInstance["toonAfgerondeTaken"].value).toBe(true);
+      expect(newFixture.componentInstance["toonAfgerondeTaken"].value).toBe(
+        true,
+      );
     });
 
     it("invalidates the query when the websocket callback fires", () => {
-      const invalidateSpy = jest.spyOn(component["queryClient"], "invalidateQueries");
-      const [[, , , callback]] = (websocketService.addListener as jest.Mock).mock.calls;
+      const invalidateSpy = jest.spyOn(
+        component["queryClient"],
+        "invalidateQueries",
+      );
+      const [[, , , callback]] = (websocketService.addListener as jest.Mock)
+        .mock.calls;
       callback();
       expect(invalidateSpy).toHaveBeenCalled();
     });
@@ -180,20 +195,33 @@ describe(ZaakTakenComponent.name, () => {
 
   describe("sortingDataAccessor", () => {
     it("returns groep naam for groep property", () => {
-      const row = new ExpandableTableData(makeTaak({ groep: { id: "g1", naam: "Groep A" } }));
-      const result = component["takenDataSource"].sortingDataAccessor(row, "groep");
+      const row = new ExpandableTableData(
+        makeTaak({ groep: { id: "g1", naam: "Groep A" } }),
+      );
+      const result = component["takenDataSource"].sortingDataAccessor(
+        row,
+        "groep",
+      );
       expect(result).toBe("Groep A");
     });
 
     it("returns behandelaar naam for behandelaar property", () => {
-      const row = new ExpandableTableData(makeTaak({ behandelaar: { id: "b1", naam: "Behandelaar B" } }));
-      const result = component["takenDataSource"].sortingDataAccessor(row, "behandelaar");
+      const row = new ExpandableTableData(
+        makeTaak({ behandelaar: { id: "b1", naam: "Behandelaar B" } }),
+      );
+      const result = component["takenDataSource"].sortingDataAccessor(
+        row,
+        "behandelaar",
+      );
       expect(result).toBe("Behandelaar B");
     });
 
     it("returns string value for other properties", () => {
       const row = new ExpandableTableData(makeTaak({ naam: "Taak naam" }));
-      const result = component["takenDataSource"].sortingDataAccessor(row, "naam");
+      const result = component["takenDataSource"].sortingDataAccessor(
+        row,
+        "naam",
+      );
       expect(result).toBe("Taak naam");
     });
   });
@@ -290,7 +318,10 @@ describe(ZaakTakenComponent.name, () => {
 
   describe("reload", () => {
     it("calls queryClient.invalidateQueries when reload() is invoked", () => {
-      const invalidateSpy = jest.spyOn(component["queryClient"], "invalidateQueries");
+      const invalidateSpy = jest.spyOn(
+        component["queryClient"],
+        "invalidateQueries",
+      );
       component.reload();
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: expect.any(Array),
@@ -309,7 +340,9 @@ describe(ZaakTakenComponent.name, () => {
 
     it("returns empty string for other statuses", () => {
       expect(
-        component["taskStatusChipColor"]("NIET_TOEGEKEND" as GeneratedType<"TaakStatus">),
+        component["taskStatusChipColor"](
+          "NIET_TOEGEKEND" as GeneratedType<"TaakStatus">,
+        ),
       ).toBe("");
     });
   });
@@ -322,7 +355,9 @@ describe(ZaakTakenComponent.name, () => {
 
     it("returns false when rechten.toekennen is false", () => {
       const taak = makeTaak({
-        rechten: fromPartial<GeneratedType<"RestTaakRechten">>({ toekennen: false }),
+        rechten: fromPartial<GeneratedType<"RestTaakRechten">>({
+          toekennen: false,
+        }),
       });
       expect(component["showAssignTaakToMe"](taak)).toBe(false);
     });
@@ -359,7 +394,10 @@ describe(ZaakTakenComponent.name, () => {
   describe("filterTakenOpStatus / toonAfgerondeTaken", () => {
     it("filters out AFGEROND tasks when toonAfgerondeTaken is false", () => {
       const activeTaak = makeTaak({ id: "active-taak", status: "TOEGEKEND" });
-      const afgerondTaak = makeTaak({ id: "afgerond-taak", status: "AFGEROND" });
+      const afgerondTaak = makeTaak({
+        id: "afgerond-taak",
+        status: "AFGEROND",
+      });
       testQueryClient.setQueryData(
         takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
         [activeTaak, afgerondTaak],
@@ -408,11 +446,13 @@ describe(ZaakTakenComponent.name, () => {
 
       component["assignTaakToMe"](taak, mouseEvent);
 
-      expect(takenService.toekennenAanIngelogdeMedewerker).toHaveBeenCalledWith({
-        taakId: taak.id,
-        zaakUuid: taak.zaakUuid,
-        groepId: taak.groep!.id,
-      });
+      expect(takenService.toekennenAanIngelogdeMedewerker).toHaveBeenCalledWith(
+        {
+          taakId: taak.id,
+          zaakUuid: taak.zaakUuid,
+          groepId: taak.groep!.id,
+        },
+      );
       expect(snackbarSpy).toHaveBeenCalledWith("msg.taak.toegekend", {
         behandelaar: returnedTaak.behandelaar?.naam,
       });
@@ -423,7 +463,9 @@ describe(ZaakTakenComponent.name, () => {
       jest
         .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
         .mockReturnValue(of(returnedTaak));
-      jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined as never);
+      jest
+        .spyOn(utilService, "openSnackbar")
+        .mockReturnValue(undefined as never);
 
       const taak = makeTaak();
       const mouseEvent = new MouseEvent("click");

@@ -44,10 +44,9 @@ describe(TakenService.name, () => {
     it("fetches with the given task id", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of({} as never));
       service.readTaak("taak-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(
-        expect.any(String),
-        { path: { taskId: "taak-1" } },
-      );
+      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
+        path: { taskId: "taak-1" },
+      });
     });
   });
 
@@ -55,10 +54,9 @@ describe(TakenService.name, () => {
     it("fetches with the given zaak UUID", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));
       service.listTakenVoorZaak("zaak-uuid-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(
-        expect.any(String),
-        { path: { zaakUUID: "zaak-uuid-1" } },
-      );
+      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
+        path: { zaakUUID: "zaak-uuid-1" },
+      });
     });
   });
 
@@ -66,10 +64,9 @@ describe(TakenService.name, () => {
     it("builds query options for the given zaak UUID", () => {
       jest.spyOn(zacQueryClient, "GET");
       service.listTakenVoorZaakQuery("zaak-uuid-1");
-      expect(zacQueryClient.GET).toHaveBeenCalledWith(
-        expect.any(String),
-        { path: { zaakUUID: "zaak-uuid-1" } },
-      );
+      expect(zacQueryClient.GET).toHaveBeenCalledWith(expect.any(String), {
+        path: { zaakUUID: "zaak-uuid-1" },
+      });
     });
   });
 
@@ -77,10 +74,9 @@ describe(TakenService.name, () => {
     it("fetches with the given task id", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));
       service.listHistorieVoorTaak("taak-1");
-      expect(zacHttpClient.GET).toHaveBeenCalledWith(
-        expect.any(String),
-        { path: { taskId: "taak-1" } },
-      );
+      expect(zacHttpClient.GET).toHaveBeenCalledWith(expect.any(String), {
+        path: { taskId: "taak-1" },
+      });
     });
   });
 
@@ -94,19 +90,33 @@ describe(TakenService.name, () => {
 
   describe("toekennenAanIngelogdeMedewerker", () => {
     it("patches with the given body", () => {
-      const body = { taakId: "taak-1", zaakUuid: "zaak-uuid-1", groepId: "groep-1" };
+      const body = {
+        taakId: "taak-1",
+        zaakUuid: "zaak-uuid-1",
+        groepId: "groep-1",
+      };
       jest.spyOn(zacHttpClient, "PATCH").mockReturnValue(of({} as never));
       service.toekennenAanIngelogdeMedewerker(body).subscribe();
-      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(expect.any(String), body);
+      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(
+        expect.any(String),
+        body,
+      );
     });
   });
 
   describe("toekennenAanIngelogdeMedewerkerVanuitLijst", () => {
     it("patches with the given body", () => {
-      const body = { taakId: "taak-1", zaakUuid: "zaak-uuid-1", groepId: "groep-1" };
+      const body = {
+        taakId: "taak-1",
+        zaakUuid: "zaak-uuid-1",
+        groepId: "groep-1",
+      };
       jest.spyOn(zacHttpClient, "PATCH").mockReturnValue(of({} as never));
       service.toekennenAanIngelogdeMedewerkerVanuitLijst(body).subscribe();
-      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(expect.any(String), body);
+      expect(zacHttpClient.PATCH).toHaveBeenCalledWith(
+        expect.any(String),
+        body,
+      );
     });
   });
 
