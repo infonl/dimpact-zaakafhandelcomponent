@@ -27,7 +27,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
-import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
+import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_SMARTDOCUMENTS_DISABLED
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -75,7 +75,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             title = "Title",
         )
         val documentCreationResponse = createDocumentCreationAttendedResponse()
-        val documentCreationDataAttended = slot<CmmnDocumentCreationDataAttended>()
+        val documentCreationDataAttended = slot<DocumentCreationDataAttended>()
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak

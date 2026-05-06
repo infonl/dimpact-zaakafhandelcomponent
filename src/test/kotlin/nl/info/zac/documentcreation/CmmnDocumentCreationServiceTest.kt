@@ -116,7 +116,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
                         outputFormats.size shouldBe 1
                         outputFormats[0].outputFormat shouldBe "docx"
                         redirectMethod shouldBe "POST"
-                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback" +
+                        redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
                             "/zaak/${zaak.uuid}" +
                             "/task/$taskId" +
                             "?title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
@@ -160,7 +160,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
             )
 
             Then("Correct URl is provided") {
-                uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid" +
+                uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
@@ -185,7 +185,7 @@ class CmmnDocumentCreationServiceTest : BehaviorSpec({
 
             Then("Correct URl is provided") {
                 uri.toString() shouldBe
-                    "$contextUrl/rest/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid/task/$taakUuid" +
+                    "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid/task/$taakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +

@@ -15,7 +15,6 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.UUID
 
 fun createAanvragerData(
     naam: String = "fakeNaam",
@@ -53,30 +52,11 @@ fun createCmmnDocumentCreationDataAttended(
     templateId: String = "2",
     title: String = "title",
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-) = CmmnDocumentCreationDataAttended(
+) = DocumentCreationDataAttended(
     zaak = zaak,
     taskId = taskId,
     templateGroupId = templateGroupId,
     templateId = templateId,
-    title = title,
-    creationDate = creationDate
-)
-
-@Suppress("LongParameterList")
-fun createBpmnDocumentCreationDataAttended(
-    zaak: Zaak = createZaak(),
-    taskId: String = "fakeTaskId",
-    informatieobjecttypeUuid: UUID = UUID.randomUUID(),
-    templateGroupName: String = "fakeGroup",
-    templateName: String = "fakeTemplate",
-    title: String = "title",
-    creationDate: ZonedDateTime = ZonedDateTime.now(),
-) = BpmnDocumentCreationDataAttended(
-    zaak = zaak,
-    taskId = taskId,
-    informatieobjecttypeUuid = informatieobjecttypeUuid,
-    templateGroupName = templateGroupName,
-    templateName = templateName,
     title = title,
     creationDate = creationDate
 )

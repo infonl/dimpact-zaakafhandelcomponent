@@ -17,8 +17,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
-import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
+import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
@@ -51,14 +51,14 @@ class CmmnDocumentCreationService @Inject constructor(
 ) {
     companion object {
         private const val SMART_DOCUMENTS_REDIRECT_URL_BASE =
-            "rest/document-creation/smartdocuments/cmmn-callback/zaak/{zaakUuid}"
+            "rest/document-creation/smartdocuments/callback/zaak/{zaakUuid}"
 
         private val LOG = Logger.getLogger(CmmnDocumentCreationService::class.java.name)
     }
 
     @Suppress("MaxLineLength")
     fun createCmmnDocumentAttended(
-        documentCreationDataAttended: CmmnDocumentCreationDataAttended
+        documentCreationDataAttended: DocumentCreationDataAttended
     ): DocumentCreationAttendedResponse =
         documentCreationDataConverter.createData(
             loggedInUser = loggedInUserInstance.get(),
@@ -84,7 +84,7 @@ class CmmnDocumentCreationService @Inject constructor(
      * In this flow the description of the zaaktype of the zaak in the provided document creation data is used
      * as the SmartDocuments template group.
      */
-    private fun createSmartDocumentForAttendedFlow(creationDataUnattended: CmmnDocumentCreationDataAttended) =
+    private fun createSmartDocumentForAttendedFlow(creationDataUnattended: DocumentCreationDataAttended) =
         SmartDocument(
             selection = Selection(
                 templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(

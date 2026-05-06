@@ -30,8 +30,8 @@ import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedRespon
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
-import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
+import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
@@ -93,7 +93,7 @@ class DocumentCreationRestService @Inject constructor(
         if (!zaaktypeConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
             throw SmartDocumentsDisabledException()
         }
-        return CmmnDocumentCreationDataAttended(
+        return DocumentCreationDataAttended(
             zaak = zaak,
             taskId = restDocumentCreationAttendedData.taskId,
             templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId
@@ -115,7 +115,7 @@ class DocumentCreationRestService @Inject constructor(
      * zaak ID, template and template group IDs, username and created document ID
      */
     @POST
-    @Path("/smartdocuments/cmmn-callback/zaak/{zaakUuid}")
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}")
     @Produces(MediaType.TEXT_HTML)
     @Suppress("LongParameterList")
     fun createCmmnDocumentForZaakCallback(
@@ -147,7 +147,7 @@ class DocumentCreationRestService @Inject constructor(
      * zaak and task IDs, template and template group IDs, username and created document ID
      */
     @POST
-    @Path("/smartdocuments/cmmn-callback/zaak/{zaakUuid}/task/{taskId}")
+    @Path("/smartdocuments/callback/zaak/{zaakUuid}/task/{taskId}")
     @Produces(MediaType.TEXT_HTML)
     @Suppress("LongParameterList")
     fun createCmmnDocumentForTaskCallback(
@@ -171,39 +171,6 @@ class DocumentCreationRestService @Inject constructor(
             fileId = fileId
         ) {
             cmmnDocumentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
-        }
-
-    /**
-     * SmartDocuments callback for a BPMN task
-     *
-     * Called when SmartDocument Wizard "Finish" button is clicked. The URL provided as "redirectUrl" to
-     * SmartDocuments contains all the parameters needed to store the document for a task:
-     * zaak and task IDs, template and template group IDs, username and created document ID
-     */
-    @POST
-    @Path("/smartdocuments/bpmn-callback/zaak/{zaakUuid}/task/{taskId}")
-    @Produces(MediaType.TEXT_HTML)
-    @Suppress("LongParameterList")
-    fun createBpmnDocumentForTaskCallback(
-        @PathParam("zaakUuid") zaakUuid: UUID,
-        @PathParam("taskId") taskId: String,
-        @QueryParam("informatieobjecttypeUuid") informatieobjecttypeUuid: UUID,
-        @QueryParam("title") title: String,
-        @QueryParam("description") description: String?,
-        @QueryParam("creationDate") creationDate: ZonedDateTime,
-        @QueryParam("userName") userName: String,
-        @FormParam("sdDocument") @DefaultValue("") fileId: String,
-    ): Response =
-        createDocument(
-            zaakUuid = zaakUuid,
-            taskId = taskId,
-            title = title,
-            description = description,
-            creationDate = creationDate,
-            userName = userName,
-            fileId = fileId
-        ) {
-            informatieobjecttypeUuid
         }
 
     private fun createDocument(
