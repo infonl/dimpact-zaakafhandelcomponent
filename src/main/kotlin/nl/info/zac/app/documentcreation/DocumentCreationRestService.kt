@@ -19,19 +19,17 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.exception.TaskNotFoundException
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.documentcreation.BpmnDocumentCreationService
 import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationService
-import nl.info.zac.documentcreation.model.BpmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.CmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.policy.PolicyService
@@ -54,9 +52,8 @@ class DocumentCreationRestService @Inject constructor(
     private val policyService: PolicyService,
     private val documentCreationService: DocumentCreationService,
     private val cmmnDocumentCreationService: CmmnDocumentCreationService,
-    private val bpmnDocumentCreationService: BpmnDocumentCreationService,
     private val zrcClientService: ZrcClientService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
+    private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val flowableTaskService: FlowableTaskService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
@@ -84,20 +81,16 @@ class DocumentCreationRestService @Inject constructor(
                 assertPolicy(policyService.readTaakRechten(task).creerenDocument)
             }
         }.let { zaak ->
-            if (restDocumentCreationAttendedData.informatieobjecttypeUuid != null) {
-                createBpmnDocument(zaak, restDocumentCreationAttendedData)
-            } else {
-                createCmmnDocument(zaak, restDocumentCreationAttendedData)
-            }
+            createDocument(zaak, restDocumentCreationAttendedData)
                 .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
         }
 
     @Suppress("ThrowsCount")
-    private fun createCmmnDocument(
+    private fun createDocument(
         zaak: Zaak,
         restDocumentCreationAttendedData: RestDocumentCreationAttendedData
     ): DocumentCreationAttendedResponse {
-        if (!zaaktypeCmmnConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
+        if (!zaaktypeConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
             throw SmartDocumentsDisabledException()
         }
         return CmmnDocumentCreationDataAttended(
@@ -113,22 +106,6 @@ class DocumentCreationRestService @Inject constructor(
             creationDate = restDocumentCreationAttendedData.creationDate
         ).let(cmmnDocumentCreationService::createCmmnDocumentAttended)
     }
-
-    private fun createBpmnDocument(zaak: Zaak, restDocumentCreationAttendedData: RestDocumentCreationAttendedData) =
-        BpmnDocumentCreationDataAttended(
-            zaak = zaak,
-            taskId = restDocumentCreationAttendedData.taskId,
-            templateName = restDocumentCreationAttendedData.smartDocumentsTemplateName
-                ?: throw IllegalArgumentException("SmartDocuments template name is required"),
-            templateGroupName = restDocumentCreationAttendedData.smartDocumentsTemplateGroupName
-                ?: throw IllegalArgumentException("SmartDocuments template group name is required"),
-            informatieobjecttypeUuid = restDocumentCreationAttendedData.informatieobjecttypeUuid
-                ?: throw IllegalArgumentException("Information object type UUID is required"),
-            title = restDocumentCreationAttendedData.title,
-            description = restDocumentCreationAttendedData.description,
-            author = restDocumentCreationAttendedData.author,
-            creationDate = restDocumentCreationAttendedData.creationDate
-        ).let(bpmnDocumentCreationService::createBpmnDocumentAttended)
 
     /**
      * SmartDocuments callback for CMMN zaak
