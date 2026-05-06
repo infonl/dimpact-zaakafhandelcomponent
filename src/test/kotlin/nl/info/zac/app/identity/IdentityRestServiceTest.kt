@@ -24,15 +24,14 @@ class IdentityRestServiceTest : BehaviorSpec({
     beforeEach { checkUnnecessaryStub() }
 
     Context("Listing all active groups") {
-        Given("The identity service returns both active and inactive groups") {
+        Given("The identity service returns an active group") {
             val activeGroup = createGroup(id = "active-group", name = "Active Group", active = true)
-            val inactiveGroup = createGroup(id = "inactive-group", name = "Inactive Group", active = false)
-            every { identityService.listGroups() } returns listOf(activeGroup, inactiveGroup)
+            every { identityService.listActiveGroups() } returns listOf(activeGroup)
 
-            When("the 'list groups' endpoint is called") {
-                val result = identityRestService.listGroups()
+            When("the 'list active groups' endpoint is called") {
+                val result = identityRestService.listActiveGroups()
 
-                Then("only the active group is returned and the inactive group is filtered out") {
+                Then("the active group is returned") {
                     result shouldHaveSize 1
                     result.first().id shouldBe "active-group"
                 }
@@ -43,18 +42,17 @@ class IdentityRestServiceTest : BehaviorSpec({
     Context("Listing active behandelaar groups for a zaaktype UUID") {
         val zaaktypeUuid = UUID.randomUUID()
 
-        Given("The identity service returns both active and inactive groups") {
+        Given("The identity service returns an active group") {
             val activeGroup = createGroup(id = "active-group", name = "Active Group", active = true)
-            val inactiveGroup = createGroup(id = "inactive-group", name = "Inactive Group", active = false)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
-            } returns listOf(activeGroup, inactiveGroup)
+            } returns listOf(activeGroup)
 
             When("the deprecated 'list behandelaar groups for a zaaktype UUID' endpoint is called") {
                 @Suppress("DEPRECATION")
                 val result = identityRestService.listBehandelaarGroupsForZaaktypeUuid(zaaktypeUuid)
 
-                Then("only the active group is returned and the inactive group is filtered out") {
+                Then("the active group is returned") {
                     result shouldHaveSize 1
                     result.first().id shouldBe "active-group"
                 }
@@ -63,17 +61,16 @@ class IdentityRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing active behandelaar groups for a zaaktype description") {
-        Given("The identity service returns both active and inactive groups") {
+        Given("The identity service returns an active group") {
             val activeGroup = createGroup(id = "active-group", name = "Active Group", active = true)
-            val inactiveGroup = createGroup(id = "inactive-group", name = "Inactive Group", active = false)
             every {
                 identityService.listActiveGroupsForBehandelaarRoleAndZaaktype("fakeZaaktype")
-            } returns listOf(activeGroup, inactiveGroup)
+            } returns listOf(activeGroup)
 
             When("the 'list behandelaar groups for a zaaktype' endpoint is called") {
                 val result = identityRestService.listBehandelaarGroupsForZaaktype("fakeZaaktype")
 
-                Then("only the active group is returned and the inactive group is filtered out") {
+                Then("the active group is returned") {
                     result shouldHaveSize 1
                     result.first().id shouldBe "active-group"
                 }
