@@ -267,6 +267,11 @@
                     label="groep"
                     [value]="zaak.groep?.naam | empty"
                   >
+                    @if (zaak.groep?.active === false) {
+                      <em position="content-after"
+                        >&nbsp;({{ "inactief" | translate }})</em
+                      >
+                    }
                   </zac-static-text>
                   <zac-static-text
                     class="grid-text"

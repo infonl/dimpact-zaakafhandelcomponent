@@ -9,6 +9,7 @@ import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
@@ -59,7 +60,7 @@ import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
 import java.net.HttpURLConnection.HTTP_OK
 
-val TEST_GROUPS_ALL =
+val TEST_GROUPS_ACTIVE =
     """
             [
                 {
@@ -146,11 +147,6 @@ val TEST_GROUPS_ALL =
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
                     "active": true
-                },
-                {
-                    "id": "${GROUP_INACTIVE_TEST_1.name}",
-                    "naam": "${GROUP_INACTIVE_TEST_1.description}",
-                    "active": false
                 }
             ]
         """
@@ -165,11 +161,10 @@ class IdentityServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/identity/groups",
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
-                Then(
-                    "all groups in the Keycloak ZAC realm are returned including the inactive group with active=false"
-                ) {
+                Then("only active groups are returned and the inactive group is absent") {
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ACTIVE.trimIndent()
+                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
@@ -233,13 +228,14 @@ class IdentityServiceTest : BehaviorSpec({
                             ]
                         """.trimIndent()
                     }
+                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
 
         Given(
             """
-              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype,
               using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
               Old IAM (PABC feature flag off): groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
               zaaktype configuration for a given domain role, and a logged-in beheerder
@@ -284,8 +280,9 @@ class IdentityServiceTest : BehaviorSpec({
                     ]
                         """.trimIndent()
                     } else {
-                        response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ALL.trimIndent()
+                        response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ACTIVE.trimIndent()
                     }
+                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
                 }
             }
         }
