@@ -39,7 +39,7 @@ class StaticCacheFilter : Filter {
         /** 8 is Angular's default hash length (hardcoded in `@angular/build`); filename example: main-A1B2C3D4.js */
         private val HASHED_RESOURCE_REGEX = Regex("""-[A-Za-z0-9]{8}\.(js|css)(\.map)?$""")
 
-        /** 8 must match `.substring(0, 8)` in `scripts/cache-busting.js`; `?v=` param example: 395afa0f */
+        /** 8 must match `.substring(0, 8)` in `src/main/app/scripts/cache-busting.js`; `?v=` param example: 395afa0f */
         private val MD5_VERSION_REGEX = Regex("""^[0-9a-f]{8}$""")
     }
 
