@@ -62,7 +62,7 @@ class IdentityRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing behandelaar groups for a zaaktype description") {
+    Context("Listing active behandelaar groups for a zaaktype description") {
         Given("The identity service returns both active and inactive groups") {
             val activeGroup = createGroup(id = "active-group", name = "Active Group", active = true)
             val inactiveGroup = createGroup(id = "inactive-group", name = "Inactive Group", active = false)
