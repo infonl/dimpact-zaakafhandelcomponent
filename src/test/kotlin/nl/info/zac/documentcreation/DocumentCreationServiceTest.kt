@@ -23,9 +23,9 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
-import nl.info.zac.documentcreation.model.createCmmnDocumentCreationDataAttended
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
+import nl.info.zac.documentcreation.model.createDocumentCreationDataAttended
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import java.net.URI
@@ -143,7 +143,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
         val zaak = createZaak(zaaktypeUri = zaakTypeURI)
         val taskId = "fakeTaskId"
-        val documentCreationData = createCmmnDocumentCreationDataAttended(
+        val documentCreationData = createDocumentCreationDataAttended(
             zaak = zaak,
             taskId = taskId
         )
@@ -240,7 +240,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName
             )
 
-            Then("Correct URl is provided") {
+            Then("Correct URL is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
@@ -264,7 +264,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName
             )
 
-            Then("Correct URl is provided") {
+            Then("Correct URL is provided") {
                 uri.toString() shouldBe
                     "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid/task/$taakUuid" +
                     "?title=$title" +

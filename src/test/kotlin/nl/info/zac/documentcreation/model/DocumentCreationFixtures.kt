@@ -45,7 +45,7 @@ fun createData(
 )
 
 @Suppress("LongParameterList")
-fun createCmmnDocumentCreationDataAttended(
+fun createDocumentCreationDataAttended(
     zaak: Zaak = createZaak(),
     taskId: String = "fakeTaskId",
     templateGroupId: String = "1",

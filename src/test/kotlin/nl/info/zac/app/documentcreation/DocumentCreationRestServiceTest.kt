@@ -21,7 +21,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.documentcreation.model.createRestDocumentCreationAttendedData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -155,16 +154,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
 
         When("createDocument is called with disabled document creation") {
-            val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { policyService.readTaakRechten(task).creerenDocument } returns true
             every { zaaktypeConfigurationService.isSmartDocumentsEnabled(zaakTypeUUID) } returns false
-            every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
-            } returns zaaktypeCmmnConfiguration
 
             val exception = shouldThrow<SmartDocumentsDisabledException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
