@@ -22,7 +22,6 @@ export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
 export enum KNOWN_ZAC_FIELDS {
   GROEP = "ZAC_groep",
   MEDEWERKER = "ZAC_medewerker",
-  SMART_DOCUMENTS_TEMPLATE = "ZAC_smart_documents_template",
   SMART_DOCUMENTS_TEMPLATE_GROUPS = "ZAC_smart_documents_template_groups",
   SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES = "ZAC_smart_documents_template_group_templates",
   REFERENTIE_TABEL = "ZAC_referentie_tabel",
@@ -96,9 +95,6 @@ export class FormioSetupService {
               this.initializeSmartDocumentsTemplateGroupTemplatesField(
                 component,
               );
-              break;
-            case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE:
-              this.initializeSmartDocumentsField(component);
               break;
             case KNOWN_ZAC_FIELDS.REFERENTIE_TABEL:
               this.initializeReferenceTableField(component);
@@ -229,32 +225,6 @@ export class FormioSetupService {
             }))
             .sort(OrderUtil.orderBy("naam")) ?? []
         );
-      },
-    };
-  }
-
-  private initializeSmartDocumentsField(component: ExtendedComponentSchema) {
-    const smartDocumentsPath: string[] =
-      component.properties["SmartDocuments_Group"]?.split("/") ?? [];
-
-    component.valueProperty = "id";
-    component.template = "{{ item.naam }}";
-
-    component.data = {
-      custom: async () => {
-        const data = await this.queryClient.ensureQueryData({
-          queryKey: [
-            "smartDocumentsGroupTemplateNamesQuery",
-            ...smartDocumentsPath,
-          ],
-          queryFn: () =>
-            lastValueFrom(
-              this.zaakafhandelParametersService.listSmartDocumentsGroupTemplateNames(
-                { path: smartDocumentsPath },
-              ),
-            ),
-        });
-        return data.sort();
       },
     };
   }

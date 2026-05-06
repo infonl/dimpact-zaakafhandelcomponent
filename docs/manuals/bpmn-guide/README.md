@@ -64,7 +64,6 @@ ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` 
 Available ZAC types are:
 * `ZAC_groep`
 * `ZAC_medewerker`
-* `ZAC_smart_documents_template`
 * `ZAC_smart_documents_template_groups`
 * `ZAC_smart_documents_template_group_templates`
 * `ZAC_referentie_tabel`
@@ -494,34 +493,6 @@ Example:
 
 #### Creating documents
 This requires two components:
-
-##### SmartDocuments template
-* A `select` component with:
-  * the attribute `ZAC_TYPE` of `ZAC_smart_documents_template`
-  * custom data source: `"dataSrc": "custom"`
-  * properties containing `SmartDocuments_Group`
-
-Example:
-```json
-{
-  "label": "Template",
-  "type": "select",
-  "key": "SD_SmartDocuments_Template",
-  "input": true,
-  "widget": "html5",
-  "validate": {
-    "required": true
-  },
-  "dataSrc": "custom",
-  "attributes": {
-    "ZAC_TYPE": "ZAC_smart_documents_template"
-  },
-  "properties": {
-    "SmartDocuments_Group": "Dimpact/OpenZaak"
-  },
-  "clearOnRefresh": true
-}
-```
 
 ##### Listing SmartDocuments template groups linked to the current zaaktype
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`

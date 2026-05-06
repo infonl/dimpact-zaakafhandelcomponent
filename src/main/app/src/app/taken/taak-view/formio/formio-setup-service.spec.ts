@@ -48,15 +48,6 @@ const medewerkerComponent: ExtendedComponentSchema = {
   },
 };
 
-const smartDocumentsFieldset: ExtendedComponentSchema = {
-  type: "select",
-  key: "SD_SmartDocuments_Template",
-  input: true,
-  attributes: {
-    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
-  },
-};
-
 const smartDocumentsTemplateGroupsComponent: ExtendedComponentSchema = {
   type: "select",
   key: "Fake_Smart_Documents_Template_Groups",
@@ -101,7 +92,6 @@ const referenceTableFieldset: ExtendedComponentSchema = {
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
-  let utilService: UtilService;
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -156,7 +146,6 @@ describe(FormioSetupService.name, () => {
     }).compileComponents();
 
     formioSetupService = TestBed.inject(FormioSetupService);
-    utilService = TestBed.inject(UtilService);
   });
 
   describe(FormioSetupService.prototype.extractFieldsetName.name, () => {
@@ -270,7 +259,6 @@ describe(FormioSetupService.name, () => {
         initializeGroepField: jest.Mock;
         initializeMedewerkerField: jest.Mock;
         initializeProcessDataField: jest.Mock;
-        initializeSmartDocumentsField: jest.Mock;
         initializeReferenceTableField: jest.Mock;
         initializeDocumentsField: jest.Mock;
         initializeSmartDocumentsTemplateGroupsField: jest.Mock;
@@ -285,11 +273,6 @@ describe(FormioSetupService.name, () => {
       const medewerkerSpy = jest.spyOn(
         mockedComponentsService,
         "initializeMedewerkerField",
-      );
-
-      const smartDocumentsSpy = jest.spyOn(
-        mockedComponentsService,
-        "initializeSmartDocumentsField",
       );
       const referenceTableSpy = jest.spyOn(
         mockedComponentsService,
@@ -311,7 +294,6 @@ describe(FormioSetupService.name, () => {
       const mockFormComponents: ExtendedComponentSchema[] = [
         groepComponent,
         medewerkerComponent,
-        smartDocumentsFieldset,
         referenceTableFieldset,
         documentsFieldset,
         smartDocumentsTemplateGroupsComponent,
@@ -325,12 +307,11 @@ describe(FormioSetupService.name, () => {
 
       expect(groepSpy).toHaveBeenCalledWith(mockFormComponents[0]);
       expect(medewerkerSpy).toHaveBeenCalledWith(mockFormComponents[1]);
-      expect(smartDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[2]);
-      expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[3]);
-      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
-      expect(templateGroupsSpy).toHaveBeenCalledWith(mockFormComponents[5]);
+      expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[2]);
+      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
+      expect(templateGroupsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
       expect(templateGroupTemplatesSpy).toHaveBeenCalledWith(
-        mockFormComponents[6],
+        mockFormComponents[5],
       );
     });
 
@@ -410,45 +391,6 @@ describe(FormioSetupService.name, () => {
             { path: { zaaktypeUuid: "test-zaaktype-uuid" } },
           ],
         }),
-      );
-    });
-
-    it("should catch errors from component initializers and call handleFormIOInitError", () => {
-      const component: ExtendedComponentSchema = {
-        type: "smartDocumentsFieldset",
-        key: "component_key",
-        components: [],
-        attributes: {
-          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE,
-        },
-      };
-      const errorMessage = "failed to initialize";
-      const handleFormIOInitErrorSpy = jest.spyOn(
-        utilService,
-        "handleFormIOInitError",
-      );
-
-      jest
-        .spyOn(
-          formioSetupService as unknown as {
-            initializeSmartDocumentsField: jest.Mock;
-          },
-          "initializeSmartDocumentsField",
-        )
-        .mockImplementation(() => {
-          throw new Error(errorMessage);
-        });
-
-      expect(() => {
-        formioSetupService.createFormioForm(
-          { components: [component] } as FormioForm,
-          taak,
-        );
-      }).not.toThrow();
-
-      expect(handleFormIOInitErrorSpy).toHaveBeenCalledWith(
-        "ZAC_smart_documents_template",
-        errorMessage,
       );
     });
   });

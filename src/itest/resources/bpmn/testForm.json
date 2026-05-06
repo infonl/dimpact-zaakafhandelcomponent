@@ -69,18 +69,29 @@
           "tableView": false,
           "components": [
             {
-              "label": "Template",
+              "label": "Smart Documents Template Group",
               "type": "select",
-              "key": "SD_SmartDocuments_Template",
+              "key": "SD_SmartDocuments_Template_Group",
               "input": true,
               "widget": "html5",
-              "dataSrc": "custom",
               "attributes": {
-                "ZAC_TYPE": "ZAC_smart_documents_template"
+                "ZAC_TYPE": "ZAC_smart_documents_template_groups"
               },
-              "properties": {
-                "SmartDocuments_Group": "Dimpact/OpenZaak"
-              }
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "Smart Documents Template Group Template",
+              "type": "select",
+              "key": "SD_SmartDocuments_Template_Group_Template",
+              "input": true,
+              "widget": "html5",
+              "attributes": {
+                "ZAC_TYPE": "ZAC_smart_documents_template_group_templates"
+              },
+              "dataSrc": "custom",
+              "refreshOn": "SD_SmartDocuments_Template_Group",
+              "clearOnRefresh": true
             },
             {
               "label": "Create",
