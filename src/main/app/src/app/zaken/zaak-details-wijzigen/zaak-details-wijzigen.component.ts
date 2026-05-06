@@ -6,11 +6,13 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
+import { TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import {
   defaultIfEmpty,
   EMPTY,
   firstValueFrom,
+  map,
   Observable,
   of,
   Subject,
@@ -40,6 +42,12 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   formFields: Array<AbstractFormField[]> = [];
 
   protected groups: Observable<GeneratedType<"RestGroup">[]> = of([]);
+  protected readonly groupDisplayValue = (
+    group: GeneratedType<"RestGroup">,
+  ): string =>
+    group.active === false
+      ? `${group.naam} (${this.translateService.instant("inactief")})`
+      : (group.naam ?? "");
   protected users: GeneratedType<"RestUser">[] = [];
   protected communicationChannels: string[] = [];
   protected confidentialityDesignations = this.utilService.getEnumAsSelectList(
@@ -85,6 +93,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
     private readonly identityService: IdentityService,
+    private readonly translateService: TranslateService,
   ) {}
 
   ngOnInit() {
@@ -94,9 +103,17 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
         this.zaak.rechten.wijzigenDoorlooptijd,
     );
 
-    this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      this.zaak.zaaktype.uuid,
-    );
+    this.groups = this.identityService
+      .listBehandelaarGroupsForZaaktype(this.zaak.zaaktype.uuid)
+      .pipe(
+        map((groups) => {
+          const currentGroup = this.zaak.groep;
+          if (currentGroup && !groups.find((g) => g.id === currentGroup.id)) {
+            return [currentGroup, ...groups];
+          }
+          return groups;
+        }),
+      );
 
     if (!this.zaak.rechten.wijzigen) {
       this.form.controls.communicatiekanaal.disable();

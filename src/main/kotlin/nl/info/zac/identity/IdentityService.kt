@@ -52,6 +52,8 @@ class IdentityService @Inject constructor(
         .map { it.toGroup(zacKeycloakClientId) }
         .sortedBy { it.description }
 
+    fun listActiveGroups(): List<Group> = listGroups().filter { it.active }
+
     /**
      * New IAM (PABC feature flag on): Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
@@ -83,6 +85,7 @@ class IdentityService @Inject constructor(
                     it.zacClientRoles.contains(domein)
             }
         }
+            .filter { it.active }
             .sortedBy { it.description }
 
     /**
@@ -94,7 +97,7 @@ class IdentityService @Inject constructor(
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
             applicationRole = ZacApplicationRole.BEHANDELAAR.value,
             zaaktypeDescription = zaaktypeDescription
-        ).map { it.toGroup() }
+        ).map { it.toGroup() }.filter { it.active }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
