@@ -23,7 +23,7 @@ class IdentityRestServiceTest : BehaviorSpec({
 
     beforeEach { checkUnnecessaryStub() }
 
-    Context("Listing all groups") {
+    Context("Listing all active groups") {
         Given("The identity service returns both active and inactive groups") {
             val activeGroup = createGroup(id = "active-group", name = "Active Group", active = true)
             val inactiveGroup = createGroup(id = "inactive-group", name = "Inactive Group", active = false)
