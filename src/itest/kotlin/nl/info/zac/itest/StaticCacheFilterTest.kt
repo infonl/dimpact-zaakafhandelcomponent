@@ -20,7 +20,10 @@ class StaticCacheFilterTest : BehaviorSpec({
 
     Given("index.html") {
         When("the file is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/index.html", testUser = BEHEERDER_ELK_ZAAKTYPE)
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_BASE_URI/index.html",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
             Then("the response is 200 and Cache-Control contains no-cache") {
                 response.code shouldBe HTTP_OK
                 // The OIDC layer may append ', no-store, must-revalidate' at exchange level on top of
@@ -49,7 +52,10 @@ class StaticCacheFilterTest : BehaviorSpec({
             "Could not find a hashed JS bundle URL in index.html"
         }
         When("the bundle is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/$scriptName", testUser = BEHEERDER_ELK_ZAAKTYPE)
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_BASE_URI/$scriptName",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
             Then("the response is 200 with Cache-Control: immutable") {
                 response.code shouldBe HTTP_OK
                 response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
@@ -83,7 +89,10 @@ class StaticCacheFilterTest : BehaviorSpec({
 
     Given("a REST API path") {
         When("the health endpoint is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/rest/health", testUser = BEHEERDER_ELK_ZAAKTYPE)
+            val response = itestHttpClient.performGetRequest(
+                "$ZAC_BASE_URI/rest/health",
+                testUser = BEHEERDER_ELK_ZAAKTYPE
+            )
             Then("Cache-Control is not set to immutable") {
                 response.headers["Cache-Control"]?.shouldNotContain("immutable")
             }
