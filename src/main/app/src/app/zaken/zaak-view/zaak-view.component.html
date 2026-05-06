@@ -803,10 +803,7 @@
           (doIntrekking)="doIntrekking($event)"
         ></zac-besluit-view>
 
-        <zac-zaak-taken
-          #zaakTakenComponent
-          [zaak]="zaak"
-        ></zac-zaak-taken>
+        <zac-zaak-taken #zaakTakenComponent [zaak]="zaak"></zac-zaak-taken>
       </div>
       <zac-zaak-documenten
         #zaakDocumentenComponent

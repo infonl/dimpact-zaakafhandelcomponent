@@ -24,14 +24,10 @@
       >
         <ng-container matColumnDef="collapse">
           <th mat-header-cell *matHeaderCellDef>
-            <mat-icon
-              *ngIf="!allTakenExpanded"
-              (click)="expandTaken(true)"
+            <mat-icon *ngIf="!allTakenExpanded" (click)="expandTaken(true)"
               >expand_more
             </mat-icon>
-            <mat-icon
-              *ngIf="allTakenExpanded"
-              (click)="expandTaken(false)"
+            <mat-icon *ngIf="allTakenExpanded" (click)="expandTaken(false)"
               >expand_less
             </mat-icon>
           </th>
@@ -137,15 +133,11 @@
 
         <ng-container matColumnDef="expandedTaakDetail">
           <td mat-cell *matCellDef="let row" colspan="9">
-            <div
-              [@detailExpand]="row.expanded ? 'expanded' : 'collapsed'"
-            >
+            <div [@detailExpand]="row.expanded ? 'expanded' : 'collapsed'">
               <div class="flex-row flex-wrap gap-10">
                 <zac-static-text
                   label="uitkomst"
-                  [value]="
-                    row.data.taakinformatie?.uitkomst | translate
-                  "
+                  [value]="row.data.taakinformatie?.uitkomst | translate"
                 />
                 <zac-static-text
                   label="bijlage"
@@ -179,7 +171,9 @@
         ></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell" colspan="9">
-            <p *ngIf="takenQuery.isPending()">{{ "msg.loading" | translate }}</p>
+            <p *ngIf="takenQuery.isPending()">
+              {{ "msg.loading" | translate }}
+            </p>
             <p *ngIf="!takenQuery.isPending()">
               {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
