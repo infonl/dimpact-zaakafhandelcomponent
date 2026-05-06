@@ -40,7 +40,7 @@ class IdentityRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing behandelaar groups for a zaaktype UUID") {
+    Context("Listing active behandelaar groups for a zaaktype UUID") {
         val zaaktypeUuid = UUID.randomUUID()
 
         Given("The identity service returns both active and inactive groups") {
