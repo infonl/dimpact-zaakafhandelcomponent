@@ -37,7 +37,7 @@ class IdentityRestService @Inject constructor(
 ) {
     @GET
     @Path("groups")
-    fun listGroups(): List<RestGroup> = identityService.listGroups().toRestGroups()
+    fun listActiveGroups(): List<RestGroup> = identityService.listActiveGroups().toRestGroups()
 
     @Deprecated(
         """Once the PABC feature flag has been removed, this endpoint should be deleted and the
@@ -49,7 +49,9 @@ class IdentityRestService @Inject constructor(
     @GET
     @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
     fun listBehandelaarGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
-        identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid).toRestGroups()
+        identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(
+            zaaktypeUuid
+        ).toRestGroups()
 
     /**
      * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
@@ -61,7 +63,9 @@ class IdentityRestService @Inject constructor(
     fun listBehandelaarGroupsForZaaktype(
         @PathParam("zaaktypeDescription") zaaktypeDescription: String
     ): List<RestGroup> =
-        identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).toRestGroups()
+        identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(
+            zaaktypeDescription
+        ).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

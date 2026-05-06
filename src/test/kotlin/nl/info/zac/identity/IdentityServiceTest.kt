@@ -370,22 +370,22 @@ class IdentityServiceTest : BehaviorSpec({
             When("active groups for the zaaktype UUID are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
 
-                Then("all groups are returned with the active flag correctly set") {
-                    groups.size shouldBe 3
+                Then("only active groups are returned and the inactive group is filtered out") {
+                    groups.size shouldBe 2
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
+                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
                 }
             }
 
             When("groups for the zaaktype are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("all groups are returned with the active flag correctly set") {
-                    groups.size shouldBe 3
+                Then("only active groups are returned and the inactive group is filtered out") {
+                    groups.size shouldBe 2
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.first { it.name == "fakeInactiveGroupId" }.active shouldBe false
+                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
                 }
             }
         }
