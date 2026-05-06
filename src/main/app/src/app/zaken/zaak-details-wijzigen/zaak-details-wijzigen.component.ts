@@ -46,7 +46,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     group: GeneratedType<"RestGroup">,
   ): string =>
     group.active === false
-      ? `${group.naam} (${this.translateService.instant("inactief")})`
+      ? `${group.naam} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
   protected users: GeneratedType<"RestUser">[] = [];
   protected communicationChannels: string[] = [];
