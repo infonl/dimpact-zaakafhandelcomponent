@@ -117,6 +117,11 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private zaakTakenListener!: WebsocketListener;
 
   constructor() {
+    this.toonAfgerondeTaken.setValue(
+      Boolean(SessionStorageUtil.getItem("toonAfgerondeTaken")),
+      { emitEvent: false },
+    );
+
     effect(() => {
       const data = this.takenQuery.data();
       if (!data) return;
@@ -154,9 +159,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
         : true;
     };
 
-    this.toonAfgerondeTaken.setValue(
-      Boolean(SessionStorageUtil.getItem("toonAfgerondeTaken")),
-    );
   }
 
   ngAfterViewInit() {
