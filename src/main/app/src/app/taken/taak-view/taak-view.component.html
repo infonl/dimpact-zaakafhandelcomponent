@@ -149,7 +149,13 @@
                     label="groep"
                     [value]="taak?.groep?.naam"
                     class="flex-item"
-                  />
+                  >
+                    @if (taak?.groep?.active === false) {
+                      <em position="content-after"
+                        >&nbsp;({{ "inactief" | translate }})</em
+                      >
+                    }
+                  </zac-static-text>
 
                   <zac-static-text
                     label="behandelaar"
