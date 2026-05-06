@@ -269,7 +269,7 @@
                   >
                     @if (zaak.groep?.active === false) {
                       <em position="content-after"
-                        >&nbsp;({{ "inactief" | translate }})</em
+                        >&nbsp;({{ "inactief" | translate | lowercase }})</em
                       >
                     }
                   </zac-static-text>
