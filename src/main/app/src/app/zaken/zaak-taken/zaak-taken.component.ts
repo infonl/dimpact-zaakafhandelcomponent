@@ -158,7 +158,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
         ? data.data.status !== filter
         : true;
     };
-
   }
 
   ngAfterViewInit() {
