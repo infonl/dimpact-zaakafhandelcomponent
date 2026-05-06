@@ -317,6 +317,102 @@ describe(CaseDetailsEditComponent.name, () => {
     });
   });
 
+  describe("current group in groep dropdown", () => {
+    it("should prepend the current group when it is not in the list", async () => {
+      const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Active Group",
+        active: true,
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([activeGroup]));
+
+      renderComponent({
+        groep: { id: "g-inactive", naam: "Inactive Group", active: false },
+      });
+      await fixture.whenStable();
+
+      let groups: GeneratedType<"RestGroup">[] = [];
+      component["groups"].subscribe(
+        (fetchedGroups) => (groups = fetchedGroups),
+      );
+
+      expect(groups).toHaveLength(2);
+      expect(groups[0]).toMatchObject({ id: "g-inactive", active: false });
+      expect(groups[1]).toEqual(activeGroup);
+    });
+
+    it("should not prepend the group when it is already in the list", async () => {
+      const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Active Group",
+        active: true,
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([activeGroup]));
+
+      renderComponent({
+        groep: { id: "g1", naam: "Active Group", active: true },
+      });
+      await fixture.whenStable();
+
+      let groups: GeneratedType<"RestGroup">[] = [];
+      component["groups"].subscribe(
+        (fetchedGroups) => (groups = fetchedGroups),
+      );
+
+      expect(groups).toHaveLength(1);
+      expect(groups[0]).toEqual(activeGroup);
+    });
+
+    it("should not prepend when zaak.groep is undefined", async () => {
+      const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Active Group",
+        active: true,
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([activeGroup]));
+
+      renderComponent({ groep: undefined });
+      await fixture.whenStable();
+
+      let groups: GeneratedType<"RestGroup">[] = [];
+      component["groups"].subscribe(
+        (fetchedGroups) => (groups = fetchedGroups),
+      );
+
+      expect(groups).toHaveLength(1);
+    });
+  });
+
+  describe("groupDisplayValue", () => {
+    beforeEach(() => renderComponent());
+
+    it("should append (inactief) suffix for an inactive group", () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Test Group",
+        active: false,
+      });
+      const result = component["groupDisplayValue"](group);
+      expect(result).toContain("Test Group");
+      expect(result).toContain("inactief");
+    });
+
+    it("should return just the naam for an active group", () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "Test Group",
+        active: true,
+      });
+      expect(component["groupDisplayValue"](group)).toBe("Test Group");
+    });
+  });
+
   describe("submit button validity after date changes", () => {
     it("form is invalid when startdatum is cleared", () => {
       renderComponent();

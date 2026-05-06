@@ -22,7 +22,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
-import { of } from "rxjs";
+import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -50,6 +50,10 @@ describe(TaakViewComponent.name, () => {
   let takenService: TakenService;
   let zakenService: ZakenService;
   let taakFormulierenService: TaakFormulierenService;
+
+  let mockActivatedRoute: {
+    data: ReplaySubject<{ taak: GeneratedType<"RestTask"> }>;
+  };
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -99,6 +103,10 @@ describe(TaakViewComponent.name, () => {
   });
 
   beforeEach(() => {
+    mockActivatedRoute = {
+      data: new ReplaySubject<{ taak: GeneratedType<"RestTask"> }>(1),
+    };
+
     TestBed.configureTestingModule({
       declarations: [TaakViewComponent],
       imports: [
@@ -120,7 +128,7 @@ describe(TaakViewComponent.name, () => {
         TaakFormulierenService,
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ taak }) },
+          useValue: mockActivatedRoute,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -129,11 +137,11 @@ describe(TaakViewComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaakViewComponent);
-    fixture.detectChanges();
-
     component = fixture.componentRef;
     component.instance.actionsSidenav =
       TestBed.createComponent(MatSidenav).componentInstance;
+    mockActivatedRoute.data.next({ taak });
+    fixture.detectChanges();
 
     loader = TestbedHarnessEnvironment.loader(fixture);
 
@@ -297,5 +305,46 @@ describe(TaakViewComponent.name, () => {
         expect(buttons.length).toBe(expectButtons);
       },
     );
+  });
+
+  describe("inactive group indicator", () => {
+    it("should show '(inactief)' label when groep is inactive", () => {
+      mockActivatedRoute.data.next({
+        taak: {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: false },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement)
+          .querySelector("em")
+          ?.textContent?.trim(),
+      ).toBe("(inactief)");
+    });
+
+    it("should not show '(inactief)' label when groep is active", () => {
+      mockActivatedRoute.data.next({
+        taak: {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: true },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector("em"),
+      ).toBeNull();
+    });
+
+    it("should not crash when groep is undefined", () => {
+      mockActivatedRoute.data.next({ taak: { ...taak, groep: undefined } });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector("em"),
+      ).toBeNull();
+    });
   });
 });
