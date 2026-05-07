@@ -86,10 +86,6 @@ public class ZaaktypeCmmnConfigurationService implements Caching {
         );
     }
 
-    public boolean isSmartDocumentsEnabled(final UUID zaaktypeUUID) {
-        return readZaaktypeCmmnConfiguration(zaaktypeUUID).getSmartDocumentsEnabled();
-    }
-
     public void cacheRemoveZaaktypeCmmnConfiguration(final UUID zaaktypeUUID) {
         uuidToZaaktypeCmmnConfigurationCache.invalidate(zaaktypeUUID);
     }

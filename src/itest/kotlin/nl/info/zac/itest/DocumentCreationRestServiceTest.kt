@@ -164,7 +164,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak and a file created from template in SmartDocuments") {
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid" +
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
@@ -204,7 +204,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak, task, title, description, author and a file created from template in SmartDocuments") {
         When("SmartDocuments taak callback is provided with metadata about the new file") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
@@ -247,7 +247,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak and a file creation cancelled in SmartDocuments") {
         When("SmartDocuments zaak callback is called") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/zaak/$zaakUuid" +
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
@@ -285,7 +285,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     Given("zaak, task and a file creation cancelled in SmartDocuments") {
         When("SmartDocuments taak callback is called") {
             val endpointUrl =
-                "$ZAC_API_URI/document-creation/smartdocuments/cmmn-callback/" +
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
                     "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +

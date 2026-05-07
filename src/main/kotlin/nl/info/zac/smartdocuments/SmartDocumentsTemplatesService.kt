@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
-import nl.info.zac.documentcreation.CmmnDocumentCreationService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
@@ -38,7 +37,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(CmmnDocumentCreationService::class.java.name)
+        private val LOG = Logger.getLogger(SmartDocumentsTemplatesService::class.java.name)
     }
 
     /**
