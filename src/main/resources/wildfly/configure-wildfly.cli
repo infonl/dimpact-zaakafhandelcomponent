@@ -7,9 +7,11 @@
 
 # Transaction configuration
 
-# Set a unique node identifier to avoid WFLYTX0013 warning in multi-server environments.
-# Override by setting the JBOSS_NODE_NAME environment variable.
-/subsystem=transactions:write-attribute(name=node-identifier,value=${env.JBOSS_NODE_NAME:zac})
+# Set a unique node identifier to avoid WFLYTX0013 warning and transaction/XID collisions
+# in multi-server environments. Override by setting the JBOSS_NODE_NAME environment
+# variable; otherwise fall back to HOSTNAME, which should be unique per instance and
+# valid for WildFly's node-identifier constraints.
+/subsystem=transactions:write-attribute(name=node-identifier,value=${env.JBOSS_NODE_NAME:${env.HOSTNAME}})
 
 # Datasource configuration
 
