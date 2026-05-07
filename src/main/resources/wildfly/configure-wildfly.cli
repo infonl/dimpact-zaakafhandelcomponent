@@ -5,6 +5,12 @@
 
 # WildFly configuration script to configure WildFly for the Zaakafhandelcomponent
 
+# Transaction configuration
+
+# Set a unique node identifier to avoid WFLYTX0013 warning in multi-server environments.
+# Override by setting the JBOSS_NODE_NAME environment variable.
+/subsystem=transactions:write-attribute(name=node-identifier,value=${env.JBOSS_NODE_NAME:zac})
+
 # Datasource configuration
 
 ## Add zaakafhandelcomponent datasource
