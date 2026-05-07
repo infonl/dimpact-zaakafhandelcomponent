@@ -200,16 +200,14 @@ class DocumentCreationServiceTest : BehaviorSpec({
                         redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
                             "/zaak/${zaak.uuid}" +
                             "/task/$taskId" +
-                            "?title=${URLEncoder.encode(documentCreationData.title, Charsets.UTF_8)}" +
-                            "&userName=${URLEncoder.encode(userDisplayName, Charsets.UTF_8)}" +
+                            "?title=${documentCreationData.title}" +
+                            "&userName=$userDisplayName" +
                             "&creationDate=${URLEncoder.encode(
                                 documentCreationData.creationDate.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                                 Charsets.UTF_8
                             )}" +
-                            "&templateId=" +
-                            "${URLEncoder.encode(documentCreationData.templateId, Charsets.UTF_8)}" +
-                            "&templateGroupId=" +
-                            "${URLEncoder.encode(documentCreationData.templateGroupId, Charsets.UTF_8)}"
+                            "&templateId=${documentCreationData.templateId}" +
+                            "&templateGroupId=${documentCreationData.templateGroupId}"
                     }
                 }
             }
