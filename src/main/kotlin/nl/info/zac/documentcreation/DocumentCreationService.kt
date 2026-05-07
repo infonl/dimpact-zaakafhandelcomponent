@@ -100,7 +100,7 @@ class DocumentCreationService @Inject constructor(
             zaak = documentCreationDataAttended.zaak,
             taskId = documentCreationDataAttended.taskId
         ).runCatching {
-            createSmartDocumentForAttendedFlow(documentCreationDataAttended).let {
+            createDocumentForAttendedFlow(documentCreationDataAttended).let {
                 smartDocumentsService.createDocumentAttended(
                     data = this,
                     smartDocument = it
@@ -190,7 +190,7 @@ class DocumentCreationService @Inject constructor(
             .queryParam("result", result)
             .build()
 
-    private fun createSmartDocumentForAttendedFlow(creationDataAttended: DocumentCreationDataAttended) =
+    private fun createDocumentForAttendedFlow(creationDataAttended: DocumentCreationDataAttended) =
         SmartDocument(
             selection = Selection(
                 templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(
