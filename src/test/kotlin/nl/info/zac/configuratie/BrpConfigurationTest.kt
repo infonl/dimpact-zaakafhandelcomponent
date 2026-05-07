@@ -233,10 +233,10 @@ class BrpConfigurationTest : BehaviorSpec({
     Context("doelbinding per zaaktype flag") {
 
         Given("doelbindingPerZaaktype is false") {
-            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktype = false)
+            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktypeEnabled = false)
 
-            When("isDoelbindingPerZaaktype is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktype()
+            When("isDoelbindingPerZaaktypeEnabled is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 Then("false is returned") {
                     result.shouldBeFalse()
@@ -245,10 +245,10 @@ class BrpConfigurationTest : BehaviorSpec({
         }
 
         Given("doelbindingPerZaaktype is true and doelbinding header is set") {
-            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktype = true)
+            val brpConfiguration = createBrpConfiguration(doelbindingPerZaaktypeEnabled = true)
 
-            When("isDoelbindingPerZaaktype is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktype()
+            When("isDoelbindingPerZaaktypeEnabled is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 Then("true is returned") {
                     result.shouldBeTrue()
@@ -258,14 +258,14 @@ class BrpConfigurationTest : BehaviorSpec({
 
         Given("doelbindingPerZaaktype is true but doelbinding header is not set") {
             val brpConfiguration = createBrpConfiguration(
-                doelbindingPerZaaktype = true,
+                doelbindingPerZaaktypeEnabled = true,
                 headerNameDoelbinding = Optional.of(""),
                 doelbindingZoekMetDefault = Optional.empty(),
                 doelbindingRaadpleegMetDefault = Optional.empty()
             )
 
-            When("isDoelbindingPerZaaktype is called") {
-                val result = brpConfiguration.isDoelbindingPerZaaktype()
+            When("isDoelbindingPerZaaktypeEnabled is called") {
+                val result = brpConfiguration.isDoelbindingPerZaaktypeEnabled()
 
                 Then("false is returned because doelbinding header is disabled") {
                     result.shouldBeFalse()

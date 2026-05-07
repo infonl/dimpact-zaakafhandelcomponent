@@ -65,5 +65,5 @@ class ConfigurationRestService @Inject constructor(
     @GET
     @Path("brp/doelbinding-setup-enabled")
     fun readBrpDoelbindingSetupEnabled(): Boolean =
-        configurationService.readBrpConfiguration().isDoelbindingPerZaaktype()
+        configurationService.readBrpConfiguration().isDoelbindingPerZaaktypeEnabled()
 }

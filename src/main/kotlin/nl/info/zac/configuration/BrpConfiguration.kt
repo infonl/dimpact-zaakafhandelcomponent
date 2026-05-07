@@ -54,7 +54,7 @@ class BrpConfiguration @Inject constructor(
     private val originOIN: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_PER_ZAAKTYPE", defaultValue = "false")
-    private val doelbindingPerZaaktype: Boolean,
+    private val doelbindingPerZaaktypeEnabled: Boolean,
 
     // Header name env vars — no defaultValue; Helm provides defaults.
     // An empty string disables that header.
@@ -129,10 +129,7 @@ class BrpConfiguration @Inject constructor(
                 doelbindingZoekMetDefault.isEmptyOrBlank().thenThrow {
                     "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_DOELBINDING_HEADER is set"
                 }
-                (
-                    !doelbindingRaadpleegMetDefault.isPresent || doelbindingRaadpleegMetDefault.get()
-                        .isBlank()
-                    ).thenThrow {
+                doelbindingRaadpleegMetDefault.isEmptyOrBlank().thenThrow {
                     "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_DOELBINDING_HEADER is set"
                 }
             }
@@ -144,6 +141,11 @@ class BrpConfiguration @Inject constructor(
             if (headerNameToepassing.isPresentNotBlank()) {
                 toepassingValue.isEmptyOrBlank().thenThrow {
                     "BRP_TOEPASSING environment variable is required when BRP_TOEPASSING_HEADER is set"
+                }
+            }
+            if (headerNameApiKey.isPresentNotBlank()) {
+                apiKey.isEmptyOrBlank().thenThrow {
+                    "BRP_API_KEY is required when BRP_API_KEY is set"
                 }
             }
         }
@@ -214,7 +216,7 @@ class BrpConfiguration @Inject constructor(
     override fun toString() = """
         |- BRP_PROTOCOLLERING_ENABLED: '$protocolleringEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
-        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$doelbindingPerZaaktype'
+        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$doelbindingPerZaaktypeEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN_HEADER: '${headerNameOriginOin.getOrNull()}'
         |- $ENV_VAR_BRP_DOELBINDING_HEADER: '${headerNameDoelbinding.getOrNull()}'
         |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${doelbindingZoekMetDefault.getOrNull()}'
@@ -231,8 +233,8 @@ class BrpConfiguration @Inject constructor(
 
     override fun isBrpProtocolleringEnabled(): Boolean = protocolleringEnabled
 
-    override fun isDoelbindingPerZaaktype(): Boolean =
-        doelbindingPerZaaktype && headerNameDoelbinding.isPresentNotBlank()
+    override fun isDoelbindingPerZaaktypeEnabled(): Boolean =
+        doelbindingPerZaaktypeEnabled && headerNameDoelbinding.isPresentNotBlank()
 
     override fun getHeaderUser(): String? = headerNameGebruiker.getOrNull()
 

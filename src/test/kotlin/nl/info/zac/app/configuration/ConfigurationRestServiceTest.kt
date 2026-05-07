@@ -174,7 +174,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
     Given("doelbindingPerZaaktype is true") {
         val brpConfiguration = mockk<BrpConfigurationProvider>()
-        every { brpConfiguration.isDoelbindingPerZaaktype() } returns true
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns true
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("readBrpDoelbindingSetupEnabled is called") {
@@ -188,7 +188,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
 
     Given("doelbindingPerZaaktype is false") {
         val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.isDoelbindingPerZaaktype() } returns false
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns false
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
         When("readBrpDoelbindingSetupEnabled is called") {

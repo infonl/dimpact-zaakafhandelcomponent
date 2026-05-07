@@ -13,7 +13,7 @@ import java.util.UUID
 fun createBrpConfiguration(
     protocolleringEnabled: Boolean = true,
     originOin: Optional<String> = Optional.of("fakeOriginOin"),
-    doelbindingPerZaaktype: Boolean = false,
+    doelbindingPerZaaktypeEnabled: Boolean = false,
     doelbindingZoekMetDefault: Optional<String> = Optional.of("fakeDoelbindingZoekMetDefault"),
     doelbindingRaadpleegMetDefault: Optional<String> = Optional.of("fakeDoelbindingRaadpleegMetDefault"),
     verwerkingregisterDefault: Optional<String> = Optional.of("fakeVerwerkingregisterDefault"),
@@ -30,7 +30,7 @@ fun createBrpConfiguration(
 ) = BrpConfiguration(
     protocolleringEnabled = protocolleringEnabled,
     originOIN = originOin,
-    doelbindingPerZaaktype = doelbindingPerZaaktype,
+    doelbindingPerZaaktypeEnabled = doelbindingPerZaaktypeEnabled,
     doelbindingZoekMetDefault = doelbindingZoekMetDefault,
     doelbindingRaadpleegMetDefault = doelbindingRaadpleegMetDefault,
     verwerkingsregister = verwerkingregisterDefault,

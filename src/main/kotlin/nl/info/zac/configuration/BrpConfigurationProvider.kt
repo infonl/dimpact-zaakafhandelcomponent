@@ -15,7 +15,7 @@ interface BrpConfigurationValue {
 @Suppress("TooManyFunctions")
 interface BrpConfigurationProvider {
     fun isBrpProtocolleringEnabled(): Boolean
-    fun isDoelbindingPerZaaktype(): Boolean
+    fun isDoelbindingPerZaaktypeEnabled(): Boolean
     fun getLogLevel(): Level
     fun getHeaderUser(): String?
     fun getOriginOIN(): BrpConfigurationValue
