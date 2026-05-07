@@ -27,6 +27,12 @@ export class TakenService {
     });
   }
 
+  listTakenVoorZaakQuery(zaakUUID: string) {
+    return this.zacQueryClient.GET("/rest/taken/zaak/{zaakUUID}", {
+      path: { zaakUUID },
+    });
+  }
+
   listHistorieVoorTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}/historie", {
       path: { taskId },
