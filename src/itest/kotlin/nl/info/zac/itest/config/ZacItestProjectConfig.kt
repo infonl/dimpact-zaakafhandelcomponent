@@ -134,6 +134,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
             "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
             "PABC_API_KEY" to PABC_API_KEY,
+            "BRP_PROTOCOLLERING_ENABLED" to "true",
             "BRP_DOELBINDING_PER_ZAAKTYPE" to "true",
             "SMARTDOCUMENTS_ENABLED" to "true",
             "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,

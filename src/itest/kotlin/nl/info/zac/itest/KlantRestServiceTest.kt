@@ -283,7 +283,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 2 }"""
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 1 }"""
                 }
             }
         }
@@ -398,7 +398,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 3 }"""
+                    response.bodyAsString shouldEqualJsonIgnoringExtraneousFields """{ "count": 2 }"""
                 }
             }
         }

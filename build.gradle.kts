@@ -8,12 +8,12 @@ import com.github.gradle.node.npm.task.NpmTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
-import java.util.Locale
 
 plugins {
     java
@@ -217,7 +217,7 @@ testing {
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
-        register("itest", JvmTestSuite::class) {
+        register<JvmTestSuite>("itest") {
             useJUnitJupiter()
 
             dependencies {
@@ -243,6 +243,10 @@ testing {
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
                         systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
+                        if (Os.isArch("aarch64")) {
+                            println("Set DOCKER_USE_ARM64_CONTAINERS=true")
+                            systemProperty("DOCKER_USE_ARM64_CONTAINERS", "true")
+                        }
                         dependsOn("buildDockerImage")
                         // always execute the integration tests
                         outputs.upToDateWhen { false }
@@ -828,7 +832,8 @@ tasks {
     }
 
     register<Copy>("copyJacocoAgentForItest") {
-        description = "Copies and renames the JaCoCo agent runtime JAR file for instrumentation during the integration tests"
+        description =
+            "Copies and renames the JaCoCo agent runtime JAR file for instrumentation during the integration tests"
         from(configurations.getByName("jacocoAgentJarForItest"))
         // simply rename the JaCoCo agent runtime JAR file name to strip away the version number
         rename {
@@ -970,7 +975,7 @@ dependencyCheck {
 abstract class Maven : Exec() {
     // Simple function to invoke a maven goal, dependent on the os, with optional arguments
     fun execGoal(goal: String, vararg args: String) = commandLine(
-        if (System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")) {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             "./mvnw.cmd"
         } else {
             "./mvnw"
