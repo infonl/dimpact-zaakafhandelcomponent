@@ -69,7 +69,7 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/internal' accept GET and DELETE</display-name>
+        <display-name>Deny all HTTP methods on '/rest/internal' except GET and DELETE</display-name>
         <web-resource-collection>
             <web-resource-name>internal</web-resource-name>
             <description>Internal endpoints, invoked not from the ZAC user interface but from other services. These resources are secured using a custom API key authentication mechanism</description>
