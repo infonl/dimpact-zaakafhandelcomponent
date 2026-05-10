@@ -44,6 +44,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
 | **Skip routing** | Do not touch `*-routing.module.ts`. |
+| **⛔ zaak-view needs decomposition first** | `zaken/zaak-view/zaak-view.component.ts` is too large to migrate directly. It must be broken into smaller card components first (e.g. `ZaakTakenComponent` was extracted in PZ-11097). Do NOT attempt to make it standalone until the decomposition is complete. Discuss with marcel.evers@info.nl before starting. |
+| **⛔ taak-view needs decomposition first** | `taken/taak-view/taak-view.component.ts` is too large to migrate directly. It must be broken into smaller card components first. Do NOT attempt to make it standalone until the decomposition is complete. Discuss with marcel.evers@info.nl before starting. |
 | **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
