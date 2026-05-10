@@ -127,9 +127,9 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 
 ### Batch 15 — claimed (branch: `temp/standalone-migration`)
 
-- [ ] `zaken/besluit-view/besluit-view.component.ts`
 - [ ] `zaken/besluit-create/besluit-create.component.ts`
-- [ ] `zaken/besluit-edit/besluit-edit.component.ts`
+- ⏭ `zaken/besluit-view/besluit-view.component.ts` — skipped, uses `mfb-form-field` (ATOS material-form-builder)
+- ⏭ `zaken/besluit-edit/besluit-edit.component.ts` — skipped, uses `mfb-form` (ATOS material-form-builder)
 
 ## Dax
 
