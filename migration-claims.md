@@ -128,6 +128,10 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 ### Batch 15 — claimed (branch: `temp/standalone-migration`)
 
 - [ ] `zaken/besluit-create/besluit-create.component.ts`
+- [ ] `zaken/zaak-create/zaak-create.component.ts`
+- [ ] `zaken/zaak-details-wijzigen/zaak-details-wijzigen.component.ts`
+- [ ] `zaken/zaak-documenten/zaak-documenten.component.ts`
+- [ ] `zaken/zaak-link/zaak-link.component.ts`
 - ⏭ `zaken/besluit-view/besluit-view.component.ts` — skipped, uses `mfb-form-field` (ATOS material-form-builder)
 - ⏭ `zaken/besluit-edit/besluit-edit.component.ts` — skipped, uses `mfb-form` (ATOS material-form-builder)
 
