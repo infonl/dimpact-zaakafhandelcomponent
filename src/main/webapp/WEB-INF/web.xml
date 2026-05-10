@@ -106,7 +106,7 @@
         <display-name>Allow GET on '/websocket' without OIDC authentication (secured by HTTP session in application logic)</display-name>
         <web-resource-collection>
             <web-resource-name>websocket-get</web-resource-name>
-            <description>GET (WebSocket upgrade) is secured via HTTP session in WebSocketServerEndPoint, not OIDC. Authorization is handled in RequestAuthorizationFilter.</description>
+            <description>GET (WebSocket upgrade) is secured via HTTP session in WebSocketServerEndPoint, not OIDC.</description>
             <url-pattern>/websocket</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
@@ -133,10 +133,10 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Allow POST on '/rest/document-creation/smartdocuments/callback/*' without OIDC authentication (secured in application logic)</display-name>
+        <display-name>Allow POST on '/rest/document-creation/smartdocuments/callback/*' without OIDC authentication</display-name>
         <web-resource-collection>
             <web-resource-name>smartdocuments-document-creation-post</web-resource-name>
-            <description>POST is called by the SmartDocuments service, not via OIDC. Authorization is handled in RequestAuthorizationFilter.</description>
+            <description>POST is called by the SmartDocuments service, not via OIDC.</description>
             <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
@@ -154,7 +154,7 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Allow GET on '/static/smart-documents-result.html' without OIDC authentication (secured in application logic)</display-name>
+        <display-name>Allow GET on '/static/smart-documents-result.html' without OIDC authentication</display-name>
         <web-resource-collection>
             <web-resource-name>smartdocuments-wizard-result-page-get</web-resource-name>
             <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
@@ -175,7 +175,7 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Allow GET on '/assets/*' without OIDC authentication (secured in application logic)</display-name>
+        <display-name>Allow GET on '/assets/*' without OIDC authentication</display-name>
         <web-resource-collection>
             <web-resource-name>assets-get</web-resource-name>
             <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
