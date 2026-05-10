@@ -125,6 +125,12 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `zaken/zaken-mijn/zaken-mijn.component.ts`
 - [x] `taken/taken-mijn/taken-mijn.component.ts`
 
+### Batch 15 — claimed (branch: `temp/standalone-migration`)
+
+- [ ] `zaken/besluit-view/besluit-view.component.ts`
+- [ ] `zaken/besluit-create/besluit-create.component.ts`
+- [ ] `zaken/besluit-edit/besluit-edit.component.ts`
+
 ## Dax
 
 ### Batch 1 — PR: `chore/PZ-10683--FE--Angular-v19-migration--NotificationDialogComponent--TekstFilterComponent--ConfirmDialogComponent`
