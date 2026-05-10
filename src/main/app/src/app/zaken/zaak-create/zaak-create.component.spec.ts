@@ -8,7 +8,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
@@ -24,8 +24,9 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { BpmnService } from "src/app/admin/bpmn.service";
 import { fromPartial } from "src/test-helpers";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
+import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel.component";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
@@ -40,12 +41,12 @@ import { ZaakCreateComponent } from "./zaak-create.component";
 const routes: Routes = [{ path: "", component: ZaakCreateComponent }];
 
 interface AnimationMock {
-  play: () => void;
-  pause: () => void;
-  cancel: () => void;
-  finish: () => void;
-  addEventListener: (name: string, cb: () => void) => void;
-  removeEventListener: (name: string, cb: () => void) => void;
+  play: () => unknown;
+  pause: () => unknown;
+  cancel: () => unknown;
+  finish: () => unknown;
+  addEventListener: (name: string, cb: () => unknown) => unknown;
+  removeEventListener: (name: string, cb: () => unknown) => unknown;
   finished: Promise<void>;
 }
 
@@ -56,16 +57,13 @@ describe(ZaakCreateComponent.name, () => {
   let utilService: UtilService;
   let referentieTabelService: ReferentieTabelService;
   let fixture: ComponentFixture<ZaakCreateComponent>;
-  let component: ZaakCreateComponent;
   let loader: HarnessLoader;
   let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ZaakCreateComponent],
       providers: [
         ZakenService,
-        BpmnService,
         NavigationService,
         KlantenService,
         ReferentieTabelService,
@@ -75,16 +73,14 @@ describe(ZaakCreateComponent.name, () => {
         provideQueryClient(new QueryClient()),
       ],
       imports: [
+        ZaakCreateComponent,
         RouterModule.forRoot(routes),
         TranslateModule.forRoot(),
         NoopAnimationsModule,
-        MatSidenavModule,
         MaterialFormBuilderModule,
         MatHint,
         MatIcon,
         MatLabel,
-        FormsModule,
-        ReactiveFormsModule,
       ],
     }).compileComponents();
 
@@ -185,11 +181,9 @@ describe(ZaakCreateComponent.name, () => {
     jest.spyOn(router, "navigate").mockImplementation(async () => true);
 
     fixture = TestBed.createComponent(ZaakCreateComponent);
-    component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
 
     fixture.detectChanges();
-    expect(component).toBeTruthy();
   });
 
   describe(ZaakCreateComponent.prototype.caseTypeSelected.name, () => {
@@ -400,6 +394,214 @@ describe(ZaakCreateComponent.name, () => {
           "test-zaak-uuid-123",
         ]);
       });
+    });
+  });
+
+  describe("communication channel", () => {
+    it("pre-selects the default channel when it is present in the list", () => {
+      jest
+        .spyOn(referentieTabelService, "listCommunicatiekanalen")
+        .mockReturnValue(of([ZaakCreateComponent.DEFAULT_CHANNEL]));
+      fixture = TestBed.createComponent(ZaakCreateComponent);
+      fixture.detectChanges();
+      expect(
+        fixture.componentInstance["form"].controls.communicatiekanaal.value,
+      ).toBe(ZaakCreateComponent.DEFAULT_CHANNEL);
+    });
+  });
+
+  describe("cancel button", () => {
+    it("calls navigationService.back() when cancel button is clicked", async () => {
+      const navigationService = TestBed.inject(NavigationService);
+      jest.spyOn(navigationService, "back");
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.annuleren" }),
+      );
+      await cancelButton.click();
+      expect(navigationService.back).toHaveBeenCalled();
+    });
+  });
+
+  describe("initiator button", () => {
+    it("hasInitiator() returns false when no initiator is set", () => {
+      expect(fixture.componentInstance.hasInitiator()).toBe(false);
+    });
+
+    it("hasInitiator() returns true when an initiator is set", () => {
+      fixture.componentInstance["form"].controls.initiatorIdentificatie.enable();
+      fixture.componentInstance["form"].controls.initiatorIdentificatie.setValue(
+        fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
+          type: "BSN",
+          bsn: "123456789",
+        }),
+      );
+      expect(fixture.componentInstance.hasInitiator()).toBe(true);
+    });
+
+    it("clears the initiator value when clearInitiator() is called", () => {
+      fixture.componentInstance["form"].controls.initiatorIdentificatie.enable();
+      fixture.componentInstance["form"].controls.initiatorIdentificatie.setValue(
+        fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
+          type: "BSN",
+          bsn: "123456789",
+        }),
+      );
+      fixture.componentInstance.clearInitiator();
+      expect(
+        fixture.componentInstance["form"].controls.initiatorIdentificatie.value,
+      ).toBeNull();
+    });
+  });
+
+  describe("BAG object button", () => {
+    it("hasBagObject() returns false when no BAG objects are linked", () => {
+      expect(fixture.componentInstance.hasBagObject()).toBe(false);
+    });
+
+    it("hasBagObject() returns true when BAG objects are linked", () => {
+      fixture.componentInstance["form"].controls.bagObjecten.setValue([
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: "Teststraat 1",
+        }),
+      ]);
+      expect(fixture.componentInstance.hasBagObject()).toBe(true);
+    });
+
+    it("clears BAG objects when clearBagObjecten() is called", () => {
+      fixture.componentInstance["form"].controls.bagObjecten.setValue([
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: "Teststraat 1",
+        }),
+      ]);
+      fixture.componentInstance.clearBagObjecten();
+      expect(
+        fixture.componentInstance["form"].controls.bagObjecten.value,
+      ).toEqual([]);
+    });
+
+    it("bagDisplayValue() joins omschrijving values when total length ≤ 100", () => {
+      const result = fixture.componentInstance["bagDisplayValue"]([
+        fromPartial<GeneratedType<"RESTBAGObject">>({ omschrijving: "Straat 1" }),
+        fromPartial<GeneratedType<"RESTBAGObject">>({ omschrijving: "Straat 2" }),
+      ]);
+      expect(result).toBe("Straat 1 | Straat 2");
+    });
+
+    it("bagDisplayValue() returns translated count label when total length > 100", () => {
+      const longOmschrijving = "A".repeat(60);
+      const result = fixture.componentInstance["bagDisplayValue"]([
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: longOmschrijving,
+        }),
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: longOmschrijving,
+        }),
+      ]);
+      expect(result).not.toBe(`${longOmschrijving} | ${longOmschrijving}`);
+    });
+  });
+
+  describe("sidenav", () => {
+    it("sets activeSideAction and opens sidenav for initiator action", async () => {
+      await fixture.componentInstance["openSideNav"](
+        "actie.initiator.koppelen",
+      );
+      fixture.detectChanges();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.initiator.koppelen",
+      );
+      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
+    });
+
+    it("sets activeSideAction and opens sidenav for BAG action", async () => {
+      await fixture.componentInstance["openSideNav"](
+        "actie.bagObject.koppelen",
+      );
+      fixture.detectChanges();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.bagObject.koppelen",
+      );
+      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(true);
+    });
+
+    it("renders zac-klant-koppel for initiator action", () => {
+      fixture.componentInstance["activeSideAction"] =
+        "actie.initiator.koppelen";
+      fixture.detectChanges();
+      expect(
+        fixture.nativeElement.querySelector("zac-klant-koppel"),
+      ).not.toBeNull();
+    });
+
+    it("renders zac-bag-zoek for BAG action", () => {
+      fixture.componentInstance["activeSideAction"] =
+        "actie.bagObject.koppelen";
+      fixture.detectChanges();
+      expect(
+        fixture.nativeElement.querySelector("zac-bag-zoek"),
+      ).not.toBeNull();
+    });
+  });
+
+  describe("initiatorSelected()", () => {
+    it("sets initiatorIdentificatie value and closes the sidenav", async () => {
+      await fixture.componentInstance["openSideNav"](
+        "actie.initiator.koppelen",
+      );
+      await fixture.componentInstance.initiatorSelected(
+        fromPartial<GeneratedType<"RestPersoon">>({
+          identificatieType: "BSN",
+          bsn: "123456789",
+        }),
+      );
+      expect(
+        fixture.componentInstance["form"].controls.initiatorIdentificatie.value,
+      ).toEqual(expect.objectContaining({ type: "BSN" }));
+      expect(fixture.componentInstance["actionsSidenav"].opened).toBe(false);
+    });
+  });
+
+  describe("canAddInitiator()", () => {
+    it("returns false when both brpKoppelen and kvkKoppelen are false", () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+          },
+        }),
+      );
+      expect(fixture.componentInstance["canAddInitiator"]()).toBe(false);
+    });
+
+    it("returns false when zaaktype has no betrokkeneKoppelingen", () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: { betrokkeneKoppelingen: undefined },
+        }),
+      );
+      expect(fixture.componentInstance["canAddInitiator"]()).toBe(false);
+    });
+
+    it("returns true when brpKoppelen is enabled", () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: { brpKoppelen: true, kvkKoppelen: false },
+          },
+        }),
+      );
+      expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
+    });
+
+    it("returns true when kvkKoppelen is enabled", () => {
+      fixture.componentInstance["form"].controls.zaaktype.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          zaakafhandelparameters: {
+            betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: true },
+          },
+        }),
+      );
+      expect(fixture.componentInstance["canAddInitiator"]()).toBe(true);
     });
   });
 });
