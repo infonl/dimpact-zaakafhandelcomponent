@@ -23,7 +23,7 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { from, of } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -181,6 +181,60 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       await freshFixture.whenStable();
 
       expect(getTemplateGroupSpy).toHaveBeenCalled();
+    });
+
+    it("should auto-select and disable the templateGroup when smartDocumentsGroupId matches", async () => {
+      const freshFixture = TestBed.createComponent(
+        InformatieObjectCreateAttendedComponent,
+      );
+      const freshRef = freshFixture.componentRef;
+      freshRef.setInput("sideNav", mockSideNav);
+      freshRef.setInput("zaak", makeZaak());
+      freshRef.setInput("smartDocumentsGroupId", "group-1");
+
+      freshFixture.detectChanges();
+      await freshFixture.whenStable();
+
+      const freshComponent = freshFixture.componentInstance;
+      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
+        mockTemplateGroups[0],
+      );
+      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
+    });
+
+    it("should auto-select and disable both templateGroup and template when smartDocumentsGroupId and smartDocumentsTemplateId match", async () => {
+      // The mock must emit asynchronously so that the templateGroup.valueChanges subscription
+      // is registered before setValue fires (ngOnInit sets up valueChanges after subscribing
+      // to templateGroupsFetcher, so a sync observable misses the subscriber).
+      jest
+        .spyOn(smartDocumentsService, "getTemplatesMapping")
+        .mockReturnValueOnce(
+          from(Promise.resolve(mockTemplateGroups)) as ReturnType<
+            typeof smartDocumentsService.getTemplatesMapping
+          >,
+        );
+
+      const freshFixture = TestBed.createComponent(
+        InformatieObjectCreateAttendedComponent,
+      );
+      const freshRef = freshFixture.componentRef;
+      freshRef.setInput("sideNav", mockSideNav);
+      freshRef.setInput("zaak", makeZaak());
+      freshRef.setInput("smartDocumentsGroupId", "group-1");
+      freshRef.setInput("smartDocumentsTemplateId", "tpl-1");
+
+      freshFixture.detectChanges();
+      await freshFixture.whenStable();
+
+      const freshComponent = freshFixture.componentInstance;
+      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
+        mockTemplateGroups[0],
+      );
+      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
+      expect(freshComponent["form"].controls.template.value).toEqual(
+        mockTemplateGroups[0].templates![0],
+      );
+      expect(freshComponent["form"].controls.template.disabled).toBe(true);
     });
 
     it("should set author from logged-in user", async () => {
