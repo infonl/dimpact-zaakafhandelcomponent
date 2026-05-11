@@ -41,9 +41,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KlantZoekDialog],
       imports: [
         ZaakBetrokkeneFilterComponent,
+        KlantZoekDialog,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],

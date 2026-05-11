@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
-import { MatDialogRef } from "@angular/material/dialog";
+import { Component, inject } from "@angular/core";
+import { MatDialogContent, MatDialogRef } from "@angular/material/dialog";
+import { KlantZoekComponent } from "../../../../klanten/zoek/klanten/klant-zoek.component";
 
 @Component({
   selector: "zac-klant-zoek-dialog",
   templateUrl: "klant-zoek-dialog.component.html",
   styleUrls: ["./klant-zoek-dialog.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [MatDialogContent, KlantZoekComponent],
 })
 export class KlantZoekDialog {
-  constructor(public dialogRef: MatDialogRef<KlantZoekDialog>) {}
+  protected readonly dialogRef = inject(MatDialogRef<KlantZoekDialog>);
 }

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { KeyValuePipe, NgIf, NgTemplateOutlet } from "@angular/common";
 import { Component, effect, inject, input, output } from "@angular/core";
 import {
   AbstractControl,
@@ -10,19 +11,45 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
 } from "@angular/forms";
+import { MatButton } from "@angular/material/button";
+import { MatDivider } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormField, MatLabel } from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
+import { MatInput } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbar } from "@angular/material/toolbar";
 import {
   injectMutation,
   injectQuery,
 } from "@tanstack/angular-query-experimental";
+import { TranslatePipe } from "@ngx-translate/core";
+import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-zaakdata",
   templateUrl: "./zaakdata.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgTemplateOutlet,
+    KeyValuePipe,
+    ReactiveFormsModule,
+    MatToolbar,
+    MatIcon,
+    MatDivider,
+    MatButton,
+    MatExpansionModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    ZacInput,
+    TranslatePipe,
+  ],
 })
 export class ZaakdataComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -59,7 +86,7 @@ export class ZaakdataComponent {
     });
   }
 
-  formSubmit() {
+  protected formSubmit() {
     this.updateZaakDataMutation.mutate({
       uuid: this.zaak().uuid,
       zaakdata: this.form.value,

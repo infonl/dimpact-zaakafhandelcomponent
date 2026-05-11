@@ -100,9 +100,9 @@ describe(ZaakViewComponent.name, () => {
       declarations: [
         ZaakViewComponent,
         ZaakDocumentenComponent,
-        ZaakInitiatorToevoegenComponent,
       ],
       imports: [
+        ZaakInitiatorToevoegenComponent,
         BedrijfsgegevensComponent,
         ContactgegevensComponent,
         PersoonsgegevensComponent,

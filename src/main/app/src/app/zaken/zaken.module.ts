@@ -52,7 +52,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZakenAfgehandeldComponent,
     ZaakOpschortenDialogComponent,
     ZaakVerlengenDialogComponent,
-    ZaakInitiatorToevoegenComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
     ZaakDocumentenComponent,
@@ -77,6 +76,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     LocatieTonenComponent,
     ZaakProcessFlowComponent,
     ZaakVerkortComponent,
+    ZaakInitiatorToevoegenComponent,
   ],
 })
 export class ZakenModule {}
