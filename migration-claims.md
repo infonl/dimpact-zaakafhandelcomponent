@@ -174,7 +174,7 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 
 - [x] `taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
 - [x] `zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
-- [ ] `zoeken/zoek/zoek.component.ts`
+- [x] `zoeken/zoek/zoek.component.ts`
 
 ## Colleague
 
