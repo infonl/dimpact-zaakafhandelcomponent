@@ -59,7 +59,17 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/internal' accept GET and DELETE</display-name>
+        <display-name>Allow POST to '/rest/notificaties' without OIDC authentication (secured by API key in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>notificaties-post</web-resource-name>
+            <description>POST is called by the Open Notificaties service using an API key (OPEN_NOTIFICATIONS_API_SECRET_KEY), not OIDC. Authentication is handled in NotificationReceiver.</description>
+            <url-pattern>/rest/notificaties</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/internal' except GET and DELETE</display-name>
         <web-resource-collection>
             <web-resource-name>internal</web-resource-name>
             <description>Internal endpoints, invoked not from the ZAC user interface but from other services. These resources are secured using a custom API key authentication mechanism</description>
@@ -71,6 +81,17 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow GET and DELETE on '/rest/internal/*' without OIDC authentication (secured by API key in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>internal-get-delete</web-resource-name>
+            <description>GET and DELETE are called by other services using a custom API key, not OIDC. Authorization is handled in RequestAuthorizationFilter.</description>
+            <url-pattern>/rest/internal/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Deny all HTTP methods on '/websocket' except GET</display-name>
         <web-resource-collection>
             <web-resource-name>websocket</web-resource-name>
@@ -79,6 +100,16 @@
             <http-method-omission>GET</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET on '/websocket' without OIDC authentication (secured by HTTP session in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>websocket-get</web-resource-name>
+            <description>GET (WebSocket upgrade) is secured via HTTP session in WebSocketServerEndPoint, not OIDC.</description>
+            <url-pattern>/websocket</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
     </security-constraint>
 
     <security-constraint>
@@ -102,6 +133,16 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow POST on '/rest/document-creation/smartdocuments/callback/*' without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-document-creation-post</web-resource-name>
+            <description>POST is called by the SmartDocuments service, not via OIDC.</description>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Deny all HTTP methods on '/static/smart-documents-result.html' except GET</display-name>
         <web-resource-collection>
             <web-resource-name>smartdocuments-wizard-result-page</web-resource-name>
@@ -113,6 +154,16 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow GET on '/static/smart-documents-result.html' without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-wizard-result-page-get</web-resource-name>
+            <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
+            <url-pattern>/static/smart-documents-result.html</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Deny all HTTP methods on '/assets/*' except GET</display-name>
         <web-resource-collection>
             <web-resource-name>assets</web-resource-name>
@@ -121,6 +172,16 @@
             <http-method-omission>GET</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET on '/assets/*' without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>assets-get</web-resource-name>
+            <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
+            <url-pattern>/assets/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
     </security-constraint>
 
     <security-constraint>
