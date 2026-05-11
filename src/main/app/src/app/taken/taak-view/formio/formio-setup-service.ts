@@ -284,11 +284,13 @@ export class FormioSetupService {
     return component.key.split("_").slice(0, -1).join("_");
   }
 
-  extractSmartDocumentsGroupId(event: FormioCustomEvent) {
+  extractSmartDocumentsGroupId(event: FormioCustomEvent): string | undefined {
     return event.data[this.extractFieldsetName(event.component) + "_Group"];
   }
 
-  extractSmartDocumentsTemplateId(event: FormioCustomEvent) {
+  extractSmartDocumentsTemplateId(
+    event: FormioCustomEvent,
+  ): string | undefined {
     return event.data[this.extractFieldsetName(event.component) + "_Template"];
   }
 
