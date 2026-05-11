@@ -84,7 +84,8 @@ export class TaakViewComponent
 
   protected smartDocumentsGroupPath: string[] = [];
   protected smartDocumentsTemplateName?: string;
-  protected smartDocumentsInformatieobjecttypeUuid?: string;
+  protected smartDocumentsGroupId?: string;
+  protected smartDocumentsTemplateId?: string;
 
   protected menu: MenuItem[] = [];
   protected activeSideAction: string | null = null;
@@ -490,25 +491,16 @@ export class TaakViewComponent
   }
 
   onDocumentCreate(event: FormioCustomEvent) {
-    this.smartDocumentsTemplateName =
-      this.formioSetupService.extractSmartDocumentsTemplateName(event);
-    if (!this.smartDocumentsTemplateName) {
-      console.debug("No SmartDocuments template name selected!");
+    this.smartDocumentsGroupId =
+        this.formioSetupService.extractSmartDocumentsGroupId(event);
+    this.smartDocumentsTemplateId =
+        this.formioSetupService.extractSmartDocumentsTemplateId(event);
+    if (!this.smartDocumentsTemplateId) {
+      console.debug("No SmartDocuments template selected!");
       return;
     }
 
     this.activeSideAction = "actie.document.maken";
-    this.smartDocumentsGroupPath =
-      this.formioSetupService.getSmartDocumentsGroups(event.component);
-    const normalizedTemplateName =
-      this.formioSetupService.normalizeSmartDocumentsTemplateName(
-        this.smartDocumentsTemplateName,
-      );
-    this.smartDocumentsInformatieobjecttypeUuid =
-      this.formioSetupService.getInformatieobjecttypeUuid(
-        event,
-        normalizedTemplateName,
-      );
     void this.actionsSidenav.open();
   }
 

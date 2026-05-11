@@ -66,6 +66,8 @@ export class InformatieObjectCreateAttendedComponent
   @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
   @Input({ required: false }) smartDocumentsTemplateName?: string;
   @Input({ required: false }) smartDocumentsInformatieobjecttypeUuid?: string;
+  @Input({ required: false }) smartDocumentsGroupId?: string;
+  @Input({ required: false }) smartDocumentsTemplateId?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestDocumentCreationAttendedData">
   >();
@@ -153,6 +155,17 @@ export class InformatieObjectCreateAttendedComponent
     templateGroupsFetcher.subscribe((templateGroups) => {
       this.templateGroups = templateGroups;
 
+      if (this.smartDocumentsGroupId !== undefined) {
+        const smartDocumentsTemplateGroup = templateGroups.find(({ id }) =>
+            id === this.smartDocumentsGroupId,
+        );
+        if (smartDocumentsTemplateGroup) {
+          this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
+          this.form.controls.templateGroup.disable();
+          return;
+        }
+      }
+
       const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
         this.smartDocumentsGroupPath.includes(name),
       );
@@ -169,6 +182,17 @@ export class InformatieObjectCreateAttendedComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.templates = value?.templates ?? [];
+
+        if (this.smartDocumentsTemplateId !== undefined) {
+          const smartDocumentsTemplate = this.templates.find(({ id }) =>
+              id === this.smartDocumentsTemplateId,
+          );
+          if (smartDocumentsTemplate) {
+            this.form.controls.template.setValue(smartDocumentsTemplate);
+            this.form.controls.template.disable();
+            return;
+          }
+        }
 
         if (!value?.templates) {
           this.form.controls.template.setValue(null);

@@ -288,6 +288,14 @@ export class FormioSetupService {
     return event.data[this.extractFieldsetName(event.component) + "_Template"];
   }
 
+  extractSmartDocumentsGroupId(event: FormioCustomEvent) {
+    return event.data[this.extractFieldsetName(event.component) + "_Group"];
+  }
+
+  extractSmartDocumentsTemplateId(event: FormioCustomEvent) {
+    return event.data[this.extractFieldsetName(event.component) + "_Template"];
+  }
+
   normalizeSmartDocumentsTemplateName(smartDocumentsTemplateName: string) {
     return smartDocumentsTemplateName?.replace(/ /g, "_").trim();
   }
