@@ -62,7 +62,7 @@ import { ZakenService } from "../zaken.service";
 export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() zaakLinked = new EventEmitter();
+  @Output() zaakLinked = new EventEmitter<void>();
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly zoekenService = inject(ZoekenService);
