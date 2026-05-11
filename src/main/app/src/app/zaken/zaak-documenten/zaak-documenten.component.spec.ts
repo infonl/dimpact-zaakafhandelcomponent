@@ -14,13 +14,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../../core/websocket/websocket.service";
-import { FileFormat } from "../../informatie-objecten/model/file-format";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
+import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../../core/websocket/websocket.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { FileFormat } from "../../informatie-objecten/model/file-format";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 
 const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
@@ -29,7 +29,9 @@ const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
   gerelateerdeZaken: [],
 });
 
-const fakeDocument = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+const fakeDocument = fromPartial<
+  GeneratedType<"RestEnkelvoudigInformatieobject">
+>({
   uuid: "doc-uuid-1",
   titel: "Test document",
   bestandsnaam: "test.pdf",
@@ -112,7 +114,12 @@ describe(ZaakDocumentenComponent.name, () => {
       component.zaak = newZaak;
       const initSpy = jest.spyOn(component, "init");
       component.ngOnChanges({
-        zaak: { currentValue: newZaak, previousValue: fakeZaak, firstChange: false, isFirstChange: () => false },
+        zaak: {
+          currentValue: newZaak,
+          previousValue: fakeZaak,
+          firstChange: false,
+          isFirstChange: () => false,
+        },
       });
       expect(initSpy).toHaveBeenCalledWith(newZaak, true);
     });
@@ -120,7 +127,12 @@ describe(ZaakDocumentenComponent.name, () => {
     it("does NOT call init again on first change", () => {
       const initSpy = jest.spyOn(component, "init");
       component.ngOnChanges({
-        zaak: { currentValue: fakeZaak, previousValue: undefined, firstChange: true, isFirstChange: () => true },
+        zaak: {
+          currentValue: fakeZaak,
+          previousValue: undefined,
+          firstChange: true,
+          isFirstChange: () => true,
+        },
       });
       expect(initSpy).not.toHaveBeenCalled();
     });
@@ -211,28 +223,40 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("updateSelected()", () => {
     it("adds document to selection when not yet selected", () => {
       component.updateSelected(fakeDocument);
-      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(true);
+      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
+        true,
+      );
     });
 
     it("removes document from selection when already selected", () => {
       component.downloadAlsZipSelection.select(fakeDocument);
       component.updateSelected(fakeDocument);
-      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(false);
+      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
+        false,
+      );
     });
   });
 
   describe("updateAll()", () => {
     it("selects all documents when checkbox is checked", () => {
       component.enkelvoudigInformatieObjecten.data = [fakeDocument];
-      component.updateAll({ checked: true } as Partial<MatCheckboxChange> as unknown as MatCheckboxChange);
-      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(true);
+      component.updateAll({
+        checked: true,
+      } as Partial<MatCheckboxChange> as unknown as MatCheckboxChange);
+      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
+        true,
+      );
     });
 
     it("deselects all documents when checkbox is unchecked", () => {
       component.enkelvoudigInformatieObjecten.data = [fakeDocument];
       component.downloadAlsZipSelection.select(fakeDocument);
-      component.updateAll({ checked: false } as Partial<MatCheckboxChange> as unknown as MatCheckboxChange);
-      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(false);
+      component.updateAll({
+        checked: false,
+      } as Partial<MatCheckboxChange> as unknown as MatCheckboxChange);
+      expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
+        false,
+      );
     });
   });
 
@@ -255,62 +279,86 @@ describe(ZaakDocumentenComponent.name, () => {
 
   describe("isBewerkenToegestaan()", () => {
     it("returns true for an office document with wijzigen rights", () => {
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-        rechten: { wijzigen: true },
-        formaat: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
+      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
+        {
+          rechten: { wijzigen: true },
+          formaat:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      );
       expect(component.isBewerkenToegestaan(doc)).toBe(true);
     });
 
     it("returns false when wijzigen is false", () => {
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-        rechten: { wijzigen: false },
-        formaat: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
+      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
+        {
+          rechten: { wijzigen: false },
+          formaat:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      );
       expect(component.isBewerkenToegestaan(doc)).toBe(false);
     });
 
     it("returns false for a non-office format", () => {
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-        rechten: { wijzigen: true },
-        formaat: "application/pdf",
-      });
+      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
+        {
+          rechten: { wijzigen: true },
+          formaat: "application/pdf",
+        },
+      );
       expect(component.isBewerkenToegestaan(doc)).toBe(false);
     });
   });
 
   describe("isPreviewBeschikbaar()", () => {
     it("returns true for a PDF format", () => {
-      expect(component.isPreviewBeschikbaar("application/pdf" as FileFormat)).toBe(true);
+      expect(
+        component.isPreviewBeschikbaar("application/pdf" as FileFormat),
+      ).toBe(true);
     });
 
     it("returns false for a non-previewable format", () => {
-      expect(component.isPreviewBeschikbaar("application/zip" as FileFormat)).toBe(false);
+      expect(
+        component.isPreviewBeschikbaar("application/zip" as FileFormat),
+      ).toBe(false);
     });
   });
 
   describe("getZaakUuidVanInformatieObject()", () => {
     it("returns the document's zaakUUID when present", () => {
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-        uuid: "doc-uuid-1",
-      });
+      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
+        {
+          uuid: "doc-uuid-1",
+        },
+      );
       (doc as never as { zaakUUID: string }).zaakUUID = "other-zaak-uuid";
-      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe("other-zaak-uuid");
+      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe(
+        "other-zaak-uuid",
+      );
     });
 
     it("falls back to zaak.uuid when zaakUUID is absent", () => {
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-        uuid: "doc-uuid-1",
-      });
-      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe("zaak-uuid-1");
+      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
+        {
+          uuid: "doc-uuid-1",
+        },
+      );
+      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe(
+        "zaak-uuid-1",
+      );
     });
   });
 
   describe("getDownloadURL()", () => {
     it("delegates to informatieObjectenService.getDownloadURL", () => {
-      jest.spyOn(informatieObjectenService, "getDownloadURL").mockReturnValue("http://download/doc-uuid-1");
+      jest
+        .spyOn(informatieObjectenService, "getDownloadURL")
+        .mockReturnValue("http://download/doc-uuid-1");
       const result = component["getDownloadURL"](fakeDocument as never);
-      expect(informatieObjectenService.getDownloadURL).toHaveBeenCalledWith("doc-uuid-1");
+      expect(informatieObjectenService.getDownloadURL).toHaveBeenCalledWith(
+        "doc-uuid-1",
+      );
       expect(result).toBe("http://download/doc-uuid-1");
     });
   });
@@ -332,16 +380,18 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("bewerken()", () => {
     it("calls editEnkelvoudigInformatieObjectInhoud and opens the returned URL", () => {
       jest
-        .spyOn(informatieObjectenService, "editEnkelvoudigInformatieObjectInhoud")
+        .spyOn(
+          informatieObjectenService,
+          "editEnkelvoudigInformatieObjectInhoud",
+        )
         .mockReturnValue(of("http://edit-url") as never);
       const windowOpenSpy = jest.spyOn(window, "open").mockImplementation();
 
       component.bewerken(fakeDocument);
 
-      expect(informatieObjectenService.editEnkelvoudigInformatieObjectInhoud).toHaveBeenCalledWith(
-        "doc-uuid-1",
-        "zaak-uuid-1",
-      );
+      expect(
+        informatieObjectenService.editEnkelvoudigInformatieObjectInhoud,
+      ).toHaveBeenCalledWith("doc-uuid-1", "zaak-uuid-1");
       expect(windowOpenSpy).toHaveBeenCalledWith("http://edit-url");
     });
   });
@@ -349,11 +399,16 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("documentOntkoppelen()", () => {
     it("opens a dialog with the document's details", () => {
       jest
-        .spyOn(informatieObjectenService, "listZaakIdentificatiesForInformatieobject")
+        .spyOn(
+          informatieObjectenService,
+          "listZaakIdentificatiesForInformatieobject",
+        )
         .mockReturnValue(of([]));
-      jest.spyOn(dialog, "open").mockReturnValue(
-        fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
-      );
+      jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+        );
 
       component.documentOntkoppelen(fakeDocument);
 
@@ -362,7 +417,9 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("DOM: row action visibility", () => {
-    const docWithLezen = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    const docWithLezen = fromPartial<
+      GeneratedType<"RestEnkelvoudigInformatieobject">
+    >({
       uuid: "doc-uuid-2",
       titel: "Leesbaar",
       bestandsnaam: "leesbaar.pdf",
@@ -372,11 +429,14 @@ describe(ZaakDocumentenComponent.name, () => {
       isBesluitDocument: false,
     });
 
-    const docMetBewerken = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    const docMetBewerken = fromPartial<
+      GeneratedType<"RestEnkelvoudigInformatieobject">
+    >({
       uuid: "doc-uuid-3",
       titel: "Bewerkbaar",
       bestandsnaam: "bewerkbaar.docx",
-      formaat: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      formaat:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       vertrouwelijkheidaanduiding: "OPENBAAR",
       rechten: { lezen: true, wijzigen: true },
       isBesluitDocument: false,
@@ -392,15 +452,21 @@ describe(ZaakDocumentenComponent.name, () => {
     it("shows the bewerken button when isBewerkenToegestaan returns true", () => {
       component.enkelvoudigInformatieObjecten.data = [docMetBewerken];
       fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll("button[mat-icon-button]");
-      const titles = Array.from(buttons).map((b: unknown) => (b as HTMLElement).title);
+      const buttons = fixture.nativeElement.querySelectorAll(
+        "button[mat-icon-button]",
+      );
+      const titles = Array.from(buttons).map(
+        (b: unknown) => (b as HTMLElement).title,
+      );
       expect(titles).toContain("actie.document.bewerken");
     });
   });
 
   describe("document preview expansion", () => {
     it("sets documentPreviewRow when a different row is selected", () => {
-      const previewDoc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+      const previewDoc = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >({
         uuid: "doc-preview",
         formaat: "application/pdf",
       });
@@ -411,7 +477,9 @@ describe(ZaakDocumentenComponent.name, () => {
     });
 
     it("clears documentPreviewRow when the same row is selected again", () => {
-      const previewDoc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+      const previewDoc = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >({
         uuid: "doc-preview",
         formaat: "application/pdf",
       });

@@ -19,11 +19,11 @@ import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pip
 import { SharedModule } from "../shared/shared.module";
 import { ZoekenModule } from "../zoeken/zoeken.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
-import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { BetrokkeneLinkComponent } from "./zaak-betrokkenen/betrokkene-link.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
+import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";

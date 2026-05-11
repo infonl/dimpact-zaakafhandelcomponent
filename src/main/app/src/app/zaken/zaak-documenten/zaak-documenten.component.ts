@@ -4,6 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -17,19 +18,18 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
+import { MatIconModule } from "@angular/material/icon";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { map } from "rxjs/operators";
-import { NgClass, NgFor, NgIf } from "@angular/common";
-import { MatCardModule } from "@angular/material/card";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
-import { MatIconModule } from "@angular/material/icon";
-import { MatIconAnchor, MatIconButton } from "@angular/material/button";
-import { MatMenuModule } from "@angular/material/menu";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";

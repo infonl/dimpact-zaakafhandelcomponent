@@ -7,18 +7,25 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from "@angular/material/core";
-import { MAT_MOMENT_DATE_ADAPTER_OPTIONS, MomentDateAdapter } from "@angular/material-moment-adapter";
-import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MomentDateAdapter,
+} from "@angular/material-moment-adapter";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from "@angular/material/core";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { of } from "rxjs";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
@@ -76,9 +83,27 @@ describe(CaseDetailsEditComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
-        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { strict: false } },
-        { provide: MAT_DATE_FORMATS, useValue: { parse: { dateInput: "yyyy-MM-DD" }, display: { dateInput: "yyyy-MM-DD", monthYearLabel: "MMMM YYYY", dateA11yLabel: "LL", monthYearA11yLabel: "MMMM YYYY" } } },
+        {
+          provide: DateAdapter,
+          useClass: MomentDateAdapter,
+          deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
+        },
+        {
+          provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+          useValue: { strict: false },
+        },
+        {
+          provide: MAT_DATE_FORMATS,
+          useValue: {
+            parse: { dateInput: "yyyy-MM-DD" },
+            display: {
+              dateInput: "yyyy-MM-DD",
+              monthYearLabel: "MMMM YYYY",
+              dateA11yLabel: "LL",
+              monthYearA11yLabel: "MMMM YYYY",
+            },
+          },
+        },
       ],
     }).compileComponents();
 
@@ -105,7 +130,9 @@ describe(CaseDetailsEditComponent.name, () => {
     ]);
   });
 
-  const renderComponent = (zaakOverrides: Partial<GeneratedType<"RestZaak">> = {}) => {
+  const renderComponent = (
+    zaakOverrides: Partial<GeneratedType<"RestZaak">> = {},
+  ) => {
     const zaak = fromPartial<GeneratedType<"RestZaak">>({
       ...baseZaak,
       ...zaakOverrides,
@@ -140,7 +167,9 @@ describe(CaseDetailsEditComponent.name, () => {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
             servicenorm: servicenormValue,
-          } as Partial<GeneratedType<"RestZaaktype">> as unknown as GeneratedType<"RestZaaktype">,
+          } as Partial<
+            GeneratedType<"RestZaaktype">
+          > as unknown as GeneratedType<"RestZaaktype">,
         });
 
         // Act
@@ -164,7 +193,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: false,
           wijzigenDoorlooptijd: true,
           toekennen: true,
-        } as Partial<GeneratedType<"RestZaakRechten">> as unknown as GeneratedType<"RestZaakRechten">,
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
       });
 
       // Act
@@ -184,7 +215,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: true,
           wijzigenDoorlooptijd: true,
           toekennen: false,
-        } as Partial<GeneratedType<"RestZaakRechten">> as unknown as GeneratedType<"RestZaakRechten">,
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
       });
 
       // Act
@@ -202,7 +235,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: true,
           wijzigenDoorlooptijd: false,
           toekennen: true,
-        } as Partial<GeneratedType<"RestZaakRechten">> as unknown as GeneratedType<"RestZaakRechten">,
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
         isProcesGestuurd: false,
       });
 
@@ -219,7 +254,9 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("date validation", () => {
-    const zaakWithAllDates = (startdatum: string): Partial<GeneratedType<"RestZaak">> => ({
+    const zaakWithAllDates = (
+      startdatum: string,
+    ): Partial<GeneratedType<"RestZaak">> => ({
       startdatum,
       einddatumGepland: "2024-01-20",
       uiterlijkeEinddatumAfdoening: "2024-01-30",
@@ -227,7 +264,9 @@ describe(CaseDetailsEditComponent.name, () => {
         uuid: "zaaktype-123",
         omschrijving: "Test zaaktype",
         servicenorm: true,
-      } as Partial<GeneratedType<"RestZaaktype">> as unknown as GeneratedType<"RestZaaktype">,
+      } as Partial<
+        GeneratedType<"RestZaaktype">
+      > as unknown as GeneratedType<"RestZaaktype">,
     });
 
     describe("start-na-streef: startdatum after einddatumGepland", () => {
@@ -279,7 +318,9 @@ describe(CaseDetailsEditComponent.name, () => {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
             servicenorm: true,
-          } as Partial<GeneratedType<"RestZaaktype">> as unknown as GeneratedType<"RestZaaktype">,
+          } as Partial<
+            GeneratedType<"RestZaaktype">
+          > as unknown as GeneratedType<"RestZaaktype">,
         });
 
         component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
@@ -443,7 +484,9 @@ describe(CaseDetailsEditComponent.name, () => {
           uuid: "zaaktype-123",
           omschrijving: "Test zaaktype",
           servicenorm: true,
-        } as Partial<GeneratedType<"RestZaaktype">> as unknown as GeneratedType<"RestZaaktype">,
+        } as Partial<
+          GeneratedType<"RestZaaktype">
+        > as unknown as GeneratedType<"RestZaaktype">,
       });
 
       component["form"].controls.startdatum.setValue(moment("2024-01-25"));
@@ -455,12 +498,16 @@ describe(CaseDetailsEditComponent.name, () => {
   describe("initialisation", () => {
     it("maps vertrouwelijkheidaanduiding to the matching select option (case-insensitive)", () => {
       renderComponent({ vertrouwelijkheidaanduiding: "OPENBAAR" });
-      expect(component["form"].controls.vertrouwelijkheidaanduiding.value?.value).toBe("openbaar");
+      expect(
+        component["form"].controls.vertrouwelijkheidaanduiding.value?.value,
+      ).toBe("openbaar");
     });
 
     it("patches toelichting from the zaak value", () => {
       renderComponent({ toelichting: "een toelichting" });
-      expect(component["form"].controls.toelichting.value).toBe("een toelichting");
+      expect(component["form"].controls.toelichting.value).toBe(
+        "een toelichting",
+      );
     });
   });
 
@@ -481,8 +528,18 @@ describe(CaseDetailsEditComponent.name, () => {
   describe("groep valueChanges", () => {
     it("loads users and enables behandelaar when a group is selected (toekennen=true)", async () => {
       renderComponent();
-      const group = fromPartial<GeneratedType<"RestGroup">>({ id: "g2", naam: "Groep 2" });
-      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User 1" })]));
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g2",
+        naam: "Groep 2",
+      });
+      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RestUser">>({
+            id: "u1",
+            naam: "User 1",
+          }),
+        ]),
+      );
       component["form"].controls.groep.setValue(group);
       await fixture.whenStable();
       expect(identityService.listUsersInGroup).toHaveBeenCalledWith("g2");
@@ -525,8 +582,13 @@ describe(CaseDetailsEditComponent.name, () => {
     });
 
     it("is enabled when form is valid and dirty", async () => {
-      const group = fromPartial<GeneratedType<"RestGroup">>({ id: "g1", naam: "G1" });
-      jest.spyOn(identityService, "listBehandelaarGroupsForZaaktype").mockReturnValue(of([group]));
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "G1",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([group]));
       renderComponent({ groep: group });
       await fixture.whenStable();
       component["form"].controls.reden.enable();
@@ -543,8 +605,12 @@ describe(CaseDetailsEditComponent.name, () => {
   describe("onSubmit()", () => {
     it("calls updateZaak and closes sideNav on success", async () => {
       renderComponent();
-      jest.spyOn(zakenService, "updateZaak").mockReturnValue(of(undefined) as never);
-      jest.spyOn(zakenService, "toekennen").mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennen")
+        .mockReturnValue(of(undefined) as never);
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("een reden");
 
@@ -560,11 +626,18 @@ describe(CaseDetailsEditComponent.name, () => {
     it("calls toekennenAanIngelogdeMedewerker when behandelaar equals the logged-in user", async () => {
       // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
       renderComponent();
-      jest.spyOn(zakenService, "updateZaak").mockReturnValue(of(undefined) as never);
-      jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker").mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennenAanIngelogdeMedewerker")
+        .mockReturnValue(of(undefined) as never);
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
-        fromPartial<GeneratedType<"RestUser">>({ id: "user-123", naam: "User 123" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "User 123",
+        }),
       );
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
@@ -577,11 +650,18 @@ describe(CaseDetailsEditComponent.name, () => {
     it("calls toekennen when behandelaar differs from the logged-in user", async () => {
       // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
       renderComponent();
-      jest.spyOn(zakenService, "updateZaak").mockReturnValue(of(undefined) as never);
-      jest.spyOn(zakenService, "toekennen").mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennen")
+        .mockReturnValue(of(undefined) as never);
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
-        fromPartial<GeneratedType<"RestUser">>({ id: "other-user", naam: "Other User" }),
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "other-user",
+          naam: "Other User",
+        }),
       );
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
@@ -593,7 +673,9 @@ describe(CaseDetailsEditComponent.name, () => {
 
     it("skips patchBehandelaar when behandelaar and groep are unchanged", async () => {
       renderComponent();
-      jest.spyOn(zakenService, "updateZaak").mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
       jest.spyOn(zakenService, "toekennen");
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
       component["form"].controls.reden.enable();
@@ -602,7 +684,9 @@ describe(CaseDetailsEditComponent.name, () => {
       await component["onSubmit"](component["form"]);
 
       expect(zakenService.toekennen).not.toHaveBeenCalled();
-      expect(zakenService.toekennenAanIngelogdeMedewerker).not.toHaveBeenCalled();
+      expect(
+        zakenService.toekennenAanIngelogdeMedewerker,
+      ).not.toHaveBeenCalled();
     });
   });
 });

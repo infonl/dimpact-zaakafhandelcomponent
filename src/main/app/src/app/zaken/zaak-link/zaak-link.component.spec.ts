@@ -11,8 +11,8 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { UtilService } from "../../core/service/util.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 import { ZaakLinkComponent } from "./zaak-link.component";
@@ -66,7 +66,15 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
   component.sideNav = sideNav;
   fixture.detectChanges();
 
-  return { fixture, component, zoekenService, zakenService, utilService, sideNav, zaak };
+  return {
+    fixture,
+    component,
+    zoekenService,
+    zakenService,
+    utilService,
+    sideNav,
+    zaak,
+  };
 };
 
 describe(ZaakLinkComponent.name, () => {
@@ -171,9 +179,9 @@ describe(ZaakLinkComponent.name, () => {
       jest
         .spyOn(zoekenService, "findLinkableZaken")
         .mockReturnValue(
-          throwError(
-            () => new Error("server error"),
-          ) as ReturnType<ZoekenService["findLinkableZaken"]>,
+          throwError(() => new Error("server error")) as ReturnType<
+            ZoekenService["findLinkableZaken"]
+          >,
         );
 
       component["form"].controls.caseRelationType.setValue(
@@ -191,9 +199,7 @@ describe(ZaakLinkComponent.name, () => {
       const { component, zakenService, utilService } = setup();
       jest
         .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(
-          of(null) as ReturnType<ZakenService["koppelZaak"]>,
-        );
+        .mockReturnValue(of(null) as ReturnType<ZakenService["koppelZaak"]>);
       const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
@@ -208,9 +214,12 @@ describe(ZaakLinkComponent.name, () => {
         relatieType: component["caseRelationOptionsList"][0].value,
       });
       expect(zaakLinkedSpy).toHaveBeenCalled();
-      expect(utilService.openSnackbar).toHaveBeenCalledWith("msg.zaak.gekoppeld", {
-        case: row.identificatie,
-      });
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.zaak.gekoppeld",
+        {
+          case: row.identificatie,
+        },
+      );
     });
 
     it("skips koppelZaak when row has no id", () => {
@@ -232,7 +241,11 @@ describe(ZaakLinkComponent.name, () => {
       const { component, zakenService } = setup();
       jest
         .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(throwError(() => new Error("fail")) as ReturnType<ZakenService["koppelZaak"]>);
+        .mockReturnValue(
+          throwError(() => new Error("fail")) as ReturnType<
+            ZakenService["koppelZaak"]
+          >,
+        );
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
@@ -260,7 +273,10 @@ describe(ZaakLinkComponent.name, () => {
   describe("rowDisabled()", () => {
     it("returns true when row is not koppelbaar", () => {
       const { component } = setup();
-      const row = makeFakeSearchResult({ isKoppelbaar: false, identificatie: "OTHER-ZAAK" });
+      const row = makeFakeSearchResult({
+        isKoppelbaar: false,
+        identificatie: "OTHER-ZAAK",
+      });
       expect(component["rowDisabled"](row)).toBe(true);
     });
 
@@ -359,12 +375,14 @@ describe(ZaakLinkComponent.name, () => {
 
     it("cancel button calls close()", () => {
       const { fixture, component } = setup();
-      const closeSpy = jest.spyOn(component as unknown as { close: () => unknown }, "close");
+      const closeSpy = jest.spyOn(
+        component as unknown as { close: () => unknown },
+        "close",
+      );
       const cancelButton: HTMLButtonElement = Array.from(
         fixture.nativeElement.querySelectorAll("button"),
-      ).find(
-        (button: HTMLButtonElement) =>
-          (button as HTMLButtonElement).textContent?.includes("actie.annuleren"),
+      ).find((button: HTMLButtonElement) =>
+        (button as HTMLButtonElement).textContent?.includes("actie.annuleren"),
       ) as HTMLButtonElement;
       cancelButton.click();
       expect(closeSpy).toHaveBeenCalled();
@@ -373,7 +391,9 @@ describe(ZaakLinkComponent.name, () => {
     it("shows 'more than 10 results' message when results exceed 10", () => {
       const { component, fixture } = setup();
       component["loading"] = false;
-      component["cases"].data = Array.from({ length: 11 }, () => makeFakeSearchResult());
+      component["cases"].data = Array.from({ length: 11 }, () =>
+        makeFakeSearchResult(),
+      );
       component["totalCases"] = 11;
       fixture.detectChanges();
       expect(fixture.nativeElement.textContent).toContain(
@@ -395,7 +415,9 @@ describe(ZaakLinkComponent.name, () => {
     it("shows HOOFDZAAK hint when caseRelationType is HOOFDZAAK", () => {
       const { component, fixture } = setup();
       component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"].find((option) => option.value === "HOOFDZAAK")!,
+        component["caseRelationOptionsList"].find(
+          (option) => option.value === "HOOFDZAAK",
+        )!,
       );
       fixture.detectChanges();
       expect(fixture.nativeElement.textContent).toContain(
@@ -406,7 +428,9 @@ describe(ZaakLinkComponent.name, () => {
     it("shows DEELZAAK hint when caseRelationType is DEELZAAK", () => {
       const { component, fixture } = setup();
       component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"].find((option) => option.value === "DEELZAAK")!,
+        component["caseRelationOptionsList"].find(
+          (option) => option.value === "DEELZAAK",
+        )!,
       );
       fixture.detectChanges();
       expect(fixture.nativeElement.textContent).toContain(
