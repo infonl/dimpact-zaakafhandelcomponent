@@ -173,7 +173,7 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 ### Batch 16 — claimed (branch: `temp/standalone-migration`)
 
 - [x] `taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
-- [ ] `zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
+- [x] `zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
 - [ ] `zoeken/zoek/zoek.component.ts`
 
 ## Colleague
