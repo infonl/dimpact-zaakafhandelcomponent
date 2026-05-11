@@ -77,7 +77,8 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
 
   override ngAfterViewInit(): void {
     super.ngAfterViewInit();
-    this.sort?.sortChange
+    if (!this.sort) return;
+    this.sort.sortChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ active, direction }: Sort) => {
         this.pageNumber.set(0);
