@@ -152,34 +152,6 @@ export class InformatieObjectCreateAttendedComponent
             this.zaak.zaaktype.uuid,
           );
 
-    templateGroupsFetcher.subscribe((templateGroups) => {
-      this.templateGroups = templateGroups;
-
-      if (this.smartDocumentsGroupId !== undefined) {
-        const smartDocumentsTemplateGroup = templateGroups.find(
-          ({ id }) => id === this.smartDocumentsGroupId,
-        );
-        if (smartDocumentsTemplateGroup) {
-          this.form.controls.templateGroup.setValue(
-            smartDocumentsTemplateGroup,
-          );
-          this.form.controls.templateGroup.disable();
-          return;
-        }
-      }
-
-      const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
-        this.smartDocumentsGroupPath.includes(name),
-      );
-      if (!smartDocumentsTemplateGroup) return;
-
-      this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
-
-      if (templateGroups.length !== 1) return;
-
-      this.form.controls.templateGroup.disable();
-    });
-
     this.form.controls.templateGroup.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
@@ -236,6 +208,34 @@ export class InformatieObjectCreateAttendedComponent
           ),
         );
       });
+
+    templateGroupsFetcher.subscribe((templateGroups) => {
+      this.templateGroups = templateGroups;
+
+      if (this.smartDocumentsGroupId !== undefined) {
+        const smartDocumentsTemplateGroup = templateGroups.find(
+          ({ id }) => id === this.smartDocumentsGroupId,
+        );
+        if (smartDocumentsTemplateGroup) {
+          this.form.controls.templateGroup.setValue(
+            smartDocumentsTemplateGroup,
+          );
+          this.form.controls.templateGroup.disable();
+          return;
+        }
+      }
+
+      const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
+        this.smartDocumentsGroupPath.includes(name),
+      );
+      if (!smartDocumentsTemplateGroup) return;
+
+      this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
+
+      if (templateGroups.length !== 1) return;
+
+      this.form.controls.templateGroup.disable();
+    });
   }
 
   private fetchInformatieobjecttypes() {

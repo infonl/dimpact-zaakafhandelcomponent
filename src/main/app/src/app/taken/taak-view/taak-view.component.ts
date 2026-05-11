@@ -82,8 +82,6 @@ export class TaakViewComponent
   protected formConfig?: FormConfig | null = null;
   protected formioFormulier?: FormioForm;
 
-  protected smartDocumentsGroupPath: string[] = [];
-  protected smartDocumentsTemplateName?: string;
   protected smartDocumentsGroupId?: string;
   protected smartDocumentsTemplateId?: string;
 

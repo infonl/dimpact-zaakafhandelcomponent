@@ -23,7 +23,7 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { from, of } from "rxjs";
+import { of } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -203,17 +203,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     });
 
     it("should auto-select and disable both templateGroup and template when smartDocumentsGroupId and smartDocumentsTemplateId match", async () => {
-      // The mock must emit asynchronously so that the templateGroup.valueChanges subscription
-      // is registered before setValue fires (ngOnInit sets up valueChanges after subscribing
-      // to templateGroupsFetcher, so a sync observable misses the subscriber).
-      jest
-        .spyOn(smartDocumentsService, "getTemplatesMapping")
-        .mockReturnValueOnce(
-          from(Promise.resolve(mockTemplateGroups)) as ReturnType<
-            typeof smartDocumentsService.getTemplatesMapping
-          >,
-        );
-
       const freshFixture = TestBed.createComponent(
         InformatieObjectCreateAttendedComponent,
       );
