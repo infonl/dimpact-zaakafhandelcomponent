@@ -140,19 +140,18 @@ export class ZaakLinkComponent implements OnDestroy {
         this.form.controls.caseToSearchFor.value!,
         this.form.controls.caseRelationType.value!.value!,
       )
-      .subscribe(
-        (result) => {
-          this.cases.data = result.resultaten;
+      .subscribe({
+        next: (result) => {
+          this.cases.data = result.resultaten ?? [];
           this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
         },
-        () => {
-          // error handling
+        error: () => {
           this.loading = false;
           this.utilService.setLoading(false);
         },
-      );
+      });
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
