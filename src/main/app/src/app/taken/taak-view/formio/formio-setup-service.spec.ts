@@ -169,34 +169,41 @@ describe(FormioSetupService.name, () => {
   });
 
   describe(
-    FormioSetupService.prototype.extractSmartDocumentsTemplateName.name,
+    FormioSetupService.prototype.extractSmartDocumentsGroupId.name,
     () => {
-      it("should extract the smart documents template name from a sub-component name", () => {
-        const smartDocumentsTemplateName: string =
-          formioSetupService.extractSmartDocumentsTemplateName({
+      it("should extract the smart documents group id from a sub-component name", () => {
+        const smartDocumentsGroupId: string =
+          formioSetupService.extractSmartDocumentsGroupId({
             event: undefined,
             type: "unknown",
             component: {
               key: "AM_SmartDocuments_Create",
             },
             data: {
-              AM_SmartDocuments_Template: "SmartDocuments template name",
+              AM_SmartDocuments_Group: "SmartDocuments group id",
             },
           });
-        expect(smartDocumentsTemplateName).toBe("SmartDocuments template name");
+        expect(smartDocumentsGroupId).toBe("SmartDocuments group id");
       });
     },
   );
 
   describe(
-    FormioSetupService.prototype.normalizeSmartDocumentsTemplateName.name,
+    FormioSetupService.prototype.extractSmartDocumentsTemplateId.name,
     () => {
-      it("should normalize the smart documents template name", () => {
-        const smartDocumentsTemplateName: string =
-          formioSetupService.normalizeSmartDocumentsTemplateName(
-            "SmartDocuments template name",
-          );
-        expect(smartDocumentsTemplateName).toBe("SmartDocuments_template_name");
+      it("should extract the smart documents template id from a sub-component name", () => {
+        const smartDocumentsTemplateId: string =
+          formioSetupService.extractSmartDocumentsTemplateId({
+            event: undefined,
+            type: "unknown",
+            component: {
+              key: "AM_SmartDocuments_Create",
+            },
+            data: {
+              AM_SmartDocuments_Template: "SmartDocuments template id",
+            },
+          });
+        expect(smartDocumentsTemplateId).toBe("SmartDocuments template id");
       });
     },
   );

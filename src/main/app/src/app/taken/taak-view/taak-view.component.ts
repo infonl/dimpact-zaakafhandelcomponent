@@ -492,9 +492,9 @@ export class TaakViewComponent
 
   onDocumentCreate(event: FormioCustomEvent) {
     this.smartDocumentsGroupId =
-        this.formioSetupService.extractSmartDocumentsGroupId(event);
+      this.formioSetupService.extractSmartDocumentsGroupId(event);
     this.smartDocumentsTemplateId =
-        this.formioSetupService.extractSmartDocumentsTemplateId(event);
+      this.formioSetupService.extractSmartDocumentsTemplateId(event);
     if (!this.smartDocumentsTemplateId) {
       console.debug("No SmartDocuments template selected!");
       return;

@@ -156,11 +156,13 @@ export class InformatieObjectCreateAttendedComponent
       this.templateGroups = templateGroups;
 
       if (this.smartDocumentsGroupId !== undefined) {
-        const smartDocumentsTemplateGroup = templateGroups.find(({ id }) =>
-            id === this.smartDocumentsGroupId,
+        const smartDocumentsTemplateGroup = templateGroups.find(
+          ({ id }) => id === this.smartDocumentsGroupId,
         );
         if (smartDocumentsTemplateGroup) {
-          this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
+          this.form.controls.templateGroup.setValue(
+            smartDocumentsTemplateGroup,
+          );
           this.form.controls.templateGroup.disable();
           return;
         }
@@ -184,8 +186,8 @@ export class InformatieObjectCreateAttendedComponent
         this.templates = value?.templates ?? [];
 
         if (this.smartDocumentsTemplateId !== undefined) {
-          const smartDocumentsTemplate = this.templates.find(({ id }) =>
-              id === this.smartDocumentsTemplateId,
+          const smartDocumentsTemplate = this.templates.find(
+            ({ id }) => id === this.smartDocumentsTemplateId,
           );
           if (smartDocumentsTemplate) {
             this.form.controls.template.setValue(smartDocumentsTemplate);
