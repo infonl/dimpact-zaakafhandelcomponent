@@ -192,10 +192,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated POST request on SmartDocuments '/cmmn-callback' endpoint") {
+        Given("An unauthenticated POST request on SmartDocuments '/callback' endpoint") {
             val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/cmmn-callback/xyz"
+            every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "POST"
             every { filterChain.doFilter(any(), any()) } just runs
 
@@ -210,10 +210,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on SmartDocuments '/cmmn-callback' endpoint") {
+        Given("An unauthenticated GET request on SmartDocuments '/callback' endpoint") {
             val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
             every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/cmmn-callback/xyz"
+            every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
@@ -223,24 +223,6 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
                 Then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
-                    }
-                }
-            }
-        }
-
-        Given("An unauthenticated POST request on SmartDocuments '/bpmn-callback' endpoint") {
-            val filter = RequestAuthorizationFilter(pabcIntegrationEnabled = true)
-            every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/bpmn-callback/abcd"
-            every { httpServletRequest.method } returns "POST"
-            every { filterChain.doFilter(any(), any()) } just runs
-
-            When("the filter processes the request") {
-                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
-
-                Then("the request is allowed") {
-                    verify {
-                        filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
                 }
             }

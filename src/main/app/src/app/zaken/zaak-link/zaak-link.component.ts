@@ -3,18 +3,35 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
   Input,
   OnDestroy,
   Output,
+  inject,
 } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatButton, MatIconButton } from "@angular/material/button";
+import { MatDivider } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIcon } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatToolbar } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacSelect } from "src/app/shared/form/select/select";
+import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
@@ -23,25 +40,49 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-zaak-link",
   templateUrl: "./zaak-link.component.html",
   styleUrls: ["./zaak-link.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgClass,
+    NgIf,
+    ReactiveFormsModule,
+    TranslateModule,
+    MatToolbar,
+    MatIconButton,
+    MatIcon,
+    MatDivider,
+    MatButton,
+    MatTableModule,
+    MatSortModule,
+    MatExpansionModule,
+    ZacSelect,
+    ZacInput,
+    EmptyPipe,
+  ],
 })
 export class ZaakLinkComponent implements OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() zaakLinked = new EventEmitter();
+  @Output() zaakLinked = new EventEmitter<void>();
 
-  public cases = new MatTableDataSource<
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly zoekenService = inject(ZoekenService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly utilService = inject(UtilService);
+
+  private ngDestroy = new Subject<void>();
+
+  protected cases = new MatTableDataSource<
     GeneratedType<"RestZaakKoppelenZoekObject">
   >();
-  public totalCases = 0;
-  public caseColumns = [
+  protected totalCases = 0;
+  protected readonly caseColumns = [
     "identificatie",
     "zaaktypeOmschrijving",
     "statustypeOmschrijving",
     "omschrijving",
     "acties",
   ] as const;
-  public loading = false;
+  protected loading = false;
 
   protected caseRelationOptionsList: {
     label: `zaak.koppelen.link.type.${GeneratedType<"RelatieType">}`;
@@ -67,14 +108,7 @@ export class ZaakLinkComponent implements OnDestroy {
     ]),
   });
 
-  private ngDestroy = new Subject<void>();
-
-  constructor(
-    private zoekenService: ZoekenService,
-    private zakenService: ZakenService,
-    private utilService: UtilService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     this.form.controls.caseToSearchFor.disable();
 
     this.form.controls.caseRelationType.valueChanges
@@ -106,19 +140,18 @@ export class ZaakLinkComponent implements OnDestroy {
         this.form.controls.caseToSearchFor.value!,
         this.form.controls.caseRelationType.value!.value!,
       )
-      .subscribe(
-        (result) => {
-          this.cases.data = result.resultaten;
+      .subscribe({
+        next: (result) => {
+          this.cases.data = result.resultaten ?? [];
           this.totalCases = result.totaal ?? 0;
           this.loading = false;
           this.utilService.setLoading(false);
         },
-        () => {
-          // error handling
+        error: () => {
           this.loading = false;
           this.utilService.setLoading(false);
         },
-      );
+      });
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {

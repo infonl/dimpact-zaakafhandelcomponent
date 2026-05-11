@@ -97,8 +97,9 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent, ZaakDocumentenComponent],
+      declarations: [ZaakViewComponent],
       imports: [
+        ZaakDocumentenComponent,
         ZaakInitiatorToevoegenComponent,
         BedrijfsgegevensComponent,
         ContactgegevensComponent,

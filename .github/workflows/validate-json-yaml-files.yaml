@@ -23,7 +23,7 @@ jobs:
 
       - name: json-yaml-validate
         id: json-yaml-validate
-        uses: GrantBirki/json-yaml-validate@9bbaa8474e3af4e91f25eda8ac194fdc30564d96 # v4.0.0
+        uses: GrantBirki/json-yaml-validate@3ff75979f3b21171f2e8a44705f0ff4bed30bbc0 # v5.0.0
         with:
           comment: true
           allow_multiple_documents: true

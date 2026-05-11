@@ -4,9 +4,14 @@
  */
 
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import {
   defaultIfEmpty,
@@ -21,6 +26,10 @@ import {
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
+import { ZacDate } from "src/app/shared/form/date/date";
+import { ZacInput } from "src/app/shared/form/input/input";
+import { ZacSelect } from "src/app/shared/form/select/select";
+import { ZacTextarea } from "src/app/shared/form/textarea/textarea";
 import { AbstractFormField } from "src/app/shared/material-form-builder/model/abstract-form-field";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
@@ -30,7 +39,21 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-case-details-edit",
   templateUrl: "./zaak-details-wijzigen.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+    ZacDate,
+    ZacInput,
+    ZacSelect,
+    ZacTextarea,
+  ],
 })
 export class CaseDetailsEditComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
@@ -46,7 +69,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     group: GeneratedType<"RestGroup">,
   ): string =>
     group.active === false
-      ? `${group.naam} (${this.translateService.instant("inactief")})`
+      ? `${group.naam} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
   protected users: GeneratedType<"RestUser">[] = [];
   protected communicationChannels: string[] = [];

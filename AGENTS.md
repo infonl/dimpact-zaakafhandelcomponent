@@ -109,9 +109,11 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 - Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
 
 ### Kotest (Backend Tests)
-Use BDD style with `Context`/`Given`/`When`/`Then` blocks:
+Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `beforeEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
+    beforeEach { checkUnnecessaryStub() }
+
     Context("A function in the service under test") {
         Given("some state") {
             When("action occurs") {
@@ -185,6 +187,7 @@ PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
 
 ### Follow the Kotlin Coding Conventions
 Follow the official Kotlin coding conventions for naming, formatting, and structuring code: https://kotlinlang.org/docs/coding-conventions.html
+Place `companion object` at the **top** of a class body, before any functions or properties.
 This includes using camelCase for function and variable names, PascalCase for class names, and consistent indentation and spacing.
 Rename existing classes to comply with the following Kotlin code convention:
 When using an acronym as part of a declaration name, follow these rules:
