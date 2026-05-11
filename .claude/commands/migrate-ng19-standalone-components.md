@@ -1,29 +1,7 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 18 remaining** (2026-05-11)
-_(excludes `shared/material-form-builder/` subtree and `shared/form/documents.ts`, `shared/form/file.ts`, `shared/form/form.ts`, `shared/form/html-editor/html-editor.ts` — all MFB, being phased out)_
+**Progress: 15 remaining** (2026-05-11)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
-
-## Remaining Components
-
-- `app/app.component.ts`
-- `app/core/toolbar/toolbar.component.ts`
-- `app/dashboard/dashboard-card/dashboard-card.component.ts`
-- `app/dashboard/dashboard.component.ts`
-- `app/dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
-- `app/dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
-- `app/dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
-- `app/dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
-- `app/dashboard/zaken-card/zaken-card.component.ts`
-- `app/plan-items/human-task-do/human-task-do.component.ts`
-- `app/plan-items/process-task-do/process-task-do.component.ts`
-- `app/taken/taak-view/taak-view.component.ts`
-- `app/taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
-- `app/zaken/besluit-edit/besluit-edit.component.ts`
-- `app/zaken/besluit-view/besluit-view.component.ts`
-- `app/zaken/zaak-view/zaak-view.component.ts`
-- `app/zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
-- `app/zoeken/zoek/zoek.component.ts`
 
 ---
 
@@ -198,6 +176,16 @@ Solves PZ-XXXXX
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
 
+### Patterns added in batch-16
+| Pattern | Detail |
+|---|---|
+| `provideNativeDateAdapter()` in spec providers | Required when any child component uses `DateRangeFilterComponent` (which includes `MatDateRangeInput`) |
+| `RouterModule` in spec imports (not `provideRouter([])`) | `provideRouter([])` bypasses `{ provide: ActivatedRoute, useValue: mock }` and breaks `WerklijstComponent.ngOnInit`; `RouterModule` respects the mock |
+| `setQueryData(key, undefined)` doesn't update TanStack signal | In TanStack Query v5, setting query data to `undefined` is a no-op for the signal; test with `null` instead to assert the null guard |
+| `overrideComponent(Comp, { set: { template: "", imports: [] } })` | For complex standalone components with many child deps: override template to empty and clear imports to simplify test setup |
+
+---
+
 ---
 
 ## Completed
@@ -205,7 +193,8 @@ TBD — run step 0 (claims check) at start of next session.
 | Batch | Components | Branch/PR |
 |---|---|---|
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
-| batch-13 | `ZaakInitiatorToevoegenComponent`, `ZaakdataComponent`, `KlantZoekDialogComponent` (+ spec for already-standalone `ZaakBetrokkeneFilterComponent`) | `temp/standalone-migration` |
+| batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
+| batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
 
 ---
 
