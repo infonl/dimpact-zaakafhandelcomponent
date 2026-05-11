@@ -51,8 +51,8 @@ function buildExpectedQueryKey() {
   const params = ZakenMijnDatasource.mijnLopendeZaken(
     getDefaultZoekParameters(),
   );
-  params.sorteerVeld = "ZAAK_STREEFDATUM";
-  params.sorteerRichting = "asc";
+  params.sorteerVeld = "ZAAK_STARTDATUM";
+  params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
   return ["zaak zoeken dashboard", params];

@@ -51,8 +51,8 @@ function buildExpectedQueryKey() {
   const params = TakenMijnDatasource.mijnLopendeTaken(
     getDefaultZoekParameters(),
   );
-  params.sorteerVeld = "TAAK_FATALEDATUM";
-  params.sorteerRichting = "asc";
+  params.sorteerVeld = "TAAK_CREATIEDATUM";
+  params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
   return ["taak zoeken dashboard", params];
