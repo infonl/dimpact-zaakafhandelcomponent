@@ -7,22 +7,16 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideRouter } from "@angular/router";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatExpansionModule } from "@angular/material/expansion";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { ZacSelect } from "../../shared/form/select/select";
-import { ZacDate } from "../../shared/form/date/date";
-import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { fromPartial } from "src/test-helpers";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { UtilService } from "../../core/service/util.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { BesluitCreateComponent } from "./besluit-create.component";
 
@@ -146,7 +140,9 @@ describe(BesluitCreateComponent.name, () => {
       jest
         .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
         .mockReturnValue(of([] as never));
-      component["form"].controls.besluit.setValue(fakeBesluittypeWithPublication);
+      component["form"].controls.besluit.setValue(
+        fakeBesluittypeWithPublication,
+      );
       fixture.detectChanges();
       const publicationSection =
         fixture.nativeElement.querySelector("form > section");

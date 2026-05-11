@@ -8,14 +8,12 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { MatAutocompleteHarness } from "@angular/material/autocomplete/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatHint, MatLabel } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
-import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router, RouterModule, Routes } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -25,8 +23,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
-import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel.component";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../core/service/util.service";
@@ -428,8 +424,12 @@ describe(ZaakCreateComponent.name, () => {
     });
 
     it("hasInitiator() returns true when an initiator is set", () => {
-      fixture.componentInstance["form"].controls.initiatorIdentificatie.enable();
-      fixture.componentInstance["form"].controls.initiatorIdentificatie.setValue(
+      fixture.componentInstance[
+        "form"
+      ].controls.initiatorIdentificatie.enable();
+      fixture.componentInstance[
+        "form"
+      ].controls.initiatorIdentificatie.setValue(
         fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
           type: "BSN",
           bsn: "123456789",
@@ -439,8 +439,12 @@ describe(ZaakCreateComponent.name, () => {
     });
 
     it("clears the initiator value when clearInitiator() is called", () => {
-      fixture.componentInstance["form"].controls.initiatorIdentificatie.enable();
-      fixture.componentInstance["form"].controls.initiatorIdentificatie.setValue(
+      fixture.componentInstance[
+        "form"
+      ].controls.initiatorIdentificatie.enable();
+      fixture.componentInstance[
+        "form"
+      ].controls.initiatorIdentificatie.setValue(
         fromPartial<GeneratedType<"BetrokkeneIdentificatie">>({
           type: "BSN",
           bsn: "123456789",
@@ -481,8 +485,12 @@ describe(ZaakCreateComponent.name, () => {
 
     it("bagDisplayValue() joins omschrijving values when total length ≤ 100", () => {
       const result = fixture.componentInstance["bagDisplayValue"]([
-        fromPartial<GeneratedType<"RESTBAGObject">>({ omschrijving: "Straat 1" }),
-        fromPartial<GeneratedType<"RESTBAGObject">>({ omschrijving: "Straat 2" }),
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: "Straat 1",
+        }),
+        fromPartial<GeneratedType<"RESTBAGObject">>({
+          omschrijving: "Straat 2",
+        }),
       ]);
       expect(result).toBe("Straat 1 | Straat 2");
     });
