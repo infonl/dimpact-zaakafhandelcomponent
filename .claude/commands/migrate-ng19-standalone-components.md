@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 33 remaining** (2026-04-30)
+**Progress: 34 remaining** (2026-05-11)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ---
@@ -44,8 +44,6 @@ These gates exist because the user explicitly asked for them and has corrected s
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
 | **Skip routing** | Do not touch `*-routing.module.ts`. |
-| **⛔ zaak-view needs decomposition first** | `zaken/zaak-view/zaak-view.component.ts` is too large to migrate directly. It must be broken into smaller card components first (e.g. `ZaakTakenComponent` was extracted in PZ-11097). See `.claude/plans/zaak-view-details-extraction.md` (card extraction plan) and `.claude/plans/zaak-view-tanstack-websocket-research.md` (TanStack Query / WebSocket upgrade plan). Do NOT attempt to make it standalone until the decomposition is complete. Discuss with marcel.evers@info.nl before starting. |
-| **⛔ taak-view needs decomposition first** | `taken/taak-view/taak-view.component.ts` is too large to migrate directly. It must be broken into smaller card components first — apply the same extraction + TanStack Query upgrade approach documented in `.claude/plans/zaak-view-details-extraction.md` and `.claude/plans/zaak-view-tanstack-websocket-research.md`. Do NOT attempt to make it standalone until the decomposition is complete. Discuss with marcel.evers@info.nl before starting. |
 | **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
@@ -180,14 +178,12 @@ TBD — run step 0 (claims check) at start of next session.
 
 ---
 
----
-
 ## Completed
 
 | Batch | Components | Branch/PR |
 |---|---|---|
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
-| batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
+| batch-13 | `ZaakInitiatorToevoegenComponent`, `ZaakdataComponent`, `KlantZoekDialogComponent` (+ spec for already-standalone `ZaakBetrokkeneFilterComponent`) | `temp/standalone-migration` |
 
 ---
 
