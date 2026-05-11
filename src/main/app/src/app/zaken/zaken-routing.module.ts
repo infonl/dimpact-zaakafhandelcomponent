@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,12 +7,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { ZaakIdentificatieResolver } from "./zaak-identificatie-resolver.service";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
-import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
-import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
-import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 const routes: Routes = [
   {
@@ -25,22 +21,37 @@ const routes: Routes = [
       },
       {
         path: "mijn",
-        component: ZakenMijnComponent,
+        loadComponent: () =>
+          import("./zaken-mijn/zaken-mijn.component").then(
+            (m) => m.ZakenMijnComponent,
+          ),
         resolve: { tabelGegevens: TabelGegevensResolver },
         data: { werklijst: "MIJN_ZAKEN" satisfies GeneratedType<"Werklijst"> },
       },
       {
         path: "werkvoorraad",
-        component: ZakenWerkvoorraadComponent,
+        loadComponent: () =>
+          import("./zaken-werkvoorraad/zaken-werkvoorraad.component").then(
+            (m) => m.ZakenWerkvoorraadComponent,
+          ),
         resolve: { tabelGegevens: TabelGegevensResolver },
         data: {
           werklijst: "WERKVOORRAAD_ZAKEN" satisfies GeneratedType<"Werklijst">,
         },
       },
-      { path: "create", component: ZaakCreateComponent },
+      {
+        path: "create",
+        loadComponent: () =>
+          import("./zaak-create/zaak-create.component").then(
+            (m) => m.ZaakCreateComponent,
+          ),
+      },
       {
         path: "afgehandeld",
-        component: ZakenAfgehandeldComponent,
+        loadComponent: () =>
+          import("./zaken-afgehandeld/zaken-afgehandeld.component").then(
+            (m) => m.ZakenAfgehandeldComponent,
+          ),
         resolve: { tabelGegevens: TabelGegevensResolver },
         data: {
           werklijst: "AFGEHANDELDE_ZAKEN" satisfies GeneratedType<"Werklijst">,

@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module";
+import { KlantContactmomentenTabelComponent } from "../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { SharedModule } from "../shared/shared.module";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { BedrijfsgegevensComponent } from "./bedrijfsgegevens/bedrijfsgegevens.component";
@@ -35,7 +35,7 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     SharedModule,
     RouterLink,
     KlantenRoutingModule,
-    ContactmomentenModule,
+    KlantContactmomentenTabelComponent,
     BedrijfsgegevensComponent,
     ContactgegevensComponent,
     PersoonsgegevensComponent,

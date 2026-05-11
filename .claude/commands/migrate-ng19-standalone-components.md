@@ -56,6 +56,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Async + fakeAsync split `beforeEach` (child HTTP calls) | First `beforeEach` is `async` (TestBed + spies); second is `fakeAsync` (create + `tick(0)`); use `delay(0)` on all mock observables |
 | `By.directive` for directive presence | `fixture.debugElement.query(By.directive(MatTooltip))` — raw attribute selectors don't work after Angular processes them |
 | Cherry-pick an unmerged dep before migrating | `git cherry-pick <sha>` onto work branch when a dep PR hasn't merged to `main` yet |
+| `loadComponent` for routed standalones | Replace `component: XyzComponent` with `loadComponent: () => import('./path/xyz.component').then(m => m.XyzComponent)` in routing modules. This is the idiomatic Angular 19 pattern — each routed standalone gets its own lazy chunk. Remove the static import too. Only worth doing if the resulting chunk is **≥ 10 kB** (uncompressed) — below that the extra HTTP round-trip overhead outweighs the saving. Check chunk size with `npm run build` and look for the named chunk in the output. |
 
 ---
 
@@ -64,7 +65,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Rule | Detail |
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
-| **Skip routing** | Do not touch `*-routing.module.ts`. |
+| **Update routing** | When a component is migrated to standalone, also update its route in `*-routing.module.ts` to use `loadComponent` with a dynamic import. Remove the static import. |
 | **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
