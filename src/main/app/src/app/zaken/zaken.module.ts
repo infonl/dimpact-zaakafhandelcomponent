@@ -40,15 +40,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
 import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 @NgModule({
-  declarations: [
-    BesluitEditComponent,
-    BesluitViewComponent,
-    ZaakViewComponent,
-    ZaakCreateComponent,
-    CaseDetailsEditComponent,
-    ZaakLinkComponent,
-    ZaakDocumentenComponent,
-  ],
+  declarations: [BesluitEditComponent, BesluitViewComponent, ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
     ZakenWerkvoorraadComponent,

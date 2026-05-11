@@ -3,10 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, SlicePipe } from "@angular/common";
 import { SelectionModel } from "@angular/cdk/collections";
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { ComponentType } from "@angular/cdk/portal";
+import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -16,27 +23,34 @@ import {
   ViewChild,
 } from "@angular/core";
 import { MatBadge } from "@angular/material/badge";
-import { MatButton, MatIconAnchor, MatIconButton } from "@angular/material/button";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
 import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIcon } from "@angular/material/icon";
-import { MatPaginator, MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
-import { RouterLink } from "@angular/router";
-import { TranslatePipe } from "@ngx-translate/core";
-import { TranslateService } from "@ngx-translate/core";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
-import { ActivatedRoute } from "@angular/router";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { IdentityService } from "../../identity/identity.service";
-import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
+import { detailExpand } from "../../shared/animations/animations";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
@@ -56,7 +70,6 @@ import { TakenVerdelenDialogComponent } from "../taken-verdelen-dialog/taken-ver
 import { TakenVrijgevenDialogComponent } from "../taken-vrijgeven-dialog/taken-vrijgeven-dialog.component";
 import { TakenService } from "../taken.service";
 import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
-import { detailExpand } from "../../shared/animations/animations";
 
 @Component({
   templateUrl: "./taken-werkvoorraad.component.html",

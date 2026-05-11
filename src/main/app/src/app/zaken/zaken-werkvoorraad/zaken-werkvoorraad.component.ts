@@ -14,18 +14,33 @@ import {
 
 import { detailExpand } from "../../shared/animations/animations";
 
-import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, SlicePipe } from "@angular/common";
 import { SelectionModel } from "@angular/cdk/collections";
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { ComponentType } from "@angular/cdk/portal";
+import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
+import { MatBadge } from "@angular/material/badge";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
+import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatPaginator, MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import { MatIcon } from "@angular/material/icon";
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTable, MatTableModule } from "@angular/material/table";
-import { MatBadge } from "@angular/material/badge";
-import { MatButton, MatIconAnchor, MatIconButton } from "@angular/material/button";
-import { MatCheckbox } from "@angular/material/checkbox";
-import { MatIcon } from "@angular/material/icon";
 import { RouterLink } from "@angular/router";
 import { TranslatePipe } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";

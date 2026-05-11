@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { KeyValuePipe, NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
+import {
+  KeyValuePipe,
+  NgClass,
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+} from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -16,15 +23,19 @@ import {
 } from "@angular/core";
 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ReactiveFormsModule, FormControl } from "@angular/forms";
-import { MatFormField, MatLabel, MatSuffix } from "@angular/material/form-field";
-import { MatInput } from "@angular/material/input";
-import { MatSelect, MatOption } from "@angular/material/select";
-import { MatProgressBar } from "@angular/material/progress-bar";
-import { MatDividerModule } from "@angular/material/divider";
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
-import { MatIcon } from "@angular/material/icon";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import {
+  MatFormField,
+  MatLabel,
+  MatSuffix,
+} from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
+import { MatInput } from "@angular/material/input";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatProgressBar } from "@angular/material/progress-bar";
+import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslatePipe } from "@ngx-translate/core";
 import { merge, of, Subject, takeUntil } from "rxjs";
@@ -41,10 +52,10 @@ import { getDefaultZoekParameters } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
-import { ZoekenService } from "../zoeken.service";
 import { DocumentZoekObjectComponent } from "../zoek-object/document-zoek-object/document-zoek-object.component";
 import { TaakZoekObjectComponent } from "../zoek-object/taak-zoek-object/taak-zoek-object.component";
 import { ZaakZoekObjectComponent } from "../zoek-object/zaak-zoek-object/zaak-zoek-object.component";
+import { ZoekenService } from "../zoeken.service";
 import { DateFilterComponent } from "./filters/date-filter/date-filter.component";
 import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
 import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
