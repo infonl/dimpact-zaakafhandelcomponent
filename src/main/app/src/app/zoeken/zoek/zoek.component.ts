@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { KeyValuePipe, NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
+import { KeyValuePipe, NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -60,6 +60,7 @@ import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/
     DateFilterComponent,
     DocumentZoekObjectComponent,
     KeyValuePipe,
+    NgClass,
     MatDividerModule,
     MatFormField,
     MatIcon,
