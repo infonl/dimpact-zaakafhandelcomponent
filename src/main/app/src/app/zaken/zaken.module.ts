@@ -24,6 +24,7 @@ import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { BetrokkeneLinkComponent } from "./zaak-betrokkenen/betrokkene-link.component";
 import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
+
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
@@ -40,7 +41,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
 
 @NgModule({
   declarations: [
-    BesluitCreateComponent,
     BesluitEditComponent,
     BesluitViewComponent,
     ZaakViewComponent,
@@ -54,6 +54,7 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZakenWerkvoorraadComponent,
     NotitiesComponent,
     SharedModule,
+    ZaakDocumentenComponent,
     ZakenAfgehandeldComponent,
     ZakenMijnComponent,
     ZakenRoutingModule,
@@ -75,6 +76,10 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     BetrokkeneLinkComponent,
     ZaakInitiatorToevoegenComponent,
     ZaakTakenComponent,
+    BesluitCreateComponent,
+    CaseDetailsEditComponent,
+    ZaakCreateComponent,
+    ZaakLinkComponent,
   ],
 })
 export class ZakenModule {}

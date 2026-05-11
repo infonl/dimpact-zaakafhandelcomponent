@@ -4,6 +4,7 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -16,13 +17,18 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { FormControl, Validators } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
-import { Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { Router, RouterLink } from "@angular/router";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { map } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -40,8 +46,15 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
+import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -50,7 +63,31 @@ import { ZakenService } from "../zaken.service";
   templateUrl: "./zaak-documenten.component.html",
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatSortModule,
+    MatCheckbox,
+    MatIconModule,
+    MatIconAnchor,
+    MatIconButton,
+    MatMenuModule,
+    TranslatePipe,
+    DocumentIconComponent,
+    DocumentViewerComponent,
+    InformatieObjectIndicatiesComponent,
+    EmptyPipe,
+    BestandsomvangPipe,
+    DatumPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+  ],
 })
 export class ZaakDocumentenComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges

@@ -3,6 +3,27 @@
 **Progress: 15 remaining** (2026-05-11)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
+## Remaining Components
+
+- `app/app.component.ts`
+- `app/core/toolbar/toolbar.component.ts`
+- `app/dashboard/dashboard-card/dashboard-card.component.ts`
+- `app/dashboard/dashboard.component.ts`
+- `app/dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
+- `app/dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
+- `app/dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
+- `app/dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
+- `app/dashboard/zaken-card/zaken-card.component.ts`
+- `app/plan-items/human-task-do/human-task-do.component.ts`
+- `app/plan-items/process-task-do/process-task-do.component.ts`
+- `app/taken/taak-view/taak-view.component.ts`
+- `app/taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
+- `app/zaken/besluit-edit/besluit-edit.component.ts`
+- `app/zaken/besluit-view/besluit-view.component.ts`
+- `app/zaken/zaak-view/zaak-view.component.ts`
+- `app/zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
+- `app/zoeken/zoek/zoek.component.ts`
+
 ---
 
 ## ⛔ Hard Gates — NEVER skip, NEVER auto-proceed

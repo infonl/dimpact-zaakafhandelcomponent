@@ -8,11 +8,21 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MomentDateAdapter,
+} from "@angular/material-moment-adapter";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from "@angular/material/core";
 import { MatDatepickerInputHarness } from "@angular/material/datepicker/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import moment from "moment";
 import { of } from "rxjs";
@@ -21,9 +31,8 @@ import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../zaken.service";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen.component";
 
 describe(CaseDetailsEditComponent.name, () => {
@@ -34,6 +43,7 @@ describe(CaseDetailsEditComponent.name, () => {
   let referentieTabelService: ReferentieTabelService;
   let utilService: UtilService;
   let identityService: IdentityService;
+  let zakenService: ZakenService;
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
@@ -64,15 +74,37 @@ describe(CaseDetailsEditComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CaseDetailsEditComponent],
       imports: [
-        ReactiveFormsModule,
+        CaseDetailsEditComponent,
         TranslateModule.forRoot(),
-        MaterialFormBuilderModule,
-        MaterialModule,
         NoopAnimationsModule,
       ],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: DateAdapter,
+          useClass: MomentDateAdapter,
+          deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
+        },
+        {
+          provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+          useValue: { strict: false },
+        },
+        {
+          provide: MAT_DATE_FORMATS,
+          useValue: {
+            parse: { dateInput: "yyyy-MM-DD" },
+            display: {
+              dateInput: "yyyy-MM-DD",
+              monthYearLabel: "MMMM YYYY",
+              dateA11yLabel: "LL",
+              monthYearA11yLabel: "MMMM YYYY",
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CaseDetailsEditComponent);
@@ -82,6 +114,7 @@ describe(CaseDetailsEditComponent.name, () => {
     referentieTabelService = TestBed.inject(ReferentieTabelService);
     utilService = TestBed.inject(UtilService);
     identityService = TestBed.inject(IdentityService);
+    zakenService = TestBed.inject(ZakenService);
 
     // Mock service methods
     jest
@@ -97,7 +130,9 @@ describe(CaseDetailsEditComponent.name, () => {
     ]);
   });
 
-  const renderComponent = (zaakOverrides = {}) => {
+  const renderComponent = (
+    zaakOverrides: Partial<GeneratedType<"RestZaak">> = {},
+  ) => {
     const zaak = fromPartial<GeneratedType<"RestZaak">>({
       ...baseZaak,
       ...zaakOverrides,
@@ -116,19 +151,25 @@ describe(CaseDetailsEditComponent.name, () => {
       ${undefined}     | ${true}          | ${"servicenorm is undefined"}
       ${null}          | ${true}          | ${"servicenorm is null"}
       ${false}         | ${true}          | ${"servicenorm is false"}
-      ${0}             | ${true}          | ${"servicenorm is 0"}
-      ${30}            | ${false}         | ${"servicenorm is 30"}
-      ${1}             | ${false}         | ${"servicenorm is 1"}
+      ${true}          | ${false}         | ${"servicenorm is true"}
     `(
       "should disable einddatumGepland ($expectedDisabled) control when $description",
-      async ({ servicenormValue, expectedDisabled }) => {
+      async ({
+        servicenormValue,
+        expectedDisabled,
+      }: {
+        servicenormValue: boolean | null | undefined;
+        expectedDisabled: boolean;
+      }) => {
         // Arrange
         renderComponent({
           zaaktype: {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
             servicenorm: servicenormValue,
-          },
+          } as Partial<
+            GeneratedType<"RestZaaktype">
+          > as unknown as GeneratedType<"RestZaaktype">,
         });
 
         // Act
@@ -152,7 +193,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: false,
           wijzigenDoorlooptijd: true,
           toekennen: true,
-        },
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
       });
 
       // Act
@@ -172,7 +215,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: true,
           wijzigenDoorlooptijd: true,
           toekennen: false,
-        },
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
       });
 
       // Act
@@ -190,7 +235,9 @@ describe(CaseDetailsEditComponent.name, () => {
           wijzigen: true,
           wijzigenDoorlooptijd: false,
           toekennen: true,
-        },
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
         isProcesGestuurd: false,
       });
 
@@ -207,15 +254,19 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("date validation", () => {
-    const zaakWithAllDates = (startdatum: string) => ({
+    const zaakWithAllDates = (
+      startdatum: string,
+    ): Partial<GeneratedType<"RestZaak">> => ({
       startdatum,
       einddatumGepland: "2024-01-20",
       uiterlijkeEinddatumAfdoening: "2024-01-30",
       zaaktype: {
         uuid: "zaaktype-123",
         omschrijving: "Test zaaktype",
-        servicenorm: 30,
-      },
+        servicenorm: true,
+      } as Partial<
+        GeneratedType<"RestZaaktype">
+      > as unknown as GeneratedType<"RestZaaktype">,
     });
 
     describe("start-na-streef: startdatum after einddatumGepland", () => {
@@ -266,8 +317,10 @@ describe(CaseDetailsEditComponent.name, () => {
           zaaktype: {
             uuid: "zaaktype-123",
             omschrijving: "Test zaaktype",
-            servicenorm: 30,
-          },
+            servicenorm: true,
+          } as Partial<
+            GeneratedType<"RestZaaktype">
+          > as unknown as GeneratedType<"RestZaaktype">,
         });
 
         component["form"].controls.uiterlijkeEinddatumAfdoening.setValue(
@@ -430,13 +483,210 @@ describe(CaseDetailsEditComponent.name, () => {
         zaaktype: {
           uuid: "zaaktype-123",
           omschrijving: "Test zaaktype",
-          servicenorm: 30,
-        },
+          servicenorm: true,
+        } as Partial<
+          GeneratedType<"RestZaaktype">
+        > as unknown as GeneratedType<"RestZaaktype">,
       });
 
       component["form"].controls.startdatum.setValue(moment("2024-01-25"));
 
       expect(component["form"].valid).toBe(false);
+    });
+  });
+
+  describe("initialisation", () => {
+    it("maps vertrouwelijkheidaanduiding to the matching select option (case-insensitive)", () => {
+      renderComponent({ vertrouwelijkheidaanduiding: "OPENBAAR" });
+      expect(
+        component["form"].controls.vertrouwelijkheidaanduiding.value?.value,
+      ).toBe("openbaar");
+    });
+
+    it("patches toelichting from the zaak value", () => {
+      renderComponent({ toelichting: "een toelichting" });
+      expect(component["form"].controls.toelichting.value).toBe(
+        "een toelichting",
+      );
+    });
+  });
+
+  describe("reden field", () => {
+    it("is disabled on initialisation", () => {
+      renderComponent();
+      expect(component["form"].controls.reden.disabled).toBe(true);
+    });
+
+    it("becomes enabled when the form is marked dirty via a value change", () => {
+      renderComponent();
+      component["form"].controls.omschrijving.markAsDirty();
+      component["form"].controls.omschrijving.updateValueAndValidity();
+      expect(component["form"].controls.reden.enabled).toBe(true);
+    });
+  });
+
+  describe("groep valueChanges", () => {
+    it("loads users and enables behandelaar when a group is selected (toekennen=true)", async () => {
+      renderComponent();
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g2",
+        naam: "Groep 2",
+      });
+      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(
+        of([
+          fromPartial<GeneratedType<"RestUser">>({
+            id: "u1",
+            naam: "User 1",
+          }),
+        ]),
+      );
+      component["form"].controls.groep.setValue(group);
+      await fixture.whenStable();
+      expect(identityService.listUsersInGroup).toHaveBeenCalledWith("g2");
+      expect(component["form"].controls.behandelaar.enabled).toBe(true);
+    });
+
+    it("resets and disables behandelaar when groep is set to null", () => {
+      renderComponent();
+      component["form"].controls.groep.setValue(null);
+      expect(component["form"].controls.behandelaar.disabled).toBe(true);
+      expect(component["form"].controls.behandelaar.value).toBeNull();
+    });
+  });
+
+  describe("close and cancel buttons", () => {
+    it("calls sideNav.close() when the close icon-button is clicked", async () => {
+      renderComponent();
+      const buttons = await loader.getAllHarnesses(MatButtonHarness);
+      await buttons[0].click();
+      expect(mockSideNav.close).toHaveBeenCalled();
+    });
+
+    it("calls sideNav.close() when the cancel button is clicked", async () => {
+      renderComponent();
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.annuleren/ }),
+      );
+      await cancelButton.click();
+      expect(mockSideNav.close).toHaveBeenCalled();
+    });
+  });
+
+  describe("submit button", () => {
+    it("is disabled when the form is pristine", async () => {
+      renderComponent();
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.opslaan/ }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("is enabled when form is valid and dirty", async () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "G1",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([group]));
+      renderComponent({ groep: group });
+      await fixture.whenStable();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("een reden");
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.opslaan/ }),
+      );
+      expect(await submitButton.isDisabled()).toBe(false);
+    });
+  });
+
+  describe("onSubmit()", () => {
+    it("calls updateZaak and closes sideNav on success", async () => {
+      renderComponent();
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennen")
+        .mockReturnValue(of(undefined) as never);
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("een reden");
+
+      await component["onSubmit"](component["form"]);
+
+      expect(zakenService.updateZaak).toHaveBeenCalledWith(
+        "zaak-123",
+        expect.objectContaining({ reden: "een reden" }),
+      );
+      expect(mockSideNav.close).toHaveBeenCalled();
+    });
+
+    it("calls toekennenAanIngelogdeMedewerker when behandelaar equals the logged-in user", async () => {
+      // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
+      renderComponent();
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennenAanIngelogdeMedewerker")
+        .mockReturnValue(of(undefined) as never);
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "user-123",
+          naam: "User 123",
+        }),
+      );
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      await component["onSubmit"](component["form"]);
+
+      expect(zakenService.toekennenAanIngelogdeMedewerker).toHaveBeenCalled();
+    });
+
+    it("calls toekennen when behandelaar differs from the logged-in user", async () => {
+      // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
+      renderComponent();
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest
+        .spyOn(zakenService, "toekennen")
+        .mockReturnValue(of(undefined) as never);
+      component["form"].controls.behandelaar.enable();
+      component["form"].controls.behandelaar.setValue(
+        fromPartial<GeneratedType<"RestUser">>({
+          id: "other-user",
+          naam: "Other User",
+        }),
+      );
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      await component["onSubmit"](component["form"]);
+
+      expect(zakenService.toekennen).toHaveBeenCalled();
+    });
+
+    it("skips patchBehandelaar when behandelaar and groep are unchanged", async () => {
+      renderComponent();
+      jest
+        .spyOn(zakenService, "updateZaak")
+        .mockReturnValue(of(undefined) as never);
+      jest.spyOn(zakenService, "toekennen");
+      jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      await component["onSubmit"](component["form"]);
+
+      expect(zakenService.toekennen).not.toHaveBeenCalled();
+      expect(
+        zakenService.toekennenAanIngelogdeMedewerker,
+      ).not.toHaveBeenCalled();
     });
   });
 });
