@@ -170,6 +170,12 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `zaken/zaak-opschorten-dialog/zaak-opschorten-dialog.component.ts`
 - [x] `zaken/zaak-verlengen-dialog/zaak-verlengen-dialog.component.ts`
 
+### Batch 16 — claimed (branch: `temp/standalone-migration`)
+
+- [ ] `taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
+- [ ] `zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
+- [ ] `zoeken/zoek/zoek.component.ts`
+
 ## Colleague
 
 <!-- Add your claimed components here before starting a batch -->
