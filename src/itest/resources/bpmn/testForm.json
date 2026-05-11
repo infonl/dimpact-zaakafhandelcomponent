@@ -69,18 +69,29 @@
           "tableView": false,
           "components": [
             {
-              "label": "Template",
+              "label": "Smart Documents Template Group",
+              "type": "select",
+              "key": "SD_SmartDocuments_Group",
+              "input": true,
+              "widget": "html5",
+              "attributes": {
+                "ZAC_TYPE": "ZAC_smart_documents_template_groups"
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "Smart Documents Template",
               "type": "select",
               "key": "SD_SmartDocuments_Template",
               "input": true,
               "widget": "html5",
-              "dataSrc": "custom",
               "attributes": {
-                "ZAC_TYPE": "ZAC_smart_documents_template"
+                "ZAC_TYPE": "ZAC_smart_documents_template_group_templates"
               },
-              "properties": {
-                "SmartDocuments_Group": "Dimpact/OpenZaak"
-              }
+              "dataSrc": "custom",
+              "refreshOn": "SD_SmartDocuments_Group",
+              "clearOnRefresh": true
             },
             {
               "label": "Create",
@@ -91,12 +102,7 @@
               "key": "SD_SmartDocuments_Create",
               "type": "button",
               "event": "createDocument",
-              "input": true,
-              "properties": {
-                "SmartDocuments_Group": "Dimpact/OpenZaak",
-                "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "df964baf-d3fe-430a-b711-03e389041f20",
-                "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-              }
+              "input": true
             },
             {
               "label": "Documents",
