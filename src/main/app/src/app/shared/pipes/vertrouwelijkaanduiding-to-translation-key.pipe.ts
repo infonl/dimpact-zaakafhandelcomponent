@@ -8,6 +8,7 @@ import { GeneratedType } from "../utils/generated-types";
 
 @Pipe({
   name: "vertrouwelijkaanduidingToTranslationKey",
+  standalone: true,
 })
 export class VertrouwelijkaanduidingToTranslationKeyPipe
   implements PipeTransform
