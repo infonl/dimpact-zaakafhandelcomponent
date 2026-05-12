@@ -119,25 +119,26 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         When("the list human task plan items endpoint is called") {
             // it may take a while for the human task plan items list to be updated according to the
             // state of the zaak, so we wait a bit
-            lateinit var responseBody: String
+            lateinit var responseBodyJsonArray: JSONArray
             eventually(10.seconds) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
-                responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
+                val responseBody = response.toString()
+                logger.info { "Response: $response" }
                 response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
+                responseBodyJsonArray = JSONArray(responseBody)
                 // the zaak is in the behandelen phase, so there should be four human task plan items
                 // of which the first one is 'Goedkeuren'
-                JSONArray(responseBody).length() shouldBe 4
-                JSONArray(responseBody)[0].toString().run {
+                responseBodyJsonArray.length() shouldBe 4
+                responseBodyJsonArray[0].toString().run {
                     shouldContainJsonKeyValue("naam", "Goedkeuren")
                 }
             }
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
+                humanTaskItemGoedkeurenId = responseBodyJsonArray.getJSONObject(0).getString("id")
             }
         }
 
