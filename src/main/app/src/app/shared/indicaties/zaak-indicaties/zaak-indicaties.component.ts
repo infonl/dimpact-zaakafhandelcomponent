@@ -88,7 +88,7 @@ export class ZaakIndicatiesComponent
           );
           break;
         case "ONTVANGSTBEVESTIGING_NIET_VERSTUURD":
-          this.indicaties.push(new IndicatieItem(indicatie, "unsubscribe"));
+          if (!this.zaak?.bpmnProcessDefinition) this.indicaties.push(new IndicatieItem(indicatie, "unsubscribe"));
           break;
       }
     });
