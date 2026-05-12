@@ -24,7 +24,16 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { Observable, Subject, takeUntil } from "rxjs";
+import {
+  EMPTY,
+  map,
+  Observable,
+  ReplaySubject,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+} from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { IdentityService } from "../../identity/identity.service";
@@ -71,8 +80,9 @@ export class InformatieObjectCreateAttendedComponent
 
   private readonly destroy$ = new Subject<void>();
 
-  private informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
-    [];
+  private readonly informatieObjectTypes$ = new ReplaySubject<
+    GeneratedType<"RestInformatieobjecttype">[]
+  >(1);
 
   protected readonly form = this.formBuilder.group({
     templateGroup:
@@ -170,15 +180,22 @@ export class InformatieObjectCreateAttendedComponent
       });
 
     this.form.controls.template.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        if (!value?.informatieObjectTypeUUID) {
-          this.form.controls.informationObjectType.setValue(null);
-          this.form.controls.confidentiality.setValue(null);
-          return;
-        }
-
-        const infoObjectType = this.informatieObjectTypes.find(
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((value) => {
+          if (!value?.informatieObjectTypeUUID) {
+            this.form.controls.informationObjectType.setValue(null);
+            this.form.controls.confidentiality.setValue(null);
+            return EMPTY;
+          }
+          return this.informatieObjectTypes$.pipe(
+            take(1),
+            map((types) => ({ value, types })),
+          );
+        }),
+      )
+      .subscribe(({ value, types }) => {
+        const infoObjectType = types.find(
           (type) => type.uuid === value.informatieObjectTypeUUID,
         );
 
@@ -223,8 +240,9 @@ export class InformatieObjectCreateAttendedComponent
   private fetchInformatieobjecttypes() {
     this.informatieObjectenService
       .listInformatieobjecttypes(this.zaak.zaaktype.uuid)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((types) => {
-        this.informatieObjectTypes = types;
+        this.informatieObjectTypes$.next(types);
       });
   }
 
