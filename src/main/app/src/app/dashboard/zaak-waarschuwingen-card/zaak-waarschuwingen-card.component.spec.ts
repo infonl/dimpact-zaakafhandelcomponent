@@ -8,6 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
+import { MatSortHeaderHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -109,6 +110,36 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   it("wires up sort and paginator on the dataSource after view init", () => {
     expect(component.dataSource.sort).toBe(component.sort);
     expect(component.dataSource.paginator).toBe(component.paginator);
+  });
+
+  it("reorders rows ascending then descending when the identificatie sort header is clicked", async () => {
+    component.dataSource.data = [
+      makeZaak({ identificatie: "ZAAK-C" }),
+      makeZaak({ identificatie: "ZAAK-A" }),
+      makeZaak({ identificatie: "ZAAK-B" }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "zaak.identificatie" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).identificatie,
+      ),
+    );
+    expect(ascending).toEqual(["ZAAK-A", "ZAAK-B", "ZAAK-C"]);
+
+    await sortHeader.click();
+    const descending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).identificatie,
+      ),
+    );
+    expect(descending).toEqual(["ZAAK-C", "ZAAK-B", "ZAAK-A"]);
   });
 
   it("exposes the expected column definitions", () => {

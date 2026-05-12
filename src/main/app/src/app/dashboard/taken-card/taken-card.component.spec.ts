@@ -7,6 +7,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSortHeaderHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -119,6 +120,36 @@ describe(TakenCardComponent.name, () => {
   it("wires up sort and paginator on the dataSource after view init", () => {
     expect(component.dataSource.sort).toBe(component.sort);
     expect(component.dataSource.paginator).toBe(component.paginator);
+  });
+
+  it("reorders rows ascending then descending when the naam sort header is clicked", async () => {
+    component.dataSource.data = [
+      makeTaak({ naam: "Charlie" }),
+      makeTaak({ naam: "Alpha" }),
+      makeTaak({ naam: "Bravo" }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "naam" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).naam,
+      ),
+    );
+    expect(ascending).toEqual(["Alpha", "Bravo", "Charlie"]);
+
+    await sortHeader.click();
+    const descending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).naam,
+      ),
+    );
+    expect(descending).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
 
   it("exposes the expected column definitions", () => {
