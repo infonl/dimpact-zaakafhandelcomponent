@@ -117,26 +117,27 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         }
 
         When("the list human task plan items endpoint is called") {
-            Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                // it may take a while for the human task plan items list to be updated according to the
-                // state of the zaak, so we wait a bit
-                eventually(10.seconds) {
-                    val response = itestHttpClient.performGetRequest(
-                        url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
-                    )
-                    val responseBody = response.bodyAsString
-                    logger.info { "Response: $responseBody" }
-                    response.code shouldBe HTTP_OK
-                    responseBody.shouldBeJsonArray()
-                    // the zaak is in the behandelen phase, so there should be four human task plan items
-                    // of which the first one is 'Goedkeuren'
-                    JSONArray(responseBody).length() shouldBe 4
-                    JSONArray(responseBody)[0].toString().run {
-                        shouldContainJsonKeyValue("naam", "Goedkeuren")
-                    }
-                    humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
+            // it may take a while for the human task plan items list to be updated according to the
+            // state of the zaak, so we wait a bit
+            lateinit var responseBody: String
+            eventually(10.seconds) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
+                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                )
+                responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody.shouldBeJsonArray()
+                // the zaak is in the behandelen phase, so there should be four human task plan items
+                // of which the first one is 'Goedkeuren'
+                JSONArray(responseBody).length() shouldBe 4
+                JSONArray(responseBody)[0].toString().run {
+                    shouldContainJsonKeyValue("naam", "Goedkeuren")
                 }
+            }
+            Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
+                humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
 
