@@ -172,10 +172,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       freshRef.setInput("zaak", makeZaak());
       freshRef.setInput("smartDocumentsGroupPath", ["Group One"]);
       freshRef.setInput("smartDocumentsTemplateName", "Template One");
-      freshRef.setInput(
-        "smartDocumentsInformatieobjecttypeUuid",
-        "info-type-uuid",
-      );
 
       freshFixture.detectChanges();
       await freshFixture.whenStable();

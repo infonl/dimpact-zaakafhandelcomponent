@@ -65,7 +65,6 @@ export class InformatieObjectCreateAttendedComponent
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
   @Input({ required: false }) smartDocumentsTemplateName?: string;
-  @Input({ required: false }) smartDocumentsInformatieobjecttypeUuid?: string;
   @Input({ required: false }) smartDocumentsGroupId?: string;
   @Input({ required: false }) smartDocumentsTemplateId?: string;
   @Output() document = new EventEmitter<
@@ -140,13 +139,12 @@ export class InformatieObjectCreateAttendedComponent
     this.form.controls.confidentiality.disable();
 
     const templateGroupsFetcher: Observable<typeof this.templateGroups> =
-      this.smartDocumentsGroupPath &&
-      this.smartDocumentsTemplateName &&
-      this.smartDocumentsInformatieobjecttypeUuid
+      this.smartDocumentsGroupPath.length > 0 &&
+      this.smartDocumentsTemplateName !== undefined
         ? this.smartDocumentsService.getTemplateGroup(
             { path: this.smartDocumentsGroupPath },
             this.smartDocumentsTemplateName,
-            this.smartDocumentsInformatieobjecttypeUuid,
+            "",
           )
         : this.smartDocumentsService.getTemplatesMapping(
             this.zaak.zaaktype.uuid,
@@ -209,33 +207,35 @@ export class InformatieObjectCreateAttendedComponent
         );
       });
 
-    templateGroupsFetcher.subscribe((templateGroups) => {
-      this.templateGroups = templateGroups;
+    templateGroupsFetcher
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((templateGroups) => {
+        this.templateGroups = templateGroups;
 
-      if (this.smartDocumentsGroupId !== undefined) {
-        const smartDocumentsTemplateGroup = templateGroups.find(
-          ({ id }) => id === this.smartDocumentsGroupId,
-        );
-        if (smartDocumentsTemplateGroup) {
-          this.form.controls.templateGroup.setValue(
-            smartDocumentsTemplateGroup,
+        if (this.smartDocumentsGroupId !== undefined) {
+          const smartDocumentsTemplateGroup = templateGroups.find(
+            ({ id }) => id === this.smartDocumentsGroupId,
           );
-          this.form.controls.templateGroup.disable();
-          return;
+          if (smartDocumentsTemplateGroup) {
+            this.form.controls.templateGroup.setValue(
+              smartDocumentsTemplateGroup,
+            );
+            this.form.controls.templateGroup.disable();
+            return;
+          }
         }
-      }
 
-      const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
-        this.smartDocumentsGroupPath.includes(name),
-      );
-      if (!smartDocumentsTemplateGroup) return;
+        const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
+          this.smartDocumentsGroupPath.includes(name),
+        );
+        if (!smartDocumentsTemplateGroup) return;
 
-      this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
+        this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
 
-      if (templateGroups.length !== 1) return;
+        if (templateGroups.length !== 1) return;
 
-      this.form.controls.templateGroup.disable();
-    });
+        this.form.controls.templateGroup.disable();
+      });
   }
 
   private fetchInformatieobjecttypes() {
@@ -261,8 +261,6 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      informatieobjecttypeUuid:
-        this.smartDocumentsInformatieobjecttypeUuid ?? null,
       smartDocumentsTemplateName: this.smartDocumentsTemplateName ?? null,
       smartDocumentsTemplateGroupName:
         this.smartDocumentsGroupPath.at(-1) ?? null,

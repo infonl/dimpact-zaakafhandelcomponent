@@ -493,35 +493,7 @@ Example:
 ```
 
 #### Creating documents
-This requires two components:
-
-##### SmartDocuments template
-* A `select` component with:
-  * the attribute `ZAC_TYPE` of `ZAC_smart_documents_template`
-  * custom data source: `"dataSrc": "custom"`
-  * properties containing `SmartDocuments_Group`
-
-Example:
-```json
-{
-  "label": "Template",
-  "type": "select",
-  "key": "SD_SmartDocuments_Template",
-  "input": true,
-  "widget": "html5",
-  "validate": {
-    "required": true
-  },
-  "dataSrc": "custom",
-  "attributes": {
-    "ZAC_TYPE": "ZAC_smart_documents_template"
-  },
-  "properties": {
-    "SmartDocuments_Group": "Dimpact/OpenZaak"
-  },
-  "clearOnRefresh": true
-}
-```
+This requires these components:
 
 ##### Listing SmartDocuments template groups linked to the current zaaktype
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`
@@ -530,7 +502,7 @@ Example:
 {
   "label": "Template Group",
   "type": "select",
-  "key": "SmartDocuments_Template_Group",
+  "key": "SmartDocuments_Group",
   "input": true,
   "dataSrc": "custom",
   "clearOnRefresh": true,
@@ -552,7 +524,7 @@ Example:
   "dataSrc": "custom",
   "clearOnRefresh": true,
   "input": true,
-  "refreshOn": "SmartDocuments_Template_Group",
+  "refreshOn": "SmartDocuments_Group",
   "attributes": {
     "ZAC_TYPE": "ZAC_smart_documents_template_group_templates"
   }
@@ -576,12 +548,7 @@ Example:
   "key": "SD_SmartDocuments_Create",
   "type": "button",
   "event": "createDocument",
-  "input": true,
-  "properties": {
-    "SmartDocuments_Group": "Dimpact/OpenZaak",
-    "SmartDocuments_Data_Test_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad",
-    "SmartDocuments_OpenZaakTest_InformatieobjecttypeUuid": "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
-  }
+  "input": true
 }
 ```
 
