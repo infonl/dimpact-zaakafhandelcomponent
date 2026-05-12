@@ -389,7 +389,11 @@ export class TaakViewComponent
         this.menu.push(
           new ButtonMenuItem(
             "actie.document.maken",
-            () => this.actionsSidenav.open(),
+            () => {
+              this.smartDocumentsGroupId = undefined;
+              this.smartDocumentsTemplateId = undefined;
+              this.actionsSidenav.open();
+            },
             "note_add",
           ),
         );
