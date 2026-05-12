@@ -7,6 +7,7 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldBeJsonArray
 import io.kotest.assertions.json.shouldContainJsonKeyValue
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -28,6 +29,7 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * This test creates a zaak, adds a task to complete the intake phase, then adds a document, starts the 'Goedkeuren' task
@@ -115,22 +117,26 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         }
 
         When("the list human task plan items endpoint is called") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
-            )
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                responseBody.shouldBeJsonArray()
-                // the zaak is in the behandelen phase, so there should be four human task plan items
-                // of which the first one is 'Goedkeuren'
-                JSONArray(responseBody).length() shouldBe 4
-                JSONArray(responseBody)[0].toString().run {
-                    shouldContainJsonKeyValue("naam", "Goedkeuren")
+                // it may take a while for the human task plan items list to be updated according to the
+                // state of the zaak, so we wait a bit
+                eventually(10.seconds) {
+                    val response = itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
+                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    )
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody.shouldBeJsonArray()
+                    // the zaak is in the behandelen phase, so there should be four human task plan items
+                    // of which the first one is 'Goedkeuren'
+                    JSONArray(responseBody).length() shouldBe 4
+                    JSONArray(responseBody)[0].toString().run {
+                        shouldContainJsonKeyValue("naam", "Goedkeuren")
+                    }
+                    humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
                 }
-                humanTaskItemGoedkeurenId = JSONArray(responseBody).getJSONObject(0).getString("id")
             }
         }
 
