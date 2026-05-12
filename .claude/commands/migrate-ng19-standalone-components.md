@@ -1,7 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 18 remaining** (2026-05-11)
-_(excludes `shared/material-form-builder/` subtree and `shared/form/documents.ts`, `shared/form/file.ts`, `shared/form/form.ts`, `shared/form/html-editor/html-editor.ts` — all MFB, being phased out)_
+**Progress: 15 remaining** (2026-05-11)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ## Remaining Components
@@ -198,6 +197,14 @@ Solves PZ-XXXXX
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
 
+### Patterns added in batch-16
+| Pattern | Detail |
+|---|---|
+| `provideNativeDateAdapter()` in spec providers | Required when any child component uses `DateRangeFilterComponent` (which includes `MatDateRangeInput`) |
+| `RouterModule` in spec imports (not `provideRouter([])`) | `provideRouter([])` bypasses `{ provide: ActivatedRoute, useValue: mock }` and breaks `WerklijstComponent.ngOnInit`; `RouterModule` respects the mock |
+| `setQueryData(key, undefined)` doesn't update TanStack signal | In TanStack Query v5, setting query data to `undefined` is a no-op for the signal; test with `null` instead to assert the null guard |
+| `overrideComponent(Comp, { set: { template: "", imports: [] } })` | For complex standalone components with many child deps: override template to empty and clear imports to simplify test setup |
+
 ---
 
 ---
@@ -208,6 +215,7 @@ TBD — run step 0 (claims check) at start of next session.
 |---|---|---|
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
 | batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
+| batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
 
 ---
 

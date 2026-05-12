@@ -22,9 +22,10 @@ import { ZaakBetrokkeneFilterComponent } from "./zoek/filters/zaak-betrokkene-fi
 import { ZoekComponent } from "./zoek/zoek.component";
 
 @NgModule({
-  declarations: [ZoekComponent],
+  declarations: [],
   exports: [ZoekComponent],
   imports: [
+    ZoekComponent,
     SharedModule,
     KlantenModule,
     RouterLink,

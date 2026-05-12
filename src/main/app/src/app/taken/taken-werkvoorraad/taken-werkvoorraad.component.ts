@@ -3,6 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { SelectionModel } from "@angular/cdk/collections";
+import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
+import { ComponentType } from "@angular/cdk/portal";
+import {
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+  SlicePipe,
+} from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -11,28 +22,46 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-
-import { detailExpand } from "../../shared/animations/animations";
-
-import { SelectionModel } from "@angular/cdk/collections";
-import { ComponentType } from "@angular/cdk/portal";
+import { MatBadge } from "@angular/material/badge";
+import {
+  MatButton,
+  MatIconAnchor,
+  MatIconButton,
+} from "@angular/material/button";
+import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTable } from "@angular/material/table";
-import { ActivatedRoute } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { MatIcon } from "@angular/material/icon";
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from "@angular/material/paginator";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTable, MatTableModule } from "@angular/material/table";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ObjectType } from "src/app/core/websocket/model/object-type";
 import { Opcode } from "src/app/core/websocket/model/opcode";
 import { BatchProcessService } from "src/app/shared/batch-progress/batch-process.service";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
 import { IdentityService } from "../../identity/identity.service";
+import { detailExpand } from "../../shared/animations/animations";
 import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
+import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { DagenPipe } from "../../shared/pipes/dagen.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -46,21 +75,52 @@ import { TakenWerkvoorraadDatasource } from "./taken-werkvoorraad-datasource";
   templateUrl: "./taken-werkvoorraad.component.html",
   styleUrls: ["./taken-werkvoorraad.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CdkDrag,
+    CdkDropList,
+    DagenPipe,
+    DateRangeFilterComponent,
+    DatumPipe,
+    EmptyPipe,
+    ExportButtonComponent,
+    FacetFilterComponent,
+    MatBadge,
+    MatButton,
+    MatCheckbox,
+    MatIcon,
+    MatIconAnchor,
+    MatIconButton,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTableModule,
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    RouterLink,
+    SlicePipe,
+    StaticTextComponent,
+    TekstFilterComponent,
+    TranslatePipe,
+    ZoekopdrachtComponent,
+    ColumnPickerComponent,
+  ],
 })
 export class TakenWerkvoorraadComponent
   extends WerklijstComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
-  selection = new SelectionModel<TaakZoekObject>(true, []);
-  dataSource: TakenWerkvoorraadDatasource;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<TaakZoekObject>;
-  expandedRow: TaakZoekObject | null = null;
-  readonly zoekenColumn = ZoekenColumn;
+  protected selection = new SelectionModel<TaakZoekObject>(true, []);
+  protected dataSource: TakenWerkvoorraadDatasource;
+  @ViewChild(MatPaginator) private paginator!: MatPaginator;
+  @ViewChild(MatSort) private sort!: MatSort;
+  @ViewChild(MatTable) private table!: MatTable<TaakZoekObject>;
+  protected expandedRow: TaakZoekObject | null = null;
+  protected readonly zoekenColumn = ZoekenColumn;
 
-  fataledatumIcon = new TextIcon(
+  protected fataledatumIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.isExceeded),
     "report_problem",
     "warningVerlopen_icon",
@@ -68,8 +128,8 @@ export class TakenWerkvoorraadComponent
     "error",
   );
 
-  takenLoading = signal(false);
-  toekenning?: {
+  protected takenLoading = signal(false);
+  private toekenning?: {
     groep?: GeneratedType<"RestGroup">;
     medewerker?: GeneratedType<"RestUser">;
   };
@@ -79,13 +139,13 @@ export class TakenWerkvoorraadComponent
   );
 
   constructor(
-    public route: ActivatedRoute,
+    public override route: ActivatedRoute,
     private takenService: TakenService,
-    public utilService: UtilService,
+    protected utilService: UtilService,
     private identityService: IdentityService,
-    public dialog: MatDialog,
+    private dialog: MatDialog,
     private zoekenService: ZoekenService,
-    public gebruikersvoorkeurenService: GebruikersvoorkeurenService,
+    public override gebruikersvoorkeurenService: GebruikersvoorkeurenService,
     private translateService: TranslateService,
     private batchProcessService: BatchProcessService,
   ) {
@@ -95,18 +155,19 @@ export class TakenWerkvoorraadComponent
       this.utilService,
     );
   }
-  ngOnInit(): void {
+
+  override ngOnInit() {
     super.ngOnInit();
     this.utilService.setTitle("title.taken.werkvoorraad");
     this.dataSource.initColumns(this.defaultColumns());
   }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.dataSource.setViewChilds(this.paginator, this.sort);
     this.table.dataSource = this.dataSource;
   }
 
-  showAssignToMe(taakZoekObject: TaakZoekObject) {
+  protected showAssignToMe(taakZoekObject: TaakZoekObject) {
     if (!taakZoekObject.rechten.toekennen) return false;
     const loggedInUser = this.loggedInUserQuery.data();
     if (!loggedInUser) return false;
@@ -115,7 +176,7 @@ export class TakenWerkvoorraadComponent
     return loggedInUser.groupIds?.includes(taakZoekObject.groepID) ?? false;
   }
 
-  assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
+  protected assignToMe(taakZoekObject: TaakZoekObject, event: MouseEvent) {
     event.stopPropagation();
     this.takenService
       .toekennenAanIngelogdeMedewerkerVanuitLijst({
@@ -134,15 +195,13 @@ export class TakenWerkvoorraadComponent
       });
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected(): boolean {
+  protected isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggle() {
+  protected masterToggle() {
     if (this.isAllSelected()) {
       this.selection.clear();
       return;
@@ -150,8 +209,7 @@ export class TakenWerkvoorraadComponent
     this.selection.select(...this.dataSource.data);
   }
 
-  /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: TaakZoekObject): string {
+  protected checkboxLabel(row?: TaakZoekObject): string {
     if (!row) {
       return `actie.alles.${
         this.isAllSelected() ? "deselecteren" : "selecteren"
@@ -163,30 +221,30 @@ export class TakenWerkvoorraadComponent
     }`;
   }
 
-  isSelected(): boolean {
+  protected isSelected(): boolean {
     return this.selection.selected.length > 0;
   }
 
-  countSelected(checkIfTaskHasHandler = false): number {
+  protected countSelected(checkIfTaskHasHandler = false): number {
     return this.selection.selected.filter(
       ({ behandelaarGebruikersnaam }) =>
         !checkIfTaskHasHandler || !!behandelaarGebruikersnaam,
     ).length;
   }
 
-  openVerdelenScherm() {
+  protected openVerdelenScherm() {
     this.handleAssignOrReleaseWorkflow(TakenVerdelenDialogComponent);
   }
 
-  openVrijgevenScherm() {
+  protected openVrijgevenScherm() {
     this.handleAssignOrReleaseWorkflow(TakenVrijgevenDialogComponent, true);
   }
 
-  isAfterDate(datum: Date) {
+  protected isAfterDate(datum: Date) {
     return DateConditionals.isExceeded(datum);
   }
 
-  defaultColumns(): Map<ZoekenColumn, ColumnPickerValue> {
+  protected defaultColumns(): Map<ZoekenColumn, ColumnPickerValue> {
     const columns = new Map([
       [ZoekenColumn.SELECT, ColumnPickerValue.STICKY],
       [ZoekenColumn.NAAM, ColumnPickerValue.VISIBLE],
@@ -208,20 +266,20 @@ export class TakenWerkvoorraadComponent
     return columns;
   }
 
-  getWerklijst(): GeneratedType<"Werklijst"> {
+  override getWerklijst(): GeneratedType<"Werklijst"> {
     return "WERKVOORRAAD_TAKEN";
   }
 
-  paginatorChanged($event: PageEvent): void {
+  protected override paginatorChanged($event: PageEvent) {
     super.paginatorChanged($event);
     this.selection.clear();
   }
 
-  resetColumns(): void {
+  protected resetColumns() {
     this.dataSource.resetColumns();
   }
 
-  filtersChange(): void {
+  protected filtersChange() {
     this.selection.clear();
     this.dataSource.filtersChanged();
   }
@@ -301,7 +359,7 @@ export class TakenWerkvoorraadComponent
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Make sure when returning to this component, the very first page is loaded
     this.dataSource.zoekopdrachtResetToFirstPage();
   }
