@@ -104,18 +104,24 @@ class KlantRestService @Inject constructor(
         }
     }
 
+    /**
+     * Read a vestiging by vestigingnummer.
+     *
+     * This endpoint is provided for legacy reasons.
+     * Prefer using [readVestigingByVestigingsnummerAndKvkNummer] if possible.
+     */
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestigingByVestigingsnummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
-    ) = getVestiging(vestigingsnummer, null)
+    ) = readVestiging(vestigingsnummer, null)
 
     @GET
     @Path("vestiging/{vestigingsnummer}/{kvkNummer}")
     fun readVestigingByVestigingsnummerAndKvkNummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
         @PathParam("kvkNummer") kvkNummer: String
-    ) = getVestiging(vestigingsnummer, kvkNummer)
+    ) = readVestiging(vestigingsnummer, kvkNummer)
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
@@ -128,6 +134,7 @@ class KlantRestService @Inject constructor(
 
     /**
      * Read a rechtspersoon by RSIN.
+     * TODO: without contact details because this is not supported for RSINs.
      *
      * This endpoint is provided for legacy reasons.
      * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] where possible.
@@ -137,7 +144,6 @@ class KlantRestService @Inject constructor(
     fun readRechtspersoonByRsin(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoonByRsin(rsin)
             ?.toRestBedrijf()
-            ?.copy(kvkNummer = null)
             ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
 
     /**
@@ -146,9 +152,16 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("rechtspersoon/kvknummer/{kvkNummer}")
     fun readRechtspersoonByKvkNummer(@PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String): RestBedrijf =
-        kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
-            ?.toRestBedrijf()
-            ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+        runBlocking {
+            // run the two client calls concurrently in a coroutine scope,
+            // so we do not need to wait for the first call to complete
+            withContext(Dispatchers.IO) {
+                val rechtspersoon = kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
+                // TODO: get contactdetails for rechtspersoon from Open Klant
+                rechtspersoon?.toRestBedrijf()
+                    ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+            }
+        }
 
     @GET
     @Path("personen/parameters")
@@ -221,7 +234,7 @@ class KlantRestService @Inject constructor(
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
-    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
+    private fun readVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {

@@ -13,7 +13,7 @@ export class BetrokkeneIdentificatie
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
   /**
-   * @deprecated - use `kvkNummer` or `rsin` instead
+   * @deprecated - use `kvkNummer` instead
    *
    * This should only be used for backwards compatibility and fetching data from the API.
    */
