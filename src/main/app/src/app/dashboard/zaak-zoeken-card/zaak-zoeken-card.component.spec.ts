@@ -51,8 +51,8 @@ function buildExpectedQueryKey() {
   const params = ZakenMijnDatasource.mijnLopendeZaken(
     getDefaultZoekParameters(),
   );
-  params.sorteerVeld = "ZAAK_STREEFDATUM";
-  params.sorteerRichting = "asc";
+  params.sorteerVeld = "ZAAK_STARTDATUM";
+  params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
   return ["zaak zoeken dashboard", params];
@@ -141,5 +141,26 @@ describe(ZaakZoekenCardComponent.name, () => {
     fixture.componentInstance.onPageChange({ pageIndex: 2 });
 
     expect(fixture.componentInstance.pageNumber()).toBe(2);
+  });
+
+  it("propagates sort changes to zoekParameters and resets pagination", () => {
+    createComponent();
+
+    fixture.componentInstance.onPageChange({ pageIndex: 2 });
+    expect(fixture.componentInstance.pageNumber()).toBe(2);
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_IDENTIFICATIE",
+      direction: "asc",
+    });
+
+    expect(fixture.componentInstance.sortField()).toBe("ZAAK_IDENTIFICATIE");
+    expect(fixture.componentInstance.sortDirection()).toBe("asc");
+    expect(fixture.componentInstance.pageNumber()).toBe(0);
+    expect(fixture.componentInstance.zoekParameters()).toMatchObject({
+      sorteerVeld: "ZAAK_IDENTIFICATIE",
+      sorteerRichting: "asc",
+      page: 0,
+    });
   });
 });

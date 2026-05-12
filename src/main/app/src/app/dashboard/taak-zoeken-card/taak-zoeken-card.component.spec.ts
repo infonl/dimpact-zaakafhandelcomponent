@@ -51,8 +51,8 @@ function buildExpectedQueryKey() {
   const params = TakenMijnDatasource.mijnLopendeTaken(
     getDefaultZoekParameters(),
   );
-  params.sorteerVeld = "TAAK_FATALEDATUM";
-  params.sorteerRichting = "asc";
+  params.sorteerVeld = "TAAK_CREATIEDATUM";
+  params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
   return ["taak zoeken dashboard", params];
@@ -143,5 +143,26 @@ describe(TaakZoekenCardComponent.name, () => {
     fixture.componentInstance.onPageChange({ pageIndex: 3 });
 
     expect(fixture.componentInstance.pageNumber()).toBe(3);
+  });
+
+  it("propagates sort changes to zoekParameters and resets pagination", () => {
+    createComponent();
+
+    fixture.componentInstance.onPageChange({ pageIndex: 3 });
+    expect(fixture.componentInstance.pageNumber()).toBe(3);
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "TAAK_NAAM",
+      direction: "asc",
+    });
+
+    expect(fixture.componentInstance.sortField()).toBe("TAAK_NAAM");
+    expect(fixture.componentInstance.sortDirection()).toBe("asc");
+    expect(fixture.componentInstance.pageNumber()).toBe(0);
+    expect(fixture.componentInstance.zoekParameters()).toMatchObject({
+      sorteerVeld: "TAAK_NAAM",
+      sorteerRichting: "asc",
+      page: 0,
+    });
   });
 });
