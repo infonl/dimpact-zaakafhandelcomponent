@@ -290,6 +290,28 @@ describe(TaakEditComponent.name, () => {
     });
   });
 
+  describe("groupDisplayValue", () => {
+    it("returns the group naam when the group is active", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Active Group", active: true });
+      expect(component["groupDisplayValue"](group)).toBe("Active Group");
+    });
+
+    it("appends (inactief) when the group is inactive", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Inactive Group", active: false });
+      expect(component["groupDisplayValue"](group)).toBe(
+        "Inactive Group (inactief)",
+      );
+    });
+
+    it("returns the group naam when active is undefined", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Unknown Group", active: undefined });
+      expect(component["groupDisplayValue"](group)).toBe("Unknown Group");
+    });
+  });
+
   describe("formSubmit", () => {
     it("sends a PATCH request to /rest/taken/toekennen with the correct payload", async () => {
       const task = makeTask({

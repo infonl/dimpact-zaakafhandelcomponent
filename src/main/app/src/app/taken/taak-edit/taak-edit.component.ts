@@ -49,7 +49,7 @@ export class TaakEditComponent {
     group: GeneratedType<"RestGroup">,
   ): string =>
     group.active === false
-      ? `${group.naam} (${this.translateService.instant("inactief").toLowerCase()})`
+      ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
 
   protected readonly mutation = injectMutation(() => ({
