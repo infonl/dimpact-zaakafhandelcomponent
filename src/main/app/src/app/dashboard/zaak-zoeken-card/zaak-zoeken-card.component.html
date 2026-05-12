@@ -6,8 +6,8 @@
 <div class="table-wrapper" [ngClass]="{ loading: zoekQuery.isLoading() }">
   <table
     mat-table
-    [dataSource]="dataSource"
     matSort
+    [dataSource]="dataSource"
     [matSortActive]="sortField()"
     [matSortDirection]="sortDirection()"
   >
