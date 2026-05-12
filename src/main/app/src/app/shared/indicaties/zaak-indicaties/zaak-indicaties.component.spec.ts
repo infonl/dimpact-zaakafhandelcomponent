@@ -147,14 +147,14 @@ describe(ZaakIndicatiesComponent.name, () => {
     expect(component["indicaties"][0].primary).toBe(false);
   });
 
-  it("ONTVANGSTBEVESTIGING_NIET_VERSTUURD → not shown when bpmnProcessDefinition is set", () => {
+  it("ONTVANGSTBEVESTIGING_NIET_VERSTUURD → not shown when isProcessGestuurd is set", () => {
     component.ngOnChanges({
       zaak: new SimpleChange(
         undefined,
         {
           ...mockZaakBase,
           indicaties: ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
-          bpmnProcessDefinition: "some-process",
+            isProcesGestuurd: true,
         },
         true,
       ),
