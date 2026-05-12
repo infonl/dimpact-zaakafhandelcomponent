@@ -125,7 +125,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                     url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/humanTaskPlanItems",
                     testUser = BEHANDELAAR_DOMAIN_TEST_1
                 )
-                val responseBody = response.toString()
+                val responseBody = response.bodyAsString
                 logger.info { "Response: $response" }
                 response.code shouldBe HTTP_OK
                 responseBody.shouldBeJsonArray()
