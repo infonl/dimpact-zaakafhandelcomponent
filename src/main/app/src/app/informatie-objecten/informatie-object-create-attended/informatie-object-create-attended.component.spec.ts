@@ -154,31 +154,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       );
     });
 
-    it("should call getTemplateGroup when all three SmartDocuments inputs are set", async () => {
-      const getTemplateGroupSpy = jest
-        .spyOn(smartDocumentsService, "getTemplateGroup")
-        .mockReturnValue(
-          of(mockTemplateGroups) as ReturnType<
-            typeof smartDocumentsService.getTemplateGroup
-          >,
-        );
-
-      // Need a fresh fixture with all inputs set before ngOnInit runs
-      const freshFixture = TestBed.createComponent(
-        InformatieObjectCreateAttendedComponent,
-      );
-      const freshRef = freshFixture.componentRef;
-      freshRef.setInput("sideNav", mockSideNav);
-      freshRef.setInput("zaak", makeZaak());
-      freshRef.setInput("smartDocumentsGroupPath", ["Group One"]);
-      freshRef.setInput("smartDocumentsTemplateName", "Template One");
-
-      freshFixture.detectChanges();
-      await freshFixture.whenStable();
-
-      expect(getTemplateGroupSpy).toHaveBeenCalled();
-    });
-
     it("should auto-select and disable the templateGroup when smartDocumentsGroupId matches", async () => {
       const freshFixture = TestBed.createComponent(
         InformatieObjectCreateAttendedComponent,

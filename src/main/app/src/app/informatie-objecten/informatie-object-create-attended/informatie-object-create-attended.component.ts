@@ -63,8 +63,6 @@ export class InformatieObjectCreateAttendedComponent
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
-  @Input({ required: false }) smartDocumentsTemplateName?: string;
   @Input({ required: false }) smartDocumentsGroupId?: string;
   @Input({ required: false }) smartDocumentsTemplateId?: string;
   @Output() document = new EventEmitter<
@@ -139,16 +137,7 @@ export class InformatieObjectCreateAttendedComponent
     this.form.controls.confidentiality.disable();
 
     const templateGroupsFetcher: Observable<typeof this.templateGroups> =
-      this.smartDocumentsGroupPath.length > 0 &&
-      this.smartDocumentsTemplateName !== undefined
-        ? this.smartDocumentsService.getTemplateGroup(
-            { path: this.smartDocumentsGroupPath },
-            this.smartDocumentsTemplateName,
-            "",
-          )
-        : this.smartDocumentsService.getTemplatesMapping(
-            this.zaak.zaaktype.uuid,
-          );
+      this.smartDocumentsService.getTemplatesMapping(this.zaak.zaaktype.uuid);
 
     this.form.controls.templateGroup.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -225,13 +214,6 @@ export class InformatieObjectCreateAttendedComponent
           }
         }
 
-        const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
-          this.smartDocumentsGroupPath.includes(name),
-        );
-        if (!smartDocumentsTemplateGroup) return;
-
-        this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
-
         if (templateGroups.length !== 1) return;
 
         this.form.controls.templateGroup.disable();
@@ -261,9 +243,6 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      smartDocumentsTemplateName: this.smartDocumentsTemplateName ?? null,
-      smartDocumentsTemplateGroupName:
-        this.smartDocumentsGroupPath.at(-1) ?? null,
       zaakUuid: this.zaak.uuid,
       taskId: this.taak?.id,
     };
