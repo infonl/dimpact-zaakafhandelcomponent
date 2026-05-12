@@ -95,7 +95,7 @@ describe(InformatieobjectenCardComponent.name, () => {
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(docs));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual(docs);
   });
@@ -105,7 +105,7 @@ describe(InformatieobjectenCardComponent.name, () => {
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(null as never));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual([]);
   });
@@ -119,12 +119,15 @@ describe(InformatieobjectenCardComponent.name, () => {
     component.data = makeDashboardCard(undefined);
     component.dataSource.data = [makeInformatieobject()];
 
-    const afterLoad = jest.fn();
-    component["onLoad"](afterLoad);
+    component["onLoad"]();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
-    expect(afterLoad).toHaveBeenCalled();
+  });
+
+  it("wires up sort and paginator on the dataSource after view init", () => {
+    expect(component.dataSource.sort).toBe(component.sort);
+    expect(component.dataSource.paginator).toBe(component.paginator);
   });
 
   it("exposes the expected column definitions", () => {

@@ -101,9 +101,14 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
       .spyOn(zakenService, "listZaakWaarschuwingen")
       .mockReturnValue(of(zaken));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual(zaken);
+  });
+
+  it("wires up sort and paginator on the dataSource after view init", () => {
+    expect(component.dataSource.sort).toBe(component.sort);
+    expect(component.dataSource.paginator).toBe(component.paginator);
   });
 
   it("exposes the expected column definitions", () => {

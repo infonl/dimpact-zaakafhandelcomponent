@@ -47,10 +47,9 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     return DateConditionals.isExceeded(datum ?? null, actual);
   }
 
-  protected onLoad(afterLoad: () => void) {
+  protected onLoad() {
     this.zakenService.listZaakWaarschuwingen().subscribe((zaken) => {
       this.dataSource.data = zaken;
-      afterLoad();
     });
   }
 }

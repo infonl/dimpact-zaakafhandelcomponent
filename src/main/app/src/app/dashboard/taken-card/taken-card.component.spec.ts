@@ -96,7 +96,7 @@ describe(TakenCardComponent.name, () => {
       .spyOn(signaleringenService, "listTakenSignalering")
       .mockReturnValue(of(taken));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual(taken);
   });
@@ -110,12 +110,15 @@ describe(TakenCardComponent.name, () => {
     );
     component.dataSource.data = [makeTaak()];
 
-    const afterLoad = jest.fn();
-    component["onLoad"](afterLoad);
+    component["onLoad"]();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
-    expect(afterLoad).toHaveBeenCalled();
+  });
+
+  it("wires up sort and paginator on the dataSource after view init", () => {
+    expect(component.dataSource.sort).toBe(component.sort);
+    expect(component.dataSource.paginator).toBe(component.paginator);
   });
 
   it("exposes the expected column definitions", () => {
