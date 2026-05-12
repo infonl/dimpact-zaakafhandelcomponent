@@ -64,7 +64,6 @@ ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` 
 Available ZAC types are:
 * `ZAC_groep`
 * `ZAC_medewerker`
-* `ZAC_smart_documents_template`
 * `ZAC_smart_documents_template_groups`
 * `ZAC_smart_documents_template_group_templates`
 * `ZAC_referentie_tabel`
@@ -493,7 +492,7 @@ Example:
 ```
 
 #### Creating documents
-This requires these components:
+This requires these three components:
 
 ##### Listing SmartDocuments template groups linked to the current zaaktype
 * A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`
@@ -533,8 +532,6 @@ This requires these components:
 
 ##### Create document button
 * A `button` with:
-* SmartDocument properties
-  * `SmartDocuments_Group` needs to be set to the same value as in the template select component
 * custom event: `"event": "createDocument"`
 
 Example:
@@ -551,11 +548,6 @@ Example:
   "input": true
 }
 ```
-
-The path to the SmartDocuments group specifies which group of templates to list. For example: `root/nested` `group/with/more/nesting`.
-
-First, a lookup for the template-specific information object type (informatieobjecttype) UUID is attempted. If a template-specific UUID is not found, the default is used.
-The template name should be snake-case (`Data Test` becomes `Data_Test`).
 
 #### Listing attached documents
 * A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
