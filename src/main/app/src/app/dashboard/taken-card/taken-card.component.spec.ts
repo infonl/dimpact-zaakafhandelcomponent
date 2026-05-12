@@ -13,7 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -120,6 +120,13 @@ describe(TakenCardComponent.name, () => {
   it("wires up sort and paginator on the dataSource after view init", () => {
     expect(component.dataSource.sort).toBe(component.sort);
     expect(component.dataSource.paginator).toBe(component.paginator);
+  });
+
+  it("re-runs onLoad when the reload observable emits", () => {
+    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
+    spy.mockClear();
+    (component["reload"] as Subject<void>).next();
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("reorders rows ascending then descending when the naam sort header is clicked", async () => {
