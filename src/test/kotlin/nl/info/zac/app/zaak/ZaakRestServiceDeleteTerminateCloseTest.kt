@@ -152,6 +152,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
+        clearAllMocks()
     }
 
     Context("Deleting an initiator") {
@@ -223,7 +224,6 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
 
         Given("A zaak with a decision cannot be terminated. A bad request is returned") {
-            clearAllMocks()
             val zaakUuid = UUID.randomUUID()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(
@@ -251,7 +251,6 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         }
 
         Given("A zaak and managed zaakbeeindigreden") {
-            clearAllMocks()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)

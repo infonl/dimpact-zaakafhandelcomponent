@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -531,6 +532,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             has the BRP and KVK koppelingen disabled
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -653,6 +655,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             and zaaktypeCmmnConfiguration that have the KVK koppeling enabled 
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -753,6 +756,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             containing a betrokkene with initiator role that's not supported by the zaaktype
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -854,6 +858,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             containing a betrokkene with role initiator but no supported initiator identification
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -941,6 +946,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             not containing any betrokkenen
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1021,6 +1027,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             containing a list of supported betrokkenen including behandelaar but no initiator
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1253,6 +1260,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             with a default group, but an exception occurs when adding a zaakinformatieobject
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1326,6 +1334,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
 
         Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val formulierBron = createBron()
@@ -1367,6 +1376,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             and for which no zaaktype exists in the ZTC catalogus
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
@@ -1437,6 +1447,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             A productaanvraag-dimpact object that cannot be read from the objects client service
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
 
@@ -1465,6 +1476,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             but a BPMN definition for the productaanvraagtype
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
@@ -1598,6 +1610,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             A productaanvraag-dimpact object where both a CMMN mapping and a BPMN mapping exist for the productaanvraagtype
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakTypeUUID = UUID.randomUUID()
@@ -1659,6 +1672,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             and for which application-specific contact details are available
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1735,6 +1749,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             a BPMN definition for the productaanvraagtype, and application-specific contact details
             """
         ) {
+            clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
