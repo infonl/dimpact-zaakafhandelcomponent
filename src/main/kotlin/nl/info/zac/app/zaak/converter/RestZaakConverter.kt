@@ -156,7 +156,7 @@ class RestZaakConverter @Inject constructor(
                 if (statustype.isHeropend()) add(HEROPEND)
                 if (zaak.isOpgeschort()) add(OPSCHORTING)
                 if (zaak.isVerlengd()) add(VERLENGD)
-                if (!hasSentConfirmationOfReceipt) {
+                if (!hasSentConfirmationOfReceipt && bpmnProcessDefinition == null) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             },
