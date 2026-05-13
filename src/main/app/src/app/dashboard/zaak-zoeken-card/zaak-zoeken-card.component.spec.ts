@@ -97,13 +97,19 @@ describe(ZaakZoekenCardComponent.name, () => {
     fixture.componentInstance["reloader"]?.unsubscribe();
   }
 
-  it("renders paginator length from the query result total", async () => {
-    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(23));
+  it("renders paginator length from the query result total even when one page of rows is loaded", async () => {
+    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(25, 5));
 
     createComponent();
 
     const paginator = await loader.getHarness(MatPaginatorHarness);
-    expect(await paginator.getRangeLabel()).toContain("23");
+    expect(await paginator.getRangeLabel()).toContain("25");
+  });
+
+  it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
+    createComponent();
+
+    expect(fixture.componentInstance.dataSource.paginator).toBeFalsy();
   });
 
   it("populates the data source with rows from the query result", () => {
