@@ -150,7 +150,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
         identificationService = identificationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
