@@ -230,10 +230,6 @@ export class InformatieObjectCreateAttendedComponent
             return;
           }
         }
-
-        if (templateGroups.length !== 1) return;
-
-        this.form.controls.templateGroup.disable();
       });
   }
 
