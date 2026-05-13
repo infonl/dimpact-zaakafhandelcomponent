@@ -94,12 +94,14 @@ class KlantRestService @Inject constructor(
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
             }
+            val restPersoon = brpPersoon.await()?.toRestPersoon()
+                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                brpPersoon.await()?.toRestPersoon()?.apply {
+                restPersoon.apply {
                     telefoonnummer = contactDetails.telephoneNumber
                     emailadres = contactDetails.emailAddress
                     temporaryPersonId = requestedTemporaryPersonId
-                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+                }
             }
         }
     }
@@ -159,11 +161,13 @@ class KlantRestService @Inject constructor(
                 val klantRechtspersoonDigitalAddresses =
                     async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
                 val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
+                val restBedrijf = rechtspersoon.await()?.toRestBedrijf()
+                    ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
                 klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                    rechtspersoon.await()?.toRestBedrijf()?.apply {
+                    restBedrijf.apply {
                         emailadres = contactDetails.emailAddress
                         telefoonnummer = contactDetails.telephoneNumber
-                    } ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                    }
                 }
             }
         }
@@ -250,15 +254,16 @@ class KlantRestService @Inject constructor(
                         ?: emptyList()
                 }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                vestiging.await()?.toRestBedrijf()?.apply {
-                    if (kvkNummer == null) this.kvkNummer = null
-                    emailadres = contactDetails.emailAddress
-                    telefoonnummer = contactDetails.telephoneNumber
-                } ?: throw VestigingNotFoundException(
+            val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
+                ?: throw VestigingNotFoundException(
                     "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
                         (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
                 )
+            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                restBedrijf.apply {
+                    emailadres = contactDetails.emailAddress
+                    telefoonnummer = contactDetails.telephoneNumber
+                }
             }
         }
     }
