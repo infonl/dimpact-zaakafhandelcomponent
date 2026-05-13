@@ -47,9 +47,11 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
+import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
 import nl.info.zac.signalering.model.createSignaleringZoekParameters
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -223,6 +225,131 @@ class SignaleringServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("Three zaak signaleringen and a request to sort by identificatie ascending") {
+        val signaleringA = createSignalering()
+        val signaleringB = createSignalering()
+        val signaleringC = createSignalering()
+        val zaakA = createZaak()
+        val zaakB = createZaak()
+        val zaakC = createZaak()
+        val overzichtCharlie = createRESTZaakOverzicht().apply { identificatie = "ZAAK-C" }
+        val overzichtAlpha = createRESTZaakOverzicht().apply { identificatie = "ZAAK-A" }
+        val overzichtBravo = createRESTZaakOverzicht().apply { identificatie = "ZAAK-B" }
+        val pageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 2,
+            sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE,
+            sorteerRichting = "asc"
+        )
+        val loggedInUser = createLoggedInUser()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { typedQuery.resultList } returns listOf(signaleringA, signaleringB, signaleringC)
+
+        every { zrcClientService.readZaak(UUID.fromString(signaleringA.subject)) } returns zaakA
+        every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
+        every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
+        every { restZaakOverzichtConverter.convertForDisplay(zaakA, loggedInUser) } returns overzichtCharlie
+        every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtAlpha
+        every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtBravo
+
+        When("listing the first page") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                pageParameters,
+                loggedInUser
+            )
+
+            Then("results are sorted by identificatie ascending and sliced to the page size") {
+                result shouldBe listOf(overzichtAlpha, overzichtBravo)
+            }
+            Then("the JPA query is run without firstResult / maxResults — paging is applied in memory") {
+                verify(exactly = 0) {
+                    typedQuery.firstResult = any()
+                    typedQuery.maxResults = any()
+                }
+            }
+        }
+    }
+
+    Given("Three zaak signaleringen and a request to sort by startdatum descending on page 1 with two rows per page") {
+        val signaleringA = createSignalering()
+        val signaleringB = createSignalering()
+        val signaleringC = createSignalering()
+        val zaakA = createZaak()
+        val zaakB = createZaak()
+        val zaakC = createZaak()
+        val overzichtOld = createRESTZaakOverzicht().apply { startdatum = LocalDate.of(2024, 1, 1) }
+        val overzichtMid = createRESTZaakOverzicht().apply { startdatum = LocalDate.of(2025, 1, 1) }
+        val overzichtNew = createRESTZaakOverzicht().apply { startdatum = LocalDate.of(2026, 1, 1) }
+        val pageParameters = RestSignaleringPageParameters(
+            page = 1,
+            rows = 2,
+            sorteerVeld = SorteerVeld.ZAAK_STARTDATUM,
+            sorteerRichting = "desc"
+        )
+        val loggedInUser = createLoggedInUser()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { typedQuery.resultList } returns listOf(signaleringA, signaleringB, signaleringC)
+
+        every { zrcClientService.readZaak(UUID.fromString(signaleringA.subject)) } returns zaakA
+        every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
+        every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
+        every { restZaakOverzichtConverter.convertForDisplay(zaakA, loggedInUser) } returns overzichtMid
+        every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtNew
+        every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtOld
+
+        When("listing the second page") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                pageParameters,
+                loggedInUser
+            )
+
+            Then("results are sorted by startdatum descending and the second page is returned") {
+                result shouldBe listOf(overzichtOld)
+            }
+        }
+    }
+
     Given(
         """
         Two zaak signaleringen each with the same target and corresponding signalering zoek parameters with a subject type and subject

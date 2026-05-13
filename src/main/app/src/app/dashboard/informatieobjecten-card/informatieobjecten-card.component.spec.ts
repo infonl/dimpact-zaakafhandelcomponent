@@ -165,7 +165,7 @@ describe(InformatieobjectenCardComponent.name, () => {
     expect(component.columns).toEqual([
       "titel",
       "registratiedatumTijd",
-      "informatieobjectType",
+      "informatieobjectTypeOmschrijving",
       "auteur",
       "url",
     ]);
@@ -189,5 +189,87 @@ describe(InformatieobjectenCardComponent.name, () => {
 
     const table = await loader.getHarness(MatTableHarness);
     expect((await table.getRows()).length).toBe(0);
+  });
+
+  it("exposes mat-sort-header on every data column so client-side sorting stays clickable", async () => {
+    const headers = await loader.getAllHarnesses(MatSortHeaderHarness);
+    const labels = await Promise.all(headers.map((header) => header.getLabel()));
+
+    expect(labels).toEqual([
+      "documenttitel",
+      "registratiedatumTijd",
+      "informatieobjectTypeOmschrijving",
+      "auteur",
+    ]);
+  });
+
+  it("sorts on the documenttype column end-to-end so the renamed field reorders rows", async () => {
+    component.dataSource.data = [
+      makeInformatieobject({
+        titel: "Charlie",
+        informatieobjectTypeOmschrijving: "Brief",
+      }),
+      makeInformatieobject({
+        titel: "Alpha",
+        informatieobjectTypeOmschrijving: "Aanvraag",
+      }),
+      makeInformatieobject({
+        titel: "Bravo",
+        informatieobjectTypeOmschrijving: "Contract",
+      }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "informatieobjectTypeOmschrijving" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).titel,
+      ),
+    );
+    expect(ascending).toEqual(["Alpha", "Charlie", "Bravo"]);
+  });
+
+  it("sorts on a date column (registratiedatumTijd) end-to-end", async () => {
+    component.dataSource.data = [
+      makeInformatieobject({
+        titel: "Mid",
+        registratiedatumTijd: "2025-06-15T10:00:00Z",
+      }),
+      makeInformatieobject({
+        titel: "Oud",
+        registratiedatumTijd: "2024-01-01T10:00:00Z",
+      }),
+      makeInformatieobject({
+        titel: "Nieuw",
+        registratiedatumTijd: "2026-03-20T10:00:00Z",
+      }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "registratiedatumTijd" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).titel,
+      ),
+    );
+    expect(ascending).toEqual(["Oud", "Mid", "Nieuw"]);
+
+    await sortHeader.click();
+    const descending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).titel,
+      ),
+    );
+    expect(descending).toEqual(["Nieuw", "Mid", "Oud"]);
   });
 });

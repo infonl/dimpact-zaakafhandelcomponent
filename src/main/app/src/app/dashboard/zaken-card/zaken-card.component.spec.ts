@@ -82,6 +82,8 @@ describe(ZakenCardComponent.name, () => {
       signaleringType: cardData.signaleringType,
       page: 0,
       pageSize: 5,
+      sorteerVeld: null,
+      sorteerRichting: null,
     };
     testQueryClient.setQueryData(
       ["aan mij toegekende zaken signaleringen", params],
@@ -118,6 +120,8 @@ describe(ZakenCardComponent.name, () => {
       signaleringType: cardData.signaleringType,
       page: 0,
       pageSize: 5,
+      sorteerVeld: null,
+      sorteerRichting: null,
     };
     testQueryClient.setQueryData(
       ["aan mij toegekende zaken signaleringen", params],
@@ -143,5 +147,102 @@ describe(ZakenCardComponent.name, () => {
     fixture.componentInstance.onPageChange({ pageIndex: 4 });
 
     expect(fixture.componentInstance.pageNumber()).toBe(4);
+  });
+
+  it("starts with no sort applied so the backend keeps its default tijdstip-desc ordering", () => {
+    jest
+      .spyOn(signaleringenService, "listZakenSignalering")
+      .mockReturnValue(of(makeResultaat(0)));
+
+    fixture = TestBed.createComponent(ZakenCardComponent);
+    fixture.componentInstance.data = cardData;
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.sortField()).toBeNull();
+    expect(fixture.componentInstance.sortDirection()).toBe("");
+    expect(fixture.componentInstance.parameters()).toMatchObject({
+      sorteerVeld: null,
+      sorteerRichting: null,
+    });
+  });
+
+  it("propagates sort changes into the request and resets pagination back to the first page", () => {
+    jest
+      .spyOn(signaleringenService, "listZakenSignalering")
+      .mockReturnValue(of(makeResultaat(0)));
+
+    fixture = TestBed.createComponent(ZakenCardComponent);
+    fixture.componentInstance.data = cardData;
+    fixture.detectChanges();
+
+    fixture.componentInstance.onPageChange({ pageIndex: 3 });
+    expect(fixture.componentInstance.pageNumber()).toBe(3);
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_STARTDATUM",
+      direction: "desc",
+    });
+
+    expect(fixture.componentInstance.sortField()).toBe("ZAAK_STARTDATUM");
+    expect(fixture.componentInstance.sortDirection()).toBe("desc");
+    expect(fixture.componentInstance.pageNumber()).toBe(0);
+    expect(fixture.componentInstance.parameters()).toMatchObject({
+      sorteerVeld: "ZAAK_STARTDATUM",
+      sorteerRichting: "desc",
+      page: 0,
+    });
+  });
+
+  it("clears the sort when the user toggles back to no direction", () => {
+    jest
+      .spyOn(signaleringenService, "listZakenSignalering")
+      .mockReturnValue(of(makeResultaat(0)));
+
+    fixture = TestBed.createComponent(ZakenCardComponent);
+    fixture.componentInstance.data = cardData;
+    fixture.detectChanges();
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_IDENTIFICATIE",
+      direction: "asc",
+    });
+    expect(fixture.componentInstance.sortField()).toBe("ZAAK_IDENTIFICATIE");
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_IDENTIFICATIE",
+      direction: "",
+    });
+
+    expect(fixture.componentInstance.sortField()).toBeNull();
+    expect(fixture.componentInstance.sortDirection()).toBe("");
+    expect(fixture.componentInstance.parameters()).toMatchObject({
+      sorteerVeld: null,
+      sorteerRichting: null,
+    });
+  });
+
+  it("forwards sort fields to the signaleringen service when the query runs", async () => {
+    const spy = jest
+      .spyOn(signaleringenService, "listZakenSignalering")
+      .mockReturnValue(of(makeResultaat(0)));
+
+    fixture = TestBed.createComponent(ZakenCardComponent);
+    fixture.componentInstance.data = cardData;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_IDENTIFICATIE",
+      direction: "asc",
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(spy).toHaveBeenCalledWith("ZAAK_OP_NAAM", {
+      page: 0,
+      rows: 5,
+      sorteerVeld: "ZAAK_IDENTIFICATIE",
+      sorteerRichting: "asc",
+    });
   });
 });

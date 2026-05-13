@@ -11,6 +11,10 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
@@ -32,6 +36,7 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverte
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.info.zac.app.shared.RestPageParameters
 import nl.info.zac.app.signalering.converter.toRestSignaleringTaakSummary
+import nl.info.zac.app.signalering.model.RestSignaleringPageParameters
 import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
@@ -39,8 +44,10 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
@@ -376,31 +383,79 @@ class SignaleringService @Inject constructor(
     }
 
     /**
-     * Lists a page of zaken signaleringen for the given signaleringsType
+     * Lists a page of zaken signaleringen for the given signaleringsType.
+     *
+     * Without a sorteerVeld the page is loaded via JPA paging on `tijdstip desc`, so per
+     * request only one page of zaken is read from ZRC. If a sorteerVeld is supplied the
+     * ordering applies to a RestZaakOverzicht field, which the signaleringen table cannot
+     * express, so every matching signalering is materialised, sorted in memory, then sliced.
      */
     fun listZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
-        pageParameters: RestPageParameters,
+        pageParameters: RestSignaleringPageParameters,
         loggedInUser: LoggedInUser
-    ): List<RestZaakOverzicht> =
-        SignaleringZoekParameters(loggedInUser)
+    ): List<RestZaakOverzicht> {
+        val searchParameters = SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
-            .let {
-                LOG.fine {
-                    "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
-                        "of type '$signaleringsType' ..."
-                }
-                listSignaleringen(it, pageParameters)
+        val sorteerVeld = pageParameters.sorteerVeld
+        return if (sorteerVeld == null) {
+            LOG.fine {
+                "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
+                    "of type '$signaleringsType' ..."
             }
-            .map { zrcClientService.readZaak(UUID.fromString(it.subject)) }
-            .map { restZaakOverzichtConverter.convertForDisplay(zaak = it, loggedInUser = loggedInUser) }
-            .also {
-                LOG.fine {
-                    "Successfully listed page ${pageParameters.page} for zaken signaleringen " +
-                        "of type '$signaleringsType'."
-                }
+            listSignaleringen(searchParameters, pageParameters).toRestZaakOverzichten(loggedInUser)
+        } else {
+            LOG.fine {
+                "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
+                    "of type '$signaleringsType' sorted by '$sorteerVeld' ${pageParameters.sorteerRichting} ..."
             }
+            listSignaleringen(searchParameters)
+                .toRestZaakOverzichten(loggedInUser)
+                .sortedWith(zaakOverzichtComparator(sorteerVeld, pageParameters.sorteerRichting))
+                .slicePage(pageParameters.page, pageParameters.rows)
+        }.also {
+            LOG.fine {
+                "Successfully listed page ${pageParameters.page} for zaken signaleringen of type '$signaleringsType'."
+            }
+        }
+    }
+
+    // readZaak hits an external ZRC service per signalering — sequentially that's N round-trips
+    // per render, which is the dominant cost both on the default 5-row page and (much worse) on
+    // the sort path. Fan out on Dispatchers.IO so wall-clock time tracks the slowest call rather
+    // than the sum. awaitAll preserves the input order, which the in-memory sort relies on for
+    // stable secondary ordering. Mirrors the pattern already used in KlantRestService.readPersoon.
+    private fun List<Signalering>.toRestZaakOverzichten(loggedInUser: LoggedInUser): List<RestZaakOverzicht> =
+        if (isEmpty()) {
+            emptyList()
+        } else {
+            runBlocking(Dispatchers.IO) {
+                map { signalering ->
+                    async {
+                        val zaak = zrcClientService.readZaak(UUID.fromString(signalering.subject))
+                        restZaakOverzichtConverter.convertForDisplay(zaak = zaak, loggedInUser = loggedInUser)
+                    }
+                }.awaitAll()
+            }
+        }
+
+    private fun <T> List<T>.slicePage(page: Int, rows: Int): List<T> {
+        val fromIndex = (page * rows).coerceAtMost(size)
+        val toIndex = (fromIndex + rows).coerceAtMost(size)
+        return subList(fromIndex, toIndex)
+    }
+
+    private fun zaakOverzichtComparator(field: SorteerVeld, direction: String?): Comparator<RestZaakOverzicht> {
+        val ascending: Comparator<RestZaakOverzicht> = when (field) {
+            SorteerVeld.ZAAK_IDENTIFICATIE -> compareBy(nullsLast<String>()) { it.identificatie }
+            SorteerVeld.ZAAK_STARTDATUM -> compareBy(nullsLast<LocalDate>()) { it.startdatum }
+            SorteerVeld.ZAAK_ZAAKTYPE -> compareBy(nullsLast<String>()) { it.zaaktype }
+            SorteerVeld.ZAAK_OMSCHRIJVING -> compareBy(nullsLast<String>()) { it.omschrijving }
+            else -> throw IllegalArgumentException("Unsupported sort field for zaken signaleringen: '$field'")
+        }
+        return if (direction.equals("desc", ignoreCase = true)) ascending.reversed() else ascending
+    }
 
     /**
      * Counts the number of zaken signaleringen
