@@ -19,7 +19,7 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
     val gebruikersvoorkeurenService = GebruikersvoorkeurenService(entityManager, signaleringService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

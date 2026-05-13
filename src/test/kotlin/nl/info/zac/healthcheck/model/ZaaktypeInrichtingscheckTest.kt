@@ -11,7 +11,7 @@ import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 
 class ZaaktypeInrichtingscheckTest : BehaviorSpec({
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

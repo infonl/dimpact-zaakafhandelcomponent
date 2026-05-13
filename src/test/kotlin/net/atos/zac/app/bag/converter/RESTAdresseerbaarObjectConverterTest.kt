@@ -16,7 +16,7 @@ import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 
 class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -64,7 +64,7 @@ class NotificationReceiverTest : BehaviorSpec({
         httpSession = httpSessionInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

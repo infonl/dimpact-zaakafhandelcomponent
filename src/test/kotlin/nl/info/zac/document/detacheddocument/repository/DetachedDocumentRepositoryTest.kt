@@ -22,7 +22,7 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
     val detachedDocumentRepository = DetachedDocumentRepository(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

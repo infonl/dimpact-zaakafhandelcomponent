@@ -54,7 +54,7 @@ class DecisionServiceTest : BehaviorSpec({
     val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
     val besluitInformatieObject = createBesluitInformatieObject()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

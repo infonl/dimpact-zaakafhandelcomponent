@@ -37,7 +37,7 @@ class CMMNServiceTest : BehaviorSpec({
         loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

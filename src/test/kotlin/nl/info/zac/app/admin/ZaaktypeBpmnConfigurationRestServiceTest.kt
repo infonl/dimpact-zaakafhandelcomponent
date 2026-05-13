@@ -57,7 +57,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             smartDocumentsService
         )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

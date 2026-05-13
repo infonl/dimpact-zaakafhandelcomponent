@@ -28,7 +28,7 @@ class KlantClientServiceTest : BehaviorSpec({
     val klantClient = mockk<KlantClient>()
     val klantClientService = KlantClientService(klantClient)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

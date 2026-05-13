@@ -21,7 +21,7 @@ class NoteServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val noteService = NoteService(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

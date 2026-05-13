@@ -31,7 +31,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
         indexingService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

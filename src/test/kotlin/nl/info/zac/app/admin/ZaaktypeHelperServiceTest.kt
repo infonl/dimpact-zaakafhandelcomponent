@@ -23,7 +23,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

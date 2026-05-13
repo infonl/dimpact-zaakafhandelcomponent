@@ -71,7 +71,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         identityService = identityService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

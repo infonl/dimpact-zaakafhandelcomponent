@@ -54,7 +54,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         flowableTaskService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

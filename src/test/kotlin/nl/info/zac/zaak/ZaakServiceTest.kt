@@ -95,7 +95,7 @@ class ZaakServiceTest : BehaviorSpec({
     val explanation = "fakeExplanation"
     val screenEventResourceId = "fakeResourceId"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

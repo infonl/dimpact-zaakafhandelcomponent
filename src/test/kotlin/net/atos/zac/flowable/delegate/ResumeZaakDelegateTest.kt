@@ -29,7 +29,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
     val reason = "test"
     val date = ZonedDateTime.now()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

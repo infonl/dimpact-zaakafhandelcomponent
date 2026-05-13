@@ -31,7 +31,7 @@ class WebdavHelperTest : BehaviorSpec({
 
     val webdavHelper = WebdavHelper(drcClientService, loggedInUserInstance)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
