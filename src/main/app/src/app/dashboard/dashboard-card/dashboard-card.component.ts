@@ -51,6 +51,11 @@ export abstract class DashboardCardComponent<
 
   abstract readonly columns: C;
 
+  // Cards that fetch one page at a time and expose totaal via a template
+  // binding must opt out, otherwise MatTableDataSource overwrites
+  // paginator.length with the current page size (data.length).
+  protected serverSidePagination = false;
+
   protected constructor(
     protected identityService: IdentityService,
     protected websocketService: WebsocketService,
@@ -61,8 +66,10 @@ export abstract class DashboardCardComponent<
   }
 
   ngAfterViewInit(): void {
-    if (this.paginator) this.dataSource.paginator = this.paginator;
-    if (this.sort) this.dataSource.sort = this.sort;
+    if (!this.serverSidePagination) {
+      if (this.paginator) this.dataSource.paginator = this.paginator;
+      if (this.sort) this.dataSource.sort = this.sort;
+    }
 
     if (this.reload == null) {
       if (this.data.signaleringType != null) {

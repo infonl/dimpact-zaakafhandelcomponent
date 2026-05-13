@@ -42,6 +42,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
     "omschrijving",
     "url",
   ] as const;
+  protected override serverSidePagination = true;
   pageSize = 5;
   pageNumber = signal(0);
   sortField = signal<GeneratedType<"SorteerVeld">>("ZAAK_STARTDATUM");
