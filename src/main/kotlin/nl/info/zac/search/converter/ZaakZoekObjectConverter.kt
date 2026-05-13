@@ -26,6 +26,8 @@ import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.search.model.zoekobject.toBetrokkeneIdentification
+import nl.info.zac.search.model.zoekobject.toSolr
 import java.util.UUID
 
 class ZaakZoekObjectConverter @Inject constructor(
@@ -120,10 +122,10 @@ class ZaakZoekObjectConverter @Inject constructor(
             // It is possible for a role in the ZGW zaakregister to not have an identification number.
             // This can happen when a rol for some reason no longer has an underlying 'identity' object (like a Natuurlijk Persoon etc.).
             // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
-            role.identificatienummer?.run {
+            role.toBetrokkeneIdentification()?.run {
                 zaakZoekObject.addBetrokkene(
                     rol = role.omschrijving,
-                    identificatie = this
+                    identificatie = this.toSolr()
                 )
             }
         }

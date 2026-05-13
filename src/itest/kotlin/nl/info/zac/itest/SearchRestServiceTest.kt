@@ -134,7 +134,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "aantalOpenstaandeTaken" : 1,
                             "afgehandeld" : false,
                             "betrokkenen" : {
-                              "Behandelaar" : [ "${BEHANDELAARS_DOMAIN_TEST_1.name}" ]
+                              "Behandelaar" : [ "U-${BEHANDELAARS_DOMAIN_TEST_1.name}" ]
                             },
                             "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
                             "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
