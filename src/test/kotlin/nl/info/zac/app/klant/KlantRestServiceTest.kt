@@ -355,8 +355,8 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode = postcode
-                        this.type = type
+                        this.postcode shouldBe postcode
+                        this.type shouldBe type
                     }
                 }
             }
@@ -470,8 +470,8 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode = postcode
-                        this.type = type
+                        this.postcode shouldBe postcode
+                        this.type shouldBe type
                         this.telefoonnummer shouldBe "+123-456-789"
                         this.emailadres shouldBe "fake@example.com"
                     }
