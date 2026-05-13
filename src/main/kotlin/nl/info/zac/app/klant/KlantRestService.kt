@@ -156,10 +156,15 @@ class KlantRestService @Inject constructor(
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {
-                val rechtspersoon = kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
-                // TODO: get contactdetails for rechtspersoon from Open Klant
-                rechtspersoon?.toRestBedrijf()
-                    ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                val klantRechtspersoonDigitalAddresses =
+                    async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
+                val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
+                klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    rechtspersoon.await()?.toRestBedrijf()?.apply {
+                        emailadres = contactDetails.emailAddress
+                        telefoonnummer = contactDetails.telephoneNumber
+                    } ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                }
             }
         }
 

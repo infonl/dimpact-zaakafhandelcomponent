@@ -441,7 +441,43 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Reading a rechtspersoon by KVK nummer") {
-        Given("A rechtspersoon with a matching KVK nummer in the KVK client") {
+        Given("A rechtspersoon with a matching KVK nummer in the KVK client and contact details in the klanten client") {
+            val rsin = "123456789"
+            val name = "fakeName"
+            val kvkNummer = "12345678"
+            val postcode = "fakePostcode"
+            val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns createResultaatItem(
+                rsin = rsin,
+                naam = name,
+                kvkNummer = kvkNummer,
+                vestingsnummer = null,
+                adres = createAdresWithBinnenlandsAdres(postcode = postcode),
+                type = "fakeType"
+            )
+            every {
+                klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+            } returns digitalAddressesList
+
+            When("when the rechtspersoon is retrieved by KVK nummer") {
+                val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
+
+                Then("the rechtspersoon should be returned including contact details") {
+                    with(restBedrijf) {
+                        this.rsin shouldBe rsin
+                        this.naam shouldBe name
+                        this.kvkNummer shouldBe kvkNummer
+                        this.vestigingsnummer shouldBe null
+                        this.postcode = postcode
+                        this.type = type
+                        this.telefoonnummer shouldBe "+123-456-789"
+                        this.emailadres shouldBe "fake@example.com"
+                    }
+                }
+            }
+        }
+
+        Given("A rechtspersoon with a matching KVK nummer in the KVK client but no contact details in the klanten client") {
             val rsin = "123456789"
             val name = "fakeName"
             val kvkNummer = "12345678"
@@ -454,18 +490,21 @@ class KlantRestServiceTest : BehaviorSpec({
                 adres = createAdresWithBinnenlandsAdres(postcode = postcode),
                 type = "fakeType"
             )
+            every {
+                klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+            } returns emptyList()
 
             When("when the rechtspersoon is retrieved by KVK nummer") {
                 val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
 
-                Then("the rechtspersoon should be returned") {
+                Then("the rechtspersoon should be returned without contact details") {
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode = postcode
-                        this.type = type
+                        this.telefoonnummer shouldBe null
+                        this.emailadres shouldBe null
                     }
                 }
             }
