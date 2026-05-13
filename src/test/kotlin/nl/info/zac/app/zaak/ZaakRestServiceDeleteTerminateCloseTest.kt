@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -237,16 +236,22 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            shouldThrow<ZaakWithADecisionCannotBeTerminatedException> {
-                zaakRestService.terminateZaak(
-                    zaakUuid,
-                    RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
-                )
-            }
+            When("trying to terminate the zaak") {
+                shouldThrow<ZaakWithADecisionCannotBeTerminatedException> {
+                    zaakRestService.terminateZaak(
+                        zaakUuid,
+                        RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                    )
+                }
 
-            verify(exactly = 0) {
-                zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
-                cmmnService.terminateCase(any())
+                Then(
+                    "it throws ZaakWithADecisionCannotBeTerminatedException and no close or terminate calls are made"
+                ) {
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
+                        cmmnService.terminateCase(any())
+                    }
+                }
             }
         }
 
@@ -269,16 +274,15 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             )
             val loggedInUser = createLoggedInUser()
 
-            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
-            every {
-                zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
-            } returns zaaktypeCmmnConfiguration
-            every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
-            every { cmmnService.terminateCase(zaak.uuid) } returns Unit
-            every { loggedInUserInstance.get() } returns loggedInUser
-
             When("aborted with managed zaakbeeindigreden") {
+                every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                } returns zaaktypeCmmnConfiguration
+                every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
+                every { cmmnService.terminateCase(zaak.uuid) } returns Unit
+                every { loggedInUserInstance.get() } returns loggedInUser
                 zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
                 Then("it is ended with result") {
@@ -290,7 +294,12 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             }
 
             When("aborted with invalid zaakbeeindigreden id") {
-                clearMocks(zgwApiService, cmmnService)
+                every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+                every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
+                every {
+                    zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
+                } returns zaaktypeCmmnConfiguration
+                every { loggedInUserInstance.get() } returns loggedInUser
                 val exception = shouldThrow<IllegalArgumentException> {
                     zaakRestService.terminateZaak(
                         zaak.uuid,
