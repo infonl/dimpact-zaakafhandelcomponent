@@ -94,28 +94,36 @@ class KlantRestService @Inject constructor(
             val brpPersoon = async {
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
             }
+            val restPersoon = brpPersoon.await()?.toRestPersoon()
+                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
             klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                brpPersoon.await()?.toRestPersoon()?.apply {
+                restPersoon.apply {
                     telefoonnummer = contactDetails.telephoneNumber
                     emailadres = contactDetails.emailAddress
                     temporaryPersonId = requestedTemporaryPersonId
-                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+                }
             }
         }
     }
 
+    /**
+     * Read a vestiging by vestigingnummer.
+     *
+     * This endpoint is provided for legacy reasons.
+     * Prefer using [readVestigingByVestigingsnummerAndKvkNummer] if possible.
+     */
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestigingByVestigingsnummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
-    ) = getVestiging(vestigingsnummer, null)
+    ): RestBedrijf = readVestiging(vestigingsnummer, null)
 
     @GET
     @Path("vestiging/{vestigingsnummer}/{kvkNummer}")
     fun readVestigingByVestigingsnummerAndKvkNummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
         @PathParam("kvkNummer") kvkNummer: String
-    ) = getVestiging(vestigingsnummer, kvkNummer)
+    ): RestBedrijf = readVestiging(vestigingsnummer, kvkNummer)
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
@@ -128,16 +136,16 @@ class KlantRestService @Inject constructor(
 
     /**
      * Read a rechtspersoon by RSIN.
+     * No contact details for the rechtspersoon are retrieved for this endpoint.
      *
      * This endpoint is provided for legacy reasons.
-     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] where possible.
+     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] if possible.
      */
     @GET
     @Path("rechtspersoon/rsin/{rsin}")
     fun readRechtspersoonByRsin(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoonByRsin(rsin)
             ?.toRestBedrijf()
-            ?.copy(kvkNummer = null)
             ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
 
     /**
@@ -146,9 +154,23 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("rechtspersoon/kvknummer/{kvkNummer}")
     fun readRechtspersoonByKvkNummer(@PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String): RestBedrijf =
-        kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
-            ?.toRestBedrijf()
-            ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+        runBlocking {
+            // run the two client calls concurrently in a coroutine scope,
+            // so we do not need to wait for the first call to complete
+            withContext(Dispatchers.IO) {
+                val klantRechtspersoonDigitalAddresses =
+                    async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
+                val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
+                val restBedrijf = rechtspersoon.await()?.toRestBedrijf()
+                    ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    restBedrijf.apply {
+                        emailadres = contactDetails.emailAddress
+                        telefoonnummer = contactDetails.telephoneNumber
+                    }
+                }
+            }
+        }
 
     @GET
     @Path("personen/parameters")
@@ -221,7 +243,7 @@ class KlantRestService @Inject constructor(
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
-    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
+    private fun readVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
@@ -232,15 +254,16 @@ class KlantRestService @Inject constructor(
                         ?: emptyList()
                 }
             val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                vestiging.await()?.toRestBedrijf()?.apply {
-                    if (kvkNummer == null) this.kvkNummer = null
-                    emailadres = contactDetails.emailAddress
-                    telefoonnummer = contactDetails.telephoneNumber
-                } ?: throw VestigingNotFoundException(
+            val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
+                ?: throw VestigingNotFoundException(
                     "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
                         (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
                 )
+            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                restBedrijf.apply {
+                    emailadres = contactDetails.emailAddress
+                    telefoonnummer = contactDetails.telephoneNumber
+                }
             }
         }
     }

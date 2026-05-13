@@ -25,6 +25,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
@@ -44,6 +45,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FU
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RECHTSPERSOON_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
@@ -650,6 +652,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
@@ -668,18 +671,20 @@ class KlantRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
-                Then("the response should be ok and the test company should be returned without contact data") {
+                Then("the response should be ok and the test company should be returned with contact data") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                    {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "emailadres" : "$TEST_KVK_EMAIL",
                       "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
+                      "telefoonnummer" : "$TEST_RECHTSPERSOON_TELEPHONE_NUMBER",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
                     """.trimIndent()
