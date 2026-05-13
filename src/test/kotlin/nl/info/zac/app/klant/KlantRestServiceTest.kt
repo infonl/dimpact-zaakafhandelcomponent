@@ -441,7 +441,9 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Reading a rechtspersoon by KVK nummer") {
-        Given("A rechtspersoon with a matching KVK nummer in the KVK client and contact details in the klanten client") {
+        Given(
+            "A rechtspersoon with a matching KVK nummer in the KVK client and contact details in the klanten client"
+        ) {
             val rsin = "123456789"
             val name = "fakeName"
             val kvkNummer = "12345678"
@@ -477,7 +479,9 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A rechtspersoon with a matching KVK nummer in the KVK client but no contact details in the klanten client") {
+        Given(
+            "A rechtspersoon with a matching KVK nummer in the KVK client but no contact details in the klanten client"
+        ) {
             val rsin = "123456789"
             val name = "fakeName"
             val kvkNummer = "12345678"
