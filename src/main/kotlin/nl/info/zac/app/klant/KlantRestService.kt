@@ -114,14 +114,14 @@ class KlantRestService @Inject constructor(
     @Path("vestiging/{vestigingsnummer}")
     fun readVestigingByVestigingsnummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
-    ) = readVestiging(vestigingsnummer, null)
+    ): RestBedrijf = readVestiging(vestigingsnummer, null)
 
     @GET
     @Path("vestiging/{vestigingsnummer}/{kvkNummer}")
     fun readVestigingByVestigingsnummerAndKvkNummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
         @PathParam("kvkNummer") kvkNummer: String
-    ) = readVestiging(vestigingsnummer, kvkNummer)
+    ): RestBedrijf = readVestiging(vestigingsnummer, kvkNummer)
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
@@ -134,10 +134,10 @@ class KlantRestService @Inject constructor(
 
     /**
      * Read a rechtspersoon by RSIN.
-     * TODO: without contact details because this is not supported for RSINs.
+     * No contact details for the rechtspersoon are retrieved for this endpoint.
      *
      * This endpoint is provided for legacy reasons.
-     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] where possible.
+     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] if possible.
      */
     @GET
     @Path("rechtspersoon/rsin/{rsin}")
