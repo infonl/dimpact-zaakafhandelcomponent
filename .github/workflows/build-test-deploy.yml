@@ -198,6 +198,7 @@ jobs:
               - '!charts/**'
               - '!docs/**'
               - '!src/e2e/**'
+              - '!openspec/**'
 
   spotless-check:
     runs-on: ubuntu-24.04

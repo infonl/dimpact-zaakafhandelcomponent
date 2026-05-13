@@ -51,6 +51,7 @@ jobs:
                 - '!charts/**'
                 - '!docs/**'
                 - '!src/e2e/**'
+                - '!openspec/**'
 
   analyze:
     name: Analyze
