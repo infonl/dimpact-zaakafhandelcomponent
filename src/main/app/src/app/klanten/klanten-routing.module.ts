@@ -72,7 +72,7 @@ export function buildBedrijfRouteLink(
   const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
   if (bedrijf?.vestigingsnummer)
     path.push("vestiging", bedrijf?.vestigingsnummer);
-  else if (bedrijf?.kvkNummer && bedrijf?.identificatie)
+  else if (bedrijf?.kvkNummer && bedrijf?.identificatie && bedrijf?.identificatie.length > 9 )
     path.push("vestiging", bedrijf?.identificatie);
   return path;
 }
