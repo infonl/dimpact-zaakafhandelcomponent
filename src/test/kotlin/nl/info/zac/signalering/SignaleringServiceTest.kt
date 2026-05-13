@@ -5,10 +5,12 @@
 
 package nl.info.zac.signalering
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -42,6 +44,7 @@ import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
@@ -287,6 +290,32 @@ class SignaleringServiceTest : BehaviorSpec({
                     typedQuery.firstResult = any()
                     typedQuery.maxResults = any()
                 }
+            }
+        }
+    }
+
+    Given("A request to sort zaken signaleringen by a SorteerVeld this endpoint does not support") {
+        val pageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 5,
+            sorteerVeld = SorteerVeld.TAAK_NAAM,
+            sorteerRichting = "asc"
+        )
+        val loggedInUser = createLoggedInUser()
+
+        When("listZakenSignaleringenPage is called") {
+            val exception = shouldThrow<InputValidationFailedException> {
+                signaleringService.listZakenSignaleringenPage(
+                    SignaleringType.Type.ZAAK_OP_NAAM,
+                    pageParameters,
+                    loggedInUser
+                )
+            }
+
+            Then("validation fails before the JPA query runs and the message lists supported fields") {
+                exception.message!! shouldContain "TAAK_NAAM"
+                exception.message!! shouldContain "ZAAK_IDENTIFICATIE"
+                exception.message!! shouldContain "ZAAK_STARTDATUM"
             }
         }
     }

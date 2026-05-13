@@ -193,7 +193,9 @@ describe(InformatieobjectenCardComponent.name, () => {
 
   it("exposes mat-sort-header on every data column so client-side sorting stays clickable", async () => {
     const headers = await loader.getAllHarnesses(MatSortHeaderHarness);
-    const labels = await Promise.all(headers.map((header) => header.getLabel()));
+    const labels = await Promise.all(
+      headers.map((header) => header.getLabel()),
+    );
 
     expect(labels).toEqual([
       "documenttitel",

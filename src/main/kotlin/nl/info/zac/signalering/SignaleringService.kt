@@ -41,6 +41,8 @@ import nl.info.zac.app.signalering.model.RestSignaleringTaskSummary
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -71,7 +73,17 @@ class SignaleringService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
+        private const val ZRC_FANOUT_PARALLELISM = 8
+        private val SUPPORTED_ZAKEN_SORT_FIELDS = setOf(
+            SorteerVeld.ZAAK_IDENTIFICATIE,
+            SorteerVeld.ZAAK_STARTDATUM,
+            SorteerVeld.ZAAK_ZAAKTYPE,
+            SorteerVeld.ZAAK_OMSCHRIJVING
+        )
     }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val zrcFanoutDispatcher = Dispatchers.IO.limitedParallelism(ZRC_FANOUT_PARALLELISM)
 
     /**
      * Factory method for constructing Signalering instances.
@@ -396,7 +408,7 @@ class SignaleringService @Inject constructor(
         val searchParameters = SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
-        val sorteerVeld = pageParameters.sorteerVeld
+        val sorteerVeld = pageParameters.sorteerVeld?.also { validateZakenSortField(it) }
         return if (sorteerVeld == null) {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
@@ -420,12 +432,13 @@ class SignaleringService @Inject constructor(
     }
 
     // Parallelise the N readZaak round-trips — sequentially they dominate render time,
-    // especially on the sort path. awaitAll preserves order for stable secondary sort.
+    // especially on the sort path. Bounded parallelism caps concurrent ZRC calls; awaitAll
+    // preserves order for stable secondary sort.
     private fun List<Signalering>.toRestZaakOverzichten(loggedInUser: LoggedInUser): List<RestZaakOverzicht> =
         if (isEmpty()) {
             emptyList()
         } else {
-            runBlocking(Dispatchers.IO) {
+            runBlocking(zrcFanoutDispatcher) {
                 map { signalering ->
                     async {
                         val zaak = zrcClientService.readZaak(UUID.fromString(signalering.subject))
@@ -441,13 +454,23 @@ class SignaleringService @Inject constructor(
         return subList(fromIndex, toIndex)
     }
 
+    private fun validateZakenSortField(field: SorteerVeld) {
+        if (field !in SUPPORTED_ZAKEN_SORT_FIELDS) {
+            throw InputValidationFailedException(
+                errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                message = "Unsupported sort field for zaken signaleringen: '$field'. " +
+                    "Supported: ${SUPPORTED_ZAKEN_SORT_FIELDS.joinToString { it.name }}"
+            )
+        }
+    }
+
     private fun zaakOverzichtComparator(field: SorteerVeld, direction: String?): Comparator<RestZaakOverzicht> {
         val ascending: Comparator<RestZaakOverzicht> = when (field) {
             SorteerVeld.ZAAK_IDENTIFICATIE -> compareBy(nullsLast<String>()) { it.identificatie }
             SorteerVeld.ZAAK_STARTDATUM -> compareBy(nullsLast<LocalDate>()) { it.startdatum }
             SorteerVeld.ZAAK_ZAAKTYPE -> compareBy(nullsLast<String>()) { it.zaaktype }
             SorteerVeld.ZAAK_OMSCHRIJVING -> compareBy(nullsLast<String>()) { it.omschrijving }
-            else -> throw IllegalArgumentException("Unsupported sort field for zaken signaleringen: '$field'")
+            else -> error("validateZakenSortField should have rejected '$field' before reaching the comparator")
         }
         return if (direction.equals("desc", ignoreCase = true)) ascending.reversed() else ascending
     }
