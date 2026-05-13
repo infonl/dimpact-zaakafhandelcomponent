@@ -385,10 +385,8 @@ class SignaleringService @Inject constructor(
     /**
      * Lists a page of zaken signaleringen for the given signaleringsType.
      *
-     * Without a sorteerVeld the page is loaded via JPA paging on `tijdstip desc`, so per
-     * request only one page of zaken is read from ZRC. If a sorteerVeld is supplied the
-     * ordering applies to a RestZaakOverzicht field, which the signaleringen table cannot
-     * express, so every matching signalering is materialised, sorted in memory, then sliced.
+     * No sorteerVeld → JPA paged by tijdstip desc. Sort on a RestZaakOverzicht field
+     * can't be expressed in JPA, so the full list is materialised, sorted, then sliced.
      */
     fun listZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
@@ -421,11 +419,8 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    // readZaak hits an external ZRC service per signalering — sequentially that's N round-trips
-    // per render, which is the dominant cost both on the default 5-row page and (much worse) on
-    // the sort path. Fan out on Dispatchers.IO so wall-clock time tracks the slowest call rather
-    // than the sum. awaitAll preserves the input order, which the in-memory sort relies on for
-    // stable secondary ordering. Mirrors the pattern already used in KlantRestService.readPersoon.
+    // Parallelise the N readZaak round-trips — sequentially they dominate render time,
+    // especially on the sort path. awaitAll preserves order for stable secondary sort.
     private fun List<Signalering>.toRestZaakOverzichten(loggedInUser: LoggedInUser): List<RestZaakOverzicht> =
         if (isEmpty()) {
             emptyList()
