@@ -343,7 +343,8 @@ jobs:
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests and generate test coverage reports
-        run: ./gradlew \
+        run: |
+          ./gradlew \
           -x processResources \
           -x classes \
           -x generateJavaClients \
