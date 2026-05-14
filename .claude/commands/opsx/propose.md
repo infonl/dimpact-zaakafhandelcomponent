@@ -86,7 +86,7 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run `/opsx:apply` to start implementing."
+- Prompt: "Run `/opsx:apply` or ask me to implement to start working on the tasks."
 
 **Artifact Creation Guidelines**
 
@@ -97,6 +97,9 @@ After completing all artifacts, summarize:
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file
   - Do NOT copy `<context>`, `<rules>`, `<project_context>` blocks into the artifact
   - These guide what you write, but should never appear in the output
+
+- **When writing tasks, structure them as tracer bullets**: the first task must be a minimal end-to-end slice that touches all relevant layers (e.g., one UI action wired to one backend endpoint). Subsequent tasks expand outward from that working slice. This avoids building horizontal layers in isolation and ensures the critical path is validated early.
+- **Write tasks as behaviors to verify, not implementation steps**: each task title should describe what the system does from the outside (e.g., "user can submit form with valid input" not "add POST handler"). This makes each task directly testable and ensures the implementation is driven by observable behavior. Phrase tasks so that a failing test for that behavior can be written before any code exists.
 
 **Guardrails**
 - Create ALL artifacts needed for implementation (as defined by schema's `apply.requires`)

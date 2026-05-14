@@ -35,13 +35,13 @@ Implement tasks from an OpenSpec change.
    ```
 
    This returns:
-   - `contextFiles`: artifact ID -> array of concrete file paths (varies by schema)
+   - `contextFiles`: artifact ID -> array of concrete file paths (varies by schema - could be proposal/specs/design/tasks or spec/tests/implementation/docs)
    - Progress (total, complete, remaining)
    - Task list with status
    - Dynamic instruction based on current state
 
    **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest using `/opsx:continue`
+   - If `state: "blocked"` (missing artifacts): show message, suggest using openspec-continue-change
    - If `state: "all_done"`: congratulate, suggest archive
    - Otherwise: proceed to implementation
 
@@ -60,14 +60,26 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Implement tasks (loop until done or blocked)**
+6. **Implement tasks using tracer bullets**
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
-   - Continue to next task
+   Before starting the loop, identify the **tracer bullet**: the first task that forms a minimal end-to-end slice through all relevant layers (e.g., one user action wired from UI through to backend/data layer). This is typically the first task if tasks were structured following tracer bullet principles.
+
+   **Phase 1 — Tracer bullet first (RED → GREEN → REFACTOR):**
+   - Write a failing test that describes the tracer bullet behavior — verify it fails before writing any implementation code (RED)
+   - Implement only the minimal code needed to make that test pass (GREEN)
+   - **Pause and verify**: run the test suite, confirm the test passes and the slice works end-to-end
+   - Look for quick refactor opportunities now that the path is green — extract duplication, rename for clarity — then re-run tests (REFACTOR)
+   - Mark it complete: `- [ ]` → `- [x]`
+   - Report what was validated and invite confirmation to continue
+
+   **Phase 2 — Expand from the working slice (RED → GREEN → REFACTOR per task):**
+   - Only after the tracer bullet is verified, continue with remaining tasks
+   - Each task expands or builds on top of the already-working slice
+   - For each task:
+     - Write a failing test for the behavior this task introduces (RED)
+     - Write minimal code to make it pass — no speculative additions (GREEN)
+     - Refactor if needed, run tests to confirm still green (REFACTOR)
+     - Mark complete `- [ ]` → `- [x]`, continue to next
 
    **Pause if:**
    - Task is unclear → ask for clarification
@@ -111,7 +123,7 @@ Working on task 4/7: <task description>
 - [x] Task 2
 ...
 
-All tasks complete! You can archive this change with `/opsx:archive`.
+All tasks complete! Ready to archive this change.
 ```
 
 **Output On Pause (Issue Encountered)**
