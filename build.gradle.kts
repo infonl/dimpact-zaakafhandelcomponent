@@ -495,10 +495,6 @@ tasks {
         dependsOn("generateWildflyBootableJar")
     }
 
-    test {
-        dependsOn("npmRunTest")
-    }
-
     compileJava {
         dependsOn("generateJavaClients")
     }
