@@ -343,7 +343,14 @@ jobs:
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests and generate test coverage reports
-        run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info
+        run: ./gradlew \
+          -x processResources \
+          -x classes \
+          -x generateJavaClients \
+          -x generateJsonSchema2Pojo \
+          -x generateOpenApiSpec \
+          test npmRunTestCoverage jacocoTestReport --info
+
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2.23.0
