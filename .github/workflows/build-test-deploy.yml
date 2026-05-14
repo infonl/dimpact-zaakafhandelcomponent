@@ -350,6 +350,7 @@ jobs:
           -x generateJavaClients \
           -x generateJsonSchema2Pojo \
           -x generateOpenApiSpec \
+          -x npmInstall \
           test npmRunTestCoverage jacocoTestReport --info
 
 

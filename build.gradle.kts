@@ -753,13 +753,7 @@ tasks {
         description = "Installs the frontend application dependencies"
         group = "build"
         inputs.file("$appPath/package.json")
-        // Don't declare outputs.dir() - let npm manage node_modules internally
-        // Instead, only declare the specific files you care about as outputs
-        outputs.files(
-            fileTree("$appPath/node_modules").matching {
-                include("**/package.json")
-            }
-        )
+        outputs.dir("$appPath/node_modules")
         outputs.cacheIf { true }
     }
 
