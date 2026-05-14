@@ -804,7 +804,7 @@ tasks {
     register<NpmTask>("npmRunTestCoverage") {
         description = "Generates the frontend test suite code coverage report"
         group = "verification"
-        dependsOn("npmRunTest")
+        dependsOn("npmInstall")
 
         npmCommand.set(listOf("run", "test:report"))
         outputs.dir("$appPath/coverage")
