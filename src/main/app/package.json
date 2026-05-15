@@ -67,7 +67,7 @@
     "@angular/compiler-cli": "19.2.21",
     "@angular/language-service": "19.2.21",
     "@types/jest": "29.5.14",
-    "@types/node": "22.19.18",
+    "@types/node": "22.19.19",
     "@typescript-eslint/eslint-plugin": "8.59.2",
     "@typescript-eslint/parser": "8.59.2",
     "eslint": "9.39.4",
