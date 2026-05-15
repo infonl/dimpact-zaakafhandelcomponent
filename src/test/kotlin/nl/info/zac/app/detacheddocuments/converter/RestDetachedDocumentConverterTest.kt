@@ -26,7 +26,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
 
     val converter = RestDetachedDocumentConverter(userConverter, lockService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

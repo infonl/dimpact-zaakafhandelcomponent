@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets
 class NullFilteringReaderInterceptorTest : BehaviorSpec({
     val interceptor = NullFilteringReaderInterceptor()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

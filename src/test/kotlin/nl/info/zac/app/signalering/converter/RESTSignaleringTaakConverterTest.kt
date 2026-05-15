@@ -14,7 +14,7 @@ import java.time.Month
 import java.util.Calendar
 
 class RESTSignaleringTaakConverterTest : BehaviorSpec({
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

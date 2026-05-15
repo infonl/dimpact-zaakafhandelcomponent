@@ -23,7 +23,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
     val filterChain = mockk<FilterChain>()
     val httpSession = mockk<HttpSession>(relaxed = true)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

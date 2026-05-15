@@ -13,7 +13,7 @@ import nl.info.zac.app.zaak.model.ZAAK_TYPE_2_OMSCHRIJVING
 
 class LoggedInUserAuthorisationTest : BehaviorSpec({
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

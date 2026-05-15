@@ -55,7 +55,7 @@ class ZgwApiServiceTest : BehaviorSpec({
         drcClientService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

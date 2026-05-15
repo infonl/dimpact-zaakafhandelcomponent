@@ -59,7 +59,7 @@ class SearchServiceTest : BehaviorSpec({
     val loggedInUser = mockk<LoggedInUser>()
     val zoekService = SearchService(loggedInUserInstance, configurationService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

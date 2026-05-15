@@ -23,7 +23,7 @@ class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
     val deserializationContext = mockk<DeserializationContext>()
     val runtimeType = mockk<Type>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

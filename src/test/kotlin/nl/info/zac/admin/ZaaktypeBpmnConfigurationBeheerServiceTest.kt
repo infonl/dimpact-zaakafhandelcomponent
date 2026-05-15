@@ -40,7 +40,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         smartDocumentsTemplatesService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

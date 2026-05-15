@@ -114,7 +114,7 @@ class TaskRestServiceTest : BehaviorSpec({
     )
     val loggedInUser = createLoggedInUser()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

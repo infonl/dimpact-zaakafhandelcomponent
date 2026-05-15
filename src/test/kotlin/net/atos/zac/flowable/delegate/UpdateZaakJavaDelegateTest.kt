@@ -41,7 +41,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val zaakStatusName = "fakeStatus"
     val zaakStatus = createZaakStatusSub()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

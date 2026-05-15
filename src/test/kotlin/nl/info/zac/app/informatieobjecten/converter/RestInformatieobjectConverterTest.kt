@@ -66,7 +66,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         ztcClientService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

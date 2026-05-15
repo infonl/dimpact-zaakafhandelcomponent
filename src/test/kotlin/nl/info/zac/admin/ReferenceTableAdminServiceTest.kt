@@ -35,7 +35,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         referenceTableService = referenceTableService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
