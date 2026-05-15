@@ -46,6 +46,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -75,6 +76,7 @@ class SignaleringService @Inject constructor(
         private val LOG = Logger.getLogger(SignaleringService::class.java.name)
         private const val ZRC_FANOUT_PARALLELISM = 8
         private val SUPPORTED_ZAKEN_SORT_FIELDS = setOf(
+            SorteerVeld.SIGNALERING_TIJDSTIP,
             SorteerVeld.ZAAK_IDENTIFICATIE,
             SorteerVeld.ZAAK_STARTDATUM,
             SorteerVeld.ZAAK_ZAAKTYPE,
@@ -397,19 +399,20 @@ class SignaleringService @Inject constructor(
     /**
      * Lists a page of zaken signaleringen for the given signaleringsType.
      *
-     * No sorteerVeld → JPA paged by tijdstip desc. Sort on a RestZaakOverzicht field
-     * can't be expressed in JPA, so the full list is materialised, sorted, then sliced.
+     * sortField = SIGNALERING_TIJDSTIP → JPA paged by tijdstip desc (fast path).
+     * Any other sortField sorts a RestZaakOverzicht field in memory after materialising
+     * all matches, since the signaleringen table can't express that ordering.
      */
     fun listZakenSignaleringenPage(
         signaleringsType: SignaleringType.Type,
         pageParameters: RestSignaleringPageParameters,
         loggedInUser: LoggedInUser
     ): List<RestZaakOverzicht> {
+        validateZakenSortField(pageParameters.sortField)
         val searchParameters = SignaleringZoekParameters(loggedInUser)
             .types(signaleringsType)
             .subjecttype(SignaleringSubject.ZAAK)
-        val sorteerVeld = pageParameters.sorteerVeld?.also { validateZakenSortField(it) }
-        return if (sorteerVeld == null) {
+        return if (pageParameters.sortField == SorteerVeld.SIGNALERING_TIJDSTIP) {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
                     "of type '$signaleringsType' ..."
@@ -418,11 +421,11 @@ class SignaleringService @Inject constructor(
         } else {
             LOG.fine {
                 "Listing page ${pageParameters.page} (${pageParameters.rows} elements) for zaken signaleringen " +
-                    "of type '$signaleringsType' sorted by '$sorteerVeld' ${pageParameters.sorteerRichting} ..."
+                    "of type '$signaleringsType' sorted by '${pageParameters.sortField}' ${pageParameters.sortOrder} ..."
             }
             listSignaleringen(searchParameters)
                 .toRestZaakOverzichten(loggedInUser)
-                .sortedWith(zaakOverzichtComparator(sorteerVeld, pageParameters.sorteerRichting))
+                .sortedWith(zaakOverzichtComparator(pageParameters.sortField, pageParameters.sortOrder))
                 .slicePage(pageParameters.page, pageParameters.rows)
         }.also {
             LOG.fine {
@@ -442,7 +445,7 @@ class SignaleringService @Inject constructor(
                 map { signalering ->
                     async {
                         val zaak = zrcClientService.readZaak(UUID.fromString(signalering.subject))
-                        restZaakOverzichtConverter.convertForDisplay(zaak = zaak, loggedInUser = loggedInUser)
+                        restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser)
                     }
                 }.awaitAll()
             }
@@ -464,7 +467,7 @@ class SignaleringService @Inject constructor(
         }
     }
 
-    private fun zaakOverzichtComparator(field: SorteerVeld, direction: String?): Comparator<RestZaakOverzicht> {
+    private fun zaakOverzichtComparator(field: SorteerVeld, order: SorteerRichting): Comparator<RestZaakOverzicht> {
         val ascending: Comparator<RestZaakOverzicht> = when (field) {
             SorteerVeld.ZAAK_IDENTIFICATIE -> compareBy(nullsLast<String>()) { it.identificatie }
             SorteerVeld.ZAAK_STARTDATUM -> compareBy(nullsLast<LocalDate>()) { it.startdatum }
@@ -472,7 +475,7 @@ class SignaleringService @Inject constructor(
             SorteerVeld.ZAAK_OMSCHRIJVING -> compareBy(nullsLast<String>()) { it.omschrijving }
             else -> error("validateZakenSortField should have rejected '$field' before reaching the comparator")
         }
-        return if (direction.equals("desc", ignoreCase = true)) ascending.reversed() else ascending
+        return if (order == SorteerRichting.DESC) ascending.reversed() else ascending
     }
 
     /**

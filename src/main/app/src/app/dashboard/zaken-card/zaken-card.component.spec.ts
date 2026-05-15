@@ -24,7 +24,7 @@ import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { ZakenCardComponent } from "./zaken-card.component";
 
-const makeResultaat = (totaal: number, count = totaal) =>
+const buildResultaat = (totaal: number, count = totaal) =>
   fromPartial<{
     resultaten: GeneratedType<"RestZaakOverzicht">[];
     totaal: number;
@@ -42,6 +42,14 @@ const cardData = new DashboardCard(
   DashboardCardType.ZAKEN,
   "ZAAK_OP_NAAM",
 );
+
+const defaultParameters = {
+  signaleringType: cardData.signaleringType,
+  page: 0,
+  pageSize: 5,
+  sortField: "SIGNALERING_TIJDSTIP" as GeneratedType<"SorteerVeld">,
+  sortOrder: "DESC" as GeneratedType<"SorteerRichting">,
+};
 
 describe(ZakenCardComponent.name, () => {
   let fixture: ComponentFixture<ZakenCardComponent>;
@@ -78,21 +86,14 @@ describe(ZakenCardComponent.name, () => {
   }
 
   it("renders paginator length from cached query data on first detect cycle, even when only one page of rows is loaded", async () => {
-    const params = {
-      signaleringType: cardData.signaleringType,
-      page: 0,
-      pageSize: 5,
-      sorteerVeld: null,
-      sorteerRichting: null,
-    };
     testQueryClient.setQueryData(
-      ["aan mij toegekende zaken signaleringen", params],
-      makeResultaat(25, 5),
+      ["aan mij toegekende zaken signaleringen", defaultParameters],
+      buildResultaat(25, 5),
     );
 
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(25, 5)));
+      .mockReturnValue(of(buildResultaat(25, 5)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -106,7 +107,7 @@ describe(ZakenCardComponent.name, () => {
   it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(0)));
+      .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -116,20 +117,13 @@ describe(ZakenCardComponent.name, () => {
   });
 
   it("populates the data source with rows from the query result", async () => {
-    const params = {
-      signaleringType: cardData.signaleringType,
-      page: 0,
-      pageSize: 5,
-      sorteerVeld: null,
-      sorteerRichting: null,
-    };
     testQueryClient.setQueryData(
-      ["aan mij toegekende zaken signaleringen", params],
-      makeResultaat(8),
+      ["aan mij toegekende zaken signaleringen", defaultParameters],
+      buildResultaat(8),
     );
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(8)));
+      .mockReturnValue(of(buildResultaat(8)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -149,27 +143,27 @@ describe(ZakenCardComponent.name, () => {
     expect(fixture.componentInstance.pageNumber()).toBe(4);
   });
 
-  it("starts with no sort applied so the backend keeps its default tijdstip-desc ordering", () => {
+  it("starts with the default tijdstip-desc sort so the request always carries an explicit ordering", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(0)));
+      .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.sortField()).toBeNull();
-    expect(fixture.componentInstance.sortDirection()).toBe("");
+    expect(fixture.componentInstance.sortField()).toBe("SIGNALERING_TIJDSTIP");
+    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
     expect(fixture.componentInstance.parameters()).toMatchObject({
-      sorteerVeld: null,
-      sorteerRichting: null,
+      sortField: "SIGNALERING_TIJDSTIP",
+      sortOrder: "DESC",
     });
   });
 
   it("propagates sort changes into the request and resets pagination back to the first page", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(0)));
+      .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -184,19 +178,19 @@ describe(ZakenCardComponent.name, () => {
     });
 
     expect(fixture.componentInstance.sortField()).toBe("ZAAK_STARTDATUM");
-    expect(fixture.componentInstance.sortDirection()).toBe("desc");
+    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
     expect(fixture.componentInstance.pageNumber()).toBe(0);
     expect(fixture.componentInstance.parameters()).toMatchObject({
-      sorteerVeld: "ZAAK_STARTDATUM",
-      sorteerRichting: "desc",
+      sortField: "ZAAK_STARTDATUM",
+      sortOrder: "DESC",
       page: 0,
     });
   });
 
-  it("clears the sort when the user toggles back to no direction", () => {
+  it("reverts to the default sort order when the user toggles back to no direction", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(0)));
+      .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -213,18 +207,18 @@ describe(ZakenCardComponent.name, () => {
       direction: "",
     });
 
-    expect(fixture.componentInstance.sortField()).toBeNull();
-    expect(fixture.componentInstance.sortDirection()).toBe("");
+    expect(fixture.componentInstance.sortField()).toBe("SIGNALERING_TIJDSTIP");
+    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
     expect(fixture.componentInstance.parameters()).toMatchObject({
-      sorteerVeld: null,
-      sorteerRichting: null,
+      sortField: "SIGNALERING_TIJDSTIP",
+      sortOrder: "DESC",
     });
   });
 
   it("forwards sort fields to the signaleringen service when the query runs", async () => {
     const spy = jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(0)));
+      .mockReturnValue(of(buildResultaat(0)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -241,8 +235,8 @@ describe(ZakenCardComponent.name, () => {
     expect(spy).toHaveBeenCalledWith("ZAAK_OP_NAAM", {
       page: 0,
       rows: 5,
-      sorteerVeld: "ZAAK_IDENTIFICATIE",
-      sorteerRichting: "asc",
+      sortField: "ZAAK_IDENTIFICATIE",
+      sortOrder: "ASC",
     });
   });
 });

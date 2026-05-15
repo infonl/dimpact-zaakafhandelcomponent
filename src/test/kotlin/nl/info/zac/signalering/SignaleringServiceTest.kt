@@ -50,6 +50,7 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
+import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.model.createSignalering
 import nl.info.zac.signalering.model.createSignaleringType
@@ -171,13 +172,18 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaken signalering of type ZAAK_OP_NAAM") {
+    Given("A zaken signalering of type ZAAK_OP_NAAM sorted by SIGNALERING_TIJDSTIP DESC (the default)") {
         val signalering = createSignalering()
         val zaak = createZaak()
         val restZaakOverzicht = createRESTZaakOverzicht()
         val pageNumber = 0
         val pageSize = 5
-        val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
+        val restPageParameters = RestSignaleringPageParameters(
+            page = pageNumber,
+            rows = pageSize,
+            sortField = SorteerVeld.SIGNALERING_TIJDSTIP,
+            sortOrder = SorteerRichting.DESC
+        )
         val loggedInUser = createLoggedInUser()
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder
@@ -242,8 +248,8 @@ class SignaleringServiceTest : BehaviorSpec({
         val pageParameters = RestSignaleringPageParameters(
             page = 0,
             rows = 2,
-            sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE,
-            sorteerRichting = "asc"
+            sortField = SorteerVeld.ZAAK_IDENTIFICATIE,
+            sortOrder = SorteerRichting.ASC
         )
         val loggedInUser = createLoggedInUser()
 
@@ -298,8 +304,8 @@ class SignaleringServiceTest : BehaviorSpec({
         val pageParameters = RestSignaleringPageParameters(
             page = 0,
             rows = 5,
-            sorteerVeld = SorteerVeld.TAAK_NAAM,
-            sorteerRichting = "asc"
+            sortField = SorteerVeld.TAAK_NAAM,
+            sortOrder = SorteerRichting.ASC
         )
         val loggedInUser = createLoggedInUser()
 
@@ -333,8 +339,8 @@ class SignaleringServiceTest : BehaviorSpec({
         val pageParameters = RestSignaleringPageParameters(
             page = 1,
             rows = 2,
-            sorteerVeld = SorteerVeld.ZAAK_STARTDATUM,
-            sorteerRichting = "desc"
+            sortField = SorteerVeld.ZAAK_STARTDATUM,
+            sortOrder = SorteerRichting.DESC
         )
         val loggedInUser = createLoggedInUser()
 
@@ -434,8 +440,8 @@ class SignaleringServiceTest : BehaviorSpec({
                 RestSignaleringPageParameters(
                     page = 0,
                     rows = 5,
-                    sorteerVeld = SorteerVeld.ZAAK_ZAAKTYPE,
-                    sorteerRichting = "asc"
+                    sortField = SorteerVeld.ZAAK_ZAAKTYPE,
+                    sortOrder = SorteerRichting.ASC
                 ),
                 loggedInUser
             )
@@ -451,8 +457,8 @@ class SignaleringServiceTest : BehaviorSpec({
                 RestSignaleringPageParameters(
                     page = 0,
                     rows = 5,
-                    sorteerVeld = SorteerVeld.ZAAK_OMSCHRIJVING,
-                    sorteerRichting = "asc"
+                    sortField = SorteerVeld.ZAAK_OMSCHRIJVING,
+                    sortOrder = SorteerRichting.ASC
                 ),
                 loggedInUser
             )
@@ -468,8 +474,8 @@ class SignaleringServiceTest : BehaviorSpec({
         val pageParameters = RestSignaleringPageParameters(
             page = 0,
             rows = 5,
-            sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE,
-            sorteerRichting = "asc"
+            sortField = SorteerVeld.ZAAK_IDENTIFICATIE,
+            sortOrder = SorteerRichting.ASC
         )
 
         every { entityManager.criteriaBuilder } returns criteriaBuilder

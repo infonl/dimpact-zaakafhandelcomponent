@@ -26,7 +26,7 @@ import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { InformatieobjectenCardComponent } from "./informatieobjecten-card.component";
 
-const makeInformatieobject = (
+const buildInformatieobject = (
   fields: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">> = {},
 ) =>
   fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
@@ -35,7 +35,7 @@ const makeInformatieobject = (
     ...fields,
   });
 
-const makeDashboardCard = (signaleringType?: GeneratedType<"Type">) =>
+const buildDashboardCard = (signaleringType?: GeneratedType<"Type">) =>
   new DashboardCard(
     DashboardCardId.MIJN_DOCUMENTEN_NIEUW,
     DashboardCardType.ZAKEN,
@@ -76,7 +76,7 @@ describe(InformatieobjectenCardComponent.name, () => {
     fixture = TestBed.createComponent(InformatieobjectenCardComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    component.data = makeDashboardCard("ZAAK_DOCUMENT_TOEGEVOEGD");
+    component.data = buildDashboardCard("ZAAK_DOCUMENT_TOEGEVOEGD");
     fixture.detectChanges();
     component["reloader"]?.unsubscribe();
   });
@@ -89,8 +89,8 @@ describe(InformatieobjectenCardComponent.name, () => {
 
   it("populates dataSource with informatieobjecten returned by the service", () => {
     const docs = [
-      makeInformatieobject({ titel: "Doc A" }),
-      makeInformatieobject({ titel: "Doc B" }),
+      buildInformatieobject({ titel: "Doc A" }),
+      buildInformatieobject({ titel: "Doc B" }),
     ];
     jest
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
@@ -117,8 +117,8 @@ describe(InformatieobjectenCardComponent.name, () => {
       "listInformatieobjectenSignalering",
     );
     spy.mockClear();
-    component.data = makeDashboardCard(undefined);
-    component.dataSource.data = [makeInformatieobject()];
+    component.data = buildDashboardCard(undefined);
+    component.dataSource.data = [buildInformatieobject()];
 
     component["onLoad"]();
 
@@ -133,9 +133,9 @@ describe(InformatieobjectenCardComponent.name, () => {
 
   it("reorders rows ascending then descending when the titel sort header is clicked", async () => {
     component.dataSource.data = [
-      makeInformatieobject({ titel: "Charlie" }),
-      makeInformatieobject({ titel: "Alpha" }),
-      makeInformatieobject({ titel: "Bravo" }),
+      buildInformatieobject({ titel: "Charlie" }),
+      buildInformatieobject({ titel: "Alpha" }),
+      buildInformatieobject({ titel: "Bravo" }),
     ];
     fixture.detectChanges();
 
@@ -173,9 +173,9 @@ describe(InformatieobjectenCardComponent.name, () => {
 
   it("renders a table row for each informatieobject in dataSource", async () => {
     component.dataSource.data = [
-      makeInformatieobject({ titel: "X" }),
-      makeInformatieobject({ titel: "Y" }),
-      makeInformatieobject({ titel: "Z" }),
+      buildInformatieobject({ titel: "X" }),
+      buildInformatieobject({ titel: "Y" }),
+      buildInformatieobject({ titel: "Z" }),
     ];
     fixture.detectChanges();
 
@@ -207,71 +207,83 @@ describe(InformatieobjectenCardComponent.name, () => {
 
   it("sorts on the documenttype column end-to-end so the renamed field reorders rows", async () => {
     component.dataSource.data = [
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Charlie",
         informatieobjectTypeOmschrijving: "Brief",
       }),
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Alpha",
         informatieobjectTypeOmschrijving: "Aanvraag",
       }),
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Bravo",
         informatieobjectTypeOmschrijving: "Contract",
       }),
     ];
     fixture.detectChanges();
 
-    const sortHeader = await loader.getHarness(
+    const informatieobjectTypeOmschrijvingHeader = await loader.getHarness(
       MatSortHeaderHarness.with({ label: "informatieobjectTypeOmschrijving" }),
     );
     const table = await loader.getHarness(MatTableHarness);
 
-    await sortHeader.click();
-    const ascending = await Promise.all(
+    await informatieobjectTypeOmschrijvingHeader.click();
+    const titelsSortedByInformatieobjectTypeOmschrijvingAsc = await Promise.all(
       (await table.getRows()).map(
         async (row) => (await row.getCellTextByColumnName()).titel,
       ),
     );
-    expect(ascending).toEqual(["Alpha", "Charlie", "Bravo"]);
+    expect(titelsSortedByInformatieobjectTypeOmschrijvingAsc).toEqual([
+      "Alpha",
+      "Charlie",
+      "Bravo",
+    ]);
   });
 
   it("sorts on a date column (registratiedatumTijd) end-to-end", async () => {
     component.dataSource.data = [
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Mid",
         registratiedatumTijd: "2025-06-15T10:00:00Z",
       }),
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Oud",
         registratiedatumTijd: "2024-01-01T10:00:00Z",
       }),
-      makeInformatieobject({
+      buildInformatieobject({
         titel: "Nieuw",
         registratiedatumTijd: "2026-03-20T10:00:00Z",
       }),
     ];
     fixture.detectChanges();
 
-    const sortHeader = await loader.getHarness(
+    const registratiedatumTijdHeader = await loader.getHarness(
       MatSortHeaderHarness.with({ label: "registratiedatumTijd" }),
     );
     const table = await loader.getHarness(MatTableHarness);
 
-    await sortHeader.click();
-    const ascending = await Promise.all(
+    await registratiedatumTijdHeader.click();
+    const titelsSortedByRegistratiedatumTijdAsc = await Promise.all(
       (await table.getRows()).map(
         async (row) => (await row.getCellTextByColumnName()).titel,
       ),
     );
-    expect(ascending).toEqual(["Oud", "Mid", "Nieuw"]);
+    expect(titelsSortedByRegistratiedatumTijdAsc).toEqual([
+      "Oud",
+      "Mid",
+      "Nieuw",
+    ]);
 
-    await sortHeader.click();
-    const descending = await Promise.all(
+    await registratiedatumTijdHeader.click();
+    const titelsSortedByRegistratiedatumTijdDesc = await Promise.all(
       (await table.getRows()).map(
         async (row) => (await row.getCellTextByColumnName()).titel,
       ),
     );
-    expect(descending).toEqual(["Nieuw", "Mid", "Oud"]);
+    expect(titelsSortedByRegistratiedatumTijdDesc).toEqual([
+      "Nieuw",
+      "Mid",
+      "Oud",
+    ]);
   });
 });

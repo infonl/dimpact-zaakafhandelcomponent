@@ -13,7 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Sort, SortDirection } from "@angular/material/sort";
+import { Sort } from "@angular/material/sort";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -21,6 +21,9 @@ import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
+
+const DEFAULT_SORT_FIELD: GeneratedType<"SorteerVeld"> = "SIGNALERING_TIJDSTIP";
+const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
 
 @Component({
   selector: "zac-zaken-card",
@@ -47,15 +50,15 @@ export class ZakenCardComponent
   protected override serverSidePagination = true;
   pageSize = 5;
   pageNumber = signal(0);
-  sortField = signal<GeneratedType<"SorteerVeld"> | null>(null);
-  sortDirection = signal<SortDirection>("");
+  sortField = signal<GeneratedType<"SorteerVeld">>(DEFAULT_SORT_FIELD);
+  sortOrder = signal<GeneratedType<"SorteerRichting">>(DEFAULT_SORT_ORDER);
 
   parameters = computed(() => ({
     signaleringType: this.data.signaleringType,
     page: this.pageNumber(),
     pageSize: this.pageSize,
-    sorteerVeld: this.sortField(),
-    sorteerRichting: this.sortDirection() || null,
+    sortField: this.sortField(),
+    sortOrder: this.sortOrder(),
   }));
 
   zakenQuery = injectQuery(() => ({
@@ -68,8 +71,8 @@ export class ZakenCardComponent
           {
             page: this.parameters().page,
             rows: this.parameters().pageSize,
-            sorteerVeld: this.parameters().sorteerVeld,
-            sorteerRichting: this.parameters().sorteerRichting,
+            sortField: this.parameters().sortField,
+            sortOrder: this.parameters().sortOrder,
           },
         ),
       ),
@@ -95,10 +98,15 @@ export class ZakenCardComponent
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ active, direction }: Sort) => {
         this.pageNumber.set(0);
-        this.sortField.set(
-          direction ? (active as GeneratedType<"SorteerVeld">) : null,
-        );
-        this.sortDirection.set(direction);
+        if (direction) {
+          this.sortField.set(active as GeneratedType<"SorteerVeld">);
+          this.sortOrder.set(
+            direction.toUpperCase() as GeneratedType<"SorteerRichting">,
+          );
+        } else {
+          this.sortField.set(DEFAULT_SORT_FIELD);
+          this.sortOrder.set(DEFAULT_SORT_ORDER);
+        }
       });
   }
 
