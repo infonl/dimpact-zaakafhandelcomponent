@@ -379,6 +379,134 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
+    Given("Three zaak signaleringen with distinct zaaktype and omschrijving values") {
+        val signaleringA = createSignalering()
+        val signaleringB = createSignalering()
+        val signaleringC = createSignalering()
+        val zaakA = createZaak()
+        val zaakB = createZaak()
+        val zaakC = createZaak()
+        val overzichtZonnepanelen = createRESTZaakOverzicht().apply {
+            zaaktype = "Zonnepanelen"
+            omschrijving = "Bravo"
+        }
+        val overzichtAanvraag = createRESTZaakOverzicht().apply {
+            zaaktype = "Aanvraag"
+            omschrijving = "Charlie"
+        }
+        val overzichtMelding = createRESTZaakOverzicht().apply {
+            zaaktype = "Melding"
+            omschrijving = "Alpha"
+        }
+        val loggedInUser = createLoggedInUser()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { typedQuery.resultList } returns listOf(signaleringA, signaleringB, signaleringC)
+
+        every { zrcClientService.readZaak(UUID.fromString(signaleringA.subject)) } returns zaakA
+        every { zrcClientService.readZaak(UUID.fromString(signaleringB.subject)) } returns zaakB
+        every { zrcClientService.readZaak(UUID.fromString(signaleringC.subject)) } returns zaakC
+        every { restZaakOverzichtConverter.convertForDisplay(zaakA, loggedInUser) } returns overzichtZonnepanelen
+        every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtAanvraag
+        every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtMelding
+
+        When("sorting by ZAAK_ZAAKTYPE ascending") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                RestSignaleringPageParameters(
+                    page = 0,
+                    rows = 5,
+                    sorteerVeld = SorteerVeld.ZAAK_ZAAKTYPE,
+                    sorteerRichting = "asc"
+                ),
+                loggedInUser
+            )
+
+            Then("rows are returned in zaaktype-ascending order") {
+                result shouldBe listOf(overzichtAanvraag, overzichtMelding, overzichtZonnepanelen)
+            }
+        }
+
+        When("sorting by ZAAK_OMSCHRIJVING ascending") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                RestSignaleringPageParameters(
+                    page = 0,
+                    rows = 5,
+                    sorteerVeld = SorteerVeld.ZAAK_OMSCHRIJVING,
+                    sorteerRichting = "asc"
+                ),
+                loggedInUser
+            )
+
+            Then("rows are returned in omschrijving-ascending order") {
+                result shouldBe listOf(overzichtMelding, overzichtZonnepanelen, overzichtAanvraag)
+            }
+        }
+    }
+
+    Given("No zaak signaleringen exist for the user and a sort is requested") {
+        val loggedInUser = createLoggedInUser()
+        val pageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 5,
+            sorteerVeld = SorteerVeld.ZAAK_IDENTIFICATIE,
+            sorteerRichting = "asc"
+        )
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { criteriaBuilder.createQuery(Signalering::class.java) } returns criteriaQuery
+        every { criteriaBuilder.equal(pathTarget, SignaleringTarget.USER) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, loggedInUser.id) } returns predicate
+        every { criteriaBuilder.equal(pathTarget, SignaleringSubject.ZAAK) } returns predicate
+        every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
+        every { criteriaBuilder.desc(pathTijdstip) } returns order
+        every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
+        every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
+        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.orderBy(order) } returns criteriaQuery
+        every { rootSignalering.get<Any>("targettype") } returns pathTarget
+        every { rootSignalering.get<Any>("target") } returns pathTarget
+        every { rootSignalering.get<Any>("type") } returns pathTarget
+        every { rootSignalering.get<Long>("tijdstip") } returns pathTijdstip
+        every { pathTarget.get<Any>("id") } returns pathTarget
+        every { pathTarget.`in`(listOf("ZAAK_OP_NAAM")) } returns predicate
+        every { pathTarget.get<Any>("subjecttype") } returns pathTarget
+        every { typedQuery.resultList } returns emptyList()
+
+        When("listing the page") {
+            val result = signaleringService.listZakenSignaleringenPage(
+                SignaleringType.Type.ZAAK_OP_NAAM,
+                pageParameters,
+                loggedInUser
+            )
+
+            Then("an empty list is returned without invoking the ZRC client") {
+                result shouldBe emptyList()
+                verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
+            }
+        }
+    }
+
     Given(
         """
         Two zaak signaleringen each with the same target and corresponding signalering zoek parameters with a subject type and subject
