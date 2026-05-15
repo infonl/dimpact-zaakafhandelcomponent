@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
@@ -89,18 +90,20 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses =
-                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
-            val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
-            }
-            val restPersoon = brpPersoon.await()?.toRestPersoon()
-                ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
-            klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                restPersoon.apply {
-                    telefoonnummer = contactDetails.telephoneNumber
-                    emailadres = contactDetails.emailAddress
-                    temporaryPersonId = requestedTemporaryPersonId
+            supervisorScope {
+                val klantPersoonDigitalAddresses =
+                    async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
+                val brpPersoon = async {
+                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
+                }
+                val restPersoon = brpPersoon.await()?.toRestPersoon()
+                    ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+                klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    restPersoon.apply {
+                        telefoonnummer = contactDetails.telephoneNumber
+                        emailadres = contactDetails.emailAddress
+                        temporaryPersonId = requestedTemporaryPersonId
+                    }
                 }
             }
         }
@@ -158,15 +161,17 @@ class KlantRestService @Inject constructor(
             // run the two client calls concurrently in a coroutine scope,
             // so we do not need to wait for the first call to complete
             withContext(Dispatchers.IO) {
-                val klantRechtspersoonDigitalAddresses =
-                    async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
-                val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
-                val restBedrijf = rechtspersoon.await()?.toRestBedrijf()
-                    ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
-                klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                    restBedrijf.apply {
-                        emailadres = contactDetails.emailAddress
-                        telefoonnummer = contactDetails.telephoneNumber
+                supervisorScope {
+                    val klantRechtspersoonDigitalAddresses =
+                        async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
+                    val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
+                    val restBedrijf = rechtspersoon.await()?.toRestBedrijf()
+                        ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                    klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                        restBedrijf.apply {
+                            emailadres = contactDetails.emailAddress
+                            telefoonnummer = contactDetails.telephoneNumber
+                        }
                     }
                 }
             }
@@ -247,22 +252,24 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantVestigingDigitalAddresses =
-                async {
-                    // we do not support retrieving contact details for a vestiging if no KVK number was provided
-                    kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
-                        ?: emptyList()
-                }
-            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
-                ?: throw VestigingNotFoundException(
-                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
-                        (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
-                )
-            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                restBedrijf.apply {
-                    emailadres = contactDetails.emailAddress
-                    telefoonnummer = contactDetails.telephoneNumber
+            supervisorScope {
+                val klantVestigingDigitalAddresses =
+                    async {
+                        // we do not support retrieving contact details for a vestiging if no KVK number was provided
+                        kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
+                            ?: emptyList()
+                    }
+                val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
+                val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
+                    ?: throw VestigingNotFoundException(
+                        "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
+                            (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
+                    )
+                klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    restBedrijf.apply {
+                        emailadres = contactDetails.emailAddress
+                        telefoonnummer = contactDetails.telephoneNumber
+                    }
                 }
             }
         }

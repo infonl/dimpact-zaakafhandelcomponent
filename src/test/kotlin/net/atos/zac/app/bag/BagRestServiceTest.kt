@@ -32,7 +32,7 @@ class BagRestServiceTest : BehaviorSpec({
         loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

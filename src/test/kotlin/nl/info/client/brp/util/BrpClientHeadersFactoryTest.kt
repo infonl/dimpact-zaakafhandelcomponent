@@ -28,7 +28,7 @@ class BrpClientHeadersFactoryTest : BehaviorSpec({
     val purpose = "fakePurpose"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

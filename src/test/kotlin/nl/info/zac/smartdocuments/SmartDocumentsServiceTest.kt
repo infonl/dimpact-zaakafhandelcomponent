@@ -33,7 +33,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val smartDocumentsClient = mockk<Instance<SmartDocumentsClient>>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

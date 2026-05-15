@@ -44,7 +44,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         mailTemplateService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

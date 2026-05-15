@@ -20,7 +20,7 @@ class ReferenceTableServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val referenceTableService = ReferenceTableService(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -27,7 +27,7 @@ class ZacCmmnAdminUtilRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

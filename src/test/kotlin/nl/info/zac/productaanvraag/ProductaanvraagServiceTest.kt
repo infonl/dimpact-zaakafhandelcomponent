@@ -109,7 +109,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         productaanvraagDocumentService = productaanvraagDocumentService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

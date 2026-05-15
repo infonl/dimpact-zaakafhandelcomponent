@@ -39,7 +39,7 @@ class BrpClientServiceTest : BehaviorSpec({
         brpConfiguration = brpConfiguration,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService
     )
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

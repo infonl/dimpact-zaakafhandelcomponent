@@ -21,7 +21,7 @@ class SessionRegistryTest : BehaviorSpec({
     val screenEventCreatedZaak = createScreenEvent(opcode = Opcode.CREATED, screenEventType = ScreenEventType.ZAAK)
     val screenEventAnyAny = createScreenEvent(opcode = Opcode.ANY, screenEventType = ScreenEventType.ANY)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

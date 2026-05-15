@@ -58,7 +58,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
 
     val capturedMailGegevens = mutableListOf<MailGegevens>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
