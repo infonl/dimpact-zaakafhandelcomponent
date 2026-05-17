@@ -23,7 +23,7 @@ class KvkClientServiceTest : BehaviorSpec({
         kvkVestigingsprofielClient = kvkVestigingsprofielClient
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

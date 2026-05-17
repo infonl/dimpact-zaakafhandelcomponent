@@ -30,7 +30,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

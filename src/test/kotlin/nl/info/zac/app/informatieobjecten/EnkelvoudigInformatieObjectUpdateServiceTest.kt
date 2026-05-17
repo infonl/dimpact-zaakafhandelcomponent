@@ -61,7 +61,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     val taskId = "1234"
     val task = createTestTask()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

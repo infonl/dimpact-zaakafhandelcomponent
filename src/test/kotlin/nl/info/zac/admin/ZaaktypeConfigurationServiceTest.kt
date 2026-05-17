@@ -38,7 +38,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         zaaktypeBpmnConfigurationBeheerService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

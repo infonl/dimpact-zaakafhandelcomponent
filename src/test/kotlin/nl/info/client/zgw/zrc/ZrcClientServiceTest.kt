@@ -34,7 +34,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         configurationService = configurationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

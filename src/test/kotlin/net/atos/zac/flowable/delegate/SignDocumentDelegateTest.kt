@@ -41,7 +41,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         unmockkStatic(CDI::class)
     }
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

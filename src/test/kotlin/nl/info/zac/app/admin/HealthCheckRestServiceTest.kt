@@ -37,7 +37,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -29,7 +29,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
     val numberOfDays = 10L
     val reason = "test"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

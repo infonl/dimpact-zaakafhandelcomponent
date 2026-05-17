@@ -28,7 +28,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
     val inboxDocumentRepository = InboxDocumentRepository(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

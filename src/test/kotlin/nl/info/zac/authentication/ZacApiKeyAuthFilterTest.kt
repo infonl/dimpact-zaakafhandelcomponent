@@ -21,7 +21,7 @@ class ZacApiKeyAuthFilterTest : BehaviorSpec({
     )
     val containerRequestContext = mockk<ContainerRequestContext>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

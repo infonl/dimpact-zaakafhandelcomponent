@@ -70,7 +70,7 @@ class PolicyServiceTest : BehaviorSpec({
         configurationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
