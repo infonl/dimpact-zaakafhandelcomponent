@@ -495,10 +495,6 @@ tasks {
         dependsOn("generateWildflyBootableJar")
     }
 
-    test {
-        dependsOn("npmRunTest")
-    }
-
     compileJava {
         dependsOn("generateJavaClients")
     }
@@ -754,6 +750,7 @@ tasks {
         group = "build"
         inputs.file("$appPath/package.json")
         outputs.dir("$appPath/node_modules")
+        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunLint") {
@@ -789,7 +786,7 @@ tasks {
     register<NpmTask>("npmRunTest") {
         description = "Runs the frontend test suite"
         group = "verification"
-        dependsOn("npmRunBuild")
+        dependsOn("npmInstall")
 
         npmCommand.set(listOf("run", "test"))
 
@@ -803,7 +800,7 @@ tasks {
     register<NpmTask>("npmRunTestCoverage") {
         description = "Generates the frontend test suite code coverage report"
         group = "verification"
-        dependsOn("npmRunTest")
+        dependsOn("npmInstall")
 
         npmCommand.set(listOf("run", "test:report"))
         outputs.dir("$appPath/coverage")
