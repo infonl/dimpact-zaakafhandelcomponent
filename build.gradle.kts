@@ -762,8 +762,6 @@ tasks {
 
         inputs.files(fileTree("$appPath/node_modules"))
         inputs.files(fileTree("$appPath/src"))
-        outputs.files(fileTree("$appPath/src"))
-        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunBuild") {
