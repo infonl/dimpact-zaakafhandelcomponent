@@ -54,6 +54,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_IDENTI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_TOELICHTING
@@ -627,15 +628,15 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
         Given(
             """
-            A productaanvraag object exists without an initiator and with a productaanvraag-specific email address and betrokkene in Objecten, 
+            A productaanvraag object exists without an initiator and with productaanvraag-specific contact details in Objecten, 
             a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type and with 'automatic acknowledgement of
             receipt' (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
                 """
         ) {
             When(
                 """
-                the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header, 
-                alternative email address and initiator of type 'BSN'
+                the notificaties endpoint is called with a 'create productaanvraag' payload without initiator, 
+                and with productaanvraag-specific contact details'
                 """.trimIndent()
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -663,9 +664,9 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     ).toString()
                 )
                 Then(
-                    """the response should be 'no content', a zaak should be created in OpenZaak
-                        using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC
-                        with the correct identification for the zaak"""
+                    """the response should be 'no content', a zaak should be created in OpenZaak,
+                        and a zaak CMMN proces should be started in ZAC
+                        with the productaanvraag-specific contact details as the zaak-specific contact details"""
                 ) {
                     response.code shouldBe HTTP_NO_CONTENT
 
@@ -688,13 +689,17 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                                 "met kenmerk '$OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
-                            getJSONObject("zaakSpecificContactDetails").getString("emailAddress") shouldBe
-                                ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
+                            with(getJSONObject("zaakSpecificContactDetails")) {
+                                getString("emailAddress") shouldBe ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
+                                getString("telephoneNumber") shouldBe ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER
+                            }
                         }
                     }
                 }
 
-                And("an automated acknowledgement of receipt email is sent to alternative email address 2") {
+                And(
+                    "an automated acknowledgement of receipt email is sent to productaanvraag-specific email address"
+                ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL/messages/"
                     )

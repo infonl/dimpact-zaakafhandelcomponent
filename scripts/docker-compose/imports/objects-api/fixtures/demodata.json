@@ -1352,11 +1352,6 @@
                 "type": "email",
                 "address": "test-alternative-1@example.com",
                 "preferenceUpdate": "useOnlyOnce"
-              },
-              {
-                "type": "phoneNumber",
-                "address": "",
-                "preferenceUpdate": "useOnlyOnce"
               }
             ]
           }
@@ -1407,7 +1402,7 @@
               },
               {
                 "type": "phoneNumber",
-                "address": "",
+                "address": "06-11119999",
                 "preferenceUpdate": "useOnlyOnce"
               }
             ]

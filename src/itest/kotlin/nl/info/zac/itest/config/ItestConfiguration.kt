@@ -221,6 +221,7 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email-2"
     const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-alternative-email-2"
     const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL = "test-alternative-2@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER = "06-11119999"
 
     const val ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION = "ZAAK-1975-0000000001"
 

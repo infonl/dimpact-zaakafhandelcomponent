@@ -108,18 +108,20 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
     VALUES (5, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
 
--- add email digital addresses to betrokkene test product request with request specific email address
+-- add email digital addresses to betrokkene test product request with productaanvraag-specific email address
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(6, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-alternative-1@example.com', '', 5, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(7, '228b39dc-374a-4147-bac1-9ce4abea712e', 'email', 'test-alternative-2@example.com', '', 6, NULL, false, '', NULL);
+INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
+    VALUES(8, '4de71e36-377f-4bd4-91ea-7aa1ae5bf08a', 'telefoonnummer', '06-11119999', '', 6, NULL, false, '', NULL);
 
 -- add email digital address to partij
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(8, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
+    VALUES(9, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
 -- add email digital address to betrokkene for a changed preferred email address through Open Formulieren
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(9, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
+    VALUES(10, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.
