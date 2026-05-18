@@ -71,7 +71,6 @@ export function buildBedrijfRouteLink(
     bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
     if (!bedrijf) return;
-    console.log("bedrijf: ", bedrijf)
     const tempBedrijf = new BetrokkeneIdentificatie(bedrijf);
 
     switch (tempBedrijf.type) {
@@ -80,6 +79,7 @@ export function buildBedrijfRouteLink(
         case "VN":
             return ["/bedrijf", tempBedrijf.kvkNummer, "vestiging", tempBedrijf.vestigingsnummer];
         default:
-            console.error("hier niet komen SVP!");
+            // throw new Error("Unknown bedrijf type");
+            console.error("buildBedrijfRouteLink Error")
     }
 }

@@ -64,12 +64,7 @@ export class BetrokkeneLinkComponent {
     }
 
     return this.klantenService.readBedrijf(
-      new BetrokkeneIdentificatie({
-        identificatieType: betrokkene.identificatieType,
-        kvkNummer: betrokkene.kvkNummer,
-        vestigingsnummer: betrokkene.vestigingsnummer,
-        rsin: betrokkene.rsin,
-      }),
+      new BetrokkeneIdentificatie(betrokkene),
     );
   });
 
@@ -80,12 +75,7 @@ export class BetrokkeneLinkComponent {
 
   protected readonly bedrijfRouteLink = computed(() => {
     const betrokkene = this.betrokkene();
-    return buildBedrijfRouteLink({
-      kvkNummer: betrokkene.kvkNummer,
-      vestigingsnummer: betrokkene.vestigingsnummer,
-        identificatieType: betrokkene.identificatieType,
-        type: betrokkene.type,
-    });
+    return buildBedrijfRouteLink(betrokkene);
   });
 
   private isBsnType() {

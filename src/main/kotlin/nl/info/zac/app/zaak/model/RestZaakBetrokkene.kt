@@ -52,9 +52,6 @@ data class RestZaakBetrokkene(
     /** Only populated when type is [VESTIGING] or [NIET_NATUURLIJK_PERSOON] with [IdentificatieType.VN] */
     var vestigingsnummer: String?,
 
-    /** Only populated when type is [NIET_NATUURLIJK_PERSOON] with [IdentificatieType.RSIN] */
-    var rsin: String?,
-
     /** Only populated when type is [NIET_NATUURLIJK_PERSOON] */
     var kvkNummer: String?
 )
@@ -78,7 +75,6 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
     var temporaryPersonId: UUID? = null
     var identificatieType: IdentificatieType? = null
     var vestigingsnummer: String? = null
-    var rsin: String? = null
     var kvkNummer: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
@@ -119,7 +115,6 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
         temporaryPersonId = temporaryPersonId,
         identificatieType = identificatieType,
         vestigingsnummer = vestigingsnummer,
-        rsin = rsin,
         kvkNummer = kvkNummer
     )
 }

@@ -1047,7 +1047,7 @@ export class ZaakViewComponent
     const betrokkeneIdentificatie: string =
       betrokkene.roltype +
       " " +
-      (betrokkene.vestigingsnummer ?? betrokkene.rsin ?? betrokkene.bsn ?? "");
+      (betrokkene.vestigingsnummer ?? betrokkene.kvkNummer ?? betrokkene.bsn);
     this.dialog
       .open(DialogComponent, {
         data: new DialogData<unknown, { reden: string }>({
@@ -1240,12 +1240,7 @@ export class ZaakViewComponent
       }
       case "NIET_NATUURLIJK_PERSOON":
       case "VESTIGING": {
-        const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
-          identificatieType: betrokkene.identificatieType,
-          kvkNummer: betrokkene.kvkNummer,
-          vestigingsnummer: betrokkene.vestigingsnummer,
-          rsin: betrokkene.rsin,
-        });
+        const betrokkeneIdentificatie = new BetrokkeneIdentificatie(betrokkene);
 
         const bedrijf = await this.queryClient.ensureQueryData(
           this.klantenService.readBedrijf(betrokkeneIdentificatie),
