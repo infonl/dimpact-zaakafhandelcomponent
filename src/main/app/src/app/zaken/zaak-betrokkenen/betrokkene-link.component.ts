@@ -83,6 +83,8 @@ export class BetrokkeneLinkComponent {
     return buildBedrijfRouteLink({
       kvkNummer: betrokkene.kvkNummer,
       vestigingsnummer: betrokkene.vestigingsnummer,
+        identificatieType: betrokkene.identificatieType,
+        type: betrokkene.type,
     });
   });
 
