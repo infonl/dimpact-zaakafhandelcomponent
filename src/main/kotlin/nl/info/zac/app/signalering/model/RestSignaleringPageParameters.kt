@@ -7,6 +7,8 @@ package nl.info.zac.app.signalering.model
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
 import nl.info.zac.app.shared.RestPageParameters
+import nl.info.zac.search.model.SorteerRichting
+import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
@@ -15,5 +17,9 @@ data class RestSignaleringPageParameters(
     override var page: Int,
 
     @field: Positive
-    override var rows: Int
+    override var rows: Int,
+
+    var sortField: SorteerVeld,
+
+    var sortOrder: SorteerRichting
 ) : RestPageParameters

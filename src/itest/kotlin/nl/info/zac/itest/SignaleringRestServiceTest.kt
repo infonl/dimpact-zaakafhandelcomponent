@@ -198,7 +198,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = """{
                         "page": 0,
-                        "rows": 5
+                        "rows": 5,
+                        "sortField": "SIGNALERING_TIJDSTIP",
+                        "sortOrder": "DESC"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1,
@@ -229,7 +231,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "page": 2,
-                        "rows": 5
+                        "rows": 5,
+                        "sortField": "SIGNALERING_TIJDSTIP",
+                        "sortOrder": "DESC"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_DOMAIN_TEST_1,
@@ -309,7 +313,9 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         requestBodyAsString = """
                             {
                                 "page": 0,
-                                "rows": 5
+                                "rows": 5,
+                                "sortField": "SIGNALERING_TIJDSTIP",
+                                "sortOrder": "DESC"
                             }
                         """.trimIndent(),
                         testUser = BEHANDELAAR_DOMAIN_TEST_1,

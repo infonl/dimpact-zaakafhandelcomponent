@@ -6,6 +6,7 @@ package nl.info.zac.search.model
 
 enum class SorteerVeld(val veld: String) {
     CREATED("created"),
+    SIGNALERING_TIJDSTIP("signalering_tijdstip"),
     ZAAK_IDENTIFICATIE("zaak_identificatie"),
     ZAAK_ZAAKTYPE("zaak_zaaktypeOmschrijving"),
     ZAAK_BEHANDELAAR("zaak_behandelaarNaam"),

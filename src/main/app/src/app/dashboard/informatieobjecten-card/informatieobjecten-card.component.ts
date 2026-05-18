@@ -25,7 +25,7 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
   columns = [
     "titel",
     "registratiedatumTijd",
-    "informatieobjectType",
+    "informatieobjectTypeOmschrijving",
     "auteur",
     "url",
   ] as const;
