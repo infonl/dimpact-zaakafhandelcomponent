@@ -14,7 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.WebSocketTestListener
@@ -75,7 +75,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                             "actie" to "partial_update",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
+                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_CMMN_TEST_3_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )
@@ -142,7 +142,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
+                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_CMMN_TEST_3_UUID",
                                 "bronorganisatie" to "123443210",
                                 "vertrouwelijkheidaanduiding" to "openbaar"
                             )

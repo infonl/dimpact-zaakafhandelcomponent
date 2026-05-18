@@ -17,7 +17,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_2
@@ -51,7 +51,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
         lateinit var humanTaskItemAanvullendeInformatieId: String
         lateinit var aanvullendeInformatieTaskID: String
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = OLD_IAM_TEST_USER_2.username,

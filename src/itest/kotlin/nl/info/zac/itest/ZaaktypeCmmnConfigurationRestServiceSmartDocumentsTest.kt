@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_GROUP_1_NAME
@@ -133,7 +133,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
-                "$ZAAKTYPE_TEST_3_UUID/smartdocuments-templates-mapping"
+                "$ZAAKTYPE_CMMN_TEST_3_UUID/smartdocuments-templates-mapping"
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
                 requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS,
@@ -161,7 +161,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
 
         When("the create mapping endpoint is called with invalid payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
-                "$ZAAKTYPE_TEST_3_UUID/smartdocuments-templates-mapping"
+                "$ZAAKTYPE_CMMN_TEST_3_UUID/smartdocuments-templates-mapping"
             val restTemplateGroups = """
             [
               {

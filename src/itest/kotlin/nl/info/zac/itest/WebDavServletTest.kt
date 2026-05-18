@@ -21,7 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import okhttp3.Headers
@@ -50,7 +50,7 @@ class WebDavServletTest : BehaviorSpec({
     Given("A zaak that was created and a logged-in behandelaar") {
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,

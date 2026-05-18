@@ -49,15 +49,15 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_RECHTSPERSOON_TELEPHONE_
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -88,7 +88,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaak is created") {
                 val response = zacClient.createZaak(
-                    zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
                     groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                     groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                     behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
@@ -199,7 +199,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers and the person is retrieved") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
@@ -228,7 +228,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -310,7 +310,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
@@ -342,7 +342,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -777,7 +777,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
+                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_CMMN_TEST_2_UUID/betrokkene",
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
@@ -790,32 +790,32 @@ class KlantRestServiceTest : BehaviorSpec({
                       {
                         "naam": "Belanghebbende",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE"
                       },
                       {
                         "naam": "Bewindvoerder",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER"
                       },
                       {
                         "naam": "Contactpersoon",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON"
                       },
                       {
                         "naam": "Gemachtigde",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE"
                       },
                       {
                         "naam": "Medeaanvrager",
                         "omschrijvingGeneriekEnum": "mede_initiator",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER"
                       },
                       {
                         "naam": "Plaatsvervanger",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
                     """.trimIndent()
