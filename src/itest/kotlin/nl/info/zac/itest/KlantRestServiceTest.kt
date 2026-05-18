@@ -586,7 +586,7 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Retrieving contactmomenten for a person") {
         Given("Existing contactmomenten and a logged-in raadpleger") {
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
-                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // this endpoint requires no explicit authorisation, however, to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -619,9 +619,14 @@ class KlantRestServiceTest : BehaviorSpec({
                           "kanaal": "telefoon",
                           "registratiedatum": "2010-01-01T12:00:00Z",
                           "tekst": "phone contact"
+                        },
+                        {
+                          "kanaal": "Webformulier",
+                          "registratiedatum": "2026-05-18T09:49:02Z",
+                          "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
                         }
                       ],
-                      "totaal": 2
+                      "totaal": 3
                     }
                     """.trimIndent()
                 }

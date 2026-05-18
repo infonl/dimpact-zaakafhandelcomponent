@@ -112,32 +112,32 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
     VALUES (3, '83d549d8-babb-43aa-a5e6-9bbd1b969440', 'email', 'true','fake.kvk@example.com', '', 2, 2, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (10, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'telefoonnummer', 'true','0101234567', '', 4, 2, 'referentie2');
+    VALUES (4, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'telefoonnummer', 'true','0101234567', '', 4, 2, 'referentie2');
 -- add email and telephone number digital addresses to the vestiging partij (partij 3)
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (4, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
+    VALUES (5, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (5, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
+    VALUES (6, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
 
 -- add email digital addresses to betrokkene test product request with productaanvraag-specific email address
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(6, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-alternative-1@example.com', '', 5, NULL, false, '', NULL);
+    VALUES(7, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-alternative-1@example.com', '', 5, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(7, '228b39dc-374a-4147-bac1-9ce4abea712e', 'email', 'test-alternative-2@example.com', '', 6, NULL, false, '', NULL);
+    VALUES(8, '228b39dc-374a-4147-bac1-9ce4abea712e', 'email', 'test-alternative-2@example.com', '', 6, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(8, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-alternative-3@example.com', '', 8, NULL, false, '', NULL);
+    VALUES(9, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-alternative-3@example.com', '', 8, NULL, false, '', NULL);
 -- add telephone number digital addresses to betrokkene test product request with productaanvraag-specific telephone number
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(9, '4de71e36-377f-4bd4-91ea-7aa1ae5bf08a', 'telefoonnummer', '06-11119999', '', 6, NULL, false, '', NULL);
+    VALUES(10, '4de71e36-377f-4bd4-91ea-7aa1ae5bf08a', 'telefoonnummer', '06-11119999', '', 6, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(10, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 8, NULL, false, '', NULL);
+    VALUES(11, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 8, NULL, false, '', NULL);
 
 -- add email digital address to partij
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(11, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
+    VALUES(12, '611235ef-93c6-417f-9ed8-0d0e032b8dcb', 'email', 'changed-email-address@example.com', '', NULL, 4, true, '', NULL);
 -- add email digital address to betrokkene for a changed preferred email address through Open Formulieren
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(12, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
+    VALUES(13, '785a3418-8e00-4b08-a620-a4932b4f6ae5', 'email', 'changed-email-address@example.com', '', 7, NULL, true, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.

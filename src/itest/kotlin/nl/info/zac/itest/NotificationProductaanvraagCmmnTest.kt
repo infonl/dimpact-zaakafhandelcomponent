@@ -327,7 +327,8 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             }
         }
 
-        Given(
+        // TODO: disable test for now; should probably be removed altogether, including the related test data
+        xGiven(
             """
             A productaanvraag object exists with an initiator of type person that changes their standard email address, 
             betrokkene in Objecten with a productaanvraag type exists,

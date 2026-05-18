@@ -13,7 +13,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnEmailParameters
 import nl.info.zac.admin.model.ZaaktypeCmmnZaakafzenderParameters
-import nl.info.zac.app.klant.model.contactdetails.getStandaardAdres
+import nl.info.zac.app.klant.model.contactdetails.getStandaardDigitaalAdres
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.MailAdres
@@ -78,7 +78,7 @@ class ProductaanvraagEmailService @Inject constructor(
     private fun fetchEmailForNatuurlijkPersoon(identity: String): String? =
         klantClientService.findDigitalAddressesForNaturalPerson(identity)
             .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
-            .getStandaardAdres()
+            .getStandaardDigitaalAdres()
             ?.adres
 
     private fun fetchEmail(kvkNummer: String, vestigingsNummer: String?): String? {
@@ -90,7 +90,7 @@ class ProductaanvraagEmailService @Inject constructor(
         }
         return digitalAddresses
             .filter { it.soortDigitaalAdres == SoortDigitaalAdresEnum.EMAIL }
-            .getStandaardAdres()
+            .getStandaardDigitaalAdres()
             ?.adres
     }
 

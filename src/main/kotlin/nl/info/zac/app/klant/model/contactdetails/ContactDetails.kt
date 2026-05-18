@@ -15,9 +15,9 @@ data class ContactDetails(
 
 fun List<DigitaalAdres>.toContactDetails(): ContactDetails {
     val telephoneNumber = this.filter { it.soortDigitaalAdres == TELEFOONNUMMER }
-        .getStandaardAdres()?.adres
+        .getStandaardDigitaalAdres()?.adres
     val emailAddress = this.filter { it.soortDigitaalAdres == EMAIL }
-        .getStandaardAdres()?.adres
+        .getStandaardDigitaalAdres()?.adres
     return ContactDetails(telephoneNumber, emailAddress)
 }
 
@@ -25,5 +25,5 @@ fun List<DigitaalAdres>.toContactDetails(): ContactDetails {
  * Returns the digital address marked as 'standaard adres' (default address) if available,
  * otherwise falls back to the first address in the list.
  */
-fun List<DigitaalAdres>.getStandaardAdres(): DigitaalAdres? =
+fun List<DigitaalAdres>.getStandaardDigitaalAdres(): DigitaalAdres? =
     firstOrNull { it.isStandaardAdres == true } ?: firstOrNull()

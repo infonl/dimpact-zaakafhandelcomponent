@@ -1614,6 +1614,11 @@
                 "type": "email",
                 "address": "test-alternative-3@example.com",
                 "preferenceUpdate": "useOnlyOnce"
+              },
+              {
+                "type": "phoneNumber",
+                "address": "06-11118888",
+                "preferenceUpdate": "useOnlyOnce"
               }
             ]
           },
