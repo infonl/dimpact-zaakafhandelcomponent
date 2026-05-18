@@ -67,12 +67,11 @@ const routes: Routes = [
 export class KlantenRoutingModule {}
 
 export function buildBedrijfRouteLink(
-  bedrijf?: GeneratedType<"RestBedrijf"> | null,
+  bedrijf?: Pick<NonNullable<GeneratedType<"RestBedrijf">>, "kvkNummer" | "vestigingsnummer"> | null,
 ) {
-  const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
+    console.log("bedrijffff ", bedrijf);
+  const path = ["/bedrijf", bedrijf?.kvkNummer];
   if (bedrijf?.vestigingsnummer)
-    path.push("vestiging", bedrijf?.vestigingsnummer);
-  else if (bedrijf?.kvkNummer && bedrijf?.identificatie)
-    path.push("vestiging", bedrijf?.identificatie);
+    path.push("vestiging", bedrijf.vestigingsnummer);
   return path;
 }

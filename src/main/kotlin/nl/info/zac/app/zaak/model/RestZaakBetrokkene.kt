@@ -34,29 +34,28 @@ data class RestZaakBetrokkene(
      */
     var type: String,
 
-    /**
-     * The unique identifier of the betrokkene.
-     * - In case of a [NATUURLIJK_PERSOON] this is the BSN.
-     * - In case of a [NIET_NATUURLIJK_PERSOON] this is the RSIN (innNnpId) if available, otherwise the `vestigingsnummer`.
-     */
-    var identificatie: String,
+    /** Only populated when type is [NATUURLIJK_PERSOON] */
+    var bsn: String?,
 
     /**
-     * Temporary UUID that can be used to look up the person instead of using sensitive BSN
+     * Temporary UUID that can be used to look up the person instead of using sensitive BSN.
      * Only populated when type is [NATUURLIJK_PERSOON]
      */
     var temporaryPersonId: UUID?,
 
     /**
-     * The identificatieType indicating what the type is of the [identificatie] field.
-     * This is only set for certain betrokkene types, specifically for betrokkene types which support
-     * multiple identificatie types like BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON.
+     * The identificatieType indicating what kind of bedrijf identifier is present.
+     * Only set for [NIET_NATUURLIJK_PERSOON] and [VESTIGING].
      */
     var identificatieType: IdentificatieType?,
 
-    /**
-     * Only populated when type is [NIET_NATUURLIJK_PERSOON] and it is not a `INN NNP ID (=RSIN)`
-     */
+    /** Only populated when type is [VESTIGING] or [NIET_NATUURLIJK_PERSOON] with [IdentificatieType.VN] */
+    var vestigingsnummer: String?,
+
+    /** Only populated when type is [NIET_NATUURLIJK_PERSOON] with [IdentificatieType.RSIN] */
+    var rsin: String?,
+
+    /** Only populated when type is [NIET_NATUURLIJK_PERSOON] */
     var kvkNummer: String?
 )
 
@@ -75,47 +74,43 @@ data class RestZaakBetrokkene(
  */
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
 fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = null): RestZaakBetrokkene? {
-    var identificatieType: IdentificatieType? = null
-    var identificatie: String
+    var bsn: String? = null
     var temporaryPersonId: UUID? = null
+    var identificatieType: IdentificatieType? = null
+    var vestigingsnummer: String? = null
+    var rsin: String? = null
     var kvkNummer: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
-            identificatie = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
+            bsn = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
-            identificationService?.let { temporaryPersonId = identificationService.replaceBsnWithKey(identificatie) }
+            identificationService?.let { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) }
         }
         NIET_NATUURLIJK_PERSOON -> {
             // A niet-natuurlijk persoon in the ZGW ZRC API can be either a KVK niet-natuurlijk persoon with an INN NNP ID (=RSIN)
             // or a KVK vestiging with a vestigingsnummer.
             // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
             val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
-            identificatie = betrokkene.innNnpId.takeIf {
-                !it.isNullOrBlank()
-            } ?: betrokkene.vestigingsNummer ?: return null
-            identificatieType = if (
-                betrokkene.innNnpId.isNullOrBlank() &&
-                !betrokkene.vestigingsNummer.isNullOrBlank()
-            ) {
-                IdentificatieType.VN
+            if (!betrokkene.innNnpId.isNullOrBlank()) {
+                rsin = betrokkene.innNnpId
+                identificatieType = IdentificatieType.RSIN
+            } else if (!betrokkene.vestigingsNummer.isNullOrBlank()) {
+                vestigingsnummer = betrokkene.vestigingsNummer
+                identificatieType = IdentificatieType.VN
             } else {
-                IdentificatieType.RSIN
+                return null
             }
             kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {
-            identificatie = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
+            vestigingsnummer = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
             identificatieType = IdentificatieType.VN
         }
         ORGANISATORISCHE_EENHEID -> {
-            identificatie = (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam ?: return null
-            // this betrokkene type has no identificatieType
-            identificatieType = null
+            (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam ?: return null
         }
         MEDEWERKER -> {
-            identificatie = (this as RolMedewerker).betrokkeneIdentificatie?.identificatie ?: return null
-            // this betrokkene type has no identificatieType
-            identificatieType = null
+            (this as RolMedewerker).betrokkeneIdentificatie?.identificatie ?: return null
         }
     }
     return RestZaakBetrokkene(
@@ -123,9 +118,11 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
         roltype = this.omschrijving,
         roltoelichting = this.roltoelichting,
         type = this.betrokkeneType.name,
-        identificatie = identificatie,
+        bsn = bsn,
         temporaryPersonId = temporaryPersonId,
         identificatieType = identificatieType,
+        vestigingsnummer = vestigingsnummer,
+        rsin = rsin,
         kvkNummer = kvkNummer
     )
 }

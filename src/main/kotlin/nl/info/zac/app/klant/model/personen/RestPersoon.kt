@@ -58,7 +58,7 @@ data class RestPersoon(
         return if (bsn != null) IdentificatieType.BSN else null
     }
 
-    override fun getIdentificatie(): String? {
+    fun getIdentificatie(): String? {
         return bsn
     }
 }
