@@ -334,6 +334,16 @@
     }
   },
   {
+    "model": "core.object",
+    "pk": 44,
+    "fields": {
+      "uuid": "ce567a95-8b3b-4a14-8cba-122e450e1c57",
+      "object_type": 4,
+      "created_on": "2026-05-18T12:00:00.000Z",
+      "modified_on": "2026-05-18T12:00:00.000Z"
+    }
+  },
+  {
     "model": "core.objectrecord",
     "pk": 4,
     "fields": {
@@ -1486,6 +1496,42 @@
     "pk": 53,
     "fields": {
       "index": 1,
+      "object": 42,
+      "version": 1,
+      "data": {
+        "bron": {
+          "naam": "open-forms",
+          "kenmerk": "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
+        },
+        "type": "bpmn-test-3-productaanvraagtype",
+        "aanvraaggegevens": {
+          "stap1": {
+            "naam": "fakeConfirmationEmailApplicantName",
+            "telefoonnummer": "0612345678"
+          }
+        },
+        "taal": "nld",
+        "betrokkenen": [
+          {
+            "inpBsn": "999993896",
+            "rolOmschrijvingGeneriek": "initiator"
+          }
+        ]
+      },
+      "start_at": "2001-01-01",
+      "end_at": null,
+      "registration_at": "2001-01-01",
+      "correct": null,
+      "geometry": null,
+      "created_on": "2025-08-29T12:16:12.567Z",
+      "modified_on": "2025-08-29T12:16:12.575Z"
+    }
+  },
+  {
+    "model": "core.objectrecord",
+    "pk": 54,
+    "fields": {
+      "index": 1,
       "object": 43,
       "version": 1,
       "data": {
@@ -1531,38 +1577,56 @@
   },
   {
     "model": "core.objectrecord",
-    "pk": 54,
+    "pk": 55,
     "fields": {
       "index": 1,
-      "object": 42,
+      "object": 44,
       "version": 1,
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
-        },
-        "type": "bpmn-test-3-productaanvraagtype",
-        "aanvraaggegevens": {
-          "stap1": {
-            "naam": "fakeConfirmationEmailApplicantName",
-            "telefoonnummer": "0612345678"
-          }
+          "kenmerk": "testKenmerkAlternativeEmailAddress3"
         },
         "taal": "nld",
+        "type": "productaanvraag-type-1",
+        "bijlagen": [],
+        "zaakgegevens": {
+          "identificatie": "zaakProductaanvraag-alternative-email-3",
+          "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+          "omschrijving": "fakeZaakOmschrijving-alternative-email-3",
+          "toelichting": "fakeZaakToelichting-alternative-email-3"
+        },
         "betrokkenen": [
           {
             "inpBsn": "999993896",
             "rolOmschrijvingGeneriek": "initiator"
           }
-        ]
+        ],
+        "aanvraaggegevens": {
+          "overig": {
+            "foto": [],
+            "andereDocumenten": []
+          },
+          "initiator": {
+            "initiator_bsn": "999993896",
+            "customerProfile": [
+              {
+                "type": "email",
+                "address": "test-alternative-3@example.com",
+                "preferenceUpdate": "useOnlyOnce"
+              }
+            ]
+          },
+          "aanvraaggegevens": {}
+        }
       },
-      "start_at": "2001-01-01",
+      "start_at": "1976-01-01",
       "end_at": null,
-      "registration_at": "2001-01-01",
+      "registration_at": "1975-04-29",
       "correct": null,
       "geometry": null,
-      "created_on": "2025-08-29T12:16:12.567Z",
-      "modified_on": "2025-08-29T12:16:12.575Z"
+      "created_on": "2026-04-16T12:00:00.000Z",
+      "modified_on": "2026-04-16T12:00:00.000Z"
     }
   },
   {
