@@ -42,7 +42,7 @@ class IdentityServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

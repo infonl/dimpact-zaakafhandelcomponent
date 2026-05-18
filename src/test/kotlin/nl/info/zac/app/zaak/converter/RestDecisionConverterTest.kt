@@ -41,7 +41,7 @@ class RestDecisionConverterTest : BehaviorSpec({
         configurationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

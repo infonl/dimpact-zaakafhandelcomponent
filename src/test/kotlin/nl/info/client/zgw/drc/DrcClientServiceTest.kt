@@ -37,11 +37,8 @@ class DrcClientServiceTest : BehaviorSpec({
         configurationService
     )
 
-    beforeEach {
-        checkUnnecessaryStub()
-    }
-
     afterEach {
+        checkUnnecessaryStub()
         clearAllMocks()
     }
 

@@ -279,6 +279,6 @@ class MailService @Inject constructor(
         }.let {
             mailTemplateHelper.resolveTaskVariables(it, bronnen.taskInfo ?: return@let it)
         }.let {
-            if (zaakdata.isEmpty()) { it } else { mailTemplateHelper.resolveZaakdataVariables(it, zaakdata) }
+            mailTemplateHelper.resolveZaakdataVariables(it, zaakdata)
         }
 }

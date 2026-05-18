@@ -11,7 +11,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -36,12 +36,19 @@ export class TaakEditComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
   private readonly takenService = inject(TakenService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly sideNav = input.required<MatSidenav>();
   protected readonly task = input.required<GeneratedType<"RestTask">>();
 
   protected groups: GeneratedType<"RestGroup">[] = [];
   protected users: GeneratedType<"RestUser">[] = [];
+  protected readonly groupDisplayValue = (
+    group: GeneratedType<"RestGroup">,
+  ): string =>
+    group.active === false
+      ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
+      : (group.naam ?? "");
 
   protected readonly mutation = injectMutation(() => ({
     ...this.takenService.toekennen(),

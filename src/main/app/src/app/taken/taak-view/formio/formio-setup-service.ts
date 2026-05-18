@@ -9,7 +9,6 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
 import { SmartDocumentsService } from "../../../admin/smart-documents.service";
-import { ZaakafhandelParametersService } from "../../../admin/zaakafhandel-parameters.service";
 import { UtilService } from "../../../core/service/util.service";
 import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wrapper.component";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -22,7 +21,6 @@ export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
 export enum KNOWN_ZAC_FIELDS {
   GROEP = "ZAC_groep",
   MEDEWERKER = "ZAC_medewerker",
-  SMART_DOCUMENTS_TEMPLATE = "ZAC_smart_documents_template",
   SMART_DOCUMENTS_TEMPLATE_GROUPS = "ZAC_smart_documents_template_groups",
   SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES = "ZAC_smart_documents_template_group_templates",
   REFERENTIE_TABEL = "ZAC_referentie_tabel",
@@ -44,7 +42,6 @@ export class FormioSetupService {
 
   constructor(
     public utilService: UtilService,
-    private zaakafhandelParametersService: ZaakafhandelParametersService,
     private zakenService: ZakenService,
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
@@ -96,9 +93,6 @@ export class FormioSetupService {
               this.initializeSmartDocumentsTemplateGroupTemplatesField(
                 component,
               );
-              break;
-            case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE:
-              this.initializeSmartDocumentsField(component);
               break;
             case KNOWN_ZAC_FIELDS.REFERENTIE_TABEL:
               this.initializeReferenceTableField(component);
@@ -233,36 +227,6 @@ export class FormioSetupService {
     };
   }
 
-  private initializeSmartDocumentsField(component: ExtendedComponentSchema) {
-    const smartDocumentsPath: string[] =
-      component.properties["SmartDocuments_Group"]?.split("/") ?? [];
-
-    component.valueProperty = "id";
-    component.template = "{{ item.naam }}";
-
-    component.data = {
-      custom: async () => {
-        const data = await this.queryClient.ensureQueryData({
-          queryKey: [
-            "smartDocumentsGroupTemplateNamesQuery",
-            ...smartDocumentsPath,
-          ],
-          queryFn: () =>
-            lastValueFrom(
-              this.zaakafhandelParametersService.listSmartDocumentsGroupTemplateNames(
-                { path: smartDocumentsPath },
-              ),
-            ),
-        });
-        return data.sort();
-      },
-    };
-  }
-
-  getSmartDocumentsGroups(component: ExtendedComponentSchema): string[] {
-    return component?.properties["SmartDocuments_Group"]?.split("/") ?? [];
-  }
-
   /**
    * Returns the key name of the fieldset group using the key of the button. We assume that all components in the
    * fieldset have the same prefix as the key of the fieldset and that the separator is an underscore.
@@ -284,23 +248,14 @@ export class FormioSetupService {
     return component.key.split("_").slice(0, -1).join("_");
   }
 
-  extractSmartDocumentsTemplateName(event: FormioCustomEvent) {
-    return event.data[this.extractFieldsetName(event.component) + "_Template"];
+  extractSmartDocumentsGroupId(event: FormioCustomEvent): string | undefined {
+    return event.data[this.extractFieldsetName(event.component) + "_Group"];
   }
 
-  normalizeSmartDocumentsTemplateName(smartDocumentsTemplateName: string) {
-    return smartDocumentsTemplateName?.replace(/ /g, "_").trim();
-  }
-
-  getInformatieobjecttypeUuid(
+  extractSmartDocumentsTemplateId(
     event: FormioCustomEvent,
-    normalizedTemplateName: string,
-  ) {
-    return (
-      event.component.properties[
-        `SmartDocuments_${normalizedTemplateName}_InformatieobjecttypeUuid`
-      ] || event.component.properties["SmartDocuments_InformatieobjecttypeUuid"]
-    );
+  ): string | undefined {
+    return event.data[this.extractFieldsetName(event.component) + "_Template"];
   }
 
   private initializeReferenceTableField(component: ExtendedComponentSchema) {

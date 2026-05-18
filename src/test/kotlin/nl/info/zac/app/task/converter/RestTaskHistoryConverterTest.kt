@@ -18,7 +18,7 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val restTaskHistoryConverter = RestTaskHistoryConverter(identityService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

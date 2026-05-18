@@ -32,6 +32,7 @@ export class ZakenCardComponent
     "omschrijving",
     "url",
   ] as const;
+  protected override serverSidePagination = true;
   pageSize = 5;
   pageNumber = signal(0);
 

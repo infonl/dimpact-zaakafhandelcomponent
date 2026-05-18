@@ -20,7 +20,7 @@ class PabcReadinessHealthCheckTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
     val pabcReadinessHealthCheck = PabcReadinessHealthCheck(pabcClientService, configurationService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

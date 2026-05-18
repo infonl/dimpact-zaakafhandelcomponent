@@ -26,7 +26,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
         zgwApiSecret
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -25,7 +25,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
     val registry = mockk<SessionRegistry>()
     val endpoint = WebSocketServerEndPoint(registry)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

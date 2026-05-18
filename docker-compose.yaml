@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.9@sha256:5b96f1a16bd9768b060dd2ffe55cb6225c4d9ef4d214a8b21eb08134869a97e4
+    image: postgres:17.9@sha256:2a0d0fe14825b0939f78a8cad5cd4e6aa68bf94d0e5dd96e24b6d23af4315545
     ports:
       - "54326:5432"
     healthcheck:
@@ -188,7 +188,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginx:1.30.0@sha256:1a9ab83e2892b75773978e8d91f42a7a2a0d8bb704959a51ff17c0377481973d
+    image: nginxinc/nginx-unprivileged:1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086
     ports:
       - "8001:8000"
     volumes:
@@ -264,7 +264,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
+    image: solr:9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61
     ports:
       - "8983:8983"
     volumes:
@@ -279,7 +279,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3
+    image: openpolicyagent/opa:1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -304,7 +304,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.9@sha256:5b96f1a16bd9768b060dd2ffe55cb6225c4d9ef4d214a8b21eb08134869a97e4
+    image: postgres:17.9@sha256:2a0d0fe14825b0939f78a8cad5cd4e6aa68bf94d0e5dd96e24b6d23af4315545
     ports:
       - "54325:5432"
     healthcheck:
@@ -383,7 +383,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.16.1@sha256:c6f9910d5e982df13fa4c65f02cfa7f65f9cfdbef9fbaf80d6547f840294aa02
+    image: openpolicyagent/opa:1.16.2@sha256:a915d8b59ddb09a9badecd8e061d43cf3111283494c4cf1d38a675bdb4e81a13
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -402,7 +402,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.151.0@sha256:d57bfe8eee2378f31cb1193239fbcac521d54a5a071fca2bfc106916a32b892d
+    image: otel/opentelemetry-collector-contrib:0.152.0@sha256:f41d7995565df3733b7568702073a9c490792f9c6ac60684fe6a4da21a313f8d
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -702,7 +702,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.30.0@sha256:3def659164dfb7d6be8563983ea9d2fe7e4dfcf2af96770d728723a5c5ad3bad
+    image: nginxinc/nginx-unprivileged:1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086
     ports:
       - "8005:8080"
     volumes:
@@ -713,7 +713,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.9@sha256:5b96f1a16bd9768b060dd2ffe55cb6225c4d9ef4d214a8b21eb08134869a97e4
+    image: postgres:17.9@sha256:2a0d0fe14825b0939f78a8cad5cd4e6aa68bf94d0e5dd96e24b6d23af4315545
     ports:
       - "54329:5432"
     environment:
@@ -767,7 +767,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.9@sha256:5b96f1a16bd9768b060dd2ffe55cb6225c4d9ef4d214a8b21eb08134869a97e4
+    image: postgres:17.9@sha256:2a0d0fe14825b0939f78a8cad5cd4e6aa68bf94d0e5dd96e24b6d23af4315545
     ports:
       - "54320:5432"
     healthcheck:

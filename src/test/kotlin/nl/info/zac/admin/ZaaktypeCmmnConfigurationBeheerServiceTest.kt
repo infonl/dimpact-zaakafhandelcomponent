@@ -68,7 +68,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -40,7 +40,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
     )
     val zaakUuid = UUID.randomUUID()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

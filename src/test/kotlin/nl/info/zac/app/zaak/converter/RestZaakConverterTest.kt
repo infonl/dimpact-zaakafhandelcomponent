@@ -91,7 +91,7 @@ class RestZaakConverterTest : BehaviorSpec({
         klantClientService = klantClientService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -327,6 +327,41 @@ class RestZaakConverterTest : BehaviorSpec({
                     processDefinitionName shouldBe "fakeProcessName"
                     processDefinitionVersion shouldBe 3
                 }
+            }
+        }
+    }
+
+    Given("A BPMN process-driven zaak where the confirmation of receipt has not been sent") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val processDefinition = createProcessDefinition(
+            key = "fakeProcessKey",
+            name = "fakeProcessName",
+            version = 1
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns null
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
+            every { readZaakdata(zaak.uuid) } returns emptyMap()
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+
+        When("converting the zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            Then("ONTVANGSTBEVESTIGING_NIET_VERSTUURD is not in indicaties because the zaak is process-driven") {
+                restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
             }
         }
     }

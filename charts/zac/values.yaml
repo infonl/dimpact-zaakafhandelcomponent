@@ -330,7 +330,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3"
+    tag: "1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61"
     pullPolicy: IfNotPresent
   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
   autoscaling:
@@ -414,7 +414,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
+      tag: 9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -604,7 +604,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.151.0@sha256:d57bfe8eee2378f31cb1193239fbcac521d54a5a071fca2bfc106916a32b892d"
+    tag: "0.152.0@sha256:f41d7995565df3733b7568702073a9c490792f9c6ac60684fe6a4da21a313f8d"
   presets:
     clusterMetrics:
       enabled: false
@@ -635,7 +635,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.30.0@sha256:3def659164dfb7d6be8563983ea9d2fe7e4dfcf2af96770d728723a5c5ad3bad
+    tag: 1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086
   service:
     type: ClusterIP
     port: 80

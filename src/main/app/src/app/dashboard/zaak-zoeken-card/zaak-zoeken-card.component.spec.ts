@@ -51,8 +51,8 @@ function buildExpectedQueryKey() {
   const params = ZakenMijnDatasource.mijnLopendeZaken(
     getDefaultZoekParameters(),
   );
-  params.sorteerVeld = "ZAAK_STREEFDATUM";
-  params.sorteerRichting = "asc";
+  params.sorteerVeld = "ZAAK_STARTDATUM";
+  params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
   return ["zaak zoeken dashboard", params];
@@ -97,13 +97,19 @@ describe(ZaakZoekenCardComponent.name, () => {
     fixture.componentInstance["reloader"]?.unsubscribe();
   }
 
-  it("renders paginator length from the query result total", async () => {
-    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(23));
+  it("renders paginator length from the query result total even when one page of rows is loaded", async () => {
+    testQueryClient.setQueryData(buildExpectedQueryKey(), makeResultaat(25, 5));
 
     createComponent();
 
     const paginator = await loader.getHarness(MatPaginatorHarness);
-    expect(await paginator.getRangeLabel()).toContain("23");
+    expect(await paginator.getRangeLabel()).toContain("25");
+  });
+
+  it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
+    createComponent();
+
+    expect(fixture.componentInstance.dataSource.paginator).toBeFalsy();
   });
 
   it("populates the data source with rows from the query result", () => {
@@ -141,5 +147,26 @@ describe(ZaakZoekenCardComponent.name, () => {
     fixture.componentInstance.onPageChange({ pageIndex: 2 });
 
     expect(fixture.componentInstance.pageNumber()).toBe(2);
+  });
+
+  it("propagates sort changes to zoekParameters and resets pagination", () => {
+    createComponent();
+
+    fixture.componentInstance.onPageChange({ pageIndex: 2 });
+    expect(fixture.componentInstance.pageNumber()).toBe(2);
+
+    fixture.componentInstance.sort!.sortChange.emit({
+      active: "ZAAK_IDENTIFICATIE",
+      direction: "asc",
+    });
+
+    expect(fixture.componentInstance.sortField()).toBe("ZAAK_IDENTIFICATIE");
+    expect(fixture.componentInstance.sortDirection()).toBe("asc");
+    expect(fixture.componentInstance.pageNumber()).toBe(0);
+    expect(fixture.componentInstance.zoekParameters()).toMatchObject({
+      sorteerVeld: "ZAAK_IDENTIFICATIE",
+      sorteerRichting: "asc",
+      page: 0,
+    });
   });
 });

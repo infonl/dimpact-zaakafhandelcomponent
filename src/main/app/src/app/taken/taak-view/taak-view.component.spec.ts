@@ -29,6 +29,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -39,6 +40,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { ZakenService } from "../../zaken/zaken.service";
 import { TakenService } from "../taken.service";
+import { FormioSetupService } from "./formio/formio-setup-service";
 import { TaakViewComponent } from "./taak-view.component";
 
 describe(TaakViewComponent.name, () => {
@@ -305,6 +307,90 @@ describe(TaakViewComponent.name, () => {
         expect(buttons.length).toBe(expectButtons);
       },
     );
+  });
+
+  describe(TaakViewComponent.prototype.onDocumentCreate.name, () => {
+    let formioSetupService: FormioSetupService;
+
+    const event: FormioCustomEvent = {
+      type: "click",
+      component: { key: "AM_SmartDocuments_Create" },
+      data: {
+        AM_SmartDocuments_Group: "group-id",
+        AM_SmartDocuments_Template: "template-id",
+      },
+    };
+
+    beforeEach(() => {
+      formioSetupService = TestBed.inject(FormioSetupService);
+    });
+
+    it("should set smartDocumentsGroupId from extractSmartDocumentsGroupId", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "smartDocumentsGroupId"
+        ],
+      ).toBe("group-id");
+    });
+
+    it("should set smartDocumentsTemplateId from extractSmartDocumentsTemplateId", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "smartDocumentsTemplateId"
+        ],
+      ).toBe("template-id");
+    });
+
+    it("should not open the sidenav when no template is selected", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue(undefined);
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue(undefined);
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+
+    it("should open the sidenav with 'actie.document.maken' when a template is selected", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "activeSideAction"
+        ],
+      ).toBe("actie.document.maken");
+      expect(openSpy).toHaveBeenCalled();
+    });
   });
 
   describe("inactive group indicator", () => {

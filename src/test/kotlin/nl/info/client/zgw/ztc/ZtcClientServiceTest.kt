@@ -34,7 +34,7 @@ class ZtcClientServiceTest : BehaviorSpec({
     val testStartDateTime = ZonedDateTime.now()
     lateinit var initialDateTime: ZonedDateTime
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

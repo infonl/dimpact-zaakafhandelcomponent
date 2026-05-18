@@ -34,7 +34,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
 
     val inboxDocumentService = InboxDocumentService(inboxDocumentRepository, zrcClientService, drcClientService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

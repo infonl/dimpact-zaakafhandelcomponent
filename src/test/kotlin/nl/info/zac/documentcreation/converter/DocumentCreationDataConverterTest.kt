@@ -63,7 +63,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         configurationService = configurationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

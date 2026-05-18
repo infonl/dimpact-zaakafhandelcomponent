@@ -37,7 +37,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         ZaakHistoryPartialUpdateConverter(zrcClientService)
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

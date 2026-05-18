@@ -38,7 +38,7 @@ class SendEmailDelegateTest : BehaviorSpec({
     val templateName = "fakeTemplate"
     val mailTemplate = createMailTemplate()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

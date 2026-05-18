@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.233](https://img.shields.io/badge/Version-1.0.233-informational?style=flat-square) ![AppVersion: 4.8](https://img.shields.io/badge/AppVersion-4.8-informational?style=flat-square)
+![Version: 1.0.238](https://img.shields.io/badge/Version-1.0.238-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -170,7 +170,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.30.0@sha256:3def659164dfb7d6be8563983ea9d2fe7e4dfcf2af96770d728723a5c5ad3bad"` |  |
+| nginx.image.tag | string | `"1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -223,7 +223,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.16.1-static@sha256:6aeacdb587324ab38c83a572db8dca73e6f76c43a8ca25caa9d2fec83530c3a3"` |  |
+| opa.image.tag | string | `"1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -249,7 +249,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.151.0@sha256:d57bfe8eee2378f31cb1193239fbcac521d54a5a071fca2bfc106916a32b892d"` |  |
+| opentelemetry-collector.image.tag | string | `"0.152.0@sha256:f41d7995565df3733b7568702073a9c490792f9c6ac60684fe6a4da21a313f8d"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -312,7 +312,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

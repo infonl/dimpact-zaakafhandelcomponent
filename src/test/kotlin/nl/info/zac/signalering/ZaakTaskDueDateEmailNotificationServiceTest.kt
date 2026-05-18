@@ -48,7 +48,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         flowableTaskService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

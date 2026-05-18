@@ -32,7 +32,7 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         enkelvoudigInformatieObjectUpdateService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

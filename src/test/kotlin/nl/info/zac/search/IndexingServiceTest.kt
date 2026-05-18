@@ -88,7 +88,7 @@ private fun setupContext(): TestContext {
 }
 
 class IndexingServiceTest : BehaviorSpec({
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

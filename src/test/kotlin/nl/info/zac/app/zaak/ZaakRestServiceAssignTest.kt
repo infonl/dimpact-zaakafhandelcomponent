@@ -137,7 +137,7 @@ class ZaakRestServiceAssignTest : BehaviorSpec({
         identificationService = identificationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
