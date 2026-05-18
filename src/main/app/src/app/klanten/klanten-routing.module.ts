@@ -12,6 +12,7 @@ import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
+import {BetrokkeneIdentificatie} from "../zaken/model/betrokkeneIdentificatie";
 
 const routes: Routes = [
   {
@@ -61,17 +62,24 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class KlantenRoutingModule {}
 
 export function buildBedrijfRouteLink(
-  bedrijf?: Pick<NonNullable<GeneratedType<"RestBedrijf">>, "kvkNummer" | "vestigingsnummer"> | null,
+    bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
-    console.log("bedrijffff ", bedrijf);
-  const path = ["/bedrijf", bedrijf?.kvkNummer];
-  if (bedrijf?.vestigingsnummer)
-    path.push("vestiging", bedrijf.vestigingsnummer);
-  return path;
+    if (!bedrijf) return;
+
+    const tempBedrijf = new BetrokkeneIdentificatie(bedrijf);
+
+    switch (tempBedrijf.type) {
+        case "RSIN":
+            return ["/bedrijf", tempBedrijf.kvkNummer];
+        case "VN":
+            return ["/bedrijf", tempBedrijf.kvkNummer, tempBedrijf.vestigingsnummer];
+        default:
+            console.error("hier niet komen SVP!");
+    }
 }
