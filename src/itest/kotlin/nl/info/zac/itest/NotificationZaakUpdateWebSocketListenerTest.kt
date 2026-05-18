@@ -40,7 +40,6 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     lateinit var zaakUuid: UUID
-    lateinit var zaakBetrokkeneUuid: UUID
 
     Given(
         """A zaak exists and a websocket subscription is created to listen to all changes made to this zaak"""
@@ -142,8 +141,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
             testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When("""a notification is sent to ZAC that a zaak-rol has been created""") {
-            // we need eventually here because it takes some time before the new websocket has been
-            // successfully created in ZAC
+            // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
             eventually(30.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "$ZAC_API_URI/notificaties",
@@ -157,7 +155,8 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                         mapOf(
                             "kanaal" to "zaken",
                             "resource" to "rol",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakBetrokkeneUuid",
+                            // we use a random UUID for the role ID here; this is fine for this test
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/${UUID.randomUUID()}",
                             "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
