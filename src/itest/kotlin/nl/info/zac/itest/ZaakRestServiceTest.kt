@@ -55,15 +55,15 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_REFERENTIEPROCES
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
@@ -126,9 +126,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
-                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
                       },
                       {
                         "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
@@ -136,14 +136,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       },
                       {
                         "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
@@ -216,9 +216,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
-                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
                       }$nonPABCPayload
                     ]
                     """.trimIndent()
@@ -238,7 +238,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
                 val response = zacClient.createZaak(
-                    zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                     groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                     groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                     startDate = DATE_TIME_2020_01_01,
@@ -317,23 +317,23 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakdata": {
                         "initiator": null,
-                        "zaaktypeUUID": "$ZAAKTYPE_TEST_3_UUID",
-                        "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                        "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_3_UUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       },
                       "zaaktype": {
                         "beginGeldigheid": "$DATE_2023_09_21",
-                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                        "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
                         "informatieobjecttypes": [
                           "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                           "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                         ],
                         "nuGeldig": true,
-                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
                         "opschortingMogelijk": false,
-                        "referentieproces": "$ZAAKTYPE_TEST_3_REFERENTIEPROCES",
+                        "referentieproces": "$ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES",
                         "servicenorm": false,
-                        "uuid": "$ZAAKTYPE_TEST_3_UUID",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
                         "vertrouwelijkheidaanduiding": "openbaar",                    
@@ -361,7 +361,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         logger.info { "Response: $responseBody" }
                         with(JSONObject(responseBody)) {
                             getString("identificatie") shouldNotBe null
-                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_TEST_3_IDENTIFICATIE
+                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                              {
                               "versturenOntvangstbevestiging" : true,
@@ -405,7 +405,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         val responseBody = response.bodyAsString
                         logger.info { "Response: $responseBody" }
                         with(JSONObject(responseBody)) {
-                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_TEST_3_IDENTIFICATIE
+                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                             {
                               "versturenOntvangstbevestiging" : true,
@@ -439,7 +439,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     Context("Updating zaken and adding betrokkenen") {
         Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
             zaak2UUID = zacClient.createZaak(
-                zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+                zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                 groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                 groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                 startDate = DATE_TIME_2020_01_01,
@@ -806,7 +806,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             zaak1UUID = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
                 testUser = COORDINATOR_DOMAIN_TEST_1
             ).second
             val uniqueResourceId = UUID.randomUUID()
@@ -891,7 +891,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given("A zaak exists and a websocket subscription has been created and a logged-in coordinator") {
             val (_, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 testUser = COORDINATOR_DOMAIN_TEST_1
             )
             val uniqueResourceId = UUID.randomUUID()
@@ -969,7 +969,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             val (_, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
 
@@ -1113,7 +1113,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val tomorrow = today.plusDays(1)
             val zaakDescription = "itestZaakDescription-${System.currentTimeMillis()}"
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 zaakDescription = zaakDescription,
                 startDate = yesterday,
                 group = BEHANDELAARS_DOMAIN_TEST_1,
@@ -1184,7 +1184,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "startdatum" : "${yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                           "status" : "Intake",
                           "uiterlijkeEinddatumAfdoening" : "${tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
-                          "zaaktype" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                          "zaaktype" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         } ]                                               
                     """
                 }

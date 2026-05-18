@@ -71,15 +71,15 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
@@ -545,9 +545,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             code shouldBe HTTP_OK
         }
         zacClient.createZaaktypeCmmnConfiguration(
-            zaakTypeIdentificatie = ZAAKTYPE_TEST_1_IDENTIFICATIE,
-            zaakTypeUuid = ZAAKTYPE_TEST_1_UUID,
-            zaakTypeDescription = ZAAKTYPE_TEST_1_DESCRIPTION,
+            zaakTypeIdentificatie = ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
+            zaakTypeDescription = ZAAKTYPE_CMMN_TEST_1_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
             // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
             domein = DOMEIN_TEST_2,
@@ -558,9 +558,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             response.code shouldBe HTTP_OK
         }
         zacClient.createZaaktypeCmmnConfiguration(
-            zaakTypeIdentificatie = ZAAKTYPE_TEST_2_IDENTIFICATIE,
-            zaakTypeUuid = ZAAKTYPE_TEST_2_UUID,
-            zaakTypeDescription = ZAAKTYPE_TEST_2_DESCRIPTION,
+            zaakTypeIdentificatie = ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            zaakTypeDescription = ZAAKTYPE_CMMN_TEST_2_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
             // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
             domein = DOMEIN_TEST_1,
@@ -572,9 +572,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             response.code shouldBe HTTP_OK
         }
         zacClient.createZaaktypeCmmnConfiguration(
-            zaakTypeIdentificatie = ZAAKTYPE_TEST_3_IDENTIFICATIE,
-            zaakTypeUuid = ZAAKTYPE_TEST_3_UUID,
-            zaakTypeDescription = ZAAKTYPE_TEST_3_DESCRIPTION,
+            zaakTypeIdentificatie = ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE,
+            zaakTypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+            zaakTypeDescription = ZAAKTYPE_CMMN_TEST_3_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_1,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         ).let { response ->
@@ -584,7 +584,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
         // beware that the required SmartDocuments template mapping data must be available
         // in our SmartDocuments WireMock setup for this zaaktype
-        createZaaktypeSmartDocumentsTemplateMappings(ZAAKTYPE_TEST_3_UUID)
+        createZaaktypeSmartDocumentsTemplateMappings(ZAAKTYPE_CMMN_TEST_3_UUID)
     }
 
     fun createZaaktypeSmartDocumentsTemplateMappings(zaaktypeUuid: UUID) {

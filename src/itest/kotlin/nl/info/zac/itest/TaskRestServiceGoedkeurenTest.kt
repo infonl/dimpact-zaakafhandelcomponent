@@ -19,8 +19,8 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
@@ -53,7 +53,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         var goedkeurenTaskId = 0
         val intakeId: Int
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
@@ -205,8 +205,8 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                         },
                         "tabellen": {},
                         "zaakUuid": "$zaakUUID",
-                        "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                        "zaaktypeUUID": "$ZAAKTYPE_TEST_2_UUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "toelichting": "fakeToelichting"
                     }
                 """.trimIndent(),

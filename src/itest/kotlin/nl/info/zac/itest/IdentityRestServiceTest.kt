@@ -30,9 +30,9 @@ import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.OLD_IAM_BEHANDELAAR_1
 import nl.info.zac.itest.config.OLD_IAM_COORDINATOR_1
@@ -181,7 +181,7 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_2_UUID",
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_CMMN_TEST_2_UUID",
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
@@ -243,7 +243,7 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_TEST_3_UUID",
+                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_CMMN_TEST_3_UUID",
                     testUser = BEHEERDER_ELK_ZAAKTYPE
                 )
                 Then(
@@ -298,7 +298,8 @@ class IdentityServiceTest : BehaviorSpec({
                     "the PABC feature flag is on and the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
                 ) {
                     val response = itestHttpClient.performGetRequest(
-                        url = "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups",
+                        url =
+                        "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_CMMN_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups",
                         testUser = BEHEERDER_ELK_ZAAKTYPE
                     )
                     Then(

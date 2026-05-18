@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
@@ -48,7 +48,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
@@ -89,7 +89,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID",
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
             testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
@@ -212,7 +212,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         lateinit var resultaatTypeUuid: UUID
         val afhandelenId: Int
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
@@ -227,7 +227,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_TEST_2_UUID",
+            url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
             testUser = RECORDMANAGER_DOMAIN_TEST_1
         ).run {
             val responseBody = bodyAsString
