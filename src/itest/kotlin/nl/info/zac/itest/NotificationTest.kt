@@ -24,7 +24,6 @@ import kotlin.time.toJavaDuration
 /**
  * This test tests the productaanvraag flow in ZAC which starts with a received productaanvraag notification.
  */
-@Suppress("LargeClass")
 class NotificationTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 

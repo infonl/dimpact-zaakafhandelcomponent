@@ -35,7 +35,6 @@ import kotlin.time.Duration.Companion.seconds
  * This test tests the handling of zaak-update notifications, which should result in messages being sent to a
  * websocket listener.
  */
-@Suppress("LargeClass")
 class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
