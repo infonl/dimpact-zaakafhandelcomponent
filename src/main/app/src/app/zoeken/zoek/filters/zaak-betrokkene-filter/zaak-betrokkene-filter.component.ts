@@ -70,7 +70,6 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
       if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
         const identificatie =
           (result as GeneratedType<"RestBedrijf">).vestigingsnummer ??
-          (result as GeneratedType<"RestBedrijf">).rsin ??
           (result as GeneratedType<"RestBedrijf">).kvkNummer ??
           (result as GeneratedType<"RestPersoon">).bsn ??
           "";
