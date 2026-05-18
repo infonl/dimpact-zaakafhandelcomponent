@@ -34,7 +34,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-class NotificationsZaakDestroyTest : BehaviorSpec({
+class NotificationZaakDestroyTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()

@@ -5,16 +5,15 @@
 package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
@@ -39,10 +38,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_VESTIG
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
-import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE
-import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_EMAIL_ADDRESS
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
@@ -71,50 +68,26 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
-import nl.info.zac.itest.config.dockerComposeContainer
-import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
-import org.testcontainers.containers.wait.strategy.Wait
-import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 /**
  * This test tests the productaanvraag flow in ZAC which starts with a received productaanvraag notification.
  */
 @Suppress("LargeClass")
-class NotificationsTest : BehaviorSpec({
+class NotificationProductaanvraagTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraag1Uuid: UUID
     lateinit var zaakProductaanvraag3Uuid: UUID
     lateinit var zaakProductaanvraagComboUuid: UUID
-    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
-
-    Given("A fake notifications payload without authentication header") {
-        When("the notificaties endpoint is called") {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "$ZAC_API_URI/notificaties",
-                headers = Headers.headersOf("Content-Type", "application/json"),
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "fake" to "fake"
-                    )
-                ).toString()
-            )
-            Then("the response should be forbidden") {
-                response.code shouldBe HTTP_FORBIDDEN
-            }
-        }
-    }
 
     Given(
         """
@@ -247,7 +220,7 @@ class NotificationsTest : BehaviorSpec({
                 UUID.fromString(JSONArray(responseBody).getJSONObject(0).getString("temporaryPersonId"))
                 UUID.fromString(JSONArray(responseBody).getJSONObject(1).getString("temporaryPersonId"))
                 UUID.fromString(JSONArray(responseBody).getJSONObject(2).getString("temporaryPersonId"))
-                zaakProductaanvraag1Betrokkene1Uuid = JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString)
+                JSONArray(responseBody).getJSONObject(0).getString("rolid").let(UUID::fromString) shouldNotBe null
             }
         }
     }
@@ -586,187 +559,8 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        "An invalid notifications payload"
-    ) {
-        When(
-            """the notificaties endpoint is called with a 'create zaaktype' payload with a 
-                    fake resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"""
-        ) {
-            val response = itestHttpClient.performJSONPostRequest(
-                url = "${ZAC_API_URI}/notificaties",
-                headers = Headers.headersOf(
-                    "Content-Type",
-                    "application/json",
-                    // this test simulates that Open Notificaties sends the request to ZAC
-                    // using the secret API key that is configured in ZAC
-                    "Authorization",
-                    OPEN_NOTIFICATIONS_API_SECRET_KEY
-                ),
-                requestBodyAsString = JSONObject(
-                    mapOf(
-                        "kanaal" to "zaaktypen",
-                        "resource" to "zaaktype",
-                        "resourceUrl" to "https://example.com/fakeResourceUrl",
-                        "hoofdObject" to "https://example.com/fakeResourceUrl",
-                        "actie" to "create",
-                        "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
-                    )
-                ).toString()
-            )
-
-            Then(
-                """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
-            ) {
-                response.code shouldBe HTTP_NO_CONTENT
-
-                // we expect ZAC to log an error message indicating that the resourceURL is invalid
-                dockerComposeContainer.waitingFor(
-                    "zac",
-                    Wait.forLogMessage(
-                        ".* Failed to handle notification 'null ZAAKTYPE CREATE' .*" +
-                            "java.lang.RuntimeException: URI 'http://example.com/fakeResourceUrl' does not " +
-                            "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
-                        1
-                    ).withStartupTimeout(30.seconds.toJavaDuration())
-                )
-            }
-        }
-    }
-
-    Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
-        val websocketListener = WebSocketTestListener(
-            textToBeSentOnOpen = "{" +
-                "\"subscriptionType\":\"CREATE\"," +
-                "\"event\":{" +
-                "  \"opcode\":\"ANY\"," +
-                "  \"objectType\":\"ZAAK\"," +
-                "  \"objectId\":{" +
-                "    \"resource\":\"$zaakProductaanvraag1Uuid\"" +
-                "  }," +
-                "\"_key\":\"ANY;ZAAK;$zaakProductaanvraag1Uuid\"" +
-                "}" +
-                "}"
-        )
-        itestHttpClient.connectNewWebSocket(
-            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener,
-            testUser = RAADPLEGER_DOMAIN_TEST_1
-        )
-        When("""a notification is sent to ZAC that the zaak in question has been updated""") {
-            // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
-            eventually(30.seconds) {
-                val response = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/notificaties",
-                    headers = Headers.headersOf(
-                        "Content-Type",
-                        "application/json",
-                        "Authorization",
-                        OPEN_NOTIFICATIONS_API_SECRET_KEY
-                    ),
-                    requestBodyAsString = JSONObject(
-                        mapOf(
-                            "kanaal" to "zaken",
-                            "resource" to "zaak",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "actie" to "partial_update",
-                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
-                            "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
-                                "bronorganisatie" to "123443210",
-                                "vertrouwelijkheidaanduiding" to "openbaar"
-                            )
-                        )
-                    ).toString()
-                )
-                response.code shouldBe HTTP_NO_CONTENT
-                // because of the retries using eventually, we can end up with duplicate messages. that's ok.
-                websocketListener.messagesReceived.size shouldBeGreaterThan 0
-            }
-        }
-        Then(
-            """the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"""
-        ) {
-            websocketListener.messagesReceived.forAtLeastOne {
-                with(JSONObject(it)) {
-                    getString("opcode") shouldBe "UPDATED"
-                    getString("objectType") shouldBe "ZAAK"
-                    getJSONObject("objectId").getString("resource") shouldBe zaakProductaanvraag1Uuid.toString()
-                }
-            }
-        }
-    }
-
-    Given("""A websocket subscription is created to listen to all changes made to zaak-rollen""") {
-        val websocketListener = WebSocketTestListener(
-            textToBeSentOnOpen = """
-                {
-                    "subscriptionType": "CREATE",
-                    "event": {
-                        "opcode": "ANY",
-                        "objectType": "$SCREEN_EVENT_TYPE_ZAAK_ROLLEN",
-                         "objectId": {
-                            "resource": "$zaakProductaanvraag1Uuid"
-                         },
-                        "_key": "ANY;$SCREEN_EVENT_TYPE_ZAAK_ROLLEN;$zaakProductaanvraag1Uuid"
-                    }
-                }
-            """.trimIndent()
-        )
-        itestHttpClient.connectNewWebSocket(
-            url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
-            webSocketListener = websocketListener,
-            testUser = RAADPLEGER_DOMAIN_TEST_1
-        )
-        When("""a notification is sent to ZAC that a zaak-rol has been created""") {
-            // we need eventually here because it takes some time before the new websocket has been
-            // successfully created in ZAC
-            eventually(30.seconds) {
-                val response = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/notificaties",
-                    headers = Headers.headersOf(
-                        "Content-Type",
-                        "application/json",
-                        "Authorization",
-                        OPEN_NOTIFICATIONS_API_SECRET_KEY
-                    ),
-                    requestBodyAsString = JSONObject(
-                        mapOf(
-                            "kanaal" to "zaken",
-                            "resource" to "rol",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakProductaanvraag1Betrokkene1Uuid",
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "actie" to "create",
-                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
-                            "kenmerken" to mapOf(
-                                "zaaktype" to "$OPEN_ZAAK_BASE_URI/catalogi/api/v1/zaaktypen/$ZAAKTYPE_TEST_3_UUID",
-                                "bronorganisatie" to "123443210",
-                                "vertrouwelijkheidaanduiding" to "openbaar"
-                            )
-                        )
-                    ).toString()
-                )
-                response.code shouldBe HTTP_NO_CONTENT
-                // because of the retries using eventually, we can end up with duplicate messages. that's ok.
-                websocketListener.messagesReceived.size shouldBeGreaterThan 0
-            }
-        }
-        Then(
-            """the response should be 'no content' and an event that the zaak-rol
-                has been updated should be sent to the websocket"""
-        ) {
-            websocketListener.messagesReceived.forAtLeastOne {
-                with(JSONObject(it)) {
-                    getString("opcode") shouldBe "UPDATED"
-                    getString("objectType") shouldBe "ZAAK_ROLLEN"
-                }
-            }
-        }
-    }
-
-    Given(
         """
-            A productaanvraag object exists with an request-specific email address in Objecten with a productaanvraag type, 
+            A productaanvraag object exists with an productaanvraag-specific email address in Objecten with a productaanvraag type, 
             a zaaktypeCmmnConfiguration is defined in ZAC configured for the same productaanvraag type and with 'automatic acknowledgement of receipt'
             (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()
@@ -861,9 +655,8 @@ class NotificationsTest : BehaviorSpec({
 
     Given(
         """
-            ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
-            specific email address and betrokkene in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration
-            are defined in ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of
+            A productaanvraag object exists with a productaanvraag-specific email address and betrokkene in Objecten with a productaanvraag type, 
+            a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type and with 'automatic acknowledgement of
             receipt' (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()
     ) {
@@ -956,10 +749,10 @@ class NotificationsTest : BehaviorSpec({
 
     Given(
         """
-            ZAC and all related Docker containers are running, a productaanvraag object exists linked to a person
-            that changes their standard email address, betrokkene in Objecten with a productaanvraag type exists,
-            zaaktypeCmmnConfiguration are defined in ZAC configured with the same productaanvraag type and with
-            'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled.
+            A productaanvraag object exists linked to a person that changes their standard email address, 
+            betrokkene in Objecten with a productaanvraag type exists,
+            zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type and with
+            'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled
         """.trimIndent()
     ) {
         When(
