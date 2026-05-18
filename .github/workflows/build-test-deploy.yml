@@ -261,14 +261,12 @@ jobs:
         uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
       # The Gradle build also executes a Maven command to build the WildFly bootable JAR.
-      # Disable the Gradle Configuration Cache for now because we sometimes run into a similar issue to:
-      # https://github.com/diffplug/spotless/issues/651
       - name: Gradle build
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ./gradlew clean build -x test --info --no-configuration-cache
+            ./gradlew clean build -x test --info
           else
-            ./gradlew build -x test --info --no-configuration-cache
+            ./gradlew build -x test --info
           fi
 
       - name: Cache Gradle build artefacts
@@ -276,7 +274,7 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-gradle-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache generated Java clients
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -285,13 +283,13 @@ jobs:
             src/generated
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
-      - name: Cache built frontend artefacts
+      - name: Cache frontend build artefacts
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-            src/main/app/dist/zaakafhandelcomponent
+            src/main/app/node_modules
             src/main/app/src/generated/types
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Cache built ZAC JAR
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -325,14 +323,15 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-gradle-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore built frontend artefacts
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-            build
-          key: built-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+            src/main/app/node_modules
+            src/main/app/src/generated/types
+          key: build-frontend-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Restore generated Java clients
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -342,7 +341,15 @@ jobs:
           key: generated-java-clients-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Run unit tests and generate test coverage reports
-        run: ./gradlew -x processResources -x classes test npmRunTestCoverage jacocoTestReport --info --rerun-tasks
+        run: |
+          ./gradlew \
+          -x processResources \
+          -x classes \
+          -x generateJavaClients \
+          -x generateJsonSchema2Pojo \
+          -x generateOpenApiSpec \
+          -x npmInstall \
+          test npmRunTestCoverage jacocoTestReport --info
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2.23.0
@@ -488,7 +495,7 @@ jobs:
         with:
           path: |
             build
-          key: build-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
+          key: build-gradle-artefacts-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_number }}
 
       - name: Generate JaCoCo integration test code coverage report
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
