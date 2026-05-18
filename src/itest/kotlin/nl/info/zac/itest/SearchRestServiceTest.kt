@@ -24,11 +24,11 @@ import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
@@ -72,7 +72,7 @@ class SearchRestServiceTest : BehaviorSpec({
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
                 testUser = BEHEERDER_ELK_ZAAKTYPE
             )
@@ -177,14 +177,14 @@ class SearchRestServiceTest : BehaviorSpec({
                             "type" : "ZAAK",
                             "uiterlijkeEinddatumAfdoening" : "$aanvullendeInformatieTaskFatalDate",
                             "vertrouwelijkheidaanduiding" : "OPENBAAR",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                           } ],
                           "totaal" : 1,
                           "filters" : {                            
                             "ZAAKTYPE" : [ 
                               {
                                 "aantal" : 1,
-                                "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                                "naam" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                                } 
                             ],
                             "BEHANDELAAR": [ 
@@ -296,7 +296,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "zaakOmschrijving": "$zaakDescription",
                             "zaakToelichting": "null",
                             "zaakUuid": "$zaakUuid",
-                            "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            "zaaktypeOmschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         }
                     """.trimIndent()
                 }
@@ -364,9 +364,9 @@ class SearchRestServiceTest : BehaviorSpec({
                             "zaakIdentificatie" : "$zaakIdentification",
                             "zaakRelatie" : "Hoort bij, omgekeerd: kent",
                             "zaakUuid" : "$zaakUuid",
-                            "zaaktypeIdentificatie" : "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                            "zaaktypeUuid" : "$ZAAKTYPE_TEST_2_UUID"
+                            "zaaktypeIdentificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                            "zaaktypeUuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID"
                           } ],
                           "totaal" : 1,
                           "filters" : {
@@ -410,13 +410,13 @@ class SearchRestServiceTest : BehaviorSpec({
             val zaak2Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype2-$now"
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak1Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak2Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
                 indexZaak = true,
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
@@ -459,7 +459,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "statustypeOmschrijving" : "Intake",
                         "toelichting" : "null",
                         "type" : "ZAAK",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                       } 
                       ],
                       "totaal" : 1,
@@ -508,7 +508,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "statustypeOmschrijving" : "Intake",
                             "toelichting" : "null",
                             "type" : "ZAAK",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                           } 
                           ],
                           "totaal" : 1,
@@ -557,7 +557,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "statustypeOmschrijving" : "Intake",
                                 "toelichting" : "null",
                                 "type" : "ZAAK",
-                                "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                                "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                             }
                             ],
                             "totaal" : 1,

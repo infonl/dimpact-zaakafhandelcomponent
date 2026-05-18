@@ -4,13 +4,7 @@
   -->
 
 <div class="table-wrapper" [ngClass]="{ loading: zoekQuery.isLoading() }">
-  <table
-    mat-table
-    matSort
-    [dataSource]="dataSource"
-    [matSortActive]="sortField()"
-    [matSortDirection]="sortDirection()"
-  >
+  <table mat-table matSort [dataSource]="dataSource">
     <ng-container matColumnDef="naam">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="TAAK_NAAM">
         {{ "naam" | translate }}

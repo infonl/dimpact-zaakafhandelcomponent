@@ -44,7 +44,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

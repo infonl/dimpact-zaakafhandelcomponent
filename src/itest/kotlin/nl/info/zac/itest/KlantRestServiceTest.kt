@@ -25,6 +25,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
@@ -44,18 +45,19 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FU
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RECHTSPERSOON_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -86,7 +88,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaak is created") {
                 val response = zacClient.createZaak(
-                    zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
                     groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
                     groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
                     behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
@@ -197,7 +199,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers and the person is retrieved") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
@@ -226,7 +228,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -308,7 +310,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
@@ -340,7 +342,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -650,6 +652,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
@@ -668,18 +671,20 @@ class KlantRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
-                Then("the response should be ok and the test company should be returned without contact data") {
+                Then("the response should be ok and the test company should be returned with contact data") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                    {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "emailadres" : "$TEST_KVK_EMAIL",
                       "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
+                      "telefoonnummer" : "$TEST_RECHTSPERSOON_TELEPHONE_NUMBER",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
                     """.trimIndent()
@@ -772,7 +777,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
+                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_CMMN_TEST_2_UUID/betrokkene",
                     testUser = RAADPLEGER_DOMAIN_TEST_1
                 )
 
@@ -785,32 +790,32 @@ class KlantRestServiceTest : BehaviorSpec({
                       {
                         "naam": "Belanghebbende",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE"
                       },
                       {
                         "naam": "Bewindvoerder",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER"
                       },
                       {
                         "naam": "Contactpersoon",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON"
                       },
                       {
                         "naam": "Gemachtigde",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE"
                       },
                       {
                         "naam": "Medeaanvrager",
                         "omschrijvingGeneriekEnum": "mede_initiator",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER"
                       },
                       {
                         "naam": "Plaatsvervanger",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
                     """.trimIndent()

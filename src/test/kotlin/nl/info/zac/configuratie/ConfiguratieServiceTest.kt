@@ -31,7 +31,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
     val gemeenteNaam = "Gemeente Name"
     val gemeenteMail = "gemeente@example.com"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

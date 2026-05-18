@@ -30,7 +30,7 @@ class CsvRestServiceTest : BehaviorSpec({
         policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

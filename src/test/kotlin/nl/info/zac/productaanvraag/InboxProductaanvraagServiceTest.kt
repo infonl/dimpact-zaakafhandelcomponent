@@ -27,7 +27,7 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>(relaxed = true)
     val service = InboxProductaanvraagService(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

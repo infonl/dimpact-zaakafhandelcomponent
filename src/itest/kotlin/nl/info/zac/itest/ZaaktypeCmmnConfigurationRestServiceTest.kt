@@ -15,12 +15,12 @@ import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID
@@ -43,9 +43,11 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         and a beheerder is logged in
         """.trimIndent()
     ) {
-        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
+        When(
+            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION' zaaktype"
+        ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID",
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
                 testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
@@ -55,14 +57,16 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "zaaktype.identificatie",
-                        ZAAKTYPE_TEST_3_IDENTIFICATIE
+                        ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                     )
                 }
             }
         }
-        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype") {
+        When(
+            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype"
+        ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_2_UUID",
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_2_UUID",
                 testUser = BEHEERDER_ELK_ZAAKTYPE
             )
             Then(
@@ -265,12 +269,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                       "zaakbeeindigParameters" : [ ],
                       "zaaktype" : {
                         "beginGeldigheid" : "2023-10-01",
-                        "doel" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                        "identificatie" : "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                        "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "identificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
                         "nuGeldig" : true,
-                        "omschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                        "omschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                         "servicenorm" : false,
-                        "uuid" : "$ZAAKTYPE_TEST_2_UUID",
+                        "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "versiedatum" : "2023-10-01",
                         "vertrouwelijkheidaanduiding" : "openbaar"
                       }

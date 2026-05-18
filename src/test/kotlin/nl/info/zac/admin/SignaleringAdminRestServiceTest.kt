@@ -36,7 +36,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         deleteOlderThanDays = deleteOlderThanDays
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

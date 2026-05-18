@@ -34,7 +34,7 @@ class UtilRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

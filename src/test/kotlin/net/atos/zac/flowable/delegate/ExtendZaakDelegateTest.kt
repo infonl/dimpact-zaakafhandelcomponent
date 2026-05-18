@@ -39,7 +39,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
     val eventingService = mockk<EventingService>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

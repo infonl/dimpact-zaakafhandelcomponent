@@ -151,6 +151,7 @@ object ItestConfiguration {
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
     const val TEST_KVK_EMAIL = "fake.kvk@example.com"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
+    const val TEST_RECHTSPERSOON_TELEPHONE_NUMBER = "0101234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
 
     /**
@@ -308,57 +309,57 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
-    val ZAAKTYPE_TEST_1_UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
-    const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
+    val ZAAKTYPE_CMMN_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
+    const val ZAAKTYPE_CMMN_TEST_1_DESCRIPTION = "Test zaaktype 1"
 
-    val ZAAKTYPE_TEST_2_UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    const val ZAAKTYPE_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
-    const val ZAAKTYPE_TEST_2_DESCRIPTION = "Test zaaktype 2"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+    val ZAAKTYPE_CMMN_TEST_2_UUID: UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
+    const val ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
+    const val ZAAKTYPE_CMMN_TEST_2_DESCRIPTION = "Test zaaktype 2"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
 
-    val ZAAKTYPE_TEST_3_UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    const val ZAAKTYPE_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
-    const val ZAAKTYPE_TEST_3_DESCRIPTION = "Test zaaktype 3"
-    const val ZAAKTYPE_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
+    val ZAAKTYPE_CMMN_TEST_3_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    const val ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
+    const val ZAAKTYPE_CMMN_TEST_3_DESCRIPTION = "Test zaaktype 3"
+    const val ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     // BPMN tests constants
-    val ZAAKTYPE_BPMN_TEST_1_UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
+    val ZAAKTYPE_BPMN_TEST_1_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     const val ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE = "bpmn-test-zaaktype-1"
     const val ZAAKTYPE_BPMN_TEST_1_DESCRIPTION = "BPMN test zaaktype 1"
     const val ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE = "bpmn-test-1-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "82442c7f-05f2-4e9d-a0ae-c038344809af"
     )
 
-    val ZAAKTYPE_BPMN_TEST_2_UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
+    val ZAAKTYPE_BPMN_TEST_2_UUID: UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
     const val ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE = "bpmn-test-zaaktype-2"
     const val ZAAKTYPE_BPMN_TEST_2_DESCRIPTION = "BPMN test zaaktype 2"
     const val ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE = "bpmn-test-2-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "4f9da4cd-a910-4f85-98ca-adb33e215f43"
     )
 
-    val ZAAKTYPE_BPMN_TEST_3_UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
+    val ZAAKTYPE_BPMN_TEST_3_UUID: UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
     const val ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE = "bpmn-test-zaaktype-3"
     const val ZAAKTYPE_BPMN_TEST_3_DESCRIPTION = "BPMN test zaaktype 3"
     const val ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE = "bpmn-test-3-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "c1d2e3f4-5678-9abc-def0-1234567890ab"
     )
 
-    val ZAAKTYPE_BPMN_TEST_4_UUID = UUID.fromString("f5a7b8c9-d0e1-2345-f012-345678901bcd")
+    val ZAAKTYPE_BPMN_TEST_4_UUID: UUID = UUID.fromString("f5a7b8c9-d0e1-2345-f012-345678901bcd")
     const val ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE = "bpmn-test-zaaktype-4"
     const val ZAAKTYPE_BPMN_TEST_4_DESCRIPTION = "BPMN test zaaktype 4"
     const val ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE = "bpmn-test-4-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     )
 

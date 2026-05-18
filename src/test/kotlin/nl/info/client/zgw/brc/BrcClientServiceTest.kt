@@ -27,7 +27,7 @@ class BrcClientServiceTest : BehaviorSpec({
         zgwClientHeadersFactory = zgwClientHeadersFactory
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

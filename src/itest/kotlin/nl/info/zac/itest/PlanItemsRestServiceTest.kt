@@ -18,7 +18,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONArray
 import org.json.JSONObject
@@ -39,7 +39,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     Given("A zaak has been created for test zaaktype 3 and a behandelaar is logged in") {
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,

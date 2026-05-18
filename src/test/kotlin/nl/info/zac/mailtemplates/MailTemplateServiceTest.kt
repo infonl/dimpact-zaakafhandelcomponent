@@ -35,7 +35,7 @@ class MailTemplateServiceTest : BehaviorSpec({
     val typedQuery = mockk<TypedQuery<MailTemplate>>()
     val mailTemplateService = MailTemplateService(entityManager)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -25,7 +25,7 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
   columns = [
     "titel",
     "registratiedatumTijd",
-    "informatieobjectType",
+    "informatieobjectTypeOmschrijving",
     "auteur",
     "url",
   ] as const;
@@ -38,18 +38,16 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
     super(identityService, websocketService);
   }
 
-  protected onLoad(afterLoad: () => void): void {
+  protected onLoad(): void {
     const signaleringType = this.data.signaleringType;
     if (!signaleringType) {
       this.dataSource.data = [];
-      afterLoad();
       return;
     }
     this.signaleringenService
       .listInformatieobjectenSignalering(signaleringType)
       .subscribe((informatieobjecten) => {
         this.dataSource.data = informatieobjecten ?? [];
-        afterLoad();
       });
   }
 }

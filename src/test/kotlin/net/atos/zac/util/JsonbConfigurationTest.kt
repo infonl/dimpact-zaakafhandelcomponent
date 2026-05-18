@@ -20,7 +20,7 @@ class JsonbConfigurationTest : BehaviorSpec({
     val jsonbConfiguration = JsonbConfiguration()
     val contextResolver = jsonbConfiguration.getContext(JsonbConfiguration::class.java)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

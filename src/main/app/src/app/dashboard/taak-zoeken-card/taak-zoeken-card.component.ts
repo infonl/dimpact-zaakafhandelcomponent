@@ -42,6 +42,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     "zaaktypeOmschrijving",
     "url",
   ] as const;
+  protected override serverSidePagination = true;
   pageSize = 5;
   pageNumber = signal(0);
   sortField = signal<GeneratedType<"SorteerVeld">>("TAAK_CREATIEDATUM");

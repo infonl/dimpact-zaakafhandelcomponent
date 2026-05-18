@@ -21,7 +21,7 @@ import org.flowable.task.api.history.HistoricTaskInstance
 
 class TaskFunctionsTest : BehaviorSpec({
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

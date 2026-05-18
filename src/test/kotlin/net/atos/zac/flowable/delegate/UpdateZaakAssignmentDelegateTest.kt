@@ -31,7 +31,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
     val userId = "fakeUserId"
     val reason = "fakeReason"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

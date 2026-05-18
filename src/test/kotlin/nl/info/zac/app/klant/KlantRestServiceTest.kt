@@ -57,8 +57,9 @@ class KlantRestServiceTest : BehaviorSpec({
         loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
+        clearAllMocks()
     }
 
     Context("Read vestiging by vestigingsnummer but without KVK nummer") {
@@ -102,7 +103,6 @@ class KlantRestServiceTest : BehaviorSpec({
         }
 
         Given("a vestiging by vestigingsnummer which does not exist in the KVK client") {
-            clearAllMocks()
             val vestigingsnummer = "fakeVestigingsnummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
@@ -175,15 +175,11 @@ class KlantRestServiceTest : BehaviorSpec({
         Given(
             "a vestiging which does not exist in the KVK client nor in in the klanten client"
         ) {
-            clearAllMocks()
             val vestigingsnummer = "fakeVestigingsnummer"
             val kvkNummer = "fakeKvkNummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
             } returns null
-            every {
-                klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
-            } returns emptyList()
 
             When("a request is made to get the vestiging") {
                 val exception =
@@ -241,11 +237,9 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
+            every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
             When("when the person is retrieved") {
@@ -266,16 +260,7 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
-            val telephoneNumber = "0612345678"
-            val emailAddress = "test@example.com"
             val userName = "fakeUserName"
-            val digitaalAdresses = createDigitalAddresses(
-                phone = telephoneNumber,
-                email = emailAddress
-            )
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -295,9 +280,6 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val userName = "fakeUserName"
             val temporaryPersonId = UUID.randomUUID()
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -353,10 +335,10 @@ class KlantRestServiceTest : BehaviorSpec({
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
-                        this.kvkNummer shouldBe null
+                        this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode = postcode
-                        this.type = type
+                        this.postcode shouldBe postcode
+                        this.type shouldBe type
                     }
                 }
             }
@@ -367,11 +349,9 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
+            every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
             When("when the person is retrieved") {
@@ -392,16 +372,7 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
-            val telephoneNumber = "0612345678"
-            val emailAddress = "test@example.com"
             val userName = "fakeUserName"
-            val digitaalAdresses = createDigitalAddresses(
-                phone = telephoneNumber,
-                email = emailAddress
-            )
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -421,9 +392,6 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -441,7 +409,47 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Reading a rechtspersoon by KVK nummer") {
-        Given("A rechtspersoon with a matching KVK nummer in the KVK client") {
+        Given(
+            "A rechtspersoon with a matching KVK nummer in the KVK client and contact details in the klanten client"
+        ) {
+            val rsin = "123456789"
+            val name = "fakeName"
+            val kvkNummer = "12345678"
+            val postcode = "fakePostcode"
+            val digitalAddressesList = createDigitalAddresses("+123-456-789", "fake@example.com")
+            every { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) } returns createResultaatItem(
+                rsin = rsin,
+                naam = name,
+                kvkNummer = kvkNummer,
+                vestingsnummer = null,
+                adres = createAdresWithBinnenlandsAdres(postcode = postcode),
+                type = "fakeType"
+            )
+            every {
+                klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+            } returns digitalAddressesList
+
+            When("when the rechtspersoon is retrieved by KVK nummer") {
+                val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
+
+                Then("the rechtspersoon should be returned including contact details") {
+                    with(restBedrijf) {
+                        this.rsin shouldBe rsin
+                        this.naam shouldBe name
+                        this.kvkNummer shouldBe kvkNummer
+                        this.vestigingsnummer shouldBe null
+                        this.postcode shouldBe postcode
+                        this.type shouldBe type
+                        this.telefoonnummer shouldBe "+123-456-789"
+                        this.emailadres shouldBe "fake@example.com"
+                    }
+                }
+            }
+        }
+
+        Given(
+            "A rechtspersoon with a matching KVK nummer in the KVK client but no contact details in the klanten client"
+        ) {
             val rsin = "123456789"
             val name = "fakeName"
             val kvkNummer = "12345678"
@@ -454,18 +462,21 @@ class KlantRestServiceTest : BehaviorSpec({
                 adres = createAdresWithBinnenlandsAdres(postcode = postcode),
                 type = "fakeType"
             )
+            every {
+                klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
+            } returns emptyList()
 
             When("when the rechtspersoon is retrieved by KVK nummer") {
                 val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
 
-                Then("the rechtspersoon should be returned") {
+                Then("the rechtspersoon should be returned without contact details") {
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode = postcode
-                        this.type = type
+                        this.telefoonnummer shouldBe null
+                        this.emailadres shouldBe null
                     }
                 }
             }
@@ -476,11 +487,9 @@ class KlantRestServiceTest : BehaviorSpec({
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
             val persoon = createPersoon(bsn = bsn)
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns persoon
+            every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
             When("when the person is retrieved") {
@@ -501,16 +510,7 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
-            val telephoneNumber = "0612345678"
-            val emailAddress = "test@example.com"
             val userName = "fakeUserName"
-            val digitaalAdresses = createDigitalAddresses(
-                phone = telephoneNumber,
-                email = emailAddress
-            )
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns digitaalAdresses
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -530,9 +530,6 @@ class KlantRestServiceTest : BehaviorSpec({
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
-            every {
-                klantClientService.findDigitalAddressesForNaturalPerson(bsn)
-            } returns emptyList()
             every { loggedInUserInstance.get().id } returns userName
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
@@ -798,7 +795,6 @@ class KlantRestServiceTest : BehaviorSpec({
         }
 
         Given("No person exists for a given BSN") {
-            clearAllMocks()
             val bsn = "123456789"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
@@ -816,7 +812,6 @@ class KlantRestServiceTest : BehaviorSpec({
         }
 
         Given("Persons are queried using search parameters (no BSN)") {
-            clearAllMocks()
             val restListPersonenParameters = RestListPersonenParameters(
                 geslachtsnaam = "Jansen",
                 geboortedatum = LocalDate.of(1990, 1, 1)

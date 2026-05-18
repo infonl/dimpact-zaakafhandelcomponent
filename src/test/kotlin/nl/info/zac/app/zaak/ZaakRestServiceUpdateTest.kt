@@ -151,7 +151,7 @@ class ZaakRestServiceUpdateTest : BehaviorSpec({
         identificationService = identificationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -59,7 +59,7 @@ class WebdavStoreTest : BehaviorSpec({
         }
     }
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

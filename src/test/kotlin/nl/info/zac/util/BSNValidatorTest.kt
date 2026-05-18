@@ -12,7 +12,7 @@ import java.lang.IllegalArgumentException
 
 class BSNValidatorTest : BehaviorSpec({
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

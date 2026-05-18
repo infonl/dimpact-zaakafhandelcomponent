@@ -18,7 +18,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_ID
@@ -53,7 +53,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         """
     ) {
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
