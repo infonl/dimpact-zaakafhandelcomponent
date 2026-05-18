@@ -750,7 +750,6 @@ tasks {
         group = "build"
         inputs.file("$appPath/package.json")
         outputs.dir("$appPath/node_modules")
-        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunLint") {
@@ -763,8 +762,6 @@ tasks {
 
         inputs.files(fileTree("$appPath/node_modules"))
         inputs.files(fileTree("$appPath/src"))
-        outputs.files(fileTree("$appPath/src"))
-        outputs.cacheIf { true }
     }
 
     register<NpmTask>("npmRunBuild") {
