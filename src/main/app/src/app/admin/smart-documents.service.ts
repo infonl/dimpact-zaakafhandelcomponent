@@ -5,7 +5,7 @@
 
 import { Injectable } from "@angular/core";
 import { map } from "rxjs";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -68,47 +68,6 @@ export class SmartDocumentsService {
         })) || null,
       groups: group.groups ? this.convertToApiFormat(group.groups) : null,
     }));
-  }
-
-  getTemplateGroup(
-    body: PutBody<"/rest/zaakafhandelparameters/smartdocuments-template-group">,
-    templateName: string,
-    informatieObjectTypeUUID: string,
-  ) {
-    return this.zacHttpClient
-      .PUT("/rest/zaakafhandelparameters/smartdocuments-template-group", body)
-      .pipe(
-        map((data) =>
-          this.createSingleTemplateGroup(
-            data,
-            templateName,
-            informatieObjectTypeUUID,
-          ),
-        ),
-      );
-  }
-
-  private createSingleTemplateGroup(
-    templateGroup: GeneratedType<"RestSmartDocumentsTemplateGroup">,
-    templateName: string,
-    informatieObjectTypeUUID: string,
-  ): GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] {
-    return [
-      {
-        id: templateGroup.id,
-        name: templateGroup.name,
-        groups: null,
-        templates: [
-          {
-            id: templateGroup.templates!.find(
-              ({ name }) => name === templateName,
-            )!.id,
-            name: templateName,
-            informatieObjectTypeUUID,
-          },
-        ],
-      },
-    ];
   }
 
   // Get only groups that have mapped templates

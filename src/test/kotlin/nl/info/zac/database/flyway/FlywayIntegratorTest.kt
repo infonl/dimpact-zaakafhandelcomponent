@@ -12,7 +12,7 @@ import nl.info.zac.database.flyway.exception.DatabaseConfigurationException
 class FlywayIntegratorTest : BehaviorSpec({
     val flywayIntegrator = FlywayIntegrator()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

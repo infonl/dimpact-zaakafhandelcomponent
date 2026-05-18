@@ -17,7 +17,7 @@ class ObjectsClientServiceTest : BehaviorSpec({
     val objectsClient = mockk<ObjectsClient>()
     val service = ObjectsClientService(objectsClient)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

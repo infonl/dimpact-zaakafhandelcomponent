@@ -87,7 +87,7 @@ class SignaleringServiceTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

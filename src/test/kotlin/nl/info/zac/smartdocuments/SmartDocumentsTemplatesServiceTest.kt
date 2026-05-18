@@ -38,7 +38,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         zaaktypeConfigurationService = zaaktypeConfigurationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

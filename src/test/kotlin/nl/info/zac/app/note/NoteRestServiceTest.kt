@@ -31,7 +31,7 @@ class NoteRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

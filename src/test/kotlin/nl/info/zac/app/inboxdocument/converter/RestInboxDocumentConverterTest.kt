@@ -20,7 +20,7 @@ import java.util.UUID
 
 class RestInboxDocumentConverterTest : BehaviorSpec({
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

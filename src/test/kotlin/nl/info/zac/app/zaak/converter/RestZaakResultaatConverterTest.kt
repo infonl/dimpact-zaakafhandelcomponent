@@ -23,7 +23,7 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val converter = RestZaakResultaatConverter(zrcClientService, ztcClientService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

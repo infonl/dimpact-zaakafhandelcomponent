@@ -154,33 +154,47 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       );
     });
 
-    it("should call getTemplateGroup when all three SmartDocuments inputs are set", async () => {
-      const getTemplateGroupSpy = jest
-        .spyOn(smartDocumentsService, "getTemplateGroup")
-        .mockReturnValue(
-          of(mockTemplateGroups) as ReturnType<
-            typeof smartDocumentsService.getTemplateGroup
-          >,
-        );
-
-      // Need a fresh fixture with all inputs set before ngOnInit runs
+    it("should auto-select and disable the templateGroup when smartDocumentsGroupId matches", async () => {
       const freshFixture = TestBed.createComponent(
         InformatieObjectCreateAttendedComponent,
       );
       const freshRef = freshFixture.componentRef;
       freshRef.setInput("sideNav", mockSideNav);
       freshRef.setInput("zaak", makeZaak());
-      freshRef.setInput("smartDocumentsGroupPath", ["Group One"]);
-      freshRef.setInput("smartDocumentsTemplateName", "Template One");
-      freshRef.setInput(
-        "smartDocumentsInformatieobjecttypeUuid",
-        "info-type-uuid",
-      );
+      freshRef.setInput("smartDocumentsGroupId", "group-1");
 
       freshFixture.detectChanges();
       await freshFixture.whenStable();
 
-      expect(getTemplateGroupSpy).toHaveBeenCalled();
+      const freshComponent = freshFixture.componentInstance;
+      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
+        mockTemplateGroups[0],
+      );
+      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
+    });
+
+    it("should auto-select and disable both templateGroup and template when smartDocumentsGroupId and smartDocumentsTemplateId match", async () => {
+      const freshFixture = TestBed.createComponent(
+        InformatieObjectCreateAttendedComponent,
+      );
+      const freshRef = freshFixture.componentRef;
+      freshRef.setInput("sideNav", mockSideNav);
+      freshRef.setInput("zaak", makeZaak());
+      freshRef.setInput("smartDocumentsGroupId", "group-1");
+      freshRef.setInput("smartDocumentsTemplateId", "tpl-1");
+
+      freshFixture.detectChanges();
+      await freshFixture.whenStable();
+
+      const freshComponent = freshFixture.componentInstance;
+      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
+        mockTemplateGroups[0],
+      );
+      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
+      expect(freshComponent["form"].controls.template.value).toEqual(
+        mockTemplateGroups[0].templates![0],
+      );
+      expect(freshComponent["form"].controls.template.disabled).toBe(true);
     });
 
     it("should set author from logged-in user", async () => {

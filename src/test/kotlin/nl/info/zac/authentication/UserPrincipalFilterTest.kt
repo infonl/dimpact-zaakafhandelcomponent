@@ -43,7 +43,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>()
     val newHttpSession = mockk<HttpSession>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

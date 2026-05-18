@@ -134,7 +134,7 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
         identificationService = identificationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

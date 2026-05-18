@@ -101,7 +101,7 @@
           *ngIf="!bedrijf?.observed"
           mat-icon-button
           (click)="openBedrijfPagina(row)"
-          [id]="'bedrijfBekijken_' + row.identificatie + '_button'"
+          [id]="'bedrijfBekijken_' + (row.vestigingsnummer ?? row.kvkNummer) + '_button'"
           title="{{ 'actie.bedrijf.bekijken' | translate }}"
         >
           <mat-icon>visibility</mat-icon>

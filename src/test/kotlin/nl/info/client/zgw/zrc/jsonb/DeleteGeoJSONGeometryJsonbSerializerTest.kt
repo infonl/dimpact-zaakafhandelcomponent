@@ -18,7 +18,7 @@ class DeleteGeoJSONGeometryJsonbSerializerTest : BehaviorSpec({
     val jsonGenerator = mockk<JsonGenerator>()
     val serializationContext = mockk<SerializationContext>()
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

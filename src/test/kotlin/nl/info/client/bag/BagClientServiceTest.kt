@@ -37,7 +37,7 @@ class BagClientServiceTest : BehaviorSpec({
         openbareRuimteApi
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

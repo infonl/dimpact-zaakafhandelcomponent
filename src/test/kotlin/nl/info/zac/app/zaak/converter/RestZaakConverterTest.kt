@@ -91,7 +91,7 @@ class RestZaakConverterTest : BehaviorSpec({
         klantClientService = klantClientService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

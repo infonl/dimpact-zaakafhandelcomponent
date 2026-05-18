@@ -51,7 +51,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

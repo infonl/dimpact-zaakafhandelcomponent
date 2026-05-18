@@ -7,6 +7,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSortHeaderHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -95,7 +96,7 @@ describe(InformatieobjectenCardComponent.name, () => {
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(docs));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual(docs);
   });
@@ -105,7 +106,7 @@ describe(InformatieobjectenCardComponent.name, () => {
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(null as never));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual([]);
   });
@@ -119,12 +120,45 @@ describe(InformatieobjectenCardComponent.name, () => {
     component.data = makeDashboardCard(undefined);
     component.dataSource.data = [makeInformatieobject()];
 
-    const afterLoad = jest.fn();
-    component["onLoad"](afterLoad);
+    component["onLoad"]();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
-    expect(afterLoad).toHaveBeenCalled();
+  });
+
+  it("wires up sort and paginator on the dataSource after view init", () => {
+    expect(component.dataSource.sort).toBe(component.sort);
+    expect(component.dataSource.paginator).toBe(component.paginator);
+  });
+
+  it("reorders rows ascending then descending when the titel sort header is clicked", async () => {
+    component.dataSource.data = [
+      makeInformatieobject({ titel: "Charlie" }),
+      makeInformatieobject({ titel: "Alpha" }),
+      makeInformatieobject({ titel: "Bravo" }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "documenttitel" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).titel,
+      ),
+    );
+    expect(ascending).toEqual(["Alpha", "Bravo", "Charlie"]);
+
+    await sortHeader.click();
+    const descending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).titel,
+      ),
+    );
+    expect(descending).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
 
   it("exposes the expected column definitions", () => {

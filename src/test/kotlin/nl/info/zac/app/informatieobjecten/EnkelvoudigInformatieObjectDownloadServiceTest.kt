@@ -31,7 +31,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val service = EnkelvoudigInformatieObjectDownloadService(drcClientService, zrcClientService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

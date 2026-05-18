@@ -41,7 +41,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         zrcClientService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

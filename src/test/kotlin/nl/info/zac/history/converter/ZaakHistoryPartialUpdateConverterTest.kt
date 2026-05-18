@@ -25,7 +25,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
     val description = "description"
     val zaakHistoryPartialUpdateConverter = ZaakHistoryPartialUpdateConverter(zrcClientService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

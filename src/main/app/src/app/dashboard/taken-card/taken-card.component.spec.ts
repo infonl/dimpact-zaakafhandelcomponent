@@ -7,12 +7,13 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatSortHeaderHarness } from "@angular/material/sort/testing";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -96,7 +97,7 @@ describe(TakenCardComponent.name, () => {
       .spyOn(signaleringenService, "listTakenSignalering")
       .mockReturnValue(of(taken));
 
-    component["onLoad"](() => {});
+    component["onLoad"]();
 
     expect(component.dataSource.data).toEqual(taken);
   });
@@ -110,12 +111,52 @@ describe(TakenCardComponent.name, () => {
     );
     component.dataSource.data = [makeTaak()];
 
-    const afterLoad = jest.fn();
-    component["onLoad"](afterLoad);
+    component["onLoad"]();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
-    expect(afterLoad).toHaveBeenCalled();
+  });
+
+  it("wires up sort and paginator on the dataSource after view init", () => {
+    expect(component.dataSource.sort).toBe(component.sort);
+    expect(component.dataSource.paginator).toBe(component.paginator);
+  });
+
+  it("re-runs onLoad when the reload observable emits", () => {
+    const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
+    spy.mockClear();
+    (component["reload"] as Subject<void>).next();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("reorders rows ascending then descending when the naam sort header is clicked", async () => {
+    component.dataSource.data = [
+      makeTaak({ naam: "Charlie" }),
+      makeTaak({ naam: "Alpha" }),
+      makeTaak({ naam: "Bravo" }),
+    ];
+    fixture.detectChanges();
+
+    const sortHeader = await loader.getHarness(
+      MatSortHeaderHarness.with({ label: "naam" }),
+    );
+    const table = await loader.getHarness(MatTableHarness);
+
+    await sortHeader.click();
+    const ascending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).naam,
+      ),
+    );
+    expect(ascending).toEqual(["Alpha", "Bravo", "Charlie"]);
+
+    await sortHeader.click();
+    const descending = await Promise.all(
+      (await table.getRows()).map(
+        async (row) => (await row.getCellTextByColumnName()).naam,
+      ),
+    );
+    expect(descending).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
 
   it("exposes the expected column definitions", () => {

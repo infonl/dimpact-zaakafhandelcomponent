@@ -15,13 +15,15 @@
         {{ "einddatumGepland" | translate }}
       </th>
       <td mat-cell *matCellDef="let zaak">
-        {{ zaak.einddatumGepland | datum | empty }}
-        <mat-icon
-          class="warning"
-          [title]="'msg.datum.overschreden' | translate"
-          *ngIf="isAfterDate(zaak.einddatumGepland, zaak.einddatum)"
-          >warning
-        </mat-icon>
+        <div class="flex-row items-center gap-10">
+          {{ zaak.einddatumGepland | datum | empty }}
+          <mat-icon
+            class="warning"
+            [title]="'msg.datum.overschreden' | translate"
+            *ngIf="isAfterDate(zaak.einddatumGepland, zaak.einddatum)"
+            >warning
+          </mat-icon>
+        </div>
       </td>
     </ng-container>
     <ng-container matColumnDef="dagenTotStreefdatum">

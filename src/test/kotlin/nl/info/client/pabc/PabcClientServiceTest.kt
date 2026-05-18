@@ -20,7 +20,7 @@ class PabcClientServiceTest : BehaviorSpec({
     val pabcClient = mockk<PabcClient>()
     val pabcClientService = PabcClientService(pabcClient)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

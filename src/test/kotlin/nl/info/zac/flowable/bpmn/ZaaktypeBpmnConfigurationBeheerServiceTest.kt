@@ -49,7 +49,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationBeheerService =
         ZaaktypeBpmnConfigurationBeheerService(entityManager, smartDocumentsTemplatesService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

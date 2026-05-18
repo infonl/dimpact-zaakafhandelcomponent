@@ -146,7 +146,7 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         identificationService = identificationService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -421,7 +421,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNatuurlijkPersoon.omschrijving
                             roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                             type shouldBe "NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
                             temporaryPersonId shouldBe expectedPersonId
                             identificatieType shouldBe IdentificatieType.BSN
                         }
@@ -430,7 +429,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.omschrijving
                             roltoelichting shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.roltoelichting
                             type shouldBe "NIET_NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.identificatienummer
                             identificatieType shouldBe IdentificatieType.VN
                         }
                         with(last()) {
@@ -438,7 +436,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNietNatuurlijkPersoonWithRSIN.omschrijving
                             roltoelichting shouldBe rolNietNatuurlijkPersoonWithRSIN.roltoelichting
                             type shouldBe "NIET_NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNietNatuurlijkPersoonWithRSIN.identificatienummer
                             identificatieType shouldBe IdentificatieType.RSIN
                         }
                     }

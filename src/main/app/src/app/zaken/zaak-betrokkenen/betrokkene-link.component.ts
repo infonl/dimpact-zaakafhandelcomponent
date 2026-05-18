@@ -56,15 +56,20 @@ export class BetrokkeneLinkComponent {
   protected readonly bedrijfQuery = injectQuery(() => {
     const betrokkene = this.betrokkene();
 
-    if (this.isBsnType()) {
+    if (this.isBsnType() || !betrokkene.identificatieType) {
       return {
-        queryKey: ["bedrijf", betrokkene.identificatie],
+        queryKey: ["bedrijf", betrokkene.vestigingsnummer ?? betrokkene.kvkNummer],
         enabled: false,
       };
     }
 
     return this.klantenService.readBedrijf(
-      new BetrokkeneIdentificatie(betrokkene),
+      new BetrokkeneIdentificatie({
+        identificatieType: betrokkene.identificatieType,
+        kvkNummer: betrokkene.kvkNummer,
+        vestigingsnummer: betrokkene.vestigingsnummer,
+        rsin: betrokkene.rsin,
+      }),
     );
   });
 
@@ -73,9 +78,15 @@ export class BetrokkeneLinkComponent {
 
   protected readonly zaaktypeUuid = input.required<string>();
 
-  protected readonly bedrijfRouteLink = computed(() =>
-    buildBedrijfRouteLink(this.betrokkene()),
-  );
+  protected readonly bedrijfRouteLink = computed(() => {
+    const betrokkene = this.betrokkene();
+    return buildBedrijfRouteLink({
+      kvkNummer: betrokkene.kvkNummer,
+      vestigingsnummer: betrokkene.vestigingsnummer,
+        identificatieType: betrokkene.identificatieType,
+        type: betrokkene.type,
+    });
+  });
 
   private isBsnType() {
     const betrokkene = this.betrokkene();

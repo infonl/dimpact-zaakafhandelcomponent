@@ -47,7 +47,7 @@ class TaskServiceTest : BehaviorSpec({
     val taskId1 = "fakeTaskId1"
     val taskId2 = "fakeTaskId2"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

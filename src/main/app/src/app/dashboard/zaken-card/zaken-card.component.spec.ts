@@ -77,7 +77,7 @@ describe(ZakenCardComponent.name, () => {
     )!.componentInstance as MatPaginator;
   }
 
-  it("renders paginator length from cached query data on first detect cycle", async () => {
+  it("renders paginator length from cached query data on first detect cycle, even when only one page of rows is loaded", async () => {
     const params = {
       signaleringType: cardData.signaleringType,
       page: 0,
@@ -85,12 +85,12 @@ describe(ZakenCardComponent.name, () => {
     };
     testQueryClient.setQueryData(
       ["aan mij toegekende zaken signaleringen", params],
-      makeResultaat(17),
+      makeResultaat(25, 5),
     );
 
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(makeResultaat(17)));
+      .mockReturnValue(of(makeResultaat(25, 5)));
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -98,7 +98,19 @@ describe(ZakenCardComponent.name, () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(getPaginator().length).toBe(17);
+    expect(getPaginator().length).toBe(25);
+  });
+
+  it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
+    jest
+      .spyOn(signaleringenService, "listZakenSignalering")
+      .mockReturnValue(of(makeResultaat(0)));
+
+    fixture = TestBed.createComponent(ZakenCardComponent);
+    fixture.componentInstance.data = cardData;
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.dataSource.paginator).toBeFalsy();
   });
 
   it("populates the data source with rows from the query result", async () => {

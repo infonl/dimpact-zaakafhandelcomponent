@@ -99,7 +99,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         zaaktypeUUID = zaakTypeUUID
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
