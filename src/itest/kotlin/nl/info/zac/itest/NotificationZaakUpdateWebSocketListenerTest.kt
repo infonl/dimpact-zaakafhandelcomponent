@@ -10,7 +10,11 @@ import io.kotest.inspectors.forAtLeastOne
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
+import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
@@ -21,6 +25,7 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -33,10 +38,25 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("LargeClass")
 class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
-    lateinit var zaakProductaanvraag1Uuid: UUID
-    lateinit var zaakProductaanvraag1Betrokkene1Uuid: UUID
+    val zacClient = ZacClient(itestHttpClient)
+    lateinit var zaakUuid: UUID
+    lateinit var zaakBetrokkeneUuid: UUID
 
-    Given("""A websocket subscription is created to listen to all changes made to a specific zaak""") {
+    Given(
+        """A zaak exists and a websocket subscription is created to listen to all changes made to this zaak"""
+    ) {
+        zacClient.createZaak(
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
+            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            startDate = DATE_TIME_2000_01_01,
+            testUser = BEHANDELAAR_DOMAIN_TEST_1
+        ).run {
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).run {
+                zaakUuid = getString("uuid").run(UUID::fromString)
+            }
+        }
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = "{" +
                 "\"subscriptionType\":\"CREATE\"," +
@@ -44,9 +64,9 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                 "  \"opcode\":\"ANY\"," +
                 "  \"objectType\":\"ZAAK\"," +
                 "  \"objectId\":{" +
-                "    \"resource\":\"$zaakProductaanvraag1Uuid\"" +
+                "    \"resource\":\"$zaakUuid\"" +
                 "  }," +
-                "\"_key\":\"ANY;ZAAK;$zaakProductaanvraag1Uuid\"" +
+                "\"_key\":\"ANY;ZAAK;$zaakUuid\"" +
                 "}" +
                 "}"
         )
@@ -70,8 +90,8 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                         mapOf(
                             "kanaal" to "zaken",
                             "resource" to "zaak",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
                             "actie" to "partial_update",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
@@ -94,7 +114,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                 with(JSONObject(it)) {
                     getString("opcode") shouldBe "UPDATED"
                     getString("objectType") shouldBe "ZAAK"
-                    getJSONObject("objectId").getString("resource") shouldBe zaakProductaanvraag1Uuid.toString()
+                    getJSONObject("objectId").getString("resource") shouldBe zaakUuid.toString()
                 }
             }
         }
@@ -109,9 +129,9 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                         "opcode": "ANY",
                         "objectType": "$SCREEN_EVENT_TYPE_ZAAK_ROLLEN",
                          "objectId": {
-                            "resource": "$zaakProductaanvraag1Uuid"
+                            "resource": "$zaakUuid"
                          },
-                        "_key": "ANY;$SCREEN_EVENT_TYPE_ZAAK_ROLLEN;$zaakProductaanvraag1Uuid"
+                        "_key": "ANY;$SCREEN_EVENT_TYPE_ZAAK_ROLLEN;$zaakUuid"
                     }
                 }
             """.trimIndent()
@@ -137,8 +157,8 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                         mapOf(
                             "kanaal" to "zaken",
                             "resource" to "rol",
-                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakProductaanvraag1Betrokkene1Uuid",
-                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakProductaanvraag1Uuid",
+                            "resourceUrl" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/rollen/$zaakBetrokkeneUuid",
+                            "hoofdObject" to "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUuid",
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
