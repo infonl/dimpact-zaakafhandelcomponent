@@ -88,7 +88,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 /**
- * This test creates a zaak and a document (the form data PDF) from a productaanvraag.
+ * This test tests the productaanvraag flow in ZAC which starts with a received productaanvraag notification.
  */
 @Suppress("LargeClass")
 class NotificationsTest : BehaviorSpec({
@@ -254,8 +254,8 @@ class NotificationsTest : BehaviorSpec({
 
     Given(
         """
-        ZAC and all related Docker containers are running, a productaanvraag object exists in Objecten with
-        a productaanvraag type, BPMN definition exists in ZAC for the same productaanvraag type
+        A productaanvraag object exists in Objecten with a productaanvraag type, 
+        and BPMN zaaktype configuration exists in ZAC for the same productaanvraag type
         """.trimIndent()
     ) {
         When(
@@ -349,13 +349,12 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
-                    and productaanvraag PDF exists in Open Zaak"""
+        "A productaanvraag object exists in Objecten with an initiator with a KVK nummer"
     ) {
         When(
             """
                 the notificaties endpoint is called with a second 'create productaanvraag' payload with authentication header
-                 and without zaakgegevens and with an initiator of type 'kvkNummer'
+                 and without zaakgegevens and with an initiator of type 'KVK nummer'
             """.trimIndent()
         ) {
             val response = itestHttpClient.performJSONPostRequest(
@@ -441,8 +440,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
-                    with both kvkNummer and vestigingsNummer"""
+        "A productaanvraag object exists in Objecten with an initiator with both a KVK nummer and a vestigingsnummer"
     ) {
         When(
             """
@@ -529,8 +527,8 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """ZAC and all related Docker containers are running, productaanvraag object exists in Objecten API
-                    with only vestigingsNummer (invalid scenario)"""
+        "A productaanvraag object exists in Objecten with an initiator with only a vestigingsnummer (invalid scenario)"
+
     ) {
         When(
             """
@@ -588,7 +586,7 @@ class NotificationsTest : BehaviorSpec({
     }
 
     Given(
-        """ZAC and all related Docker containers are running"""
+        "An invalid notifications payload"
     ) {
         When(
             """the notificaties endpoint is called with a 'create zaaktype' payload with a 
@@ -655,8 +653,7 @@ class NotificationsTest : BehaviorSpec({
             testUser = RAADPLEGER_DOMAIN_TEST_1
         )
         When("""a notification is sent to ZAC that the zaak in question has been updated""") {
-            // we need eventually here because it takes some time before the new websocket has been
-            // successfully created in ZAC
+            // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
             eventually(30.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
                     url = "$ZAC_API_URI/notificaties",
@@ -769,9 +766,8 @@ class NotificationsTest : BehaviorSpec({
 
     Given(
         """
-            ZAC and all related Docker containers are running, a productaanvraag object exists with a productaanvraag
-            specific email address in Objecten with a productaanvraag type, zaaktypeCmmnConfiguration are defined in
-            ZAC configured with the same productaanvraag type and with 'automatic acknowledgement of receipt'
+            A productaanvraag object exists with an request-specific email address in Objecten with a productaanvraag type, 
+            a zaaktypeCmmnConfiguration is defined in ZAC configured for the same productaanvraag type and with 'automatic acknowledgement of receipt'
             (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
         """.trimIndent()
     ) {
