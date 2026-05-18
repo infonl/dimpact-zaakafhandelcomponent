@@ -21,8 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
@@ -44,7 +44,7 @@ class MailRestServiceTest : BehaviorSpec({
 
     Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         )
         val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaak(
@@ -179,7 +179,7 @@ class MailRestServiceTest : BehaviorSpec({
         """
     ) {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHEERDER_ELK_ZAAKTYPE
         )
 
@@ -212,7 +212,7 @@ class MailRestServiceTest : BehaviorSpec({
                 receivedMails.length() shouldBeGreaterThan 0
                 val lastMail = receivedMails.getJSONObject(receivedMails.length() - 1)
                 with(lastMail.getString("mimeMessage")) {
-                    shouldContain(ZAAKTYPE_TEST_2_DESCRIPTION)
+                    shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION)
                     shouldNotContain("{ZAAKDATA:")
                 }
             }

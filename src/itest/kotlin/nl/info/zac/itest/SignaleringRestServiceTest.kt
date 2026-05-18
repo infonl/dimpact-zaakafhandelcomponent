@@ -26,8 +26,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -86,7 +86,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
@@ -218,7 +218,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                         shouldContainJsonKeyValue(
                             "zaaktype",
-                            ZAAKTYPE_TEST_2_DESCRIPTION
+                            ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
                         )
                     }
                 }
@@ -335,7 +335,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                             shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                             shouldContainJsonKeyValue(
                                 "zaaktype",
-                                ZAAKTYPE_TEST_2_DESCRIPTION
+                                ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
                             )
                         }
                     }

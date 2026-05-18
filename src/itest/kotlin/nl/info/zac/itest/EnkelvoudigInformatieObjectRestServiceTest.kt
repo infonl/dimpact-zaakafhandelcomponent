@@ -32,7 +32,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_CONVERTED_TO_PDF_FIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -65,7 +65,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         """
     ) {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
         lateinit var enkelvoudigInformatieObjectUuid: String
@@ -497,7 +497,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
         val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(

@@ -25,8 +25,8 @@ import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLEN
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.WebSocketTestListener
@@ -57,7 +57,7 @@ class TaskRestServiceTest : BehaviorSpec({
             """
     ) {
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
             groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
@@ -127,8 +127,8 @@ class TaskRestServiceTest : BehaviorSpec({
                               "tabellen" : { },
                               "zaakIdentificatie" : "$zaakIdentification",
                               "zaakUuid" : "$zaakUuid",
-                              "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                              "zaaktypeUUID" : "$ZAAKTYPE_TEST_2_UUID"
+                              "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                              "zaaktypeUUID" : "$ZAAKTYPE_CMMN_TEST_2_UUID"
                             }
                             """.trimIndent()
                         shouldContainJsonKey("creatiedatumTijd")

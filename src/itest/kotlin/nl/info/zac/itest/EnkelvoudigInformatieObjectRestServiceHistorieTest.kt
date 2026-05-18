@@ -15,7 +15,7 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -45,7 +45,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
             val documentAuthorName = "fakeAuthorName"
             val (_, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 testUser = BEHANDELAAR_DOMAIN_TEST_1
             )
             val (enkelvoudiginformatieobjectUuid, enkelvoudiginformatieobjectIdentification) =

@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
 import org.json.JSONObject
@@ -36,7 +36,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
     Given("A zaak exists with a document attached to it") {
         val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_DOMAIN_TEST_1
         )
         val documentTitle = "detachedDocumentItestTitle-${System.currentTimeMillis()}"
