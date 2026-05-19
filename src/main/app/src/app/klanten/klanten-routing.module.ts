@@ -84,7 +84,6 @@ export function buildBedrijfRouteLink(
         tempBedrijf.vestigingsnummer,
       ];
     default:
-      // throw new Error("Unknown bedrijf type");
-      console.error("buildBedrijfRouteLink Error");
+      throw new Error("Unknown bedrijf type");
   }
 }
