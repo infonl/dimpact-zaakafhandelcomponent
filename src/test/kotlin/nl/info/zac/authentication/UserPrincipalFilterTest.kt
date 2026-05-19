@@ -18,14 +18,10 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
 import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
@@ -34,8 +30,6 @@ import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
 class UserPrincipalFilterTest : BehaviorSpec({
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val pabcClientService = mockk<PabcClientService>()
     val httpServletRequest = mockk<HttpServletRequest>()
     val servletResponse = mockk<HttpServletResponse>()
@@ -49,10 +43,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-            pabcClientService = pabcClientService,
-            pabcIntegrationEnabled = true
+            pabcClientService = pabcClientService
         )
 
         Given(
@@ -128,10 +119,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
-            every {
-                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
-            } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -208,10 +195,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
-                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1")
-            )
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
 
             When("doFilter is called") {
@@ -271,11 +254,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
-                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
-                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
-            )
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -337,8 +315,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -353,56 +329,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     with(loggedInUserSlot.captured) {
                         overallRoles shouldContainAll overallRoleNames
                         overallRoles.none { it in entityTypeRoleNames } shouldBe true
-                    }
-                }
-            }
-        }
-    }
-
-    Context("PABC integration is disabled") {
-        val userPrincipalFilter = UserPrincipalFilter(
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-            pabcClientService = pabcClientService,
-            pabcIntegrationEnabled = false
-        )
-
-        Given(" switching user does not call PABC - session is swapped") {
-            val userId = "testUserId"
-            val loggedInUser = createLoggedInUser(id = userId)
-            val accessToken = AccessToken(
-                JwtClaims.parse(
-                    """
-                    {
-                    "preferred_username": "testUserName"
-                    }                    
-                    """.trimMargin(),
-                    null
-                )
-            )
-            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("differentUserId", oidcSecurityContext)
-            every { httpServletRequest.userPrincipal } returns oidcPrincipal
-            every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
-            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
-            every { httpSession.invalidate() } just runs
-            every { filterChain.doFilter(any(), any()) } just runs
-            every { newHttpSession.setAttribute(any(), any()) } just runs
-            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
-
-            When("doFilter is called") {
-                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
-
-                Then("PABC service is not called") {
-                    verify(exactly = 0) { pabcClientService.getApplicationRoles(any()) }
-                }
-                And("the session is invalidated and the filter chain is passed on") {
-                    verify(exactly = 1) {
-                        httpSession.invalidate()
-                        newHttpSession.setAttribute("logged-in-user", any())
-                        filterChain.doFilter(httpServletRequest, servletResponse)
                     }
                 }
             }

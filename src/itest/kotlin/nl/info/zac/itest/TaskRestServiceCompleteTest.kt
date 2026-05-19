@@ -12,8 +12,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -38,10 +38,10 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
         lateinit var zaakIdentification: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -54,22 +54,22 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
         )
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
         )
         lateinit var taskArray: JSONArray
 
         When("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the list with tasks for this zaak is returned") {
@@ -87,7 +87,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/taken/complete",
                 requestBodyAsString = taskObject.toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the taken toelichting and status are updated") {
@@ -100,7 +100,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             }
 
             And("the zaak status remains in `aanvullende informatie`") {
-                val response = zacClient.retrieveZaak(zaakIdentification, BEHANDELAAR_DOMAIN_TEST_1)
+                val response = zacClient.retrieveZaak(zaakIdentification, BEHANDELAAR_1)
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK

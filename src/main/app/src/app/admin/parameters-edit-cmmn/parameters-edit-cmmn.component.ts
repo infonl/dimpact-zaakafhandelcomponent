@@ -120,7 +120,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private readonly destroy$ = new Subject<void>();
 
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected featureFlagPabcIntegration: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -286,8 +285,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
-      this.featureFlagPabcIntegration =
-        data.parameters.featureFlagPabcIntegration;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail

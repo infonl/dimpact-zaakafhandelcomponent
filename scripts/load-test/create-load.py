@@ -45,7 +45,7 @@ KEYCLOAK_REALM = "zaakafhandelcomponent"
 KEYCLOAK_CLIENT_ID = "zaakafhandelcomponent"
 KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
 
-# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE (PABC flag = true)
+# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
 CONFIG_USER = "beheerder1newiam"
 CONFIG_PASSWORD = "beheerder1newiam"
 
@@ -54,9 +54,9 @@ CONFIG_PASSWORD = "beheerder1newiam"
 ZAAK_USER = "beheerder1newiam"
 ZAAK_PASSWORD = "beheerder1newiam"
 
-# Group used when creating zaken (PABC flag = true → new IAM group)
+# Group used when creating zaken
 ZAAK_GROUP_ID = "behandelaars-test-1"
-ZAAK_GROUP_NAME = "Test group behandelaars domein test 1 - new IAM"
+ZAAK_GROUP_NAME = "Test group behandelaars domein test 1"
 
 # Niet-ontvankelijk resultaattype shared by all CMMN zaaktypes
 CMMN_NIET_ONTVANKELIJK_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"

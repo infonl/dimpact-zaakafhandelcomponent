@@ -85,11 +85,6 @@ klantinteractiesApi:
   url: ""  # http://open-klant.internal/klantinteracties
   token: ""
 
-# Supported feature flags
-featureFlags:
-  # -- turns PABC integration on or off; defaults to false
-  pabcIntegration: false
-
 # Integration with the Objecten API provider
 objectenApi:
   url: ""

@@ -7,7 +7,7 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -43,7 +43,7 @@ class ZaakHelper(
     suspend fun createZaak(
         zaakDescription: String = "itestZaakDescription-${System.currentTimeMillis()}",
         zaaktypeUuid: UUID,
-        group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
+        group: TestGroup = GROUP_BEHANDELAARS_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01,
         indexZaak: Boolean = false,
         testUser: TestUser,

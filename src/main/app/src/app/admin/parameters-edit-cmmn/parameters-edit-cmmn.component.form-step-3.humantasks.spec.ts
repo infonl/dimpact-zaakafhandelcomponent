@@ -86,7 +86,6 @@ describe("Human tasks form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };

@@ -11,8 +11,8 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAAK_ROLLEN
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import okhttp3.Headers
 import org.json.JSONObject
@@ -45,10 +45,10 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
     ) {
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
@@ -71,7 +71,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = websocketListener,
-            testUser = RAADPLEGER_DOMAIN_TEST_1
+            testUser = RAADPLEGER_1
         )
         When("""a notification is sent to ZAC that the zaak in question has been updated""") {
             // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
@@ -137,7 +137,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = websocketListener,
-            testUser = RAADPLEGER_DOMAIN_TEST_1
+            testUser = RAADPLEGER_1
         )
         When("""a notification is sent to ZAC that a zaak-rol has been created""") {
             // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
