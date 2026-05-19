@@ -99,7 +99,11 @@ describe("DashboardComponent row-height sync", () => {
       })),
     });
 
-    component = new DashboardComponent({} as never, {} as never, {} as never);
+    component = new DashboardComponent(
+      {} as never,
+      {} as never,
+      {} as never,
+    );
   });
 
   afterEach(() => {
