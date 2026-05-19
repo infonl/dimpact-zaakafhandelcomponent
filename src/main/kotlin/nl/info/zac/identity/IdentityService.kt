@@ -20,7 +20,6 @@ import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.admin.client.resource.RealmResource
 import java.util.UUID
 
@@ -32,8 +31,6 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
 
-    @ConfigProperty(name = "AUTH_RESOURCE")
-    private val zacKeycloakClientId: String,
     private val pabcClientService: PabcClientService,
     private val ztcClientService: ZtcClientService
 ) {
