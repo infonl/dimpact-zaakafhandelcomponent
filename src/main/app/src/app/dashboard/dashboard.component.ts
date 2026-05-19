@@ -170,7 +170,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Suppress row height synchronization while cards are fetching data.
     // This prevents the layout from prematurely measuring empty cards and jumping once data populates.
-    if (this.cardComponents?.some((cardComponent) => cardComponent.isLoading())) {
+    if (
+      this.cardComponents?.some((cardComponent) => cardComponent.isLoading())
+    ) {
       return;
     }
 
