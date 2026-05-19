@@ -11,13 +11,13 @@ import {
 import {
   AfterViewInit,
   Component,
+  effect,
   ElementRef,
   OnDestroy,
   OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
-  effect,
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
