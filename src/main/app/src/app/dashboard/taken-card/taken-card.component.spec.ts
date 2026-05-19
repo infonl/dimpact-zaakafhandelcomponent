@@ -15,7 +15,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -50,6 +50,10 @@ describe(TakenCardComponent.name, () => {
   let loader: HarnessLoader;
   let signaleringenService: SignaleringenService;
 
+  const defaultParameters = {
+    signaleringType: "TAAK_OP_NAAM" as GeneratedType<"Type">,
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -71,11 +75,9 @@ describe(TakenCardComponent.name, () => {
       .mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue(
-      fromPartial<ReturnType<IdentityService["readLoggedInUser"]>>({
-        queryKey: ["user"],
-        queryFn: async () => fromPartial<GeneratedType<"RestUser">>({}),
-      }),
+    testQueryClient.setQueryData(
+      identityService.readLoggedInUser().queryKey,
+      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
     );
 
     fixture = TestBed.createComponent(TakenCardComponent);
@@ -85,33 +87,46 @@ describe(TakenCardComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("calls listTakenSignalering with the card's signaleringType on load", () => {
+  it("calls listTakenSignalering with the card's signaleringType on load", async () => {
+    component["onLoad"]();
+    await sleep();
     expect(signaleringenService.listTakenSignalering).toHaveBeenCalledWith(
       component.data.signaleringType,
     );
   });
 
-  it("populates dataSource with tasks returned by the service", () => {
+  it("populates dataSource with tasks returned by the service", async () => {
     const taken = [makeTaak({ naam: "Taak A" }), makeTaak({ naam: "Taak B" })];
+    testQueryClient.setQueryData(
+      ["taken signaleringen dashboard", defaultParameters],
+      taken,
+    );
     jest
       .spyOn(signaleringenService, "listTakenSignalering")
       .mockReturnValue(of(taken));
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(component.dataSource.data).toEqual(taken);
   });
 
-  it("skips the service call and clears dataSource when signaleringType is missing", () => {
+  it("skips the service call and clears dataSource when signaleringType is missing", async () => {
     const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
     spy.mockClear();
     component.data = new DashboardCard(
       DashboardCardId.MIJN_TAKEN,
       DashboardCardType.TAKEN,
     );
-    component.dataSource.data = [makeTaak()];
+    testQueryClient.removeQueries({
+      queryKey: ["taken signaleringen dashboard"],
+    });
+    fixture.detectChanges();
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
@@ -122,19 +137,26 @@ describe(TakenCardComponent.name, () => {
     expect(component.dataSource.paginator).toBe(component.paginator);
   });
 
-  it("re-runs onLoad when the reload observable emits", () => {
+  it("re-runs onLoad when the reload observable emits", async () => {
     const spy = jest.spyOn(signaleringenService, "listTakenSignalering");
     spy.mockClear();
     (component["reload"] as Subject<void>).next();
+    await sleep();
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("reorders rows ascending then descending when the naam sort header is clicked", async () => {
-    component.dataSource.data = [
+    const taken = [
       makeTaak({ naam: "Charlie" }),
       makeTaak({ naam: "Alpha" }),
       makeTaak({ naam: "Bravo" }),
     ];
+    testQueryClient.setQueryData(
+      ["taken signaleringen dashboard", defaultParameters],
+      taken,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const sortHeader = await loader.getHarness(
@@ -171,7 +193,12 @@ describe(TakenCardComponent.name, () => {
 
   it("renders a table row for each task in dataSource", async () => {
     const taken = [makeTaak({ naam: "Taak X" }), makeTaak({ naam: "Taak Y" })];
-    component.dataSource.data = taken;
+    testQueryClient.setQueryData(
+      ["taken signaleringen dashboard", defaultParameters],
+      taken,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -180,7 +207,12 @@ describe(TakenCardComponent.name, () => {
   });
 
   it("renders empty state row when dataSource is empty", async () => {
-    component.dataSource.data = [];
+    testQueryClient.setQueryData(
+      ["taken signaleringen dashboard", defaultParameters],
+      [],
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);

@@ -15,7 +15,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { SharedModule } from "../../shared/shared.module";
@@ -48,6 +48,10 @@ describe(InformatieobjectenCardComponent.name, () => {
   let loader: HarnessLoader;
   let signaleringenService: SignaleringenService;
 
+  const defaultParameters = {
+    signaleringType: "ZAAK_DOCUMENT_TOEGEVOEGD" as GeneratedType<"Type">,
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [InformatieobjectenCardComponent],
@@ -66,11 +70,9 @@ describe(InformatieobjectenCardComponent.name, () => {
       .mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue(
-      fromPartial<ReturnType<IdentityService["readLoggedInUser"]>>({
-        queryKey: ["user"],
-        queryFn: async () => fromPartial<GeneratedType<"RestUser">>({}),
-      }),
+    testQueryClient.setQueryData(
+      identityService.readLoggedInUser().queryKey,
+      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
     );
 
     fixture = TestBed.createComponent(InformatieobjectenCardComponent);
@@ -81,46 +83,65 @@ describe(InformatieobjectenCardComponent.name, () => {
     component["reloader"]?.unsubscribe();
   });
 
-  it("calls listInformatieobjectenSignalering with the card's signaleringType on load", () => {
+  it("calls listInformatieobjectenSignalering with the card's signaleringType on load", async () => {
+    component["onLoad"]();
+    await sleep();
     expect(
       signaleringenService.listInformatieobjectenSignalering,
     ).toHaveBeenCalledWith("ZAAK_DOCUMENT_TOEGEVOEGD");
   });
 
-  it("populates dataSource with informatieobjecten returned by the service", () => {
+  it("populates dataSource with informatieobjecten returned by the service", async () => {
     const docs = [
       buildInformatieobject({ titel: "Doc A" }),
       buildInformatieobject({ titel: "Doc B" }),
     ];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      docs,
+    );
     jest
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(docs));
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(component.dataSource.data).toEqual(docs);
   });
 
-  it("coalesces a null service response to an empty array", () => {
+  it("coalesces a null service response to an empty array", async () => {
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      null,
+    );
     jest
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
       .mockReturnValue(of(null as never));
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(component.dataSource.data).toEqual([]);
   });
 
-  it("skips the service call and clears dataSource when signaleringType is missing", () => {
+  it("skips the service call and clears dataSource when signaleringType is missing", async () => {
     const spy = jest.spyOn(
       signaleringenService,
       "listInformatieobjectenSignalering",
     );
     spy.mockClear();
     component.data = buildDashboardCard(undefined);
-    component.dataSource.data = [buildInformatieobject()];
+    testQueryClient.removeQueries({
+      queryKey: ["informatieobjecten signaleringen dashboard"],
+    });
+    fixture.detectChanges();
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(spy).not.toHaveBeenCalled();
     expect(component.dataSource.data).toEqual([]);
@@ -132,11 +153,17 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("reorders rows ascending then descending when the titel sort header is clicked", async () => {
-    component.dataSource.data = [
+    const docs = [
       buildInformatieobject({ titel: "Charlie" }),
       buildInformatieobject({ titel: "Alpha" }),
       buildInformatieobject({ titel: "Bravo" }),
     ];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      docs,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const sortHeader = await loader.getHarness(
@@ -172,11 +199,17 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("renders a table row for each informatieobject in dataSource", async () => {
-    component.dataSource.data = [
+    const docs = [
       buildInformatieobject({ titel: "X" }),
       buildInformatieobject({ titel: "Y" }),
       buildInformatieobject({ titel: "Z" }),
     ];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      docs,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -184,7 +217,12 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("renders empty state row when dataSource is empty", async () => {
-    component.dataSource.data = [];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      [],
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -206,7 +244,7 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("sorts on the documenttype column end-to-end so the renamed field reorders rows", async () => {
-    component.dataSource.data = [
+    const docs = [
       buildInformatieobject({
         titel: "Charlie",
         informatieobjectTypeOmschrijving: "Brief",
@@ -220,6 +258,12 @@ describe(InformatieobjectenCardComponent.name, () => {
         informatieobjectTypeOmschrijving: "Contract",
       }),
     ];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      docs,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const informatieobjectTypeOmschrijvingHeader = await loader.getHarness(
@@ -241,7 +285,7 @@ describe(InformatieobjectenCardComponent.name, () => {
   });
 
   it("sorts on a date column (registratiedatumTijd) end-to-end", async () => {
-    component.dataSource.data = [
+    const docs = [
       buildInformatieobject({
         titel: "Mid",
         registratiedatumTijd: "2025-06-15T10:00:00Z",
@@ -255,6 +299,12 @@ describe(InformatieobjectenCardComponent.name, () => {
         registratiedatumTijd: "2026-03-20T10:00:00Z",
       }),
     ];
+    testQueryClient.setQueryData(
+      ["informatieobjecten signaleringen dashboard", defaultParameters],
+      docs,
+    );
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const registratiedatumTijdHeader = await loader.getHarness(

@@ -16,7 +16,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { SharedModule } from "../../shared/shared.module";
@@ -72,11 +72,9 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     jest.spyOn(zakenService, "listZaakWaarschuwingen").mockReturnValue(of([]));
 
     const identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "readLoggedInUser").mockReturnValue(
-      fromPartial<ReturnType<IdentityService["readLoggedInUser"]>>({
-        queryKey: ["user"],
-        queryFn: async () => fromPartial<GeneratedType<"RestUser">>({}),
-      }),
+    testQueryClient.setQueryData(
+      identityService.readLoggedInUser().queryKey,
+      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
     );
 
     fixture = TestBed.createComponent(ZaakWaarschuwingenCardComponent);
@@ -89,20 +87,25 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     component["reloader"]?.unsubscribe();
   });
 
-  it("calls listZaakWaarschuwingen on load", () => {
+  it("calls listZaakWaarschuwingen on load", async () => {
+    component["onLoad"]();
+    await sleep();
     expect(zakenService.listZaakWaarschuwingen).toHaveBeenCalled();
   });
 
-  it("populates dataSource with zaken returned by the service", () => {
+  it("populates dataSource with zaken returned by the service", async () => {
     const zaken = [
       makeZaak({ identificatie: "ZAAK-A" }),
       makeZaak({ identificatie: "ZAAK-B" }),
     ];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
     jest
       .spyOn(zakenService, "listZaakWaarschuwingen")
       .mockReturnValue(of(zaken));
 
     component["onLoad"]();
+    await sleep();
+    fixture.detectChanges();
 
     expect(component.dataSource.data).toEqual(zaken);
   });
@@ -113,11 +116,14 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("reorders rows ascending then descending when the identificatie sort header is clicked", async () => {
-    component.dataSource.data = [
+    const zaken = [
       makeZaak({ identificatie: "ZAAK-C" }),
       makeZaak({ identificatie: "ZAAK-A" }),
       makeZaak({ identificatie: "ZAAK-B" }),
     ];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const sortHeader = await loader.getHarness(
@@ -154,10 +160,13 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("renders a table row for each zaak in dataSource", async () => {
-    component.dataSource.data = [
+    const zaken = [
       makeZaak({ identificatie: "ZAAK-X" }),
       makeZaak({ identificatie: "ZAAK-Y" }),
     ];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -166,7 +175,9 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("renders empty state row when dataSource is empty", async () => {
-    component.dataSource.data = [];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], []);
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const table = await loader.getHarness(MatTableHarness);
@@ -175,13 +186,16 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("renders a view button when zaak.rechten.lezen is true", async () => {
-    component.dataSource.data = [
+    const zaken = [
       makeZaak({
         rechten: fromPartial<GeneratedType<"RestZaakOverzicht">["rechten"]>({
           lezen: true,
         }),
       }),
     ];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const buttons = await loader.getAllHarnesses(
@@ -191,13 +205,16 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
   });
 
   it("does not render a view button when zaak.rechten.lezen is false", async () => {
-    component.dataSource.data = [
+    const zaken = [
       makeZaak({
         rechten: fromPartial<GeneratedType<"RestZaakOverzicht">["rechten"]>({
           lezen: false,
         }),
       }),
     ];
+    testQueryClient.setQueryData(["zaak waarschuwingen dashboard"], zaken);
+    fixture.detectChanges();
+    await sleep();
     fixture.detectChanges();
 
     const buttons = await loader.getAllHarnesses(
