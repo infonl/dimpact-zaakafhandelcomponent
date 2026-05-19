@@ -4,7 +4,7 @@
  */
 package nl.info.zac.itest.config
 
-// new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
+// these groups have functional roles for which mappings need to exist in the PABC
 val GROUP_RAADPLEGERS_TEST_1 = TestGroup(
     name = "raadplegers-test-1",
     description = "Test group raadplegers domein test 1"

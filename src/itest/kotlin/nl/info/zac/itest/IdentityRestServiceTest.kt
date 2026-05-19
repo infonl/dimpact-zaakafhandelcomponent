@@ -32,14 +32,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_1
-import nl.info.zac.itest.config.OLD_IAM_GROUP_DOMEIN_TEST_2
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_A
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_BEHANDELAARS
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_COORDINATORS
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_RAADPLEGERS
-import nl.info.zac.itest.config.OLD_IAM_TEST_GROUP_RECORD_MANAGERS
 import nl.info.zac.itest.config.PABC_ADMIN
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.config.RAADPLEGER_2
@@ -51,47 +43,7 @@ import java.net.HttpURLConnection.HTTP_OK
 
 val TEST_GROUPS_ACTIVE =
     """
-            [
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_FUNCTIONAL_ADMINS.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_RECORD_MANAGERS.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_COORDINATORS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_COORDINATORS.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_BEHANDELAARS.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_RAADPLEGERS.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_TEST_GROUP_A.name}",
-                    "naam": "${OLD_IAM_TEST_GROUP_A.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_1.name}",
-                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_1.description}",
-                    "active": true
-                },
-                {
-                    "id": "${OLD_IAM_GROUP_DOMEIN_TEST_2.name}",
-                    "naam": "${OLD_IAM_GROUP_DOMEIN_TEST_2.description}",
-                    "active": true
-                },
+            [                
                 {
                     "id": "${GROUP_RAADPLEGERS_TEST_1.name}",
                     "naam": "${GROUP_RAADPLEGERS_TEST_1.description}",
@@ -162,10 +114,8 @@ class IdentityServiceTest : BehaviorSpec({
     Context("Getting authorised behandelaar groups for a zaaktype") {
         Given(
             """
-            New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
+            Authorised groups for the application role 'behandelaar' and the given zaaktype, 
             using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
-            Old IAM: (PABC feature flag off): a group in the Keycloak ZAC realm and a Keycloak old IAM architecture domain role 
-            which is also configured in the zaaktypeCmmnConfiguration for a given zaaktype UUID, and a logged-in beheerder    
         """
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {

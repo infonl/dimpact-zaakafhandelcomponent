@@ -12,7 +12,7 @@ package nl.info.zac.itest.config
 val RAADPLEGER_1 = TestUser(
     username = "raadpleger1newiam",
     password = "raadpleger1newiam",
-    displayName = "Test Raadpleger 1 - new IAM",
+    displayName = "Test Raadpleger 1",
     email = "raadpleger-test-1@example.com"
 )
 
@@ -22,7 +22,7 @@ val RAADPLEGER_1 = TestUser(
 val RAADPLEGER_2 = TestUser(
     username = "raadpleger2newiam",
     password = "raadpleger2newiam",
-    displayName = "Test Raadpleger 2 - new IAM",
+    displayName = "Test Raadpleger 2",
     email = "raadpleger-test-2@example.com"
 )
 
@@ -32,7 +32,7 @@ val RAADPLEGER_2 = TestUser(
 val BEHANDELAAR_1 = TestUser(
     username = "behandelaar1newiam",
     password = "behandelaar1newiam",
-    displayName = "Test Behandelaar 1 - new IAM",
+    displayName = "Test Behandelaar 1",
     email = "behandelaar-test-1@example.com"
 )
 
@@ -42,7 +42,7 @@ val BEHANDELAAR_1 = TestUser(
 val BEHANDELAAR_2 = TestUser(
     username = "behandelaar2newiam",
     password = "behandelaar2newiam",
-    displayName = "Test Behandelaar 2 - new IAM",
+    displayName = "Test Behandelaar 2",
     email = "behandelaar-test-2@example.com"
 )
 
@@ -52,7 +52,7 @@ val BEHANDELAAR_2 = TestUser(
 val COORDINATOR_1 = TestUser(
     username = "coordinator1newiam",
     password = "coordinator1newiam",
-    displayName = "Test Coordinator 1 - new IAM",
+    displayName = "Test Coordinator 1",
     email = "coordinator-test-1@example.com"
 )
 
@@ -62,7 +62,7 @@ val COORDINATOR_1 = TestUser(
 val COORDINATOR_2 = TestUser(
     username = "coordinator2newiam",
     password = "coordinator2newiam",
-    displayName = "Test Coordinator 2 - new IAM",
+    displayName = "Test Coordinator 2",
     email = "coordinator-test-2@example.com"
 )
 
@@ -72,7 +72,7 @@ val COORDINATOR_2 = TestUser(
 val RECORDMANAGER_1 = TestUser(
     username = "recordmanager1newiam",
     password = "recordmanager1newiam",
-    displayName = "Test Recordmanager 1 - new IAM",
+    displayName = "Test Recordmanager 1",
     email = "recordmanager-test-1@example.com"
 )
 
@@ -82,7 +82,7 @@ val RECORDMANAGER_1 = TestUser(
 val RECORDMANAGER_2 = TestUser(
     username = "recordmanager2newiam",
     password = "recordmanager2newiam",
-    displayName = "Test Recordmanager 2 - new IAM",
+    displayName = "Test Recordmanager 2",
     email = "recordmanager-test-2@example.com"
 )
 
@@ -92,7 +92,7 @@ val RECORDMANAGER_2 = TestUser(
 val BEHEERDER_1 = TestUser(
     username = "beheerder1newiam",
     password = "beheerder1newiam",
-    displayName = "Test Beheerder 1 - new IAM",
+    displayName = "Test Beheerder 1",
     email = "beheerder-test-1@example.com"
 )
 
@@ -102,7 +102,7 @@ val BEHEERDER_1 = TestUser(
 val RAADPLEGER_EN_BEHANDELAAR_1 = TestUser(
     username = "raadplegerenbehandelaar1newiam",
     password = "raadplegerenbehandelaar1newiam",
-    displayName = "Test Raadpleger domein 1 - behandelaar domein 2 - new IAM",
+    displayName = "Test Raadpleger domein 1 - behandelaar domein 2",
     email = "raadpleger-en-behandelaar-test-1@example.com"
 )
 val USER_WITHOUT_ANY_ROLE = TestUser(
