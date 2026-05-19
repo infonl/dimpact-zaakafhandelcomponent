@@ -65,7 +65,6 @@ import java.util.UUID
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
-    val configurationService = mockk<ConfigurationService>()
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
@@ -83,9 +82,7 @@ class ZaakServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         identityService = identityService,
         indexingService = indexingService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         bpmnService = bpmnService,
-        configurationService = configurationService,
         pabcClientService = pabcClientService
     )
     val explanation = "fakeExplanation"

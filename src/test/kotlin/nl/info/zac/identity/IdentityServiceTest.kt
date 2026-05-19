@@ -10,14 +10,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -29,14 +27,10 @@ import java.util.UUID
 class IdentityServiceTest : BehaviorSpec({
     val zacKeycloakClientId = "fakeZacKeycloakClientId"
     val realmResource = mockk<RealmResource>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val configurationService = mockk<ConfigurationService>()
     val pabcClientService = mockk<PabcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-        configurationService = configurationService,
         zacKeycloakClientId = zacKeycloakClientId,
         pabcClientService = pabcClientService,
         ztcClientService = ztcClientService

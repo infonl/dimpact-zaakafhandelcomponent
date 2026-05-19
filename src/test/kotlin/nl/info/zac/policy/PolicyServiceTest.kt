@@ -58,15 +58,13 @@ class PolicyServiceTest : BehaviorSpec({
     val opaEvaluationClient = mockk<OpaEvaluationClient>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val configurationService = mockk<ConfigurationService>()
     val loggedInUser = createLoggedInUser()
     val policyService = PolicyService(
         loggedInUserInstance,
         opaEvaluationClient,
         ztcClientService,
         enkelvoudigInformatieObjectLockService,
-        zrcClientService,
-        configurationService
+        zrcClientService
     )
 
     afterEach {
