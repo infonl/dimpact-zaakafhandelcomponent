@@ -44,7 +44,7 @@ data class RestZaakBetrokkene(
     var temporaryPersonId: UUID?,
 
     /**
-     * The identificatieType indicating what kind of bedrijf identifier is present.
+     * Indicates the type of company identifier.
      * Only set for [NIET_NATUURLIJK_PERSOON] and [VESTIGING].
      */
     var identificatieType: IdentificatieType?,
@@ -53,7 +53,10 @@ data class RestZaakBetrokkene(
     var vestigingsnummer: String?,
 
     /** Only populated when type is [NIET_NATUURLIJK_PERSOON] */
-    var kvkNummer: String?
+    var kvkNummer: String?,
+
+    /** Only populated when type is [ORGANISATORISCHE_EENHEID] or [MEDEWERKER] */
+    var naam: String?
 )
 
 /**
@@ -76,6 +79,7 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
     var identificatieType: IdentificatieType? = null
     var vestigingsnummer: String? = null
     var kvkNummer: String? = null
+    var naam: String? = null
     when (this.betrokkeneType) {
         NATUURLIJK_PERSOON -> {
             bsn = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
@@ -97,16 +101,16 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
             kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {
-            val betrokkene =(this as RolVestiging).betrokkeneIdentificatie ?: return null
+            val betrokkene = (this as RolVestiging).betrokkeneIdentificatie ?: return null
             vestigingsnummer = betrokkene.vestigingsNummer ?: return null
             kvkNummer = betrokkene.kvkNummer
             identificatieType = IdentificatieType.VN
         }
         ORGANISATORISCHE_EENHEID -> {
-            (this as RolOrganisatorischeEenheid).betrokkeneIdentificatie?.naam ?: return null
+            naam = (this as RolOrganisatorischeEenheid).getNaam() ?: return null
         }
         MEDEWERKER -> {
-            (this as RolMedewerker).betrokkeneIdentificatie?.identificatie ?: return null
+            naam = (this as RolMedewerker).getNaam() ?: return null
         }
     }
     return RestZaakBetrokkene(
@@ -118,7 +122,8 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
         temporaryPersonId = temporaryPersonId,
         identificatieType = identificatieType,
         vestigingsnummer = vestigingsnummer,
-        kvkNummer = kvkNummer
+        kvkNummer = kvkNummer,
+        naam = naam
     )
 }
 
