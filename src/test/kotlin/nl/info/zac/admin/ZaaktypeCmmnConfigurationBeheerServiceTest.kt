@@ -310,7 +310,6 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     intakeMail shouldBe originalZaaktypeCmmnConfiguration.intakeMail
                     afrondenMail shouldBe originalZaaktypeCmmnConfiguration.afrondenMail
                     productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.productaanvraagtype
-                    domein shouldBe originalZaaktypeCmmnConfiguration.domein
                     smartDocumentsEnabled shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsEnabled
                 }
             }

@@ -77,7 +77,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
                 )
             },
             productaanvraagtype = zaaktypeCmmnConfiguration.productaanvraagtype,
-            domein = zaaktypeCmmnConfiguration.domein,
             smartDocuments = zaaktypeCmmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeCmmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
@@ -117,7 +116,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             intakeMail = restZaakafhandelParameters.intakeMail?.name
             afrondenMail = restZaakafhandelParameters.afrondenMail?.name
             productaanvraagtype = restZaakafhandelParameters.productaanvraagtype?.trim()
-            domein = restZaakafhandelParameters.domein
             defaultBehandelaarId = restZaakafhandelParameters.defaultBehandelaarId
             einddatumGeplandWaarschuwing = restZaakafhandelParameters.einddatumGeplandWaarschuwing
             smartDocumentsEnabled = restZaakafhandelParameters.smartDocuments.enabledForZaaktype
@@ -162,7 +160,6 @@ class RestZaakafhandelParametersConverter @Inject constructor(
             defaultGroepId = zaaktypeBpmnConfiguration.groepID,
             creatiedatum = zaaktypeBpmnConfiguration.creatiedatum,
             productaanvraagtype = zaaktypeBpmnConfiguration.productaanvraagtype,
-            domein = zaaktypeBpmnConfiguration.domein,
             smartDocuments = zaaktypeBpmnConfiguration.toRestSmartDocuments(smartDocumentsService.isEnabled()),
             betrokkeneKoppelingen = zaaktypeBpmnConfiguration.getBetrokkeneParameters()
                 .toRestBetrokkeneKoppelingen(),
