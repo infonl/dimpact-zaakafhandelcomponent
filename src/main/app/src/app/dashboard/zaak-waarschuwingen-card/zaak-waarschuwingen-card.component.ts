@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, signal } from "@angular/core";
-import { finalize } from "rxjs/operators";
+import { Component } from "@angular/core";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
@@ -33,8 +32,6 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     "url",
   ] as const;
 
-  public readonly isLoading = signal(false);
-
   constructor(
     private zakenService: ZakenService,
     protected identityService: IdentityService,
@@ -51,12 +48,8 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad() {
-    this.isLoading.set(true);
-    this.zakenService
-      .listZaakWaarschuwingen()
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe((zaken) => {
-        this.dataSource.data = zaken;
-      });
+    this.zakenService.listZaakWaarschuwingen().subscribe((zaken) => {
+      this.dataSource.data = zaken;
+    });
   }
 }

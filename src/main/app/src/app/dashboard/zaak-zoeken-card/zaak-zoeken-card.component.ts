@@ -65,8 +65,6 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
   }));
 
-  public readonly isLoading = this.zoekQuery.isLoading;
-
   constructor(
     private zoekenService: ZoekenService,
     protected identityService: IdentityService,

@@ -85,25 +85,25 @@ describe("DashboardComponent row-height sync", () => {
     }) as typeof requestAnimationFrame;
 
     stacked = false;
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: jest.fn().mockImplementation((query: string) => ({
-        matches: stacked && query.includes("max-width"),
-        media: query,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-        onchange: null,
-      })),
-    });
+    jest.spyOn(window, "matchMedia").mockImplementation(
+      (query: string) =>
+        ({
+          matches: stacked && query.includes("max-width"),
+          media: query,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+          onchange: null,
+        }) as unknown as MediaQueryList,
+    );
 
     component = new DashboardComponent({} as never, {} as never, {} as never);
   });
 
   afterEach(() => {
-    if (component) component.ngOnDestroy();
+    component.ngOnDestroy();
     globalThis.ResizeObserver = originalResizeObserver;
     globalThis.requestAnimationFrame = originalRequestAnimationFrame;
     jest.restoreAllMocks();

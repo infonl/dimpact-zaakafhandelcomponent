@@ -27,7 +27,6 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersv
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
-import { DashboardCardComponent } from "./dashboard-card/dashboard-card.component";
 import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardType } from "./model/dashboard-card-type";
@@ -41,9 +40,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @ViewChildren("cardElement", { read: ElementRef })
   cardElements!: QueryList<ElementRef<HTMLElement>>;
-
-  @ViewChildren("cardElement", { read: DashboardCardComponent })
-  cardComponents!: QueryList<DashboardCardComponent>;
 
   private resizeObserver?: ResizeObserver;
   private cardElementsChangesSub?: Subscription;
@@ -168,11 +164,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private syncRowHeights() {
     if (!this.cardElements) return;
 
-    // Suppress row height synchronization while cards are fetching data.
+    // Suppress row height synchronization while global loading is active.
     // This prevents the layout from prematurely measuring empty cards and jumping once data populates.
-    if (
-      this.cardComponents?.some((cardComponent) => cardComponent.isLoading())
-    ) {
+    if (this.utilService.loading()) {
       return;
     }
 

@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, signal } from "@angular/core";
-import { finalize } from "rxjs/operators";
+import { Component } from "@angular/core";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -31,8 +30,6 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
     "url",
   ] as const;
 
-  public readonly isLoading = signal(false);
-
   constructor(
     private signaleringenService: SignaleringenService,
     protected identityService: IdentityService,
@@ -47,10 +44,8 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
       this.dataSource.data = [];
       return;
     }
-    this.isLoading.set(true);
     this.signaleringenService
       .listInformatieobjectenSignalering(signaleringType)
-      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((informatieobjecten) => {
         this.dataSource.data = informatieobjecten ?? [];
       });

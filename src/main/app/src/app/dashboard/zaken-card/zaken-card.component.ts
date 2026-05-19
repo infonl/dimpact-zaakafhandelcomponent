@@ -78,8 +78,6 @@ export class ZakenCardComponent
       ),
   }));
 
-  public readonly isLoading = this.zakenQuery.isLoading;
-
   constructor(
     private readonly signaleringenService: SignaleringenService,
     protected readonly identityService: IdentityService,
