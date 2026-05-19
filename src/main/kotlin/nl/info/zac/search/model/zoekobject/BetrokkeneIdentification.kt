@@ -61,8 +61,8 @@ private fun RolNietNatuurlijkPersoon.toNietNatuurlijkPersoonIdentification(): Be
     val vestigingsnummer = nietNatuurlijkPersoonIdentificatie.vestigingsNummer
     return nietNatuurlijkPersoonIdentificatie.kvkNummer?.let { kvkNummer ->
         when {
-            vestigingsnummer == null -> null
-            vestigingsnummer.isNotBlank() -> BetrokkeneIdentification.buildKvkVestiging(kvkNummer, vestigingsnummer)
+            vestigingsnummer != null &&
+                vestigingsnummer.isNotBlank() -> BetrokkeneIdentification.buildKvkVestiging(kvkNummer, vestigingsnummer)
             else -> BetrokkeneIdentification.buildKvk(kvkNummer)
         }
     }

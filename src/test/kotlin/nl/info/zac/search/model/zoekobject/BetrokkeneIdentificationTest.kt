@@ -167,8 +167,11 @@ class BetrokkeneIdentificationTest : BehaviorSpec({
         When("converting to BetrokkeneIdentification") {
             val result = rol.toBetrokkeneIdentification()
 
-            Then("it should return null") {
-                result.shouldBeNull()
+            Then("it should return a KVK identification") {
+                result shouldBe BetrokkeneIdentification(
+                    type = BetrokkeneIdentificationType.KVK,
+                    identification = "12345678"
+                )
             }
         }
     }
