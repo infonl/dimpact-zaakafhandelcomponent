@@ -108,7 +108,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
                 with(JSONArray(responseBody)) {
                     communicationChannelReferenceTableId = getJSONObject(5).getInt("id")
-                    serverErrorTextErrorReferenceTableId = getJSONObject(7).getInt("id")
+                    serverErrorTextErrorReferenceTableId = getJSONObject(6).getInt("id")
                 }
             }
         }
