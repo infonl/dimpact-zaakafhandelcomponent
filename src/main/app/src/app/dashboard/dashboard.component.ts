@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren("cardElement", { read: ElementRef })
   cardElements!: QueryList<ElementRef<HTMLElement>>;
 
-  @ViewChildren(DashboardCardComponent)
+  @ViewChildren("cardElement", { read: DashboardCardComponent })
   cardComponents!: QueryList<DashboardCardComponent>;
 
   private resizeObserver?: ResizeObserver;
