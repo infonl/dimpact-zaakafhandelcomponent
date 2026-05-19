@@ -54,7 +54,6 @@ class IdentityService @Inject constructor(
      * Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
      */
-    // TODO
     @Deprecated(
         """Once the PABC feature flag has been removed, this function should be deleted and the
         [listActiveGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
