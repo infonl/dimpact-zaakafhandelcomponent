@@ -109,10 +109,11 @@ class IdentificationServiceTest : BehaviorSpec({
         When("the initiator is a Niet Natuurlijk Persoon with a vestigingsnummer") {
             val vestigingsnummer = "123456789012"
             val nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
-                annIdentificatie = "fakeAnnId"
+                annIdentificatie = "fakeAnnId",
+                vestigingsnummer = vestigingsnummer
             )
             val initiatorRole = createRolNietNatuurlijkPersoon(
-                nietNatuurlijkPersoonIdentificatie = nietNatuurlijkPersoonIdentificatie
+                nietNatuurlijkPersoonIdentificatie = nietNatuurlijkPersoonIdentificatie,
             )
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
