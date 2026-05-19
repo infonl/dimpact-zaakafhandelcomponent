@@ -38,7 +38,6 @@ const makeBedrijfBetrokkene = (
   fromPartial<GeneratedType<"RestZaakBetrokkene">>({
     type: "RSIN",
     identificatieType: "RSIN",
-    rsin: "123456789",
     kvkNummer: "12345678",
     ...fields,
   });

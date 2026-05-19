@@ -673,6 +673,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson """
                     {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "email": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",

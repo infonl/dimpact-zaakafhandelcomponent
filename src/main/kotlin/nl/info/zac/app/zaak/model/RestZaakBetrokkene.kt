@@ -87,11 +87,11 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
             // or a KVK vestiging with a vestigingsnummer.
             // If the INN NNP ID is not present (and note that it may be an empty string), we use the vestigingsnummer.
             val betrokkene = (this as RolNietNatuurlijkPersoon).betrokkeneIdentificatie ?: return null
-            if (!betrokkene.vestigingsNummer.isNullOrBlank()) {
+            if (!betrokkene.innNnpId.isNullOrBlank()) {
+                identificatieType = IdentificatieType.RSIN
+            } else if (!betrokkene.vestigingsNummer.isNullOrBlank()) {
                 vestigingsnummer = betrokkene.vestigingsNummer
                 identificatieType = IdentificatieType.VN
-            } else {
-                identificatieType = IdentificatieType.RSIN
             }
             kvkNummer = betrokkene.kvkNummer
         }

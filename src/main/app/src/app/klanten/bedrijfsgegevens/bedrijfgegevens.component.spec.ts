@@ -63,6 +63,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   const testBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
     naam: "Test BV",
     vestigingsnummer: betrokkeneIdentificatie.vestigingsnummer,
+    identificatieType: betrokkeneIdentificatie.type
   });
 
   beforeEach(() => {
