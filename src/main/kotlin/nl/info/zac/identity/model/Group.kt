@@ -54,7 +54,7 @@ data class Group(
 
 /**
  * Converts a [GroupRepresentation] to a [Group], mapping the Keycloak
- * group name, group description, and Keycloak ZAC client roles.
+ * group name, group description, active attribute, and email attribute.
  * We do not map the Keycloak group id (a UUID) as it is not of interest to us.
  * We treat the Keycloak group name as the unique identifier of the group within the Keycloak realm.
  *
