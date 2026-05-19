@@ -45,7 +45,7 @@ KEYCLOAK_REALM = "zaakafhandelcomponent"
 KEYCLOAK_CLIENT_ID = "zaakafhandelcomponent"
 KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
 
-# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE (PABC flag = true)
+# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
 CONFIG_USER = "beheerder1newiam"
 CONFIG_PASSWORD = "beheerder1newiam"
 

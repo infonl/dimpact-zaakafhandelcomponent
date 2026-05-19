@@ -1,69 +1,12 @@
 # Identity and Access Management (IAM)
 
-## Current ('old') ZAC IAM architecture
-
-The current ('old') IAM (Identity and Access Management) architecture of ZAC is illustrated in the following diagram:
-
-```mermaid
-C4Context
-    title Current ZAC IAM architecture
-
-    Person(Employee, "Employee", "An employee of a municipality")
-    
-    Enterprise_Boundary(b1, "ZAC") {
-        System(ZAC, "ZAC", "Zaakafhandelcomponent")
-        System(OPA, "Open Policy Agent")
-    }
-
-    Enterprise_Boundary(b2, "IAM components") {
-        System(Keycloak, "Keycloak")
-    }
-
-    Rel(Employee, ZAC, "Uses")
-    Rel(Employee, Keycloak, "Authenticates", "OIDC")
-    Rel(ZAC, Keycloak, "Authenticates,<br/>Gets groups and users", "OIDC, Keycloak API")
-    Rel(ZAC, OPA, "Manage policies", "REST")
-
-    UpdateElementStyle(ZAC, $bgColor="red", $borderColor="red")
-    UpdateElementStyle(OPA, $bgColor="red", $borderColor="red")
-    
-    UpdateRelStyle(Employee, ZAC, $offsetX="-40", $offsetY="-30")
-    UpdateRelStyle(Employee, Keycloak, $offsetX="-50", $offsetY="-40")
-    UpdateRelStyle(ZAC, Keycloak, $offsetX="-50", $offsetY="20")
-
-    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="2")
-```
-
-The following components are part of the current ZAC IAM architecture:
-
-| Component                                   | Description                                         | ZAC usage                                                                                                                                                                                |
-|---------------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [OPA](https://www.openpolicyagent.org//)    | Open Policy Agent. Policy engine that manages security policies. | ZAC manages all low-level security policies (= role-permission mappings) in OPA. The OPA server is used by ZAC only and is part of the overall ZAC application package.                  |
-| [Keycloak](https://www.keycloak.org/)       | Open Source Identity and Access Management product. | - ZAC authenticates a user to Keycloak using OIDC (OpenID Connect).<br/> - ZAC also uses the Keycloak API to retrieve groups and the users in a group, for example to be able to assign zaken. |
-
-For details about the OPA access control policies and roles used by ZAC please see: [access control policies](accessControlPolicies.md).
-
-Two completely disjunct principles are used for authorisation in the current ZAC architecture:
-
-- Authorised zaaktypes
-- ZAC application roles
-
-Authorised zaaktypes are managed using 'domains', where domains exist both as special Keycloak roles (prepended with `domein_`) and also as configuration parameters in 
-the ZAC zaakafhandelparameters which forms the link to a specific zaaktype.
-
-ZAC offers a set of available application roles and the mapping from users (optionally through groups) to these application roles is done in Keycloak.
-
-A logged-in user has one or more ZAC application roles and, completely disjunct from this, can also have one or more authorised zaaktypes. 
-Typically, a combination of these two, but sometimes only the application role, is used for authorisation checks in ZAC (using OPA).
-Some authorisation checks are independent of a particular zaaktype, and for these authorisations only the ZAC application roles are used.
-
 ## ZAC IAM architecture
 
 The ZAC IAM architecture is illustrated in the following diagram:
 
 ```mermaid
 C4Context
-    title New ZAC IAM architecture
+    title ZAC IAM architecture
 
     Person(Employee, "Employee", "An employee of a municipality")
     
@@ -175,7 +118,7 @@ block-beta
     style PABC fill:#2969B9,stroke:#333,stroke-width:4px
 ```
 
-The following table summarises the main IAM concepts used in the new ZAC IAM architecture:
+The following table summarises the main IAM concepts used in the ZAC IAM architecture:
 
 | Concept            | Managed in  | Description                                                                                                                                                                                                    |
 |--------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
