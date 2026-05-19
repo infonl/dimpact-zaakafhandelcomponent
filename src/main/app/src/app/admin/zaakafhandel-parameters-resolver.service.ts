@@ -40,13 +40,13 @@ export class ZaakafhandelParametersResolver {
         this.queryClient.fetchQuery(
           this.bpmnService.listProcessDefinitionsQuery(false),
         ),
-      )
+      ),
     }).pipe(
       map(
         ({
           zaakafhandelParameters,
           bpmnProcessConfigurations,
-          bpmnProcessDefinitions
+          bpmnProcessDefinitions,
         }) => {
           const bpmnZaakafhandelParameters = bpmnProcessConfigurations?.find(
             (item) =>
@@ -68,7 +68,7 @@ export class ZaakafhandelParametersResolver {
             },
             bpmnProcessDefinitions,
             isBpmn,
-            isSavedZaakafhandelParameters
+            isSavedZaakafhandelParameters,
           };
         },
       ),

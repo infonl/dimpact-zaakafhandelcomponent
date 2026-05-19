@@ -4,7 +4,7 @@
  */
 package nl.info.zac.itest.config
 
-// These users are part of one or more of the new IAM Keycloak groups and functional roles.
+// These users are part of one or more of the Keycloak groups and functional roles.
 // For these functional roles authorisation mappings to zaaktypes (grouped by domains) and application roles exist in the PABC.
 /**
  * A raadpleger in domein test 1.

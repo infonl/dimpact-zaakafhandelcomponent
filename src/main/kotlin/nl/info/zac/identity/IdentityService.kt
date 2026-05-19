@@ -7,10 +7,8 @@ package nl.info.zac.identity
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Named
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.exception.GroupNotFoundException
 import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
@@ -33,8 +31,6 @@ import java.util.UUID
 class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val configurationService: ConfigurationService,
 
     @ConfigProperty(name = "AUTH_RESOURCE")
     private val zacKeycloakClientId: String,
@@ -55,18 +51,14 @@ class IdentityService @Inject constructor(
     fun listActiveGroups(): List<Group> = listGroups().filter { it.active }
 
     /**
-     * New IAM (PABC feature flag on): Returns the list of active groups that are authorised for the application role 'behandelaar' and
+     * Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
-     *
-     * Old IAM (PABC feature flag off): returns the list of groups that have access to the given zaaktype UUID
-     * based on the ZAC domain roles (if any) of this group and the domain (if any) configured in the zaakafhandelparameters
-     * for this zaaktype.
      */
+    // TODO
     @Deprecated(
         """Once the PABC feature flag has been removed, this function should be deleted and the
         [listActiveGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
     )
-    // TODO
     fun listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
         // Retrieve the zaaktype just to get the description field because we treat this as the unique
         // ID of the zaaktype (not the specific zaaktype 'version').

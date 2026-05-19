@@ -18,14 +18,10 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.model.getFullName
 import org.jose4j.jwt.JwtClaims
 import org.wildfly.security.http.oidc.AccessToken
@@ -34,8 +30,6 @@ import org.wildfly.security.http.oidc.OidcSecurityContext
 import org.wildfly.security.http.oidc.RefreshableOidcSecurityContext
 
 class UserPrincipalFilterTest : BehaviorSpec({
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val pabcClientService = mockk<PabcClientService>()
     val httpServletRequest = mockk<HttpServletRequest>()
     val servletResponse = mockk<HttpServletResponse>()
@@ -49,8 +43,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
 
     Context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
             pabcClientService = pabcClientService
         )
 

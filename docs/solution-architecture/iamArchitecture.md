@@ -114,15 +114,15 @@ This is implemented using the following concepts which are managed in the PABC:
 
 In the PABC the concept of `zaaktype` is abstracted as a generic `entity type` concept, allowing for the possibility to use the PABC for authorisations on other entity types in the future.
 
-Internally in the PABC these `entity types` are grouped using `domains`. In the new IAM architecture domains are a PABC-internal concept only. 
+Internally in the PABC these `entity types` are grouped using `domains`. In the IAM architecture domains are a PABC-internal concept only. 
 ZAC, nor Keycloak, have any knowledge of these domains.
 
 The functional roles and the mappings of groups to functional roles as well as the users themselves are managed in Keycloak.
 
 ### IAM components
 
-The relationship between the three main components in the new IAM architecture (Keycloak, PABC, ZAC) is illustrated in the following diagram. 
-Note that this is a simplified overview and will change in the future when the new IAM architecture will be extended further.
+The relationship between the three main components in the IAM architecture (Keycloak, PABC, ZAC) is illustrated in the following diagram. 
+Note that this is a simplified overview and will change in the future when the IAM architecture is extended further.
 
 - A '*' indicates that the current component is the source of a certain type of IAM related data.
 - The arrows indicate dependencies between components.

@@ -125,9 +125,8 @@ class IdentityServiceTest : BehaviorSpec({
                 )
                 Then(
                     """
-                new IAM: only the groups authorised for the application role 'behandelaar' and
+                Only the groups authorised for the application role 'behandelaar' and
                 zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned,
-                old IAM: only those groups which have the old IAM architecture domain role are returned
                 """
                 ) {
                     response.code shouldBe HTTP_OK
@@ -162,10 +161,8 @@ class IdentityServiceTest : BehaviorSpec({
 
         Given(
             """
-              New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype,
-              using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
-              Old IAM (PABC feature flag off): groups in the Keycloak ZAC realm and a zaaktype UUID which is not configured in any
-              zaaktype configuration for a given domain role, and a logged-in beheerder
+              Authorised groups for the application role 'behandelaar' and the given zaaktype,
+              using the groups' functional roles and the available PABC mappings, and a logged-in beheerder        
             """.trimIndent()
         ) {
             When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
@@ -175,9 +172,8 @@ class IdentityServiceTest : BehaviorSpec({
                 )
                 Then(
                     """
-                new IAM: only the groups authorised for the application role 'behandelaar' and
-                zaaktype test 3 (via the PABC mappings and the group's functional roles) are returned,
-                old IAM: all available groups are returned because the zaaktype has no domain configured
+                Only the groups authorised for the application role 'behandelaar' and
+                zaaktype test 3 (via the PABC mappings and the group's functional roles) are returned
                 """
                 ) {
                     response.code shouldBe HTTP_OK
@@ -212,8 +208,8 @@ class IdentityServiceTest : BehaviorSpec({
 
         Given(
             """
-            New IAM (PABC feature flag on): authorised groups for the application role 'behandelaar' and the given zaaktype, 
-            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder.
+            Authorised groups for the application role 'behandelaar' and the given zaaktype, 
+            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
         """
         ) {
             When(

@@ -11,7 +11,6 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_AFZENDER_CODE
@@ -40,7 +39,6 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     var communicationChannelReferenceTableId = 0
-    var domeinReferenceTableId = 0
     var serverErrorTextErrorReferenceTableId = 0
 
     Given(
@@ -101,7 +99,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "systeem": true
                             },
                             {
-                                "aantalWaarden": 1,
+                                "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
                                 "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
                                 "systeem": true
@@ -118,7 +116,6 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 }
                 with(JSONArray(responseBody)) {
                     communicationChannelReferenceTableId = getJSONObject(5).getInt("id")
-                    domeinReferenceTableId = getJSONObject(6).getInt("id")
                     serverErrorTextErrorReferenceTableId = getJSONObject(7).getInt("id")
                 }
             }
@@ -203,40 +200,6 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                             "Post",
                             "Telefoon"
                         )
-                    )
-                }
-            }
-        }
-
-        When("the domein reference table is retrieved") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
-                testUser = BEHEERDER_1,
-            )
-
-            Then(
-                """the domein created in the test setup is returned"""
-            ) {
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                with(JSONObject(responseBody).toString()) {
-                    shouldEqualJsonIgnoringExtraneousFields(
-                        """
-                        {
-                            "code": "$REFERENCE_TABLE_DOMEIN_CODE",
-                            "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
-                            "id" : $domeinReferenceTableId,
-                            "systeem": true,
-                            "aantalWaarden": 1,
-                            "waarden": [
-                                {
-                                  "systemValue": false,
-                                  "naam": "$DOMEIN_TEST_1"
-                                }
-                            ]
-                        }
-                        """.trimIndent()
                     )
                 }
             }

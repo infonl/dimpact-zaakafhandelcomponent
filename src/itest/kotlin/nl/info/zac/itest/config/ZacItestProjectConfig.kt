@@ -6,7 +6,6 @@ package nl.info.zac.itest.config
 
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.nondeterministic.eventuallyConfig
 import io.kotest.core.config.AbstractProjectConfig
@@ -40,8 +39,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PRO
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
@@ -51,8 +48,6 @@ import nl.info.zac.itest.config.ItestConfiguration.PABC_CLIENT_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
-import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
-import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.SMTP_SERVER_PORT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE
@@ -84,9 +79,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
-import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
-import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.testcontainers.containers.ComposeContainer
@@ -355,7 +348,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
      * Creates overall test setup data in ZAC, required for running the integration tests.
      */
     private fun createTestSetupData() {
-        createDomainReferenceTableData()
         createBpmnProcessDefinitions()
         createBpmnProcessTaskForms()
         createZaaktypeConfigurations()
@@ -434,56 +426,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             File(it.path)
         }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
 
-    private fun createDomainReferenceTableData() {
-        val domeinReferenceTableId = itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/referentietabellen",
-            testUser = BEHEERDER_1
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_OK
-            JSONArray(responseBody)
-                .map { it as JSONObject }
-                .firstOrNull { it.getString("code") == REFERENCE_TABLE_DOMEIN_CODE }
-                ?.getInt("id")
-                ?: error("Reference table with code '$REFERENCE_TABLE_DOMEIN_CODE' not found")
-        }
-        itestHttpClient.performPutRequest(
-            url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
-            requestBodyAsString = """
-                  {
-                        "aantalWaarden" : 0,
-                        "code" : "$REFERENCE_TABLE_DOMEIN_CODE",
-                        "id" : $domeinReferenceTableId,
-                        "naam" : "$REFERENCE_TABLE_DOMEIN_NAME",
-                        "systeem" : true,
-                        "waarden": [ { "naam" : "$DOMEIN_TEST_1" } ]
-                    }
-            """.trimIndent(),
-            testUser = BEHEERDER_1
-        ).let { response ->
-            val responseBody = response.bodyAsString
-            logger.info { "Response: $responseBody" }
-            response.code shouldBe HTTP_OK
-            with(JSONObject(responseBody).toString()) {
-                shouldEqualJsonIgnoringExtraneousFields(
-                    """
-                        {
-                            "code": "$REFERENCE_TABLE_DOMEIN_CODE",
-                            "naam": "$REFERENCE_TABLE_DOMEIN_NAME",
-                            "systeem": true,
-                            "aantalWaarden": 1,
-                            "waarden": [
-                                { "naam": "$DOMEIN_TEST_1", "systemValue": false }                               
-                            ]
-                        }
-                    """.trimIndent()
-                )
-                shouldContainJsonKey("id")
-            }
-        }
-    }
-
     @Suppress("LongMethod")
     private fun createZaaktypeConfigurations() {
         zacClient.createZaaktypeBpmnConfiguration(
@@ -547,8 +489,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
             zaakTypeDescription = ZAAKTYPE_CMMN_TEST_1_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_3,
-            // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
-            domein = DOMEIN_TEST_2,
             testUser = BEHEERDER_1
         ).let { response ->
             val responseBody = response.bodyAsString
@@ -560,8 +500,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             zaakTypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             zaakTypeDescription = ZAAKTYPE_CMMN_TEST_2_DESCRIPTION,
             productaanvraagType = PRODUCTAANVRAAG_TYPE_2,
-            // Note that these domains are no longer used in the new IAM architecture and will be removed in the future
-            domein = DOMEIN_TEST_1,
             fatalDateWarningWindow = 1,
             testUser = BEHEERDER_1
         ).let { response ->

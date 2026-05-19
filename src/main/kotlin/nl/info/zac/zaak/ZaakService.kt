@@ -12,7 +12,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
@@ -36,7 +35,6 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -53,8 +51,6 @@ import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.String
-import kotlin.Suppress
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -68,9 +64,7 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val bpmnService: BpmnService,
-    private val configurationService: ConfigurationService,
     private val pabcClientService: PabcClientService
 ) {
     fun addBetrokkeneToZaak(
@@ -439,16 +433,7 @@ class ZaakService @Inject constructor(
         }
 
     /**
-     * New IAM architecture (PABC integration): checks if the group is authorised for the specified zaaktype
-     * and the specified ZAC application role.
-     * Old IAM architecture: checks if the group is authorised for the specified zaaktype, using the domain associated
-     * with the specified zaak, through the zaakafhandelparameters of the zaaktype.
-     *
-     * Domain access is granted to a:
-     * - zaaktype without domain
-     * - zaaktype with domain/role DOMEIN_ELK_ZAAKTYPE
-     * - group with domain/role DOMEIN_ELK_ZAAKTYPE has access to all domains
-     * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
+     * Checks if the group is authorised for the specified zaaktype and the specified ZAC application role.
      *
      * @param zaaktypeUuid The zaaktype UUID to check domain access for
      * @return true if the group is authorised for the specified zaaktype, false otherwise

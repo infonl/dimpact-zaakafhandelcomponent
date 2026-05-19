@@ -30,21 +30,6 @@ This means the following in practise:
 - A user with the 'Recordmanager' role also needs to have the 'Raadpleger', 'Behandelaar' and 'Coordinator' roles
 - A user with the 'Beheerder' role also needs to have the 'Raadpleger', 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
 
-### Domain roles (will be removed in new IAM architecture)
-
-In the current ('old') IAM architecture, with the PABC feature flag turned off, ZAC also supports the concept of 'domain' (domein) roles.
-In the new IAM architecture, with the PABC feature flag turned on, the concept of domain roles no longer exists, and this section will be rewritten.
-These roles normally correspond to user groups in the [ZAC IAM architecture](iamArchitecture.md) and typically to departments
-in a municipality. E.g. 'sociaal domein'.
-These roles are used to grant access to a certain zaaktype (or set of zaaktypes) in ZAC.
-This is done by configuring the 'zaakafhandelparameters' for a zaaktype in ZAC for a certain domain
-and by giving a certain group of users the corresponding domain role in Keycloak.
-
-Finally, there is a special `domein_elk_zaaktype` system role which will grant the user access to all zaaktypes in ZAC.
-
-Domain roles as well as the special `domein_elk_zaaktype` system role will be removed in the new IAM architecture in the future 
-and this functionality will be replaced by the new PABC component. See [ZAC IAM architecture](iamArchitecture.md) for more information.
-
 ## ZAC policies per resource and role
 
 The following access control policies are enforced in the ZAC backend for the roles listed above for the

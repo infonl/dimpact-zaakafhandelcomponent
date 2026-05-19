@@ -158,7 +158,6 @@ class ZacClient(
         zaakTypeUuid: UUID,
         zaakTypeDescription: String,
         productaanvraagType: String,
-        domein: String? = null,
         brpDoelbindingenZoekWaarde: String = "BRPACT-ZoekenAlgemeen",
         brpDoelbindingenRaadpleegWaarde: String = "BRPACT-AlgemeneTaken",
         brpVerwerkingregisterWaarde: String = "Algemeen",
@@ -368,7 +367,6 @@ class ZacClient(
                   }
                 ]
               },             
-              "domein": ${domein?.let { "\"$it\"" }},
               "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,

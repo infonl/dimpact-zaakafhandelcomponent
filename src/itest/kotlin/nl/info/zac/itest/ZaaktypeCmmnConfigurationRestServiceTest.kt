@@ -10,9 +10,8 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.BEHEERDER_1
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -135,7 +134,6 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         } ]
                       },
                       "defaultGroepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
-                      "domein" : "$DOMEIN_TEST_1",
                       "humanTaskParameters" : [ {
                         "actief" : true,
                         "formulierDefinitieId" : "AANVULLENDE_INFORMATIE",
