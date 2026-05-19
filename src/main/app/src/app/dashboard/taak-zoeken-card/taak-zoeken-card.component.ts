@@ -65,6 +65,8 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
   }));
 
+  public readonly isLoading = this.zoekQuery.isLoading;
+
   constructor(
     private zoekenService: ZoekenService,
     protected identityService: IdentityService,
@@ -72,7 +74,6 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
   ) {
     super(identityService, websocketService);
     effect(() => {
-      this.isLoading.set(this.zoekQuery.isLoading());
       this.dataSource.data = this.zoekQuery.data()?.resultaten ?? [];
     });
   }

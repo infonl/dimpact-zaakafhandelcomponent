@@ -10,7 +10,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  signal,
+  Signal,
   ViewChild,
 } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
@@ -49,7 +49,7 @@ export abstract class DashboardCardComponent<
   protected reload: Observable<unknown> | null = null;
   private reloader?: Subscription;
   protected readonly queryClient = inject(QueryClient);
-  public readonly isLoading = signal(false);
+  public abstract readonly isLoading: Signal<boolean>;
 
   abstract readonly columns: C;
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -73,6 +73,8 @@ export class TakenCardComponent extends DashboardCardComponent<
     "zaaktypeOmschrijving",
     "url",
   ];
+
+  public readonly isLoading = signal(false);
 
   constructor(
     private readonly signaleringenService: SignaleringenService,

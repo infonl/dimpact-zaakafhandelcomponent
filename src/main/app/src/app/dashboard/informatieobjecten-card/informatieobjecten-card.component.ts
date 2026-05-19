@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { finalize } from "rxjs/operators";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -30,6 +30,8 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
     "auteur",
     "url",
   ] as const;
+
+  public readonly isLoading = signal(false);
 
   constructor(
     private signaleringenService: SignaleringenService,

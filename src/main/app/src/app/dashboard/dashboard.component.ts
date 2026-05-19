@@ -168,8 +168,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private syncRowHeights() {
     if (!this.cardElements) return;
 
-    // Check if any card is currently loading
-    if (this.cardComponents?.some((c) => c.isLoading())) {
+    // Suppress row height synchronization while cards are fetching data.
+    // This prevents the layout from prematurely measuring empty cards and jumping once data populates.
+    if (this.cardComponents?.some((cardComponent) => cardComponent.isLoading())) {
       return;
     }
 

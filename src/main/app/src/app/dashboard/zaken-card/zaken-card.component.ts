@@ -78,6 +78,8 @@ export class ZakenCardComponent
       ),
   }));
 
+  public readonly isLoading = this.zakenQuery.isLoading;
+
   constructor(
     private readonly signaleringenService: SignaleringenService,
     protected readonly identityService: IdentityService,
@@ -86,7 +88,6 @@ export class ZakenCardComponent
     super(identityService, websocketService);
 
     effect(() => {
-      this.isLoading.set(this.zakenQuery.isLoading());
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
     });
   }
