@@ -16,7 +16,7 @@ services:
     platform: linux/arm64
 
   objecten-api.local:
-    image: ghcr.io/infonl/objects-api:3.3.1@sha256:725d02dd487497f4186ea9c7154bc8c8cd083fdd6099e422901b7e35fc17e6c1
+    image: ghcr.io/infonl/objects-api:3.6.0@sha256:3c0f1942c8f14c700583afff24b5e1df0b5207a20fb6d38f3a23268997f5de33
     platform: linux/arm64
 
   objecten-api-database:
@@ -24,7 +24,7 @@ services:
     platform: linux/arm64
 
   objecten-api-import:
-    image: ghcr.io/infonl/objects-api:3.3.1@sha256:725d02dd487497f4186ea9c7154bc8c8cd083fdd6099e422901b7e35fc17e6c1
+    image: ghcr.io/infonl/objects-api:3.6.0@sha256:3c0f1942c8f14c700583afff24b5e1df0b5207a20fb6d38f3a23268997f5de33
     platform: linux/arm64
 
   openklant.local:
