@@ -172,12 +172,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.zoekParameters.zoeken[
       (this.laatsteBetrokkenheid =
         this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))
-    ] = this.getBetrokkeneIdentificatiePrefix(betrokkene);
+    ] = this.getBetrokkeneIdentificatie(betrokkene);
   }
 
-  private getBetrokkeneIdentificatiePrefix(
-    betrokkene: BetrokkeneIdentificatie,
-  ) {
+  private getBetrokkeneIdentificatie(betrokkene: BetrokkeneIdentificatie) {
     if (betrokkene.bsn) return `P-${betrokkene.bsn}`;
     if (betrokkene.vestigingsnummer && betrokkene.kvkNummer)
       return `V-${betrokkene.kvkNummer}-${betrokkene.vestigingsnummer}`;
