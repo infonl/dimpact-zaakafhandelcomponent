@@ -7,7 +7,7 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.matchers.shouldBe
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -369,7 +369,7 @@ class ZacClient(
                 ]
               },             
               "domein": ${domein?.let { "\"$it\"" }},
-              "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+              "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
               "defaultBehandelaarId": null,
               "einddatumGeplandWaarschuwing": null,
               "uiterlijkeEinddatumAfdoeningWaarschuwing": $fatalDateWarningWindow,

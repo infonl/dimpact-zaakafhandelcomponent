@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_ADVIES_NAME
@@ -29,7 +29,7 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,7 +51,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the reference tables are listed") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen",
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then(
@@ -127,7 +127,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the get afzenders endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/afzender",
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then(
@@ -143,7 +143,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the communication channels reference table is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/$communicationChannelReferenceTableId",
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then(
@@ -181,7 +181,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the get communication channels endpoint is called with 'true' as parameter") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/communicatiekanaal/true",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then(
@@ -211,7 +211,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the domein reference table is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/$domeinReferenceTableId",
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then(
@@ -245,7 +245,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the get server error texts endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/server-error-text",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then(
@@ -267,7 +267,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         "waarden":[{"naam":"fakeServerErrorErrorPageText"}]
                     }
                 """.trimIndent(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then("the response should be 'ok'") {
@@ -294,7 +294,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         When("the get server error texts endpoint is called again") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/server-error-text",
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then(
@@ -322,7 +322,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     "waarden":[{"naam":"fakeReferenceTableValue1"}, {"naam":"fakeReferenceTableValue2"}]
                     }
                 """.trimIndent(),
-                testUser = BEHEERDER_ELK_ZAAKTYPE,
+                testUser = BEHEERDER_1,
             )
 
             Then("the response should be 'ok' and should return the created reference table with code in uppercase") {

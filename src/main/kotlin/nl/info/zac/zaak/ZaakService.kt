@@ -43,7 +43,6 @@ import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
-import nl.info.zac.identity.model.ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -457,28 +456,12 @@ class ZaakService @Inject constructor(
     private fun Group.isAuthorisedForApplicationRoleAndZaaktype(
         zacApplicationRole: ZacApplicationRole,
         zaaktypeUuid: UUID
-    ) =
-        if (configurationService.featureFlagPabcIntegration()) {
-            val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-            pabcClientService.getGroupsByApplicationRoleAndZaaktype(
-                applicationRole = zacApplicationRole.value,
-                // we use the zaaktype description as the unique identifier for zaaktypes in ZAC
-                zaaktypeDescription = zaaktype.omschrijving
-            ).map { it.name }.contains(this.name)
-        } else {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { params ->
-                val hasAccess = params.domein == DOMEIN_ELK_ZAAKTYPE.value ||
-                    this.zacClientRoles.contains(DOMEIN_ELK_ZAAKTYPE.value) ||
-                    params.domein?.let {
-                        this.zacClientRoles.contains(it)
-                    } ?: false
-                if (!hasAccess) {
-                    LOG.fine(
-                        "Zaaktype with UUID '$zaaktypeUuid' is skipped and not assigned. Group '${this.description}' " +
-                            "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
-                    )
-                }
-                hasAccess
-            }
-        }
+    ): Boolean {
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
+        return pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+            applicationRole = zacApplicationRole.value,
+            // we use the zaaktype description as the unique identifier for zaaktypes in ZAC
+            zaaktypeDescription = zaaktype.omschrijving
+        ).map { it.name }.contains(this.name)
+    }
 }

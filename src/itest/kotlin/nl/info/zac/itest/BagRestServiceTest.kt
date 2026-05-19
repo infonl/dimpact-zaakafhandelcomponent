@@ -10,14 +10,14 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BAG_TEST_ADRES_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -37,7 +37,7 @@ class BagRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                         { "trefwoorden": "fake search text" }
                 """.trimIndent(),
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
             Then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
@@ -166,7 +166,7 @@ class BagRestServiceTest : BehaviorSpec({
         When("the BAG object is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
             Then("the BAG object is successfully returned") {
                 val responseBody = response.bodyAsString
@@ -1163,10 +1163,10 @@ class BagRestServiceTest : BehaviorSpec({
     Given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
         val zaakUUID = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).let { responseContent ->
             logger.info { "Response: ${responseContent.bodyAsString}" }
             JSONObject(responseContent.bodyAsString).getString("uuid").run(UUID::fromString)
@@ -1190,7 +1190,7 @@ class BagRestServiceTest : BehaviorSpec({
                         }                 
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("it is successfully added to the zaak") {
                 response.code shouldBe HTTP_NO_CONTENT
@@ -1198,7 +1198,7 @@ class BagRestServiceTest : BehaviorSpec({
                 // retrieve the BAG objects for the zaak
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 ).run {
                     val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }

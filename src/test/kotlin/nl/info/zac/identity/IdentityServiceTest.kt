@@ -358,7 +358,6 @@ class IdentityServiceTest : BehaviorSpec({
                 description = "fakeInactiveGroupDescription",
                 attributes = mapOf("active" to listOf("false"))
             )
-            every { configurationService.featureFlagPabcIntegration() } returns true
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
@@ -386,89 +385,6 @@ class IdentityServiceTest : BehaviorSpec({
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
                     groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
-                }
-            }
-        }
-
-        Given(
-            """
-            One Keycloak group with a ZAC client role that is equal to the domein role configured in the 
-            zaaktypeCmmnConfiguration for a zaaktype uuid, and another Keycloak group with a different ZAC client role,
-            and PABC feature flag off
-            """.trimIndent()
-        ) {
-            val zaaktypeUuid = UUID.randomUUID()
-            val domeinRole = "fakeDomeinRole"
-            val groupRepresentation1 = createGroupRepresentation(
-                name = "fakeGroupName1",
-                description = "fakeGroupDescription1",
-                clientRoles = mapOf(zacKeycloakClientId to listOf(domeinRole))
-            )
-            val groupRepresentation2 = createGroupRepresentation(
-                name = "fakeGroupName2",
-                clientRoles = mapOf(zacKeycloakClientId to listOf("otherRole"))
-            )
-            every {
-                realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
-            } returns listOf(groupRepresentation1, groupRepresentation2)
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domeinRole
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
-
-                Then("only groups with matching domain roles are returned") {
-                    groups.size shouldBe 1
-                    with(groups[0]) {
-                        name shouldBe "fakeGroupName1"
-                        description shouldBe "fakeGroupDescription1"
-                        zacClientRoles shouldBe listOf(domeinRole)
-                    }
-                }
-            }
-        }
-
-        Given("Zaaktype UUID with domain allowing all zaaktypes and PABC feature flag off") {
-            val zaaktypeUuid = UUID.randomUUID()
-            val groupRepresentation1 = createGroupRepresentation(
-                name = "fakeGroupId1",
-                clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole1")),
-            )
-            val groupRepresentation2 = createGroupRepresentation(
-                name = "fakeGroupId2",
-                clientRoles = mapOf(zacKeycloakClientId to listOf("fakeDomeinRole2")),
-            )
-            every {
-                realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
-            } returns listOf(groupRepresentation1, groupRepresentation2)
-            every {
-                zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
-            } returns "domein_elk_zaaktype"
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
-
-                Then("all groups are returned, sorted by name") {
-                    groups.size shouldBe 2
-                    groups[0].name shouldBe "fakeGroupId1"
-                    groups[1].name shouldBe "fakeGroupId2"
-                }
-            }
-        }
-
-        Given("Zaaktype UUID with empty group list and PABC feature flag off") {
-            val zaaktypeUuid = UUID.randomUUID()
-            val domain = "anyDomain"
-            every { realmResource.groups().groups("", 0, Integer.MAX_VALUE, false) } returns emptyList()
-            every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein } returns domain
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("groups for the zaaktype UUID are listed") {
-                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
-
-                Then("no groups are returned") {
-                    groups.size shouldBe 0
                 }
             }
         }

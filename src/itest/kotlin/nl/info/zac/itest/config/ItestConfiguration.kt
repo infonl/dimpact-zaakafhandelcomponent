@@ -27,8 +27,6 @@ object ItestConfiguration {
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
-    val FEATURE_FLAG_PABC_INTEGRATION = (System.getProperty("featureFlagPabcIntegration") ?: "true").toBoolean()
-
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 

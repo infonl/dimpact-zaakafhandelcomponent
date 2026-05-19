@@ -78,8 +78,6 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -170,9 +168,6 @@ class SearchServiceTest : BehaviorSpec({
         val taakZoekObject1 = mockk<TaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
-        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -250,9 +245,6 @@ class SearchServiceTest : BehaviorSpec({
         val documentZoekObject1 = mockk<DocumentZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
-        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
@@ -316,7 +308,6 @@ class SearchServiceTest : BehaviorSpec({
         val solrParamsSlot = slot<SolrParams>()
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns true
         every { loggedInUser.applicationRolesPerZaaktype } returns mapOf(
             zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
         )
@@ -400,8 +391,6 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2

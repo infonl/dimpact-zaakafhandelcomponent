@@ -179,7 +179,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration()
@@ -247,7 +246,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             And("all zaaktypes are authorised") {
                 zaaktypes.forEach {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 }
 
                 every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
@@ -295,7 +293,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
                 zaaktypes[1].let {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns false
                 }
 
                 When("the zaaktypes are listed") {

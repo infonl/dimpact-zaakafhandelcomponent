@@ -12,8 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_RESUME_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_SUSPEND_TASK_NAME
@@ -46,10 +46,10 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
     Given("A BPMN suspend-resume zaak exists") {
         val (zaakUuid, zaakIdentificatie) = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -63,7 +63,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "suspendDays": 5 }""",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the suspend task is completed") {
@@ -75,7 +75,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = BPMN_SUSPEND_RESUME_SUSPEND_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
@@ -86,7 +86,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = BPMN_SUSPEND_RESUME_RESUME_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
@@ -95,7 +95,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             And("the zaak is suspended") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 ).run {
                     val responseBody = bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -109,7 +109,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 val resumeTaskPatchResponse = zacClient.submitFormData(
                     bpmnZaakUuid = zaakUuid,
                     taakData = """{ "resumeDate": "$resumeDate" }""",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the resume task is completed") {
@@ -121,7 +121,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                         val searchResponseBody = zacClient.searchForTasks(
                             zaakIdentificatie = zaakIdentificatie,
                             taskName = BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME,
-                            testUser = BEHANDELAAR_DOMAIN_TEST_1
+                            testUser = BEHANDELAAR_1
                         )
                         JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                     }
@@ -130,7 +130,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 And("the zaak is resumed") {
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     ).run {
                         val responseBody = bodyAsString
                         logger.info { "Response: $responseBody" }
@@ -143,7 +143,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     val extendTaskPatchResponse = zacClient.submitFormData(
                         bpmnZaakUuid = zaakUuid,
                         taakData = """{ "extendDays": 5, "extendTasks": false }""",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
 
                     Then("the extend task is completed") {
@@ -155,7 +155,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                             val searchResponseBody = zacClient.searchForTasks(
                                 zaakIdentificatie = zaakIdentificatie,
                                 taskName = BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME,
-                                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                                testUser = BEHANDELAAR_1
                             )
                             JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                         }

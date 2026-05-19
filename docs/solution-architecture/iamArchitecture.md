@@ -57,12 +57,9 @@ A logged-in user has one or more ZAC application roles and, completely disjunct 
 Typically, a combination of these two, but sometimes only the application role, is used for authorisation checks in ZAC (using OPA).
 Some authorisation checks are independent of a particular zaaktype, and for these authorisations only the ZAC application roles are used.
 
-## New ZAC IAM architecture
+## ZAC IAM architecture
 
-ZAC is in the transition to move to a new IAM architecture. This is currently 'hidden' for normal ZAC usage by the `FEATURE_FLAG_PABC_INTEGRATION` feature flag.
-When this feature flag is disabled (which is the default), ZAC uses the current IAM architecture as described above.
-
-The new ZAC IAM architecture is illustrated in the following diagram:
+The ZAC IAM architecture is illustrated in the following diagram:
 
 ```mermaid
 C4Context
@@ -97,7 +94,7 @@ C4Context
     UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="2")
 ```
 
-The following components are part of the new ZAC IAM architecture:
+The following components are part of the ZAC IAM architecture:
 
 | Component                                                        | Description                                                                             | Data managed                                                                                      | Usage in ZAC IAM architecture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |------------------------------------------------------------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -106,7 +103,7 @@ The following components are part of the new ZAC IAM architecture:
 | ZAC                                                              | The Zaakafhandelcomponent application.                                                  | Application roles                                                                                 | ZAC uses the authorisation mappings retrieved from PABC to perform authorisation policy checks using OPA.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | - [OPA](https://www.openpolicyagent.org/)                        | Open Policy Agent. Policy engine that manages low-level security policies for ZAC only. | ZAC low-level security policies (= ZAC application roles to permission mappings)                  | ZAC manages all low-level security policies (= application role - permission mappings) in OPA. OPA is used by ZAC only and is part of the overall ZAC application package. ZAC does not function without OPA.                                                                                                                                                                                                                                                                                                                                                                               |
 
-The new IAM architecture is quite different from the old IAM architecture in that it allows different application roles _per_ zaaktype per user.
+The IAM architecture allows different application roles _per_ zaaktype per user.
 This is implemented using the following concepts which are managed in the PABC:
 
 * authorisation mappings from functional roles to a set of the following:

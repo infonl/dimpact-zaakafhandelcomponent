@@ -53,7 +53,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
             gemeenteCode = gemeenteCode,
             gemeenteNaam = gemeenteNaam,
             gemeenteMail = gemeenteMail,
-            pabcIntegration = pabcIntegration,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
             catalogusDomein = catalogusDomein,
@@ -93,14 +92,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
                 fileTypes shouldBe listOf("fakeFileType1", "fakeFileType2")
             }
         }
-
-        When("feature flag PABC integration is requested") {
-            val featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
-
-            Then("true is returned") {
-                featureFlagPabcIntegration shouldBe true
-            }
-        }
     }
 
     Given("An invalid bron organisatie BSN") {
@@ -122,7 +113,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
                         gemeenteCode = gemeenteCode,
                         gemeenteNaam = gemeenteNaam,
                         gemeenteMail = gemeenteMail,
-                        pabcIntegration = pabcIntegration,
                         bronOrganisatie = bronOrganisatie,
                         verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
                         catalogusDomein = catalogusDomein,
@@ -151,7 +141,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
             gemeenteCode = gemeenteCode,
             gemeenteNaam = gemeenteNaam,
             gemeenteMail = gemeenteMail,
-            pabcIntegration = pabcIntegration,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
             catalogusDomein = catalogusDomein,

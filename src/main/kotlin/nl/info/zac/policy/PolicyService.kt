@@ -75,7 +75,6 @@ class PolicyService @Inject constructor(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
                     zaaktype = zaaktypeDescription,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -103,8 +102,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 ZaakInput(
                     loggedInUser = loggedInUser,
-                    zaakData = zaakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    zaakData = zaakData
                 )
             )
         ).result
@@ -126,8 +124,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 ZaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    zaakData = zaakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    zaakData = zaakData
                 )
             )
         ).result
@@ -157,8 +154,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    documentData = documentData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    documentData = documentData
                 )
             )
         ).result
@@ -177,8 +173,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    documentData = documentData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    documentData = documentData
                 )
             )
         ).result
@@ -201,8 +196,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    taakData = taakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    taakData = taakData
                 )
             )
         ).result
@@ -216,8 +210,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    taakData = taakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    taakData = taakData
                 )
             )
         ).result
@@ -227,8 +220,7 @@ class PolicyService @Inject constructor(
         evaluationClient.readNotitieRechten(
             RuleQuery(
                 UserInput(
-                    loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    loggedInUser = loggedInUserInstance.get()
                 )
             )
         ).result
@@ -237,22 +229,10 @@ class PolicyService @Inject constructor(
         evaluationClient.readWerklijstRechten(
             RuleQuery(
                 UserInput(
-                    loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    loggedInUser = loggedInUserInstance.get()
                 )
             )
         ).result
-
-    @Deprecated(
-        "In PABC-based authorisation, the concept of being authorised for a zaaktype is meaningless, " +
-            "since a user is always authorised for a zaaktype _for specific application roles_."
-    )
-    fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
-        if (configurationService.featureFlagPabcIntegration()) {
-            true
-        } else {
-            loggedInUserInstance.get().isAuthorisedForZaaktype(zaakTypeOmschrijving)
-        }
 }
 
 /**

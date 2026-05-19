@@ -16,8 +16,8 @@ import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
@@ -59,7 +59,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -77,23 +77,23 @@ class KlantRestServiceTest : BehaviorSpec({
 
     val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
         TEST_PERSON_HENDRIKA_JANSE_BSN,
-        BEHANDELAAR_DOMAIN_TEST_1
+        BEHANDELAAR_1
     )
 
     var zaakUuid: UUID? = null
 
     Context("Create zaak with initiator") {
         Given("A behandelaar is logged in") {
-            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            authenticate(BEHANDELAAR_1)
 
             When("zaak is created") {
                 val response = zacClient.createZaak(
                     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-                    behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+                    groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                    groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                    behandelaarId = BEHANDELAAR_1.username,
                     startDate = DATE_TIME_2000_01_01,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("response is ok") {
@@ -121,7 +121,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaakUuid"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the requested initiator should be added") {
                     val responseBody = response.bodyAsString
@@ -155,7 +155,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
                     response.code shouldBe HTTP_OK
@@ -206,7 +206,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
                     headers = headers,
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then(
                     "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
@@ -236,7 +236,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -248,7 +248,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -280,7 +280,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -318,7 +318,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/personen",
                     headers = headers,
                     requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -350,7 +350,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -363,7 +363,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/personen",
                     requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -395,7 +395,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -418,7 +418,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -450,7 +450,7 @@ class KlantRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -476,7 +476,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("a vestigingsprofiel is requested which is present in the KVK test environment") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then("the vestigingsprofiel is returned with the expected data") {
                     response.code shouldBe HTTP_OK
@@ -525,7 +525,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = JSONObject(
                         mapOf("naam" to TEST_KVK_NAAM_1)
                     ).toString(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -556,7 +556,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = JSONObject(
                         mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
                     ).toString(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -596,7 +596,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "page": 0
                     }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be a 200 HTTP response with the customer contactmomenten") {
@@ -640,7 +640,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -668,7 +668,7 @@ class KlantRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned with contact data") {
@@ -700,7 +700,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/parameters",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -778,7 +778,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_CMMN_TEST_2_UUID/betrokkene",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {

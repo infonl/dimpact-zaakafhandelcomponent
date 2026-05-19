@@ -59,9 +59,6 @@ class ConfigurationService @Inject constructor(
     @ConfigProperty(name = ENV_VAR_GEMEENTE_MAIL)
     private val gemeenteMail: String,
 
-    @ConfigProperty(name = ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION)
-    private val pabcIntegration: Boolean,
-
     @ConfigProperty(name = ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
     private val verantwoordelijkeOrganisatie: String,
 
@@ -74,7 +71,6 @@ class ConfigurationService @Inject constructor(
         const val ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN = "VERANTWOORDELIJKE_ORGANISATIE_RSIN"
         const val ENV_VAR_CATALOGUS_DOMEIN = "CATALOGUS_DOMEIN"
         const val ENV_VAR_CONTEXT_URL = "CONTEXT_URL"
-        const val ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION = "FEATURE_FLAG_PABC_INTEGRATION"
         const val ENV_VAR_GEMEENTE_MAIL = "GEMEENTE_MAIL"
         const val ENV_VAR_GEMEENTE_NAAM = "GEMEENTE_NAAM"
         const val ENV_VAR_GEMEENTE_CODE = "GEMEENTE_CODE"
@@ -124,7 +120,6 @@ class ConfigurationService @Inject constructor(
             |- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
             |- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
             |- $ENV_VAR_CONTEXT_URL: '$contextUrl'
-            |- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
             |- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
             |- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
             |- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
@@ -154,8 +149,6 @@ class ConfigurationService @Inject constructor(
         val talen = entityManager.createQuery(query).resultList
         return talen.firstOrNull()
     }
-
-    fun featureFlagPabcIntegration(): Boolean = pabcIntegration
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB
 

@@ -21,7 +21,6 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
 import java.time.Instant
@@ -43,9 +42,7 @@ class UserPrincipalFilter
 constructor(
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val pabcClientService: PabcClientService,
-    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
-    private val pabcIntegrationEnabled: Boolean
+    private val pabcClientService: PabcClientService
 ) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
@@ -90,39 +87,19 @@ constructor(
         httpSession: HttpSession
     ) = createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
         setLoggedInUser(httpSession, loggedInUser)
-        if (!pabcIntegrationEnabled) {
-            LOG.info {
-                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                            "ELK-ZAAKTYPE"
-                        } else {
-                            loggedInUser.geautoriseerdeZaaktypen.toString()
-                        }
-                    }"
-            }
-        } else {
-            LOG.info {
-                "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
-                    "functional roles: '${loggedInUser.roles}' " +
-                    "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
-                    "overall roles: ${loggedInUser.overallRoles}"
-            }
+        LOG.info {
+            "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                "functional roles: '${loggedInUser.roles}' " +
+                "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
+                "overall roles: ${loggedInUser.overallRoles}"
         }
     }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
-            val functionalRoles = if (pabcIntegrationEnabled) {
-                // In the new IAM architecture functional roles are realm roles.
-                accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
-            } else {
-                // In the old IAM architecture the ZAC application roles are used directly.
-                // The concept functional roles does not exist.
-                // ZAC application roles are client roles, and are part of the standard 'roles' claim.
-                accessToken.rolesClaim.toSet()
-            }
-            val applicationRoleMappings = if (pabcIntegrationEnabled && functionalRoles.isNotEmpty()) {
+            // functional roles are Keycloak realm roles
+            val functionalRoles = accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
+            val applicationRoleMappings = if (functionalRoles.isNotEmpty()) {
                 buildApplicationRoleMappingsFromPabc(functionalRoles)
             } else {
                 ApplicationRoleMappings(rolesPerZaaktype = emptyMap(), overallRoles = emptySet())
@@ -139,7 +116,6 @@ constructor(
                 groupIds = accessToken
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
-                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
                 applicationRolesPerZaaktype = applicationRolesPerZaaktype,
                 overallRoles = applicationRoleMappings.overallRoles,
             )

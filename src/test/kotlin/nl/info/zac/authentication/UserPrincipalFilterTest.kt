@@ -51,8 +51,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
         val userPrincipalFilter = UserPrincipalFilter(
             zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
             zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-            pabcClientService = pabcClientService,
-            pabcIntegrationEnabled = true
+            pabcClientService = pabcClientService
         )
 
         Given(
@@ -353,56 +352,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     with(loggedInUserSlot.captured) {
                         overallRoles shouldContainAll overallRoleNames
                         overallRoles.none { it in entityTypeRoleNames } shouldBe true
-                    }
-                }
-            }
-        }
-    }
-
-    Context("PABC integration is disabled") {
-        val userPrincipalFilter = UserPrincipalFilter(
-            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-            zaaktypeBpmnConfigurationBeheerService = zaaktypeBpmnConfigurationBeheerService,
-            pabcClientService = pabcClientService,
-            pabcIntegrationEnabled = false
-        )
-
-        Given(" switching user does not call PABC - session is swapped") {
-            val userId = "testUserId"
-            val loggedInUser = createLoggedInUser(id = userId)
-            val accessToken = AccessToken(
-                JwtClaims.parse(
-                    """
-                    {
-                    "preferred_username": "testUserName"
-                    }                    
-                    """.trimMargin(),
-                    null
-                )
-            )
-            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
-            val oidcPrincipal = OidcPrincipal("differentUserId", oidcSecurityContext)
-            every { httpServletRequest.userPrincipal } returns oidcPrincipal
-            every { httpServletRequest.getSession(true) } returns httpSession andThen newHttpSession
-            every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
-            every { httpSession.invalidate() } just runs
-            every { filterChain.doFilter(any(), any()) } just runs
-            every { newHttpSession.setAttribute(any(), any()) } just runs
-            every { httpServletRequest.servletContext.contextPath } returns "fakeContextPath"
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
-
-            When("doFilter is called") {
-                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
-
-                Then("PABC service is not called") {
-                    verify(exactly = 0) { pabcClientService.getApplicationRoles(any()) }
-                }
-                And("the session is invalidated and the filter chain is passed on") {
-                    verify(exactly = 1) {
-                        httpSession.invalidate()
-                        newHttpSession.setAttribute("logged-in-user", any())
-                        filterChain.doFilter(httpServletRequest, servletResponse)
                     }
                 }
             }

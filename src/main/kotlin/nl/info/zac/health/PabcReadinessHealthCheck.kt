@@ -8,7 +8,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.pabc.PabcClientService
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import org.eclipse.microprofile.health.HealthCheck
 import org.eclipse.microprofile.health.HealthCheckResponse
@@ -19,8 +18,7 @@ import java.time.LocalDateTime
 @ApplicationScoped
 @AllOpen
 class PabcReadinessHealthCheck @Inject constructor(
-    private val pabcClientService: PabcClientService,
-    private val configurationService: ConfigurationService
+    private val pabcClientService: PabcClientService
 ) : HealthCheck {
     companion object {
         private const val FAKE_FUNCTIONAL_ROLE = "FAKE_FUNCTIONAL_ROLE"
@@ -36,19 +34,15 @@ class PabcReadinessHealthCheck @Inject constructor(
      */
     @WithSpan(value = "GET PabcReadinessHealthCheck")
     override fun call(): HealthCheckResponse =
-        if (configurationService.featureFlagPabcIntegration()) {
-            try {
-                pabcClientService.getApplicationRoles(listOf(FAKE_FUNCTIONAL_ROLE))
-                HealthCheckResponse.up(PabcReadinessHealthCheck::class.java.name)
-            } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
-                HealthCheckResponse
-                    .named(PabcReadinessHealthCheck::class.java.name)
-                    .withData("time", LocalDateTime.now().toString())
-                    .withData("error", exception.message)
-                    .down()
-                    .build()
-            }
-        } else {
+        try {
+            pabcClientService.getApplicationRoles(listOf(FAKE_FUNCTIONAL_ROLE))
             HealthCheckResponse.up(PabcReadinessHealthCheck::class.java.name)
+        } catch (@Suppress("TooGenericExceptionCaught") exception: Throwable) {
+            HealthCheckResponse
+                .named(PabcReadinessHealthCheck::class.java.name)
+                .withData("time", LocalDateTime.now().toString())
+                .withData("error", exception.message)
+                .down()
+                .build()
         }
 }

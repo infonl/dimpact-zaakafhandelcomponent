@@ -13,14 +13,13 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.urlEncode
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.OLD_IAM_TEST_USER_1
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_MOCK_BASE_URI
@@ -54,10 +53,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     ) {
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -70,8 +69,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHEERDER_1
         )
 
         When("the create document attended ('wizard') endpoint is called on the zaak") {
@@ -89,7 +88,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -122,7 +121,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "creationDate" to ZonedDateTime.now()
                     )
                 ).toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
@@ -150,7 +149,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
                     )
                 ).toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be 400 Client Error") {
                 val responseBody = response.bodyAsString
@@ -165,7 +164,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
-                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -183,7 +182,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("The response should contain redirect url to our smart-documents-result page") {
@@ -209,7 +208,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
-                    "&userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
+                    "&userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
 
@@ -225,7 +224,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 requestBody = FormBody.Builder()
                     .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
                     .build(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("The response should contain redirect url, doc name, zaak and taak ids") {
@@ -248,7 +247,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         When("SmartDocuments zaak callback is called") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
-                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -264,7 +263,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("The response should contain redirect url, zaak id") {
@@ -287,7 +286,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
-                    "?userName=" + OLD_IAM_TEST_USER_1.displayName.urlEncode() +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
                     "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
@@ -303,7 +302,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder().build(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("The response should contain redirect url, zaak and taak ids") {

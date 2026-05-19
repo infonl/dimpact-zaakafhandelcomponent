@@ -66,27 +66,17 @@ class IdentityService @Inject constructor(
         """Once the PABC feature flag has been removed, this function should be deleted and the
         [listActiveGroupsForBehandelaarRoleAndZaaktype] function should be used instead."""
     )
-    fun listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> =
-        if (configurationService.featureFlagPabcIntegration()) {
-            // Retrieve the zaaktype just to get the description field because we treat this as the unique
-            // ID of the zaaktype (not the specific zaaktype 'version').
-            // In future once the PABC feature flag has been removed this should be refactored
-            // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
-            val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-            listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
-        } else {
-            val groups = keycloakZacRealmResource.groups()
-                .groups("", 0, Integer.MAX_VALUE, false)
-                .map { it.toGroup(zacKeycloakClientId) }
-            // only filter groups on domain authorisation when PABC integration is disabled
-            val domein = zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).domein
-            groups.filter {
-                (domein == null || domein == ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value) ||
-                    it.zacClientRoles.contains(domein)
-            }
-        }
+    // TODO
+    fun listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid: UUID): List<Group> {
+        // Retrieve the zaaktype just to get the description field because we treat this as the unique
+        // ID of the zaaktype (not the specific zaaktype 'version').
+        // In future once the PABC feature flag has been removed this should be refactored
+        // so that the zaaktype description is just passed on here instead of the zaaktype UUID.
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
+        return listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktype.omschrijving)
             .filter { it.active }
             .sortedBy { it.description }
+    }
 
     /**
      * Returns the list of active groups that are authorised for the application role 'behandelaar' and

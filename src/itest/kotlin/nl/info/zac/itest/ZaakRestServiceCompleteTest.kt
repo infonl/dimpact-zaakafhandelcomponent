@@ -15,14 +15,14 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_ZAAK_AFHANDELEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,10 +49,10 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         val intakeId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -64,7 +64,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -84,13 +84,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                     "zaakOntvankelijk":true
                 }
             """.trimIndent(),
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             code shouldBe HTTP_NO_CONTENT
         }
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -104,7 +104,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             val afhandelenId: Int
             itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             ).run {
                 val responseBody = bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -125,13 +125,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         "resultaatToelichting":"afronden"
                     }
                 """.trimIndent(),
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -151,13 +151,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 requestBodyAsString = """
                         { "reden": "fakeReason" }
                 """.trimIndent(),
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be open and should no longer have a result") {
-                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -183,13 +183,13 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         "resultaattypeUuid": "$resultaatTypeUuid"
                     }
                 """.trimIndent(),
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }
 
             Then("the zaak should be closed and have a result") {
-                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_DOMAIN_TEST_1).let { response ->
+                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -213,10 +213,10 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         val afhandelenId: Int
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -228,7 +228,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -239,7 +239,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
-            testUser = RECORDMANAGER_DOMAIN_TEST_1
+            testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -274,7 +274,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                         }
                     }
                 """.trimIndent(),
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             ).run {
                 code shouldBe HTTP_NO_CONTENT
             }

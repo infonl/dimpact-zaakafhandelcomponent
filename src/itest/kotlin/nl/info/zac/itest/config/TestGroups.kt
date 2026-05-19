@@ -4,8 +4,6 @@
  */
 package nl.info.zac.itest.config
 
-import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
-
 // new IAM test groups; these groups have functional roles for which mappings need to exist in the PABC
 val GROUP_RAADPLEGERS_TEST_1 = TestGroup(
     name = "raadplegers-test-1",
@@ -81,12 +79,6 @@ val OLD_IAM_GROUP_DOMEIN_TEST_2 = TestGroup(
     name = "test-group-domein-test-2",
     description = "Test group which has access to domein_test_2 only - old IAM"
 )
-
-// group constants that switch between old and new IAM test groups based on the PABC feature flag value
-val RAADPLEGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RAADPLEGERS_TEST_1 else OLD_IAM_TEST_GROUP_RAADPLEGERS
-val BEHANDELAARS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_BEHANDELAARS_TEST_1 else OLD_IAM_TEST_GROUP_BEHANDELAARS
-val COORDINATORS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_COORDINATORS_TEST_1 else OLD_IAM_TEST_GROUP_COORDINATORS
-val RECORDMANAGERS_DOMAIN_TEST_1 = if (FEATURE_FLAG_PABC_INTEGRATION) GROUP_RECORDMANAGERS_TEST_1 else OLD_IAM_TEST_GROUP_RECORD_MANAGERS
 
 // these BPMN test assignees and groups are also defined in the BPMN integration test process and BPMN form.io task forms
 val BPMN_TEST_BEHANDELAAR_1 = TestGroup(name = "test-behandelaar-1", description = "BPMN test behandelaar 1")

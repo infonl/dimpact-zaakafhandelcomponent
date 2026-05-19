@@ -8,9 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
@@ -44,7 +43,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
             $smartDocuments
         }
@@ -56,7 +55,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_2_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
             $smartDocuments
         }
@@ -68,7 +67,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_3_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
             $smartDocuments
         }
@@ -80,7 +79,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_4_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
@@ -90,7 +89,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         When("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "${ZAC_API_URI}/zaaktype-bpmn-configuration/${BPMN_TEST_PROCESS_DEFINITION_KEY}",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the response is successful") {
@@ -109,7 +108,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
             val response = itestHttpClient.performGetRequest(
                 url = "${ZAC_API_URI}/zaaktype-bpmn-configuration",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the response is successful") {
