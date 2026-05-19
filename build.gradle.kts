@@ -774,7 +774,7 @@ tasks {
     register<NpmTask>("npmRunTest") {
         description = "Runs the frontend test suite"
         group = "verification"
-        dependsOn("npmInstall")
+        dependsOn("npmRunBuild")
 
         npmCommand.set(listOf("run", "test"))
 
