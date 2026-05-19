@@ -58,7 +58,10 @@ export class BetrokkeneLinkComponent {
 
     if (this.isBsnType() || !betrokkene.identificatieType) {
       return {
-        queryKey: ["bedrijf", betrokkene.vestigingsnummer ?? betrokkene.kvkNummer],
+        queryKey: [
+          "bedrijf",
+          betrokkene.vestigingsnummer ?? betrokkene.kvkNummer,
+        ],
         enabled: false,
       };
     }

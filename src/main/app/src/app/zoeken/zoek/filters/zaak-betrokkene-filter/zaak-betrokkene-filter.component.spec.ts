@@ -184,7 +184,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component.zoekparameters = makeZoekParams({});
       fixture.detectChanges();
 
-      const afterClosed$ = new Subject<GeneratedType<"RestBedrijf" | "RestPersoon">>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);
@@ -198,7 +200,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "" });
       fixture.detectChanges();
 
-      const afterClosed$ = new Subject<GeneratedType<"RestBedrijf" | "RestPersoon">>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);
@@ -220,7 +224,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       const changedSpy = jest.fn();
       component.changed.subscribe(changedSpy);
 
-      const afterClosed$ = new Subject<GeneratedType<"RestBedrijf" | "RestPersoon">>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);

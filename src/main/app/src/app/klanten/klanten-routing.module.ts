@@ -7,12 +7,12 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
 import { PersoonResolverService } from "./persoon-view/persoon-resolver.service";
 import { PersoonViewComponent } from "./persoon-view/persoon-view.component";
-import {BetrokkeneIdentificatie} from "../zaken/model/betrokkeneIdentificatie";
 
 const routes: Routes = [
   {
@@ -62,24 +62,29 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
 export class KlantenRoutingModule {}
 
 export function buildBedrijfRouteLink(
-    bedrijf?: GeneratedType<"RestBedrijf"> | null,
+  bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
-    if (!bedrijf) return;
-    const tempBedrijf = new BetrokkeneIdentificatie(bedrijf);
+  if (!bedrijf) return;
+  const tempBedrijf = new BetrokkeneIdentificatie(bedrijf);
 
-    switch (tempBedrijf.type) {
-        case "RSIN":
-            return ["/bedrijf", tempBedrijf.kvkNummer];
-        case "VN":
-            return ["/bedrijf", tempBedrijf.kvkNummer, "vestiging", tempBedrijf.vestigingsnummer];
-        default:
-            // throw new Error("Unknown bedrijf type");
-            console.error("buildBedrijfRouteLink Error")
-    }
+  switch (tempBedrijf.type) {
+    case "RSIN":
+      return ["/bedrijf", tempBedrijf.kvkNummer];
+    case "VN":
+      return [
+        "/bedrijf",
+        tempBedrijf.kvkNummer,
+        "vestiging",
+        tempBedrijf.vestigingsnummer,
+      ];
+    default:
+      // throw new Error("Unknown bedrijf type");
+      console.error("buildBedrijfRouteLink Error");
+  }
 }
