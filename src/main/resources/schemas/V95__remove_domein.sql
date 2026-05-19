@@ -4,7 +4,7 @@
  */
 
 -- Remove obsolete old IAM 'domein' column and related index from 'zaaktype_configuration' table
-DROP INDEX zaaktype_configuration_domein_idx;
+DROP INDEX IF EXISTS ${schema}.zaaktype_configuration_domein_idx;
 
 ALTER TABLE ${schema}.zaaktype_configuration DROP COLUMN domein;
 
