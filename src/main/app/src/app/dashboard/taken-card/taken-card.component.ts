@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, computed, effect } from "@angular/core";
 import { MatIconAnchor } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatPaginator } from "@angular/material/paginator";
@@ -23,6 +23,8 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -73,24 +75,38 @@ export class TakenCardComponent extends DashboardCardComponent<
     "url",
   ];
 
+  parameters = computed(() => ({
+    signaleringType: this.data?.signaleringType,
+  }));
+
+  takenQuery = injectQuery(() => ({
+    queryKey: ["taken signaleringen dashboard", this.parameters()],
+    enabled: !!this.parameters().signaleringType,
+    queryFn: () =>
+      firstValueFrom(
+        this.signaleringenService.listTakenSignalering(
+          this.parameters().signaleringType!,
+        ),
+      ),
+  }));
+
   constructor(
     private readonly signaleringenService: SignaleringenService,
     protected readonly identityService: IdentityService,
     protected readonly websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
+
+    effect(() => {
+      this.dataSource.data = this.takenQuery.data() ?? [];
+    });
   }
 
   protected onLoad(): void {
-    const signaleringType = this.data.signaleringType;
-    if (!signaleringType) {
+    if (!this.data?.signaleringType) {
       this.dataSource.data = [];
       return;
     }
-    this.signaleringenService
-      .listTakenSignalering(signaleringType)
-      .subscribe((taken) => {
-        this.dataSource.data = taken;
-      });
+    this.takenQuery.refetch();
   }
 }
