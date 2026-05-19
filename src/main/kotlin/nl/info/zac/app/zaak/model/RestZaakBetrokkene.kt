@@ -96,7 +96,9 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
             kvkNummer = betrokkene.kvkNummer
         }
         VESTIGING -> {
-            vestigingsnummer = (this as RolVestiging).betrokkeneIdentificatie?.vestigingsNummer ?: return null
+            val betrokkene =(this as RolVestiging).betrokkeneIdentificatie ?: return null
+            vestigingsnummer = betrokkene.vestigingsNummer ?: return null
+            kvkNummer = betrokkene.kvkNummer
             identificatieType = IdentificatieType.VN
         }
         ORGANISATORISCHE_EENHEID -> {
