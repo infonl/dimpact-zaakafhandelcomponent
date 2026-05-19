@@ -127,10 +127,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
-            every {
-                zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration()
-            } returns listOf(createZaaktypeCmmnConfiguration())
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -207,10 +203,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns listOf(
-                createZaaktypeBpmnConfiguration(zaaktypeOmschrijving = "bpmn1")
-            )
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
 
             When("doFilter is called") {
@@ -270,11 +262,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns listOf(
-                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype1"),
-                createZaaktypeCmmnConfiguration(zaaktypeOmschrijving = "fakeZaaktype2")
-            )
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
@@ -336,8 +323,6 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     )
                 )
             }
-            every { zaaktypeCmmnConfigurationService.listZaaktypeCmmnConfiguration() } returns emptyList()
-            every { zaaktypeBpmnConfigurationBeheerService.listConfigurations() } returns emptyList()
 
             When("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)

@@ -35,11 +35,10 @@ class ConfiguratieServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A valid configuration with BPMN and PABC feature flags set to true") {
+    Given("A valid configuration with BPMN") {
         val catalogusUri = "https://example.com/catalogus"
         every { catalogus.url } returns URI(catalogusUri)
         every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
-        val pabcIntegration = true
         val brpConfiguration = createBrpConfiguration()
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
@@ -98,7 +97,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val bronOrganisatie = "123456789"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
-        val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
 
         When("configuration service is initialized") {
@@ -130,7 +128,6 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
-        val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
         val configurationService = ConfigurationService(
             entityManager = entityManager,

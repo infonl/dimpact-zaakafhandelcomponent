@@ -265,7 +265,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
     }
 
-    Context("PABC ON — application-role based access") {
+    Context("Application-role based access") {
         Given("An authenticated user with any PABC role accesses '/app/home'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
@@ -408,49 +408,6 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
-            every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.method } returns "GET"
-            every { httpServletResponse.sendError(any()) } just runs
-
-            When("the filter processes the request") {
-                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
-
-                Then("a 403 is returned") {
-                    verify {
-                        httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
-                    }
-                }
-            }
-        }
-    }
-
-    Context("PABC OFF — legacy token role access") {
-
-        Given("An authenticated user with legacy role accesses '/app/home'") {
-            val filter = RequestAuthorizationFilter()
-            val user = createLoggedInUser(roles = setOf(ZacApplicationRole.RAADPLEGER.value))
-            setSessionUser(user)
-            every { httpServletRequest.requestURI } returns "/app/home"
-            every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.method } returns "GET"
-            every { filterChain.doFilter(any(), any()) } just runs
-
-            When("the filter processes the request") {
-                filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
-
-                Then("the request is allowed") {
-                    verify(exactly = 1) {
-                        filterChain.doFilter(httpServletRequest, httpServletResponse)
-                    }
-                }
-            }
-        }
-
-        Given("An authenticated user without any legacy roles accesses '/admin'") {
-            val filter = RequestAuthorizationFilter()
-            val user = createLoggedInUser(roles = emptySet())
-            setSessionUser(user)
-            every { httpServletRequest.requestURI } returns "/admin"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs

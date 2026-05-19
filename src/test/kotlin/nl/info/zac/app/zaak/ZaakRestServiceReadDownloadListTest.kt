@@ -289,27 +289,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     }
                 }
             }
-            And("user is not authorised for a CMMN zaaktype") {
-                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
-                zaaktypes[1].let {
-                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                }
-
-                When("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    Then("the authorised zaaktypes are returned") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        verify(exactly = 2) {
-                            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
-                    }
-                }
-            }
         }
     }
 
