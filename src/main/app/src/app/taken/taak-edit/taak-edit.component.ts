@@ -13,7 +13,6 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -37,7 +36,6 @@ export class TaakEditComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
   private readonly takenService = inject(TakenService);
-  private readonly utilService = inject(UtilService);
   private readonly translateService = inject(TranslateService);
 
   protected readonly sideNav = input.required<MatSidenav>();
