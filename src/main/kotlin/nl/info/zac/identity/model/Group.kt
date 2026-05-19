@@ -39,18 +39,7 @@ data class Group(
     /**
      * The email address associated with the group, if any.
      */
-    val email: String? = null,
-
-    /**
-     * The list of Keycloak ZAC client roles assigned to the group.
-     */
-    @Deprecated(
-        """
-        ZAC client roles are only used in the old IAM architecture (PABC feature flag turned off). 
-        Once the PABC feature flag has been removed, this field should be removed.
-        """
-    )
-    val zacClientRoles: List<String> = emptyList()
+    val email: String? = null
 ) {
     /**
      * Constructor for creating a group not known in the identity system.
@@ -67,19 +56,16 @@ data class Group(
  * Converts a [GroupRepresentation] to a [Group], mapping the Keycloak
  * group name, group description, and Keycloak ZAC client roles.
  * We do not map the Keycloak group id (a UUID) as it is not of interest to us.
- * We treat the Keycloak group name as the unique identifier of the group within Keycloak realm.
+ * We treat the Keycloak group name as the unique identifier of the group within the Keycloak realm.
  *
- * @param keycloakClientId The client ID of the Keycloak client.
  * @return A [Group] object representing the group.
  */
-fun GroupRepresentation.toGroup(keycloakClientId: String): Group =
+fun GroupRepresentation.toGroup(): Group =
     Group(
         name = name,
         description = description?.takeIf { it.isNotBlank() } ?: name,
         active = attributes?.get(GROUP_ATTRIBUTE_ACTIVE)?.singleOrNull() != "false",
-        email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull(),
-        // ZAC client roles are only used in the old IAM architecture (PABC feature flag off)
-        zacClientRoles = clientRoles[keycloakClientId].orEmpty()
+        email = attributes?.get(GROUP_ATTRIBUTE_EMAIL)?.singleOrNull()
     )
 
 fun nl.info.client.pabc.model.generated.GroupRepresentation.toGroup(): Group =
