@@ -19,19 +19,14 @@ import jakarta.ws.rs.HttpMethod.POST
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 
 /**
  * Generic ZAC authorisation filter.
  * Checks an explicit set of unauthenticated endpoints for allowed HTTP methods.
- * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization..
- *   - PABC ON (`FEATURE_FLAG_PABC_INTEGRATION=true`)
- *      General access: user must have at least one application role on at least one zaaktype.
- *      For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
- *   - PABC OFF
- *      General access: user must have one of the legacy app roles
- *      (`raadpleger`, `behandelaar`, `coordinator`, `recordmanager`, `beheerder`) in token claims.
- *      For Admin URIs: user must have `beheerder` role.
+ * For authenticated endpoints, it expects that the user has already logged in and performs basic authorization.
+ *
+ * General access: user must have at least one application role on at least one zaaktype.
+ * For admin URIs (/admin/, /rest/admin/): User must have the 'beheerder' role for at least one zaaktype
  *
  * This filter must run after [UserPrincipalFilter], so [UserPrincipalFilter] can
  * authenticate via Elytron OIDC and build the LoggedInUser in the session first.
@@ -40,10 +35,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 @WebFilter(filterName = "RequestAuthorizationFilter")
 @AllOpen
 @NoArgConstructor
-class RequestAuthorizationFilter @Inject constructor(
-    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
-    private val pabcIntegrationEnabled: Boolean
-) : Filter {
+class RequestAuthorizationFilter @Inject constructor() : Filter {
     companion object {
         private val ADMIN_URI_PREFIXES = listOf(
             "/rest/admin/",
@@ -91,21 +83,12 @@ class RequestAuthorizationFilter @Inject constructor(
         val user = getLoggedInUser(session) ?: return false
         val path = request.requestURI.removePrefix(request.contextPath)
         val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
-        return if (pabcIntegrationEnabled) {
-            if (isAdmin) {
-                // access allowed if the user has the 'beheerder' application role for at least one zaaktype
-                hasAnyBeheerderApplicationRole(user)
-            } else {
-                // access allowed if the user has at least one application role for at least one zaaktype
-                hasAnyPabcApplicationRole(user)
-            }
+        return if (isAdmin) {
+            // access allowed if the user has the 'beheerder' application role for at least one zaaktype
+            hasAnyBeheerderApplicationRole(user)
         } else {
-            // PABC disabled: legacy web.xml rules on token roles
-            if (isAdmin) {
-                user.roles.contains(ZacApplicationRole.BEHEERDER.value)
-            } else {
-                user.roles.any { it in ZacApplicationRole.entries.map { e -> e.value }.toSet() }
-            }
+            // access allowed if the user has at least one application role for at least one zaaktype
+            hasAnyPabcApplicationRole(user)
         }
     }
 

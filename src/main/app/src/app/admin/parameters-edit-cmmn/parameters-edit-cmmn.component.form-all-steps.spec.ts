@@ -101,7 +101,6 @@ describe(ParametersEditCmmnComponent.name, () => {
               parameters: {
                 zaakafhandelParameters,
                 isSavedZaakafhandelParameters: true,
-                featureFlagPabcIntegration: true,
               },
             }),
           },

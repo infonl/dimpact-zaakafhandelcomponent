@@ -76,7 +76,6 @@ describe("Proces-definitie step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };
@@ -181,11 +180,6 @@ describe("Proces-definitie step", () => {
   it("should disable cmmnBpmnFormGroup when parameters are already saved", () => {
     const component = fixture.componentInstance;
     expect(component["cmmnBpmnFormGroup"].disabled).toBe(true);
-  });
-
-  it("should set featureFlagPabcIntegration from route data", () => {
-    const component = fixture.componentInstance;
-    expect(component["featureFlagPabcIntegration"]).toBe(true);
   });
 
   it("should default intakeMail to BESCHIKBAAR_UIT when not provided", () => {

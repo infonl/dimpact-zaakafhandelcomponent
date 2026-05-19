@@ -295,8 +295,7 @@ class ZaakRestService @Inject constructor(
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
         assertCanAddBetrokkene(restZaakAanmaakGegevens.zaak, zaaktypeUUID)
         assertPolicy(
-            policyService.readOverigeRechten(zaakType.omschrijving).startenZaak &&
-                policyService.isAuthorisedForZaaktype(zaakType.omschrijving)
+            policyService.readOverigeRechten(zaakType.omschrijving).startenZaak
         )
         restZaak.communicatiekanaal?.isNotBlank() == true || throw CommunicationChannelNotFound()
         restZaak.einddatumGepland?.let {
@@ -491,8 +490,7 @@ class ZaakRestService @Inject constructor(
         ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .asSequence()
             .filter {
-                policyService.readOverigeRechten(it.omschrijving).startenZaak &&
-                    policyService.isAuthorisedForZaaktype(it.omschrijving)
+                policyService.readOverigeRechten(it.omschrijving).startenZaak
             }
             .filter { !it.concept }
             .filter { it.isNuGeldig() }

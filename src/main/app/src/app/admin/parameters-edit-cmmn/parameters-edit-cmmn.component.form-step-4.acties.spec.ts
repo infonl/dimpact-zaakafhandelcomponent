@@ -83,7 +83,6 @@ describe("Acties form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };

@@ -14,10 +14,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.COORDINATORS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -47,7 +47,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
 
     val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
         TEST_PERSON_HENDRIKA_JANSE_BSN,
-        BEHANDELAAR_DOMAIN_TEST_1
+        BEHANDELAAR_1
     )
 
     Given("A behandelaar is logged in and a BPMN type zaak has been created") {
@@ -55,10 +55,10 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         var zaakIdentificatie: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -84,7 +84,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$bpmnZaakUuid"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be a 200 HTTP response and the initiator should be added") {
                 val responseBody = response.bodyAsString
@@ -106,8 +106,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                      "initiator":null,
                      "zaaktypeOmschrijving":"${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
                      "firstName":"Name",
-                     "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
-                     "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
+                     "AM_TeamBehandelaar_Groep": "${GROUP_COORDINATORS_TEST_1.name}",
+                     "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_1.username}",
                      "SD_SmartDocuments_Template": "OpenZaakTest",
                      "SD_SmartDocuments_Create": false,
                      "RT_ReferenceTable_Values": "Post",
@@ -115,7 +115,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                      "ZK_Status": "Afgerond"
                    }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("process task is completed") {
@@ -125,7 +125,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
 
             And("the zaak is still open and without result") {
-                zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_DOMAIN_TEST_1).let { response ->
+                zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HttpURLConnection.HTTP_OK
@@ -141,7 +141,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = ItestConfiguration.BPMN_TEST_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
@@ -152,7 +152,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = ItestConfiguration.BPMN_SUMMARY_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
@@ -168,8 +168,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "initiator":null,
                         "zaaktypeOmschrijving":"$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
                         "firstName":"Name",
-                        "AM_TeamBehandelaar_Groep": "${COORDINATORS_DOMAIN_TEST_1.name}",
-                        "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_DOMAIN_TEST_1.username}",
+                        "AM_TeamBehandelaar_Groep": "${GROUP_COORDINATORS_TEST_1.name}",
+                        "AM_TeamBehandelaar_Medewerker": "${COORDINATOR_1.username}",
                         "SD_SmartDocuments_Template": "OpenZaakTest",
                         "SD_SmartDocuments_Create": false,
                         "RT_ReferenceTable_Values": "Post",
@@ -178,7 +178,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "TF_EMAIL_TO": "test-2@example.com"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("process task should be completed") {
@@ -188,7 +188,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
 
             And("the zaak is closed and with result") {
-                zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_DOMAIN_TEST_1).let { response ->
+                zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HttpURLConnection.HTTP_OK
@@ -202,7 +202,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             And("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "${ItestConfiguration.GREENMAIL_API_URI}/user/test-2@example.com/messages/",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 receivedMailsResponse.code shouldBe HttpURLConnection.HTTP_OK
 
@@ -220,7 +220,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = ItestConfiguration.BPMN_SUMMARY_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
@@ -232,10 +232,10 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         var bpmnZaakUuid: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -255,7 +255,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "zaakbeeindigRedenId": "ZAAK_NIET_ONTVANKELIJK"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be a 204 HTTP response") {
                 val responseBody = response.bodyAsString

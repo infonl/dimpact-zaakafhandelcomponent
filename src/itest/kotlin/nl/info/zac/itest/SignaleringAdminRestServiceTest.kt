@@ -13,8 +13,8 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
@@ -53,7 +53,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 "application/json"
             ),
             requestBodyAsString = """{ "mail": true, "subjecttype": "TAAK", "type": "TAAK_VERLOPEN" }""",
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         response.code shouldBe HTTP_OK
 
@@ -61,11 +61,11 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         lateinit var zaakIdentification: String
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             JSONObject(bodyAsString).run {
                 zaakIdentification = getString("identificatie")
@@ -75,7 +75,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
         val getHumanTaskPlanItemsResponse = itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems",
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         val getHumanTaskPlanItemsResponseBody = getHumanTaskPlanItemsResponse.bodyAsString
         logger.info { "Response: $getHumanTaskPlanItemsResponseBody" }
@@ -94,17 +94,17 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                     "fataledatum": "$fataleDatum",
                     "taakStuurGegevens": { "sendMail": false },
                     "medewerker": {
-                        "id": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
-                        "naam": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
+                        "id": "${BEHANDELAAR_1.username}",
+                        "naam": "${BEHANDELAAR_1.displayName}"
                     },
                     "groep": {
-                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                        "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                     },
                     "taakdata":{}
                 }
             """.trimIndent(),
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
 
         val doHumanTaskPlanItemResponseBody = doHumanTaskPlanItemResponse.bodyAsString
@@ -130,8 +130,8 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 lateinit var receivedMails: JSONArray
                 eventually(5.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_DOMAIN_TEST_1.email}/messages/",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        url = "$GREENMAIL_API_URI/user/${BEHANDELAAR_1.email}/messages/",
+                        testUser = BEHANDELAAR_1
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
                     receivedMails = JSONArray(receivedMailsResponse.bodyAsString)

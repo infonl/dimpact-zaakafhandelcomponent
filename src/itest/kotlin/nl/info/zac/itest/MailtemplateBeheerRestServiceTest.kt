@@ -8,8 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
@@ -65,7 +65,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         When("mail template list is fetched") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/beheer/mailtemplates",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             lateinit var responseBody: String
 
@@ -151,7 +151,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         When("mail template koppeling list is fetched") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             lateinit var responseBody: String
 
@@ -206,7 +206,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -274,8 +274,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "domein": "domein_test_1",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -343,7 +342,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],

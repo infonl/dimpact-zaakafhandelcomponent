@@ -12,30 +12,15 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.authentication.createLoggedInUser
 
 class UserInputTest : BehaviorSpec({
+    Given("A zaaktype and a user with application roles for that zaaktype") {
+        val zaaktype = "fakeZaaktype"
+        val rolesForZaaktype = setOf("fakeRole1", "fakeRole2")
+        val user = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(zaaktype to rolesForZaaktype)
+        )
 
-    Given("PABC is disabled") {
-
-        When("a logged-in user is provided") {
-            val user = createLoggedInUser()
-            val input = UserInput(user)
-
-            Then("rollen contains the user's token roles and zaaktypen contains the user's authorised zaaktypen") {
-                input.user.id shouldBeEqual user.id
-                input.user.rollen shouldBeEqual user.roles
-                input.user.zaaktypen!! shouldBeEqual user.geautoriseerdeZaaktypen!!
-            }
-        }
-    }
-
-    Given("PABC is enabled") {
-
-        When("a zaaktype is provided and the user has application roles for that zaaktype") {
-            val zaaktype = "fakeZaaktype"
-            val rolesForZaaktype = setOf("fakeRole1", "fakeRole2")
-            val user = createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf(zaaktype to rolesForZaaktype)
-            )
-            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+        When("the user input is created") {
+            val input = UserInput(user, zaaktype = zaaktype)
 
             Then("rollen contains the application roles for that zaaktype and zaaktypen contains only that zaaktype") {
                 input.user.rollen shouldBeEqual rolesForZaaktype
@@ -48,7 +33,7 @@ class UserInputTest : BehaviorSpec({
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("otherZaaktype" to setOf("fakeRole1"))
             )
-            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+            val input = UserInput(user, zaaktype = zaaktype)
 
             Then("rollen is empty and zaaktypen contains only that zaaktype") {
                 input.user.rollen shouldBeEqual emptySet()
@@ -63,7 +48,7 @@ class UserInputTest : BehaviorSpec({
                 applicationRolesPerZaaktype = emptyMap(),
                 overallRoles = overallRoles
             )
-            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+            val input = UserInput(user, zaaktype = zaaktype)
 
             Then("rollen contains only the overallRoles and zaaktypen contains only that zaaktype") {
                 input.user.rollen shouldBeEqual overallRoles
@@ -79,7 +64,7 @@ class UserInputTest : BehaviorSpec({
                 applicationRolesPerZaaktype = mapOf(zaaktype to rolesForZaaktype),
                 overallRoles = overallRoles
             )
-            val input = UserInput(user, zaaktype = zaaktype, featureFlagPabcIntegration = true)
+            val input = UserInput(user, zaaktype = zaaktype)
 
             Then("rollen contains both per-zaaktype roles and overallRoles and zaaktypen contains only that zaaktype") {
                 input.user.rollen shouldContainExactlyInAnyOrder (rolesForZaaktype + overallRoles).toList()
@@ -98,7 +83,7 @@ class UserInputTest : BehaviorSpec({
                 ),
                 overallRoles = overallRoles
             )
-            val input = UserInput(user, zaaktype = null, featureFlagPabcIntegration = true)
+            val input = UserInput(user, zaaktype = null)
 
             Then("rollen contains all per-zaaktype roles deduplicated plus overallRoles and zaaktypen is null") {
                 input.user.rollen shouldContainExactlyInAnyOrder
@@ -113,7 +98,7 @@ class UserInputTest : BehaviorSpec({
                 applicationRolesPerZaaktype = emptyMap(),
                 overallRoles = overallRoles
             )
-            val input = UserInput(user, zaaktype = null, featureFlagPabcIntegration = true)
+            val input = UserInput(user, zaaktype = null)
 
             Then("rollen contains only the overallRoles and zaaktypen is null") {
                 input.user.rollen shouldBeEqual overallRoles

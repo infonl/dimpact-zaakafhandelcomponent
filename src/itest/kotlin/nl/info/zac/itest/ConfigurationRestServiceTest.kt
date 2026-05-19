@@ -12,9 +12,8 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
-import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -26,7 +25,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the languages are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("the available languages are returned") {
@@ -77,7 +76,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the default language is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/talen/default",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("the default language is returned") {
@@ -98,7 +97,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the max upload file size is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/max-file-size-mb",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("the max upload file size is returned") {
@@ -109,7 +108,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the additional file types are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/additional-allowed-file-types",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("no additional file types are returned because ZAC does not provide any by default") {
@@ -124,7 +123,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the council name is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/gemeente",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("the council name is returned") {
@@ -137,7 +136,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         When("the council code is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/gemeente/code",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then("the council code is returned") {
@@ -147,23 +146,11 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 responseBody shouldEqualJson "\"$CONFIG_GEMEENTE_CODE\""
             }
         }
-        When("the feature flag 'PABC integration' is retrieved") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/feature-flags/pabc-integration",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
-            )
 
-            Then("'true' is returned if the PABC integration flag is enabled, 'false' otherwise") {
-                response.code shouldBe HTTP_OK
-                val responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson if (FEATURE_FLAG_PABC_INTEGRATION) "true" else "false"
-            }
-        }
         When("the 'is BRP doelbinding setup enabled' endpoint is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/configuratie/brp/doelbinding-setup-enabled",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             Then(
