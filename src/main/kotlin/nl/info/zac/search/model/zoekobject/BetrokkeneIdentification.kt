@@ -11,48 +11,49 @@ import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 enum class BetrokkeneIdentificationType(val prefix: String) {
     USER("U"),
     PERSON("P"),
-    KVK("K"),
+    KVK_INSCHRIJVING("K"),
     KVK_VESTIGING("V")
 }
 
 data class BetrokkeneIdentification(
     val type: BetrokkeneIdentificationType,
     val identification: String
-) {
-    companion object {
-        fun buildPerson(bsn: String) =
-            BetrokkeneIdentification(
-                type = BetrokkeneIdentificationType.PERSON,
-                identification = bsn,
-            )
-        fun buildKvk(kvkNummer: String) =
-            BetrokkeneIdentification(
-                type = BetrokkeneIdentificationType.KVK,
-                identification = kvkNummer,
-            )
-        fun buildKvkVestiging(kvkNummer: String, vestigingsnummer: String) =
-            BetrokkeneIdentification(
-                type = BetrokkeneIdentificationType.KVK_VESTIGING,
-                identification = "$kvkNummer-$vestigingsnummer",
-            )
-        fun buildUser(username: String) =
-            BetrokkeneIdentification(
-                type = BetrokkeneIdentificationType.USER,
-                identification = username,
-            )
-    }
-}
+)
 
-fun BetrokkeneIdentification.toSolr() =
+private fun buildPerson(bsn: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.PERSON,
+        identification = bsn,
+    )
+
+private fun buildKvkInschrijving(kvkNummer: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.KVK_INSCHRIJVING,
+        identification = kvkNummer,
+    )
+
+private fun buildKvkVestiging(kvkNummer: String, vestigingsnummer: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.KVK_VESTIGING,
+        identification = "$kvkNummer-$vestigingsnummer",
+    )
+
+private fun buildUser(username: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.USER,
+        identification = username,
+    )
+
+fun BetrokkeneIdentification.toSolrFormatting() =
     "${this.type.prefix}-${this.identification}"
 
 fun Rol<*>.toBetrokkeneIdentification(): BetrokkeneIdentification? = when (this) {
     is RolNatuurlijkPersoon -> identificatienummer?.let {
-        BetrokkeneIdentification.buildPerson(it)
+        buildPerson(it)
     }
     is RolNietNatuurlijkPersoon -> toNietNatuurlijkPersoonIdentification()
     else -> identificatienummer?.let {
-        BetrokkeneIdentification.buildUser(it)
+        buildUser(it)
     }
 }
 
@@ -62,8 +63,8 @@ private fun RolNietNatuurlijkPersoon.toNietNatuurlijkPersoonIdentification(): Be
     return nietNatuurlijkPersoonIdentificatie.kvkNummer?.let { kvkNummer ->
         when {
             vestigingsnummer != null &&
-                vestigingsnummer.isNotBlank() -> BetrokkeneIdentification.buildKvkVestiging(kvkNummer, vestigingsnummer)
-            else -> BetrokkeneIdentification.buildKvk(kvkNummer)
+                vestigingsnummer.isNotBlank() -> buildKvkVestiging(kvkNummer, vestigingsnummer)
+            else -> buildKvkInschrijving(kvkNummer)
         }
     }
 }

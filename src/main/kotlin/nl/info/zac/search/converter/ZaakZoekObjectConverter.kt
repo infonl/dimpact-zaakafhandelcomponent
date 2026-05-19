@@ -27,7 +27,7 @@ import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.search.model.zoekobject.toBetrokkeneIdentification
-import nl.info.zac.search.model.zoekobject.toSolr
+import nl.info.zac.search.model.zoekobject.toSolrFormatting
 import java.util.UUID
 
 class ZaakZoekObjectConverter @Inject constructor(
@@ -125,7 +125,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             role.toBetrokkeneIdentification()?.run {
                 zaakZoekObject.addBetrokkene(
                     rol = role.omschrijving,
-                    identificatie = this.toSolr()
+                    identificatie = this.toSolrFormatting()
                 )
             }
         }

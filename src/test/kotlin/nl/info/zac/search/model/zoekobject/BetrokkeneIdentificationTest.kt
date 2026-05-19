@@ -16,70 +16,6 @@ import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 
 class BetrokkeneIdentificationTest : BehaviorSpec({
 
-    Given("a person BSN") {
-
-        When("building a person identification") {
-            val result = BetrokkeneIdentification.buildPerson("123456789")
-
-            Then("it should create a PERSON identification") {
-                result.type shouldBe BetrokkeneIdentificationType.PERSON
-                result.identification shouldBe "123456789"
-            }
-        }
-    }
-
-    Given("a kvk number") {
-
-        When("building a kvk identification") {
-            val result = BetrokkeneIdentification.buildKvk("12345678")
-
-            Then("it should create a KVK identification") {
-                result.type shouldBe BetrokkeneIdentificationType.KVK
-                result.identification shouldBe "12345678"
-            }
-        }
-    }
-
-    Given("a kvk number and vestigingsnummer") {
-
-        When("building a kvk vestiging identification") {
-            val result = BetrokkeneIdentification.buildKvkVestiging(
-                kvkNummer = "12345678",
-                vestigingsnummer = "000012345678"
-            )
-
-            Then("it should create a KVK_VESTIGING identification") {
-                result.type shouldBe BetrokkeneIdentificationType.KVK_VESTIGING
-                result.identification shouldBe "12345678-000012345678"
-            }
-        }
-    }
-
-    Given("a username") {
-
-        When("building a user identification") {
-            val result = BetrokkeneIdentification.buildUser("john.doe")
-
-            Then("it should create a USER identification") {
-                result.type shouldBe BetrokkeneIdentificationType.USER
-                result.identification shouldBe "john.doe"
-            }
-        }
-    }
-
-    Given("a betrokkene identification") {
-
-        When("converting to solr format") {
-            val result = BetrokkeneIdentification
-                .buildPerson("123456789")
-                .toSolr()
-
-            Then("it should return the prefixed value") {
-                result shouldBe "P-123456789"
-            }
-        }
-    }
-
     Given("a RolNatuurlijkPersoon with identificatienummer") {
 
         val rol = mockk<RolNatuurlijkPersoon>()
@@ -148,7 +84,7 @@ class BetrokkeneIdentificationTest : BehaviorSpec({
 
             Then("it should return a KVK identification") {
                 result shouldBe BetrokkeneIdentification(
-                    type = BetrokkeneIdentificationType.KVK,
+                    type = BetrokkeneIdentificationType.KVK_INSCHRIJVING,
                     identification = "12345678"
                 )
             }
@@ -169,7 +105,7 @@ class BetrokkeneIdentificationTest : BehaviorSpec({
 
             Then("it should return a KVK identification") {
                 result shouldBe BetrokkeneIdentification(
-                    type = BetrokkeneIdentificationType.KVK,
+                    type = BetrokkeneIdentificationType.KVK_INSCHRIJVING,
                     identification = "12345678"
                 )
             }
