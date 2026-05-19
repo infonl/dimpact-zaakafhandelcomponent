@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterResultaat
@@ -39,8 +38,7 @@ import java.time.format.DateTimeFormatter.ISO_INSTANT
 @AllOpen
 @NoArgConstructor
 class SearchService @Inject constructor(
-    private val loggedInUserInstance: Instance<LoggedInUser>,
-    private val configurationService: ConfigurationService
+    private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         private lateinit var solrClient: SolrClient
@@ -174,27 +172,14 @@ class SearchService @Inject constructor(
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
         // signaleringen job does not have a logged-in user so check if logged-in user is present
         loggedInUserInstance.get()?.let { loggedInUser ->
-            if (configurationService.featureFlagPabcIntegration()) {
-                // PABC enabled: build the filterQuery from per‑zaaktype mappings (keys)
-                val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
-                val filterQuery = if (allowedZaaktypen.isEmpty()) {
-                    "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
-                } else {
-                    allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
-                }
-                query.addFilterQuery(filterQuery)
+            // build the filterQuery from per‑zaaktype mappings (keys)
+            val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
+            val filterQuery = if (allowedZaaktypen.isEmpty()) {
+                "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
             } else {
-                if (!loggedInUser.isAuthorisedForAllZaaktypen()) {
-                    val filterQuery = if (loggedInUser.geautoriseerdeZaaktypen.isNullOrEmpty()) {
-                        "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
-                    } else {
-                        loggedInUser.geautoriseerdeZaaktypen.joinToString(" OR ") {
-                            "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}"
-                        }
-                    }
-                    query.addFilterQuery(filterQuery)
-                }
+                allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
             }
+            query.addFilterQuery(filterQuery)
         }
     }
 }

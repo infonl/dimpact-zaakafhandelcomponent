@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -79,13 +79,13 @@ class CsvRestServiceTest : BehaviorSpec({
                 zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
                 indexZaak = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak2Description",
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
 
             When(
@@ -112,7 +112,7 @@ class CsvRestServiceTest : BehaviorSpec({
                             "sorteerRichting": "asc"
                          }
                     """.trimIndent(),
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                    testUser = BEHEERDER_1
                 )
 
                 Then(

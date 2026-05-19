@@ -11,11 +11,8 @@ data class DocumentInput(
     val loggedInUser: LoggedInUser,
 
     @field:JsonbProperty("document")
-    val documentData: DocumentData,
-
-    val featureFlagPabcIntegration: Boolean
+    val documentData: DocumentData
 ) : UserInput(
     loggedInUser = loggedInUser,
-    zaaktype = documentData.zaaktype,
-    featureFlagPabcIntegration = featureFlagPabcIntegration
+    zaaktype = documentData.zaaktype
 )

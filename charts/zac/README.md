@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.240](https://img.shields.io/badge/Version-1.0.240-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
+![Version: 1.0.241](https://img.shields.io/badge/Version-1.0.241-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -74,7 +74,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |

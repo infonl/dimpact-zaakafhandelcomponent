@@ -12,8 +12,8 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -51,11 +51,11 @@ class WebDavServletTest : BehaviorSpec({
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -111,7 +111,7 @@ class WebDavServletTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = requestBody,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
@@ -127,7 +127,7 @@ class WebDavServletTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +
                     "?zaak=$zaakUUID",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 """

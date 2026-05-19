@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONObject
@@ -83,7 +83,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
 
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -105,7 +105,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
             When("the get betrokkene endpoint is called for the BPMN zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagUuid/betrokkene",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {

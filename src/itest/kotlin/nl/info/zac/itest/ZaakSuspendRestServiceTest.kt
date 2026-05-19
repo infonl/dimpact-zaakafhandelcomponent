@@ -12,8 +12,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -33,10 +33,10 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
         lateinit var zaakUuid: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -56,7 +56,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                         "numberOfDays": $suspensionDays
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be OK and the returned zaak should indicate suspension") {
                 val responseBody = suspendResponse.bodyAsString
@@ -69,7 +69,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             When("the suspension details of the zaak are read") {
                 val readResponse = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be OK and return the suspension details") {
                     val responseBody = readResponse.bodyAsString
@@ -89,7 +89,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                             "reason": "$resumeReason"
                         }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be OK and the returned zaak should not indicate suspension") {
                     val responseBody = resumeResponse.bodyAsString
@@ -102,7 +102,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                 When("the suspension details of the resumed zaak are read") {
                     val readAfterResumeResponse = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     Then("the response should be OK and return no suspension date and zero days") {
                         val responseBody = readAfterResumeResponse.bodyAsString

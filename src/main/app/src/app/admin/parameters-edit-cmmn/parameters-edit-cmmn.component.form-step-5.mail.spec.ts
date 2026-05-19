@@ -75,7 +75,6 @@ describe("Mailgegevens form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };

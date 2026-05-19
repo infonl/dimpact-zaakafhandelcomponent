@@ -100,18 +100,6 @@ export class ConfiguratieService {
     return this.gemeenteNaam$;
   }
 
-  readFeatureFlagPabcIntegration(): Observable<boolean> {
-    if (!this.pabcIntegration$) {
-      this.pabcIntegration$ = this.http
-        .get<boolean>(`${this.basepath}/feature-flags/pabc-integration`)
-        .pipe(
-          catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
-          shareReplay(1),
-        );
-    }
-    return this.pabcIntegration$;
-  }
-
   readBrpDoelbindingSetupEnabled(): Observable<boolean> {
     if (!this.brpDoelbindingSetupEnabled$) {
       this.brpDoelbindingSetupEnabled$ = this.http

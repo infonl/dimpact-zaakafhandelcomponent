@@ -13,11 +13,11 @@ import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
@@ -46,7 +46,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
             val (_, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             val (enkelvoudiginformatieobjectUuid, enkelvoudiginformatieobjectIdentification) =
                 documentHelper.uploadDocumentToZaak(
@@ -54,14 +54,14 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     documentTitle = documentTitle,
                     authorName = documentAuthorName,
                     fileName = TEST_PDF_FILE_NAME,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
             When("informatieobjecten history is requested") {
                 val today = LocalDate.now()
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the expected history records are returned") {
@@ -74,7 +74,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                               "actie" : "GEKOPPELD",
                               "applicatie" : "ZAC",
                               "attribuutLabel" : "indicatieGebruiksrecht",
-                              "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                              "door" : "${BEHANDELAAR_1.displayName}",
                               "nieuweWaarde" : "geen",
                               "toelichting" : ""
                             }, 
@@ -82,7 +82,7 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                               "actie" : "GEKOPPELD",
                               "applicatie" : "ZAC",
                               "attribuutLabel" : "informatieobject",
-                              "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                              "door" : "${BEHANDELAAR_1.displayName}",
                               "nieuweWaarde" : "$enkelvoudiginformatieobjectIdentification",
                               "toelichting" : ""
                             } 

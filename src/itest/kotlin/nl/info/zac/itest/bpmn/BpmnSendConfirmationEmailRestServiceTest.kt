@@ -25,7 +25,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
@@ -81,7 +81,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
 
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 ).let { getZaakResponse ->
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }

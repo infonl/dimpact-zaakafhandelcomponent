@@ -8,7 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -39,7 +39,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
                 requestBodyAsString = SMART_DOCUMENTS_TEMPLATE_MAPPINGS,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val storeBody = storeResponse.bodyAsString
             logger.info { "Response: $storeBody" }
@@ -48,7 +48,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             And("then the mapping is fetched back") {
                 val fetchResponse = itestHttpClient.performGetRequest(
                     url = smartDocumentsZaakafhandelParametersUrl,
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                    testUser = BEHEERDER_1
                 )
 
                 Then("the data is fetched correctly") {
@@ -96,7 +96,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             val storeResponse = itestHttpClient.performJSONPostRequest(
                 url = smartDocumentsZaakafhandelParametersUrl,
                 requestBodyAsString = restTemplateGroups,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
 
             Then("the request errors") {

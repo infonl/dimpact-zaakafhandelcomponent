@@ -10,8 +10,8 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_MANAGEMENT_URI
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
@@ -187,7 +187,7 @@ class AppContainerTest : BehaviorSpec({
         When("/admin is requested for a user who has the 'beheerder' role") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response should be ok") {
                 response.code shouldBe HTTP_OK
@@ -196,7 +196,7 @@ class AppContainerTest : BehaviorSpec({
         When("/admin is requested for a user who does not have the 'beheerder' role") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
