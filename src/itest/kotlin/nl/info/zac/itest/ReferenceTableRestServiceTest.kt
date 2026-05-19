@@ -23,8 +23,6 @@ import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKIN
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME
-import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_CODE
-import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_DOMEIN_NAME
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE
 import nl.info.zac.itest.config.ItestConfiguration.REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -97,13 +95,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
                                 "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
                                 "systeem": true
-                            },
-                            {
-                                "aantalWaarden": 0,
-                                "code": "$REFERENCE_TABLE_DOMEIN_CODE", 
-                                "naam": "$REFERENCE_TABLE_DOMEIN_NAME", 
-                                "systeem": true
-                            },
+                            },                
                             {
                                 "aantalWaarden": 0,
                                 "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 

@@ -96,7 +96,6 @@ fun createReferenceTableValue(
 fun createZaaktypeCmmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String? = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
@@ -147,7 +146,6 @@ fun createZaaktypeCmmnConfiguration(
 fun createZaaktypeBpmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String? = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,

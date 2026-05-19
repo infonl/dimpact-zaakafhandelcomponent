@@ -63,10 +63,6 @@ export class ReferentieTabelService {
     );
   }
 
-  listDomeinen() {
-    return this.zacHttpClient.GET("/rest/referentietabellen/domein");
-  }
-
   listServerErrorTexts() {
     return this.zacHttpClient.GET("/rest/referentietabellen/server-error-text");
   }
