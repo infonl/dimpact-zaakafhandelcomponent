@@ -4,6 +4,7 @@
  */
 
 import { Component } from "@angular/core";
+import { finalize } from "rxjs/operators";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
@@ -48,8 +49,12 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad() {
-    this.zakenService.listZaakWaarschuwingen().subscribe((zaken) => {
-      this.dataSource.data = zaken;
-    });
+    this.isLoading.set(true);
+    this.zakenService
+      .listZaakWaarschuwingen()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe((zaken) => {
+        this.dataSource.data = zaken;
+      });
   }
 }

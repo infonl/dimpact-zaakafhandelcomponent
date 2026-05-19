@@ -72,6 +72,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
   ) {
     super(identityService, websocketService);
     effect(() => {
+      this.isLoading.set(this.zoekQuery.isLoading());
       this.dataSource.data = this.zoekQuery.data()?.resultaten ?? [];
     });
   }

@@ -23,6 +23,7 @@ import {
 } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { finalize } from "rxjs/operators";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -87,8 +88,10 @@ export class TakenCardComponent extends DashboardCardComponent<
       this.dataSource.data = [];
       return;
     }
+    this.isLoading.set(true);
     this.signaleringenService
       .listTakenSignalering(signaleringType)
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((taken) => {
         this.dataSource.data = taken;
       });

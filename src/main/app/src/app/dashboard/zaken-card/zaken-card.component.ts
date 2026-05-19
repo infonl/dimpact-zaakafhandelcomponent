@@ -86,6 +86,7 @@ export class ZakenCardComponent
     super(identityService, websocketService);
 
     effect(() => {
+      this.isLoading.set(this.zakenQuery.isLoading());
       this.dataSource.data = this.zakenQuery.data()?.resultaten ?? [];
     });
   }

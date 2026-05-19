@@ -27,6 +27,7 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersv
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
+import { DashboardCardComponent } from "./dashboard-card/dashboard-card.component";
 import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardType } from "./model/dashboard-card-type";
@@ -40,6 +41,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @ViewChildren("cardElement", { read: ElementRef })
   cardElements!: QueryList<ElementRef<HTMLElement>>;
+
+  @ViewChildren(DashboardCardComponent)
+  cardComponents!: QueryList<DashboardCardComponent>;
 
   private resizeObserver?: ResizeObserver;
   private cardElementsChangesSub?: Subscription;
@@ -163,6 +167,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private syncRowHeights() {
     if (!this.cardElements) return;
+
+    // Check if any card is currently loading
+    if (this.cardComponents?.some((c) => c.isLoading())) {
+      return;
+    }
+
     const elements = this.cardElements.toArray().map((r) => r.nativeElement);
 
     if (this.isStackedLayout()) {
