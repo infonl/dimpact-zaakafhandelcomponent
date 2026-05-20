@@ -210,7 +210,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID!!)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
@@ -359,7 +359,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID!!)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {

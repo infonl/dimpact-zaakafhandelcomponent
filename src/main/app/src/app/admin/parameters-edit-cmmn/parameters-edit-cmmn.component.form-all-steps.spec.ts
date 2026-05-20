@@ -147,7 +147,6 @@ describe(ParametersEditCmmnComponent.name, () => {
     jest
       .spyOn(referentieTabelService, "listReferentieTabellen")
       .mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listAfzenders")
       .mockReturnValue(of(["test@example.com", "other@example.com"]));
