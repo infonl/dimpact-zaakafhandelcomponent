@@ -94,9 +94,6 @@ describe(TaakZoekenCardComponent.name, () => {
     fixture.componentInstance.data = cardData;
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
-    // Stop the timed reload interval so harnesses (which await whenStable)
-    // don't hang on a never-completing observable.
-    fixture.componentInstance["reloader"]?.unsubscribe();
   }
 
   it("renders paginator length from the query result total even when one page of rows is loaded", async () => {

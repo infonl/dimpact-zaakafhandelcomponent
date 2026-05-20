@@ -63,6 +63,7 @@ export class TaakZoekenCardComponent extends DashboardCardComponent {
     queryKey: ["taak zoeken dashboard", this.zoekParameters()],
     queryFn: () =>
       firstValueFrom(this.zoekenService.list(this.zoekParameters())),
+    refetchInterval: 60 * 1000,
   }));
 
   constructor(

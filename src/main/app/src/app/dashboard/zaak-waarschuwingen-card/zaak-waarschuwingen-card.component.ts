@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, effect } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
@@ -32,12 +34,20 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
     "url",
   ] as const;
 
+  zakenQuery = injectQuery(() => ({
+    queryKey: ["zaak waarschuwingen dashboard"],
+    queryFn: () => firstValueFrom(this.zakenService.listZaakWaarschuwingen()),
+  }));
+
   constructor(
     private zakenService: ZakenService,
     protected identityService: IdentityService,
     protected websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
+    effect(() => {
+      this.dataSource.data = this.zakenQuery.data() ?? [];
+    });
   }
 
   isAfterDate(
@@ -48,8 +58,6 @@ export class ZaakWaarschuwingenCardComponent extends DashboardCardComponent<
   }
 
   protected onLoad() {
-    this.zakenService.listZaakWaarschuwingen().subscribe((zaken) => {
-      this.dataSource.data = zaken;
-    });
+    this.zakenQuery.refetch();
   }
 }

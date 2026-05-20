@@ -11,6 +11,7 @@ import {
 import {
   AfterViewInit,
   Component,
+  effect,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -20,6 +21,7 @@ import {
 } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatMenuTrigger } from "@angular/material/menu";
+import { injectIsFetching } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin, Subscription } from "rxjs";
 import { UtilService } from "../core/service/util.service";
@@ -40,6 +42,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @ViewChildren("cardElement", { read: ElementRef })
   cardElements!: QueryList<ElementRef<HTMLElement>>;
+
+  private readonly fetchingCount = injectIsFetching();
 
   private resizeObserver?: ResizeObserver;
   private cardElementsChangesSub?: Subscription;
@@ -96,7 +100,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly utilService: UtilService,
     private readonly signaleringenService: SignaleringenService,
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
-  ) {}
+  ) {
+    effect(() => {
+      if (this.fetchingCount() === 0) {
+        this.scheduleRowSync();
+      }
+    });
+  }
 
   ngOnInit() {
     this.utilService.setTitle("title.dashboard");
@@ -163,6 +173,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private syncRowHeights() {
     if (!this.cardElements) return;
+
+    // Suppress row height synchronization while global loading is active.
+    // This prevents the layout from prematurely measuring empty cards and jumping once data populates.
+    if (this.fetchingCount() > 0) {
+      return;
+    }
+
     const elements = this.cardElements.toArray().map((r) => r.nativeElement);
 
     if (this.isStackedLayout()) {

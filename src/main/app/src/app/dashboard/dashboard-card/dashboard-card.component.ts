@@ -16,7 +16,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { interval, Observable, Subject, Subscription } from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
@@ -37,8 +37,6 @@ export abstract class DashboardCardComponent<
   >
   implements OnInit, AfterViewInit, OnDestroy
 {
-  private readonly RELOAD_INTERVAL: number = 60; // 1 min.
-
   @Input({ required: true }) data!: DashboardCard;
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
@@ -71,14 +69,10 @@ export abstract class DashboardCardComponent<
       if (this.sort) this.dataSource.sort = this.sort;
     }
 
-    if (this.reload == null) {
-      if (this.data.signaleringType != null) {
-        this.reload = this.refreshOnSignalering(this.data.signaleringType);
-      } else {
-        this.reload = this.refreshTimed(this.RELOAD_INTERVAL);
-      }
+    if (this.reload == null && this.data.signaleringType != null) {
+      this.reload = this.refreshOnSignalering(this.data.signaleringType);
     }
-    this.reloader = this.reload.subscribe(() => {
+    this.reloader = this.reload?.subscribe(() => {
       this.onLoad();
     });
   }
@@ -88,10 +82,6 @@ export abstract class DashboardCardComponent<
   }
 
   protected abstract onLoad(): void;
-
-  protected refreshTimed(seconds: number) {
-    return interval(seconds * 1000);
-  }
 
   protected refreshOnSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],
