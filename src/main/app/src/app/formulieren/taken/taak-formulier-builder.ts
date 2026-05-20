@@ -19,7 +19,7 @@ export class TaakFormulierBuilder {
     planItem: GeneratedType<"RESTPlanItem">,
     zaak: GeneratedType<"RestZaak">,
   ): TaakFormulierBuilder {
-    this._formulier.tabellen = planItem.tabellen;
+    this._formulier.tabellen = planItem.tabellen ?? {};
     this._formulier.zaak = zaak;
     this._formulier.taakNaam = planItem.naam;
     this._formulier.humanTaskData = {
