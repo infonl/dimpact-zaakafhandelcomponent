@@ -10,8 +10,6 @@ import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 
 class GroupTest : BehaviorSpec({
-    val fakeKeycloakClientId = "fakeKeycloakClientId"
-
     Context("Mapping a Keycloak GroupRepresentation to a Group") {
         Given("a group representation with no 'active' attribute") {
             val groupRepresentation = createGroupRepresentation(
@@ -19,7 +17,7 @@ class GroupTest : BehaviorSpec({
             )
 
             When("it is mapped to a Group") {
-                val group = groupRepresentation.toGroup(keycloakClientId = fakeKeycloakClientId)
+                val group = groupRepresentation.toGroup()
 
                 Then("the group is active") {
                     group.active shouldBe true
@@ -33,7 +31,7 @@ class GroupTest : BehaviorSpec({
             )
 
             When("it is mapped to a Group") {
-                val group = groupRepresentation.toGroup(keycloakClientId = fakeKeycloakClientId)
+                val group = groupRepresentation.toGroup()
 
                 Then("the group is active") {
                     group.active shouldBe true
@@ -47,7 +45,7 @@ class GroupTest : BehaviorSpec({
             )
 
             When("it is mapped to a Group") {
-                val group = groupRepresentation.toGroup(keycloakClientId = fakeKeycloakClientId)
+                val group = groupRepresentation.toGroup()
 
                 Then("the group is inactive") {
                     group.active shouldBe false

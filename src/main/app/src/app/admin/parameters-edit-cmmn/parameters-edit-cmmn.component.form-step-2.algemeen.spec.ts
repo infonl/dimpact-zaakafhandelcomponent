@@ -75,7 +75,6 @@ describe("Algemeen form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };
@@ -127,7 +126,6 @@ describe("Algemeen form step", () => {
     jest
       .spyOn(referentieTabelService, "listReferentieTabellen")
       .mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listAfzenders")
       .mockReturnValue(of(["test@example.com", "other@example.com"]));
@@ -186,7 +184,6 @@ describe("Algemeen form step", () => {
         key: "case-1",
         naam: "Case Definition 1",
       }),
-      domein: "test-domein",
       defaultGroep: { id: "test-group-id", naam: "test-group" },
       defaultBehandelaar: { id: "test-user-id", naam: "test-user" },
       einddatumGeplandWaarschuwing: 5,

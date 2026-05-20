@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component } from "@angular/core";
+import { Component, computed, effect } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -25,10 +27,25 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
   columns = [
     "titel",
     "registratiedatumTijd",
-    "informatieobjectType",
+    "informatieobjectTypeOmschrijving",
     "auteur",
     "url",
   ] as const;
+
+  parameters = computed(() => ({
+    signaleringType: this.data?.signaleringType,
+  }));
+
+  ioQuery = injectQuery(() => ({
+    queryKey: ["informatieobjecten signaleringen dashboard", this.parameters()],
+    enabled: !!this.parameters().signaleringType,
+    queryFn: () =>
+      firstValueFrom(
+        this.signaleringenService.listInformatieobjectenSignalering(
+          this.parameters().signaleringType!,
+        ),
+      ),
+  }));
 
   constructor(
     private signaleringenService: SignaleringenService,
@@ -36,18 +53,17 @@ export class InformatieobjectenCardComponent extends DashboardCardComponent<
     protected websocketService: WebsocketService,
   ) {
     super(identityService, websocketService);
+
+    effect(() => {
+      this.dataSource.data = this.ioQuery.data() ?? [];
+    });
   }
 
   protected onLoad(): void {
-    const signaleringType = this.data.signaleringType;
-    if (!signaleringType) {
+    if (!this.data?.signaleringType) {
       this.dataSource.data = [];
       return;
     }
-    this.signaleringenService
-      .listInformatieobjectenSignalering(signaleringType)
-      .subscribe((informatieobjecten) => {
-        this.dataSource.data = informatieobjecten ?? [];
-      });
+    this.ioQuery.refetch();
   }
 }

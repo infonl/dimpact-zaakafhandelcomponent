@@ -17,30 +17,6 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
     val configurationRestService = ConfigurationRestService(configurationService)
 
-    Given("PABC integration is enabled") {
-        every { configurationService.featureFlagPabcIntegration() } returns true
-
-        When("featureFlagPabcIntegration is called") {
-            val result = configurationRestService.featureFlagPabcIntegration()
-
-            Then("it should return true") {
-                result shouldBe true
-            }
-        }
-    }
-
-    Given("PABC integration is disabled") {
-        every { configurationService.featureFlagPabcIntegration() } returns false
-
-        When("featureFlagPabcIntegration is called") {
-            val result = configurationRestService.featureFlagPabcIntegration()
-
-            Then("it should return false") {
-                result shouldBe false
-            }
-        }
-    }
-
     Given("Multiple languages are available") {
         val taal1 = createTaal(1L, "nl", "Nederlands", "Dutch", "nl_NL")
         val taal2 = createTaal(2L, "en", "Engels", "English", "en_US")

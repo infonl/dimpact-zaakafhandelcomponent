@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_1_UUID
@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_INBOX_ONLY
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import okhttp3.Headers
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_CREATED
@@ -82,7 +82,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                                 "type" to PRODUCTAANVRAAG_TYPE_INBOX_ONLY
                             )
                         ).toString(),
-                        testUser = COORDINATOR_DOMAIN_TEST_1
+                        testUser = COORDINATOR_1
                     )
                     logger.info { "List inbox productaanvragen response: ${listResponse.bodyAsString}" }
                     listResponse.code shouldBe HTTP_OK
@@ -141,7 +141,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                         "type" to PRODUCTAANVRAAG_TYPE_INBOX_ONLY
                     )
                 ).toString(),
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
             listResponse.code shouldBe HTTP_OK
             val resultaten = JSONObject(listResponse.bodyAsString).getJSONArray("resultaten")
@@ -155,7 +155,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         When("the inbox productaanvraag is deleted") {
             val deleteResponse = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/inbox-productaanvragen/$inboxProductaanvraagId",
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             )
 
             Then("the delete succeeds and the item no longer appears in the list") {
@@ -169,7 +169,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                             "type" to PRODUCTAANVRAAG_TYPE_INBOX_ONLY
                         )
                     ).toString(),
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 listResponse.code shouldBe HTTP_OK
                 val resultaten = JSONObject(listResponse.bodyAsString).getJSONArray("resultaten")
@@ -192,7 +192,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         When("the pdfPreview endpoint is called for that document") {
             val previewResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/inbox-productaanvragen/$documentUuid/pdfPreview",
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
 
             Then("the response is 200 OK") {

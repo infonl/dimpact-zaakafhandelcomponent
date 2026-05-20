@@ -33,10 +33,6 @@ class ConfigurationRestService @Inject constructor(
     private val configurationService: ConfigurationService
 ) {
     @GET
-    @Path("feature-flags/pabc-integration")
-    fun featureFlagPabcIntegration(): Boolean = configurationService.featureFlagPabcIntegration()
-
-    @GET
     @Path("talen")
     fun listTalen(): List<RestTaal> = configurationService.listTalen().toRestTalen()
 

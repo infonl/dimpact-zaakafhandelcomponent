@@ -15,22 +15,22 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
@@ -72,17 +72,17 @@ class SearchRestServiceTest : BehaviorSpec({
             val aanvullendeInformatieTaskFatalDate = today.plusDays(1)
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
                 zaakDescription = zaakDescription,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
                 zaakUuid = zaakUuid,
                 zaakIdentificatie = zaakIdentification,
                 fatalDate = aanvullendeInformatieTaskFatalDate,
-                group = BEHANDELAARS_DOMAIN_TEST_1,
+                group = GROUP_BEHANDELAARS_TEST_1,
                 waitForTaskToBeIndexed = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             documentHelper.uploadDocumentToZaak(
                 zaakUuid = zaakUuid,
@@ -90,7 +90,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 authorName = documentAuthorName,
                 fileName = TEST_PDF_FILE_NAME,
                 indexDocument = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
 
             When(
@@ -115,7 +115,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "type": "ZAAK"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -134,11 +134,11 @@ class SearchRestServiceTest : BehaviorSpec({
                             "aantalOpenstaandeTaken" : 1,
                             "afgehandeld" : false,
                             "betrokkenen" : {
-                              "Behandelaar" : [ "${BEHANDELAARS_DOMAIN_TEST_1.name}" ]
+                              "Behandelaar" : [ "${GROUP_BEHANDELAARS_TEST_1.name}" ]
                             },
                             "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
-                            "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                            "groepNaam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+                            "groepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
+                            "groepNaam" : "${GROUP_BEHANDELAARS_TEST_1.description}",
                             "id" : "$zaakUuid",
                             "identificatie" : "$zaakIdentification",
                             "indicatieDeelzaak" : false,
@@ -177,14 +177,14 @@ class SearchRestServiceTest : BehaviorSpec({
                             "type" : "ZAAK",
                             "uiterlijkeEinddatumAfdoening" : "$aanvullendeInformatieTaskFatalDate",
                             "vertrouwelijkheidaanduiding" : "OPENBAAR",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                           } ],
                           "totaal" : 1,
                           "filters" : {                            
                             "ZAAKTYPE" : [ 
                               {
                                 "aantal" : 1,
-                                "naam" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                                "naam" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                                } 
                             ],
                             "BEHANDELAAR": [ 
@@ -196,7 +196,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "GROEP" : [ 
                               {
                                 "aantal" : 1,
-                                "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                                "naam" : "${GROUP_BEHANDELAARS_TEST_1.description}"
                               } 
                             ],                           
                             "ZAAK_STATUS" : [ 
@@ -260,7 +260,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "type": "TAAK"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1,
+                    testUser = RAADPLEGER_1,
                 )
                 Then(
                     """
@@ -282,7 +282,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         {
                             "creatiedatum": "$today",
                             "fataledatum": "$aanvullendeInformatieTaskFatalDate",
-                            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+                            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.description}",
                             "naam": "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                             "rechten": {
                                 "lezen": true,
@@ -296,7 +296,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "zaakOmschrijving": "$zaakDescription",
                             "zaakToelichting": "null",
                             "zaakUuid": "$zaakUuid",
-                            "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                            "zaaktypeOmschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         }
                     """.trimIndent()
                 }
@@ -321,7 +321,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "type": "DOCUMENT"
                     }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1,
+                    testUser = RAADPLEGER_1,
                 )
                 Then(
                     """
@@ -364,9 +364,9 @@ class SearchRestServiceTest : BehaviorSpec({
                             "zaakIdentificatie" : "$zaakIdentification",
                             "zaakRelatie" : "Hoort bij, omgekeerd: kent",
                             "zaakUuid" : "$zaakUuid",
-                            "zaaktypeIdentificatie" : "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                            "zaaktypeUuid" : "$ZAAKTYPE_TEST_2_UUID"
+                            "zaaktypeIdentificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                            "zaaktypeUuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID"
                           } ],
                           "totaal" : 1,
                           "filters" : {
@@ -410,15 +410,15 @@ class SearchRestServiceTest : BehaviorSpec({
             val zaak2Description = "${SearchRestServiceTest::class.simpleName}-listzakenforinformationobjecttype2-$now"
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak1Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = zaak2Description,
-                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
                 indexZaak = true,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             When(
                 """
@@ -436,7 +436,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then(
                     """
@@ -459,7 +459,7 @@ class SearchRestServiceTest : BehaviorSpec({
                         "statustypeOmschrijving" : "Intake",
                         "toelichting" : "null",
                         "type" : "ZAAK",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                       } 
                       ],
                       "totaal" : 1,
@@ -485,7 +485,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "$INFORMATIE_OBJECT_TYPE_FACTUUR_UUID"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then(
                     """
@@ -508,7 +508,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "statustypeOmschrijving" : "Intake",
                             "toelichting" : "null",
                             "type" : "ZAAK",
-                            "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                            "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                           } 
                           ],
                           "totaal" : 1,
@@ -534,7 +534,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then(
                     """
@@ -557,7 +557,7 @@ class SearchRestServiceTest : BehaviorSpec({
                                 "statustypeOmschrijving" : "Intake",
                                 "toelichting" : "null",
                                 "type" : "ZAAK",
-                                "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                                "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                             }
                             ],
                             "totaal" : 1,
@@ -582,7 +582,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -623,7 +623,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -666,7 +666,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "informationObjectTypeUuid": "a47b0c7e-1d0d-4c33-918d-160677516f1c"
                         }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(

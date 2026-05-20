@@ -210,7 +210,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID!!)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
@@ -268,7 +268,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             every {
                 policyService.readZaakRechten(zaak, zaakType, loggedInUser)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
-            every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
             every {
                 identificationService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.temporaryPersonId!!)
             } returns bsn
@@ -360,7 +359,7 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         } just runs
         every {
             objectsClientService
-                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID!!)
+                .readObject(restZaakAanmaakGegevens.inboxProductaanvraag!!.productaanvraagObjectUUID)
         } returns objectRegistratieObject
         every { productaanvraagService.getAanvraaggegevens(objectRegistratieObject) } returns formulierData
         every {
@@ -416,7 +415,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             every {
                 policyService.readZaakRechten(zaak, zaakType, loggedInUser)
             } returns createZaakRechtenAllDeny(toevoegenInitiatorPersoon = true)
-            every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
             every {
                 identificationService.replaceKeyWithBsn(restZaakAanmaakGegevens.zaak.initiatorIdentificatie!!.temporaryPersonId!!)
             } returns bsn
@@ -469,7 +467,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
         every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
@@ -493,7 +490,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
         every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {
@@ -517,7 +513,6 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
             zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
         } returns createZaaktypeBpmnConfiguration()
         every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-        every { policyService.isAuthorisedForZaaktype(zaakType.omschrijving) } returns true
         every { loggedInUserInstance.get() } returns createLoggedInUser()
 
         When("zaak creation is attempted") {

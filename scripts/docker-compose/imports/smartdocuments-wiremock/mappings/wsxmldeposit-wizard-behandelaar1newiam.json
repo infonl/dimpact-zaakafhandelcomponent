@@ -40,11 +40,11 @@
               "data": {
                 "gebruiker": {
                   "id": "behandelaar1newiam",
-                  "naam": "Test Behandelaar 1 - new IAM"
+                  "naam": "Test Behandelaar 1"
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "Test group behandelaars domein test 1 - new IAM",
+                  "groep": "Test group behandelaars domein test 1",
                   "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",
@@ -80,14 +80,14 @@
               "data": {
                 "gebruiker": {
                   "id": "behandelaar1newiam",
-                  "naam": "Test Behandelaar 1 - new IAM"
+                  "naam": "Test Behandelaar 1"
                 },
                 "taak": {
                   "naam": "Test"
                 },
                 "zaak": {
                   "communicatiekanaal": "fakeCommunicatiekanaal1",
-                  "groep": "Test group behandelaars domein test 1 - new IAM",
+                  "groep": "Test group behandelaars domein test 1",
                   "identificatie": "${json-unit.any-string}",
                   "omschrijving": "fakeOmschrijving",
                   "registratiedatum": "${json-unit.any-string}",

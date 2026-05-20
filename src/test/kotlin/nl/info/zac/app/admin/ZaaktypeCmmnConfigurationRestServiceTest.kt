@@ -75,59 +75,6 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context(" Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters)") {
-        Given("no productaanvraagtype") {
-            val initialDomein = "initialDomein"
-            val updatedDomein = "updatedDomein"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(domein = initialDomein)
-            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(domein = updatedDomein)
-            val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
-                id = 1234L,
-                domein = initialDomein
-            )
-            val updatedZaakafhandelParameters = createZaaktypeCmmnConfiguration(
-                id = 1234L,
-                domein = updatedDomein
-            )
-            every { policyService.readOverigeRechten().beheren } returns true
-            every {
-                zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
-            } returns zaakafhandelParameters
-            every { zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters) } returns
-                updatedZaakafhandelParameters
-            every {
-                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
-            } just runs
-            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
-            every {
-                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
-            } returns updatedRestZaakafhandelParameters
-
-            When("the zaakafhandelparameters are updated with a different domein") {
-                val returnedRestZaakafhandelParameters =
-                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
-                        restZaakafhandelParameters
-                    )
-
-                Then(
-                    """
-                the zaakafhandelparameters should be updated and both the zaakafhandelparameters read cache as well as the 
-                zaakafhandelparameters list cache should be updated
-                """
-                ) {
-                    returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
-                    verify(exactly = 1) {
-                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
-                        zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(
-                            zaakafhandelParameters.zaaktypeUuid
-                        )
-                        zaaktypeCmmnConfigurationService.clearListCache()
-                    }
-                }
-            }
-        }
-    }
-
     Context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {
         Given("productaanvraagtype that is not already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"

@@ -4,7 +4,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Core Dependencies
 
-- **postgres**: 17.9
+- **postgres**: 17.10
 - **keycloak**: 26.5.7
 - **postgis**: 17-3.4
 - **redis**: 8.4.0
@@ -18,7 +18,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **grafana/grafana**: 13.0.1
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.3.0-alpine
-- **nginxinc/nginx-unprivileged**: 1.30.1
+- **nginxinc/nginx-unprivileged**: 1.31.0
 
 ## Common Ground components
 

@@ -12,8 +12,8 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -21,7 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.WORD_DOCUMENT_FILE_TITLE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import okhttp3.Headers
@@ -50,12 +50,12 @@ class WebDavServletTest : BehaviorSpec({
     Given("A zaak that was created and a logged-in behandelaar") {
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -111,7 +111,7 @@ class WebDavServletTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = requestBody,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
@@ -127,7 +127,7 @@ class WebDavServletTest : BehaviorSpec({
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +
                     "?zaak=$zaakUUID",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 """

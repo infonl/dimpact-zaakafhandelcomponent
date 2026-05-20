@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.238](https://img.shields.io/badge/Version-1.0.238-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
+![Version: 1.0.241](https://img.shields.io/badge/Version-1.0.241-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.153.0 |
+| @opentelemetry | opentelemetry-collector | 0.156.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -74,7 +74,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
@@ -170,7 +169,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086"` |  |
+| nginx.image.tag | string | `"1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |

@@ -101,14 +101,6 @@ val zacDockerImage by extra {
     }
 }
 
-val featureFlagPabcIntegration by extra {
-    if (project.hasProperty("featureFlagPabcIntegration")) {
-        project.property("featureFlagPabcIntegration").toString()
-    } else {
-        "true"
-    }
-}
-
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
 // For consistency, the layout of some known paths are determined here, and below as relative paths.
@@ -242,7 +234,6 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
-                        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
                         dependsOn("buildDockerImage")
                         // always execute the integration tests
                         outputs.upToDateWhen { false }
@@ -783,7 +774,7 @@ tasks {
     register<NpmTask>("npmRunTest") {
         description = "Runs the frontend test suite"
         group = "verification"
-        dependsOn("npmInstall")
+        dependsOn("npmRunBuild")
 
         npmCommand.set(listOf("run", "test"))
 

@@ -83,7 +83,6 @@ describe("Acties form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };
@@ -135,7 +134,6 @@ describe("Acties form step", () => {
     jest
       .spyOn(referentieTabelService, "listReferentieTabellen")
       .mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listAfzenders")
       .mockReturnValue(of(["test@example.com", "other@example.com"]));

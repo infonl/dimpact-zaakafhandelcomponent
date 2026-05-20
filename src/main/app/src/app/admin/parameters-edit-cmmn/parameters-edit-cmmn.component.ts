@@ -120,7 +120,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private readonly destroy$ = new Subject<void>();
 
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected featureFlagPabcIntegration: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -187,7 +186,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         null,
         [Validators.required],
       ),
-    domein: this.formBuilder.control<string | null>(null),
     defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
       null,
       [Validators.required],
@@ -248,7 +246,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
-  protected domeinen = this.referentieTabelService.listDomeinen();
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
@@ -286,8 +283,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
-      this.featureFlagPabcIntegration =
-        data.parameters.featureFlagPabcIntegration;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail

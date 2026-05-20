@@ -15,16 +15,16 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "12.8.3",
+    "@cucumber/cucumber": "12.9.0",
     "pdf-parse": "2.4.5",
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.60.0",
     "@types/node": "22.19.19",
     "multiple-cucumber-html-reporter": "3.10.0",
     "dotenv": "17.4.2",
-    "playwright-bdd": "8.5.0",
+    "playwright-bdd": "8.5.1",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"
   },

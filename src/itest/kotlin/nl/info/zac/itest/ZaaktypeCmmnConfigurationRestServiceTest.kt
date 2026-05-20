@@ -10,17 +10,16 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.ItestConfiguration.DOMEIN_TEST_1
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_ID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_INGEDIEND_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID
@@ -43,10 +42,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         and a beheerder is logged in
         """.trimIndent()
     ) {
-        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_3_DESCRIPTION' zaaktype") {
+        When(
+            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION' zaaktype"
+        ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_3_UUID",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
+                testUser = BEHEERDER_1
             )
             Then("the response should be ok and it should return the zaakafhandelparameters") {
                 val responseBody = response.bodyAsString
@@ -55,15 +56,17 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 with(responseBody) {
                     shouldContainJsonKeyValue(
                         "zaaktype.identificatie",
-                        ZAAKTYPE_TEST_3_IDENTIFICATIE
+                        ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                     )
                 }
             }
         }
-        When("the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_TEST_2_DESCRIPTION' zaaktype") {
+        When(
+            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype"
+        ) {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_TEST_2_UUID",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_2_UUID",
+                testUser = BEHEERDER_1
             )
             Then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
@@ -130,8 +133,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                           "type" : "USER_EVENT_LISTENER"
                         } ]
                       },
-                      "defaultGroepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                      "domein" : "$DOMEIN_TEST_1",
+                      "defaultGroepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
                       "humanTaskParameters" : [ {
                         "actief" : true,
                         "formulierDefinitieId" : "AANVULLENDE_INFORMATIE",
@@ -265,12 +267,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                       "zaakbeeindigParameters" : [ ],
                       "zaaktype" : {
                         "beginGeldigheid" : "2023-10-01",
-                        "doel" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                        "identificatie" : "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                        "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "identificatie" : "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
                         "nuGeldig" : true,
-                        "omschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                        "omschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                         "servicenorm" : false,
-                        "uuid" : "$ZAAKTYPE_TEST_2_UUID",
+                        "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "versiedatum" : "2023-10-01",
                         "vertrouwelijkheidaanduiding" : "openbaar"
                       }
@@ -281,7 +283,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         When("the list case definitions endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response should be ok and it should return all available case definitions") {
                 val responseBody = response.bodyAsString
@@ -335,7 +337,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         When("the list zaakbeeindigredenen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response should be ok and it should return all available zaakbeeindigredenen") {
                 val responseBody = response.bodyAsString
@@ -362,7 +364,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         When("the list formulier definities endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response should be ok and it should return all available formulierdefinities") {
                 val responseBody = response.bodyAsString

@@ -17,7 +17,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
@@ -42,21 +41,18 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
-import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
-import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
@@ -69,7 +65,6 @@ import java.util.UUID
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
-    val configurationService = mockk<ConfigurationService>()
     val eventingService = mockk<EventingService>()
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
@@ -87,9 +82,7 @@ class ZaakServiceTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         identityService = identityService,
         indexingService = indexingService,
-        zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         bpmnService = bpmnService,
-        configurationService = configurationService,
         pabcClientService = pabcClientService
     )
     val explanation = "fakeExplanation"
@@ -375,7 +368,7 @@ class ZaakServiceTest : BehaviorSpec({
         Given(
             """
                 A list of open zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
-                and a user and PABC feature flag on
+                and a user
                 """
         ) {
             val zaaktypeUUID = UUID.randomUUID()
@@ -411,7 +404,6 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
-            every { configurationService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.name) } returns true
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
@@ -461,7 +453,7 @@ class ZaakServiceTest : BehaviorSpec({
         Given(
             """
             One open and one closed zaak and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaak,
-             and a user and PABC feature flag on
+             and a user
             """
         ) {
             val zaaktypeUUID = UUID.randomUUID()
@@ -499,7 +491,6 @@ class ZaakServiceTest : BehaviorSpec({
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype("behandelaar", zaaktype.omschrijving)
             } returns listOf(pabcGroupRepresentation)
             every { eventingService.send(any<ScreenEvent>()) } just Runs
-            every { configurationService.featureFlagPabcIntegration() } returns true
             every { identityService.isUserInGroup(user.id, group.name) } returns true
 
             When(
@@ -575,7 +566,7 @@ class ZaakServiceTest : BehaviorSpec({
         Given(
             """
                 A list of zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
-                and a user and PABC feature flag on
+                and a user
                 """
         ) {
             val zaaktypeUUID = UUID.randomUUID()
@@ -619,7 +610,6 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every { configurationService.featureFlagPabcIntegration() } returns true
             }
 
             When(
@@ -642,221 +632,6 @@ class ZaakServiceTest : BehaviorSpec({
                             zrcClientService.updateRol(it, any(), explanation)
                             zrcClientService.deleteRol(it, any(), explanation)
                         }
-                    }
-                }
-            }
-        }
-
-        Given("A list of zaken with no domain and a group with ROL_DOMEIN_ELK_ZAAKTYPE and PABC feature flag off") {
-            val zaken = listOf(
-                createZaak(),
-                createZaak()
-            )
-            val user = createUser()
-            val rolTypeBehandelaar = createRolType(
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
-            val screenEventSlot = slot<ScreenEvent>()
-            zaken.forEach {
-                every { zrcClientService.readZaak(it.uuid) } returns it
-                every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(domein = null)
-                every {
-                    ztcClientService.readRoltype(
-                        it.zaaktype,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
-                    )
-                } returns rolTypeBehandelaar
-                every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-            }
-            val groupWithAllDomains = createGroup(zacClientRoles = listOf(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value))
-            every { identityService.isUserInGroup(user.id, groupWithAllDomains.name) } returns true
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("the assign zaken function is called") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = groupWithAllDomains,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
-
-                Then("group and user roles are updated") {
-                    verify(exactly = 2) {
-                        zrcClientService.updateRol(zaken[0], any(), explanation)
-                        zrcClientService.updateRol(zaken[1], any(), explanation)
-                    }
-                }
-
-                And("no skip event is generated") {
-                    verify(exactly = 0) {
-                        eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
-                    }
-                }
-
-                And("a final screen event of type 'zaken verdelen' is sent") {
-                    with(screenEventSlot.captured) {
-                        opcode shouldBe Opcode.UPDATED
-                        objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
-                        objectId.resource shouldBe screenEventResourceId
-                    }
-                }
-            }
-        }
-
-        Given("A list of zaken with no domain and a group with domain and PABC feature flag off") {
-            val zaken = listOf(
-                createZaak(),
-                createZaak()
-            )
-            val user = createUser()
-            val screenEventSlot = slot<ScreenEvent>()
-            zaken.forEach {
-                every { zrcClientService.readZaak(it.uuid) } returns it
-                every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns createZaaktypeCmmnConfiguration()
-            }
-            val groupWithDomain = createGroup(zacClientRoles = listOf("another_domain"))
-            every { identityService.isUserInGroup(user.id, groupWithDomain.name) } returns true
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("the assign zaken function is called") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = groupWithDomain,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
-
-                Then("no roles are updated") {
-                    verify(exactly = 0) {
-                        zrcClientService.updateRol(any<Zaak>(), any<RolMedewerker>(), explanation)
-                    }
-                }
-
-                And("a final screen event of type 'zaken verdelen' is sent") {
-                    with(screenEventSlot.captured) {
-                        opcode shouldBe Opcode.UPDATED
-                        objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
-                        objectId.resource shouldBe screenEventResourceId
-                    }
-                }
-            }
-        }
-
-        Given("A list of zaken with no domain and a group with no domain and PABC feature flag off") {
-            val zaken = listOf(
-                createZaak(),
-                createZaak()
-            )
-            val user = createUser()
-            val screenEventSlot = slot<ScreenEvent>()
-            zaken.forEach {
-                every { zrcClientService.readZaak(it.uuid) } returns it
-                every { eventingService.send(capture(screenEventSlot)) } just Runs
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(domein = null)
-            }
-            val groupWithNoDomain = createGroup(zacClientRoles = emptyList())
-            every { identityService.isUserInGroup(user.id, groupWithNoDomain.name) } returns true
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("the assign zaken function is called") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = groupWithNoDomain,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
-
-                Then("no zaken roles are updated") {
-                    verify(exactly = 0) {
-                        zrcClientService.updateRol(zaken[0], any(), explanation)
-                        zrcClientService.updateRol(zaken[1], any(), explanation)
-                    }
-                }
-
-                And("a final screen event of type 'zaken verdelen' is sent") {
-                    with(screenEventSlot.captured) {
-                        opcode shouldBe Opcode.UPDATED
-                        objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
-                        objectId.resource shouldBe screenEventResourceId
-                    }
-                }
-            }
-        }
-
-        Given(
-            "A list of two zaken and the second one has a group not matching the requested one and PABC feature flag off"
-        ) {
-            val zaken = listOf(
-                createZaak(),
-                createZaak()
-            )
-            val user = createUser()
-            val rolTypeBehandelaar = createRolType(
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
-            val screenEventSlot = slot<ScreenEvent>()
-            zaken.forEach {
-                every { zrcClientService.readZaak(it.uuid) } returns it
-                every { eventingService.send(capture(screenEventSlot)) } just Runs
-            }
-            zaken[0].let {
-                every {
-                    ztcClientService.readRoltype(
-                        it.zaaktype,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
-                    )
-                } returns rolTypeBehandelaar
-                every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(domein = "zaaktype_domain")
-            }
-            zaken[1].let {
-                every {
-                    zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(it.zaaktype.extractUuid())
-                } returns createZaaktypeCmmnConfiguration(domein = "another_domein")
-            }
-            val group = createGroup(zacClientRoles = listOf("zaaktype_domain"))
-            every { identityService.isUserInGroup(user.id, group.name) } returns true
-            every { configurationService.featureFlagPabcIntegration() } returns false
-
-            When("the assign zaken function is called") {
-                zaakService.assignZaken(
-                    zaakUUIDs = zaken.map { it.uuid },
-                    explanation = explanation,
-                    group = group,
-                    user = user,
-                    screenEventResourceId = screenEventResourceId
-                )
-
-                Then("group and user roles of the first zaak are updated") {
-                    verify(exactly = 2) {
-                        zrcClientService.updateRol(zaken[0], any(), explanation)
-                    }
-                }
-
-                And("one skip event is generated") {
-                    verify(exactly = 1) {
-                        eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
-                    }
-                }
-
-                And("a final screen event of type 'zaken verdelen' should be sent") {
-                    with(screenEventSlot.captured) {
-                        opcode shouldBe Opcode.UPDATED
-                        objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
-                        objectId.resource shouldBe screenEventResourceId
                     }
                 }
             }

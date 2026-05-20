@@ -40,9 +40,9 @@ class IdentityRestService @Inject constructor(
     fun listActiveGroups(): List<RestGroup> = identityService.listActiveGroups().toRestGroups()
 
     @Deprecated(
-        """Once the PABC feature flag has been removed, this endpoint should be deleted and the
+        """This endpoint should be deleted and the
             [listBehandelaarGroupsForZaaktype] endpoint should be used instead.
-            This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version' like it is
+            This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version' like it was
             done in the old IAM architecture.
             """
     )

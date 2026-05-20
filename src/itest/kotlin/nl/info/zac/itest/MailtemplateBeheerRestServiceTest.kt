@@ -8,8 +8,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
@@ -44,15 +44,15 @@ import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_ZAAK_ONTVANKELI
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_1
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_3
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
@@ -65,7 +65,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         When("mail template list is fetched") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/beheer/mailtemplates",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             lateinit var responseBody: String
 
@@ -151,7 +151,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         When("mail template koppeling list is fetched") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             lateinit var responseBody: String
 
@@ -206,7 +206,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -221,12 +221,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
-                          "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_1_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
@@ -274,8 +274,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "domein": "domein_test_1",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -290,12 +289,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
-                          "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_2_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
@@ -343,7 +342,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "key": "generiek-zaakafhandelmodel",
                           "naam": "Generiek zaakafhandelmodel"
                         },
-                        "defaultGroepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "defaultGroepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "humanTaskParameters": [],
                         "intakeMail": "BESCHIKBAAR_UIT",
                         "mailtemplateKoppelingen": [],
@@ -358,12 +357,12 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "zaakbeeindigParameters": [],
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_09_21",
-                          "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_3_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
