@@ -37,12 +37,16 @@ The `MedewerkerGroepFormField` and its builder carry a `zaaktypeUuid` field that
 
 ### D2: Update all callers of `setZaaktypeUuid` to pass `omschrijving`
 
-All three call sites already have the description available:
+All call sites already have the description available:
 
 | Caller | Current | Replacement |
 |--------|---------|-------------|
 | `taak-formulier-builder.ts:43` | `zaak.zaaktype.uuid` | `zaak.zaaktype.omschrijving!` |
 | `taak-view.component.ts:349` | `this.taak.zaaktypeUUID!` | `this.taak.zaaktypeOmschrijving!` |
+| `taak-edit.component.ts` | `this.task().zaaktypeUUID!` | `this.task().zaaktypeOmschrijving!` |
+| `zaak-create.component.ts` | `caseType.uuid` | `caseType.omschrijving!` |
+| `zaak-details-wijzigen.component.ts` | `this.zaak.zaaktype.uuid` | `this.zaak.zaaktype.omschrijving!` |
+| `human-task-do.component.ts` | `this.zaak.zaaktype.uuid` | `this.zaak.zaaktype.omschrijving!` |
 
 ### D3: Update `IdentityService` (frontend) method signature
 

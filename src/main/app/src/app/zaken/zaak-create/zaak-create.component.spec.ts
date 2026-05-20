@@ -257,7 +257,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(await input.getValue()).toBe("test-cmmn-description-1");
         expect(
           identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalled();
+        ).toHaveBeenCalledWith("test-cmmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({
@@ -305,7 +305,7 @@ describe(ZaakCreateComponent.name, () => {
         expect(await input.getValue()).toBe("test-bpmn-description-1");
         expect(
           identityService.listBehandelaarGroupsForZaaktype,
-        ).toHaveBeenCalled();
+        ).toHaveBeenCalledWith("test-bpmn-description-1");
 
         // --- Groep ---
         ({ autocompleteOptions, input } = await getAutocompleteOptions({

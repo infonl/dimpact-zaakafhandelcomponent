@@ -162,7 +162,7 @@ describe(TaakEditComponent.name, () => {
       setInputsAndDetect(makeTask());
       expect(
         identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("zaaktype-uuid-1");
+      ).toHaveBeenCalledWith("Test Zaaktype");
     });
 
     it("patches the group form control with the task groep", () => {
