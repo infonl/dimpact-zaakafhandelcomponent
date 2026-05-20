@@ -67,6 +67,7 @@
           *ngIf="ioQuery.isLoading()"
           mode="indeterminate"
           diameter="32"
+          [attr.aria-label]="'msg.loading' | translate"
         ></mat-progress-spinner>
         <p *ngIf="!ioQuery.isLoading()">
           {{ "msg.geen.gegevens.gevonden" | translate }}

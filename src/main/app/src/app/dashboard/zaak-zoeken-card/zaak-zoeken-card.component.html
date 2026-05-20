@@ -63,6 +63,7 @@
           *ngIf="zoekQuery.isLoading()"
           mode="indeterminate"
           diameter="32"
+          [attr.aria-label]="'msg.loading' | translate"
         ></mat-progress-spinner>
         <p *ngIf="!zoekQuery.isLoading()">
           {{ "msg.geen.gegevens.gevonden" | translate }}
