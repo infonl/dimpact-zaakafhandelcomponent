@@ -86,8 +86,8 @@ describe(TaakFormulierBuilder.name, () => {
     it("sets zaaktypeOmschrijving on the medewerker-groep field from zaak.zaaktype.omschrijving", () => {
       builder.startForm(planItem, zaak);
 
-      const medewerkerGroepField =
-        formulier.form[1][0] as MedewerkerGroepFormField;
+      const medewerkerGroepField = formulier
+        .form[1][0] as MedewerkerGroepFormField;
       expect(medewerkerGroepField.zaaktypeOmschrijving).toBe("Test zaaktype");
     });
 
@@ -105,7 +105,9 @@ describe(TaakFormulierBuilder.name, () => {
       status: "TOEGEKEND",
       rechten: { wijzigen: true },
     });
-    const zaak = fromPartial<GeneratedType<"RestZaak">>({ uuid: "zaak-uuid-1" });
+    const zaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "zaak-uuid-1",
+    });
 
     it("sets zaak, taak, tabellen and dataElementen on the formulier", () => {
       builder.behandelForm(taak, zaak);
