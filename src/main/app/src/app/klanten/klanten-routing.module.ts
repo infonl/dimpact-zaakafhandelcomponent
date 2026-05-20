@@ -7,6 +7,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { ErrorCardComponent } from "../fout-afhandeling/error-card/error-card.component";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../zaken/model/betrokkeneIdentificatie";
 import { BedrijfResolverService } from "./bedrijf-view/bedrijf-resolver.service";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { PersoonResolverGuard } from "./persoon-view/persoon-resolver-guard";
@@ -69,10 +70,20 @@ export class KlantenRoutingModule {}
 export function buildBedrijfRouteLink(
   bedrijf?: GeneratedType<"RestBedrijf"> | null,
 ) {
-  const path = ["/bedrijf", bedrijf?.kvkNummer ?? bedrijf?.identificatie]; // use `identificatie` to support legacy
-  if (bedrijf?.vestigingsnummer)
-    path.push("vestiging", bedrijf?.vestigingsnummer);
-  else if (bedrijf?.kvkNummer && bedrijf?.identificatie)
-    path.push("vestiging", bedrijf?.identificatie);
-  return path;
+  if (!bedrijf) return;
+  const tempBedrijf = new BetrokkeneIdentificatie(bedrijf);
+
+  switch (tempBedrijf.type) {
+    case "RSIN":
+      return ["/bedrijf", tempBedrijf.kvkNummer];
+    case "VN":
+      return [
+        "/bedrijf",
+        tempBedrijf.kvkNummer,
+        "vestiging",
+        tempBedrijf.vestigingsnummer,
+      ];
+    default:
+      throw new Error("Unknown bedrijf type");
+  }
 }

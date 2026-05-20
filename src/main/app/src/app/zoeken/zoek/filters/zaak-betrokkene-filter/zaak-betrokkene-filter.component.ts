@@ -64,17 +64,23 @@ export class ZaakBetrokkeneFilterComponent implements OnInit {
       backdropClass: "noColor",
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      this.dialogOpen = false;
+    dialogRef
+      .afterClosed()
+      .subscribe((result: GeneratedType<"RestBedrijf" | "RestPersoon">) => {
+        this.dialogOpen = false;
 
-      if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
-        this.klantIdControl.setValue(result.identificatie ?? "");
-        this.zoekparameters.zoeken[this.huidigeRoltype] =
-          result.identificatie ?? "";
-      }
+        if (this.zoekparameters?.zoeken && this.huidigeRoltype != null) {
+          const identificatie =
+            (result as GeneratedType<"RestBedrijf">).vestigingsnummer ??
+            (result as GeneratedType<"RestBedrijf">).kvkNummer ??
+            (result as GeneratedType<"RestPersoon">).bsn ??
+            "";
+          this.klantIdControl.setValue(identificatie);
+          this.zoekparameters.zoeken[this.huidigeRoltype] = identificatie;
+        }
 
-      this.changed.emit();
-    });
+        this.changed.emit();
+      });
   }
 
   idChanged(): void {
