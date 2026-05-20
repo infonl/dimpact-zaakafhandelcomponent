@@ -1047,7 +1047,10 @@ export class ZaakViewComponent
     const betrokkeneIdentificatie: string =
       betrokkene.roltype +
       " " +
-      (betrokkene.vestigingsnummer ?? betrokkene.kvkNummer ?? betrokkene.bsn ?? betrokkene.naam);
+      (betrokkene.vestigingsnummer ??
+        betrokkene.kvkNummer ??
+        betrokkene.bsn ??
+        betrokkene.naam);
     this.dialog
       .open(DialogComponent, {
         data: new DialogData<unknown, { reden: string }>({
