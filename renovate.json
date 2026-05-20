@@ -643,15 +643,6 @@
     },
     {
       "matchPackageNames": [
-        "com.diffplug.spotless"
-      ],
-      "allowedVersions": "< 7",
-      "description": [
-        "Pinned - version 7 causes Connection refused and node/npm discovery issues"
-      ]
-    },
-    {
-      "matchPackageNames": [
         "eclipse-temurin"
       ],
       "matchDatasources": [
