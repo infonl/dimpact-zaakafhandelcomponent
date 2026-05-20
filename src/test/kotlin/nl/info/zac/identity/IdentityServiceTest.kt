@@ -25,13 +25,11 @@ import java.net.URI
 import java.util.UUID
 
 class IdentityServiceTest : BehaviorSpec({
-    val zacKeycloakClientId = "fakeZacKeycloakClientId"
     val realmResource = mockk<RealmResource>()
     val pabcClientService = mockk<PabcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
-        zacKeycloakClientId = zacKeycloakClientId,
         pabcClientService = pabcClientService,
         ztcClientService = ztcClientService
     )
