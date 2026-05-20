@@ -100,11 +100,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    JSONObject(responseBody).run {
-                        getJSONObject("zaakdata").run {
-                            zaakUuid = getString("zaakUUID").run(UUID::fromString)
-                        }
-                    }
+                    zaakUuid = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
                 }
             }
 
