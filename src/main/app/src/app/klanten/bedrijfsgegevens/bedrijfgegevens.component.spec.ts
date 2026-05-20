@@ -199,6 +199,31 @@ describe(BedrijfsgegevensComponent.name, () => {
   });
 
   describe.each([
+    { type: "RECHTSPERSOON" },
+    { type: "HOOFDVESTIGING" },
+    { type: "NEVENVESTIGING" },
+  ])("type display for $type", ({ type }) => {
+    beforeEach(async () => {
+      notifyManager.setScheduler((fn) => fn());
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, type });
+      await sleep();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("renders the KVK type in the type field", () => {
+      const typeField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="type"]',
+      );
+      expect(typeField?.textContent).toContain(type);
+    });
+  });
+
+  describe.each([
     {
       status: 404,
       iconName: "warning",
