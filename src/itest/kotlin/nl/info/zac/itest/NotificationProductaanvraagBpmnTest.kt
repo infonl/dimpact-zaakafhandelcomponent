@@ -88,7 +88,6 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
-                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_1_UUID.toString()
                         getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
@@ -114,17 +113,17 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Plaatsvervanger",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"

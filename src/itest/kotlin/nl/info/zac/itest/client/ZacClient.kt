@@ -493,7 +493,7 @@ class ZacClient(
         response.code shouldBe HttpURLConnection.HTTP_OK
         val firstResult = JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0)
         with(firstResult.toString()) {
-            shouldContainJsonKeyValue("identificatie", TEST_PERSON_HENDRIKA_JANSE_BSN)
+            shouldContainJsonKeyValue("bsn", TEST_PERSON_HENDRIKA_JANSE_BSN)
         }
         return UUID.fromString(firstResult.getString("temporaryPersonId"))
     }
