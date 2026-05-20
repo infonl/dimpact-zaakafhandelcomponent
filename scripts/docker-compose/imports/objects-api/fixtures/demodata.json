@@ -1327,7 +1327,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "testKenmerkAlternativeEmailAddress1"
+          "kenmerk": "testKenmerkRequestSpecificEmailAddress1"
         },
         "type": "productaanvraag-type-1",
         "aanvraaggegevens": {
@@ -1460,7 +1460,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "testKenmerkAlternativeEmailAddress3"
+          "kenmerk": "testKenmerkRequestSpecificEmailAddress2"
         },
         "taal": "nld",
         "type": "productaanvraag-type-1",
