@@ -93,7 +93,12 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
     VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'true','hendrika.janse@example.com', '', 1, 1, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
     VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'true','0612345678', '', 1, 1, 'referentie2');
-
+-- also add non-preferred email and telephone number digital addresses to the persoon partij with BSN 999993896 (Hendrika Janse),
+-- in order to test that the non-preferred email and telephone number digital addresses are not returned when querying for the preferred email and telephone number digital addresses
+INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
+    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'false','hendrika.janse.2@example.com', '', 1, 1, 'referentie1');
+INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
+    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'false','0612345679', '', 1, 1, 'referentie2');
 -- add preferred ('standaard') email and telephone number digital addresses to the KVK bedrijf/rechtspersoon partij (partij 2)
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
     VALUES (3, '83d549d8-babb-43aa-a5e6-9bbd1b969440', 'email', 'true','fake.kvk@example.com', '', 2, 2, 'referentie1');
