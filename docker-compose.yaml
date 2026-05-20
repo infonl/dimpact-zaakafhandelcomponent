@@ -180,7 +180,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: redis:8.4.3@sha256:13f1112ffbf4514297812a2b3ed5c4811a526c9fc91aec013dc6907c6bcad45c
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
