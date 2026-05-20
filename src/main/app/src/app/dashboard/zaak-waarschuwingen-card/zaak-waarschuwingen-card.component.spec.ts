@@ -82,9 +82,6 @@ describe(ZaakWaarschuwingenCardComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
     component.data = makeDashboardCard();
     fixture.detectChanges();
-    // Stop the timed reload interval so harnesses (which await whenStable)
-    // don't hang on a never-completing observable.
-    component["reloader"]?.unsubscribe();
   });
 
   it("calls listZaakWaarschuwingen on load", async () => {
