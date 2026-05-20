@@ -20,7 +20,6 @@ import nl.info.zac.identity.model.toGroup
 import nl.info.zac.identity.model.toUser
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.keycloak.admin.client.resource.RealmResource
 import java.util.UUID
 
@@ -32,8 +31,6 @@ class IdentityService @Inject constructor(
     @Named("keycloakZacRealmResource")
     private val keycloakZacRealmResource: RealmResource,
 
-    @ConfigProperty(name = "AUTH_RESOURCE")
-    private val zacKeycloakClientId: String,
     private val pabcClientService: PabcClientService,
     private val ztcClientService: ZtcClientService
 ) {
@@ -45,7 +42,7 @@ class IdentityService @Inject constructor(
     fun listGroups(): List<Group> = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups("", 0, Integer.MAX_VALUE, false)
-        .map { it.toGroup(zacKeycloakClientId) }
+        .map { it.toGroup() }
         .sortedBy { it.description }
 
     fun listActiveGroups(): List<Group> = listGroups().filter { it.active }
@@ -89,7 +86,7 @@ class IdentityService @Inject constructor(
     fun readGroup(groupId: String): Group = keycloakZacRealmResource.groups()
         // retrieve groups with 'full representation' or else the group attributes will not be filled
         .groups(groupId, true, 0, 1, false)
-        .firstOrNull()?.toGroup(zacKeycloakClientId)
+        .firstOrNull()?.toGroup()
         // is this fallback really needed? better to return null or throw a custom exception
         ?: Group(groupId)
 

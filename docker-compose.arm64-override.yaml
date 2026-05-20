@@ -28,7 +28,7 @@ services:
     platform: linux/arm64
 
   openklant.local:
-    image: ghcr.io/infonl/open-klant:2.14.0@sha256:61195dc3abc4238941367c25308f693dbde139721837e606875ee549513c8ce9
+    image: ghcr.io/infonl/open-klant:2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36
     platform: linux/arm64
 
   opennotificaties-database:

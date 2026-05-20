@@ -200,7 +200,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            eventually(30.seconds) {
+            eventually(60.seconds) {
                 itestHttpClient.performGetRequest(
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = ZAC_HEALTH_READY_URL
@@ -272,6 +272,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
         return ComposeContainer("zac-itest-", composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
+            // do not pull images first because this will cause _all_ Docker images to be pulled,
+            // and not just the ones we need for our profiles
+            .withPull(false)
             .withOptions(
                 "--profile zac",
                 "--profile itest",
@@ -320,6 +323,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 "zac",
                 Wait.forLogMessage(".* WildFly .* started .*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
+            )
+            .waitingFor(
+                "greenmail",
+                Wait.forLogMessage(".*Starting GreenMail API server.*", 1)
+                    .withStartupTimeout(2.minutes.toJavaDuration())
             )
     }
 

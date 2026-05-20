@@ -40,7 +40,6 @@ data class RestZaakafhandelParameters(
     @field:Nullable
     @field:Size(min = 1)
     var productaanvraagtype: String? = null,
-    var domein: String? = null,
     var valide: Boolean = false,
     /**
      * The frontend currently requires this field to be non-null

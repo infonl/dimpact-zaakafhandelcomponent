@@ -4,7 +4,15 @@
  */
 
 import { ElementRef, QueryList } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
+import {
+  provideAngularQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { Subject } from "rxjs";
+import { UtilService } from "../core/service/util.service";
+import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { SignaleringenService } from "../signaleringen.service";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
@@ -99,7 +107,23 @@ describe("DashboardComponent row-height sync", () => {
         }) as unknown as MediaQueryList,
     );
 
-    component = new DashboardComponent({} as never, {} as never, {} as never);
+    TestBed.configureTestingModule({
+      providers: [
+        provideAngularQuery(new QueryClient()),
+        { provide: UtilService, useValue: { setTitle: jest.fn() } },
+        { provide: SignaleringenService, useValue: {} },
+        { provide: GebruikersvoorkeurenService, useValue: {} },
+      ],
+    });
+
+    component = TestBed.runInInjectionContext(
+      () =>
+        new DashboardComponent(
+          TestBed.inject(UtilService),
+          TestBed.inject(SignaleringenService),
+          TestBed.inject(GebruikersvoorkeurenService),
+        ),
+    );
   });
 
   afterEach(() => {

@@ -8,7 +8,6 @@ enum class ZacApplicationRole(val value: String) {
     @Deprecated(
         message = "Not used in new PABC based IAM architecture"
     )
-    DOMEIN_ELK_ZAAKTYPE("domein_elk_zaaktype"),
     BEHEERDER("beheerder"),
     BEHANDELAAR("behandelaar"),
     COORDINATOR("coordinator"),

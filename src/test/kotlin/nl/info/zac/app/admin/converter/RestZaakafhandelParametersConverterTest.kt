@@ -104,7 +104,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     // default value should be set
                     afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
                     productaanvraagtype shouldBe null
-                    domein shouldBe "fakeDomein"
                     valide shouldBe false
                     humanTaskParameters shouldBe emptyList()
                     userEventListenerParameters shouldBe emptyList()
@@ -156,7 +155,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     intakeMail shouldBe null
                     afrondenMail shouldBe null
                     productaanvraagtype shouldBe null
-                    domein shouldBe "fakeDomein"
                     smartDocumentsEnabled shouldBe false
                 }
             }
@@ -205,7 +203,6 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     creatiedatum shouldNotBe null
                     zaakNietOntvankelijkResultaattype shouldBe restResultType
                     productaanvraagtype shouldBe null
-                    domein shouldBe "fakeDomein"
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
                     smartDocuments shouldBe RestSmartDocuments(
                         enabledGlobally = true,
