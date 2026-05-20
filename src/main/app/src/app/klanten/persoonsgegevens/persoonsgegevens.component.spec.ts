@@ -23,7 +23,7 @@ import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const testPerson: GeneratedType<"RestPersoon"> = {
-    bsn: "123456789",
+  bsn: "123456789",
   temporaryPersonId: randomUUID(),
   indicaties: [],
 };
@@ -116,7 +116,7 @@ describe(PersoonsgegevensComponent.name, () => {
 
   describe("zaakSpecificContactDetails prevails over persoon contact info", () => {
     const personWithContactInfo: GeneratedType<"RestPersoon"> = {
-        bsn: "123456789",
+      bsn: "123456789",
       temporaryPersonId: randomUUID(),
       indicaties: [],
       telefoonnummer: "0201234567",
