@@ -408,13 +408,29 @@
       "groupName": "Platform Autorisatie Beheer Component (PABC)",
       "matchPackageNames": [
         "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations",
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api",
+        "ghcr.io/infonl/pabc-migrations",
+        "ghcr.io/infonl/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver",
+      "description": [
+        "Group PABC migrations and API updates into a single PR"
+      ]
+    },
+    {
+      "groupName": "PostGIS docker image",
+      "matchPackageNames": [
+        "postgis/postgis",
+        "ghcr.io/infonl/postgis"
       ],
       "matchDatasources": [
         "docker"
       ],
       "description": [
-        "Group PABC migrations and API updates into a single PR"
+        "Group PostGIS upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -483,8 +499,10 @@
       ]
     },
     {
+      "groupName": "Objects-api docker image",
       "matchPackageNames": [
-        "maykinmedia/objects-api"
+        "maykinmedia/objects-api",
+        "ghcr.io/infonl/objects-api"
       ],
       "matchDatasources": [
         "docker"
@@ -495,8 +513,10 @@
       ]
     },
     {
+      "groupName": "Objecttypes-api docker image",
       "matchPackageNames": [
-        "maykinmedia/objecttypes-api"
+        "maykinmedia/objecttypes-api",
+        "ghcr.io/infonl/objecttypes-api"
       ],
       "matchDatasources": [
         "docker"
@@ -507,8 +527,10 @@
       ]
     },
     {
+      "groupName": "Open-klant docker image",
       "matchPackageNames": [
-        "maykinmedia/open-klant"
+        "maykinmedia/open-klant",
+        "ghcr.io/infonl/open-klant"
       ],
       "matchDatasources": [
         "docker"
@@ -519,8 +541,10 @@
       ]
     },
     {
+      "groupName": "Open-zaak docker image",
       "matchPackageNames": [
-        "openzaak/open-zaak"
+        "openzaak/open-zaak",
+        "ghcr.io/infonl/open-zaak"
       ],
       "matchDatasources": [
         "docker"
@@ -531,8 +555,10 @@
       ]
     },
     {
+      "groupName": "Open-notificaties docker image",
       "matchPackageNames": [
-        "openzaak/open-notificaties"
+        "openzaak/open-notificaties",
+        "ghcr.io/infonl/open-notificaties"
       ],
       "matchDatasources": [
         "docker"
@@ -555,8 +581,10 @@
       ]
     },
     {
+      "groupName": "Open-archiefbeheer docker image",
       "matchPackageNames": [
-        "maykinmedia/open-archiefbeheer"
+        "maykinmedia/open-archiefbeheer",
+        "ghcr.io/infonl/open-archiefbeheer"
       ],
       "matchDatasources": [
         "docker"
@@ -564,14 +592,6 @@
       "allowedVersions": "< 1.2.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "opentelemetry-collector"
-      ],
-      "matchDatasources": [
-        "helm"
       ]
     },
     {
@@ -639,24 +659,6 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi10-minimal$/"
-    },
-    {
-      "matchPackageNames": [
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "versioning": "semver"
-    },
-    {
-      "matchPackageNames": [
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "versioning": "semver"
     },
     {
       "matchPackageNames": [
