@@ -185,7 +185,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.4.0@sha256:0c2c8cbad62e4793c44dc4c0728a3285734425551ce4ed0d271ebcc771929f13
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
@@ -231,7 +231,7 @@ services:
     profiles: [ "objecten", "itest" ]
 
   objecten-api-import:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.4.0@sha256:0c2c8cbad62e4793c44dc4c0728a3285734425551ce4ed0d271ebcc771929f13
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *objects-env
