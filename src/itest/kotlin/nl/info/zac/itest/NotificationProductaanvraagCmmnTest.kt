@@ -47,14 +47,14 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_TOELICHTING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
@@ -84,8 +84,9 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
     Context("Productaanvraag with an initiator of type person") {
         Given(
             """
-            A productaanvraag object exists in Objecten with an initiator with a BSN number, 
-            a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type
+            A productaanvraag object exists in Objecten with an initiator of type person with a BSN number, 
+            a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type,
+            the initiator person has a preferred email address defined in Open Klant, 
             and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled,
             and the related productaanvraag PDF exists in Open Zaak
             """.trimIndent()
@@ -159,7 +160,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And("an automated acknowledgement of receipt email is sent") {
+                And("an automated acknowledgement of receipt email should be sent to the preferred email address") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
                     )
@@ -319,8 +320,11 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
     Context("Productaanvraag with an initiator of type KVK rechtspersoon") {
         Given(
-            """A productaanvraag object exists in Objecten with an initiator with a KVK nummer,
-             and a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type"""
+            """
+                A productaanvraag object exists in Objecten with an initiator of type company with a KVK number,
+                a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type,
+                and the KVK initiator has a preferred email address defined in Open Klant
+             """
         ) {
             When(
                 """
@@ -384,7 +388,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And("an automated email is sent") {
+                And("an automated email should be sent to the preferred email address of the KVK initiator") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/",
                         testUser = RAADPLEGER_DOMAIN_TEST_1
@@ -412,13 +416,15 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
     Context("Productaanvraag with an initiator of type KVK vestiging") {
         Given(
-            """A productaanvraag object exists in Objecten with an initiator with both a KVK nummer and a vestigingsnummer,
-            and a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type"""
+            """
+                A productaanvraag object exists in Objecten with an initiator with both a KVK number and a vestigingsnummer,
+                and a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type
+            """
         ) {
             When(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
-                 and with an initiator of type 'kvkNummer' and 'vestigingsNummer'
+                 and with an initiator of type KVK number and vestigingsnummer
                     """
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -446,7 +452,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
                 Then(
                     """the response should be 'no content', a zaak should be created in OpenZaak
-                        and a zaak productaanvraag proces should be started in ZAC with both kvkNummer and vestigingsNummer"""
+                        and a zaak productaanvraag proces should be started in ZAC with both KVK number and vestigingsnummer"""
                 ) {
                     response.code shouldBe HTTP_NO_CONTENT
 
@@ -560,15 +566,17 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
     Context("Productaanvraag without an initiator") {
         Given(
             """
-            A productaanvraag object exists without an initiator and with productaanvraag-specific contact details in Objecten, 
-            a zaaktype CMMN configuration is defined in ZAC configured for the same productaanvraag type and with 'automatic acknowledgement of receipt'
-            (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
+            A productaanvraag object exists without an initiator in Objecten,
+            with product request specific contact details (email) in Open Klant, 
+            a zaaktype CMMN configuration is defined in ZAC configured for the same productaanvraag type,
+            and with 'automatic acknowledgement of receipt' (ontvangstbevestiging) enabled, 
+            and the related productaanvraag PDF exists in Open Zaak
                 """
         ) {
             When(
                 """
                 the notification endpoint is called with a 'create productaanvraag' payload with authentication header, 
-                alternative email address without initiator'
+                with a product request specific email address and without an initiator'
                 """.trimIndent()
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -627,7 +635,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And("an automated acknowledgement of receipt email is sent to alternative email address") {
+                And("an automated acknowledgement of receipt email is sent to product request specific email address") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL/messages/"
                     )
