@@ -417,7 +417,7 @@
       ],
       "versioning": "semver",
       "description": [
-        "Group PABC migrations and API updates into a single PR"
+        "Group upstream and infonl mirror PABC migrations and API updates into a single PR"
       ]
     },
     {
