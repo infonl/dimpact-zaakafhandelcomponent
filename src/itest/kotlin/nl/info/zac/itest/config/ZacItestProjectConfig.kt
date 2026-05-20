@@ -324,6 +324,12 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 Wait.forLogMessage(".* WildFly .* started .*", 1)
                     .withStartupTimeout(3.minutes.toJavaDuration())
             )
+            .waitingFor(
+                "greenmail",
+                Wait.forHttp("/api/service")
+                    .forPort(8080)
+                    .withStartupTimeout(2.minutes.toJavaDuration())
+            )
     }
 
     /**
