@@ -18,8 +18,8 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
@@ -432,7 +432,7 @@ class KlantRestServiceTest : BehaviorSpec({
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -464,7 +464,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
@@ -538,7 +538,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                             "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -569,7 +569,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                             "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",

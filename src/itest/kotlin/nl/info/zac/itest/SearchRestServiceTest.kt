@@ -23,7 +23,13 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
@@ -74,6 +80,25 @@ class SearchRestServiceTest : BehaviorSpec({
                 zaakDescription = zaakDescription,
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
+                testUser = BEHEERDER_1
+            )
+            zaakHelper.addNatuurlijkPersoonBetrokkeneToZaak(
+                zaakUuid = zaakUuid,
+                roltypeUUID = ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE,
+                bsn = TEST_PERSON_HENDRIKA_JANSE_BSN,
+                testUser = BEHEERDER_1
+            )
+            zaakHelper.addNietNatuurlijkPersoonBetrokkeneToZaak(
+                zaakUuid = zaakUuid,
+                roltypeUUID = ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER,
+                kvkNummer = TEST_KVK_NUMMER_1,
+                testUser = BEHEERDER_1
+            )
+            zaakHelper.addNietNatuurlijkPersoonBetrokkeneToZaak(
+                zaakUuid = zaakUuid,
+                roltypeUUID = ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON,
+                kvkNummer = TEST_KVK_NUMMER_1,
+                vestigingsnummer = TEST_KVK_VESTIGINGSNUMMER_1,
                 testUser = BEHEERDER_1
             )
             taskHelper.startAanvullendeInformatieTaskForZaak(
@@ -134,7 +159,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             "aantalOpenstaandeTaken" : 1,
                             "afgehandeld" : false,
                             "betrokkenen" : {
-                              "Behandelaar" : [ "U-${GROUP_BEHANDELAARS_TEST_1.name}" ]
+                              "Belanghebbende" : [ "P-${TEST_PERSON_HENDRIKA_JANSE_BSN}" ],
+                              "Behandelaar" : [ "U-${GROUP_BEHANDELAARS_TEST_1.name}" ],
+                              "Contactpersoon" : [ "V-${TEST_KVK_NUMMER_1}-${TEST_KVK_VESTIGINGSNUMMER_1}" ],
+                              "Medeaanvrager" : [ "K-${TEST_KVK_NUMMER_1}" ]
                             },
                             "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
                             "groepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
