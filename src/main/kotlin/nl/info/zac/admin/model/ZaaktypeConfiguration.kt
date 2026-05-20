@@ -78,9 +78,6 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "productaanvraagtype")
     var productaanvraagtype: String? = null
 
-    @Column(name = "domein")
-    var domein: String? = null
-
     @Column(name = "niet_ontvankelijk_resultaattype_uuid")
     var nietOntvankelijkResultaattype: UUID? = null
 
