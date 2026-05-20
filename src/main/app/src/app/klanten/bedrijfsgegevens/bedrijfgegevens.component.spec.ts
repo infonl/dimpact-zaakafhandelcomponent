@@ -198,15 +198,11 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
   });
 
-  describe.each([
-    { type: "RECHTSPERSOON" },
-    { type: "HOOFDVESTIGING" },
-    { type: "NEVENVESTIGING" },
-  ])("type display for $type", ({ type }) => {
+  describe("type display", () => {
     beforeEach(async () => {
       notifyManager.setScheduler((fn) => fn());
       const request = httpController.expectOne(vestigingUrl);
-      request.flush({ ...testBedrijf, type });
+      request.flush({ ...testBedrijf, type: "fakeType1" });
       await sleep();
       fixture.detectChanges();
     });
@@ -215,11 +211,11 @@ describe(BedrijfsgegevensComponent.name, () => {
       notifyManager.setScheduler(queueMicrotask);
     });
 
-    it("renders the KVK type in the type field", () => {
+    it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
       const typeField: HTMLElement = fixture.nativeElement.querySelector(
         'zac-static-text[label="type"]',
       );
-      expect(typeField?.textContent).toContain(type);
+      expect(typeField?.textContent).toContain("fakeType1");
     });
   });
 
