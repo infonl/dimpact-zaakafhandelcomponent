@@ -36,8 +36,8 @@ export class MedewerkerGroepFieldBuilder extends AbstractFormFieldBuilder {
     return this;
   }
 
-  setZaaktypeUuid(zaaktypeUuid: string): this {
-    this.formField.zaaktypeUuid = zaaktypeUuid;
+  setZaaktypeOmschrijving(zaaktypeOmschrijving: string): this {
+    this.formField.zaaktypeOmschrijving = zaaktypeOmschrijving;
     return this;
   }
 

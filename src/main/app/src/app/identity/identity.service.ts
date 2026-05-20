@@ -22,12 +22,12 @@ export class IdentityService {
   }
 
   listBehandelaarGroupsForZaaktype(
-    zaaktypeUuid: string,
+    zaaktypeDescription: string,
   ): Observable<GeneratedType<"RestGroup">[]> {
     return this.zacHttpClient.GET(
-      "/rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}",
+      "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
       {
-        path: { zaaktypeUuid },
+        path: { zaaktypeDescription },
       },
     );
   }

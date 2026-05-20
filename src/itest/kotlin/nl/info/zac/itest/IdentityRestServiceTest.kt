@@ -29,8 +29,6 @@ import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.PABC_ADMIN
 import nl.info.zac.itest.config.RAADPLEGER_1
@@ -112,100 +110,6 @@ class IdentityServiceTest : BehaviorSpec({
     }
 
     Context("Getting authorised behandelaar groups for a zaaktype") {
-        Given(
-            """
-            Authorised groups for the application role 'behandelaar' and the given zaaktype, 
-            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
-        """
-        ) {
-            When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
-                val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_CMMN_TEST_2_UUID",
-                    testUser = BEHEERDER_1
-                )
-                Then(
-                    """
-                Only the groups authorised for the application role 'behandelaar' and
-                zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned,
-                """
-                ) {
-                    response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualSpecifiedJson """
-                            [
-                                {
-                                    "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                                    "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                                    "active": true
-                                },
-                                {
-                                    "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                                    "active": true
-                                },
-                                {
-                                    "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}",
-                                    "active": true
-                                },
-                                {
-                                    "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
-                                    "active": true
-                                }
-                            ]
-                    """.trimIndent()
-                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
-                }
-            }
-        }
-
-        Given(
-            """
-              Authorised groups for the application role 'behandelaar' and the given zaaktype,
-              using the groups' functional roles and the available PABC mappings, and a logged-in beheerder        
-            """.trimIndent()
-        ) {
-            When("the 'list behandelaar groups for a zaaktype UUID' endpoint is called for this zaaktype") {
-                val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/identity/groups/behandelaar/zaaktype/$ZAAKTYPE_CMMN_TEST_3_UUID",
-                    testUser = BEHEERDER_1
-                )
-                Then(
-                    """
-                Only the groups authorised for the application role 'behandelaar' and
-                zaaktype test 3 (via the PABC mappings and the group's functional roles) are returned
-                """
-                ) {
-                    response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualSpecifiedJson """
-                    [
-                        {
-                            "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
-                            "naam": "${GROUP_BEHANDELAARS_TEST_1.description}",
-                            "active": true
-                        },
-                        {
-                            "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                            "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                            "active": true
-                        },
-                        {
-                            "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                            "naam": "${GROUP_COORDINATORS_TEST_1.description}",
-                            "active": true
-                        },
-                        {
-                            "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                            "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
-                            "active": true
-                        }
-                    ]
-                    """.trimIndent()
-                    response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
-                }
-            }
-        }
-
         Given(
             """
             Authorised groups for the application role 'behandelaar' and the given zaaktype, 
