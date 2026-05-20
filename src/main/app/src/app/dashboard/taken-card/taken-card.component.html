@@ -55,7 +55,14 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="5">
-        <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+        <mat-progress-spinner
+          *ngIf="takenQuery.isLoading()"
+          mode="indeterminate"
+          diameter="32"
+        ></mat-progress-spinner>
+        <p *ngIf="!takenQuery.isLoading()">
+          {{ "msg.geen.gegevens.gevonden" | translate }}
+        </p>
       </td>
     </tr>
   </table>

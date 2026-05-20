@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<div class="table-wrapper" [ngClass]="{ loading: zoekQuery.isLoading() }">
+<div class="table-wrapper">
   <table mat-table matSort [dataSource]="dataSource">
     <ng-container matColumnDef="identificatie">
       <th
@@ -59,7 +59,11 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell dashboard-empty-cell" colspan="5">
-        <p *ngIf="zoekQuery.isLoading()">{{ "msg.loading" | translate }}</p>
+        <mat-progress-spinner
+          *ngIf="zoekQuery.isLoading()"
+          mode="indeterminate"
+          diameter="32"
+        ></mat-progress-spinner>
         <p *ngIf="!zoekQuery.isLoading()">
           {{ "msg.geen.gegevens.gevonden" | translate }}
         </p>
