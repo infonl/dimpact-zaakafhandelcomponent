@@ -326,8 +326,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             )
             .waitingFor(
                 "greenmail",
-                Wait.forHttp("/api/service")
-                    .forPort(8080)
+                Wait.forLogMessage(".*Starting GreenMail API server.*", 1)
                     .withStartupTimeout(2.minutes.toJavaDuration())
             )
     }
