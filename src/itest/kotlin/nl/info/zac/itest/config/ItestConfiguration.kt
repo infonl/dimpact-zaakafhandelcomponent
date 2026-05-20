@@ -211,15 +211,15 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
 
     const val ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION = "ZAAK-1973-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email"
-    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting-alternative-email"
-    const val ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL = "test-alternative-1@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving-request-specific-1"
+    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting-request-specific-1"
+    const val ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL = "test-request-specific-1@example.com"
 
     const val ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION = "ZAAK-1976-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email-3"
-    const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-alternative-email-3"
-    const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL = "test-alternative-3@example.com"
-    const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER = "06-11118888"
+    const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-request-specific-2"
+    const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-request-specific-2-email"
+    const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL = "test-request-specific-2@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER = "06-11118888"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"

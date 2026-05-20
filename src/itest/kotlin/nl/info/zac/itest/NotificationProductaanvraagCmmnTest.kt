@@ -47,12 +47,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_TOELICHTING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_3_TOELICHTING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_TOELICHTING
@@ -282,8 +282,8 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                                 "met kenmerk '$OBJECT_PRODUCTAANVRAAG_6_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
                             with(getJSONObject("zaakSpecificContactDetails")) {
-                                getString("emailAddress") shouldBe ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL
-                                getString("telephoneNumber") shouldBe ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_TELEPHONE_NUMBER
+                                getString("emailAddress") shouldBe ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL
+                                getString("telephoneNumber") shouldBe ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER
                             }
                         }
                     }
@@ -293,7 +293,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     "an automated acknowledgement of receipt email is sent to productaanvraag-specific email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL/messages/"
                     )
                     logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                     receivedMailsResponse.code shouldBe HTTP_OK
@@ -622,14 +622,14 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                                 "met kenmerk '$OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_3_TOELICHTING"
                             getJSONObject("zaakSpecificContactDetails").getString("emailAddress") shouldBe
-                                ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL
+                                ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL
                         }
                     }
                 }
 
                 And("an automated acknowledgement of receipt email is sent to alternative email address") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL/messages/"
                     )
                     logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                     receivedMailsResponse.code shouldBe HTTP_OK

@@ -1340,7 +1340,7 @@
             "customerProfile": [
               {
                 "type": "email",
-                "address": "test-alternative-1@example.com",
+                "address": "test-request-specific-1@example.com",
                 "preferenceUpdate": "useOnlyOnce"
               }
             ]
@@ -1350,8 +1350,8 @@
         "zaakgegevens": {
           "identificatie": "zaakProductaanvraag-alternative-email",
           "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
-          "omschrijving": "fakeZaakOmschrijving-alternative-email",
-          "toelichting": "fakeZaakToelichting-alternative-email"
+          "omschrijving": "fakeZaakOmschrijving-request-specific-1",
+          "toelichting": "fakeZaakToelichting-request-specific-1"
         },
         "betrokkenen": []
       },
@@ -1468,8 +1468,8 @@
         "zaakgegevens": {
           "identificatie": "zaakProductaanvraag-alternative-email-3",
           "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
-          "omschrijving": "fakeZaakOmschrijving-alternative-email-3",
-          "toelichting": "fakeZaakToelichting-alternative-email-3"
+          "omschrijving": "fakeZaakOmschrijving-request-specific-2",
+          "toelichting": "fakeZaakToelichting-request-specific-2-email"
         },
         "betrokkenen": [
           {
@@ -1487,7 +1487,7 @@
             "customerProfile": [
               {
                 "type": "email",
-                "address": "test-alternative-3@example.com",
+                "address": "test-request-specific-2@example.com",
                 "preferenceUpdate": "useOnlyOnce"
               },
               {

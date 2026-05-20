@@ -107,9 +107,9 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
 
 -- add email digital addresses to betrokkene test product request with productaanvraag-specific email address
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(7, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-alternative-1@example.com', '', 5, NULL, false, '', NULL);
+    VALUES(7, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-request-specific-1@example.com', '', 5, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(8, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-alternative-3@example.com', '', 8, NULL, false, '', NULL);
+    VALUES(8, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-request-specific-2@example.com', '', 8, NULL, false, '', NULL);
 -- add telephone number digital addresses to betrokkene test product request with productaanvraag-specific telephone number
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(9, '4de71e36-377f-4bd4-91ea-7aa1ae5bf08a', 'telefoonnummer', '06-11119999', '', 6, NULL, false, '', NULL);
