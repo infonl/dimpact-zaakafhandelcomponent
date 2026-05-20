@@ -98,7 +98,7 @@
     />
     <zac-static-text
       label="type"
-      [value]="initiatorIdentificatie()?.type | translate"
+      [value]="bedrijfQuery.data()?.type | translate"
     />
     <zac-static-text
       *ngIf="!vestigingsprofiel()"
