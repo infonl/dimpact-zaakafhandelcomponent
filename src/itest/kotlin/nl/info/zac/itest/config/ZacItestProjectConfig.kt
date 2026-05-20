@@ -272,6 +272,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
 
         return ComposeContainer("zac-itest-", composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
+            // do not pull images first because this will cause _all_ Docker images to be pulled,
+            // and not just the ones we need for our profiles
+            .withPull(false)
             .withOptions(
                 "--profile zac",
                 "--profile itest",
