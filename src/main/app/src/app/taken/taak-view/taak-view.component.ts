@@ -346,7 +346,7 @@ export class TaakViewComponent
         .groepLabel("groep.-kies-")
         .groepRequired()
         .medewerkerLabel("behandelaar.-kies-")
-        .setZaaktypeUuid(this.taak.zaaktypeUUID!)
+        .setZaaktypeOmschrijving(this.taak.zaaktypeOmschrijving!)
         .build(),
     );
     this.editFormFields.set(

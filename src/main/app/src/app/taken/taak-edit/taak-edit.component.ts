@@ -72,7 +72,7 @@ export class TaakEditComponent {
   constructor() {
     effect(() => {
       this.identityService
-        .listBehandelaarGroupsForZaaktype(this.task().zaaktypeUUID!)
+        .listBehandelaarGroupsForZaaktype(this.task().zaaktypeOmschrijving!)
         .subscribe((groups) => {
           const taskGroup = this.task().groep;
           if (taskGroup && !groups.find((group) => group.id === taskGroup.id)) {

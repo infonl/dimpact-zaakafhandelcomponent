@@ -19,7 +19,7 @@ export class TaakFormulierBuilder {
     planItem: GeneratedType<"RESTPlanItem">,
     zaak: GeneratedType<"RestZaak">,
   ): TaakFormulierBuilder {
-    this._formulier.tabellen = planItem.tabellen;
+    this._formulier.tabellen = planItem.tabellen ?? {};
     this._formulier.zaak = zaak;
     this._formulier.taakNaam = planItem.naam;
     this._formulier.humanTaskData = {
@@ -40,7 +40,7 @@ export class TaakFormulierBuilder {
           .label("actie.taak.toewijzing")
           .groepLabel("actie.taak.toekennen.groep")
           .groepRequired()
-          .setZaaktypeUuid(zaak.zaaktype.uuid)
+          .setZaaktypeOmschrijving(zaak.zaaktype.omschrijving!)
           .medewerkerLabel("actie.taak.toekennen.medewerker")
           .build(),
       ],

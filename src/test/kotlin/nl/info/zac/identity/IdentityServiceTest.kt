@@ -12,8 +12,6 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
-import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createUserRepresentation
 import nl.info.zac.identity.exception.GroupNotFoundException
@@ -21,17 +19,13 @@ import nl.info.zac.identity.exception.UserNotFoundException
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.getFullName
 import org.keycloak.admin.client.resource.RealmResource
-import java.net.URI
-import java.util.UUID
 
 class IdentityServiceTest : BehaviorSpec({
     val realmResource = mockk<RealmResource>()
     val pabcClientService = mockk<PabcClientService>()
-    val ztcClientService = mockk<ZtcClientService>()
     val identityService = IdentityService(
         keycloakZacRealmResource = realmResource,
-        pabcClientService = pabcClientService,
-        ztcClientService = ztcClientService
+        pabcClientService = pabcClientService
     )
 
     afterEach {
@@ -327,16 +321,11 @@ class IdentityServiceTest : BehaviorSpec({
     Context("Listing groups for a zaaktype") {
         Given(
             """
-            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC 
+            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC
             and PABC feature flag on
             """
         ) {
-            val zaaktypeUuid = UUID.randomUUID()
             val zaaktypeDescription = "fakeZaaktypeDescription"
-            val zaaktype = createZaakType(
-                uri = URI("https://example.com/zaaktypes/$zaaktypeUuid"),
-                omschrijving = zaaktypeDescription
-            )
             val pabcGroupRepresentation1 = createPabcGroupRepresentation(
                 name = "fakeGroupId1",
                 description = "fakeGroupDescription1"
@@ -350,24 +339,12 @@ class IdentityServiceTest : BehaviorSpec({
                 description = "fakeInactiveGroupDescription",
                 attributes = mapOf("active" to listOf("false"))
             )
-            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaaktype
             every {
                 pabcClientService.getGroupsByApplicationRoleAndZaaktype(
                     applicationRole = "behandelaar",
-                    zaaktypeDescription = zaaktype.omschrijving
+                    zaaktypeDescription = zaaktypeDescription
                 )
             } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
-
-            When("active groups for the zaaktype UUID are listed") {
-                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(zaaktypeUuid)
-
-                Then("only active groups are returned and the inactive group is filtered out") {
-                    groups.size shouldBe 2
-                    groups.first { it.name == "fakeGroupId1" }.active shouldBe true
-                    groups.first { it.name == "fakeGroupId2" }.active shouldBe true
-                    groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
-                }
-            }
 
             When("groups for the zaaktype are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)

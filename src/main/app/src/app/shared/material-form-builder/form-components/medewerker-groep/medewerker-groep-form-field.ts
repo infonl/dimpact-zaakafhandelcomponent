@@ -10,12 +10,12 @@ import { FieldType } from "../../model/field-type.enum";
 
 export class MedewerkerGroepFormField extends AbstractFormGroupField {
   fieldType = FieldType.MEDEWERKER_GROEP;
-  groepLabel: string;
-  medewerkerLabel: string;
-  maxlength: number;
-  zaaktypeUuid: string;
-  maxGroupNameLength: number;
-  maxGroupIdLength: number;
+  groepLabel!: string;
+  medewerkerLabel!: string;
+  maxlength!: number;
+  zaaktypeOmschrijving!: string;
+  maxGroupNameLength!: number;
+  maxGroupIdLength!: number;
 
   constructor() {
     super();
