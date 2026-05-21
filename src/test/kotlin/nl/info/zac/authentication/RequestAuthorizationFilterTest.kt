@@ -311,7 +311,9 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         Given("An authenticated beheerder accesses '/rest/admin/*'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf("fakeZaaktypeDescription" to setOf(ZacApplicationRole.BEHEERDER.value))
+                applicationRolesPerZaaktype = mapOf(
+                    "fakeZaaktypeDescription" to setOf(ZacApplicationRole.BEHEERDER.value)
+                )
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
