@@ -268,7 +268,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     // retrieve the newly created zaak and check the contents
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     ).let { getZaakResponse ->
                         val responseBody = getZaakResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
