@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.kvk.exception.KvkClientNoResultException
 import nl.info.client.kvk.model.KvkSearchParameters
+import nl.info.client.kvk.model.createBasisprofiel
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
@@ -78,6 +79,20 @@ class KvkClientServiceTest : BehaviorSpec({
 
             Then("it should return the expected vestiging") {
                 result shouldBe expectedVestiging
+            }
+        }
+    }
+
+    Given("A rechtspersoon with a kvkNummer") {
+        val kvkNummer = "12345678"
+        val expectedBasisprofiel = createBasisprofiel(kvkNummer = kvkNummer)
+        every { kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false) } returns expectedBasisprofiel
+
+        When("the rechtspersoonsprofiel is retrieved for this kvkNummer") {
+            val result = kvkClientService.findRechtspersoonsprofiel(kvkNummer)
+
+            Then("it should return the expected basisprofiel") {
+                result shouldBe expectedBasisprofiel
             }
         }
     }

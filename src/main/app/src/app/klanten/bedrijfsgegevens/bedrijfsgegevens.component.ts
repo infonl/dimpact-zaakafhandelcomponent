@@ -66,8 +66,7 @@ export class BedrijfsgegevensComponent {
   protected profielOphalenMogelijk = computed(() => {
     const data = this.bedrijfQuery.data();
     return (
-      !!data?.vestigingsnummer ||
-      (data?.type === "RECHTSPERSOON" && !!data?.kvkNummer)
+      !!data?.vestigingsnummer || !!data?.kvkNummer
     );
   });
 
