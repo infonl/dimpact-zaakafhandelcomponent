@@ -216,6 +216,27 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
   });
 
+  describe("type display", () => {
+    beforeEach(async () => {
+      notifyManager.setScheduler((fn) => fn());
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, type: "fakeType1" });
+      await sleep();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
+      const typeField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="type"]',
+      );
+      expect(typeField?.textContent).toContain("fakeType1");
+    });
+  });
+
   describe.each([
     {
       status: 404,
