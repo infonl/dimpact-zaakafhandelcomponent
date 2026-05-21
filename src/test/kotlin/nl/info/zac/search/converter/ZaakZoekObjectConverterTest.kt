@@ -130,11 +130,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         size shouldBe rollenZaak.size
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                            listOf(rolAdviseur.identificatienummer!!)
+                            listOf("P-${rolAdviseur.identificatienummer!!}")
                         )
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                            listOf(rolBelanghebbende.identificatienummer!!)
+                            listOf("P-${rolBelanghebbende.identificatienummer!!}")
                         )
                     }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
@@ -210,11 +210,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         size shouldBe rollenZaak.size
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                            listOf(rolAdviseur.identificatienummer!!)
+                            listOf("P-${rolAdviseur.identificatienummer!!}")
                         )
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                            listOf(rolBelanghebbende.identificatienummer!!)
+                            listOf("P-${rolBelanghebbende.identificatienummer!!}")
                         )
                     }
                     getZaakIndicaties() shouldContain ZaakIndicatie.HEROPEND

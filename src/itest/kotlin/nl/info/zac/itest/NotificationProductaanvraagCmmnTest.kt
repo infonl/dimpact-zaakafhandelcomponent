@@ -14,9 +14,9 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_KVK
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
@@ -351,7 +351,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                                 "met kenmerk '$OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK'."
                             with(getJSONObject("initiatorIdentificatie")) {
                                 getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
-                                getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_KVK
+                                getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_KVK
                             }
                         }
                     }
@@ -442,7 +442,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             with(getJSONObject("initiatorIdentificatie")) {
                                 getString("kvkNummer") shouldBe TEST_KVK_NUMMER_1
                                 getString("vestigingsnummer") shouldBe TEST_KVK_VESTIGINGSNUMMER_1
-                                getString("type") shouldBe BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+                                getString("type") shouldBe BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
                             }
                             zaakProductaanvraagComboUuid = getString("uuid").let(UUID::fromString)
                         }
