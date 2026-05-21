@@ -53,17 +53,6 @@ export class BetrokkeneIdentificatie
           break;
         }
 
-        if (
-          "identificatie" in betrokkene &&
-          betrokkene.identificatie !== null
-        ) {
-          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
-            this.kvkNummer = betrokkene.kvkNummer;
-          }
-          this.vestigingsnummer = betrokkene.identificatie;
-          break;
-        }
-
         throw new Error(
           `${BetrokkeneIdentificatie.name}: Tried to add a "${this.type}" betrokkene without a vestigingsnummer`,
         );

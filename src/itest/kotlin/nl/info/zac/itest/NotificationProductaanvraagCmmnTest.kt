@@ -196,17 +196,17 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"
@@ -461,7 +461,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"

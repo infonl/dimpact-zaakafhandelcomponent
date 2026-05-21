@@ -748,7 +748,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
                             getString("roltoelichting") shouldBe "fakeToelichting"
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
@@ -758,7 +758,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             // if no toelichting was provided, the default value should be used
                             getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
