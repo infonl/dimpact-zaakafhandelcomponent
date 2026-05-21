@@ -92,7 +92,7 @@ export class BedrijfsgegevensComponent {
         });
     } else if (data?.kvkNummer) {
       this.klantenService
-        .readRechtspersoonsprofiel(data.kvkNummer)
+        .readBasisprofiel(data.kvkNummer)
         .subscribe((value) => {
           this.profiel.set(value);
         });

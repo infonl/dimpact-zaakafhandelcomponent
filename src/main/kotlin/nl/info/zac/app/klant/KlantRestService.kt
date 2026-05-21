@@ -138,11 +138,11 @@ class KlantRestService @Inject constructor(
             )
 
     @GET
-    @Path("rechtspersoonsprofiel/{kvkNummer}")
-    fun readRechtspersoonsprofiel(
+    @Path("basisprofiel/{kvkNummer}")
+    fun readBasisprofiel(
         @PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String
     ): RestBedrijfsprofiel =
-        kvkClientService.findRechtspersoonsprofiel(kvkNummer)
+        kvkClientService.findBasisprofiel(kvkNummer)
             ?.toRestBedrijfsprofiel()
             ?: throw RechtspersoonNotFoundException(
                 "Geen rechtspersoonsprofiel gevonden voor KVK nummer '$kvkNummer'"

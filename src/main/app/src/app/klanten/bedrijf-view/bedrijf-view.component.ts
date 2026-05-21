@@ -73,7 +73,7 @@ export class BedrijfViewComponent {
         });
     } else if (this.bedrijf?.kvkNummer) {
       this.klantenService
-        .readRechtspersoonsprofiel(this.bedrijf.kvkNummer)
+        .readBasisprofiel(this.bedrijf.kvkNummer)
         .subscribe((value) => {
           this.profiel = value;
         });

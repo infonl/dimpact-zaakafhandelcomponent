@@ -49,7 +49,7 @@ class KvkClientService @Inject constructor(
     fun findVestigingsprofiel(vestigingsnummer: String): Vestiging? =
         kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false)
 
-    fun findRechtspersoonsprofiel(kvkNummer: String): Basisprofiel? =
+    fun findBasisprofiel(kvkNummer: String): Basisprofiel? =
         kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false)
 
     fun findVestiging(vestigingsnummer: String, kvkNummer: String? = null): ResultaatItem? =
