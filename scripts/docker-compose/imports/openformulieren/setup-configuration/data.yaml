@@ -1,0 +1,62 @@
+# Open Formulieren setup configuration for local development.
+# Applied automatically by the openformulieren-init container on first start.
+# Format reference: https://github.com/open-formulieren/open-forms/blob/3.4.2/docker/setup_configuration/data.yaml
+
+# Register all backend services as ZGW consumers so they appear in the
+# Open Formulieren admin UI under Services and can be selected in form backends.
+zgw_consumers_config_enable: True
+zgw_consumers:
+  services:
+    # Open Zaak - Zaken API
+    - identifier: openzaak-zaken
+      label: Open Zaak - Zaken API
+      api_root: http://openzaak-nginx:8000/zaken/api/v1/
+      api_type: zrc
+      auth_type: zgw
+      client_id: zac_client
+      secret: openzaakZaakafhandelcomponentClientSecret
+
+    # Open Zaak - Documenten API
+    - identifier: openzaak-documenten
+      label: Open Zaak - Documenten API
+      api_root: http://openzaak-nginx:8000/documenten/api/v1/
+      api_type: drc
+      auth_type: zgw
+      client_id: zac_client
+      secret: openzaakZaakafhandelcomponentClientSecret
+
+    # Open Zaak - Catalogi API
+    - identifier: openzaak-catalogi
+      label: Open Zaak - Catalogi API
+      api_root: http://openzaak-nginx:8000/catalogi/api/v1/
+      api_type: ztc
+      auth_type: zgw
+      client_id: zac_client
+      secret: openzaakZaakafhandelcomponentClientSecret
+
+    # Objecten API (stores productaanvraag objects)
+    - identifier: objecten-api
+      label: Objecten API
+      api_root: http://objecten-api.local:8000/api/v2/
+      api_type: orc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeZacObjectsToken
+
+    # Open Klant - Klantinteracties API
+    - identifier: openklant-klantinteracties
+      label: Open Klant - Klantinteracties API
+      api_root: http://openklant.local:8000/klantinteracties/api/v1/
+      api_type: orc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeToken
+
+# Objects API groups and ZGW API groups are NOT pre-configured here because they
+# require catalogue_domain and catalogue_rsin values from your local Open Zaak
+# instance (which vary per environment).
+#
+# Configure these manually in the Open Formulieren admin UI after starting the stack:
+#   http://localhost:8007/admin/zgw_consumers/zgwservice/  (verify services above)
+#   http://localhost:8007/admin/registrations_objects_api/objectsapigroupconfig/add/
+#   http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/
