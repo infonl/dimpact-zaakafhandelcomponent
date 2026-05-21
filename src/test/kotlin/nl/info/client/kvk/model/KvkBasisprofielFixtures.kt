@@ -6,8 +6,8 @@ package nl.info.client.kvk.model
 
 import nl.info.client.kvk.basisprofiel.model.generated.Adres
 import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
-import nl.info.client.kvk.basisprofiel.model.generated.EmbeddedContainer
 import nl.info.client.kvk.basisprofiel.model.generated.Eigenaar
+import nl.info.client.kvk.basisprofiel.model.generated.EmbeddedContainer
 import nl.info.client.kvk.basisprofiel.model.generated.Handelsnaam
 import nl.info.client.kvk.basisprofiel.model.generated.SBIActiviteit as BasisprofielSBIActiviteit
 

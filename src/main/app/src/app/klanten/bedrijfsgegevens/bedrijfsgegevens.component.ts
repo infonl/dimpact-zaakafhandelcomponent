@@ -65,9 +65,7 @@ export class BedrijfsgegevensComponent {
 
   protected profielOphalenMogelijk = computed(() => {
     const data = this.bedrijfQuery.data();
-    return (
-      !!data?.vestigingsnummer || !!data?.kvkNummer
-    );
+    return !!data?.vestigingsnummer || !!data?.kvkNummer;
   });
 
   protected profiel = signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
