@@ -361,21 +361,21 @@ jobs:
             src/main/app/reports/*.xml
 
       - name: Upload unit test results to CodeCov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: "test_results"
 
       - name: Upload backend unit test coverage report to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
           directory: ./build/reports/jacoco/test
 
       - name: Upload frontend unit test coverage report to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: frontendunittests
@@ -437,44 +437,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run integration tests with ZAC PABC integration feature flag disabled
+      - name: Run integration tests
         run: |
           ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
-            -PfeatureFlagPabcIntegration=false \
             -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
             itest --info
 
       - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: "test_results"
-
-      - name: Publish integration test results
-        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2.23.0
-        if: ${{ !cancelled() }}
-        with:
-          check_name: integration-test-results
-          files: |
-            build/test-results/itest/**/*.xml
-
-      - name: Delete integration test data
-        run: |
-          # Delete the integration test data to ensure that the next run starts with a clean slate
-          # This is required because the integration tests use the same data sources and we do not want to
-          # have leftover data from previous runs.
-          sudo rm -rf ./scripts/docker-compose/volume-data
-
-      - name: Run integration tests with ZAC PABC integration feature flag enabled
-        run: |
-          ./gradlew -PzacDockerImage=${ZAC_DOCKER_IMAGE} \
-            -PfeatureFlagPabcIntegration=true \
-            -x compileJava -x processResources -x compileKotlin -x classes -x buildDockerImage \
-            itest --info
-
-      - name: Upload integration test results to CodeCov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -501,7 +471,7 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport -x itest --info
 
       - name: Upload integration test coverage report to Codecov
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           flags: integrationtests
         env:

@@ -6,23 +6,21 @@
 import { NgModule } from "@angular/core";
 
 import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
-import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { KlantenModule } from "../klanten/klanten.module";
 import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.component";
-import { MailModule } from "../mail/mail.module";
+import { MailCreateComponent } from "../mail/mail-create/mail-create.component";
+import { OntvangstbevestigingComponent } from "../mail/ontvangstbevestiging/ontvangstbevestiging.component";
 import { NotitiesComponent } from "../notities/notities.component";
 import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 import { SharedModule } from "../shared/shared.module";
-import { ZoekenModule } from "../zoeken/zoeken.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { BetrokkeneLinkComponent } from "./zaak-betrokkenen/betrokkene-link.component";
-import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
@@ -34,28 +32,21 @@ import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.
 import { ZaakTakenComponent } from "./zaak-taken/zaak-taken.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
-import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
-import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
-import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 @NgModule({
   declarations: [BesluitEditComponent, BesluitViewComponent, ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
-    ZakenWerkvoorraadComponent,
     NotitiesComponent,
     SharedModule,
     ZaakDocumentenComponent,
-    ZakenAfgehandeldComponent,
-    ZakenMijnComponent,
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
     PlanItemsModule,
-    MailModule,
-    ZoekenModule,
-    GebruikersvoorkeurenModule,
+    MailCreateComponent,
+    OntvangstbevestigingComponent,
     BagZoekComponent,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
@@ -70,7 +61,6 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     ZaakTakenComponent,
     BesluitCreateComponent,
     CaseDetailsEditComponent,
-    ZaakCreateComponent,
     ZaakLinkComponent,
   ],
 })

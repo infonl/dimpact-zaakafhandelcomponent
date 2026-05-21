@@ -12,7 +12,7 @@ import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
@@ -57,7 +57,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                                 "titel" to uniqueTitle
                             )
                         ).toString(),
-                        testUser = COORDINATOR_DOMAIN_TEST_1
+                        testUser = COORDINATOR_1
                     )
                     listResponse.code shouldBe HTTP_OK
                     with(JSONObject(listResponse.bodyAsString)) {
@@ -94,7 +94,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         "titel" to uniqueTitle
                     )
                 ).toString(),
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
             listResponse.code shouldBe HTTP_OK
             JSONObject(listResponse.bodyAsString).run {
@@ -106,7 +106,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         When("the inbox document is deleted") {
             val deleteResponse = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/inboxdocumenten/$inboxDocumentId",
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
 
             Then("the inbox document should no longer appear in the inbox documents list") {
@@ -120,7 +120,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                             "titel" to uniqueTitle
                         )
                     ).toString(),
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 listResponse.code shouldBe HTTP_OK
                 JSONObject(listResponse.bodyAsString).getInt("totaal") shouldBe 0
@@ -129,7 +129,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             When("the get enkelvoudig informatie object endpoint is called for the deleted document") {
                 val getResponse = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 Then(
                     "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"

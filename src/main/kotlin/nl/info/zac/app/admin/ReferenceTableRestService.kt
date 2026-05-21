@@ -24,7 +24,6 @@ import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDI
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_DOELBINDING_ZOEK_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.BRP_VERWERKINGSREGISTER_WAARDE
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.COMMUNICATIEKANAAL
-import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.DOMEIN
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.SERVER_ERROR_ERROR_PAGINA_TEKST
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.toRestReferenceTable
@@ -133,15 +132,6 @@ class ReferenceTableRestService @Inject constructor(
     ) = getReferenceTableValueNames(
         referenceTableService.readReferenceTable(COMMUNICATIEKANAAL.name).values
     ).filter { communicationChannel -> includingEFormulier || communicationChannel != COMMUNICATIEKANAAL_EFORMULIER }
-
-    @GET
-    @Path("domein")
-    fun listDomains(): List<String> {
-        assertPolicy(policyService.readOverigeRechten().beheren)
-        return referenceTableService.readReferenceTable(DOMEIN.name).values.let {
-            getReferenceTableValueNames(it)
-        }
-    }
 
     @GET
     @Path("server-error-text")

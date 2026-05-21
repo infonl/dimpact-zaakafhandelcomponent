@@ -9,7 +9,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
@@ -51,7 +51,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -67,7 +67,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         When("the check for zaak types validity is performed") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/health-check/zaaktypes",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }

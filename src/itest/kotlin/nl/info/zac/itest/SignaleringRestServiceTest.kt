@@ -15,8 +15,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -74,7 +74,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "application/json"
                     ),
                     requestBodyAsString = it,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be 'ok'") {
@@ -87,11 +87,11 @@ class SignaleringRestServiceTest : BehaviorSpec({
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -177,7 +177,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/signaleringen/latest",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                        testUser = BEHANDELAAR_1,
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -203,7 +203,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "sortOrder": "DESC"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -236,7 +236,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "sortOrder": "DESC"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -257,7 +257,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 fileName = TEST_TXT_FILE_NAME,
                 fileMediaType = TEXT_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
 
             Then("the response should be OK and contain information for the created document") {
@@ -318,7 +318,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                                 "sortOrder": "DESC"
                             }
                         """.trimIndent(),
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                        testUser = BEHANDELAAR_1,
                     )
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }

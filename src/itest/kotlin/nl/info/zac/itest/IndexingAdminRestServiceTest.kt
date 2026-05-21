@@ -11,8 +11,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
@@ -38,10 +38,10 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         lateinit var zaakIdentification: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_1
         ).run {
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
@@ -53,15 +53,15 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHEERDER_1
         )
         zacClient.createEnkelvoudigInformatieobjectForZaak(
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
             vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_1
         )
 
         When("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
@@ -94,7 +94,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "type": "ZAAK"
                         }
                         """.trimIndent(),
-                        testUser = BEHEERDER_ELK_ZAAKTYPE
+                        testUser = BEHEERDER_1
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
@@ -130,7 +130,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "type": "TAAK"
                         }
                         """.trimIndent(),
-                        testUser = BEHEERDER_ELK_ZAAKTYPE
+                        testUser = BEHEERDER_1
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }
@@ -166,7 +166,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "type": "DOCUMENT"
                         }
                         """.trimIndent(),
-                        testUser = BEHEERDER_ELK_ZAAKTYPE
+                        testUser = BEHEERDER_1
                     )
                     JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
                 }

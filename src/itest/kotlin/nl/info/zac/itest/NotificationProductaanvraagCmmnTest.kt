@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_KVK
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
@@ -59,7 +59,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_4_TOELIC
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -130,7 +130,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     // retrieve the newly created zaak and check the contents
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     ).let { getZaakResponse ->
                         val responseBody = getZaakResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
@@ -138,7 +138,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
-                            getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                             getBoolean("isProcesGestuurd") shouldBe false
@@ -188,7 +188,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             When("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
@@ -197,17 +197,17 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"
@@ -276,7 +276,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
-                            getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                             getBoolean("isProcesGestuurd") shouldBe false
@@ -364,7 +364,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     // retrieve the newly created zaak and check the contents
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     ).let { getZaakResponse ->
                         val responseBody = getZaakResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
@@ -372,7 +372,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
-                            getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                             getBoolean("isProcesGestuurd") shouldBe false
@@ -390,7 +390,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 And("an automated email is sent") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -456,7 +456,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     // retrieve the newly created zaak and check the contents
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     ).let { getZaakResponse ->
                         val responseBody = getZaakResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
@@ -464,7 +464,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_COMBO_IDENTIFICATION
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
-                            getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             getBoolean("isProcesGestuurd") shouldBe false
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
@@ -483,7 +483,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             When("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagComboUuid/betrokkene",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
@@ -491,7 +491,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"
@@ -537,7 +537,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
                 val getZaakResponse = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_INVALID_IDENTIFICATION",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -608,7 +608,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     // retrieve the newly created zaak and check the contents
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/id/$ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION",
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     ).let { getZaakResponse ->
                         val responseBody = getZaakResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
@@ -616,7 +616,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION
                             getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_CMMN_TEST_3_UUID.toString()
                             getJSONObject("status").getString("naam") shouldBe "Intake"
-                            getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                            getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             // 'proces gestuurd' is true when a BPMN rather than a CMMN proces has been started
                             // since we have defined zaaktypeCmmnConfiguration for this zaaktype a CMMN proces should be started
                             getBoolean("isProcesGestuurd") shouldBe false

@@ -11,8 +11,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -49,10 +49,10 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
 
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -70,7 +70,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
             vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -82,7 +82,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the select documents task is completed") {
@@ -94,7 +94,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 0
                 }
@@ -105,7 +105,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
                         taskName = BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME,
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1
+                        testUser = BEHANDELAAR_1
                     )
                     JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
                 }
@@ -116,7 +116,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the summary task is completed") {
@@ -126,7 +126,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             And("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_BASE_URI
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -22,7 +22,7 @@ class StaticCacheFilterTest : BehaviorSpec({
         When("the file is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/index.html",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response is 200 and Cache-Control contains no-cache") {
                 response.code shouldBe HTTP_OK
@@ -35,7 +35,7 @@ class StaticCacheFilterTest : BehaviorSpec({
 
     Given("the root path") {
         When("the path is requested") {
-            val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/", testUser = BEHEERDER_ELK_ZAAKTYPE)
+            val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/", testUser = BEHEERDER_1)
             Then("the response is 200 and Cache-Control contains no-cache") {
                 response.code shouldBe HTTP_OK
                 response.headers["Cache-Control"] shouldContain "no-cache"
@@ -46,7 +46,7 @@ class StaticCacheFilterTest : BehaviorSpec({
     Given("a hashed JS bundle referenced from index.html") {
         val indexBody = itestHttpClient.performGetRequest(
             "$ZAC_BASE_URI/index.html",
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_1
         ).bodyAsString
         val scriptName = requireNotNull(HASHED_SCRIPT_REGEX.find(indexBody)?.groupValues?.get(1)) {
             "Could not find a hashed JS bundle URL in index.html"
@@ -54,7 +54,7 @@ class StaticCacheFilterTest : BehaviorSpec({
         When("the bundle is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/$scriptName",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response is 200 with Cache-Control: immutable") {
                 response.code shouldBe HTTP_OK
@@ -67,7 +67,7 @@ class StaticCacheFilterTest : BehaviorSpec({
         When("the asset is requested with ?v=395afa0f") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/assets/i18n/nl.json?v=395afa0f",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("Cache-Control is set to immutable") {
                 response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
@@ -79,7 +79,7 @@ class StaticCacheFilterTest : BehaviorSpec({
         When("the asset is requested with ?v=toolongval") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/assets/i18n/nl.json?v=toolongval",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("Cache-Control is not set to immutable") {
                 response.headers["Cache-Control"]?.shouldNotContain("immutable")
@@ -91,7 +91,7 @@ class StaticCacheFilterTest : BehaviorSpec({
         When("the health endpoint is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/rest/health",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("Cache-Control is not set to immutable") {
                 response.headers["Cache-Control"]?.shouldNotContain("immutable")

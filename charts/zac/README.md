@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.239](https://img.shields.io/badge/Version-1.0.239-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
+![Version: 1.0.243](https://img.shields.io/badge/Version-1.0.243-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.154.0 |
+| @opentelemetry | opentelemetry-collector | 0.156.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -74,7 +74,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | db.password | string | `""` |  |
 | db.user | string | `""` |  |
 | extraDeploy | list | `[]` | Extra objects to deploy (value evaluated as a template) |
-| featureFlags.pabcIntegration | bool | `false` | turns PABC integration on or off; defaults to false |
 | fullnameOverride | string | `""` | fullname to use |
 | gemeente.code | string | `""` |  |
 | gemeente.mail | string | `""` |  |
@@ -170,7 +169,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.30.1@sha256:6f5c8f8836fce1eba7daa6b4f0dbfe7aa742be47e1b15386a67be7a3dbd06086"` |  |
+| nginx.image.tag | string | `"1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -249,7 +248,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.152.0@sha256:f41d7995565df3733b7568702073a9c490792f9c6ac60684fe6a4da21a313f8d"` |  |
+| opentelemetry-collector.image.tag | string | `"0.152.1@sha256:fa1f6ea8dabd3042fabf4411eed7fa52f253edd8940140bec89a573e62a24eb7"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

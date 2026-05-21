@@ -179,7 +179,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 every { healthCheckService.controleerZaaktype(it.url) } returns zaaktypeInrichtingscheck
                 every { restZaaktypeConverter.convert(it) } returns restZaaktypes[zaaktypes.indexOf(it)]
                 every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(it.url.extractUuid())
                 } returns createZaaktypeCmmnConfiguration()
@@ -247,7 +246,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
             And("all zaaktypes are authorised") {
                 zaaktypes.forEach {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns true
                 }
 
                 every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
@@ -280,28 +278,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                     val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
                     Then("only the zaaktypes for which the user is authorised are returned") {
-                        verify(exactly = 1) {
-                            ztcClientService.listZaaktypen(defaultCatalogueURI)
-                        }
-                        verify(exactly = 2) {
-                            zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
-                        }
-                        returnedRestZaaktypes shouldHaveSize 2
-                        returnedRestZaaktypes shouldBe listOf(restZaaktype1, restZaaktype3)
-                    }
-                }
-            }
-            And("user is not authorised for a CMMN zaaktype") {
-                clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
-                zaaktypes[1].let {
-                    every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
-                    every { policyService.isAuthorisedForZaaktype(it.omschrijving) } returns false
-                }
-
-                When("the zaaktypes are listed") {
-                    val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
-
-                    Then("the authorised zaaktypes are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
@@ -421,7 +397,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNatuurlijkPersoon.omschrijving
                             roltoelichting shouldBe rolNatuurlijkPersoon.roltoelichting
                             type shouldBe "NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNatuurlijkPersoon.identificatienummer
                             temporaryPersonId shouldBe expectedPersonId
                             identificatieType shouldBe IdentificatieType.BSN
                         }
@@ -430,7 +405,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.omschrijving
                             roltoelichting shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.roltoelichting
                             type shouldBe "NIET_NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNietNatuurlijkPersoonWithVestigingsnummer.identificatienummer
                             identificatieType shouldBe IdentificatieType.VN
                         }
                         with(last()) {
@@ -438,7 +412,6 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                             roltype shouldBe rolNietNatuurlijkPersoonWithRSIN.omschrijving
                             roltoelichting shouldBe rolNietNatuurlijkPersoonWithRSIN.roltoelichting
                             type shouldBe "NIET_NATUURLIJK_PERSOON"
-                            identificatie shouldBe rolNietNatuurlijkPersoonWithRSIN.identificatienummer
                             identificatieType shouldBe IdentificatieType.RSIN
                         }
                     }

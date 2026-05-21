@@ -13,8 +13,8 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
@@ -34,7 +34,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_SIZE
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import okhttp3.MediaType.Companion.toMediaType
@@ -66,7 +66,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     ) {
         val (_, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         lateinit var enkelvoudigInformatieObjectUuid: String
         lateinit var secondEnkelvoudigInformatieObjectUuid: String
@@ -84,7 +84,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 fileName = TEST_PDF_FILE_NAME,
                 fileMediaType = PDF_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then(
@@ -167,7 +167,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = requestBody,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then(
@@ -220,7 +220,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPostRequest(
                 url = endpointUrl,
                 requestBody = "".toRequestBody(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 "the response should be OK"
@@ -233,7 +233,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 """
@@ -284,7 +284,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         When("the current version endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/huidigeversie",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then("the response should be OK and the informatieobject should be returned") {
                 val responseBody = response.bodyAsString
@@ -359,7 +359,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = requestBody,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then(
@@ -412,7 +412,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/" +
                     "convert?zaak=$zaakUuid",
                 requestBody = "".toRequestBody(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 """
@@ -427,7 +427,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         When("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 """
@@ -475,7 +475,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid",
                 requestBodyAsString = """{"zaakUuid": "$zaakUuid"}""",
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             )
             Then("the response should be no content") {
                 logger.info { "Delete response: ${response.bodyAsString}" }
@@ -486,7 +486,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         When("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
             val getResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
-                testUser = RECORDMANAGER_DOMAIN_TEST_1
+                testUser = RECORDMANAGER_1
             )
             Then("the response should be not found") {
                 logger.info { "Get after delete response: ${getResponse.bodyAsString}" }
@@ -498,14 +498,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
         val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid,
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusDays(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
         )
 
         When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
@@ -551,7 +551,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = requestBody,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then(

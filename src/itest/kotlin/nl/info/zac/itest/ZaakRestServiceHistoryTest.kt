@@ -11,13 +11,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGERS_DOMAIN_TEST_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
@@ -33,11 +33,11 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
             description = ZAAK_DESCRIPTION_1,
-            groupId = RAADPLEGERS_DOMAIN_TEST_1.name,
-            groupName = RAADPLEGERS_DOMAIN_TEST_1.description,
+            groupId = GROUP_RAADPLEGERS_TEST_1.name,
+            groupName = GROUP_RAADPLEGERS_TEST_1.description,
             startDate = DATE_TIME_2024_01_01,
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             JSONObject(bodyAsString).run {
                 logger.info { "Response: $this" }
@@ -52,11 +52,11 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             requestBodyAsString = """
                 {
                     "zaakUUID" : "$zaakUuid",
-                    "groepId" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                    "groepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
                     "reden" : "$zaakAssignToMeFromListReason"
                 }
             """.trimIndent(),
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
         }
@@ -64,7 +64,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         When("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then(
@@ -87,53 +87,53 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                        {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
-                          "nieuweWaarde" : "${BEHANDELAARS_DOMAIN_TEST_1.description}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
+                          "nieuweWaarde" : "${GROUP_BEHANDELAARS_TEST_1.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "ONTKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
-                          "oudeWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
+                          "oudeWaarde" : "${GROUP_RAADPLEGERS_TEST_1.description}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
-                          "nieuweWaarde" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
+                          "nieuweWaarde" : "${BEHANDELAAR_1.displayName}",
                           "toelichting" : "$zaakAssignToMeFromListReason"
                         }, {
                           "actie" : "ONTKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
-                          "oudeWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
+                          "oudeWaarde" : "${GROUP_RAADPLEGERS_TEST_1.description}",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "status",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
                           "nieuweWaarde" : "Intake",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "laatstGemuteerd",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEWIJZIGD",
                           "attribuutLabel" : "status",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
                           "toelichting" : "Status gewijzigd"
                         }, {
                           "actie" : "GEKOPPELD",
                           "attribuutLabel" : "Behandelaar",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
-                          "nieuweWaarde" : "${RAADPLEGERS_DOMAIN_TEST_1.description}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
+                          "nieuweWaarde" : "${GROUP_RAADPLEGERS_TEST_1.description}",
                           "toelichting" : "Aanmaken zaak"
                         }, {
                           "actie" : "AANGEMAAKT",
                           "attribuutLabel" : "zaak",
-                          "door" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                          "door" : "${BEHANDELAAR_1.displayName}",
                           "nieuweWaarde" : "$zaakIdentificatie",
                           "toelichting" : "null"
                         }              
