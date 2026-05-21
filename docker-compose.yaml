@@ -874,7 +874,7 @@ services:
   openformulieren-init:
     image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
     environment: &openformulieren-env
-      - DJANGO_SETTINGS_MODULE=openforms.conf.docker
+      - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
       - SECRET_KEY=openFormulierenSecretKey
       - DB_NAME=openformulieren
       - DB_USER=openformulieren
@@ -895,13 +895,28 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - RUN_SETUP_CONFIG=true
       - OTEL_SDK_DISABLED=true
-    command: /setup_configuration.sh
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        /setup_configuration.sh
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+            print('Admin user created')
+        else:
+            print('Admin user already exists')
+        "
     volumes: &openformulieren-volumes
       - openformulieren-static:/srv/static
       - openformulieren-media:/app/media
       - openformulieren-private-media:/app/private_media
       - openformulieren-log:/app/log
       - ./scripts/docker-compose/imports/openformulieren/setup-configuration:/app/setup_configuration
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
     depends_on:
       openformulieren-database:
         condition: service_healthy
