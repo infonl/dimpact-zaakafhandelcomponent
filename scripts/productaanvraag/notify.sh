@@ -16,7 +16,7 @@ help()
    echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
    echo "-a     Use alternative object for an anonymous product request with application-specific email address test."
-   echo "-b     Use alternative object for a authenticated initiator with BSN and an application-specific email address test."
+   echo "-b     Use alternative object for an authenticated initiator with BSN and an application-specific email address test."
    echo "-h     Print this help."
    echo
 }
