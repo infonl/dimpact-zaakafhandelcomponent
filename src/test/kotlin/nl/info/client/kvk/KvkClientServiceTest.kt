@@ -18,9 +18,11 @@ import nl.info.client.kvk.zoeken.model.generated.Resultaat
 class KvkClientServiceTest : BehaviorSpec({
     val kvkSearchClient = mockk<KvkSearchClient>()
     val kvkVestigingsprofielClient = mockk<KvkVestigingsprofielClient>()
+    val kvkBasisprofielClient = mockk<KvkBasisprofielClient>()
     val kvkClientService = KvkClientService(
         kvkSearchClient = kvkSearchClient,
-        kvkVestigingsprofielClient = kvkVestigingsprofielClient
+        kvkVestigingsprofielClient = kvkVestigingsprofielClient,
+        kvkBasisprofielClient = kvkBasisprofielClient
     )
 
     afterEach {

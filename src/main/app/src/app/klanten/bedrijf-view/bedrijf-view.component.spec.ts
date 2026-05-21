@@ -180,7 +180,10 @@ describe(BedrijfViewComponent.name, () => {
 
     it("sets profielOphalenMogelijk to false when bedrijf has no vestigingsnummer and no kvkNummer", () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined, kvkNummer: undefined }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          kvkNummer: undefined,
+        }),
       });
       fixture.detectChanges();
       expect(component["profielOphalenMogelijk"]).toBe(false);
@@ -220,7 +223,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(element).toBeTruthy();
     });
 
-     it("renders type field", () => {
+    it("renders type field", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "type");
@@ -388,10 +391,18 @@ describe(BedrijfViewComponent.name, () => {
 
     it("populates profiel on success for rechtspersoon", () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined, type: "RECHTSPERSOON", kvkNummer: "12345678" }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          type: "RECHTSPERSOON",
+          kvkNummer: "12345678",
+        }),
       });
       fixture.detectChanges();
-      const profiel = makeBedrijfsprofiel({ rechtsvorm: "BV", uitgebreideRechtsvorm: "Besloten Vennootschap", statutaireNaam: "Test BV" });
+      const profiel = makeBedrijfsprofiel({
+        rechtsvorm: "BV",
+        uitgebreideRechtsvorm: "Besloten Vennootschap",
+        statutaireNaam: "Test BV",
+      });
       jest
         .spyOn(klantenService, "readRechtspersoonsprofiel")
         .mockReturnValue(of(profiel));
@@ -402,11 +413,17 @@ describe(BedrijfViewComponent.name, () => {
 
     it("does nothing when bedrijf has no vestigingsnummer and no kvkNummer", () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined, kvkNummer: undefined }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          kvkNummer: undefined,
+        }),
       });
       fixture.detectChanges();
       const vestigingSpy = jest.spyOn(klantenService, "readVestigingsprofiel");
-      const rechtspersoonSpy = jest.spyOn(klantenService, "readRechtspersoonsprofiel");
+      const rechtspersoonSpy = jest.spyOn(
+        klantenService,
+        "readRechtspersoonsprofiel",
+      );
       component["ophalenProfiel"]();
       expect(vestigingSpy).not.toHaveBeenCalled();
       expect(rechtspersoonSpy).not.toHaveBeenCalled();
@@ -488,20 +505,22 @@ describe(BedrijfViewComponent.name, () => {
   describe("rechtspersoon profiel fields", () => {
     beforeEach(() => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined, type: "RECHTSPERSOON", kvkNummer: "12345678" }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          type: "RECHTSPERSOON",
+          kvkNummer: "12345678",
+        }),
       });
       fixture.detectChanges();
-      jest
-        .spyOn(klantenService, "readRechtspersoonsprofiel")
-        .mockReturnValue(
-          of(
-            makeBedrijfsprofiel({
-              rechtsvorm: "BV",
-              uitgebreideRechtsvorm: "Besloten Vennootschap",
-              statutaireNaam: "Test BV Statutair",
-            }),
-          ),
-        );
+      jest.spyOn(klantenService, "readRechtspersoonsprofiel").mockReturnValue(
+        of(
+          makeBedrijfsprofiel({
+            rechtsvorm: "BV",
+            uitgebreideRechtsvorm: "Besloten Vennootschap",
+            statutaireNaam: "Test BV Statutair",
+          }),
+        ),
+      );
       component["ophalenProfiel"]();
       fixture.detectChanges();
     });

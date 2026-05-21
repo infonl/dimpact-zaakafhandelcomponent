@@ -71,8 +71,7 @@ export class BedrijfsgegevensComponent {
     );
   });
 
-  protected profiel =
-    signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
+  protected profiel = signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
 
   protected warningIcon = new TextIcon(
     () => true,

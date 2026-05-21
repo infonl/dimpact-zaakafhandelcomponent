@@ -95,11 +95,7 @@
       label="type"
       [value]="bedrijfQuery.data()?.type | translate"
     />
-    <zac-static-text
-      *ngIf="profiel()"
-      label="rsin"
-      [value]="profiel()?.rsin"
-    />
+    <zac-static-text *ngIf="profiel()" label="rsin" [value]="profiel()?.rsin" />
     <zac-static-text
       *ngIf="!profiel()"
       label="adres"

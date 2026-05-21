@@ -31,8 +31,8 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.bedrijven.RestBedrijf
-import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 import nl.info.zac.app.klant.model.bedrijven.RestBedrijfsprofiel
+import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
 import nl.info.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijf
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijfsprofiel

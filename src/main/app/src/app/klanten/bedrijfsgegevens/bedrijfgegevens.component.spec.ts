@@ -296,12 +296,16 @@ describe(BedrijfsgegevensComponent.name, () => {
       it("renders totaalWerkzamePersonen after profiel is loaded", () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
-          .mockReturnValue(of(makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 })));
+          .mockReturnValue(
+            of(makeBedrijfsprofiel({ totaalWerkzamePersonen: 25 })),
+          );
         component["ophalenProfiel"]();
         fixture.detectChanges();
         const element = fixture.debugElement
           .queryAll((de) => de.name === "zac-static-text")
-          .find((de) => de.componentInstance.label === "totaalWerkzamePersonen");
+          .find(
+            (de) => de.componentInstance.label === "totaalWerkzamePersonen",
+          );
         expect(element).toBeTruthy();
       });
 
@@ -394,22 +398,18 @@ describe(BedrijfsgegevensComponent.name, () => {
       });
 
       it("renders uitgebreideRechtsvorm after profiel is loaded", () => {
-        jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
-          .mockReturnValue(
-            of(
-              makeBedrijfsprofiel({
-                uitgebreideRechtsvorm: "Besloten Vennootschap",
-              }),
-            ),
-          );
+        jest.spyOn(klantenService, "readRechtspersoonsprofiel").mockReturnValue(
+          of(
+            makeBedrijfsprofiel({
+              uitgebreideRechtsvorm: "Besloten Vennootschap",
+            }),
+          ),
+        );
         component["ophalenProfiel"]();
         fixture.detectChanges();
         const element = fixture.debugElement
           .queryAll((de) => de.name === "zac-static-text")
-          .find(
-            (de) => de.componentInstance.label === "uitgebreideRechtsvorm",
-          );
+          .find((de) => de.componentInstance.label === "uitgebreideRechtsvorm");
         expect(element).toBeTruthy();
       });
 

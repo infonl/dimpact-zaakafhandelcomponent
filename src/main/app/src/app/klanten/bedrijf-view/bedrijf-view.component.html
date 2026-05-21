@@ -41,11 +41,11 @@
               [value]="bedrijf?.vestigingsnummer"
             />
             <zac-static-text label="type" [value]="bedrijf?.type | translate" />
-              <zac-static-text
-                      *ngIf="profiel"
-                      label="rsin"
-                      [value]="profiel.rsin"
-              />
+            <zac-static-text
+              *ngIf="profiel"
+              label="rsin"
+              [value]="profiel.rsin"
+            />
             <zac-static-text
               *ngIf="!profiel"
               label="adres"

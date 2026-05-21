@@ -4,9 +4,9 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
-import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
 import java.util.Locale
+import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 
 data class RestKlantenAdres(
     /**
