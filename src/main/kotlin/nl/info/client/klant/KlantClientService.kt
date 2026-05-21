@@ -120,9 +120,9 @@ class KlantClientService @Inject constructor(
             partijIdentificatorObjectId = number
         ).getResults().firstOrNull()?.getExpand()?.betrokkenen ?: emptyList()
 
-    fun findProductaanvraagSpecificContactDetails(kenmerk: String): ProductaanvraagSpecificContactDetails? =
-        findKlantcontactForProductaanvraag(kenmerk)?.let { klantcontact ->
-            findPreferredContactDetails(klantcontact)?.let { contactDetails ->
+    fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
+        findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->
+            findContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
@@ -132,7 +132,7 @@ class KlantClientService @Inject constructor(
 
     fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
         findKlantcontactForZaak(zaakUuid)?.let {
-            findPreferredContactDetails(it)
+            findContactDetailsForKlantcontact(it)
         }
 
     fun linkProductaanvraagSpecificContactDetailsToZaak(
@@ -158,14 +158,14 @@ class KlantClientService @Inject constructor(
             }
         }
 
-    private fun findKlantcontactForProductaanvraag(kenmerk: String) =
+    private fun findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk: String) =
         klantClient.klantcontactList(
             page = 1,
             pageSize = DEFAULT_PAGE_SIZE,
             onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEOBJECTTYPE,
             onderwerpobjectOnderwerpobjectidentificatorCodeRegister = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODEREGISTER,
             onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = OPEN_FORMULIEREN_ONDERWERPOBJECT_IDENTIFICATOR_CODESOORTOBJECTID,
-            onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+            onderwerpobjectOnderwerpobjectidentificatorObjectId = formulierKenmerk
         ).getResults().firstOrNull()
 
     private fun findKlantcontactForZaak(zaakUuid: UUID) =
@@ -178,7 +178,7 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findPreferredContactDetails(klantcontact: Klantcontact): ContactDetails? {
+    private fun findContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
             klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand?.digitaleAdressen?.toContactDetails()
