@@ -7,8 +7,8 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { z } from "zod";
 import {
-  FORTY_SECONDS_IN_MS,
-  TWENTY_SECONDS_IN_MS,
+    FORTY_SECONDS_IN_MS, TEN_SECONDS_IN_MS,
+    TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -65,9 +65,10 @@ Then(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
-    await expect(form.getByLabel("Group")).toBeVisible();
+    await expect(form.getByLabel("Group").nth(0)).toBeVisible();
     await expect(form.getByLabel("User")).toBeVisible();
-    await expect(form.getByLabel("Template")).toBeVisible();
+    await expect(form.getByLabel("Smart Documents Template Group")).toBeVisible();
+    await expect(form.getByLabel("Smart Documents Template").nth(1)).toBeVisible();
     await expect(form.getByRole("button", { name: "Create" })).toBeVisible();
     await expect(
       form.getByRole("searchbox", { name: "Select one or more documents" }),
@@ -87,8 +88,11 @@ Given(
     // BPMN form: create a document
     const form = formioForm(this.page);
     await form
-      .getByLabel("Template")
-      .selectOption("Data Test", { timeout: FORTY_SECONDS_IN_MS });
+      .getByLabel("Smart Documents Template Group")
+      .selectOption("OpenZaak", { timeout: TEN_SECONDS_IN_MS });
+    await form
+      .getByLabel("Smart Documents Template").nth(1)
+      .selectOption("Data Test", { timeout: TEN_SECONDS_IN_MS });
     await form.getByRole("button", { name: "Create" }).click();
 
     // ZAC: Create document sidebar
@@ -162,7 +166,7 @@ Then(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
-    await expect(form.getByLabel("Group")).toContainText(beheerdersGroupName, {
+    await expect(form.getByLabel("Group").nth(0)).toContainText(beheerdersGroupName, {
       timeout: FORTY_SECONDS_IN_MS,
     });
     await form.getByLabel("Communication channel").press("ArrowDown");
@@ -178,7 +182,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await form.getByLabel("Group").selectOption(beheerdersGroupName);
+    await form.getByLabel("Group").nth(0).selectOption(beheerdersGroupName);
     // User options populate from the Group selection via a backend call;
     // wait for it to return before assuming the specific option exists.
     const userSelect = form.getByLabel("User");
