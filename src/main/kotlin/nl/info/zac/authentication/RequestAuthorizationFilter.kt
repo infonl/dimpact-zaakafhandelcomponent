@@ -84,17 +84,23 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
         val path = request.requestURI.removePrefix(request.contextPath)
         val isAdmin = ADMIN_URI_PREFIXES.any(path::startsWith)
         return if (isAdmin) {
-            // access allowed if the user has the 'beheerder' application role for at least one zaaktype
             hasBeheerderApplicationRole(user)
         } else {
-            // access allowed if the user has at least one application role for at least one zaaktype
             hasAnyApplicationRole(user)
         }
     }
 
+    /**
+     * Checks if the user has at least one application role for at least one zaaktype,
+     * or if the user has any overall roles.
+     */
     private fun hasAnyApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { it.isNotEmpty() } || user.overallRoles.isNotEmpty()
 
+    /**
+     * Checks if the user has the 'beheerder' role for at least one zaaktype,
+     * or if the user has the 'beheerder' role for at least one of the overall roles.
+     */
     private fun hasBeheerderApplicationRole(user: LoggedInUser): Boolean =
         user.applicationRolesPerZaaktype.values.any { roles ->
             roles.any { it == ZacApplicationRole.BEHEERDER.value }
