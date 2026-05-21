@@ -231,7 +231,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             When(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with a BSN initiator, 
-                and with product request specific contact details'
+                and with product request specific contact details
                 """.trimIndent()
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
