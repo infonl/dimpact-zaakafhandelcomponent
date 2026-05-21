@@ -246,7 +246,7 @@ export class ZaakCreateComponent {
     this.form.controls.groep.enable();
 
     this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.uuid,
+      caseType.omschrijving!,
     );
 
     const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(

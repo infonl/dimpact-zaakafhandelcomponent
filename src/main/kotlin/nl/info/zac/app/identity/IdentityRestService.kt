@@ -23,7 +23,6 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.UUID
 
 @Singleton
 @Path("identity")
@@ -38,20 +37,6 @@ class IdentityRestService @Inject constructor(
     @GET
     @Path("groups")
     fun listActiveGroups(): List<RestGroup> = identityService.listActiveGroups().toRestGroups()
-
-    @Deprecated(
-        """This endpoint should be deleted and the
-            [listBehandelaarGroupsForZaaktype] endpoint should be used instead.
-            This is because in the PABC group authorization is done on zaaktype and not on a specific zaaktype 'version' like it was
-            done in the old IAM architecture.
-            """
-    )
-    @GET
-    @Path("groups/behandelaar/zaaktype/{zaaktypeUuid}")
-    fun listBehandelaarGroupsForZaaktypeUuid(@PathParam("zaaktypeUuid") zaaktypeUuid: UUID): List<RestGroup> =
-        identityService.listActiveGroupsForBehandelaarRoleAndZaaktypeUuid(
-            zaaktypeUuid
-        ).toRestGroups()
 
     /**
      * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.

@@ -371,6 +371,15 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("current group in groep dropdown", () => {
+    it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
+      renderComponent();
+      await fixture.whenStable();
+
+      expect(
+        identityService.listBehandelaarGroupsForZaaktype,
+      ).toHaveBeenCalledWith("Test zaaktype");
+    });
+
     it("should prepend the current group when it is not in the list", async () => {
       const activeGroup = fromPartial<GeneratedType<"RestGroup">>({
         id: "g1",
