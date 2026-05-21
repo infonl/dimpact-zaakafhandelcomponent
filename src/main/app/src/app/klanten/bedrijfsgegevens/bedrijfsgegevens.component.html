@@ -92,13 +92,13 @@
       [value]="initiatorIdentificatie()?.vestigingsnummer"
     />
     <zac-static-text
-      *ngIf="initiatorIdentificatie()?.rsin"
-      label="rsin"
-      [value]="initiatorIdentificatie()?.rsin"
-    />
-    <zac-static-text
       label="type"
       [value]="bedrijfQuery.data()?.type | translate"
+    />
+    <zac-static-text
+      *ngIf="profiel()"
+      label="rsin"
+      [value]="profiel()?.rsin"
     />
     <zac-static-text
       *ngIf="!profiel()"
