@@ -3,26 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgFor } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { MatButtonModule } from "@angular/material/button";
+import { Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   MAT_DIALOG_DATA,
-  MatDialogModule,
+  MatDialogContent,
   MatDialogRef,
+  MatDialogTitle,
 } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
-import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { Observable, of } from "rxjs";
-import { map, startWith } from "rxjs/operators";
+import { injectMutation } from "@tanstack/angular-query-experimental";
+import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 
@@ -31,22 +29,18 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
   styleUrls: ["./zoekopdracht-save-dialog.component.less"],
   standalone: true,
   imports: [
-    AsyncPipe,
-    NgFor,
     ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
     MatDividerModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
     MatToolbarModule,
     TranslateModule,
+    ZacAutoComplete,
+    ZacFormActions,
   ],
 })
-export class ZoekopdrachtSaveDialogComponent implements OnInit {
+export class ZoekopdrachtSaveDialogComponent {
   private readonly dialogRef = inject(
     MatDialogRef<ZoekopdrachtSaveDialogComponent>,
   );
@@ -59,10 +53,49 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
     GebruikersvoorkeurenService,
   );
   private readonly utilService = inject(UtilService);
+  private readonly formBuilder = inject(FormBuilder);
 
-  protected loading = false;
-  protected formControl = new FormControl("");
-  protected filteredOptions: Observable<string[]> = of([]);
+  protected readonly form = this.formBuilder.group({
+    naam: this.formBuilder.control<string | null>(null, [Validators.required]),
+  });
+
+  protected readonly options = this.data.zoekopdrachten
+    .map((z) => z.naam)
+    .filter((naam): naam is string => !!naam);
+
+  private readonly naamValue = toSignal(this.form.controls.naam.valueChanges, {
+    initialValue: this.form.controls.naam.value,
+  });
+
+  protected readonly submitLabel = computed(() =>
+    this.findExisting(this.naamValue()) ? "actie.wijzigen" : "actie.toevoegen",
+  );
+
+  protected readonly mutation = injectMutation(() => ({
+    mutationFn: () => {
+      const existing = this.findExisting(this.form.value.naam);
+      const zoekopdracht = existing
+        ? {
+            ...existing,
+            json: JSON.stringify(this.data.zoekopdracht),
+          }
+        : {
+            naam: this.form.value.naam,
+            json: JSON.stringify(this.data.zoekopdracht),
+            lijstID: this.data.lijstID,
+          };
+      return lastValueFrom(
+        this.gebruikersvoorkeurenService.createOrUpdateZoekOpdrachten(
+          zoekopdracht as GeneratedType<"RESTZoekopdracht">,
+        ),
+      );
+    },
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");
+      this.dialogRef.close(true);
+    },
+    onError: () => this.dialogRef.close(),
+  }));
 
   protected close() {
     this.dialogRef.close();
@@ -70,59 +103,14 @@ export class ZoekopdrachtSaveDialogComponent implements OnInit {
 
   protected opslaan() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
-    const zoekopdracht = this.isNew()
-      ? {
-          naam: this.formControl.value,
-          json: JSON.stringify(this.data.zoekopdracht),
-          lijstID: this.data.lijstID,
-        }
-      : {
-          ...this.readZoekopdracht(),
-          json: JSON.stringify(this.data.zoekopdracht),
-        };
-    this.gebruikersvoorkeurenService
-      .createOrUpdateZoekOpdrachten(
-        zoekopdracht as GeneratedType<"RESTZoekopdracht">,
-      )
-      .subscribe({
-        next: () => {
-          this.utilService.openSnackbar("msg.zoekopdracht.opgeslagen");
-          this.dialogRef.close(true);
-        },
-        error: () => this.dialogRef.close(),
-      });
+    this.mutation.mutate();
   }
 
-  protected isNew() {
-    return (
-      this.data.zoekopdrachten.filter(
-        (value) =>
-          value.naam?.toLowerCase() ===
-          this.formControl.value?.toLowerCase().trim(),
-      ).length === 0
+  private findExisting(naam: string | null | undefined) {
+    if (!naam) return undefined;
+    const needle = naam.toLowerCase().trim();
+    return this.data.zoekopdrachten.find(
+      (value) => value.naam?.toLowerCase() === needle,
     );
-  }
-
-  private readZoekopdracht() {
-    return this.data.zoekopdrachten.filter(
-      (value) =>
-        value.naam?.toLowerCase() ===
-        this.formControl.value?.toLowerCase().trim(),
-    )[0];
-  }
-
-  ngOnInit() {
-    this.filteredOptions = this.formControl.valueChanges.pipe(
-      startWith(""),
-      map((value) => this._filter(value || "")),
-    );
-  }
-
-  private _filter(name: string) {
-    const filterValue = name.toLowerCase();
-    return this.data.zoekopdrachten
-      .map((x) => x.naam ?? "")
-      .filter((option) => option?.toLowerCase().includes(filterValue));
   }
 }

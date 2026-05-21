@@ -1,3 +1,5 @@
+## ADDED Requirements
+
 ### Requirement: Contact details enrichment for rechtspersoon by KVK number
 When a rechtspersoon is retrieved by KVK number, the system SHALL concurrently fetch digital address data from Open Klant and include the email address and phone number in the response.
 

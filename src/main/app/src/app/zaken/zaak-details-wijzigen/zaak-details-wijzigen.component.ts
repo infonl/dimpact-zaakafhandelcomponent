@@ -127,7 +127,7 @@ export class CaseDetailsEditComponent implements OnInit, OnDestroy {
     );
 
     this.groups = this.identityService
-      .listBehandelaarGroupsForZaaktype(this.zaak.zaaktype.uuid)
+      .listBehandelaarGroupsForZaaktype(this.zaak.zaaktype.omschrijving!)
       .pipe(
         map((groups) => {
           const currentGroup = this.zaak.groep;

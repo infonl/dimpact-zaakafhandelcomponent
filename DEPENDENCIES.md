@@ -7,12 +7,12 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgres**: 17.10
 - **keycloak**: 26.5.7
 - **postgis**: 17-3.4
-- **redis**: 8.4.0
+- **redis**: 8.4.3
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.16.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
 - **gotenberg**: 8.32.0
-- **otel/opentelemetry-collector-contrib**: 0.152.0
+- **otel/opentelemetry-collector-contrib**: 0.152.1
 - **grafana/tempo**: 2.10.5
 - **prom/prometheus**: v3.11.3
 - **grafana/grafana**: 13.0.1
@@ -25,7 +25,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-zaak**: 1.27.1
 - **objects-api**: 3.4.0
 - **open-klant**: 2.15.0
-- **open-notificaties**: 1.13.0
+- **open-notificaties**: 1.14.0
 - **open-archiefbeheer**: 1.1.1
 - **pabc-migrations**: 1.1.0
 - **pabc-api**: 1.1.0
