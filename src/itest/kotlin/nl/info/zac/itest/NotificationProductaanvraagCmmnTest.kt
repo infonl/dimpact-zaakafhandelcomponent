@@ -26,8 +26,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_3_UUID
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_6_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_6_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_4_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_COMBO_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID
@@ -223,7 +223,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
         Given(
             """
-            A productaanvraag object exists with an BSN initiator and productaanvraag-specific contact details in Objecten, 
+            A productaanvraag object exists with an BSN initiator and product request specific contact details in Objecten, 
             a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type and with 'automatic acknowledgement of
             receipt' (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
                 """
@@ -231,7 +231,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             When(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with a BSN initiator, 
-                and with productaanvraag-specific contact details'
+                and with product request specific contact details'
                 """.trimIndent()
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -248,8 +248,8 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                         mapOf(
                             "kanaal" to "objecten",
                             "resource" to "object",
-                            "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_6_UUID",
-                            "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_6_UUID",
+                            "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
+                            "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
                             "actie" to "create",
                             "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                             "kenmerken" to mapOf(
@@ -261,7 +261,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 Then(
                     """the response should be 'no content', a zaak should be created in OpenZaak,
                         and a zaak CMMN proces should be started in ZAC
-                        with the productaanvraag-specific contact details as the zaak-specific contact details"""
+                        with the product request specific contact details as the zaak-specific contact details"""
                 ) {
                     response.code shouldBe HTTP_NO_CONTENT
 
@@ -283,7 +283,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                             getString("communicatiekanaal") shouldBe "E-formulier"
                             getString("omschrijving") shouldBe ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING
                             getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                                "met kenmerk '$OBJECT_PRODUCTAANVRAAG_6_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
+                                "met kenmerk '$OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK'. $ZAAK_PRODUCTAANVRAAG_4_TOELICHTING"
                             with(getJSONObject("zaakSpecificContactDetails")) {
                                 getString("emailAddress") shouldBe ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL
                                 getString("telephoneNumber") shouldBe ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER
@@ -421,7 +421,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             When(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
-                 and with an initiator of type 'kvkNummer' and 'vestigingsNummer'
+                 and with an initiator of type KVK number and vestigingsnummer
                     """
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -449,7 +449,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
                 Then(
                     """the response should be 'no content', a zaak should be created in OpenZaak
-                        and a zaak productaanvraag proces should be started in ZAC with both kvkNummer and vestigingsNummer"""
+                        and a zaak productaanvraag proces should be started in ZAC with both KVK number and vestigingsnummer"""
                 ) {
                     response.code shouldBe HTTP_NO_CONTENT
 

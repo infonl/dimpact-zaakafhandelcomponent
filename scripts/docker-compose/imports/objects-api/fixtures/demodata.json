@@ -1327,7 +1327,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "testKenmerkRequestSpecificEmailAddress1"
+          "kenmerk": "testFormulierKenmerkRequestSpecificEmailAddress1"
         },
         "type": "productaanvraag-type-1",
         "aanvraaggegevens": {
@@ -1348,7 +1348,7 @@
         },
         "taal": "nld",
         "zaakgegevens": {
-          "identificatie": "zaakProductaanvraag-alternative-email",
+          "identificatie": "zaak-productaanvraag-request-specific-1",
           "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
           "omschrijving": "fakeZaakOmschrijving-request-specific-1",
           "toelichting": "fakeZaakToelichting-request-specific-1"
@@ -1460,13 +1460,13 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "testKenmerkRequestSpecificEmailAddress2"
+          "kenmerk": "testFormulierKenmerkRequestSpecificEmailAddress2"
         },
         "taal": "nld",
         "type": "productaanvraag-type-1",
         "bijlagen": [],
         "zaakgegevens": {
-          "identificatie": "zaakProductaanvraag-alternative-email-3",
+          "identificatie": "zaak-productaanvraag-request-specific-2",
           "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
           "omschrijving": "fakeZaakOmschrijving-request-specific-2",
           "toelichting": "fakeZaakToelichting-request-specific-2-email"
