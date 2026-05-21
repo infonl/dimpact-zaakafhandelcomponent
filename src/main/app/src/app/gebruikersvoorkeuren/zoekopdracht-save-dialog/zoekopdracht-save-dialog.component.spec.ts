@@ -33,9 +33,7 @@ const makeZoekopdracht = (
   ...overrides,
 });
 
-async function setup(
-  zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [],
-) {
+async function setup(zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) {
   const dialogRef = {
     close: jest.fn(),
     disableClose: false,
