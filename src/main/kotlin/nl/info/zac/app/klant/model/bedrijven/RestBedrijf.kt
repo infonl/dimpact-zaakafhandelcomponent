@@ -41,13 +41,6 @@ data class RestBedrijf(
             // invalid bedrijf without any identification. should never happen but we currently lack proper validation
             null
         }
-
-    /**
-     * Remove this function? It seems obsolete because we already return all the individual fields.
-     * Check with frontend.
-     */
-    override fun getIdentificatie(): String? =
-        if (vestigingsnummer != null) vestigingsnummer else if (rsin != null) rsin else kvkNummer
 }
 
 fun ResultaatItem.toRestBedrijf() = RestBedrijf(

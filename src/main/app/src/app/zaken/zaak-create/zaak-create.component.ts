@@ -306,7 +306,7 @@ export class ZaakCreateComponent {
         const result = await this.queryClient.ensureQueryData(
           this.klantenService.readBedrijf(
             new BetrokkeneIdentificatie({
-              identificatie: initiatorID,
+              vestigingsnummer: initiatorID,
               identificatieType: "VN",
             }),
           ),

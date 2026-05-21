@@ -58,7 +58,7 @@ fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPe
 
 fun createNietNatuurlijkPersoonIdentificatie(
     innNnpId: String? = null,
-    vestigingsnummer: String? = "123456789123",
+    vestigingsnummer: String? = null,
     kvkNummer: String? = "12345678",
     annIdentificatie: String? = null
 ) = NietNatuurlijkPersoonIdentificatie().apply {

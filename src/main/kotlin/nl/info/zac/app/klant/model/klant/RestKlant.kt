@@ -9,5 +9,4 @@ abstract class RestKlant {
     abstract var naam: String?
     abstract var telefoonnummer: String?
     abstract fun getIdentificatieType(): IdentificatieType?
-    abstract fun getIdentificatie(): String?
 }

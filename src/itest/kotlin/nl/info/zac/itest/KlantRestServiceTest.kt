@@ -100,11 +100,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    JSONObject(responseBody).run {
-                        getJSONObject("zaakdata").run {
-                            zaakUuid = getString("zaakUUID").run(UUID::fromString)
-                        }
-                    }
+                    zaakUuid = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
                 }
             }
 
@@ -188,7 +184,6 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
                       "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                      "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "identificatieType": "BSN",
                       "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING" ],
                       "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -298,7 +293,6 @@ class KlantRestServiceTest : BehaviorSpec({
                    "temporaryPersonId": "$temporaryPersonId",
                    "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                    "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                   "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                    "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
                    "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING"],
                    "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -431,7 +425,6 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "emailadres": "$TEST_VESTIGING_EMAIL",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
@@ -463,7 +456,6 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson """
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
                       "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -533,11 +525,10 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
                             "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -564,11 +555,10 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
                             "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -650,7 +640,6 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson """
                     {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
@@ -676,10 +665,9 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                   {
+                    {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "emailadres" : "$TEST_KVK_EMAIL",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "emailadres": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",

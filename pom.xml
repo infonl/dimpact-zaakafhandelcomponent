@@ -37,8 +37,8 @@
         <!-- please follow the instructions in 'updatingDependencies.md' when upgrading WildFly -->
         <wildfly.version>39.0.1.Final</wildfly.version>
         <wildfly-maven-plugin.version>6.0.0.Final</wildfly-maven-plugin.version>
-        <wildfly-datasources-galleon-pack.version>11.3.0.Final</wildfly-datasources-galleon-pack.version>
-        <wildfly-cloud-galleon-pack.version>9.2.2.Final</wildfly-cloud-galleon-pack.version>
+        <wildfly-datasources-galleon-pack.version>11.4.0.Final</wildfly-datasources-galleon-pack.version>
+        <wildfly-cloud-galleon-pack.version>9.2.3.Final</wildfly-cloud-galleon-pack.version>
     </properties>
     <build>
         <finalName>${project.artifactId}</finalName>

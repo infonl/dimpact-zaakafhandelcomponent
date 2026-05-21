@@ -45,7 +45,7 @@ import java.util.UUID
 @NoArgConstructor
 data class RestPersoon(
     var temporaryPersonId: UUID? = null,
-    var bsn: String? = null,
+    var bsn: String,
     var geslacht: String? = null,
     var geboortedatum: String? = null,
     var verblijfplaats: String? = null,
@@ -55,11 +55,7 @@ data class RestPersoon(
     val indicaties: EnumSet<RestPersoonIndicaties> = EnumSet.noneOf(RestPersoonIndicaties::class.java),
 ) : RestKlant() {
     override fun getIdentificatieType(): IdentificatieType? {
-        return if (bsn != null) IdentificatieType.BSN else null
-    }
-
-    override fun getIdentificatie(): String? {
-        return bsn
+        return IdentificatieType.BSN
     }
 }
 

@@ -184,7 +184,9 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component.zoekparameters = makeZoekParams({});
       fixture.detectChanges();
 
-      const afterClosed$ = new Subject<{ identificatie: string }>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);
@@ -198,13 +200,15 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "" });
       fixture.detectChanges();
 
-      const afterClosed$ = new Subject<{ identificatie: string }>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);
 
       component["openDialog"]();
-      afterClosed$.next({ identificatie: "NEW_ID" });
+      afterClosed$.next({ bsn: "NEW_ID" } as GeneratedType<"RestPersoon">);
       afterClosed$.complete();
       tick();
       fixture.detectChanges();
@@ -220,17 +224,42 @@ describe(ZaakBetrokkeneFilterComponent.name, () => {
       const changedSpy = jest.fn();
       component.changed.subscribe(changedSpy);
 
-      const afterClosed$ = new Subject<{ identificatie: string }>();
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
       jest.spyOn(dialog, "open").mockReturnValue({
         afterClosed: () => afterClosed$.asObservable(),
       } as unknown as MatDialogRef<KlantZoekDialog>);
 
       component["openDialog"]();
-      afterClosed$.next({ identificatie: "X" });
+      afterClosed$.next({ bsn: "X" } as GeneratedType<"RestPersoon">);
       afterClosed$.complete();
       tick();
 
       expect(changedSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it("falls back to empty string when result has no identification fields", fakeAsync(() => {
+      component.zoekparameters = makeZoekParams({ ZAAK_INITIATOR: "old" });
+      fixture.detectChanges();
+
+      const afterClosed$ = new Subject<
+        GeneratedType<"RestBedrijf" | "RestPersoon">
+      >();
+      jest.spyOn(dialog, "open").mockReturnValue({
+        afterClosed: () => afterClosed$.asObservable(),
+      } as unknown as MatDialogRef<KlantZoekDialog>);
+
+      component["openDialog"]();
+      afterClosed$.next({
+        vestigingsnummer: null,
+        kvkNummer: null,
+      } as GeneratedType<"RestBedrijf">);
+      afterClosed$.complete();
+      tick();
+
+      expect(component["klantIdControl"].value).toBe("");
+      expect(component.zoekparameters.zoeken!["ZAAK_INITIATOR"]).toBe("");
     }));
   });
 
