@@ -20,30 +20,6 @@ data class BetrokkeneIdentification(
     val identification: String
 )
 
-private fun buildPerson(bsn: String) =
-    BetrokkeneIdentification(
-        type = BetrokkeneIdentificationType.PERSON,
-        identification = bsn,
-    )
-
-private fun buildKvkInschrijving(kvkNummer: String) =
-    BetrokkeneIdentification(
-        type = BetrokkeneIdentificationType.KVK_INSCHRIJVING,
-        identification = kvkNummer,
-    )
-
-private fun buildKvkVestiging(kvkNummer: String, vestigingsnummer: String) =
-    BetrokkeneIdentification(
-        type = BetrokkeneIdentificationType.KVK_VESTIGING,
-        identification = "$kvkNummer-$vestigingsnummer",
-    )
-
-private fun buildUser(username: String) =
-    BetrokkeneIdentification(
-        type = BetrokkeneIdentificationType.USER,
-        identification = username,
-    )
-
 fun BetrokkeneIdentification.toSolrFormatting() =
     "${this.type.prefix}-${this.identification}"
 
@@ -68,3 +44,27 @@ private fun RolNietNatuurlijkPersoon.toNietNatuurlijkPersoonIdentification(): Be
         }
     }
 }
+
+private fun buildPerson(bsn: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.PERSON,
+        identification = bsn,
+    )
+
+private fun buildKvkInschrijving(kvkNummer: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.KVK_INSCHRIJVING,
+        identification = kvkNummer,
+    )
+
+private fun buildKvkVestiging(kvkNummer: String, vestigingsnummer: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.KVK_VESTIGING,
+        identification = "$kvkNummer-$vestigingsnummer",
+    )
+
+private fun buildUser(username: String) =
+    BetrokkeneIdentification(
+        type = BetrokkeneIdentificationType.USER,
+        identification = username,
+    )

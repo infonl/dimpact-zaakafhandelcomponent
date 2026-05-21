@@ -84,7 +84,6 @@ class ZaakHelper(
         bsn: String,
         testUser: TestUser
     ) {
-        logger.info { "addNatuurlijkPersoonBetrokkeneToZaak, zaakUuid = $zaakUuid, roltypeUUID = $roltypeUUID, bsn = $bsn" }
         val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
             bsn,
             testUser
@@ -116,9 +115,6 @@ class ZaakHelper(
         vestigingsnummer: String? = null,
         testUser: TestUser
     ) {
-        logger.info {
-            "addNietNatuurlijkPersoonBetrokkeneToZaak, zaakUuid = $zaakUuid, roltypeUUID = $roltypeUUID, kvkNummer = $kvkNummer"
-        }
         var betrokkeneIdentification: String
         if (vestigingsnummer != null) {
             betrokkeneIdentification = """

@@ -159,10 +159,10 @@ class SearchRestServiceTest : BehaviorSpec({
                             "aantalOpenstaandeTaken" : 1,
                             "afgehandeld" : false,
                             "betrokkenen" : {
-                              "Belanghebbende" : [ "P-${TEST_PERSON_HENDRIKA_JANSE_BSN}" ],
-                              "Behandelaar" : [ "U-${GROUP_BEHANDELAARS_TEST_1.name}" ],
-                              "Contactpersoon" : [ "V-${TEST_KVK_NUMMER_1}-${TEST_KVK_VESTIGINGSNUMMER_1}" ],
-                              "Medeaanvrager" : [ "K-${TEST_KVK_NUMMER_1}" ]
+                              "belanghebbende" : [ "P-${TEST_PERSON_HENDRIKA_JANSE_BSN}" ],
+                              "behandelaar" : [ "U-${GROUP_BEHANDELAARS_TEST_1.name}" ],
+                              "contactpersoon" : [ "V-${TEST_KVK_NUMMER_1}-${TEST_KVK_VESTIGINGSNUMMER_1}" ],
+                              "medeaanvrager" : [ "K-${TEST_KVK_NUMMER_1}" ]
                             },
                             "communicatiekanaal" : "$COMMUNICATIEKANAAL_TEST_1",
                             "groepId" : "${GROUP_BEHANDELAARS_TEST_1.name}",
