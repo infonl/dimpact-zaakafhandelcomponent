@@ -116,6 +116,11 @@ function getToelichtingMapping(
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "externAdvies",
       };
+    case "DOCUMENT_VERZENDEN_POST":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "verzonden",
+      };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);
   }
