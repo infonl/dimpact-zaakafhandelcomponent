@@ -66,6 +66,7 @@ describe(MedewerkerGroepComponent.name, () => {
     jest
       .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
       .mockReturnValue(of([group]));
+    medewerkerGroepFormField.zaaktypeOmschrijving = "test-zaaktype";
     jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([user]));
   });
 

@@ -83,6 +83,7 @@ describe("HumanTaskDoComponent", () => {
     component.zaak = fromPartial<GeneratedType<"RestZaak">>({
       zaaktype: {
         uuid: "test-zaaktype-uuid",
+        omschrijving: "test-zaaktype-omschrijving",
       },
     });
 
@@ -101,6 +102,14 @@ describe("HumanTaskDoComponent", () => {
 
       const fields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(fields).toHaveLength(2); // `Group` and `User` inputs
+    });
+
+    it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
+      await component.ngOnInit();
+
+      expect(
+        identityService.listBehandelaarGroupsForZaaktype,
+      ).toHaveBeenCalledWith("test-zaaktype-omschrijving");
     });
 
     it("should pre-select the group and load users when planItem.groepId matches a group", async () => {

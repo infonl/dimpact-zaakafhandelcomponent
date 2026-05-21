@@ -180,7 +180,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: redis:8.4.3@sha256:13f1112ffbf4514297812a2b3ed5c4811a526c9fc91aec013dc6907c6bcad45c
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -303,7 +303,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: maykinmedia/open-klant:2.14.0@sha256:8ac6eafe5738fc2a27316abe7bc3532e5d41f955269a577d10e95c0d7be87a59
+    image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
@@ -384,7 +384,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.152.0@sha256:f41d7995565df3733b7568702073a9c490792f9c6ac60684fe6a4da21a313f8d
+    image: otel/opentelemetry-collector-contrib:0.152.1@sha256:fa1f6ea8dabd3042fabf4411eed7fa52f253edd8940140bec89a573e62a24eb7
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z

@@ -22,8 +22,8 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
@@ -713,7 +713,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         {
                             "betrokkeneIdentificatie": {
                                 "kvkNummer": "$TEST_KVK_NUMMER_1",
-                                "type": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                                "type": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                                 "vestigingsnummer": "$vestigingsnummer"
                             },
                             "zaakUUID": "$zaak2UUID"
@@ -748,7 +748,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
                             getString("roltoelichting") shouldBe "fakeToelichting"
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
@@ -758,7 +758,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             // if no toelichting was provided, the default value should be used
                             getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }

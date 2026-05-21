@@ -246,7 +246,7 @@ export class ZaakCreateComponent {
     this.form.controls.groep.enable();
 
     this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.uuid,
+      caseType.omschrijving!,
     );
 
     const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
@@ -306,7 +306,7 @@ export class ZaakCreateComponent {
         const result = await this.queryClient.ensureQueryData(
           this.klantenService.readBedrijf(
             new BetrokkeneIdentificatie({
-              identificatie: initiatorID,
+              vestigingsnummer: initiatorID,
               identificatieType: "VN",
             }),
           ),

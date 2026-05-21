@@ -10,8 +10,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTS_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK
-import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK
+import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
@@ -63,8 +63,8 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     mapOf(
                         "kanaal" to "objecten",
                         "resource" to "object",
-                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_UUID",
-                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_UUID",
+                        "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID",
+                        "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID",
                         "actie" to "create",
                         "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
                         "kenmerken" to mapOf(
@@ -73,7 +73,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            logger.info { "Requested product aanvraag: $OBJECT_PRODUCTAANVRAAG_BPMN_UUID" }
+            logger.info { "Requested product aanvraag: $OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID" }
 
             Then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
@@ -88,7 +88,6 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
-                        getString("identificatie") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION
                         getJSONObject("zaaktype").getString("uuid") shouldBe ZAAKTYPE_BPMN_TEST_1_UUID.toString()
                         getJSONObject("zaaktype").getString("omschrijving") shouldBe ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
                         getBoolean("isOpen") shouldBe true
@@ -96,7 +95,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                         getString("communicatiekanaal") shouldBe "E-formulier"
                         getString("uiterlijkeEinddatumAfdoening") shouldBe ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
-                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK'."
+                            "met kenmerk '$OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK'."
                         zaakProductaanvraagUuid = getString("uuid").let(UUID::fromString)
                     }
                 }
@@ -114,17 +113,17 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                     [ {
-                      "identificatie" : "999992958",
+                      "bsn" : "999992958",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Plaatsvervanger",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Bewindvoerder",
                       "type" : "NATUURLIJK_PERSOON"
                     }, {
-                      "identificatie" : "999991838",
+                      "bsn" : "999991838",
                       "roltoelichting" : "Overgenomen vanuit de product aanvraag",
                       "roltype" : "Medeaanvrager",
                       "type" : "NATUURLIJK_PERSOON"

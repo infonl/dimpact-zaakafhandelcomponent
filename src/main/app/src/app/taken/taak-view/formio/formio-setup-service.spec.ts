@@ -299,7 +299,7 @@ describe(FormioSetupService.name, () => {
       }).not.toThrow();
     });
 
-    it("should invoke behandelaar groups for zaaktype UUID endpoint", async () => {
+    it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
       const clientQuerySpy = jest
         .spyOn(testQueryClient, "ensureQueryData")
         .mockResolvedValue([]);
@@ -334,8 +334,8 @@ describe(FormioSetupService.name, () => {
       expect(clientQuerySpy).toHaveBeenCalledWith(
         expect.objectContaining({
           queryKey: [
-            "/rest/identity/groups/behandelaar/zaaktype/{zaaktypeUuid}",
-            { path: { zaaktypeUuid: "test-zaaktype-uuid" } },
+            "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
+            { path: { zaaktypeDescription: "test-zaaktypeOmschrijving" } },
           ],
         }),
       );

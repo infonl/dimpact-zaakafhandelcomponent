@@ -1045,7 +1045,12 @@ export class ZaakViewComponent
   protected deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
     this.websocketService.suspendListener(this.zaakRollenListener);
     const betrokkeneIdentificatie: string =
-      betrokkene.roltype + " " + betrokkene.identificatie;
+      betrokkene.roltype +
+      " " +
+      (betrokkene.vestigingsnummer ??
+        betrokkene.kvkNummer ??
+        betrokkene.bsn ??
+        betrokkene.naam);
     this.dialog
       .open(DialogComponent, {
         data: new DialogData<unknown, { reden: string }>({
@@ -1238,12 +1243,7 @@ export class ZaakViewComponent
       }
       case "NIET_NATUURLIJK_PERSOON":
       case "VESTIGING": {
-        const betrokkeneIdentificatie = new BetrokkeneIdentificatie({
-          identificatie: betrokkene.identificatie,
-          identificatieType: betrokkene.identificatieType,
-          kvkNummer: betrokkene.kvkNummer,
-          vestigingsnummer: betrokkene.identificatie,
-        });
+        const betrokkeneIdentificatie = new BetrokkeneIdentificatie(betrokkene);
 
         const bedrijf = await this.queryClient.ensureQueryData(
           this.klantenService.readBedrijf(betrokkeneIdentificatie),

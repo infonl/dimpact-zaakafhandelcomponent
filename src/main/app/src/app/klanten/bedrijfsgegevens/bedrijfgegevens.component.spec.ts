@@ -63,6 +63,7 @@ describe(BedrijfsgegevensComponent.name, () => {
   const testBedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
     naam: "Test BV",
     vestigingsnummer: betrokkeneIdentificatie.vestigingsnummer,
+    identificatieType: betrokkeneIdentificatie.type,
   });
 
   beforeEach(() => {
@@ -194,6 +195,27 @@ describe(BedrijfsgegevensComponent.name, () => {
         }),
       );
       expect(link).toBeTruthy();
+    });
+  });
+
+  describe("type display", () => {
+    beforeEach(async () => {
+      notifyManager.setScheduler((fn) => fn());
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, type: "fakeType1" });
+      await sleep();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("renders the bedrijf type from bedrijfQuery data, not the identificatieType", () => {
+      const typeField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="type"]',
+      );
+      expect(typeField?.textContent).toContain("fakeType1");
     });
   });
 

@@ -18,8 +18,8 @@ import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
@@ -100,11 +100,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    JSONObject(responseBody).run {
-                        getJSONObject("zaakdata").run {
-                            zaakUuid = getString("zaakUUID").run(UUID::fromString)
-                        }
-                    }
+                    zaakUuid = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
                 }
             }
 
@@ -188,7 +184,6 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
                       "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                      "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "identificatieType": "BSN",
                       "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING" ],
                       "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -298,7 +293,6 @@ class KlantRestServiceTest : BehaviorSpec({
                    "temporaryPersonId": "$temporaryPersonId",
                    "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                    "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                   "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                    "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
                    "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING"],
                    "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -431,8 +425,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
                       "emailadres": "$TEST_VESTIGING_EMAIL",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -463,8 +456,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson """
                     {
                       "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
@@ -533,12 +525,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -564,12 +555,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
                             "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -586,7 +576,7 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Retrieving contactmomenten for a person") {
         Given("Existing contactmomenten and a logged-in raadpleger") {
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
-                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // this endpoint requires no explicit authorisation, however, to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -619,9 +609,14 @@ class KlantRestServiceTest : BehaviorSpec({
                           "kanaal": "telefoon",
                           "registratiedatum": "2010-01-01T12:00:00Z",
                           "tekst": "phone contact"
+                        },
+                        {
+                          "kanaal": "Webformulier",
+                          "registratiedatum": "2026-05-18T09:49:02Z",
+                          "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
                         }
                       ],
-                      "totaal": 2
+                      "totaal": 3
                     }
                     """.trimIndent()
                 }
@@ -650,7 +645,6 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson """
                     {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
                       "identificatieType" : "RSIN",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
@@ -676,10 +670,9 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                   {
+                    {
                       "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "emailadres" : "$TEST_KVK_EMAIL",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "emailadres": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
