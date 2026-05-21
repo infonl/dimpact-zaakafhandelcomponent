@@ -6,6 +6,7 @@ package nl.info.client.kvk
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.kvk.basisprofiel.model.generated.Basisprofiel
 import nl.info.client.kvk.exception.KvkClientNoResultException
 import nl.info.client.kvk.model.BedrijfType
 import nl.info.client.kvk.model.KvkSearchParameters
@@ -23,7 +24,8 @@ import java.util.logging.Logger
 @AllOpen
 class KvkClientService @Inject constructor(
     @RestClient private val kvkSearchClient: KvkSearchClient,
-    @RestClient private val kvkVestigingsprofielClient: KvkVestigingsprofielClient
+    @RestClient private val kvkVestigingsprofielClient: KvkVestigingsprofielClient,
+    @RestClient private val kvkBasisprofielClient: KvkBasisprofielClient
 ) {
     companion object {
         private val LOG = Logger.getLogger(KvkClientService::class.java.getName())
@@ -46,6 +48,9 @@ class KvkClientService @Inject constructor(
 
     fun findVestigingsprofiel(vestigingsnummer: String): Vestiging? =
         kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false)
+
+    fun findRechtspersoonsprofiel(kvkNummer: String): Basisprofiel? =
+        kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false)
 
     fun findVestiging(vestigingsnummer: String, kvkNummer: String? = null): ResultaatItem? =
         search(

@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.klant.model.bedrijven
 
+import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
 import java.util.Locale
 
@@ -17,6 +18,12 @@ data class RestKlantenAdres(
 )
 
 fun Adres.toRestKlantenAdres() = RestKlantenAdres(
+    this.type,
+    this.indAfgeschermd?.isIndicatie() == true,
+    this.volledigAdres
+)
+
+fun BasisprofielAdres.toRestKlantenAdres() = RestKlantenAdres(
     this.type,
     this.indAfgeschermd?.isIndicatie() == true,
     this.volledigAdres

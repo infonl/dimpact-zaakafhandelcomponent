@@ -105,6 +105,16 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
+  readRechtspersoonsprofiel(kvkNummer: string) {
+    return this.zacHttpClient.GET(
+      "/rest/klanten/rechtspersoonsprofiel/{kvkNummer}",
+      {
+        path: { kvkNummer },
+      },
+    );
+  }
+
+  /* istanbul ignore next */
   getPersonenParameters() {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
