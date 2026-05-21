@@ -333,7 +333,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         Given("A non-beheerder user accesses '/admin/settings'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
-                applicationRolesPerZaaktype = mapOf("zt-3" to setOf(ZacApplicationRole.RAADPLEGER.value))
+                applicationRolesPerZaaktype = mapOf("zt-3" to setOf("fakeApplicationRole"))
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/admin/settings"
@@ -356,7 +356,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
-                overallRoles = setOf(ZacApplicationRole.RAADPLEGER.value)
+                overallRoles = setOf("fakeApplicationRole")
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/app/home"
@@ -404,7 +404,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
-                overallRoles = setOf(ZacApplicationRole.RAADPLEGER.value)
+                overallRoles = setOf("fakeApplicationRole")
             )
             setSessionUser(user)
             every { httpServletRequest.requestURI } returns "/rest/admin/util/health"
