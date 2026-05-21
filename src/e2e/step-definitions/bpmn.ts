@@ -7,8 +7,9 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { z } from "zod";
 import {
-    FORTY_SECONDS_IN_MS, TEN_SECONDS_IN_MS,
-    TWENTY_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
+  TEN_SECONDS_IN_MS,
+  TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -67,8 +68,12 @@ Then(
     const form = formioForm(this.page);
     await expect(form.getByLabel("Group").nth(0)).toBeVisible();
     await expect(form.getByLabel("User")).toBeVisible();
-    await expect(form.getByLabel("Smart Documents Template Group")).toBeVisible();
-    await expect(form.getByLabel("Smart Documents Template").nth(1)).toBeVisible();
+    await expect(
+      form.getByLabel("Smart Documents Template Group"),
+    ).toBeVisible();
+    await expect(
+      form.getByLabel("Smart Documents Template").nth(1),
+    ).toBeVisible();
     await expect(form.getByRole("button", { name: "Create" })).toBeVisible();
     await expect(
       form.getByRole("searchbox", { name: "Select one or more documents" }),
@@ -91,7 +96,8 @@ Given(
       .getByLabel("Smart Documents Template Group")
       .selectOption("OpenZaak", { timeout: TEN_SECONDS_IN_MS });
     await form
-      .getByLabel("Smart Documents Template").nth(1)
+      .getByLabel("Smart Documents Template")
+      .nth(1)
       .selectOption("Data Test", { timeout: TEN_SECONDS_IN_MS });
     await form.getByRole("button", { name: "Create" }).click();
 
@@ -166,9 +172,12 @@ Then(
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
-    await expect(form.getByLabel("Group").nth(0)).toContainText(beheerdersGroupName, {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    await expect(form.getByLabel("Group").nth(0)).toContainText(
+      beheerdersGroupName,
+      {
+        timeout: FORTY_SECONDS_IN_MS,
+      },
+    );
     await form.getByLabel("Communication channel").press("ArrowDown");
     await expect(form.getByLabel("Communication channel")).toContainText(
       "E-mail",
