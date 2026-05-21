@@ -117,9 +117,9 @@ describe("TaakFormulierenService", () => {
 
   describe("getFormulierBuilder", () => {
     it("should throw the DEPRECATED error for DEFAULT_TAAKFORMULIER", () => {
-      expect(() => service.getFormulierBuilder("DEFAULT_TAAKFORMULIER")).toThrow(
-        "DEFAULT_TAAKFORMULIER is DEPRECATED, use Angular form",
-      );
+      expect(() =>
+        service.getFormulierBuilder("DEFAULT_TAAKFORMULIER"),
+      ).toThrow("DEFAULT_TAAKFORMULIER is DEPRECATED, use Angular form");
     });
   });
 });
