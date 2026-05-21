@@ -13,8 +13,8 @@ zgw_consumers:
       api_root: http://openzaak-nginx:8000/zaken/api/v1/
       api_type: zrc
       auth_type: zgw
-      client_id: zac_client
-      secret: openzaakZaakafhandelcomponentClientSecret
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
 
     # Open Zaak - Documenten API
     - identifier: openzaak-documenten
@@ -22,8 +22,8 @@ zgw_consumers:
       api_root: http://openzaak-nginx:8000/documenten/api/v1/
       api_type: drc
       auth_type: zgw
-      client_id: zac_client
-      secret: openzaakZaakafhandelcomponentClientSecret
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
 
     # Open Zaak - Catalogi API
     - identifier: openzaak-catalogi
@@ -31,8 +31,8 @@ zgw_consumers:
       api_root: http://openzaak-nginx:8000/catalogi/api/v1/
       api_type: ztc
       auth_type: zgw
-      client_id: zac_client
-      secret: openzaakZaakafhandelcomponentClientSecret
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
 
     # Objecten API (stores productaanvraag objects)
     - identifier: objecten-api
