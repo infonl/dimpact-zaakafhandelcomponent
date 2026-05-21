@@ -19,8 +19,8 @@ import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
-import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 
@@ -36,7 +36,7 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
     MatIconModule,
     MatToolbarModule,
     TranslateModule,
-    ZacInput,
+    ZacAutoComplete,
     ZacFormActions,
   ],
 })
@@ -58,6 +58,10 @@ export class ZoekopdrachtSaveDialogComponent {
   protected readonly form = this.formBuilder.group({
     naam: this.formBuilder.control<string | null>(null, [Validators.required]),
   });
+
+  protected readonly options = this.data.zoekopdrachten
+    .map((z) => z.naam)
+    .filter((naam): naam is string => !!naam);
 
   private readonly naamValue = toSignal(this.form.controls.naam.valueChanges, {
     initialValue: this.form.controls.naam.value,

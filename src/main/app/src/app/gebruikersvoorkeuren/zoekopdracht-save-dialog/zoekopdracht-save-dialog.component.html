@@ -18,7 +18,12 @@
   <mat-dialog-content>
     <fieldset class="p-0">
       <section class="row">
-        <zac-input class="col-12" [form]="form" key="naam"></zac-input>
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="naam"
+          [options]="options"
+        ></zac-auto-complete>
       </section>
     </fieldset>
   </mat-dialog-content>

@@ -144,11 +144,13 @@ describe(ZoekopdrachtSaveDialogComponent.name, () => {
   });
 
   describe("opslaan() — existing zoekopdracht", () => {
-    it("posts the existing entry with updated json", async () => {
+    it("posts the existing entry with updated json and closes the dialog with true", async () => {
       const existing = makeZoekopdracht("bestaande zoekopdracht", {
         id: 42,
       });
-      const { component, httpTestingController } = await setup([existing]);
+      const { component, httpTestingController, dialogRef } = await setup([
+        existing,
+      ]);
       component["form"].patchValue({ naam: "bestaande zoekopdracht" });
       component["form"].markAsDirty();
 
@@ -167,6 +169,9 @@ describe(ZoekopdrachtSaveDialogComponent.name, () => {
         }),
       );
       req.flush({});
+      await sleep();
+
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
     });
   });
 });
