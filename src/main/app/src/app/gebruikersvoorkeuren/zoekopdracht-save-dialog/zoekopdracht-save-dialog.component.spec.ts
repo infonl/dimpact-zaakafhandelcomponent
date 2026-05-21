@@ -141,6 +141,24 @@ describe(ZoekopdrachtSaveDialogComponent.name, () => {
     });
   });
 
+  describe("opslaan() — request error", () => {
+    it("closes the dialog without a result when the request fails", async () => {
+      const { component, httpTestingController, dialogRef } = await setup();
+      component["form"].patchValue({ naam: "nieuwe naam" });
+      component["form"].markAsDirty();
+
+      component["opslaan"]();
+      await new Promise(requestAnimationFrame);
+
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/zoekopdracht")
+        .flush(null, { status: 500, statusText: "Server Error" });
+      await sleep();
+
+      expect(dialogRef.close).toHaveBeenCalledWith();
+    });
+  });
+
   describe("opslaan() — existing zoekopdracht", () => {
     it("posts the existing entry with updated json and closes the dialog with true", async () => {
       const existing = makeZoekopdracht("bestaande zoekopdracht", {
