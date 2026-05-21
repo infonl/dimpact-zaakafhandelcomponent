@@ -35,6 +35,22 @@ services:
     image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
     platform: linux/arm64
 
+  openformulieren-celery:
+    image: ghcr.io/infonl/open-formulieren:3.4.2@sha256:f35aa06833c43744a03c6397ebf6f7f23e59f67ffff1a3be017dd6c2fc4cc6f8
+    platform: linux/arm64
+
+  openformulieren-celery-beat:
+    image: ghcr.io/infonl/open-formulieren:3.4.2@sha256:f35aa06833c43744a03c6397ebf6f7f23e59f67ffff1a3be017dd6c2fc4cc6f8
+    platform: linux/arm64
+
+  openformulieren-init:
+    image: ghcr.io/infonl/open-formulieren:3.4.2@sha256:f35aa06833c43744a03c6397ebf6f7f23e59f67ffff1a3be017dd6c2fc4cc6f8
+    platform: linux/arm64
+
+  openformulieren-web:
+    image: ghcr.io/infonl/open-formulieren:3.4.2@sha256:f35aa06833c43744a03c6397ebf6f7f23e59f67ffff1a3be017dd6c2fc4cc6f8
+    platform: linux/arm64
+
   openklant.local:
     image: ghcr.io/infonl/open-klant:2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36
     platform: linux/arm64
