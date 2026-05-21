@@ -339,6 +339,7 @@
     "fields": {
       "index": 1,
       "object": 4,
+      "_object_type": 1,
       "version": 1,
       "data": {
         "diameter": 10,
@@ -359,6 +360,7 @@
     "fields": {
       "index": 2,
       "object": 4,
+      "_object_type": 1,
       "version": 1,
       "data": {
         "diameter": 16,
@@ -379,6 +381,7 @@
     "fields": {
       "index": 3,
       "object": 4,
+      "_object_type": 1,
       "version": 1,
       "data": {
         "diameter": 19,
@@ -399,6 +402,7 @@
     "fields": {
       "index": 4,
       "object": 4,
+      "_object_type": 1,
       "version": 1,
       "data": {
         "diameter": 56,
@@ -419,6 +423,7 @@
     "fields": {
       "index": 5,
       "object": 4,
+      "_object_type": 1,
       "version": 1,
       "data": {
         "diameter": 26,
@@ -439,6 +444,7 @@
     "fields": {
       "index": 1,
       "object": 1,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "type": "Standaard",
@@ -496,6 +502,7 @@
     "fields": {
       "index": 1,
       "object": 2,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "boombeeld": "Boombeeld regulier (HB)",
@@ -524,6 +531,7 @@
     "fields": {
       "index": 1,
       "object": 3,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "kiemjaar": 85674463,
@@ -573,6 +581,7 @@
     "fields": {
       "index": 1,
       "object": 8,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "kiemjaar": -79718450,
@@ -618,6 +627,7 @@
     "fields": {
       "index": 1,
       "object": 9,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "type": "Familiegraf",
@@ -669,6 +679,7 @@
     "fields": {
       "index": 1,
       "object": 10,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "type": "Laagspanningskabel",
@@ -725,6 +736,7 @@
     "fields": {
       "index": 1,
       "object": 11,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "type": "Staafmathek",
@@ -778,6 +790,7 @@
     "fields": {
       "index": 1,
       "object": 12,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "kiemjaar": -6323347,
@@ -823,6 +836,7 @@
     "fields": {
       "index": 1,
       "object": 15,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "boombeeld": "Boombeeld regulier (HB)",
@@ -851,6 +865,7 @@
     "fields": {
       "index": 1,
       "object": 16,
+      "_object_type": 1,
       "version": 2,
       "data": {
         "kiemjaar": 85674463,
@@ -900,6 +915,7 @@
     "fields": {
       "index": 1,
       "object": 27,
+      "_object_type": 2,
       "version": 1,
       "data": {
         "id_nummer": 7
@@ -919,6 +935,7 @@
     "fields": {
       "index": 1,
       "object": 28,
+      "_object_type": 2,
       "version": 1,
       "data": {
         "id_nummer": 4
@@ -938,6 +955,7 @@
     "fields": {
       "index": 1,
       "object": 29,
+      "_object_type": 2,
       "version": 1,
       "data": {
         "id_nummer": 8
@@ -957,6 +975,7 @@
     "fields": {
       "index": 1,
       "object": 30,
+      "_object_type": 2,
       "version": 1,
       "data": {
         "id_nummer": 4
@@ -976,6 +995,7 @@
     "fields": {
       "index": 1,
       "object": 31,
+      "_object_type": 2,
       "version": 1,
       "data": {
         "id_nummer": 3
@@ -995,6 +1015,7 @@
     "fields": {
       "index": 1,
       "object": 32,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1076,6 +1097,7 @@
     "fields": {
       "index": 1,
       "object": 33,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1116,6 +1138,7 @@
     "fields": {
       "index": 1,
       "object": 34,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1170,6 +1193,7 @@
     "fields": {
       "index": 1,
       "object": 35,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1215,6 +1239,7 @@
     "fields": {
       "index": 1,
       "object": 36,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1261,6 +1286,7 @@
     "fields": {
       "index": 1,
       "object": 37,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1333,6 +1359,7 @@
     "fields": {
       "index": 1,
       "object": 38,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1385,6 +1412,7 @@
     "fields": {
       "index": 1,
       "object": 39,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1442,6 +1470,7 @@
     "fields": {
       "index": 1,
       "object": 40,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1467,6 +1496,7 @@
     "fields": {
       "index": 1,
       "object": 41,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1492,6 +1522,7 @@
     "fields": {
       "index": 1,
       "object": 43,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1540,6 +1571,7 @@
     "fields": {
       "index": 1,
       "object": 42,
+      "_object_type": 4,
       "version": 1,
       "data": {
         "bron": {
