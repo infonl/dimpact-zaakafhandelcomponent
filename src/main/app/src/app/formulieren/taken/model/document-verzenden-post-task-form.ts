@@ -70,7 +70,9 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
         type: "plain-text",
         key: "intro",
         control: this.formBuilder.control(
-          this.translateService.instant("msg.document.verzenden.post.behandelen"),
+          this.translateService.instant(
+            "msg.document.verzenden.post.behandelen",
+          ),
         ),
       },
       {

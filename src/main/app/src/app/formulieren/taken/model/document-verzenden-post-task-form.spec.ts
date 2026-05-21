@@ -48,9 +48,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       .mockReturnValue(of([]));
 
     translateService = TestBed.inject(TranslateService);
-    jest
-      .spyOn(translateService, "instant")
-      .mockReturnValue("translated-intro");
+    jest.spyOn(translateService, "instant").mockReturnValue("translated-intro");
 
     formulier = TestBed.inject(DocumentVerzendenPostTaskForm);
   });
@@ -335,9 +333,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const value = fields.find((f) => f.key === "verzenddatum")?.control
           ?.value;
         expect(moment.isMoment(value)).toBe(true);
-        expect(
-          (value as moment.Moment).isSame(moment(), "day"),
-        ).toBe(true);
+        expect((value as moment.Moment).isSame(moment(), "day")).toBe(true);
       });
 
       it("should pre-fill verzenddatum from taakdata when present", async () => {
