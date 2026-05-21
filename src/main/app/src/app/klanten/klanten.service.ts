@@ -106,12 +106,9 @@ export class KlantenService {
 
   /* istanbul ignore next */
   readBasisprofiel(kvkNummer: string) {
-    return this.zacHttpClient.GET(
-      "/rest/klanten/basisprofiel/{kvkNummer}",
-      {
-        path: { kvkNummer },
-      },
-    );
+    return this.zacHttpClient.GET("/rest/klanten/basisprofiel/{kvkNummer}", {
+      path: { kvkNummer },
+    });
   }
 
   /* istanbul ignore next */
