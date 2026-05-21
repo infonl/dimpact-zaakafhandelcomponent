@@ -20,13 +20,9 @@ INSERT INTO klantinteracties_klantcontact (id, uuid, nummer, kanaal, onderwerp, 
 -- anonymous product request klantcontact with request-specific email address
 INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
     VALUES(3, 'b74a2540-edb3-45ec-a7e5-9d09e2b79718', '0000000003', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-24 09:49:02.000');
--- TODO: Remove?
--- klantcontact to test product request with request-specific email address
-INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES(4, 'f453481d-4385-4ab8-8c31-58b649eb763e', '0000000004', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-03-25 09:49:02.000');
 -- product request klantcontact from person with BSN '999993896' with product request-specific contact details
 INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
-    VALUES(6, 'f98c11a6-a5b0-4247-baf9-db0a61386d53', '0000000005', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-05-18 09:49:02.000');
+    VALUES(4, 'f98c11a6-a5b0-4247-baf9-db0a61386d53', '0000000004', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-05-18 09:49:02.000');
 
 INSERT INTO klantinteracties_actorklantcontact (id, uuid, actor_id, klantcontact_id)
     VALUES (1, '63567628-b257-46d3-95c6-1ed76427c526', 1, 1);
@@ -75,14 +71,9 @@ INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, be
 INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
     VALUES(5, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'dc4206b8-c789-43b2-97c8-0a0001248fae', 'klant', '', false, 3, NULL, NULL, '', '', '', '', NULL, '', '', '', '');
 
--- TODO: remove?
--- add betrokkene to klantcontact to test product request with product request specific email address
-INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
-    VALUES(6, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '3e8bc4cc-26a4-4bef-8b85-45f6a94c29a0', 'klant', '', false, 4, NULL, NULL, '', '', '', '', NULL, '', '', '', '');
-
 -- add betrokkene to klantcontact to test person with BSN product request with person partij and product request specific email address
 INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
-    VALUES(7, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'ce0341d3-5203-4f07-aec0-e6f368b203ef', 'klant', '', false, 6, 1, NULL, '', '', '', '', NULL, '', '', '', '');
+    VALUES(7, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'ce0341d3-5203-4f07-aec0-e6f368b203ef', 'klant', '', false, 4, 1, NULL, '', '', '', '', NULL, '', '', '', '');
 
 -- add onderwerpobject to klantcontact to test product request with product request specific email address
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
@@ -90,7 +81,7 @@ INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_o
 
 -- add onderwerpobject to klantcontact to test product request with person and product request specific email address
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
-    VALUES(2, 'testFormulierKenmerkRequestSpecificEmailAddress2', 'd8c7c9bf-5a6f-4a54-ad6f-8ae95bcf0bae', 6, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
+    VALUES(2, 'testFormulierKenmerkRequestSpecificEmailAddress2', 'd8c7c9bf-5a6f-4a54-ad6f-8ae95bcf0bae', 4, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
 -- add preferred ('standaard') email and telephone number digital addresses to the persoon partij with BSN 999993896 (Hendrika Janse)
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
@@ -114,16 +105,14 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
     VALUES (6, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
 
--- add email digital addresses to betrokkene test product request with productaanvraag-specific email address
+-- add email digital addresses to betrokkene to test product request with productaanvraag-specific email address
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(7, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-request-specific-1@example.com', '', 5, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(8, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-request-specific-2@example.com', '', 7, NULL, false, '', NULL);
 -- add telephone number digital addresses to betrokkene test product request with productaanvraag-specific telephone number
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(9, '4de71e36-377f-4bd4-91ea-7aa1ae5bf08a', 'telefoonnummer', '06-11119999', '', 6, NULL, false, '', NULL);
-INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(10, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 7, NULL, false, '', NULL);
+    VALUES(9, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 7, NULL, false, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.
