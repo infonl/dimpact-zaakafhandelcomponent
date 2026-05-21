@@ -10,7 +10,7 @@ help()
 {
    echo "Notifies ZAC about a product request. Note that the ZAC used endpoint requires API key authentication."
    echo
-   echo "Syntax: $0 [-u|o|k|a|b|c|h]"
+   echo "Syntax: $0 [-u|o|k|a|b|h]"
    echo "options:"
    echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
    echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
@@ -50,9 +50,6 @@ while getopts 'u:o:k:abch' OPTION; do
       ;;
     b)
       objectUuid=$altBObjectUuid
-      ;;
-    c)
-      objectUuid=$altCObjectUuid
       ;;
     h)
       help
