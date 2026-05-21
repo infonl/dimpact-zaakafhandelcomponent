@@ -181,7 +181,10 @@ class KlantClientService @Inject constructor(
     private fun findContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
-            klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand?.digitaleAdressen?.toContactDetails()
+            val expandedBetrokkene = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand
+            // temporary logging to troubleshoot issue on TEST environment
+            LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
+            expandedBetrokkene?.digitaleAdressen?.toContactDetails()
         } catch (exception: NotFoundException) {
             LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }
             null
