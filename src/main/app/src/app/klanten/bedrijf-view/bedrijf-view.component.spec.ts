@@ -343,7 +343,7 @@ describe(BedrijfViewComponent.name, () => {
       );
     });
 
-    it("calls readRechtspersoonsprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
+    it("calls readBasisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -353,14 +353,14 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
       jest
-        .spyOn(klantenService, "readRechtspersoonsprofiel")
+        .spyOn(klantenService, "readBasisprofiel")
         .mockReturnValue(of(makeBedrijfsprofiel()));
       const button = await harnessLoader.getHarness(
         MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
       );
       await button.click();
       fixture.detectChanges();
-      expect(klantenService.readRechtspersoonsprofiel).toHaveBeenCalledWith(
+      expect(klantenService.readBasisprofiel).toHaveBeenCalledWith(
         "12345678",
       );
     });
@@ -404,7 +404,7 @@ describe(BedrijfViewComponent.name, () => {
         statutaireNaam: "Test BV",
       });
       jest
-        .spyOn(klantenService, "readRechtspersoonsprofiel")
+        .spyOn(klantenService, "readBasisprofiel")
         .mockReturnValue(of(profiel));
       component["ophalenProfiel"]();
       fixture.detectChanges();
@@ -422,7 +422,7 @@ describe(BedrijfViewComponent.name, () => {
       const vestigingSpy = jest.spyOn(klantenService, "readVestigingsprofiel");
       const rechtspersoonSpy = jest.spyOn(
         klantenService,
-        "readRechtspersoonsprofiel",
+        "readBasisprofiel",
       );
       component["ophalenProfiel"]();
       expect(vestigingSpy).not.toHaveBeenCalled();
@@ -512,7 +512,7 @@ describe(BedrijfViewComponent.name, () => {
         }),
       });
       fixture.detectChanges();
-      jest.spyOn(klantenService, "readRechtspersoonsprofiel").mockReturnValue(
+      jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
         of(
           makeBedrijfsprofiel({
             rechtsvorm: "BV",

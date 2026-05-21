@@ -296,11 +296,11 @@ describe(BedrijfsgegevensComponent.name, () => {
         );
       });
 
-      it("does not call readRechtspersoonsprofiel", () => {
+      it("does not call readBasisprofiel", () => {
         jest
           .spyOn(klantenService, "readVestigingsprofiel")
           .mockReturnValue(of(makeBedrijfsprofiel()));
-        const spy = jest.spyOn(klantenService, "readRechtspersoonsprofiel");
+        const spy = jest.spyOn(klantenService, "readBasisprofiel");
         component["ophalenProfiel"]();
         expect(spy).not.toHaveBeenCalled();
       });
@@ -378,19 +378,19 @@ describe(BedrijfsgegevensComponent.name, () => {
         notifyManager.setScheduler(queueMicrotask);
       });
 
-      it("calls readRechtspersoonsprofiel with the kvkNummer", () => {
+      it("calls readBasisprofiel with the kvkNummer", () => {
         jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
+          .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(of(makeBedrijfsprofiel()));
         component["ophalenProfiel"]();
-        expect(klantenService.readRechtspersoonsprofiel).toHaveBeenCalledWith(
+        expect(klantenService.readBasisprofiel).toHaveBeenCalledWith(
           "12345678",
         );
       });
 
       it("does not call readVestigingsprofiel", () => {
         jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
+          .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(of(makeBedrijfsprofiel()));
         const spy = jest.spyOn(klantenService, "readVestigingsprofiel");
         component["ophalenProfiel"]();
@@ -400,7 +400,7 @@ describe(BedrijfsgegevensComponent.name, () => {
       it("populates profiel signal after service call", () => {
         const profiel = makeBedrijfsprofiel({ rechtsvorm: "BV" });
         jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
+          .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(of(profiel));
         component["ophalenProfiel"]();
         expect(component["profiel"]()).toEqual(profiel);
@@ -408,7 +408,7 @@ describe(BedrijfsgegevensComponent.name, () => {
 
       it("renders rechtsvorm after profiel is loaded", () => {
         jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
+          .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(of(makeBedrijfsprofiel({ rechtsvorm: "BV" })));
         component["ophalenProfiel"]();
         fixture.detectChanges();
@@ -419,7 +419,7 @@ describe(BedrijfsgegevensComponent.name, () => {
       });
 
       it("renders uitgebreideRechtsvorm after profiel is loaded", () => {
-        jest.spyOn(klantenService, "readRechtspersoonsprofiel").mockReturnValue(
+        jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
           of(
             makeBedrijfsprofiel({
               uitgebreideRechtsvorm: "Besloten Vennootschap",
@@ -436,7 +436,7 @@ describe(BedrijfsgegevensComponent.name, () => {
 
       it("renders statutaireNaam after profiel is loaded", () => {
         jest
-          .spyOn(klantenService, "readRechtspersoonsprofiel")
+          .spyOn(klantenService, "readBasisprofiel")
           .mockReturnValue(
             of(makeBedrijfsprofiel({ statutaireNaam: "Test BV Statutair" })),
           );

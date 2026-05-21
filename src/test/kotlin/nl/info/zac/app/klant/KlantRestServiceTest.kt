@@ -621,7 +621,7 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a rechtspersoonsprofiel") {
+    Context("Reading a readbasisprofiel") {
         Given("A KVK basisprofiel for a rechtspersoon with all fields populated") {
             val kvkNummer = "12345678"
             val basisprofiel = createBasisprofiel(
@@ -663,12 +663,12 @@ class KlantRestServiceTest : BehaviorSpec({
                     websites = listOf("https://fake.nl", "https://other.nl")
                 )
             )
-            every { kvkClientService.findRechtspersoonsprofiel(kvkNummer) } returns basisprofiel
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
 
-            When("the rechtspersoonsprofiel is requested for a given KVK nummer") {
-                val restBedrijfsprofiel = klantRestService.readRechtspersoonsprofiel(kvkNummer)
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
 
-                Then("the rechtspersoonsprofiel is returned with all fields mapped correctly") {
+                Then("the basisprofiel is returned with all fields mapped correctly") {
                     with(restBedrijfsprofiel) {
                         this.kvkNummer shouldBe kvkNummer
                         this.totaalWerkzamePersonen shouldBe basisprofiel.totaalWerkzamePersonen
@@ -701,12 +701,12 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("A KVK basisprofiel without an eigenaar") {
             val kvkNummer = "12345678"
             val basisprofiel = createBasisprofiel(kvkNummer = kvkNummer, eigenaar = null)
-            every { kvkClientService.findRechtspersoonsprofiel(kvkNummer) } returns basisprofiel
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
 
-            When("the rechtspersoonsprofiel is requested for a given KVK nummer") {
-                val restBedrijfsprofiel = klantRestService.readRechtspersoonsprofiel(kvkNummer)
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
 
-                Then("the rechtspersoonsprofiel is returned with null eigenaar fields") {
+                Then("the basisprofiel is returned with null eigenaar fields") {
                     with(restBedrijfsprofiel) {
                         this.kvkNummer shouldBe kvkNummer
                         this.rsin shouldBe null
@@ -721,15 +721,15 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("No KVK basisprofiel found for the given KVK nummer") {
             val kvkNummer = "12345678"
-            every { kvkClientService.findRechtspersoonsprofiel(kvkNummer) } returns null
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns null
 
-            When("the rechtspersoonsprofiel is requested for a given KVK nummer") {
+            When("the basisprofiel is requested for a given KVK nummer") {
                 val exception = shouldThrow<RechtspersoonNotFoundException> {
-                    klantRestService.readRechtspersoonsprofiel(kvkNummer)
+                    klantRestService.readBasisprofiel(kvkNummer)
                 }
 
                 Then("a RechtspersoonNotFoundException is thrown") {
-                    exception.message shouldBe "Geen rechtspersoonsprofiel gevonden voor KVK nummer '$kvkNummer'"
+                    exception.message shouldBe "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
                 }
             }
         }

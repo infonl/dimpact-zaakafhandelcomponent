@@ -145,7 +145,7 @@ class KlantRestService @Inject constructor(
         kvkClientService.findBasisprofiel(kvkNummer)
             ?.toRestBedrijfsprofiel()
             ?: throw RechtspersoonNotFoundException(
-                "Geen rechtspersoonsprofiel gevonden voor KVK nummer '$kvkNummer'"
+                "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
             )
 
     /**

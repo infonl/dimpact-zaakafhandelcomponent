@@ -83,13 +83,13 @@ class KvkClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A rechtspersoon with a kvkNummer") {
+    Given("A basisprofiel with a kvkNummer") {
         val kvkNummer = "12345678"
         val expectedBasisprofiel = createBasisprofiel(kvkNummer = kvkNummer)
         every { kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false) } returns expectedBasisprofiel
 
-        When("the rechtspersoonsprofiel is retrieved for this kvkNummer") {
-            val result = kvkClientService.findRechtspersoonsprofiel(kvkNummer)
+        When("the basisprofiel is retrieved for this kvkNummer") {
+            val result = kvkClientService.findBasisprofiel(kvkNummer)
 
             Then("it should return the expected basisprofiel") {
                 result shouldBe expectedBasisprofiel
