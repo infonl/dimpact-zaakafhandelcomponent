@@ -91,28 +91,28 @@ INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_s
 -- also add non-preferred email and telephone number digital addresses to the persoon partij with BSN 999993896 (Hendrika Janse)
 -- this is to test that the non-preferred email and telephone number digital addresses are not returned when querying for the preferred email and telephone number digital addresses
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (1, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'false','hendrika.janse.2@example.com', '', 1, 1, 'referentie1');
+    VALUES (3, 'cda1e8e5-bf0a-49d7-a395-b19e406474b7', 'email', 'false','hendrika.janse.2@example.com', '', 1, 1, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (2, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'false','0612345679', '', 1, 1, 'referentie2');
+    VALUES (4, '61734758-761c-47eb-bc6b-c46eb7ba629d', 'telefoonnummer', 'false','0612345679', '', 1, 1, 'referentie2');
 -- add preferred ('standaard') email and telephone number digital addresses to the KVK bedrijf/rechtspersoon partij (partij 2)
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (3, '83d549d8-babb-43aa-a5e6-9bbd1b969440', 'email', 'true','fake.kvk@example.com', '', 2, 2, 'referentie1');
+    VALUES (5, '83d549d8-babb-43aa-a5e6-9bbd1b969440', 'email', 'true','fake.kvk@example.com', '', 2, 2, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (4, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'telefoonnummer', 'true','0101234567', '', 4, 2, 'referentie2');
+    VALUES (6, 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'telefoonnummer', 'true','0101234567', '', 4, 2, 'referentie2');
 -- add preferred ('standaard') email and telephone number digital addresses to the vestiging partij (partij 3)
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (5, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
+    VALUES (7, '22a2b1be-238d-4c47-aff4-db9165f43f5f', 'email', 'true','fake.vestiging@example.com', '', 4, 3, 'referentie1');
 INSERT INTO klantinteracties_digitaaladres (id, uuid, soort_digitaal_adres, is_standaard_adres, adres, omschrijving, betrokkene_id, partij_id, referentie)
-    VALUES (6, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
+    VALUES (8, '0b582f1b-e2c9-4897-8117-744a0e6806ae', 'telefoonnummer', 'true','0201234567', '', 4, 3, 'referentie2');
 
 -- add email digital addresses to betrokkene to test product request with productaanvraag-specific email address
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(7, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-request-specific-1@example.com', '', 5, NULL, false, '', NULL);
+    VALUES(9, '5dc35a99-11f6-4142-b6ef-8e661b33b704', 'email', 'test-request-specific-1@example.com', '', 5, NULL, false, '', NULL);
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(8, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-request-specific-2@example.com', '', 7, NULL, false, '', NULL);
+    VALUES(10, 'a8e821c4-74a8-4b21-8f9f-030f06251ec5', 'email', 'test-request-specific-2@example.com', '', 7, NULL, false, '', NULL);
 -- add telephone number digital addresses to betrokkene test product request with productaanvraag-specific telephone number
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(9, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 7, NULL, false, '', NULL);
+    VALUES(11, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 7, NULL, false, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.
