@@ -360,9 +360,7 @@ describe(BedrijfViewComponent.name, () => {
       );
       await button.click();
       fixture.detectChanges();
-      expect(klantenService.readBasisprofiel).toHaveBeenCalledWith(
-        "12345678",
-      );
+      expect(klantenService.readBasisprofiel).toHaveBeenCalledWith("12345678");
     });
   });
 
@@ -420,10 +418,7 @@ describe(BedrijfViewComponent.name, () => {
       });
       fixture.detectChanges();
       const vestigingSpy = jest.spyOn(klantenService, "readVestigingsprofiel");
-      const rechtspersoonSpy = jest.spyOn(
-        klantenService,
-        "readBasisprofiel",
-      );
+      const rechtspersoonSpy = jest.spyOn(klantenService, "readBasisprofiel");
       component["ophalenProfiel"]();
       expect(vestigingSpy).not.toHaveBeenCalled();
       expect(rechtspersoonSpy).not.toHaveBeenCalled();
