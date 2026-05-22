@@ -32,7 +32,7 @@
       mat-raised-button
       type="submit"
       color="primary"
-      [disabled]="form.invalid || form.pristine"
+      [disabled]="form.invalid || form.pristine || mutation.isPending()"
       id="opslaan_button"
     >
       {{ submitLabel() | translate }}
