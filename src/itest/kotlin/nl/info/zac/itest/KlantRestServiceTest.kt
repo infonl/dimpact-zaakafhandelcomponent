@@ -661,9 +661,14 @@ class KlantRestServiceTest : BehaviorSpec({
                           "kanaal": "Webformulier",
                           "registratiedatum": "2026-05-18T09:49:02Z",
                           "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
+                        },
+                        {
+                          "kanaal": "Webformulier",
+                          "registratiedatum": "2026-05-22T09:49:02Z",
+                          "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
                         }
                       ],
-                      "totaal": 3
+                      "totaal": 4
                     }
                     """.trimIndent()
                 }
