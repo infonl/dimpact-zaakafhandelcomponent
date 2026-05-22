@@ -48,12 +48,12 @@
             />
             <zac-static-text
               *ngIf="!profiel"
-              label="adres"
+              [label]="bedrijf?.adresType ?? 'adres'"
               [value]="bedrijf?.adres"
             />
             <zac-static-text
               *ngFor="let adres of profiel?.adressen"
-              [label]="adres.type | titlecase"
+              [label]="adres.type"
               [value]="adres.volledigAdres"
             />
             <zac-static-text
