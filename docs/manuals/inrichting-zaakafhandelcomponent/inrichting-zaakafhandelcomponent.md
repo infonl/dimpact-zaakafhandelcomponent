@@ -424,7 +424,7 @@ Stappen:
 
 ## Identiteits- en toegangsbeheer
 
-Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren en hiervoor is een aparte handleiding.
+Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
 
 ### IAM architectuur
 
