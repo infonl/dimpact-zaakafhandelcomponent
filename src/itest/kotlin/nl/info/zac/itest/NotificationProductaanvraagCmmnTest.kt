@@ -327,7 +327,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
     Context(
         """Productaanvraag with a BSN initiator whose profile already exists in Open Klant
-        and who updates their address with 'Sla mijn gegevens op voor de volgende keer' (scenario 1.a.i)"""
+        and who updates their address with 'Sla mijn gegevens op voor de volgende keer'"""
     ) {
         Given(
             """A productaanvraag object exists in Objecten with a BSN initiator (BSN 999993896) whose

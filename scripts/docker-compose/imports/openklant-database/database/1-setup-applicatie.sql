@@ -114,7 +114,7 @@ INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, ad
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(11, '52f8cc8e-f020-4574-a395-84a0a467c1d1', 'telefoonnummer', '06-11118888', '', 7, NULL, false, '', NULL);
 
--- product request klantcontact from person with BSN '999993896' simulating scenario 1.a.i:
+-- product request klantcontact from person with BSN '999993896'
 -- profile already exists and user changes address with "Sla mijn gegevens op voor de volgende keer"
 INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp, inhoud, indicatie_contact_gelukt, taal, vertrouwelijk, plaatsgevonden_op)
     VALUES(5, 'a3f7c2b1-8e4d-4f9a-b6c5-d2e1f0a9b8c7', '0000000005', 'Webformulier', 'Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren', '', NULL, 'nld', true, '2026-05-22 09:49:02.000');
@@ -123,12 +123,12 @@ INSERT INTO klantinteracties_klantcontact (id, "uuid", nummer, kanaal, onderwerp
 INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, bezoekadres_adresregel1, bezoekadres_adresregel2, bezoekadres_adresregel3, bezoekadres_land, correspondentieadres_nummeraanduiding_id, correspondentieadres_adresregel1, correspondentieadres_adresregel2, correspondentieadres_adresregel3, correspondentieadres_land, contactnaam_voorletters, contactnaam_voornaam, contactnaam_voorvoegsel_achternaam, contactnaam_achternaam, "uuid", rol, organisatienaam, initiator, klantcontact_id, partij_id, bezoekadres_huisnummer, bezoekadres_huisnummertoevoeging, bezoekadres_postcode, bezoekadres_stad, bezoekadres_straatnaam, correspondentieadres_huisnummer, correspondentieadres_huisnummertoevoeging, correspondentieadres_postcode, correspondentieadres_stad, correspondentieadres_straatnaam)
     VALUES(6, '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'f1e2d3c4-b5a6-7890-cdef-012345678901', 'klant', '', false, 5, 1, NULL, '', '', '', '', NULL, '', '', '', '');
 
--- add onderwerpobject linking klantcontact 5 to the form submission kenmerk for scenario 1.a.i
+-- add onderwerpobject linking klantcontact 5 to the form submission kenmerk
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
     VALUES(3, 'testFormulierKenmerkProfileExistsSavedAddress', 'c7e9f1a2-b3d4-5e6f-7a8b-9c0d1e2f3a4b', 5, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
 -- add email digital address linked to BOTH betrokkene 6 AND partij 1 — this is the address saved via "Sla mijn gegevens op"
--- verstrektDoorPartij is non-null (partij_id = 1) so ZAC should NOT treat this as aanvraag-specific
+-- verstrektDoorPartij is non-null (partij_id = 1), so ZAC should NOT treat this as aanvraag-specific
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
     VALUES(12, 'd4e5f6a7-b8c9-0123-d4e5-f6a7b8c90124', 'email', 'test-profile-saved@example.com', '', 6, 1, false, '', NULL);
 
