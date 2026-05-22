@@ -30,7 +30,7 @@ import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_15
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
@@ -283,7 +283,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "registratiedatum": "${LocalDate.now()}",
                       "startdatum": "$DATE_2020_01_01",
                       "toelichting": "$ZAAK_EXPLANATION_1",
-                      "uiterlijkeEinddatumAfdoening": "$DATE_2020_01_15",
+                      "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
                       "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakdata": {

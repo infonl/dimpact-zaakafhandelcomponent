@@ -195,7 +195,7 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
+    const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1971-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "fakeZaakOmschrijving"
     const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "fakeZaakToelichting"
 
@@ -277,7 +277,7 @@ object ItestConfiguration {
     val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
-    val DATE_2020_01_15: LocalDate = LocalDate.of(2020, Month.JANUARY, 15)
+    val DATE_2021_01_01: LocalDate = LocalDate.of(2021, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
     val DATE_2023_09_21: LocalDate = LocalDate.of(2023, Month.SEPTEMBER, 21)
