@@ -63,12 +63,12 @@ export class BedrijfsgegevensComponent {
     ),
   );
 
-  protected vestigingsprofielOphalenMogelijk = computed(
-    () => !!this.bedrijfQuery.data()?.vestigingsnummer,
-  );
+  protected profielOphalenMogelijk = computed(() => {
+    const data = this.bedrijfQuery.data();
+    return !!data?.vestigingsnummer || !!data?.kvkNummer;
+  });
 
-  protected vestigingsprofiel =
-    signal<GeneratedType<"RestVestigingsprofiel"> | null>(null);
+  protected profiel = signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
 
   protected warningIcon = new TextIcon(
     () => true,
@@ -82,14 +82,20 @@ export class BedrijfsgegevensComponent {
     return buildBedrijfRouteLink(this.bedrijfQuery.data());
   }
 
-  protected ophalenVestigingsprofiel() {
-    const vestigingsnummer = this.bedrijfQuery.data()?.vestigingsnummer;
-    if (!vestigingsnummer) return;
-
-    this.klantenService
-      .readVestigingsprofiel(vestigingsnummer)
-      .subscribe((value) => {
-        this.vestigingsprofiel.set(value);
-      });
+  protected ophalenProfiel() {
+    const data = this.bedrijfQuery.data();
+    if (data?.vestigingsnummer) {
+      this.klantenService
+        .readVestigingsprofiel(data.vestigingsnummer)
+        .subscribe((value) => {
+          this.profiel.set(value);
+        });
+    } else if (data?.kvkNummer) {
+      this.klantenService
+        .readBasisprofiel(data.kvkNummer)
+        .subscribe((value) => {
+          this.profiel.set(value);
+        });
+    }
   }
 }

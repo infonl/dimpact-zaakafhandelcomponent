@@ -31,12 +31,12 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.bedrijven.RestBedrijf
+import nl.info.zac.app.klant.model.bedrijven.RestBedrijfsprofiel
 import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
-import nl.info.zac.app.klant.model.bedrijven.RestVestigingsprofiel
 import nl.info.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijf
+import nl.info.zac.app.klant.model.bedrijven.toRestBedrijfsprofiel
 import nl.info.zac.app.klant.model.bedrijven.toRestResultaat
-import nl.info.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.app.klant.model.contactmoment.RestContactmoment
 import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
@@ -130,11 +130,22 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
-    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel =
+    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestBedrijfsprofiel =
         kvkClientService.findVestigingsprofiel(vestigingsnummer)
-            ?.toRestVestigingsProfiel()
+            ?.toRestBedrijfsprofiel()
             ?: throw VestigingNotFoundException(
                 "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
+            )
+
+    @GET
+    @Path("basisprofiel/{kvkNummer}")
+    fun readBasisprofiel(
+        @PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String
+    ): RestBedrijfsprofiel =
+        kvkClientService.findBasisprofiel(kvkNummer)
+            ?.toRestBedrijfsprofiel()
+            ?: throw RechtspersoonNotFoundException(
+                "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
             )
 
     /**
