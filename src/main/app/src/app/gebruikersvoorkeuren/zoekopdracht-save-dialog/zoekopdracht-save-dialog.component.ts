@@ -6,8 +6,10 @@
 import { Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
+  MatDialogActions,
   MatDialogContent,
   MatDialogRef,
   MatDialogTitle,
@@ -20,7 +22,6 @@ import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
-import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 
@@ -30,6 +31,8 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogActions,
     MatDialogTitle,
     MatDialogContent,
     MatDividerModule,
@@ -37,7 +40,6 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
     MatToolbarModule,
     TranslateModule,
     ZacAutoComplete,
-    ZacFormActions,
   ],
 })
 export class ZoekopdrachtSaveDialogComponent {
