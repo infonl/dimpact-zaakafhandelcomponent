@@ -702,6 +702,45 @@ class KlantClientServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("A klantcontact with a betrokkene whose digital addresses are all linked to a partij") {
+            val kenmerk = "fakeKenmerk"
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val partijForeignKey = createPartijForeignKey()
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = "saved@example.com",
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
+                        ).apply { verstrektDoorPartij = partijForeignKey }
+                    )
+                )
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return null because the address is the citizen's saved preference, not aanvraag-specific") {
+                    result.shouldBeNull()
+                }
+            }
+        }
     }
 
     Context("Finding zaak-specific contact details") {
@@ -971,6 +1010,45 @@ class KlantClientServiceTest : BehaviorSpec({
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
 
                 Then("it should return null") {
+                    result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene whose digital addresses are all linked to a partij") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val partijForeignKey = createPartijForeignKey()
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = "saved@example.com",
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
+                        ).apply { verstrektDoorPartij = partijForeignKey }
+                    )
+                )
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return null because the address is the citizen's saved preference, not zaak-specific") {
                     result.shouldBeNull()
                 }
             }

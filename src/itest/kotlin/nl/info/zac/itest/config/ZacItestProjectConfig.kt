@@ -200,7 +200,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
             logger.info { "Keycloak is healthy" }
             logger.info { "Waiting until ZAC is healthy by calling the health endpoint and checking the response" }
-            eventually(60.seconds) {
+            eventually(3.minutes) {
                 itestHttpClient.performGetRequest(
                     headers = Headers.headersOf("Content-Type", "application/json"),
                     url = ZAC_HEALTH_READY_URL

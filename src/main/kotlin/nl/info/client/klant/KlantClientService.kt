@@ -181,10 +181,13 @@ class KlantClientService @Inject constructor(
     private fun findContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
-            val expandedBetrokkene = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand
-            // temporary logging to troubleshoot issue on TEST environment
-            LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
-            expandedBetrokkene?.digitaleAdressen?.toContactDetails()
+            val digitaleAdressen = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)
+                .expand?.digitaleAdressen ?: return null
+            val betrokkeneOnlyAdressen = digitaleAdressen.filter { it.verstrektDoorPartij == null }
+            // Addresses linked to a partij are saved preferences, not aanvraag/zaak-specific.
+            // Return null only when ALL addresses were filtered out this way (not when the list was already empty).
+            if (digitaleAdressen.isNotEmpty() && betrokkeneOnlyAdressen.isEmpty()) return null
+            betrokkeneOnlyAdressen.toContactDetails()
         } catch (exception: NotFoundException) {
             LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }
             null
