@@ -736,7 +736,9 @@ class KlantClientServiceTest : BehaviorSpec({
             When("productaanvraag-specific contact details are requested") {
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
 
-                Then("it should return null because the address is the citizen's saved preference, not aanvraag-specific") {
+                Then(
+                    "it should return null because the address is the citizen's saved preference, not aanvraag-specific"
+                ) {
                     result.shouldBeNull()
                 }
             }

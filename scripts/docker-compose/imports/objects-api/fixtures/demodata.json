@@ -1009,10 +1009,7 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [
-              52.08968250760225,
-              5.114358701512936
-            ]
+            "coordinates": [52.08968250760225, 5.114358701512936]
           }
         },
         "betrokkenen": [
@@ -1278,10 +1275,7 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [
-              52.08968250760225,
-              5.114358701512936
-            ]
+            "coordinates": [52.08968250760225, 5.114358701512936]
           }
         },
         "betrokkenen": [
