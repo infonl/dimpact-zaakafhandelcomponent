@@ -375,7 +375,6 @@ Stappen:
 
 ## Inrichtingscheck
 Dit onderdeel is bedoeld als hulpmiddel om de inrichting van een zaaktype in zowel de ZAC als de zaaktypecatalogus te controleren op minimaal benodigde inrichting.
-beheer_instellingen_inrchtingscheck.png
 ![Inrichtingscheck](images/beheer_instellingen_inrchtingscheck.png)
 
 ### Zaaktypecatalogus synchronisatie
