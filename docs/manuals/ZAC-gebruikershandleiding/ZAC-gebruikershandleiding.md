@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :11-08-2025 <br>
-> Versie :   1.6.9 <br>
-> Verandering : ZAC v3.12 Handleiding <br>
+> Datum :21-05-2026 <br>
+> Versie :   1.7 <br>
+> Verandering : ZAC v4.10 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -36,6 +36,7 @@ Versiegeschiedenis:
 | 1.6.7 | ZAC v3.9 Handleiding |
 | 1.6.8 | ZAC v3.11 Handleiding |
 | 1.6.9 | ZAC v3.12 Handleiding |
+| 1.7 | ZAC v4.10 Handleiding |
 
 <div style="page-break-after: always"></div>
 
@@ -625,6 +626,7 @@ Met deze actie wordt een e-mail vanuit de zaak verstuurd. De mail wordt als docu
 ### Document maken
 
 Deze actie maakt het mogelijk om een document met sjablonen in een documentcreatieapplicatie een document te maken en aan de zaak toe te voegen.  
+> Deze optie moet in het zaaktype aanstaan, anders is deze niet zichtbaar in het menu
 
 **Stappen**
 

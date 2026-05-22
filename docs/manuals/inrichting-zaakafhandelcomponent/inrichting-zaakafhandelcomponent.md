@@ -429,7 +429,7 @@ Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebru
 
 ### IAM architectuur
 
-Deze sectie beschrijft de werking van de IAM-architectuur in ZAC.
+Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5.0. Voor eerdere versies raadpleeg de handleiding voor versie 4.6.
 
 De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
 * Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
