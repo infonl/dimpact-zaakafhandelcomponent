@@ -131,7 +131,7 @@ object ItestConfiguration {
      */
     const val TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896"
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
-    const val TEST_PERSON_HENDRIKA_JANSE_EMAIL_2 = "hendrika.janse.2@example.com"
+    const val TEST_PERSON_HENDRIKA_JANSE_EMAIL_3 = "hendrika.janse.3@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
     const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"

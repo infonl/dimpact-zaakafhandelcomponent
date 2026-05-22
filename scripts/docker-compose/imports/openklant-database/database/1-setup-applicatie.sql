@@ -127,10 +127,13 @@ INSERT INTO klantinteracties_betrokkene (id, bezoekadres_nummeraanduiding_id, be
 INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_object_id, "uuid", klantcontact_id, was_klantcontact_id, onderwerpobjectidentificator_code_objecttype, onderwerpobjectidentificator_code_register, onderwerpobjectidentificator_code_soort_object_id)
     VALUES(3, 'testFormulierKenmerkProfileExistsSavedAddress', 'c7e9f1a2-b3d4-5e6f-7a8b-9c0d1e2f3a4b', 5, NULL, 'formulierinzending', 'Open Formulieren', 'public_registration_reference');
 
--- add email digital address linked to BOTH betrokkene 6 AND partij 1 — this is the address saved via "Sla mijn gegevens op"
+-- add non-preferred (niet standaard) email digital address linked to BOTH betrokkene 6 AND partij 1 — this simulates a newly stored non-preferred address
 -- verstrektDoorPartij is non-null (partij_id = 1), so ZAC should NOT treat this as aanvraag-specific
+-- note that we cannot simulate saving a _newly_ stored preferred (standaard) digital address ('Opslaan voor volgende keer') in this SQL init script,
+-- because Open Klant only allows a single preferred (standaard) address per betrokkene
+-- testing that scenario would require us to make API requests to the Open Klant API from the integration tests
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(12, 'd4e5f6a7-b8c9-0123-d4e5-f6a7b8c90124', 'email', 'hendrika.janse.2@example.com', '', 6, 1, false, '', NULL);
+    VALUES(12, 'd4e5f6a7-b8c9-0123-d4e5-f6a7b8c90124', 'email', 'hendrika.janse.3@example.com', '', 6, 1, false, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.

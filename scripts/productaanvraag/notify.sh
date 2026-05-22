@@ -17,7 +17,7 @@ help()
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
    echo "-a     Use alternative object for an anonymous product request with application-specific email address test."
    echo "-b     Use alternative object for an authenticated initiator with BSN and an application-specific email address test."
-   echo "-c     Use alternative object for an authenticated initiator with BSN whose profile already exists and who saved their email via 'Sla mijn gegevens op'."
+   echo "-c     Use alternative object for an authenticated initiator with BSN whose profile already exists and who added a new non-preferred email address."
    echo "-h     Print this help."
    echo
 }

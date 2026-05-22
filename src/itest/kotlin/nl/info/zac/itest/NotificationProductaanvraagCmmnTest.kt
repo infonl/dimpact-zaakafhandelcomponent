@@ -43,7 +43,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
-import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL_3
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -328,12 +328,12 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
 
     Context(
         """Productaanvraag with a BSN initiator whose profile already exists in Open Klant
-        and who updates their address with 'Sla mijn gegevens op voor de volgende keer'"""
+        and who adds a new non-preferred digital email address in Open Klant"""
     ) {
         Given(
             """A productaanvraag object exists in Objecten with a BSN initiator (BSN 999993896) whose
-            profile exists in Open Klant. Open Klant has created a digital address linked to BOTH the
-            betrokkene and the partij (simulating a saved preference address). A CMMN zaaktype configuration
+            profile exists in Open Klant. Open Klant has created a new digital address linked to BOTH the
+            betrokkene and the partij (simulating a newly saved digital address). A CMMN zaaktype configuration
             exists in ZAC for the same productaanvraag type."""
         ) {
             When(
@@ -391,10 +391,10 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 }
 
                 And(
-                    "an automated acknowledgement of receipt email is sent to the initiator's newly saved preferred partij email address"
+                    "an automated acknowledgement of receipt email is sent to the initiator's newly saved email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL_2/messages/"
+                        url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL_3/messages/"
                     )
                     logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                     receivedMailsResponse.code shouldBe HTTP_OK

@@ -1708,8 +1708,8 @@
             "customerProfile": [
               {
                 "type": "email",
-                "address": "test-profile-saved@example.com",
-                "preferenceUpdate": "saveForNextTime"
+                "address": "hendrika.janse.3@example.com",
+                "preferenceUpdate": "saveToProfileAsNonPreferred"
               }
             ]
           },
