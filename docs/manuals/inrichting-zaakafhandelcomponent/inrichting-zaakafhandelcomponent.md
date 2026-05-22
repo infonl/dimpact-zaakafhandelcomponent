@@ -136,7 +136,7 @@ Ga verder naar ‘Zaakbeëindigen gegevens’.  In dit tabblad kan voor een aant
 Afhankelijk van je proxy is er aanvullende informatie nodig.
 Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
 
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+Met de dropdown keuzes Zoekwaarde en Raadpleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
 
 - BRP_DOELBINDING_RAADPLEEG_WAARDE
 - BRP_DOELBINDING_ZOEK_WAARDE
