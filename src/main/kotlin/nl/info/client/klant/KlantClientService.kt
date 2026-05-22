@@ -187,8 +187,11 @@ class KlantClientService @Inject constructor(
                     val betrokkeneOnlyAdressen = digitaleAdressen.filter { it.verstrektDoorPartij == null }
                     // Addresses linked to a partij are saved preferences, not aanvraag/zaak-specific.
                     // Return null only when ALL addresses were filtered out this way (not when the list was already empty).
-                    if (digitaleAdressen.isNotEmpty() && betrokkeneOnlyAdressen.isEmpty()) null
-                    else betrokkeneOnlyAdressen.toContactDetails()
+                    if (digitaleAdressen.isNotEmpty() && betrokkeneOnlyAdressen.isEmpty()) {
+                        null
+                    } else {
+                        betrokkeneOnlyAdressen.toContactDetails()
+                    }
                 }
         } catch (exception: NotFoundException) {
             LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }
