@@ -130,7 +130,7 @@ INSERT INTO klantinteracties_onderwerpobject (id, onderwerpobjectidentificator_o
 -- add email digital address linked to BOTH betrokkene 6 AND partij 1 — this is the address saved via "Sla mijn gegevens op"
 -- verstrektDoorPartij is non-null (partij_id = 1), so ZAC should NOT treat this as aanvraag-specific
 INSERT INTO klantinteracties_digitaaladres (id, "uuid", soort_digitaal_adres, adres, omschrijving, betrokkene_id, partij_id, is_standaard_adres, referentie, verificatie_datum)
-    VALUES(12, 'd4e5f6a7-b8c9-0123-d4e5-f6a7b8c90124', 'email', 'test-profile-saved@example.com', '', 6, 1, false, '', NULL);
+    VALUES(12, 'd4e5f6a7-b8c9-0123-d4e5-f6a7b8c90124', 'email', 'hendrika.janse.2@example.com', '', 6, 1, false, '', NULL);
 
 -- Update the primary key sequences for the tables in which we previously inserted data using fixed primary key values
 -- so that new records inserted manually via the Open Klant UI do not conflict with the records we inserted.

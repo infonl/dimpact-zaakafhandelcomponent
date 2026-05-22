@@ -122,7 +122,7 @@ class KlantClientService @Inject constructor(
 
     fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->
-            findContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
+            findContactDetailsForKlantcontact(klantcontact, allowPartijLinkedAsFallback = true)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
@@ -178,19 +178,22 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
+    private fun findContactDetailsForKlantcontact(
+        klantcontact: Klantcontact,
+        allowPartijLinkedAsFallback: Boolean = false
+    ): ContactDetails? {
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
             klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)
                 .expand?.digitaleAdressen
                 ?.let { digitaleAdressen ->
                     val betrokkeneOnlyAdressen = digitaleAdressen.filter { it.verstrektDoorPartij == null }
-                    // Addresses linked to a partij are saved preferences, not aanvraag/zaak-specific.
-                    // Return null only when ALL addresses were filtered out this way (not when the list was already empty).
-                    if (digitaleAdressen.isNotEmpty() && betrokkeneOnlyAdressen.isEmpty()) {
-                        null
-                    } else {
-                        betrokkeneOnlyAdressen.toContactDetails()
+                    // Partij-linked addresses are saved preferences, not aanvraag/zaak-specific;
+                    // fall back to them only when explicitly allowed (e.g. for acknowledgement emails).
+                    when {
+                        betrokkeneOnlyAdressen.isNotEmpty() -> betrokkeneOnlyAdressen.toContactDetails()
+                        digitaleAdressen.isNotEmpty() && allowPartijLinkedAsFallback -> digitaleAdressen.toContactDetails()
+                        else -> null
                     }
                 }
         } catch (exception: NotFoundException) {

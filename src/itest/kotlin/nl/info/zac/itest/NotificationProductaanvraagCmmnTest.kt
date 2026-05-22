@@ -43,6 +43,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING
@@ -390,10 +391,10 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 }
 
                 And(
-                    "an automated acknowledgement of receipt email is sent to the initiator's preferred partij email address"
+                    "an automated acknowledgement of receipt email is sent to the initiator's newly saved preferred partij email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
-                        url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
+                        url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL_2/messages/"
                     )
                     logger.info { "Response: ${receivedMailsResponse.bodyAsString}" }
                     receivedMailsResponse.code shouldBe HTTP_OK
