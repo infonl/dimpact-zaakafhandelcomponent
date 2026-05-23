@@ -1689,8 +1689,8 @@
         "zaakgegevens": {
           "identificatie": "zaak-productaanvraag-profile-saved",
           "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
-          "omschrijving": "fakeZaakOmschrijving-profile-saved",
-          "toelichting": "fakeZaakToelichting-profile-saved"
+          "omschrijving": "fakeZaakOmschrijving-saved-preferred-address",
+          "toelichting": "fakeZaakToelichting-saved-preferred-address"
         },
         "betrokkenen": [
           {

@@ -186,7 +186,7 @@ class KlantClientService @Inject constructor(
             LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
             expandedBetrokkene?.digitaleAdressen
                 ?.let { digitaleAdressen ->
-                    // digital addresses that are marked as preferred ('standaard') are not request/zaak-specific
+                    // digital addresses that are marked as preferred ('standaard') are not request-specific
                     val nonPreferredDigitalAddresses = digitaleAdressen.filter { it.isStandaardAdres == false }
                     if (nonPreferredDigitalAddresses.isEmpty()) {
                         null

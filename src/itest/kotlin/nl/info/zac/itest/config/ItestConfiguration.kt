@@ -231,8 +231,8 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER = "06-11118888"
 
     const val ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION = "ZAAK-1977-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING = "fakeZaakOmschrijving-profile-saved"
-    const val ZAAK_PRODUCTAANVRAAG_5_TOELICHTING = "fakeZaakToelichting-profile-saved"
+    const val ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING = "fakeZaakOmschrijving-saved-preferred-address"
+    const val ZAAK_PRODUCTAANVRAAG_5_TOELICHTING = "fakeZaakToelichting-saved-preferred-address"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"

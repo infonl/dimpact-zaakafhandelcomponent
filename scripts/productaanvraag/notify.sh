@@ -15,9 +15,9 @@ help()
    echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
    echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
-   echo "-a     Use alternative object for an anonymous product request with application-specific email address test."
-   echo "-b     Use alternative object for an authenticated initiator with BSN and an application-specific email address test."
-   echo "-c     Use alternative object for an authenticated initiator with BSN whose profile already exists and who added a new non-preferred email address."
+   echo "-a     Use object for an anonymous product request with application-specific email address."
+   echo "-b     Use object for an authenticated initiator with BSN and an application-specific email address."
+   echo "-c     Use object for an authenticated initiator with BSN who saved a new preferred email address."
    echo "-h     Print this help."
    echo
 }
