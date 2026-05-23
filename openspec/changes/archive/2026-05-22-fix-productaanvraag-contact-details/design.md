@@ -1,7 +1,13 @@
 ## Context
 
-`KlantClientService.findRequestSpecificContactDetailsForKlantcontact` (renamed from the earlier `findContactDetailsForKlantcontact`) fetches the first betrokkene from a klantcontact, calls `getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)`, and passes the returned `digitaleAdressen` through a filter before calling `toContactDetails()`. The `DigitaalAdres` Java model has a nullable boolean field:
+`KlantClientService.findRequestSpecificContactDetailsForKlantcontact` iterates all betrokkenen on a klantcontact and selects the first whose `initiator == true && rol == RolEnum.KLANT`. For each betrokkene it calls `getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)` — a `NotFoundException` causes that betrokkene to be skipped rather than failing the whole lookup. The returned `digitaleAdressen` are then filtered before calling `toContactDetails()`.
+
+The `DigitaalAdres` Java model has a nullable boolean field: The `DigitaalAdres` Java model has a nullable boolean field:
 - `isStandaardAdres` — whether this address is the citizen's saved preferred address
+
+`ExpandBetrokkene` has two nullable fields used for selection:
+- `initiator: Boolean?` — `true` means the betrokkene initiated the contact
+- `rol: RolEnum?` — only `KLANT` exists in the enum; only klant-role betrokkenen are of interest
 
 In SQL (`klantinteracties_digitaaladres`) this maps to `is_standaard_adres`.
 
@@ -26,6 +32,24 @@ The email fallback in `ProductaanvraagEmailService.sendConfirmationOfReceiptEmai
 - Any API contract change
 
 ## Decisions
+
+### Select betrokkene by `initiator == true && rol == KLANT`
+
+Iterate `klantcontact.hadBetrokkenen` using `firstNotNullOfOrNull` and select the betrokkene that has `initiator == true && rol == RolEnum.KLANT`. `NotFoundException` during fetch causes the betrokkene to be skipped (the catch block returns `null` which continues iteration). If no qualifying betrokkene is found, the method returns `null`.
+
+```kotlin
+val initiatorKlantBetrokkene = klantcontact.hadBetrokkenen.firstNotNullOfOrNull { betrokkeneForeignKey ->
+    try {
+        klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneForeignKey.uuid)
+            .takeIf { it.initiator == true && it.rol == RolEnum.KLANT }
+    } catch (exception: NotFoundException) {
+        LOG.warning { "Could not find betrokkene with uuid '${betrokkeneForeignKey.uuid}': ${exception.message}" }
+        null
+    }
+} ?: return null
+```
+
+Alternative considered: taking the first betrokkene unconditionally. Rejected — a klantcontact can have multiple betrokkenen with different roles; only the `initiator + klant` betrokkene holds request-specific contact details.
 
 ### Filter `isStandaardAdres == false` inside `findRequestSpecificContactDetailsForKlantcontact`
 

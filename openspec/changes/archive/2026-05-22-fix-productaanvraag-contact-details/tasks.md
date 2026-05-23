@@ -21,6 +21,10 @@
   - "All addresses preferred" scenario: replace `verstrektDoorPartij` with `isStandaardAdres = true` to correctly represent the "saved preference" case.
 - [x] 2.2 Add new `Given` blocks covering:
   - Mix of `isStandaardAdres = true` and `isStandaardAdres = false` addresses → only non-preferred returned (for both productaanvraag and zaak contexts).
+  - Betrokkene with `initiator = false` → null (both contexts).
+  - Betrokkene with `initiator = null` → null (both contexts).
+  - Multiple betrokkenen where first is not initiator klant, second is → returns second's contact details (both contexts).
+  - Multiple betrokkenen where first throws `NotFoundException`, second is valid initiator klant → iteration continues, returns second's contact details (both contexts).
 
 ## 3. Add integration test data for scenario 1.a.i
 

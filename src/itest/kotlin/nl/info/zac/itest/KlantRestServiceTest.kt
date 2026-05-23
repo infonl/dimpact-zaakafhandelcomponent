@@ -658,6 +658,7 @@ class KlantRestServiceTest : BehaviorSpec({
                           "tekst": "phone contact"
                         },
                         {
+                          "initiatiefnemer": "",
                           "kanaal": "Webformulier",
                           "registratiedatum": "2026-05-18T09:49:02Z",
                           "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
