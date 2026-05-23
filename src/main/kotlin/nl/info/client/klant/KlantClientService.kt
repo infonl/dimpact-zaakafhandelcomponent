@@ -182,7 +182,7 @@ class KlantClientService @Inject constructor(
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
             val expandedBetrokkene = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand
-            // temporary logging to troubleshoot issue on TEST environment
+            // temporary logging to troubleshoot potential issues on target environments. will be removed in future
             LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
             expandedBetrokkene?.digitaleAdressen
                 ?.let { digitaleAdressen ->

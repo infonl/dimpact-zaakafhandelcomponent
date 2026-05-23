@@ -1,21 +1,20 @@
 ## Context
 
-`KlantClientService.findContactDetailsForKlantcontact` (lines 181–192) fetches the first betrokkene from a klantcontact, calls `getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)`, and passes all returned `digitaleAdressen` to `toContactDetails()` without filtering. The `DigitaalAdres` Java model has two nullable foreign-key fields:
-- `verstrektDoorBetrokkene` — the betrokkene that owns this address
-- `verstrektDoorPartij` — the partij linked to this address (non-null means the address is persisted as a general party preference, not an aanvraag-specific detail)
+`KlantClientService.findRequestSpecificContactDetailsForKlantcontact` (renamed from the earlier `findContactDetailsForKlantcontact`) fetches the first betrokkene from a klantcontact, calls `getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)`, and passes the returned `digitaleAdressen` through a filter before calling `toContactDetails()`. The `DigitaalAdres` Java model has a nullable boolean field:
+- `isStandaardAdres` — whether this address is the citizen's saved preferred address
 
-In SQL (`klantinteracties_digitaaladres`) this maps to `betrokkene_id` and `partij_id`.
+In SQL (`klantinteracties_digitaaladres`) this maps to `is_standaard_adres`.
 
-Existing test data for request-specific scenarios (digital addresses 9–11 in `1-setup-applicatie.sql`) all have `partij_id = NULL`. The new bug scenario requires data where `partij_id` is NOT NULL.
+Existing test data for request-specific scenarios (digital addresses 9–11 in `1-setup-applicatie.sql`) all have `is_standaard_adres = false`. The new bug scenario requires data where `is_standaard_adres = true`.
 
-`findProductaanvraagSpecificContactDetails` returns `ProductaanvraagSpecificContactDetails?`; a null return prevents `linkProductaanvraagSpecificContactDetailsToZaak` from being called. `findZaakSpecificContactDetails` searches for klantcontacten via an onderwerpobject with `codeObjecttype = "zaak"` — if the link is never created, it returns null. Both code paths converge on `findContactDetailsForKlantcontact`, so the fix at that single point fixes both the productaanvraag processing and the zaak detail retrieval.
+`findProductaanvraagSpecificContactDetails` returns `ProductaanvraagSpecificContactDetails?`; a null return prevents `linkProductaanvraagSpecificContactDetailsToZaak` from being called. `findZaakSpecificContactDetails` searches for klantcontacten via an onderwerpobject with `codeObjecttype = "zaak"` — if the link is never created, it returns null. Both code paths converge on `findRequestSpecificContactDetailsForKlantcontact`, so the fix at that single point fixes both the productaanvraag processing and the zaak detail retrieval.
 
 The email fallback in `ProductaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag` already handles `productaanvraagSpecificEmailAddress == null` by calling `extractBetrokkeneEmail(betrokkene)`, which delegates to `fetchEmailForNatuurlijkPersoon` (BSN path) or `fetchEmail` (KVK path). Those fetch from partij digital addresses, which is exactly where the saved address lives in scenario 1.a.i.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Filter out partij-linked digital addresses from betrokkene contact-detail lookups
+- Filter out preferred (`isStandaardAdres = true`) and unmarked (`isStandaardAdres = null`) digital addresses from betrokkene contact-detail lookups; only include explicitly non-preferred (`isStandaardAdres = false`) addresses
 - Ensure scenario 1.a.i yields null `zaakSpecificContactDetails` in the zaak detail response
 - Ensure the confirmation email is still sent via the partij address fallback in scenario 1.a.i
 - Add integration test coverage for scenario 1.a.i in `NotificationProductaanvraagCmmnTest`
@@ -28,28 +27,37 @@ The email fallback in `ProductaanvraagEmailService.sendConfirmationOfReceiptEmai
 
 ## Decisions
 
-### Filter `verstrektDoorPartij == null` inside `findContactDetailsForKlantcontact`
+### Filter `isStandaardAdres == false` inside `findRequestSpecificContactDetailsForKlantcontact`
 
-Apply the filter at the single shared extraction point rather than in each caller (`findZaakSpecificContactDetails`, `findProductaanvraagSpecificContactDetails`). This avoids duplication and guarantees consistent behaviour.
+Apply the filter at the single shared extraction point rather than in each caller (`findZaakSpecificContactDetails`, `findProductaanvraagSpecificContactDetails`). This avoids duplication and guarantees consistent behaviour. Only addresses explicitly marked as non-preferred (`isStandaardAdres = false`) are returned; `null` (unset) is treated the same as `true` (preferred) because only `false` unambiguously signals "this address was provided specifically for this request".
 
 ```kotlin
 // before
-expandedBetrokkene?.digitaleAdressen?.toContactDetails()
-
-// after
 expandedBetrokkene?.digitaleAdressen
     ?.filter { it.verstrektDoorPartij == null }
     ?.takeIf { it.isNotEmpty() }
     ?.toContactDetails()
+
+// after
+expandedBetrokkene?.digitaleAdressen
+    ?.let { digitaleAdressen ->
+        val nonPreferredDigitalAddresses = digitaleAdressen.filter { it.isStandaardAdres == false }
+        if (nonPreferredDigitalAddresses.isEmpty()) null
+        else nonPreferredDigitalAddresses.toContactDetails()
+    }
 ```
 
-`takeIf { isNotEmpty() }` ensures we return `null` rather than `ContactDetails(null, null)` when all addresses are partij-linked, keeping the calling code's null-check semantics consistent.
+The `isEmpty()` guard ensures we return `null` rather than `ContactDetails(null, null)` when no non-preferred address exists, keeping the calling code's null-check semantics consistent.
 
-Alternative considered: filtering in each caller. Rejected — two callers, same semantic rule, higher maintenance risk.
+Alternative considered: filtering on `verstrektDoorPartij == null`. Rejected — Open Klant sets `partij_id` on any address linked to a partij regardless of whether it is preferred, and there are legitimate cases where a non-preferred request-specific address also has a `partij_id`. The `isStandaardAdres` flag directly encodes the "saved preference vs. one-time detail" distinction.
 
-### New itest data: klantcontact 5, betrokkene 6, digital address 12, onderwerpobject 3
+Alternative considered: checking `wasPartij != null` on the betrokkene. Rejected — a betrokkene linked to a partij can still submit a genuinely request-specific (non-preferred) digital address; the partij link alone does not disqualify the address.
 
-Add the minimum rows needed to simulate scenario 1.a.i in the OpenKlant database. Reuse persoon partij 1 (BSN 999993896) since that represents the "profile already exists" case. Digital address 12 has both `betrokkene_id = 6` and `partij_id = 1` to trigger the bug path.
+### New itest data: klantcontact 5, betrokkene 8, digital address 12, onderwerpobject 3
+
+Add the minimum rows needed to simulate scenario 1.a.i in the OpenKlant database. Use the second persoon partij 4 (BSN 999992958, Anita van Buren) since that represents the "profile already exists" case with a distinct email from partij 1. Digital address 12 has `is_standaard_adres = true` and `partij_id = 4` to trigger the bug path.
+
+Note: simulating a *newly* saved preferred address (where the citizen updates their address during a productaanvraag) cannot be fully replicated in static SQL init data because it requires making API calls to Open Klant during the test. The static data represents the state *after* Open Klant has already persisted the saved preferred address.
 
 ### Test asserts `zaakSpecificContactDetails` is null or absent
 
@@ -57,6 +65,6 @@ Use `isNull("zaakSpecificContactDetails")` (JSONObject API) so the test is robus
 
 ## Risks / Trade-offs
 
-- **Scenarios where address is legitimately on both betrokkene and partij but intended as request-specific** → not possible per Open Klant's documented contract; "Sla mijn gegevens op" is the only operation that creates both links simultaneously, and it means "save as my default", not "use only for this request".
-- **`toContactDetails()` on an empty list** → guarded by `takeIf { isNotEmpty() }` returning null before reaching `toContactDetails`.
-- **Temporary `LOG.info` in `findContactDetailsForKlantcontact`** → the comment says it is temporary; it can be removed as part of this change since we now understand the root cause.
+- **Scenarios where `isStandaardAdres = null` but the address is genuinely request-specific** → not expected per Open Klant's documented contract; Open Formulieren sets `isStandaardAdres = false` on all request-specific addresses. If a future form integration omits the flag, the address would be silently excluded — acceptable given the alternative (incorrectly treating saved preferences as request-specific) is worse.
+- **`toContactDetails()` on an empty list** → guarded by the `isEmpty()` check returning null before reaching `toContactDetails`.
+- **Temporary `LOG.info` in `findRequestSpecificContactDetailsForKlantcontact`** → retained; can be removed in a follow-up once the fix has been verified on the TEST environment.

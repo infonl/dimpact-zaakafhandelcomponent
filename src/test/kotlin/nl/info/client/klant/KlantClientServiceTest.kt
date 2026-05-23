@@ -429,7 +429,9 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has both an email and phone digital address") {
+        Given(
+            "A klantcontact with a betrokkene that has both an email and phone digital address marked as non-preferred"
+        ) {
             val kenmerk = "fakeKenmerk"
             val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
@@ -453,8 +455,16 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        ),
+                        createDigitalAddress(
+                            address = telephoneNumber,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -470,7 +480,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has only an email digital address") {
+        Given("A klantcontact with a betrokkene that has only a non-preferred email digital address") {
             val kenmerk = "fakeKenmerk"
             val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
@@ -493,7 +503,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -509,7 +523,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has only a phone digital address") {
+        Given("A klantcontact with a betrokkene that has only a non-preferred phone digital address") {
             val kenmerk = "fakeKenmerk"
             val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
@@ -532,7 +546,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                        createDigitalAddress(
+                            address = telephoneNumber,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -548,7 +566,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has multiple digital addresses of the same type") {
+        Given("A klantcontact with a betrokkene that has multiple non-preferred digital addresses of the same type") {
             val kenmerk = "fakeKenmerk"
             val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
@@ -572,8 +590,16 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = firstEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                        createDigitalAddress(address = secondEmail, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                        createDigitalAddress(
+                            address = firstEmail,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        ),
+                        createDigitalAddress(
+                            address = secondEmail,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -591,10 +617,9 @@ class KlantClientServiceTest : BehaviorSpec({
 
         Given("A klantcontact with a betrokkene that has no digital addresses") {
             val kenmerk = "fakeKenmerk"
-            val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
-            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
             every {
                 klantClient.klantcontactList(
                     page = 1,
@@ -615,10 +640,8 @@ class KlantClientServiceTest : BehaviorSpec({
             When("productaanvraag-specific contact details are requested") {
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
 
-                Then("it should return the contact details with no email and no phone") {
-                    result?.klantcontactUuid shouldBe klantcontactUuid
-                    result?.contactDetails?.emailAddress.shouldBeNull()
-                    result?.contactDetails?.telephoneNumber.shouldBeNull()
+                Then("it should return null because there are no non-preferred digital addresses") {
+                    result.shouldBeNull()
                 }
             }
         }
@@ -675,11 +698,13 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that is linked to a partij") {
+        Given("A klantcontact with a betrokkene that is linked to a partij but has a non-preferred digital address") {
             val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
-            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val emailAddress = "test@example.com"
             every {
                 klantClient.klantcontactList(
                     page = 1,
@@ -692,23 +717,35 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
                 klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
-            } returns createExpandBetrokkene(uuid = betrokkeneUuid, wasPartij = createPartijForeignKey())
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                wasPartij = createPartijForeignKey(),
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        )
+                    )
+                )
+            )
 
             When("productaanvraag-specific contact details are requested") {
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
 
-                Then("it should return null") {
-                    result.shouldBeNull()
+                Then("it should return the non-preferred contact details regardless of the partij link") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.contactDetails?.emailAddress shouldBe emailAddress
                 }
             }
         }
 
-        Given("A klantcontact with a betrokkene whose digital addresses are all linked to a partij") {
+        Given("A klantcontact with a betrokkene whose digital addresses are all preferred (isStandaardAdres = true)") {
             val kenmerk = "fakeKenmerk"
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
-            val partijForeignKey = createPartijForeignKey()
             every {
                 klantClient.klantcontactList(
                     page = 1,
@@ -727,8 +764,9 @@ class KlantClientServiceTest : BehaviorSpec({
                     digitaleAdressen = listOf(
                         createDigitalAddress(
                             address = "saved@example.com",
-                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
-                        ).apply { verstrektDoorPartij = partijForeignKey }
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = true
+                        )
                     )
                 )
             )
@@ -737,9 +775,58 @@ class KlantClientServiceTest : BehaviorSpec({
                 val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
 
                 Then(
-                    "it should return null because the address is the citizen's saved preference, not aanvraag-specific"
+                    "it should return null because preferred addresses are the citizen's saved preference, not aanvraag-specific"
                 ) {
                     result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has a mix of preferred and non-preferred digital addresses") {
+            val kenmerk = "fakeKenmerk"
+            val klantcontactUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(uuid = klantcontactUuid, hadBetrokkenen = listOf(betrokkene))
+            val preferredEmail = "preferred@example.com"
+            val aanvraagSpecificPhone = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "formulierinzending",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "Open Formulieren",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "public_registration_reference",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = kenmerk
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = preferredEmail,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = true
+                        ),
+                        createDigitalAddress(
+                            address = aanvraagSpecificPhone,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
+                    )
+                )
+            )
+
+            When("productaanvraag-specific contact details are requested") {
+                val result = klantClientService.findProductaanvraagSpecificContactDetails(kenmerk)
+
+                Then("it should return only the non-preferred address, excluding the preferred email") {
+                    result?.klantcontactUuid shouldBe klantcontactUuid
+                    result?.contactDetails?.emailAddress.shouldBeNull()
+                    result?.contactDetails?.telephoneNumber shouldBe aanvraagSpecificPhone
                 }
             }
         }
@@ -792,7 +879,9 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has both an email and phone digital address") {
+        Given(
+            "A klantcontact with a betrokkene that has both an email and phone digital address marked as non-preferred"
+        ) {
             val zaakUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
@@ -815,8 +904,16 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL),
-                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        ),
+                        createDigitalAddress(
+                            address = telephoneNumber,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -831,7 +928,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has only an email digital address") {
+        Given("A klantcontact with a betrokkene that has only a non-preferred email digital address") {
             val zaakUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
@@ -853,7 +950,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = emailAddress, soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL)
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -868,7 +969,7 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that has only a phone digital address") {
+        Given("A klantcontact with a betrokkene that has only a non-preferred phone digital address") {
             val zaakUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
@@ -890,7 +991,11 @@ class KlantClientServiceTest : BehaviorSpec({
                 uuid = betrokkeneUuid,
                 expand = createExpandBetrokkeneAllOfExpand(
                     digitaleAdressen = listOf(
-                        createDigitalAddress(address = telephoneNumber, soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER)
+                        createDigitalAddress(
+                            address = telephoneNumber,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
                     )
                 )
             )
@@ -930,9 +1035,8 @@ class KlantClientServiceTest : BehaviorSpec({
             When("zaak-specific contact details are requested") {
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
 
-                Then("it should return the contact details with no email and no phone") {
-                    result?.emailAddress.shouldBeNull()
-                    result?.telephoneNumber.shouldBeNull()
+                Then("it should return null because there are no non-preferred digital addresses") {
+                    result.shouldBeNull()
                 }
             }
         }
@@ -989,11 +1093,12 @@ class KlantClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A klantcontact with a betrokkene that is linked to a partij") {
+        Given("A klantcontact with a betrokkene that is linked to a partij but has a non-preferred digital address") {
             val zaakUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val emailAddress = "test@example.com"
             every {
                 klantClient.klantcontactList(
                     page = 1,
@@ -1006,23 +1111,34 @@ class KlantClientServiceTest : BehaviorSpec({
             } returns createPaginatedKlantcontactList(listOf(klantcontact))
             every {
                 klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
-            } returns createExpandBetrokkene(uuid = betrokkeneUuid, wasPartij = createPartijForeignKey())
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                wasPartij = createPartijForeignKey(),
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = emailAddress,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = false
+                        )
+                    )
+                )
+            )
 
             When("zaak-specific contact details are requested") {
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
 
-                Then("it should return null") {
-                    result.shouldBeNull()
+                Then("it should return the non-preferred contact details regardless of the partij link") {
+                    result?.emailAddress shouldBe emailAddress
                 }
             }
         }
 
-        Given("A klantcontact with a betrokkene whose digital addresses are all linked to a partij") {
+        Given("A klantcontact with a betrokkene whose digital addresses are all preferred (isStandaardAdres = true)") {
             val zaakUuid = UUID.randomUUID()
             val betrokkeneUuid = UUID.randomUUID()
             val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
             val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
-            val partijForeignKey = createPartijForeignKey()
             every {
                 klantClient.klantcontactList(
                     page = 1,
@@ -1041,8 +1157,9 @@ class KlantClientServiceTest : BehaviorSpec({
                     digitaleAdressen = listOf(
                         createDigitalAddress(
                             address = "saved@example.com",
-                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL
-                        ).apply { verstrektDoorPartij = partijForeignKey }
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = true
+                        )
                     )
                 )
             )
@@ -1050,8 +1167,57 @@ class KlantClientServiceTest : BehaviorSpec({
             When("zaak-specific contact details are requested") {
                 val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
 
-                Then("it should return null because the address is the citizen's saved preference, not zaak-specific") {
+                Then(
+                    "it should return null because preferred addresses are the citizen's saved preference, not zaak-specific"
+                ) {
                     result.shouldBeNull()
+                }
+            }
+        }
+
+        Given("A klantcontact with a betrokkene that has a mix of preferred and non-preferred digital addresses") {
+            val zaakUuid = UUID.randomUUID()
+            val betrokkeneUuid = UUID.randomUUID()
+            val betrokkene = createBetrokkeneForeignKey(uuid = betrokkeneUuid)
+            val klantcontact = createKlantcontact(hadBetrokkenen = listOf(betrokkene))
+            val preferredEmail = "preferred@example.com"
+            val zaakSpecificPhone = "0612345678"
+            every {
+                klantClient.klantcontactList(
+                    page = 1,
+                    pageSize = 100,
+                    onderwerpobjectOnderwerpobjectidentificatorCodeObjecttype = "zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeRegister = "open-zaak",
+                    onderwerpobjectOnderwerpobjectidentificatorCodeSoortObjectId = "uuid",
+                    onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
+                )
+            } returns createPaginatedKlantcontactList(listOf(klantcontact))
+            every {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneUuid)
+            } returns createExpandBetrokkene(
+                uuid = betrokkeneUuid,
+                expand = createExpandBetrokkeneAllOfExpand(
+                    digitaleAdressen = listOf(
+                        createDigitalAddress(
+                            address = preferredEmail,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.EMAIL,
+                            isStandaardAdres = true
+                        ),
+                        createDigitalAddress(
+                            address = zaakSpecificPhone,
+                            soortDigitaalAdres = SoortDigitaalAdresEnum.TELEFOONNUMMER,
+                            isStandaardAdres = false
+                        )
+                    )
+                )
+            )
+
+            When("zaak-specific contact details are requested") {
+                val result = klantClientService.findZaakSpecificContactDetails(zaakUuid)
+
+                Then("it should return only the non-preferred address, excluding the preferred email") {
+                    result?.emailAddress.shouldBeNull()
+                    result?.telephoneNumber shouldBe zaakSpecificPhone
                 }
             }
         }
