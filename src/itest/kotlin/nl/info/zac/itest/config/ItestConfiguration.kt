@@ -69,7 +69,7 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_4_UUID = "ce567a95-8b3b-4a14-8cba-122e450e1c57"
     const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testFormulierKenmerkRequestSpecificEmailAddress2"
     const val OBJECT_PRODUCTAANVRAAG_5_UUID = "b1c2d3e4-f5a6-7890-bcde-f12345678901"
-    const val OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkProfileExistsSavedAddress"
+    const val OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkSavedPreferredAddress"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
@@ -131,7 +131,6 @@ object ItestConfiguration {
      */
     const val TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896"
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
-    const val TEST_PERSON_HENDRIKA_JANSE_EMAIL_3 = "hendrika.janse.3@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
     const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
@@ -148,6 +147,12 @@ object ItestConfiguration {
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_RECHTSPERSOON_TELEPHONE_NUMBER = "0101234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
+
+    /**
+     * Second test person that exists in both the BRP and the Klanten API databases
+     */
+    const val TEST_PERSON_ANITA_VAN_BUREN_BSN = "999992958"
+    const val TEST_PERSON_ANITA_VAN_BUREN_EMAIL = "anita.van.buren@example.com"
 
     /**
      * Constants used in the Informatieobjecten tests

@@ -24,10 +24,10 @@
   - **Klantcontact 5**: productaanvraag klantcontact simulating profile-exists + address-changed-and-saved scenario.
   - **Betrokkene 6**: linked to klantcontact 5 and partij 1 (BSN 999993896).
   - **Digital address 12**: email, `betrokkene_id = 6`, `partij_id = 1` (simulates address saved to both betrokkene and partij per scenario 1.a.i).
-  - **Onderwerpobject 3**: links klantcontact 5 to the formulierKenmerk for the new productaanvraag object (e.g. `"testFormulierKenmerkProfileExistsSavedAddress"`).
+  - **Onderwerpobject 3**: links klantcontact 5 to the formulierKenmerk for the new productaanvraag object (e.g. `"testFormulierKenmerkSavedPreferredAddress"`).
   - Update the `ALTER SEQUENCE` block at the bottom if any new sequence IDs are needed.
 - [x] 3.2 Add a new productaanvraag Objecten JSON fixture (e.g. `OBJECT_PRODUCTAANVRAAG_5_UUID`) in `scripts/docker-compose/imports/objects-api/fixtures/demodata.json` with:
-  - `bron.kenmerk` = `"testFormulierKenmerkProfileExistsSavedAddress"`
+  - `bron.kenmerk` = `"testFormulierKenmerkSavedPreferredAddress"`
   - `initiator.value` = BSN `"999993896"` (same persoon as partij 1)
   - `start_at` = `"1977-01-01"` → zaak identification "ZAAK-1977-0000000001"
 
@@ -35,7 +35,7 @@
 
 - [x] 4.1 In `src/itest/kotlin/nl/info/zac/itest/config/ItestConfiguration.kt`, add:
   - `OBJECT_PRODUCTAANVRAAG_5_UUID` — UUID of the new Objecten object
-  - `OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkProfileExistsSavedAddress"`
+  - `OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkSavedPreferredAddress"`
   - `ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION` — expected zaak identification
   - `ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING`, `ZAAK_PRODUCTAANVRAAG_5_TOELICHTING` — from the fixture
   - `ZAAK_PRODUCTAANVRAAG_5_PARTIJ_EMAIL = "hendrika.janse@example.com"` — the partij's preferred email (address 1 in SQL), used to verify the fallback email send

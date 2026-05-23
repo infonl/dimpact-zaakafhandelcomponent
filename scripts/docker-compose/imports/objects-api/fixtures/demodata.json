@@ -1681,7 +1681,7 @@
       "data": {
         "bron": {
           "naam": "open-forms",
-          "kenmerk": "testFormulierKenmerkProfileExistsSavedAddress"
+          "kenmerk": "testFormulierKenmerkSavedPreferredAddress"
         },
         "taal": "nld",
         "type": "productaanvraag-type-1",
@@ -1694,7 +1694,7 @@
         },
         "betrokkenen": [
           {
-            "inpBsn": "999993896",
+            "inpBsn": "999992958",
             "rolOmschrijvingGeneriek": "initiator"
           }
         ],
@@ -1704,12 +1704,12 @@
             "andereDocumenten": []
           },
           "initiator": {
-            "initiator_bsn": "999993896",
+            "initiator_bsn": "999992958",
             "customerProfile": [
               {
                 "type": "email",
-                "address": "hendrika.janse.3@example.com",
-                "preferenceUpdate": "saveToProfileAsNonPreferred"
+                "address": "anita.van.buren@example.com",
+                "preferenceUpdate": "saveAsPreferredAddress"
               }
             ]
           },

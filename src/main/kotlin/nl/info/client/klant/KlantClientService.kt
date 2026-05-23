@@ -122,7 +122,7 @@ class KlantClientService @Inject constructor(
 
     fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->
-            findContactDetailsForKlantcontact(klantcontact, allowPartijLinkedAsFallback = true)?.let { contactDetails ->
+            findRequestSpecificContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
@@ -132,7 +132,7 @@ class KlantClientService @Inject constructor(
 
     fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
         findKlantcontactForZaak(zaakUuid)?.let {
-            findContactDetailsForKlantcontact(it)
+            findRequestSpecificContactDetailsForKlantcontact(it)
         }
 
     fun linkProductaanvraagSpecificContactDetailsToZaak(
@@ -178,22 +178,20 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findContactDetailsForKlantcontact(
-        klantcontact: Klantcontact,
-        allowPartijLinkedAsFallback: Boolean = false
-    ): ContactDetails? {
+    private fun findRequestSpecificContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
         val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
         return try {
-            klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid)
-                .expand?.digitaleAdressen
+            val expandedBetrokkene = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand
+            // temporary logging to troubleshoot issue on TEST environment
+            LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
+            expandedBetrokkene?.digitaleAdressen
                 ?.let { digitaleAdressen ->
-                    val betrokkeneOnlyAdressen = digitaleAdressen.filter { it.verstrektDoorPartij == null }
-                    // Partij-linked addresses are saved preferences, not aanvraag/zaak-specific;
-                    // fall back to them only when explicitly allowed (e.g. for acknowledgement emails).
-                    when {
-                        betrokkeneOnlyAdressen.isNotEmpty() -> betrokkeneOnlyAdressen.toContactDetails()
-                        digitaleAdressen.isNotEmpty() && allowPartijLinkedAsFallback -> digitaleAdressen.toContactDetails()
-                        else -> null
+                    // digital addresses that are marked as preferred ('standaard') are not request/zaak-specific
+                    val nonPreferredDigitalAddresses = digitaleAdressen.filter { it.isStandaardAdres == false }
+                    if (nonPreferredDigitalAddresses.isEmpty()) {
+                        null
+                    } else {
+                        nonPreferredDigitalAddresses.toContactDetails()
                     }
                 }
         } catch (exception: NotFoundException) {
