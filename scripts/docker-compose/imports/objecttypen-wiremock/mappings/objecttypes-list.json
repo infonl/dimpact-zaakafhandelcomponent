@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/api/v1/objecttypes(\\?.*)?$"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "url": "http://objecttypen-wiremock:8080/api/v1/objecttypes/021f685e-9482-4620-b157-34cd4003da6b",
+          "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
+          "name": "Productaanvraag-Dimpact",
+          "namePlural": "Productaanvragen-Dimpact",
+          "description": "",
+          "dataClassification": "open",
+          "maintainerOrganization": "",
+          "maintainerDepartment": "",
+          "contactName": "",
+          "contactEmail": "",
+          "source": "",
+          "updateFrequency": "unknown",
+          "providerOrganization": "",
+          "documentationUrl": "",
+          "labels": {},
+          "createdAt": "2021-01-01",
+          "modifiedAt": "2021-01-01",
+          "allowGeometry": true,
+          "versions": [
+            "http://objecttypen-wiremock:8080/api/v1/objecttypes/021f685e-9482-4620-b157-34cd4003da6b/versions/1"
+          ]
+        }
+      ]
+    }
+  }
+}

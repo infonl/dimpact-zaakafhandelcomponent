@@ -854,6 +854,13 @@ services:
         condition: service_healthy
     profiles: ["zac"]
 
+  objecttypen-wiremock:
+    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
+    volumes:
+      - ./scripts/docker-compose/imports/objecttypen-wiremock/mappings:/home/wiremock/mappings
+    entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
+    profiles: [ "openformulieren" ]
+
   openformulieren-database:
     image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
     ports:
@@ -910,6 +917,65 @@ services:
         else:
             print('Admin user already exists')
         "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.haal_centraal.models import HaalCentraalConfig
+            from zgw_consumers.models import Service
+            config = HaalCentraalConfig.get_solo()
+            if not config.brp_personen_service_id:
+                svc = Service.objects.get(slug='brp-personen')
+                config.brp_personen_service = svc
+                config.save()
+                print('BRP service configured')
+            else:
+                print('BRP service already configured')
+        except Exception as e:
+            print(f'BRP config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.customer_interactions.models import CustomerInteractionsAPIGroupConfig
+            from zgw_consumers.models import Service
+            IDENTIFIER = 'klantinteracties-api-group'
+            if not CustomerInteractionsAPIGroupConfig.objects.filter(identifier=IDENTIFIER).exists():
+                svc = Service.objects.get(slug='openklant-klantinteracties')
+                CustomerInteractionsAPIGroupConfig.objects.create(
+                    name='Local Klantinteracties API',
+                    identifier=IDENTIFIER,
+                    customer_interactions_service=svc,
+                )
+                print('Klantinteracties API group configured')
+            else:
+                print('Klantinteracties API group already exists')
+        except Exception as e:
+            print(f'Klantinteracties config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from openforms.forms.models import Form
+        FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
+        if not Form.objects.filter(slug=FORM_SLUG).exists():
+            import subprocess, sys, os, glob, zipfile
+            json_files = glob.glob('/forms/*.json')
+            with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
+                for f in json_files:
+                    zf.write(f, os.path.basename(f))
+            result = subprocess.run(
+                [sys.executable, '/app/src/manage.py', 'import', '--import-file', '/tmp/forms.zip'],
+                capture_output=True, text=True
+            )
+            print(result.stdout)
+            if result.returncode != 0:
+                print(result.stderr)
+                sys.exit(result.returncode)
+            print('Productaanvraag-Dimpact form imported successfully')
+        form = Form.objects.get(slug=FORM_SLUG)
+        if not form.active:
+            form.active = True
+            form.save(update_fields=['active'])
+            print('Productaanvraag-Dimpact form activated')
+        else:
+            print('Productaanvraag-Dimpact form already active, skipping import')
+        "
     volumes: &openformulieren-volumes
       - openformulieren-static:/srv/static
       - openformulieren-media:/app/media
@@ -917,10 +983,13 @@ services:
       - openformulieren-log:/app/log
       - ./scripts/docker-compose/imports/openformulieren/setup-configuration:/app/setup_configuration
       - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+      - ./scripts/docker-compose/imports/openformulieren/forms:/forms:ro
     depends_on:
       openformulieren-database:
         condition: service_healthy
       redis:
+        condition: service_started
+      objecttypen-wiremock:
         condition: service_started
     profiles: [ "openformulieren" ]
 
