@@ -41,7 +41,7 @@ zgw_consumers:
       api_type: orc
       auth_type: api_key
       header_key: Authorization
-      header_value: Token fakeZacObjectsToken
+      header_value: Token fakeOpenFormulierenObjectsToken
 
     # Open Klant - Klantinteracties API
     - identifier: openklant-klantinteracties
@@ -60,11 +60,13 @@ zgw_consumers:
       auth_type: no_auth
 
     # Objecttypen API (local wiremock) — used by Open Formulieren to validate objecttypes
-    - identifier: objecttypen-api
-      label: Objecttypen API (Wiremock)
-      api_root: http://objecttypen-wiremock:8080/api/v1/
+    - identifier: objecttypes-api
+      label: Objecttypes API
+      api_root: http://objecttypes-api:8000/api/v2/
       api_type: orc
-      auth_type: no_auth
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeOpenFormulierenObjectsToken
 
 # Objects API group for the productaanvraag-Dimpact test form.
 # Uses the local objecten-api service registered above.
@@ -79,7 +81,7 @@ objects_api:
     - name: Local Objects API
       identifier: local-objects-api
       objects_service_identifier: objecten-api
-      objecttypes_service_identifier: objecttypen-api
+      objecttypes_service_identifier: objecttypes-api
       documenten_service_identifier: openzaak-documenten
       catalogi_service_identifier: openzaak-catalogi
       organisatie_rsin: "002564440"

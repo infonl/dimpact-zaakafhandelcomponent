@@ -1544,7 +1544,7 @@
     "pk": 3,
     "fields": {
       "identifier": "openformulieren",
-      "token": "d667fec15cd7db980730dd843836604e638d1295",
+      "token": "fakeOpenFormulierenObjectsToken",
       "contact_person": "openformulieren",
       "email": "openformulieren@example.com",
       "organization": "Test",
@@ -1632,7 +1632,7 @@
     "fields": {
       "label": "Objecttypen API",
       "api_type": "orc",
-      "api_root": "http://objecttypen-api:8000/api/v1/",
+      "api_root": "http://objecttypes-api:8000/api/v1/",
       "client_id": "",
       "secret": "",
       "auth_type": "api_key",

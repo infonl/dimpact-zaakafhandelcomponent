@@ -184,7 +184,7 @@ services:
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  objecten-api.local:
+  objects-api.local:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
@@ -203,6 +203,7 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - EMAIL_HOST=localhost
+      - OTEL_SDK_DISABLED=false
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
@@ -241,7 +242,7 @@ services:
       - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
-      objecten-api.local:
+      objects-api.local:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
@@ -799,8 +800,6 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
-      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
-      - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # fake for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
@@ -854,11 +853,52 @@ services:
         condition: service_healthy
     profiles: ["zac"]
 
-  objecttypen-wiremock:
-    image: wiremock/wiremock:3.13.2@sha256:fd27e46090916e85326229e5102ee169ae729059f3374549615bd20a35fee1f2
+  objecttypes-api-database:
+    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    ports:
+      - "54324:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=objecttypes
+      - POSTGRES_PASSWORD=objecttypes
+      - POSTGRES_DB=objecttypes
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api:
+    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    platform: linux/amd64
+    ports:
+      - "8011:8000"
+    environment: &objecttypes-env
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - SECRET_KEY=objecttypesApiSecretKey
+      - DJANGO_SETTINGS_MODULE=objecttypes.conf.docker
+      - DB_HOST=objecttypes-api-database
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DISABLE_2FA=yes
+      - DEBUG=true
+      - OTEL_SDK_DISABLED=true
+    depends_on:
+      objecttypes-api-database:
+        condition: service_healthy
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api-import:
+    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    platform: linux/amd64
+    environment: *objecttypes-env
+    command: sh init/init.sh
     volumes:
-      - ./scripts/docker-compose/imports/objecttypen-wiremock/mappings:/home/wiremock/mappings
-    entrypoint: [ "/docker-entrypoint.sh", "--disable-gzip", "--verbose" ]
+      - ./scripts/docker-compose/imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
+      - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
+    depends_on:
+      - objecttypes-api
     profiles: [ "openformulieren" ]
 
   openformulieren-database:
@@ -989,7 +1029,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      objecttypen-wiremock:
+      objecttypes-api:
         condition: service_started
     profiles: [ "openformulieren" ]
 
