@@ -184,7 +184,7 @@ services:
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  objects-api.local:
+  objecten-api.local:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
@@ -242,7 +242,7 @@ services:
       - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
       - ./scripts/docker-compose/imports/objects-api/init:/app/init
     depends_on:
-      objects-api.local:
+      objecten-api.local:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
@@ -884,6 +884,7 @@ services:
       - DISABLE_2FA=yes
       - DEBUG=true
       - OTEL_SDK_DISABLED=true
+      - ALLOWED_HOSTS=*
     depends_on:
       objecttypes-api-database:
         condition: service_healthy
@@ -941,6 +942,7 @@ services:
       - DISABLE_2FA=true
       - DJANGO_SUPERUSER_PASSWORD=admin
       - RUN_SETUP_CONFIG=true
+      - DEBUG=true
       - OTEL_SDK_DISABLED=true
     command:
       - sh
