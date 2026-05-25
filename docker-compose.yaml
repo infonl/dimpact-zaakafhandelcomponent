@@ -959,6 +959,7 @@ services:
       - openformulieren-media:/app/media
       - openformulieren-private-media:/app/private_media
       - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
     depends_on:
       openformulieren-database:
         condition: service_healthy
@@ -974,6 +975,7 @@ services:
       - openformulieren-media:/app/media
       - openformulieren-private-media:/app/private_media
       - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
     depends_on:
       openformulieren-database:
         condition: service_healthy
