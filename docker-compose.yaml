@@ -901,6 +901,7 @@ services:
       - |
         set -e
         /setup_configuration.sh
+        OTEL_SDK_DISABLED=True src/manage.py collectstatic --no-input
         OTEL_SDK_DISABLED=True src/manage.py shell -c "
         from django.contrib.auth import get_user_model
         User = get_user_model()
