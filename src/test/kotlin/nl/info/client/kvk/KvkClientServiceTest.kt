@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.kvk.exception.KvkClientNoResultException
 import nl.info.client.kvk.model.KvkSearchParameters
+import nl.info.client.kvk.model.createBasisprofiel
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Vestiging
 import nl.info.client.kvk.zoeken.model.generated.Resultaat
@@ -18,9 +19,11 @@ import nl.info.client.kvk.zoeken.model.generated.Resultaat
 class KvkClientServiceTest : BehaviorSpec({
     val kvkSearchClient = mockk<KvkSearchClient>()
     val kvkVestigingsprofielClient = mockk<KvkVestigingsprofielClient>()
+    val kvkBasisprofielClient = mockk<KvkBasisprofielClient>()
     val kvkClientService = KvkClientService(
         kvkSearchClient = kvkSearchClient,
-        kvkVestigingsprofielClient = kvkVestigingsprofielClient
+        kvkVestigingsprofielClient = kvkVestigingsprofielClient,
+        kvkBasisprofielClient = kvkBasisprofielClient
     )
 
     afterEach {
@@ -76,6 +79,20 @@ class KvkClientServiceTest : BehaviorSpec({
 
             Then("it should return the expected vestiging") {
                 result shouldBe expectedVestiging
+            }
+        }
+    }
+
+    Given("A basisprofiel with a kvkNummer") {
+        val kvkNummer = "12345678"
+        val expectedBasisprofiel = createBasisprofiel(kvkNummer = kvkNummer)
+        every { kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false) } returns expectedBasisprofiel
+
+        When("the basisprofiel is retrieved for this kvkNummer") {
+            val result = kvkClientService.findBasisprofiel(kvkNummer)
+
+            Then("it should return the expected basisprofiel") {
+                result shouldBe expectedBasisprofiel
             }
         }
     }

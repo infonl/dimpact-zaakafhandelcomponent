@@ -23,11 +23,17 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
+import nl.info.client.kvk.model.createBasisprofiel
+import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.model.createBasisprofielSBIActiviteit
+import nl.info.client.kvk.model.createEigenaar
+import nl.info.client.kvk.model.createHandelsnaam
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.model.createSBIActiviteit
 import nl.info.client.kvk.model.createVestiging
 import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
@@ -610,6 +616,120 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Context("Reading a readbasisprofiel") {
+        Given("A KVK basisprofiel for a rechtspersoon with all fields populated") {
+            val kvkNummer = "12345678"
+            val basisprofiel = createBasisprofiel(
+                kvkNummer = kvkNummer,
+                sbiActiviteiten = listOf(
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeHoofdactiviteit",
+                        indHoofdactiviteit = "ja"
+                    ),
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeNevenactiviteit1",
+                        indHoofdactiviteit = "nee"
+                    ),
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeNevenactiviteit2",
+                        indHoofdactiviteit = "nee"
+                    )
+                ),
+                handelsnamen = listOf(
+                    createHandelsnaam(naam = "fakeHandelsnaam1", volgorde = 2),
+                    createHandelsnaam(naam = "fakeHandelsnaam2", volgorde = 1)
+                ),
+                eigenaar = createEigenaar(
+                    rsin = "fakeRsin",
+                    rechtsvorm = "fakeRechtsvorm",
+                    uitgebreideRechtsvorm = "fakeUitgebreideRechtsvorm",
+                    adressen = listOf(
+                        createBasisprofielAdres(
+                            type = "fakeType1",
+                            indAfgeschermd = "nee",
+                            volledigAdres = "fakeAdres1"
+                        ),
+                        createBasisprofielAdres(
+                            type = "fakeType2",
+                            indAfgeschermd = "ja",
+                            volledigAdres = "fakeAdres2"
+                        )
+                    ),
+                    websites = listOf("https://fake.nl", "https://other.nl")
+                )
+            )
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
+
+                Then("the basisprofiel is returned with all fields mapped correctly") {
+                    with(restBedrijfsprofiel) {
+                        this.kvkNummer shouldBe kvkNummer
+                        this.totaalWerkzamePersonen shouldBe basisprofiel.totaalWerkzamePersonen
+                        this.statutaireNaam shouldBe basisprofiel.statutaireNaam
+                        this.eersteHandelsnaam shouldBe "fakeHandelsnaam2"
+                        this.sbiHoofdActiviteit shouldBe "fakeHoofdactiviteit"
+                        this.sbiActiviteiten shouldBe listOf("fakeNevenactiviteit1", "fakeNevenactiviteit2")
+                        this.rsin shouldBe "fakeRsin"
+                        this.rechtsvorm shouldBe "fakeRechtsvorm"
+                        this.uitgebreideRechtsvorm shouldBe "fakeUitgebreideRechtsvorm"
+                        this.website shouldBe "https://fake.nl"
+                        with(this.adressen!!) {
+                            size shouldBe 2
+                            with(this[0]) {
+                                type shouldBe "fakeType1"
+                                afgeschermd shouldBe false
+                                volledigAdres shouldBe "fakeAdres1"
+                            }
+                            with(this[1]) {
+                                type shouldBe "fakeType2"
+                                afgeschermd shouldBe true
+                                volledigAdres shouldBe "fakeAdres2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Given("A KVK basisprofiel without an eigenaar") {
+            val kvkNummer = "12345678"
+            val basisprofiel = createBasisprofiel(kvkNummer = kvkNummer, eigenaar = null)
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
+
+                Then("the basisprofiel is returned with null eigenaar fields") {
+                    with(restBedrijfsprofiel) {
+                        this.kvkNummer shouldBe kvkNummer
+                        this.rsin shouldBe null
+                        this.rechtsvorm shouldBe null
+                        this.uitgebreideRechtsvorm shouldBe null
+                        this.adressen shouldBe null
+                        this.website shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("No KVK basisprofiel found for the given KVK nummer") {
+            val kvkNummer = "12345678"
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns null
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val exception = shouldThrow<RechtspersoonNotFoundException> {
+                    klantRestService.readBasisprofiel(kvkNummer)
+                }
+
+                Then("a RechtspersoonNotFoundException is thrown") {
+                    exception.message shouldBe "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
                 }
             }
         }

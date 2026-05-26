@@ -178,6 +178,13 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "fakesbiOmschrijving1"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "fakesbiOmschrijving2"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
+    const val TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN = 42
+    const val TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM = "fakeStatutaireNaam1"
+    const val TEST_KVK_BASISPROFIEL_RECHTSVORM = "BeslotenVennootschap"
+    const val TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM = "Besloten Vennootschap met beperkte aansprakelijkheid"
+    const val TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT = "fakeBasisprofielHoofdactiviteit1"
+    const val TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1 = "fakeBasisprofielNevenactiviteit1"
+    const val TEST_KVK_BASISPROFIEL_WEBSITE = "https://fakebedrijf.nl"
 
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"

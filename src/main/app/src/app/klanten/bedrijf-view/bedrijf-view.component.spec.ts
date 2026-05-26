@@ -68,10 +68,10 @@ function makeBedrijf(
   });
 }
 
-function makeVestigingsprofiel(
-  overrides: Partial<GeneratedType<"RestVestigingsprofiel">> = {},
-): GeneratedType<"RestVestigingsprofiel"> {
-  return fromPartial<GeneratedType<"RestVestigingsprofiel">>({
+function makeBedrijfsprofiel(
+  overrides: Partial<GeneratedType<"RestBedrijfsprofiel">> = {},
+): GeneratedType<"RestBedrijfsprofiel"> {
+  return fromPartial<GeneratedType<"RestBedrijfsprofiel">>({
     vestigingsnummer: "000011112222",
     totaalWerkzamePersonen: 12,
     sbiHoofdActiviteit: "Software ontwikkeling",
@@ -158,26 +158,41 @@ describe(BedrijfViewComponent.name, () => {
       expect(component["bedrijf"]).toEqual(bedrijf);
     });
 
-    it("sets vestigingsprofielOphalenMogelijk to true when bedrijf has vestigingsnummer", () => {
+    it("sets profielOphalenMogelijk to true when bedrijf has vestigingsnummer", () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({ vestigingsnummer: "000011112222" }),
       });
       fixture.detectChanges();
-      expect(component["vestigingsprofielOphalenMogelijk"]).toBe(true);
+      expect(component["profielOphalenMogelijk"]).toBe(true);
     });
 
-    it("sets vestigingsprofielOphalenMogelijk to false when bedrijf has no vestigingsnummer", () => {
+    it("sets profielOphalenMogelijk to true when bedrijf is RECHTSPERSOON with kvkNummer", () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          type: "RECHTSPERSOON",
+          kvkNummer: "12345678",
+        }),
       });
       fixture.detectChanges();
-      expect(component["vestigingsprofielOphalenMogelijk"]).toBe(false);
+      expect(component["profielOphalenMogelijk"]).toBe(true);
     });
 
-    it("sets vestigingsprofielOphalenMogelijk to false when bedrijf is null", () => {
+    it("sets profielOphalenMogelijk to false when bedrijf has no vestigingsnummer and no kvkNummer", () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          kvkNummer: undefined,
+        }),
+      });
+      fixture.detectChanges();
+      expect(component["profielOphalenMogelijk"]).toBe(false);
+    });
+
+    it("sets profielOphalenMogelijk to false when bedrijf is null", () => {
       routeDataSubject.next({ bedrijf: null });
       fixture.detectChanges();
-      expect(component["vestigingsprofielOphalenMogelijk"]).toBe(false);
+      expect(component["profielOphalenMogelijk"]).toBe(false);
     });
   });
 
@@ -208,13 +223,6 @@ describe(BedrijfViewComponent.name, () => {
       expect(element).toBeTruthy();
     });
 
-    it("renders rsin when present", () => {
-      const element = fixture.debugElement
-        .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "rsin");
-      expect(element).toBeTruthy();
-    });
-
     it("renders type field", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
@@ -222,7 +230,7 @@ describe(BedrijfViewComponent.name, () => {
       expect(element).toBeTruthy();
     });
 
-    it("renders adres when no vestigingsprofiel is loaded", () => {
+    it("renders adres when no profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "adres");
@@ -285,11 +293,26 @@ describe(BedrijfViewComponent.name, () => {
       await expect(button.isDisabled()).resolves.toBe(false);
     });
 
-    it("is disabled when vestigingsnummer is absent", async () => {
+    it("is enabled when type is RECHTSPERSOON with kvkNummer", async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
           vestigingsnummer: undefined,
+          kvkNummer: "12345678",
+        }),
+      });
+      fixture.detectChanges();
+      const button = await harnessLoader.getHarness(
+        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
+      );
+      await expect(button.isDisabled()).resolves.toBe(false);
+    });
+
+    it("is disabled when vestigingsnummer is absent and no kvkNummer", async () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          kvkNummer: undefined,
         }),
       });
       fixture.detectChanges();
@@ -299,7 +322,7 @@ describe(BedrijfViewComponent.name, () => {
       await expect(button.isDisabled()).resolves.toBe(true);
     });
 
-    it("calls ophalenVestigingsprofiel when clicked", async () => {
+    it("calls readVestigingsprofiel when vestigingsnummer is present", async () => {
       routeDataSubject.next({
         bedrijf: makeBedrijf({
           type: "RECHTSPERSOON",
@@ -309,7 +332,7 @@ describe(BedrijfViewComponent.name, () => {
       fixture.detectChanges();
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeVestigingsprofiel()));
+        .mockReturnValue(of(makeBedrijfsprofiel()));
       const button = await harnessLoader.getHarness(
         MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
       );
@@ -319,85 +342,202 @@ describe(BedrijfViewComponent.name, () => {
         "000011112222",
       );
     });
+
+    it("calls readBasisprofiel when type is RECHTSPERSOON without vestigingsnummer", async () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          type: "RECHTSPERSOON",
+          vestigingsnummer: undefined,
+          kvkNummer: "12345678",
+        }),
+      });
+      fixture.detectChanges();
+      jest
+        .spyOn(klantenService, "readBasisprofiel")
+        .mockReturnValue(of(makeBedrijfsprofiel()));
+      const button = await harnessLoader.getHarness(
+        MatButtonHarness.with({ selector: "button[mat-icon-button]" }),
+      );
+      await button.click();
+      fixture.detectChanges();
+      expect(klantenService.readBasisprofiel).toHaveBeenCalledWith("12345678");
+    });
   });
 
-  describe("ophalenVestigingsprofiel()", () => {
-    it("sets vestigingsprofielOphalenMogelijk to false immediately", () => {
+  describe("ophalenProfiel()", () => {
+    it("sets profielOphalenMogelijk to false immediately", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeVestigingsprofiel()));
-      component["ophalenVestigingsprofiel"]();
-      expect(component["vestigingsprofielOphalenMogelijk"]).toBe(false);
+        .mockReturnValue(of(makeBedrijfsprofiel()));
+      component["ophalenProfiel"]();
+      expect(component["profielOphalenMogelijk"]).toBe(false);
     });
 
-    it("populates vestigingsprofiel on success", () => {
+    it("populates profiel on success for vestiging", () => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
-      const profiel = makeVestigingsprofiel();
+      const profiel = makeBedrijfsprofiel();
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
         .mockReturnValue(of(profiel));
-      component["ophalenVestigingsprofiel"]();
+      component["ophalenProfiel"]();
       fixture.detectChanges();
-      expect(component["vestigingsprofiel"]).toEqual(profiel);
+      expect(component["profiel"]).toEqual(profiel);
     });
 
-    it("does nothing when bedrijf has no vestigingsnummer", () => {
+    it("populates profiel on success for rechtspersoon", () => {
       routeDataSubject.next({
-        bedrijf: makeBedrijf({ vestigingsnummer: undefined }),
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          type: "RECHTSPERSOON",
+          kvkNummer: "12345678",
+        }),
       });
       fixture.detectChanges();
-      const spy = jest.spyOn(klantenService, "readVestigingsprofiel");
-      component["ophalenVestigingsprofiel"]();
-      expect(spy).not.toHaveBeenCalled();
+      const profiel = makeBedrijfsprofiel({
+        rechtsvorm: "BV",
+        uitgebreideRechtsvorm: "Besloten Vennootschap",
+        statutaireNaam: "Test BV",
+      });
+      jest
+        .spyOn(klantenService, "readBasisprofiel")
+        .mockReturnValue(of(profiel));
+      component["ophalenProfiel"]();
+      fixture.detectChanges();
+      expect(component["profiel"]).toEqual(profiel);
+    });
+
+    it("does nothing when bedrijf has no vestigingsnummer and no kvkNummer", () => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          kvkNummer: undefined,
+        }),
+      });
+      fixture.detectChanges();
+      const vestigingSpy = jest.spyOn(klantenService, "readVestigingsprofiel");
+      const rechtspersoonSpy = jest.spyOn(klantenService, "readBasisprofiel");
+      component["ophalenProfiel"]();
+      expect(vestigingSpy).not.toHaveBeenCalled();
+      expect(rechtspersoonSpy).not.toHaveBeenCalled();
     });
   });
 
-  describe("vestigingsprofiel fields", () => {
+  describe("profiel fields", () => {
     beforeEach(() => {
       routeDataSubject.next({ bedrijf: makeBedrijf() });
       fixture.detectChanges();
       jest
         .spyOn(klantenService, "readVestigingsprofiel")
-        .mockReturnValue(of(makeVestigingsprofiel()));
-      component["ophalenVestigingsprofiel"]();
+        .mockReturnValue(of(makeBedrijfsprofiel()));
+      component["ophalenProfiel"]();
       fixture.detectChanges();
     });
 
-    it("hides adres field when vestigingsprofiel is loaded", () => {
+    it("hides adres field when profiel is loaded", () => {
       const adresField = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "adres");
       expect(adresField).toBeFalsy();
     });
 
-    it("renders totaalWerkzamePersonen when vestigingsprofiel is loaded", () => {
+    it("renders totaalWerkzamePersonen when profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "totaalWerkzamePersonen");
       expect(element).toBeTruthy();
     });
 
-    it("renders hoofdactiviteit when vestigingsprofiel is loaded", () => {
+    it("renders hoofdactiviteit when profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "hoofdactiviteit");
       expect(element).toBeTruthy();
     });
 
-    it("renders activiteiten when vestigingsprofiel is loaded", () => {
+    it("renders activiteiten when profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "activiteiten");
       expect(element).toBeTruthy();
     });
 
-    it("renders website when vestigingsprofiel is loaded", () => {
+    it("renders website when profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
         .find((de) => de.componentInstance.label === "website");
+      expect(element).toBeTruthy();
+    });
+  });
+
+  describe("rsin from profiel", () => {
+    it("does not render rsin before profiel is loaded", () => {
+      routeDataSubject.next({ bedrijf: makeBedrijf() });
+      fixture.detectChanges();
+      const element = fixture.debugElement
+        .queryAll((de) => de.name === "zac-static-text")
+        .find((de) => de.componentInstance.label === "rsin");
+      expect(element).toBeFalsy();
+    });
+
+    it("renders rsin when profiel is loaded", () => {
+      routeDataSubject.next({ bedrijf: makeBedrijf() });
+      fixture.detectChanges();
+      jest
+        .spyOn(klantenService, "readVestigingsprofiel")
+        .mockReturnValue(of(makeBedrijfsprofiel({ rsin: "123456789" })));
+      component["ophalenProfiel"]();
+      fixture.detectChanges();
+      const element = fixture.debugElement
+        .queryAll((de) => de.name === "zac-static-text")
+        .find((de) => de.componentInstance.label === "rsin");
+      expect(element).toBeTruthy();
+    });
+  });
+
+  describe("rechtspersoon profiel fields", () => {
+    beforeEach(() => {
+      routeDataSubject.next({
+        bedrijf: makeBedrijf({
+          vestigingsnummer: undefined,
+          type: "RECHTSPERSOON",
+          kvkNummer: "12345678",
+        }),
+      });
+      fixture.detectChanges();
+      jest.spyOn(klantenService, "readBasisprofiel").mockReturnValue(
+        of(
+          makeBedrijfsprofiel({
+            rechtsvorm: "BV",
+            uitgebreideRechtsvorm: "Besloten Vennootschap",
+            statutaireNaam: "Test BV Statutair",
+          }),
+        ),
+      );
+      component["ophalenProfiel"]();
+      fixture.detectChanges();
+    });
+
+    it("renders rechtsvorm when profiel is loaded", () => {
+      const element = fixture.debugElement
+        .queryAll((de) => de.name === "zac-static-text")
+        .find((de) => de.componentInstance.label === "rechtsvorm");
+      expect(element).toBeTruthy();
+    });
+
+    it("renders uitgebreideRechtsvorm when profiel is loaded", () => {
+      const element = fixture.debugElement
+        .queryAll((de) => de.name === "zac-static-text")
+        .find((de) => de.componentInstance.label === "uitgebreideRechtsvorm");
+      expect(element).toBeTruthy();
+    });
+
+    it("renders statutaireNaam when profiel is loaded", () => {
+      const element = fixture.debugElement
+        .queryAll((de) => de.name === "zac-static-text")
+        .find((de) => de.componentInstance.label === "statutaireNaam");
       expect(element).toBeTruthy();
     });
   });
