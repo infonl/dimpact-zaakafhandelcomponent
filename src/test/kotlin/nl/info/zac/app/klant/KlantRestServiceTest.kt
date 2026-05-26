@@ -93,12 +93,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe null
@@ -163,12 +166,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging including contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkResultaatItem.kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe "+123-456-789"
@@ -343,8 +349,12 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -444,10 +454,14 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
                         this.telefoonnummer shouldBe "+123-456-789"
                         this.emailadres shouldBe "fake@example.com"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -483,6 +497,11 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe null
                         this.telefoonnummer shouldBe null
                         this.emailadres shouldBe null
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }

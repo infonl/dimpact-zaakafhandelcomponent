@@ -61,7 +61,11 @@ function makeBedrijf(
     vestigingsnummer: "000011112222",
     rsin: "123456789",
     type: "RECHTSPERSOON",
-    adres: "Teststraat 1, 1234AB Amsterdam",
+    adres: {
+      type: "bezoekadres",
+      afgeschermd: false,
+      volledigAdres: "Teststraat 1, 1234AB Amsterdam",
+    },
     telefoonnummer: "0201234567",
     emailadres: "info@testbedrijf.nl",
     ...overrides,

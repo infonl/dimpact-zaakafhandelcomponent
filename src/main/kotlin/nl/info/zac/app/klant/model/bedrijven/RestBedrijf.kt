@@ -20,9 +20,7 @@ data class RestBedrijf(
     var vestigingsnummer: String? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
-    var adres: String? = null,
-    var adresType: String? = null,
-    var postcode: String? = null,
+    var adres: RestKlantenAdres? = null,
     var type: String? = null,
     override var emailadres: String? = null,
     override var naam: String? = null,
@@ -47,15 +45,21 @@ data class RestBedrijf(
 fun ResultaatItem.toRestBedrijf(): RestBedrijf {
     val adresType = this.adres?.binnenlandsAdres?.type ?: this.adres?.buitenlandsAdres?.type
     val isBezoekadres = adresType == AdresType.BEZOEKADRES
+    val volledigAdres = if (isBezoekadres) this.toAddress() else null
     return RestBedrijf(
         kvkNummer = this.kvkNummer,
         vestigingsnummer = this.vestigingsnummer,
         naam = this.toName(),
-        postcode = this.adres?.binnenlandsAdres?.postcode,
         rsin = this.rsin,
         type = this.type.uppercase(Locale.getDefault()),
-        adres = if (isBezoekadres) this.toAddress() else null,
-        adresType = if (isBezoekadres) adresType.toString() else null
+        adres = volledigAdres?.let {
+            RestKlantenAdres(
+                type = adresType.toString(),
+                afgeschermd = false,
+                volledigAdres = it,
+                postcode = this.adres?.binnenlandsAdres?.postcode
+            )
+        }
     )
 }
 

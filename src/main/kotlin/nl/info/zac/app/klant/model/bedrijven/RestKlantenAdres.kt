@@ -17,19 +17,22 @@ data class RestKlantenAdres(
      */
     var type: String,
     var afgeschermd: Boolean,
-    var volledigAdres: String
+    var volledigAdres: String,
+    var postcode: String? = null
 )
 
 fun VestigingsprofielAdres.toRestKlantenAdres() = RestKlantenAdres(
-    this.type,
-    this.indAfgeschermd?.isIndicatie() == true,
-    this.toKvkAdres().toFormattedAddress()
+    type = this.type,
+    afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
+    volledigAdres = this.volledigAdres ?: this.toKvkAdres().toFormattedAddress(),
+    postcode = this.postcode
 )
 
 fun BasisprofielAdres.toRestKlantenAdres() = RestKlantenAdres(
-    this.type,
-    this.indAfgeschermd?.isIndicatie() == true,
-    this.toKvkAdres().toFormattedAddress()
+    type = this.type,
+    afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
+    volledigAdres = this.volledigAdres ?: this.toKvkAdres().toFormattedAddress(),
+    postcode = this.postcode
 )
 
 fun String.isIndicatie(): Boolean =

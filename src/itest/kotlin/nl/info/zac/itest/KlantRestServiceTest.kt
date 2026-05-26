@@ -450,8 +450,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the response should contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "adresType": "bezoekadres",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
@@ -483,8 +486,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     // so the response should not contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "adresType": "bezoekadres",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -597,8 +603,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "adresType" : "bezoekadres",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -628,8 +637,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "adresType" : "bezoekadres",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -716,8 +728,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                     {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "adresType" : "bezoekadres",
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "identificatieType" : "RSIN",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
@@ -744,8 +759,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                     {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "adresType" : "bezoekadres",
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "emailadres": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
@@ -852,12 +870,15 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_VESTIGING2_ADRES",
-                      "adresType": "bezoekadres",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING2_ADRES",
+                        "postcode": "1015CW"
+                      },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_2",
                       "naam": "$TEST_KVK_NAAM_2",
-                      "postcode": "1015CW",
                       "type": "HOOFDVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_2"
                     }
@@ -916,8 +937,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_VESTIGING3_ADRES",
-                      "adresType": "bezoekadres",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING3_ADRES"
+                      },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_3",
                       "naam": "$TEST_KVK_NAAM_3",
@@ -964,12 +988,15 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_VESTIGING4_ADRES",
-                      "adresType": "bezoekadres",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING4_ADRES",
+                        "postcode": "3511LC"
+                      },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_4",
                       "naam": "$TEST_KVK_NAAM_4",
-                      "postcode": "3511LC",
                       "type": "HOOFDVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_4"
                     }

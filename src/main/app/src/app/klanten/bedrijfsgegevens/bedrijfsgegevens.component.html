@@ -98,8 +98,8 @@
     <zac-static-text *ngIf="profiel()" label="rsin" [value]="profiel()?.rsin" />
     <zac-static-text
       *ngIf="!profiel()"
-      [label]="bedrijfQuery.data()?.adresType ?? 'adres'"
-      [value]="bedrijfQuery.data()?.adres"
+      [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
+      [value]="bedrijfQuery.data()?.adres?.volledigAdres"
     />
     <zac-static-text
       *ngFor="let adres of profiel()?.adressen"
