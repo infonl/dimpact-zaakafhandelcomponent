@@ -11,6 +11,7 @@ import io.mockk.mockk
 import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
+import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.ConfigurationService
 
 class ConfigurationRestServiceTest : BehaviorSpec({
@@ -147,12 +148,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("BRP protocollering is enabled with iConnect provider") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "iConnect"
+    Given("doelbindingPerZaaktype is true") {
+        val brpConfiguration = mockk<BrpConfigurationProvider>()
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns true
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("isBrpDoelbindingSetupEnabled is called") {
+        When("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return true") {
@@ -161,40 +162,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("BRP protocollering is enabled with 2Secure provider") {
+    Given("doelbindingPerZaaktype is false") {
         val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "2Secure"
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns false
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
-
-            Then("it should return false") {
-                result shouldBe false
-            }
-        }
-    }
-
-    Given("BRP protocollering is disabled") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns ""
-        every { configurationService.readBrpConfiguration() } returns brpConfiguration
-
-        When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
-
-            Then("it should return false") {
-                result shouldBe false
-            }
-        }
-    }
-
-    Given("BRP protocollering has an unknown provider") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "UnknownProvider"
-        every { configurationService.readBrpConfiguration() } returns brpConfiguration
-
-        When("isBrpDoelbindingSetupEnabled is called") {
+        When("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return false") {

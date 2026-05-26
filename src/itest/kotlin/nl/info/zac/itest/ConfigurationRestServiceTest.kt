@@ -154,7 +154,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then(
-                "'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration"
+                "'true' is returned because BRP_DOELBINDING_PER_ZAAKTYPE is set to true in the itest configuration"
             ) {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString

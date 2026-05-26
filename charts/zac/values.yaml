@@ -93,16 +93,42 @@ objectenApi:
 # Integration with the BRP API provider (Haal Centraal)
 brpApi:
   url: ""
+  logLevel: "INFO"
   apiKey: ""
   protocollering:
-    # -- OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled.
-    originOin: ""
-    # -- Supported providers: iConnect, 2Secure
-    aanbieder: "iConnect"
+    # -- Set to true to enable BRP protocollering header injection
+    enabled: false
     doelbinding:
-      zoekmet: "BRPACT-ZoekenAlgemeen"
-      raadpleegmet: "BRPACT-Totaal"
-    verwerkingsregister: "Algemeen"
+      # -- Set to true to require doelbinding values to be configured per zaaktype in the admin UI
+      perZaaktype: false
+      # -- Default "ZoekMet" doelbinding as a fall-back
+      zoekmet: ""
+      # -- Default "RaadpleegMet" doelbinding as a fall-back
+      raadpleegmet: ""
+      # -- Header name for the doelbinding value. Set to empty string to disable this header.
+      header: ""
+    originOin:
+      # OIN for this organisation
+      oin: ""
+      # -- Header name for the origin OIN value. Set to empty string to disable this header.
+      header: ""
+    verwerking:
+      register: ""
+      # -- Header name for the verwerking value. Set to empty string to disable this header.
+      header: ""
+    toepassing:
+      value: "ZAC"
+      # -- Header name for the toepassing value. Set to empty string to disable this header.
+      header: ""
+    gebruiker:
+      # -- Header name for the gebruiker value. Set to empty string to disable this header.
+      header: ""
+    # -- Fallback user identifier sent in the gebruiker header when no logged-in user is available.
+    systemUser: "SystemUser"
+  # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
+  apiKey:
+    value: ""
+    header: "" # -- Header name for the API key value. Set to empty string to disable this header.
 
 
 # Integration with the KVK API provider (KVK)
@@ -713,7 +739,6 @@ nginx:
       ssl_verify: false
       apikey_header_name: ""
       apikey_value: ""
-      x_doelbinding: "test"
     bag:
       enabled: true
       key_secret: bag_key

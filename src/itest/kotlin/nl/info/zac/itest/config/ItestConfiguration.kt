@@ -418,7 +418,6 @@ object ItestConfiguration {
     const val BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME = "New zaak defaults"
     const val BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME = "Copy user and group"
 
-    const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
     const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 
     // Mail template constants
