@@ -67,29 +67,5 @@ private fun ResultaatItem.toName(): String =
     this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
 
 private fun ResultaatItem.toAddress(): String? =
-    this.adres?.binnenlandsAdres?.toFormattedAddress()
-        ?: this.adres?.buitenlandsAdres?.toFormattedAddress()
-
-private fun BinnenlandsAdres.toFormattedAddress(): String =
-    if (postbusnummer != null) {
-        StringUtil.joinNonBlankWith(
-            ", ",
-            "Postbus $postbusnummer",
-            StringUtil.joinNonBlankWith(StringUtil.NON_BREAKING_SPACE, postcode, plaats)
-                .replace(" ", StringUtil.NON_BREAKING_SPACE)
-        )
-    } else {
-        val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
-        val streetPart = StringUtil.joinNonBlankWith(
-            StringUtil.NON_BREAKING_SPACE, straatnaam, huisnummerStr
-        ).replace(" ", StringUtil.NON_BREAKING_SPACE)
-        StringUtil.joinNonBlankWith(
-            ", ",
-            streetPart,
-            StringUtil.joinNonBlankWith(StringUtil.NON_BREAKING_SPACE, postcode, plaats)
-                .replace(" ", StringUtil.NON_BREAKING_SPACE)
-        )
-    }
-
-private fun BuitenlandsAdres.toFormattedAddress(): String =
-    StringUtil.joinNonBlankWith(", ", straatHuisnummer, postcodeWoonplaats, land)
+    this.adres?.binnenlandsAdres?.toKvkAdres()?.toFormattedAddress()
+        ?: this.adres?.buitenlandsAdres?.toKvkAdres()?.toFormattedAddress()
