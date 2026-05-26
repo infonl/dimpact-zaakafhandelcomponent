@@ -5,11 +5,11 @@
 package nl.info.zac.app.klant.model.bedrijven
 
 import net.atos.zac.util.StringUtil
+import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
+import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
 import java.util.Locale
 import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
-import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
-import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
 
 data class RestKlantenAdres(
     /**
@@ -108,7 +108,10 @@ internal fun KvkAdres.toFormattedAddress(): String = when {
     else -> {
         val huisnummerStr = listOfNotNull(huisnummer?.toString(), huisletter).joinToString("")
         val streetPart = StringUtil.joinNonBlankWith(
-            StringUtil.NON_BREAKING_SPACE, straatnaam, huisnummerStr, huisnummerToevoeging
+            StringUtil.NON_BREAKING_SPACE,
+            straatnaam,
+            huisnummerStr,
+            huisnummerToevoeging
         ).replace(" ", StringUtil.NON_BREAKING_SPACE)
         StringUtil.joinNonBlankWith(
             ", ",

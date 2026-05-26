@@ -1,0 +1,31 @@
+{
+  "pagina": 1,
+  "resultatenPerPagina": 10,
+  "totaal": 1,
+  "resultaten": [
+    {
+      "kvkNummer": "12345681",
+      "vestigingsnummer": "000012345681",
+      "naam": "testVolledigBinnenlands",
+      "adres": {
+        "binnenlandsAdres": {
+          "type": "bezoekadres",
+          "straatnaam": "Kerkstraat",
+          "huisnummer": 42,
+          "huisletter": "B",
+          "postcode": "3511LC",
+          "plaats": "Utrecht"
+        }
+      },
+      "type": "hoofdvestiging",
+      "_links": {
+        "basisprofiel": {
+          "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345681"
+        },
+        "vestigingsprofiel": {
+          "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345681"
+        }
+      }
+    }
+  ]
+}

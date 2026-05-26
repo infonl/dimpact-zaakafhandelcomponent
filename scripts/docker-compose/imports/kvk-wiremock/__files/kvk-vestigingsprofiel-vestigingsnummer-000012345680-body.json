@@ -1,0 +1,42 @@
+{
+  "vestigingsnummer": "000012345680",
+  "kvkNummer": "12345680",
+  "indNonMailing": "Nee",
+  "eersteHandelsnaam": "testBuitenlands",
+  "indHoofdvestiging": "Nee",
+  "indCommercieleVestiging": "Ja",
+  "voltijdWerkzamePersonen": 2,
+  "totaalWerkzamePersonen": 2,
+  "deeltijdWerkzamePersonen": 0,
+  "handelsnamen": [
+    {
+      "naam": "testBuitenlands",
+      "volgorde": 0
+    }
+  ],
+  "adressen": [
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatHuisnummer": "Rue de la Paix 12",
+      "toevoegingAdres": "Appartement B",
+      "postcodeWoonplaats": "75001 Paris",
+      "land": "France"
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "7022",
+      "sbiOmschrijving": "Advisering op het gebied van bedrijfsbeheer",
+      "indHoofdactiviteit": "Ja"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345680"
+    },
+    "basisprofiel": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345680"
+    }
+  }
+}

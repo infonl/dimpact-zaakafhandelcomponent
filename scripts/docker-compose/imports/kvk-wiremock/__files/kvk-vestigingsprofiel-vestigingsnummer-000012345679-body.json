@@ -1,0 +1,66 @@
+{
+  "vestigingsnummer": "000012345679",
+  "kvkNummer": "12345679",
+  "indNonMailing": "Nee",
+  "eersteHandelsnaam": "testMeerdereAdressen",
+  "indHoofdvestiging": "Ja",
+  "indCommercieleVestiging": "Ja",
+  "voltijdWerkzamePersonen": 5,
+  "totaalWerkzamePersonen": 8,
+  "deeltijdWerkzamePersonen": 3,
+  "handelsnamen": [
+    {
+      "naam": "testMeerdereAdressen",
+      "volgorde": 0
+    }
+  ],
+  "adressen": [
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatnaam": "Keizersgracht",
+      "huisnummer": 100,
+      "postcode": "1015CW",
+      "plaats": "Amsterdam",
+      "land": "Nederland"
+    },
+    {
+      "type": "bezoekadres",
+      "indAfgeschermd": "Nee",
+      "straatnaam": "Herengracht",
+      "huisnummer": 200,
+      "postcode": "1016BS",
+      "plaats": "Amsterdam",
+      "land": "Nederland"
+    },
+    {
+      "type": "correspondentieadres",
+      "indAfgeschermd": "Nee",
+      "postbusnummer": 1000,
+      "postcode": "1000AA",
+      "plaats": "Amsterdam"
+    },
+    {
+      "type": "correspondentieadres",
+      "indAfgeschermd": "Nee",
+      "postbusnummer": 2000,
+      "postcode": "3000BB",
+      "plaats": "Rotterdam"
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "6201",
+      "sbiOmschrijving": "Ontwikkelen en produceren van software",
+      "indHoofdactiviteit": "Ja"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345679"
+    },
+    "basisprofiel": {
+      "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345679"
+    }
+  }
+}

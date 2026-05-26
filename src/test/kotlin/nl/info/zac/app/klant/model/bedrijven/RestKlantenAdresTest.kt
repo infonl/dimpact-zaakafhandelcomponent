@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
 
-private val NBSP = " "
+private const val NBSP = " "
 
 class RestKlantenAdresTest : BehaviorSpec({
 

@@ -1,0 +1,29 @@
+{
+  "pagina": 1,
+  "resultatenPerPagina": 10,
+  "totaal": 1,
+  "resultaten": [
+    {
+      "kvkNummer": "12345680",
+      "vestigingsnummer": "000012345680",
+      "naam": "testBuitenlands",
+      "adres": {
+        "buitenlandsAdres": {
+          "type": "bezoekadres",
+          "straatHuisnummer": "Rue de la Paix 12",
+          "postcodeWoonplaats": "75001 Paris",
+          "land": "France"
+        }
+      },
+      "type": "nevenvestiging",
+      "_links": {
+        "basisprofiel": {
+          "href": "http://kvk-wiremock:8080/api/v1/basisprofielen/12345680"
+        },
+        "vestigingsprofiel": {
+          "href": "http://kvk-wiremock:8080/api/v1/vestigingsprofielen/000012345680"
+        }
+      }
+    }
+  ]
+}
