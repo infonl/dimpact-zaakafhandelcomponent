@@ -35,12 +35,6 @@ services:
     image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
     platform: linux/arm64
 
-  # note: do not use the current Open Formulieren ARM image because using those will result
-  # in a non-working Open Formulieren instance.
-  # using the ARM images, when you create a new form and attempt to open it, you will see this error in the browser:
-  # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
-  # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
-
   openklant.local:
     image: ghcr.io/infonl/open-klant:2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36
     platform: linux/arm64
