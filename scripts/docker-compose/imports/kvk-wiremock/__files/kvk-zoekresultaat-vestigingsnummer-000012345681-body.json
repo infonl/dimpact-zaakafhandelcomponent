@@ -10,11 +10,11 @@
       "adres": {
         "binnenlandsAdres": {
           "type": "bezoekadres",
-          "straatnaam": "Kerkstraat",
+          "straatnaam": "fakeStraatnaam4",
           "huisnummer": 42,
           "huisletter": "B",
-          "postcode": "3511LC",
-          "plaats": "Utrecht"
+          "postcode": "4321DC",
+          "plaats": "fakePlaats4"
         }
       },
       "type": "hoofdvestiging",

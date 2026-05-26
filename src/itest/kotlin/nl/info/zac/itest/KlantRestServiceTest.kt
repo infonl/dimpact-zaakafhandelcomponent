@@ -874,7 +874,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "type": "bezoekadres",
                         "afgeschermd": false,
                         "volledigAdres": "$TEST_KVK_VESTIGING2_ADRES",
-                        "postcode": "1015CW"
+                        "postcode": "1234AB"
                       },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_2",
@@ -897,7 +897,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     val adressen = JSONObject(responseBody).getJSONArray("adressen")
-                    adressen.length() shouldBe 4
+                    val numberOfAdressen = 4
+                    adressen.length() shouldBe numberOfAdressen
                     with(JSONArray(adressen).get(0).toString()) {
                         shouldContainJsonKeyValue("type", "bezoekadres")
                         shouldContainJsonKeyValue("afgeschermd", false)
@@ -913,7 +914,8 @@ class KlantRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("afgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1)
                     }
-                    with(JSONArray(adressen).get(3).toString()) {
+                    val lastAdresIndex = 3
+                    with(JSONArray(adressen).get(lastAdresIndex).toString()) {
                         shouldContainJsonKeyValue("type", "correspondentieadres")
                         shouldContainJsonKeyValue("afgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2)
@@ -992,7 +994,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "type": "bezoekadres",
                         "afgeschermd": false,
                         "volledigAdres": "$TEST_KVK_VESTIGING4_ADRES",
-                        "postcode": "3511LC"
+                        "postcode": "4321DC"
                       },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_4",

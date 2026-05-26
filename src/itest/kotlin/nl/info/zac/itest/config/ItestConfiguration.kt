@@ -198,26 +198,26 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345679"
     const val TEST_KVK_NUMMER_2 = "12345679"
     const val TEST_KVK_NAAM_2 = "testMeerdereAdressen"
-    const val TEST_KVK_VESTIGING2_ADRES = "Keizersgracht 100, 1015CW Amsterdam"
-    const val TEST_KVK_VESTIGING2_BEZOEKADRES_1 = "Keizersgracht 100, 1015CW Amsterdam"
-    const val TEST_KVK_VESTIGING2_BEZOEKADRES_2 = "Herengracht 200, 1016BS Amsterdam"
-    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1 = "Postbus 1000, 1000AA Amsterdam"
-    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2 = "Postbus 2000, 3000BB Rotterdam"
+    const val TEST_KVK_VESTIGING2_ADRES = "fakeStraatnaam2a 100, 1234AB fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_1 = "fakeStraatnaam2a 100, 1234AB fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_2 = "fakeStraatnaam2b 200, 5678CD fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1 = "Postbus 1000, 1234AB fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2 = "Postbus 2000, 5678CD fakePlaats2"
 
     // Vestiging 3: foreign (buitenlands) address
     const val TEST_KVK_VESTIGINGSNUMMER_3 = "000012345680"
     const val TEST_KVK_NUMMER_3 = "12345680"
     const val TEST_KVK_NAAM_3 = "testBuitenlands"
-    const val TEST_KVK_VESTIGING3_ADRES = "Rue de la Paix 12, 75001 Paris, France"
+    const val TEST_KVK_VESTIGING3_ADRES = "fakeStraatnaam3 12, 12345 fakePlaats3, fakeLand3"
     const val TEST_KVK_VESTIGING3_PROFIEL_ADRES =
-        "Rue de la Paix 12 Appartement B, 75001 Paris, France"
+        "fakeStraatnaam3 12 fakeToevoeging3, 12345 fakePlaats3, fakeLand3"
 
     // Vestiging 4: full Dutch address with huisnummerToevoeging
     const val TEST_KVK_VESTIGINGSNUMMER_4 = "000012345681"
     const val TEST_KVK_NUMMER_4 = "12345681"
     const val TEST_KVK_NAAM_4 = "testVolledigBinnenlands"
-    const val TEST_KVK_VESTIGING4_ADRES = "Kerkstraat 42B, 3511LC Utrecht"
-    const val TEST_KVK_VESTIGING4_PROFIEL_ADRES = "Kerkstraat 42B achter, 3511LC Utrecht"
+    const val TEST_KVK_VESTIGING4_ADRES = "fakeStraatnaam4 42B, 4321DC fakePlaats4"
+    const val TEST_KVK_VESTIGING4_PROFIEL_ADRES = "fakeStraatnaam4 42B achter, 4321DC fakePlaats4"
 
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"

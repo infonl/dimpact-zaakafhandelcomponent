@@ -10,9 +10,9 @@
       "adres": {
         "buitenlandsAdres": {
           "type": "bezoekadres",
-          "straatHuisnummer": "Rue de la Paix 12",
-          "postcodeWoonplaats": "75001 Paris",
-          "land": "France"
+          "straatHuisnummer": "fakeStraatnaam3 12",
+          "postcodeWoonplaats": "12345 fakePlaats3",
+          "land": "fakeLand3"
         }
       },
       "type": "nevenvestiging",

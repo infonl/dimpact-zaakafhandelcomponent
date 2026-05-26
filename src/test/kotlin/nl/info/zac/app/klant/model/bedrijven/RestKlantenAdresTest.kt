@@ -16,19 +16,19 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatnaam = "Dorpstraat"
+            straatnaam = "fakeStraatnaam1"
             huisnummer = 12
             huisletter = "A"
             huisnummerToevoeging = "bis"
             postcode = "1234AB"
-            plaats = "Amsterdam"
+            plaats = "fakePlaats1"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as straat huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
-                result.volledigAdres shouldBe "Dorpstraat${NBSP}12A${NBSP}bis, 1234AB${NBSP}Amsterdam"
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A${NBSP}bis, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
@@ -37,18 +37,18 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatnaam = "Dorpstraat"
+            straatnaam = "fakeStraatnaam1"
             huisnummer = 12
             huisletter = "A"
             postcode = "1234AB"
-            plaats = "Amsterdam"
+            plaats = "fakePlaats1"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as straat huisnummer+huisletter, postcode plaats") {
-                result.volledigAdres shouldBe "Dorpstraat${NBSP}12A, 1234AB${NBSP}Amsterdam"
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
@@ -57,17 +57,17 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatnaam = "Dorpstraat"
+            straatnaam = "fakeStraatnaam1"
             huisnummer = 12
             postcode = "1234AB"
-            plaats = "Amsterdam"
+            plaats = "fakePlaats1"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as straat huisnummer, postcode plaats") {
-                result.volledigAdres shouldBe "Dorpstraat${NBSP}12, 1234AB${NBSP}Amsterdam"
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
@@ -78,14 +78,14 @@ class RestKlantenAdresTest : BehaviorSpec({
             indAfgeschermd = "nee"
             postbusnummer = 1234
             postcode = "3440AD"
-            plaats = "Woerden"
+            plaats = "fakePlaats2"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as Postbus postbusnummer, postcode plaats") {
-                result.volledigAdres shouldBe "Postbus 1234, 3440AD${NBSP}Woerden"
+                result.volledigAdres shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
             }
         }
     }
@@ -95,14 +95,14 @@ class RestKlantenAdresTest : BehaviorSpec({
             type = "correspondentieadres"
             indAfgeschermd = "nee"
             postbusnummer = 1234
-            plaats = "Woerden"
+            plaats = "fakePlaats2"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as Postbus postbusnummer, plaats") {
-                result.volledigAdres shouldBe "Postbus 1234, Woerden"
+                result.volledigAdres shouldBe "Postbus 1234, fakePlaats2"
             }
         }
     }
@@ -111,17 +111,17 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatHuisnummer = "Rue de la Paix 1"
-            toevoegingAdres = "Apt 2"
-            postcodeWoonplaats = "75001 Paris"
-            land = "France"
+            straatHuisnummer = "fakeStraatnaam3 1"
+            toevoegingAdres = "fakeToevoeging3"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
-                result.volledigAdres shouldBe "Rue${NBSP}de${NBSP}la${NBSP}Paix${NBSP}1${NBSP}Apt${NBSP}2, 75001${NBSP}Paris, France"
+                result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1${NBSP}fakeToevoeging3, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
     }
@@ -130,16 +130,16 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatHuisnummer = "Rue de la Paix 1"
-            postcodeWoonplaats = "75001 Paris"
-            land = "France"
+            straatHuisnummer = "fakeStraatnaam3 1"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
         }
 
         When("converted to RestKlantenAdres") {
             val result = adres.toRestKlantenAdres()
 
             Then("address is formatted as straatHuisnummer, postcodeWoonplaats, land") {
-                result.volledigAdres shouldBe "Rue${NBSP}de${NBSP}la${NBSP}Paix${NBSP}1, 75001${NBSP}Paris, France"
+                result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
     }
@@ -148,10 +148,10 @@ class RestKlantenAdresTest : BehaviorSpec({
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
-            straatnaam = "Dorpstraat"
+            straatnaam = "fakeStraatnaam1"
             huisnummer = 12
             postcode = "1234AB"
-            plaats = "Amsterdam"
+            plaats = "fakePlaats1"
             land = "Nederland"
         }
 
@@ -159,7 +159,7 @@ class RestKlantenAdresTest : BehaviorSpec({
             val result = adres.toRestKlantenAdres()
 
             Then("address is treated as regular Dutch address, not as foreign") {
-                result.volledigAdres shouldBe "Dorpstraat${NBSP}12, 1234AB${NBSP}Amsterdam"
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }

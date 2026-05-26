@@ -18,34 +18,34 @@
     {
       "type": "bezoekadres",
       "indAfgeschermd": "Nee",
-      "straatnaam": "Keizersgracht",
+      "straatnaam": "fakeStraatnaam2a",
       "huisnummer": 100,
-      "postcode": "1015CW",
-      "plaats": "Amsterdam",
+      "postcode": "1234AB",
+      "plaats": "fakePlaats2",
       "land": "Nederland"
     },
     {
       "type": "bezoekadres",
       "indAfgeschermd": "Nee",
-      "straatnaam": "Herengracht",
+      "straatnaam": "fakeStraatnaam2b",
       "huisnummer": 200,
-      "postcode": "1016BS",
-      "plaats": "Amsterdam",
+      "postcode": "5678CD",
+      "plaats": "fakePlaats2",
       "land": "Nederland"
     },
     {
       "type": "correspondentieadres",
       "indAfgeschermd": "Nee",
       "postbusnummer": 1000,
-      "postcode": "1000AA",
-      "plaats": "Amsterdam"
+      "postcode": "1234AB",
+      "plaats": "fakePlaats2"
     },
     {
       "type": "correspondentieadres",
       "indAfgeschermd": "Nee",
       "postbusnummer": 2000,
-      "postcode": "3000BB",
-      "plaats": "Rotterdam"
+      "postcode": "5678CD",
+      "plaats": "fakePlaats2"
     }
   ],
   "sbiActiviteiten": [

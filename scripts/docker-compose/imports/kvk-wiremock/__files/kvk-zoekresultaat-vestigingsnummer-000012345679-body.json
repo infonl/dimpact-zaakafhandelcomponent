@@ -10,10 +10,10 @@
       "adres": {
         "binnenlandsAdres": {
           "type": "bezoekadres",
-          "straatnaam": "Keizersgracht",
+          "straatnaam": "fakeStraatnaam2a",
           "huisnummer": 100,
-          "postcode": "1015CW",
-          "plaats": "Amsterdam"
+          "postcode": "1234AB",
+          "plaats": "fakePlaats2"
         }
       },
       "type": "hoofdvestiging",

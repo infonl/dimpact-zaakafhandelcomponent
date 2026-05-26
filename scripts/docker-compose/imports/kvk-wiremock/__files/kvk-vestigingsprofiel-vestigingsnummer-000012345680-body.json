@@ -18,10 +18,10 @@
     {
       "type": "bezoekadres",
       "indAfgeschermd": "Nee",
-      "straatHuisnummer": "Rue de la Paix 12",
-      "toevoegingAdres": "Appartement B",
-      "postcodeWoonplaats": "75001 Paris",
-      "land": "France"
+      "straatHuisnummer": "fakeStraatnaam3 12",
+      "toevoegingAdres": "fakeToevoeging3",
+      "postcodeWoonplaats": "12345 fakePlaats3",
+      "land": "fakeLand3"
     }
   ],
   "sbiActiviteiten": [

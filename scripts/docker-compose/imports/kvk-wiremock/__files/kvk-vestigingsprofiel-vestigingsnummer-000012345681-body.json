@@ -18,12 +18,12 @@
     {
       "type": "bezoekadres",
       "indAfgeschermd": "Nee",
-      "straatnaam": "Kerkstraat",
+      "straatnaam": "fakeStraatnaam4",
       "huisnummer": 42,
       "huisletter": "B",
       "huisnummerToevoeging": "achter",
-      "postcode": "3511LC",
-      "plaats": "Utrecht",
+      "postcode": "4321DC",
+      "plaats": "fakePlaats4",
       "land": "Nederland"
     }
   ],
