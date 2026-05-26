@@ -485,7 +485,6 @@ export class TaakViewComponent
       const zaakIdentificatie = this.zaak?.identificatie;
       this.completeTaakMutation.mutate(this.taak, {
         onSuccess: () => {
-          // Redirect to the zaak after a Form.io task submit.
           if (zaakIdentificatie) {
             void this.router.navigate(["/zaken/", zaakIdentificatie]);
           }
