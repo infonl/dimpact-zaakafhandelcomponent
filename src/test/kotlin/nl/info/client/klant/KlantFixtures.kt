@@ -23,6 +23,7 @@ import nl.info.client.klanten.model.generated.PartijForeignKey
 import nl.info.client.klanten.model.generated.PartijIdentificator
 import nl.info.client.klanten.model.generated.PartijIdentificatorForeignkey
 import nl.info.client.klanten.model.generated.PartijIdentificatorGroepType
+import nl.info.client.klanten.model.generated.RolEnum
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import java.net.URI
 import java.util.UUID
@@ -69,10 +70,14 @@ fun createExpandBetrokkene(
     digitalAddresses: List<DigitaalAdresForeignKey> = listOf(createDigitaalAdresForeignKey()),
     fullName: String = "fakeFullName",
     expand: ExpandBetrokkeneAllOfExpand? = null,
-    wasPartij: PartijForeignKey? = null
+    wasPartij: PartijForeignKey? = null,
+    rol: RolEnum = RolEnum.KLANT,
+    initiator: Boolean = true
 ) = ExpandBetrokkene(uuid, uri, digitalAddresses, fullName).apply {
     this.expand = expand
     this.wasPartij = wasPartij
+    this.rol = rol
+    this.initiator = initiator
 }
 
 fun createExpandBetrokkeneAllOfExpand(

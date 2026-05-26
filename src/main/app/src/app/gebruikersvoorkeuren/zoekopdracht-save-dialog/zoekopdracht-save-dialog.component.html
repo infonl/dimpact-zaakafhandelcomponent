@@ -14,7 +14,7 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (submit)="opslaan()" (cancel)="close()">
+<form [formGroup]="form" (submit)="opslaan()">
   <mat-dialog-content>
     <fieldset class="p-0">
       <section class="row">
@@ -27,10 +27,24 @@
       </section>
     </fieldset>
   </mat-dialog-content>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    [submitLabel]="submitLabel()"
-    wrapper="dialog"
-  />
+  <mat-dialog-actions>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="form.invalid || form.pristine || mutation.isPending()"
+      id="opslaan_button"
+    >
+      {{ submitLabel() | translate }}
+    </button>
+    <button
+      mat-raised-button
+      type="button"
+      (click)="close()"
+      [disabled]="mutation.isPending()"
+      id="dialogClose_button"
+    >
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
 </form>

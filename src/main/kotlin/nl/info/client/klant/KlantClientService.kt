@@ -20,12 +20,14 @@ import nl.info.client.klanten.model.generated.Klantcontact
 import nl.info.client.klanten.model.generated.KlantcontactForeignKey
 import nl.info.client.klanten.model.generated.Onderwerpobject
 import nl.info.client.klanten.model.generated.Onderwerpobjectidentificator
+import nl.info.client.klanten.model.generated.RolEnum
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.UUID
+import java.util.logging.Level.WARNING
 import java.util.logging.Logger
 
 @ApplicationScoped
@@ -122,7 +124,7 @@ class KlantClientService @Inject constructor(
 
     fun findProductaanvraagSpecificContactDetails(formulierKenmerk: String): ProductaanvraagSpecificContactDetails? =
         findKlantcontactForOpenFormsProductaanvraag(formulierKenmerk)?.let { klantcontact ->
-            findContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
+            findRequestSpecificContactDetailsForKlantcontact(klantcontact)?.let { contactDetails ->
                 ProductaanvraagSpecificContactDetails(
                     klantcontactUuid = klantcontact.uuid,
                     contactDetails = contactDetails
@@ -132,7 +134,7 @@ class KlantClientService @Inject constructor(
 
     fun findZaakSpecificContactDetails(zaakUuid: UUID): ContactDetails? =
         findKlantcontactForZaak(zaakUuid)?.let {
-            findContactDetailsForKlantcontact(it)
+            findRequestSpecificContactDetailsForKlantcontact(it)
         }
 
     fun linkProductaanvraagSpecificContactDetailsToZaak(
@@ -178,16 +180,30 @@ class KlantClientService @Inject constructor(
             onderwerpobjectOnderwerpobjectidentificatorObjectId = zaakUuid.toString()
         ).getResults().firstOrNull()
 
-    private fun findContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
-        val betrokkene = klantcontact.hadBetrokkenen.firstOrNull() ?: return null
-        return try {
-            val expandedBetrokkene = klantClient.getBetrokkeneWithDigitaleAdressen(betrokkene.uuid).expand
-            // temporary logging to troubleshoot issue on TEST environment
-            LOG.info { "Expanded betrokkene for betrokkene with UUID '${betrokkene.uuid}': '$expandedBetrokkene'" }
-            expandedBetrokkene?.digitaleAdressen?.toContactDetails()
-        } catch (exception: NotFoundException) {
-            LOG.warning { "Could not find betrokkene with uuid '${betrokkene.uuid}': ${exception.message}" }
-            null
+    private fun findRequestSpecificContactDetailsForKlantcontact(klantcontact: Klantcontact): ContactDetails? {
+        val initiatorKlantBetrokkene = klantcontact.hadBetrokkenen.firstNotNullOfOrNull { betrokkeneForeignKey ->
+            try {
+                klantClient.getBetrokkeneWithDigitaleAdressen(betrokkeneForeignKey.uuid)
+                    // we are only interested in the first (we assume there is at most only one) betrokkene that has
+                    // been marked as 'initiator' and that has the role 'klant'
+                    .takeIf { it.initiator == true && it.rol == RolEnum.KLANT }
+            } catch (exception: NotFoundException) {
+                LOG.log(WARNING, "Failed to find betrokkene with UUID: '${betrokkeneForeignKey.uuid}'", exception)
+                null
+            }
+        } ?: return null
+        // temporary logging to troubleshoot potential issues on target environments. will be removed in future
+        LOG.info {
+            "Expanded betrokkene for betrokkene with UUID '${initiatorKlantBetrokkene.uuid}': '${initiatorKlantBetrokkene.expand}'"
         }
+        return initiatorKlantBetrokkene.expand?.digitaleAdressen
+            ?.let { digitaleAdressen ->
+                val nonPreferredDigitalAddresses = digitaleAdressen.filter { it.isStandaardAdres == false }
+                if (nonPreferredDigitalAddresses.isEmpty()) {
+                    null
+                } else {
+                    nonPreferredDigitalAddresses.toContactDetails()
+                }
+            }
     }
 }

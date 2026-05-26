@@ -68,6 +68,8 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK = "testFormulierKenmerkRequestSpecificEmailAddress1"
     const val OBJECT_PRODUCTAANVRAAG_4_UUID = "ce567a95-8b3b-4a14-8cba-122e450e1c57"
     const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testFormulierKenmerkRequestSpecificEmailAddress2"
+    const val OBJECT_PRODUCTAANVRAAG_5_UUID = "b1c2d3e4-f5a6-7890-bcde-f12345678901"
+    const val OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkSavedPreferredAddress"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
     const val OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
@@ -100,8 +102,6 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_AFZENDER_NAME = "Afzender"
     const val REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE = "COMMUNICATIEKANAAL"
     const val REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME = "Communicatiekanaal"
-    const val REFERENCE_TABLE_DOMEIN_CODE = "DOMEIN"
-    const val REFERENCE_TABLE_DOMEIN_NAME = "Domein"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE = "SERVER_ERROR_ERROR_PAGINA_TEKST"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME = "Server error error pagina tekst"
     const val REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE = "BRP_DOELBINDING_ZOEK_WAARDE"
@@ -147,6 +147,12 @@ object ItestConfiguration {
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
     const val TEST_RECHTSPERSOON_TELEPHONE_NUMBER = "0101234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
+
+    /**
+     * Second test person that exists in both the BRP and the Klanten API databases
+     */
+    const val TEST_PERSON_ANITA_VAN_BUREN_BSN = "999992958"
+    const val TEST_PERSON_ANITA_VAN_BUREN_EMAIL = "anita.van.buren@example.com"
 
     /**
      * Constants used in the Informatieobjecten tests
@@ -250,6 +256,10 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-request-specific-2-email"
     const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL = "test-request-specific-2@example.com"
     const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER = "06-11118888"
+
+    const val ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION = "ZAAK-1977-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING = "fakeZaakOmschrijving-saved-preferred-address"
+    const val ZAAK_PRODUCTAANVRAAG_5_TOELICHTING = "fakeZaakToelichting-saved-preferred-address"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
