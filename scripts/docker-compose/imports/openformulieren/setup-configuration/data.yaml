@@ -66,7 +66,7 @@ zgw_consumers:
       api_type: orc
       auth_type: api_key
       header_key: Authorization
-      header_value: Token fakeOpenFormulierenObjectsToken
+      header_value: Token fakeOpenFormulierenObjecttypesToken
 
 # Objects API group for the productaanvraag-Dimpact test form.
 # Uses the local objecten-api service registered above.

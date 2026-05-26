@@ -198,7 +198,7 @@ services:
       - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=objects.conf.docker
       - SECRET_KEY=objectenApiSecretKey
-      - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False
       - TWO_FACTOR_PATCH_ADMIN=False
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
@@ -921,6 +921,13 @@ services:
 
   openformulieren-init:
     image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
+    # results in a non-working Open Formulieren instance.
+    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
     environment: &openformulieren-env
       - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
       - SECRET_KEY=openFormulierenSecretKey

@@ -4,11 +4,26 @@
         "pk": 1,
         "fields": {
             "identifier": "openformulieren",
-            "token": "fakeOpenFormulierenObjectsToken",
+            "token": "fakeOpenFormulierenObjecttypesToken",
             "contact_person": "openformulieren",
             "email": "openformulieren@example.com",
             "organization": "Test",
             "application": "OpenFormulieren",
+            "administration": "Test",
+            "last_modified": "2020-12-23T11:43:16.820Z",
+            "created": "2020-12-22T16:27:00.751Z"
+        }
+    },
+    {
+        "model": "token.tokenauth",
+        "pk": 2,
+        "fields": {
+            "identifier": "objects",
+            "token": "fakeObjectsObjecttypesToken",
+            "contact_person": "objects",
+            "email": "objects@example.com",
+            "organization": "Test",
+            "application": "Objects",
             "administration": "Test",
             "last_modified": "2020-12-23T11:43:16.820Z",
             "created": "2020-12-22T16:27:00.751Z"
