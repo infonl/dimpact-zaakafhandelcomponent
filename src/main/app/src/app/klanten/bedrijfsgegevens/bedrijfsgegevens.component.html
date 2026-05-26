@@ -108,11 +108,17 @@
     />
     <zac-static-text
       label="telefoonnummer"
-      [value]="bedrijfQuery.data()?.telefoonnummer"
+      [value]="
+        zaak().zaakSpecificContactDetails?.telephoneNumber ??
+        bedrijfQuery.data()?.telefoonnummer
+      "
     />
     <zac-static-text
       label="emailadres"
-      [value]="bedrijfQuery.data()?.emailadres"
+      [value]="
+        zaak().zaakSpecificContactDetails?.emailAddress ??
+        bedrijfQuery.data()?.emailadres
+      "
     />
     <zac-static-text
       *ngIf="profiel()"
