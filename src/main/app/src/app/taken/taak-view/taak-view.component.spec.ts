@@ -398,30 +398,38 @@ describe(TaakViewComponent.name, () => {
     let router: Router;
     let navigateSpy: jest.SpyInstance;
 
+    // tanstack's mutation returns a non-configurable `mutate`, so we replace
+    // the whole mutation object on the component instead of spying on it.
+    const replaceMutation = (
+      key: "completeTaakMutation" | "updateTaakdataMutation",
+      mutate: jest.Mock,
+    ) => {
+      Object.defineProperty(component.instance, key, {
+        value: { mutate },
+        writable: true,
+        configurable: true,
+      });
+    };
+
     beforeEach(() => {
       router = TestBed.inject(Router);
       navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
     });
 
     it("redirects to the zaak after a successful Form.io task submit", () => {
-      const completeMutation = (
-        component.instance as unknown as {
-          completeTaakMutation: { mutate: jest.Mock };
-        }
-      ).completeTaakMutation;
-      jest
-        .spyOn(completeMutation, "mutate")
-        .mockImplementation(
-          (_taak: unknown, options?: { onSuccess?: () => void }) => {
-            options?.onSuccess?.();
-          },
-        );
+      const completeMutate = jest.fn(
+        (_taak: unknown, options?: { onSuccess?: () => void }) => {
+          options?.onSuccess?.();
+        },
+      );
+      replaceMutation("completeTaakMutation", completeMutate);
 
       component.instance.onFormioFormSubmit({
         data: {},
         state: "submitted",
       });
 
+      expect(completeMutate).toHaveBeenCalled();
       expect(navigateSpy).toHaveBeenCalledWith([
         "/zaken/",
         "test-zaakIdentificatie",
@@ -429,34 +437,18 @@ describe(TaakViewComponent.name, () => {
     });
 
     it("does not redirect for a partial save", () => {
-      const completeSpy = jest
-        .spyOn(
-          (
-            component.instance as unknown as {
-              completeTaakMutation: { mutate: jest.Mock };
-            }
-          ).completeTaakMutation,
-          "mutate",
-        )
-        .mockImplementation(() => undefined);
-      const updateSpy = jest
-        .spyOn(
-          (
-            component.instance as unknown as {
-              updateTaakdataMutation: { mutate: jest.Mock };
-            }
-          ).updateTaakdataMutation,
-          "mutate",
-        )
-        .mockImplementation(() => undefined);
+      const completeMutate = jest.fn();
+      const updateMutate = jest.fn();
+      replaceMutation("completeTaakMutation", completeMutate);
+      replaceMutation("updateTaakdataMutation", updateMutate);
 
       component.instance.onFormioFormSubmit({
         data: {},
         state: "draft",
       });
 
-      expect(completeSpy).not.toHaveBeenCalled();
-      expect(updateSpy).toHaveBeenCalled();
+      expect(completeMutate).not.toHaveBeenCalled();
+      expect(updateMutate).toHaveBeenCalled();
       expect(navigateSpy).not.toHaveBeenCalled();
     });
   });
