@@ -237,6 +237,115 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
   });
 
+  describe("zaakSpecificContactDetails", () => {
+    beforeEach(() => {
+      notifyManager.setScheduler((fn) => fn());
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("renders the zaak-specific telephoneNumber when set, overriding the bedrijf telefoonnummer", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, telefoonnummer: "0299123456" });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      expect(telefoonField?.textContent).toContain("0612345678");
+      expect(telefoonField?.textContent).not.toContain("0299123456");
+    });
+
+    it("renders the zaak-specific emailAddress when set, overriding the bedrijf emailadres", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: null,
+            emailAddress: "zaak@example.com",
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, emailadres: "bedrijf@example.com" });
+      await sleep();
+      fixture.detectChanges();
+
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(emailField?.textContent).toContain("zaak@example.com");
+      expect(emailField?.textContent).not.toContain("bedrijf@example.com");
+    });
+
+    it("falls back to the bedrijf telefoonnummer and emailadres when zaakSpecificContactDetails is absent", async () => {
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(telefoonField?.textContent).toContain("0299123456");
+      expect(emailField?.textContent).toContain("bedrijf@example.com");
+    });
+
+    it("falls back per-field to bedrijf data when only one zaak-specific contact value is set", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(telefoonField?.textContent).toContain("0612345678");
+      expect(emailField?.textContent).toContain("bedrijf@example.com");
+    });
+  });
+
   describe.each([
     {
       status: 404,
