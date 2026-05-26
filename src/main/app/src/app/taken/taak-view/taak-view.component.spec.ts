@@ -18,7 +18,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
@@ -86,6 +86,7 @@ describe(TaakViewComponent.name, () => {
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "test-zaak-uuid",
+    identificatie: "test-zaakIdentificatie",
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "test-zaaktype-uuid",
       omschrijving: "Test Zaaktype",
@@ -390,6 +391,73 @@ describe(TaakViewComponent.name, () => {
         ],
       ).toBe("actie.document.maken");
       expect(openSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe(TaakViewComponent.prototype.onFormioFormSubmit.name, () => {
+    let router: Router;
+    let navigateSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      router = TestBed.inject(Router);
+      navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    });
+
+    it("redirects to the zaak after a successful Form.io task submit", () => {
+      const completeMutation = (
+        component.instance as unknown as {
+          completeTaakMutation: { mutate: jest.Mock };
+        }
+      ).completeTaakMutation;
+      jest
+        .spyOn(completeMutation, "mutate")
+        .mockImplementation(
+          (_taak: unknown, options?: { onSuccess?: () => void }) => {
+            options?.onSuccess?.();
+          },
+        );
+
+      component.instance.onFormioFormSubmit({
+        data: {},
+        state: "submitted",
+      });
+
+      expect(navigateSpy).toHaveBeenCalledWith([
+        "/zaken/",
+        "test-zaakIdentificatie",
+      ]);
+    });
+
+    it("does not redirect for a partial save", () => {
+      const completeSpy = jest
+        .spyOn(
+          (
+            component.instance as unknown as {
+              completeTaakMutation: { mutate: jest.Mock };
+            }
+          ).completeTaakMutation,
+          "mutate",
+        )
+        .mockImplementation(() => undefined);
+      const updateSpy = jest
+        .spyOn(
+          (
+            component.instance as unknown as {
+              updateTaakdataMutation: { mutate: jest.Mock };
+            }
+          ).updateTaakdataMutation,
+          "mutate",
+        )
+        .mockImplementation(() => undefined);
+
+      component.instance.onFormioFormSubmit({
+        data: {},
+        state: "draft",
+      });
+
+      expect(completeSpy).not.toHaveBeenCalled();
+      expect(updateSpy).toHaveBeenCalled();
+      expect(navigateSpy).not.toHaveBeenCalled();
     });
   });
 
