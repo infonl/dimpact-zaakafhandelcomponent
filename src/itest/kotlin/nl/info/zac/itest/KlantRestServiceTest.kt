@@ -96,7 +96,7 @@ import java.util.UUID
 
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
-@Suppress("LongParameterList", "LargeClass")
+@Suppress("LongParameterList", "LargeClass", "MagicNumber")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
