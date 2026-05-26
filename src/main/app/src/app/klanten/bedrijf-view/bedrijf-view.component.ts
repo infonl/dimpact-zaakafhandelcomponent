@@ -39,9 +39,8 @@ import { KlantenService } from "../klanten.service";
 })
 export class BedrijfViewComponent {
   protected bedrijf: GeneratedType<"RestBedrijf"> | null = null;
-  protected vestigingsprofiel: GeneratedType<"RestVestigingsprofiel"> | null =
-    null;
-  protected vestigingsprofielOphalenMogelijk = true;
+  protected profiel: GeneratedType<"RestBedrijfsprofiel"> | null = null;
+  protected profielOphalenMogelijk = true;
   warningIcon = new TextIcon(
     () => true,
     "warning",
@@ -58,18 +57,26 @@ export class BedrijfViewComponent {
     this.utilService.setTitle("bedrijfsgegevens");
     this.route.data.subscribe((data) => {
       this.bedrijf = data.bedrijf;
-      this.vestigingsprofielOphalenMogelijk = !!this.bedrijf?.vestigingsnummer;
+      this.profielOphalenMogelijk =
+        !!this.bedrijf?.vestigingsnummer ||
+        (this.bedrijf?.type === "RECHTSPERSOON" && !!this.bedrijf?.kvkNummer);
     });
   }
 
-  protected ophalenVestigingsprofiel() {
-    this.vestigingsprofielOphalenMogelijk = false;
-    if (!this.bedrijf?.vestigingsnummer) return;
-
-    this.klantenService
-      .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
-      .subscribe((value) => {
-        this.vestigingsprofiel = value;
-      });
+  protected ophalenProfiel() {
+    this.profielOphalenMogelijk = false;
+    if (this.bedrijf?.vestigingsnummer) {
+      this.klantenService
+        .readVestigingsprofiel(this.bedrijf.vestigingsnummer)
+        .subscribe((value) => {
+          this.profiel = value;
+        });
+    } else if (this.bedrijf?.kvkNummer) {
+      this.klantenService
+        .readBasisprofiel(this.bedrijf.kvkNummer)
+        .subscribe((value) => {
+          this.profiel = value;
+        });
+    }
   }
 }

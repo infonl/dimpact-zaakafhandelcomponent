@@ -3,61 +3,53 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgFor, NgIf } from "@angular/common";
-import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
-import { MatAutocompleteModule } from "@angular/material/autocomplete";
-import { MatButtonModule } from "@angular/material/button";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from "@angular/material/dialog";
-import { MatDividerModule } from "@angular/material/divider";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatToolbarModule } from "@angular/material/toolbar";
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { ZoekopdrachtSaveDialogComponent } from "./zoekopdracht-save-dialog.component";
 
-const makeZoekopdracht = (naam: string): GeneratedType<"RESTZoekopdracht"> => ({
+const makeZoekopdracht = (
+  naam: string,
+  overrides: Partial<GeneratedType<"RESTZoekopdracht">> = {},
+): GeneratedType<"RESTZoekopdracht"> => ({
   naam,
   json: "{}",
   lijstID: "TAKEN_WERKVOORRAAD" as GeneratedType<"Werklijst">,
+  ...overrides,
 });
 
-const setup = (zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) => {
-  const dialogRefMock = { close: jest.fn(), disableClose: false };
-  TestBed.configureTestingModule({
+async function setup(zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) {
+  const dialogRef = {
+    close: jest.fn(),
+    disableClose: false,
+  } as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>;
+
+  await TestBed.configureTestingModule({
     imports: [
       ZoekopdrachtSaveDialogComponent,
       NoopAnimationsModule,
       TranslateModule.forRoot(),
-      ReactiveFormsModule,
-      NgFor,
-      NgIf,
-      AsyncPipe,
-      MatToolbarModule,
-      MatDialogModule,
-      MatDividerModule,
-      MatIconModule,
-      MatButtonModule,
-      MatProgressSpinnerModule,
-      MatFormFieldModule,
-      MatInputModule,
-      MatAutocompleteModule,
     ],
     providers: [
-      provideHttpClient(),
-      provideRouter([]),
+      provideExperimentalZonelessChangeDetection(),
+      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClientTesting(),
+      provideTanStackQuery(testQueryClient),
       {
         provide: MAT_DIALOG_DATA,
         useValue: {
@@ -66,115 +58,136 @@ const setup = (zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = []) => {
           zoekopdracht: { filters: {} },
         },
       },
-      { provide: MatDialogRef, useValue: dialogRefMock },
+      { provide: MatDialogRef, useValue: dialogRef },
     ],
-  });
-  const gebruikersvoorkeurenService = TestBed.inject(
-    GebruikersvoorkeurenService,
-  );
-  jest
-    .spyOn(gebruikersvoorkeurenService, "createOrUpdateZoekOpdrachten")
-    .mockReturnValue(of(undefined) as never);
-  const fixture: ComponentFixture<ZoekopdrachtSaveDialogComponent> =
-    TestBed.createComponent(ZoekopdrachtSaveDialogComponent);
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(ZoekopdrachtSaveDialogComponent);
+  const component = fixture.componentInstance;
+  const loader = TestbedHarnessEnvironment.loader(fixture);
+  const httpTestingController = TestBed.inject(HttpTestingController);
+
   fixture.detectChanges();
-  return {
-    fixture,
-    component: fixture.componentInstance,
-    gebruikersvoorkeurenService,
-    dialogRefMock,
-  };
-};
+
+  return { fixture, component, loader, httpTestingController, dialogRef };
+}
 
 describe(ZoekopdrachtSaveDialogComponent.name, () => {
   describe("close()", () => {
-    it("closes the dialog", () => {
-      const { component, dialogRefMock } = setup();
+    it("closes the dialog", async () => {
+      const { component, dialogRef } = await setup();
       component["close"]();
-      expect(dialogRefMock.close).toHaveBeenCalled();
+      expect(dialogRef.close).toHaveBeenCalled();
     });
   });
 
-  describe("opslaan button", () => {
-    it("is disabled when formControl has no value", () => {
-      const { fixture } = setup();
-      const button: HTMLButtonElement =
-        fixture.nativeElement.querySelector("#opslaan_button");
-      expect(button.disabled).toBe(true);
-    });
-  });
-
-  describe("isNew()", () => {
-    it("returns true when name is not in existing zoekopdrachten", () => {
-      const { component } = setup([makeZoekopdracht("bestaande zoekopdracht")]);
-      component["formControl"].setValue("nieuwe naam");
-      expect(component["isNew"]()).toBe(true);
+  describe("submit button", () => {
+    it("is disabled when form is empty", async () => {
+      const { loader } = await setup();
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.toevoegen/i }),
+      );
+      expect(await button.isDisabled()).toBe(true);
     });
 
-    it("returns false when name matches an existing zoekopdracht", () => {
-      const { component } = setup([makeZoekopdracht("bestaande zoekopdracht")]);
-      component["formControl"].setValue("bestaande zoekopdracht");
-      expect(component["isNew"]()).toBe(false);
+    it("shows the 'toevoegen' label when the name does not match an existing zoekopdracht", async () => {
+      const { component, loader } = await setup([
+        makeZoekopdracht("bestaande zoekopdracht"),
+      ]);
+      component["form"].patchValue({ naam: "nieuwe naam" });
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.toevoegen/i }),
+      );
+      expect(button).toBeTruthy();
+    });
+
+    it("shows the 'wijzigen' label when the name matches an existing zoekopdracht", async () => {
+      const { component, loader } = await setup([
+        makeZoekopdracht("bestaande zoekopdracht"),
+      ]);
+      component["form"].patchValue({ naam: "bestaande zoekopdracht" });
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.wijzigen/i }),
+      );
+      expect(button).toBeTruthy();
     });
   });
 
   describe("opslaan() — new zoekopdracht", () => {
-    it("calls createOrUpdateZoekOpdrachten with a new entry", () => {
-      const { component, gebruikersvoorkeurenService } = setup();
-      component["formControl"].setValue("nieuwe naam");
+    it("posts a new zoekopdracht and closes the dialog with true", async () => {
+      const { component, httpTestingController, dialogRef } = await setup();
+      component["form"].patchValue({ naam: "nieuwe naam" });
+      component["form"].markAsDirty();
+
       component["opslaan"]();
-      expect(
-        gebruikersvoorkeurenService.createOrUpdateZoekOpdrachten,
-      ).toHaveBeenCalledWith(
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht",
+      );
+      expect(req.request.method).toBe("POST");
+      expect(req.request.body).toEqual(
         expect.objectContaining({
           naam: "nieuwe naam",
           lijstID: "TAKEN_WERKVOORRAAD",
         }),
       );
-    });
+      req.flush({});
+      await sleep();
 
-    it("closes the dialog with true on success", () => {
-      const { component, dialogRefMock } = setup();
-      component["formControl"].setValue("nieuwe naam");
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("opslaan() — request error", () => {
+    it("closes the dialog without a result when the request fails", async () => {
+      const { component, httpTestingController, dialogRef } = await setup();
+      component["form"].patchValue({ naam: "nieuwe naam" });
+      component["form"].markAsDirty();
+
       component["opslaan"]();
-      expect(dialogRefMock.close).toHaveBeenCalledWith(true);
+      await new Promise(requestAnimationFrame);
+
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/zoekopdracht")
+        .flush(null, { status: 500, statusText: "Server Error" });
+      await sleep();
+
+      expect(dialogRef.close).toHaveBeenCalledWith();
     });
   });
 
   describe("opslaan() — existing zoekopdracht", () => {
-    it("calls createOrUpdateZoekOpdrachten with the existing entry updated", () => {
-      const existing = makeZoekopdracht("bestaande zoekopdracht");
-      const { component, gebruikersvoorkeurenService } = setup([existing]);
-      component["formControl"].setValue("bestaande zoekopdracht");
+    it("posts the existing entry with updated json and closes the dialog with true", async () => {
+      const existing = makeZoekopdracht("bestaande zoekopdracht", {
+        id: 42,
+      });
+      const { component, httpTestingController, dialogRef } = await setup([
+        existing,
+      ]);
+      component["form"].patchValue({ naam: "bestaande zoekopdracht" });
+      component["form"].markAsDirty();
+
       component["opslaan"]();
-      expect(
-        gebruikersvoorkeurenService.createOrUpdateZoekOpdrachten,
-      ).toHaveBeenCalledWith(
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht",
+      );
+      expect(req.request.method).toBe("POST");
+      expect(req.request.body).toEqual(
         expect.objectContaining({
+          id: 42,
           naam: "bestaande zoekopdracht",
           lijstID: "TAKEN_WERKVOORRAAD",
         }),
       );
-    });
-  });
+      req.flush({});
+      await sleep();
 
-  describe("filteredOptions", () => {
-    it("filters zoekopdrachten by name input", () => {
-      const { component } = setup([
-        makeZoekopdracht("gemeente filter"),
-        makeZoekopdracht("andere opdracht"),
-      ]);
-      const result = component["_filter"]("gemeente");
-      expect(result).toEqual(["gemeente filter"]);
-    });
-
-    it("returns all options when input is empty", () => {
-      const { component } = setup([
-        makeZoekopdracht("gemeente filter"),
-        makeZoekopdracht("andere opdracht"),
-      ]);
-      const result = component["_filter"]("");
-      expect(result).toHaveLength(2);
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
     });
   });
 });

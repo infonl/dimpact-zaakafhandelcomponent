@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -14,45 +14,37 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<mat-dialog-content>
-  <mat-form-field class="full-width" floatLabel="always">
-    <mat-label>{{ "zoekopdracht" | translate }}</mat-label>
-    <input
-      type="text"
-      placeholder="{{ 'naam' | translate }}"
-      matInput
-      [formControl]="formControl"
-      [matAutocomplete]="auto"
-    />
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option
-        *ngFor="let option of filteredOptions | async"
-        [value]="option"
-      >
-        {{ option }}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button
-    [disabled]="loading || !formControl.value"
-    mat-button
-    color="primary"
-    (click)="opslaan()"
-    id="opslaan_button"
-  >
-    <mat-icon *ngIf="loading">
-      <mat-spinner diameter="18"></mat-spinner>
-    </mat-icon>
-    {{ (isNew() ? "actie.toevoegen" : "actie.wijzigen") | translate }}
-  </button>
-  <button
-    [disabled]="loading"
-    mat-button
-    (click)="close()"
-    id="dialogClose_button"
-  >
-    {{ "actie.annuleren" | translate }}
-  </button>
-</mat-dialog-actions>
+<form [formGroup]="form" (submit)="opslaan()">
+  <mat-dialog-content>
+    <fieldset class="p-0">
+      <section class="row">
+        <zac-auto-complete
+          class="col-12"
+          [form]="form"
+          key="naam"
+          [options]="options"
+        ></zac-auto-complete>
+      </section>
+    </fieldset>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      mat-raised-button
+      type="submit"
+      color="primary"
+      [disabled]="form.invalid || form.pristine || mutation.isPending()"
+      id="opslaan_button"
+    >
+      {{ submitLabel() | translate }}
+    </button>
+    <button
+      mat-raised-button
+      type="button"
+      (click)="close()"
+      [disabled]="mutation.isPending()"
+      id="dialogClose_button"
+    >
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

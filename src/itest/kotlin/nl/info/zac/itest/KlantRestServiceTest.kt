@@ -24,6 +24,13 @@ import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_RECHTSVORM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_WEBSITE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
@@ -511,6 +518,46 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
 
+            When("a basisprofiel is requested which is present in the KVK test environment") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/basisprofiel/$TEST_KVK_NUMMER_1",
+                    testUser = RAADPLEGER_1
+                )
+                Then("the basisprofiel is returned with all fields mapped correctly") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(responseBody) {
+                        shouldContainJsonKey("adressen")
+                        val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                        adressen.length() shouldBe 1
+                        with(JSONArray(adressen).get(0).toString()) {
+                            shouldContainJsonKeyValue("type", "bezoekadres")
+                            shouldContainJsonKeyValue("afgeschermd", false)
+                            shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                        }
+                        shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
+                        shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                        shouldContainJsonKeyValue("rsin", TEST_KVK_RSIN_1)
+                        shouldContainJsonKeyValue("rechtsvorm", TEST_KVK_BASISPROFIEL_RECHTSVORM)
+                        shouldContainJsonKeyValue("uitgebreideRechtsvorm", TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM)
+                        shouldContainJsonKeyValue("statutaireNaam", TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM)
+                        shouldContainJsonKeyValue(
+                            "totaalWerkzamePersonen",
+                            TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN
+                        )
+                        shouldContainJsonKey("sbiActiviteiten")
+                        val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
+                        sbiActiviteiten.length() shouldBe 1
+                        with(JSONArray(sbiActiviteiten).get(0).toString()) {
+                            shouldContain(TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1)
+                        }
+                        shouldContainJsonKeyValue("sbiHoofdActiviteit", TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT)
+                        shouldContainJsonKeyValue("website", TEST_KVK_BASISPROFIEL_WEBSITE)
+                    }
+                }
+            }
+
             When("a search on companies by name is performed") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/bedrijven",
@@ -576,7 +623,7 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Retrieving contactmomenten for a person") {
         Given("Existing contactmomenten and a logged-in raadpleger") {
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
-                // this endpoint requires no explicit authorisation, however, to pass the basic authorisation filter in ZAC
+                // this endpoint requires no explicit authorisation; however, to pass the basic authorisation filter in ZAC,
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -611,10 +658,11 @@ class KlantRestServiceTest : BehaviorSpec({
                           "tekst": "phone contact"
                         },
                         {
+                          "initiatiefnemer": "",
                           "kanaal": "Webformulier",
                           "registratiedatum": "2026-05-18T09:49:02Z",
                           "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
-                        }
+                        }                        
                       ],
                       "totaal": 3
                     }
