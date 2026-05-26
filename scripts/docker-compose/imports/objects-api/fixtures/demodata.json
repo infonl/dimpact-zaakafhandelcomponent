@@ -1633,7 +1633,7 @@
       "label": "Objecttypen API",
       "slug": "objecttypes-api",
       "api_type": "orc",
-      "api_root": "http://objecttypes-api:8000/api/v1/",
+      "api_root": "http://objecttypes-api:8000/api/v2/",
       "client_id": "",
       "secret": "",
       "auth_type": "api_key",
