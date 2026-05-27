@@ -465,7 +465,7 @@ services:
 
   rabbitmq:
     # note: RabbitMQ 4.3.0 breaks Open Notificaties 1.13.0
-    image: rabbitmq:4.2.6-alpine@sha256:eb0bf75f2749de101492a7d3b031095e903fbb02aca3baa34dbaa27589c22efb
+    image: rabbitmq:4.2.7-alpine@sha256:685d619fa6ab3eed0fbdd6a94191fc359e9c172d6b71858ad0ee2b4787644726
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
