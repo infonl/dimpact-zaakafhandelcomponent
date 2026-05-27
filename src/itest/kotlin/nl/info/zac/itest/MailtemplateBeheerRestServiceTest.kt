@@ -388,97 +388,82 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
 
     Context("Creating, updating and deleting a mail template") {
         Given("A beheerder wants to create a new mail template") {
-            val createRequestBody = """
-            {
-              "mailTemplateNaam": "itest-mailtemplate",
-              "onderwerp": "Test onderwerp",
-              "body": "<p>Test body</p>",
-              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
-              "defaultMailtemplate": false
-            }
-            """.trimIndent()
-            lateinit var createdTemplateId: String
-
-            When("the mail template is created via POST") {
-                val createResponse = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/beheer/mailtemplates",
-                    requestBodyAsString = createRequestBody,
-                    testUser = BEHEERDER_1
-                )
-                lateinit var createResponseBody: String
-
-                Then("the response should be a 201 HTTP response with the created template") {
+            When("the full create-read-update-delete lifecycle is executed") {
+                Then("all operations succeed in order") {
+                    val createResponse = itestHttpClient.performJSONPostRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates",
+                        requestBodyAsString = """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate",
+                              "onderwerp": "Test onderwerp",
+                              "body": "<p>Test body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent(),
+                        testUser = BEHEERDER_1
+                    )
                     createResponse.code shouldBe HTTP_CREATED
-                    createResponseBody = createResponse.bodyAsString
-                    logger.info { "Create response: $createResponseBody" }
-                    with(JSONObject(createResponseBody)) {
+                    logger.info { "Create response: ${createResponse.bodyAsString}" }
+                    val createdTemplateId = JSONObject(createResponse.bodyAsString).run {
                         getString("mailTemplateNaam") shouldBe "itest-mailtemplate"
                         getString("onderwerp") shouldBe "Test onderwerp"
                         getString("body") shouldBe "<p>Test body</p>"
                         getString("mail") shouldBe MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL
                         getBoolean("defaultMailtemplate") shouldBe false
-                        createdTemplateId = getLong("id").toString()
+                        getLong("id").toString()
                     }
-                }
 
-                And("the created mail template can be fetched by ID") {
-                    val getResponse = itestHttpClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
                         testUser = BEHEERDER_1
-                    )
-                    getResponse.code shouldBe HTTP_OK
-                    getResponse.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
-                    {
-                      "mailTemplateNaam": "itest-mailtemplate",
-                      "onderwerp": "Test onderwerp",
-                      "body": "<p>Test body</p>",
-                      "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
-                      "defaultMailtemplate": false
+                    ).also {
+                        it.code shouldBe HTTP_OK
+                        it.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate",
+                              "onderwerp": "Test onderwerp",
+                              "body": "<p>Test body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent()
                     }
-                    """.trimIndent()
-                }
 
-                And("the created mail template can be updated via PUT") {
-                    val updateRequestBody = """
-                    {
-                      "mailTemplateNaam": "itest-mailtemplate-updated",
-                      "onderwerp": "Updated onderwerp",
-                      "body": "<p>Updated body</p>",
-                      "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
-                      "defaultMailtemplate": false
-                    }
-                    """.trimIndent()
-                    val updateResponse = itestHttpClient.performPutRequest(
+                    itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
-                        requestBodyAsString = updateRequestBody,
+                        requestBodyAsString = """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate-updated",
+                              "onderwerp": "Updated onderwerp",
+                              "body": "<p>Updated body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent(),
                         testUser = BEHEERDER_1
-                    )
-                    updateResponse.code shouldBe HTTP_OK
-                    updateResponse.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
-                    {
-                      "mailTemplateNaam": "itest-mailtemplate-updated",
-                      "onderwerp": "Updated onderwerp",
-                      "body": "<p>Updated body</p>",
-                      "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
-                      "defaultMailtemplate": false
+                    ).also {
+                        it.code shouldBe HTTP_OK
+                        it.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate-updated",
+                              "onderwerp": "Updated onderwerp",
+                              "body": "<p>Updated body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent()
                     }
-                    """.trimIndent()
-                }
 
-                And("the created mail template can be deleted") {
-                    val deleteResponse = itestHttpClient.performDeleteRequest(
+                    itestHttpClient.performDeleteRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
                         testUser = BEHEERDER_1
-                    )
-                    deleteResponse.code shouldBe HTTP_NO_CONTENT
-                }
+                    ).code shouldBe HTTP_NO_CONTENT
 
-                And("the delete mail template can no longer be fetched by ID") {
-                    val getResponse = itestHttpClient.performGetRequest(
+                    itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
                         testUser = BEHEERDER_1
-                    )
-                    getResponse.code shouldBe HTTP_NOT_FOUND
+                    ).code shouldBe HTTP_NOT_FOUND
                 }
             }
         }
