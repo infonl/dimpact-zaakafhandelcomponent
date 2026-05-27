@@ -334,8 +334,6 @@ describe(InformatieObjectAddComponent.name, () => {
         vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
         auteur: "Test Author",
       });
-      // Setting ontvangstdatum triggers valueChanges, which disables the status control
-      // and auto-sets it to DEFINITIEF. Without getRawValue(), form.value would omit it.
       component["form"].controls.ontvangstdatum.setValue(moment());
       component["form"].markAsDirty();
       fixture.detectChanges();

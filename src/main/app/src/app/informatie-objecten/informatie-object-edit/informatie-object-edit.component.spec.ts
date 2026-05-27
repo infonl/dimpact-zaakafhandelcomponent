@@ -298,8 +298,6 @@ describe(InformatieObjectEditComponent.name, () => {
     });
 
     it("should include status in payload when status control is disabled due to ontvangstdatum", async () => {
-      // enkelvoudigInformatieObjectVersieGegevens has ontvangstdatum set, so initForm
-      // disables the status control. Without getRawValue(), form.value omits disabled controls.
       component["form"].patchValue({
         bestand: mockFile,
         titel: "Test Title",
