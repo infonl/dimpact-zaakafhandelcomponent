@@ -184,7 +184,7 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "fakesbiOmschrijving1"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "fakesbiOmschrijving2"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
-    const val TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1 17M, 1034WL fakePlaats1"
+    const val TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1\u00A017M, 1034WL\u00A0fakePlaats1"
     const val TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN = 42
     const val TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM = "fakeStatutaireNaam1"
     const val TEST_KVK_BASISPROFIEL_RECHTSVORM = "BeslotenVennootschap"
@@ -192,32 +192,32 @@ object ItestConfiguration {
     const val TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT = "fakeBasisprofielHoofdactiviteit1"
     const val TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1 = "fakeBasisprofielNevenactiviteit1"
     const val TEST_KVK_BASISPROFIEL_WEBSITE = "https://fakebedrijf.nl"
-    const val TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1 17, 1034WL fakePlaats1"
+    const val TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1\u00A017, 1034WL\u00A0fakePlaats1"
 
     // Vestiging 2: two bezoekadresses and two correspondentieadresses
     const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345679"
     const val TEST_KVK_NUMMER_2 = "12345679"
     const val TEST_KVK_NAAM_2 = "testMeerdereAdressen"
-    const val TEST_KVK_VESTIGING2_ADRES = "fakeStraatnaam2a 100, 1234AB fakePlaats2"
-    const val TEST_KVK_VESTIGING2_BEZOEKADRES_1 = "fakeStraatnaam2a 100, 1234AB fakePlaats2"
-    const val TEST_KVK_VESTIGING2_BEZOEKADRES_2 = "fakeStraatnaam2b 200, 5678CD fakePlaats2"
-    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1 = "Postbus 1000, 1234AB fakePlaats2"
-    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2 = "Postbus 2000, 5678CD fakePlaats2"
+    const val TEST_KVK_VESTIGING2_ADRES = "fakeStraatnaam2a\u00A0100, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_1 = "fakeStraatnaam2a\u00A0100, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_2 = "fakeStraatnaam2b\u00A0200, 5678CD\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1 = "Postbus 1000, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2 = "Postbus 2000, 5678CD\u00A0fakePlaats2"
 
     // Vestiging 3: foreign (buitenlands) address
     const val TEST_KVK_VESTIGINGSNUMMER_3 = "000012345680"
     const val TEST_KVK_NUMMER_3 = "12345680"
     const val TEST_KVK_NAAM_3 = "testBuitenlands"
-    const val TEST_KVK_VESTIGING3_ADRES = "fakeStraatnaam3 12, 12345 fakePlaats3, fakeLand3"
+    const val TEST_KVK_VESTIGING3_ADRES = "fakeStraatnaam3\u00A012, 12345\u00A0fakePlaats3, fakeLand3"
     const val TEST_KVK_VESTIGING3_PROFIEL_ADRES =
-        "fakeStraatnaam3 12 fakeToevoeging3, 12345 fakePlaats3, fakeLand3"
+        "fakeStraatnaam3\u00A012\u00A0fakeToevoeging3, 12345\u00A0fakePlaats3, fakeLand3"
 
     // Vestiging 4: full Dutch address with huisnummerToevoeging
     const val TEST_KVK_VESTIGINGSNUMMER_4 = "000012345681"
     const val TEST_KVK_NUMMER_4 = "12345681"
     const val TEST_KVK_NAAM_4 = "testVolledigBinnenlands"
-    const val TEST_KVK_VESTIGING4_ADRES = "fakeStraatnaam4 42B, 4321DC fakePlaats4"
-    const val TEST_KVK_VESTIGING4_PROFIEL_ADRES = "fakeStraatnaam4 42B achter, 4321DC fakePlaats4"
+    const val TEST_KVK_VESTIGING4_ADRES = "fakeStraatnaam4\u00A042B, 4321DC\u00A0fakePlaats4"
+    const val TEST_KVK_VESTIGING4_PROFIEL_ADRES = "fakeStraatnaam4\u00A042B\u00A0achter, 4321DC\u00A0fakePlaats4"
 
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
