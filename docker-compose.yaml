@@ -162,7 +162,7 @@ services:
     depends_on:
       openzaak.local:
         condition: service_healthy
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   # nginx reverse proxy in front of Open Zaak.
   # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
@@ -211,7 +211,7 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -228,7 +228,7 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-import:
     image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
@@ -243,7 +243,7 @@ services:
     depends_on:
       objecten-api.local:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
     image: solr:9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61
@@ -471,7 +471,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 20
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -492,7 +492,7 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
     image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
@@ -536,7 +536,7 @@ services:
     depends_on:
       opennotificaties-init:
         condition: service_completed_successfully
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
     image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
@@ -555,7 +555,7 @@ services:
       redis:
         condition: service_started
     volumes: *opennotificaties-volumes
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
@@ -572,7 +572,7 @@ services:
     depends_on:
       opennotificaties:
         condition: service_healthy
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   openarchiefbeheer-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
@@ -853,3 +853,170 @@ services:
       openzaak.local:
         condition: service_healthy
     profiles: ["zac"]
+
+  openformulieren-database:
+    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    ports:
+      - "54330:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    environment:
+      - POSTGRES_USER=openformulieren
+      - POSTGRES_PASSWORD=openformulieren
+      - POSTGRES_DB=openformulieren
+    volumes:
+      - ./scripts/docker-compose/volume-data/openformulieren-database-data:/var/lib/postgresql/data
+    profiles: [ "openformulieren" ]
+
+  openformulieren-init:
+    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    environment: &openformulieren-env
+      - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
+      - SECRET_KEY=openFormulierenSecretKey
+      - DB_NAME=openformulieren
+      - DB_USER=openformulieren
+      - DB_PASSWORD=openformulieren
+      - DB_HOST=openformulieren-database
+      - CACHE_DEFAULT=redis:6379/2
+      - CACHE_AXES=redis:6379/2
+      - CACHE_PORTALOCKER=redis:6379/2
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8007,http://localhost:8009
+      - USE_X_FORWARDED_HOST=true
+      - EMAIL_HOST=localhost
+      - TZ=Europe/Amsterdam
+      - DISABLE_2FA=true
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - RUN_SETUP_CONFIG=true
+      - OTEL_SDK_DISABLED=true
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        /setup_configuration.sh
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+            print('Admin user created')
+        else:
+            print('Admin user already exists')
+        "
+    volumes: &openformulieren-volumes
+      - openformulieren-static:/srv/static
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/setup-configuration:/app/setup_configuration
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-web:
+    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
+    # results in a non-working Open Formulieren instance.
+    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    ports:
+      - "8009:8000"
+    volumes: *openformulieren-volumes
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      openformulieren-init:
+        condition: service_completed_successfully
+    profiles: [ "openformulieren" ]
+
+  openformulieren-celery:
+    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
+    # results in a non-working Open Formulieren instance.
+    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-celery-beat:
+    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
+    # results in a non-working Open Formulieren instance.
+    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    command: /celery_beat.sh
+    volumes:
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-nginx:
+    image: nginxinc/nginx-unprivileged:1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92
+    ports:
+      - "8007:8080"
+    volumes:
+      - ./scripts/docker-compose/imports/openformulieren/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      openformulieren-web:
+        condition: service_healthy
+    profiles: [ "openformulieren" ]
+
+volumes:
+  openformulieren-static:
+  openformulieren-media:
+  openformulieren-private-media:
+  openformulieren-log:
