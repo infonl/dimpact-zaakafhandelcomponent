@@ -224,4 +224,16 @@ describe(ZacHtmlEditor.name, () => {
       expect(component.form().controls.content.value).toBe("Test content");
     });
   });
+
+  describe("outputFormat", () => {
+    it("should output HTML string even when form control starts with null", () => {
+      const form = createTestForm();
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "content");
+      fixture.detectChanges();
+
+      const editorElement = fixture.nativeElement.querySelector("ngx-editor");
+      expect(editorElement.getAttribute("outputformat")).toBe("html");
+    });
+  });
 });
