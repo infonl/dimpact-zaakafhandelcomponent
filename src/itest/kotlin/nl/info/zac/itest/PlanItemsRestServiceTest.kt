@@ -28,7 +28,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-const val UITERLIJKE_EINDDATUM_AFDOENING = "2000-01-15"
+const val UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-01"
 
 class PlanItemsRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}

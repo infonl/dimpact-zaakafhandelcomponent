@@ -62,7 +62,7 @@ VALUES
         'Melden',     -- handeling_initiator
         'Openbare orde & veiligheid', -- onderwerp
         'Behandelen', -- handeling_behandelaar
-        'P14D',       -- doorlooptijd_behandeling
+        'P1Y',        -- doorlooptijd_behandeling
         NULL,         -- servicenorm_behandeling
         false,        -- opschorting_en_aanhouding_mogelijk
         false,        -- verlenging_mogelijk
