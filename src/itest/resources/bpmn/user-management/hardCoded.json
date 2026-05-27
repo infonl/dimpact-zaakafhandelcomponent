@@ -16,7 +16,7 @@
           "labelPosition": "left-left",
           "type": "textfield",
           "key": "hardCodedGroup",
-          "defaultValue": "BPMN test group 1",
+          "defaultValue": "behandelaars-test-1",
           "persistent": false,
           "input": false,
           "disabled": true
@@ -26,7 +26,7 @@
           "labelPosition": "left-left",
           "type": "textfield",
           "key": "hardCodedUser",
-          "defaultValue": "BPMN test behandelaar 1",
+          "defaultValue": "behandelaar1newiam",
           "persistent": false,
           "input": false,
           "disabled": true
