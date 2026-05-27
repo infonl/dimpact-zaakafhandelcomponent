@@ -1318,7 +1318,7 @@ export class ZaakViewComponent
   }
 
   protected showInitiator() {
-    if (this.zaak.zaakSpecificContactDetails) return true;
+    if (this.hasZaakSpecificContactDetails()) return true;
 
     if (!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen)
       return false;
@@ -1340,9 +1340,14 @@ export class ZaakViewComponent
         return "COMPANY";
     }
 
-    if (this.zaak.zaakSpecificContactDetails) return "CONTACT_DETAILS";
+    if (this.hasZaakSpecificContactDetails()) return "CONTACT_DETAILS";
 
     return "ADD";
+  }
+
+  private hasZaakSpecificContactDetails(): boolean {
+    const details = this.zaak.zaakSpecificContactDetails;
+    return !!(details?.telephoneNumber || details?.emailAddress);
   }
 
   protected allowedToAddBetrokkene() {

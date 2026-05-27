@@ -737,6 +737,66 @@ describe(ZaakViewComponent.name, () => {
         fixture.nativeElement.querySelector("zac-contactgegevens"),
       ).toBeTruthy();
     });
+
+    it("should not show zac-contactgegevens when zaakSpecificContactDetails has only empty fields", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: null,
+          zaakSpecificContactDetails: fromPartial<
+            GeneratedType<"ContactDetails">
+          >({
+            telephoneNumber: null,
+            emailAddress: null,
+          }),
+          zaaktype: {
+            ...zaak.zaaktype,
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: koppelingen,
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-contactgegevens"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
+      ).toBeTruthy();
+    });
+
+    it("should hide the initiator section entirely when zaakSpecificContactDetails is empty and no koppelingen are configured", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          initiatorIdentificatie: null,
+          zaakSpecificContactDetails: fromPartial<
+            GeneratedType<"ContactDetails">
+          >({
+            telephoneNumber: null,
+            emailAddress: null,
+          }),
+          zaaktype: {
+            ...zaak.zaaktype,
+            zaakafhandelparameters: fromPartial({
+              betrokkeneKoppelingen: fromPartial<
+                GeneratedType<"RestBetrokkeneKoppelingen">
+              >({ brpKoppelen: false, kvkKoppelen: false }),
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("zac-contactgegevens"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
+      ).toBeNull();
+    });
   });
 
   describe("actie.zaak.acties header", () => {
