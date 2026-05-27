@@ -18,7 +18,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **grafana/grafana**: 13.0.1
 - **greenmail/standalone**: 2.1.8
 - **rabbitmq**: 4.3.0-alpine
-- **nginxinc/nginx-unprivileged**: 1.31.0
+- **nginxinc/nginx-unprivileged**: 1.31.1
 
 ## Common Ground components
 
