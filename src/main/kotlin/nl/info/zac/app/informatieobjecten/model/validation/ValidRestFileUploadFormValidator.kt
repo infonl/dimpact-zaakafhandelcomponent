@@ -15,7 +15,6 @@ class ValidRestFileUploadFormValidator :
     override fun isValid(value: RestFileUpload, context: ConstraintValidatorContext?): Boolean {
         val filename = value.filename ?: return true
         val file = value.file
-        if (file == null || file.isEmpty()) return false
-        return AllowedFileType.isAllowed(filename, value.type)
+        return file != null && file.isNotEmpty() && AllowedFileType.isAllowed(filename, value.type)
     }
 }

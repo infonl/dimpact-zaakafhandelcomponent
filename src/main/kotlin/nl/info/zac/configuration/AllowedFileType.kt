@@ -45,8 +45,7 @@ enum class AllowedFileType(val extension: String, val mediaType: String) {
         fun fromFilename(filename: String?): AllowedFileType? {
             if (filename.isNullOrBlank()) return null
             val dotIndex = filename.lastIndexOf('.')
-            if (dotIndex < 0) return null
-            return byExtension[filename.substring(dotIndex).lowercase()]
+            return if (dotIndex < 0) null else byExtension[filename.substring(dotIndex).lowercase()]
         }
 
         /**
