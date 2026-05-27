@@ -1651,15 +1651,25 @@
       "label": "Open Notificaties",
       "slug": "open-notificaties",
       "api_type": "nrc",
-      "api_root": "http://open-notificaties:8000/api/v1/",
+      "api_root": "http://opennotificaties:8000/api/v1/",
       "client_id": "objectsapi",
-      "secret": "secretkey",
+      "secret": "opennotificatiesObjectsSecret",
       "auth_type": "zgw",
       "header_key": "",
       "header_value": "",
       "nlx": "",
       "user_id": "objects-api",
       "user_representation": "Objects API"
+    }
+  },
+  {
+    "model": "notifications_api_common.notificationsconfig",
+    "pk": 1,
+    "fields": {
+      "notifications_api_service": 2,
+      "notification_delivery_max_retries": 5,
+      "notification_delivery_retry_backoff": 3,
+      "notification_delivery_retry_backoff_max": 48
     }
   },
   {
