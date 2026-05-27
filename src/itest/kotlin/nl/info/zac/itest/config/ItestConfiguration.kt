@@ -192,7 +192,7 @@ object ItestConfiguration {
     const val TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT = "fakeBasisprofielHoofdactiviteit1"
     const val TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1 = "fakeBasisprofielNevenactiviteit1"
     const val TEST_KVK_BASISPROFIEL_WEBSITE = "https://fakebedrijf.nl"
-    const val TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1\u00A017, 1034WL\u00A0fakePlaats1"
+    const val TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1 17, 1034WL fakePlaats1"
 
     // Vestiging 2: two bezoekadresses and two correspondentieadresses
     const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345679"

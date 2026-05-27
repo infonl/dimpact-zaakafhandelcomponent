@@ -36,6 +36,7 @@
         {
           "type": "bezoekadres",
           "indAfgeschermd": "Nee",
+          "volledigAdres": "fakeStraatnaam1 17, 1034WL fakePlaats1",
           "straatnaam": "fakeStraatnaam1",
           "huisnummer": 17,
           "postcode": "1034WL",
