@@ -69,5 +69,5 @@ private fun ResultaatItem.toName(): String =
     this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
 
 private fun ResultaatItem.toAddress(): String? =
-    this.adres?.binnenlandsAdres?.toKvkAdres()?.toFormattedAddress()
-        ?: this.adres?.buitenlandsAdres?.toKvkAdres()?.toFormattedAddress()
+    this.adres?.binnenlandsAdres?.toFormattedAddress()
+        ?: this.adres?.buitenlandsAdres?.toFormattedAddress()
