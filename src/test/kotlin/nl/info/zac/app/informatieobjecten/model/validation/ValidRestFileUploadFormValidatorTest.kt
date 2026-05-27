@@ -76,6 +76,40 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
         }
     }
 
+    Given("a task file upload with file bytes but no filename") {
+        val upload = RestFileUpload(
+            file = "fake content".toByteArray(),
+            fileSize = 12,
+            filename = null,
+            type = "application/pdf"
+        )
+
+        When("validated") {
+            val result = validator.isValid(upload, null)
+
+            Then("it is rejected because the allowlist can only be applied with a filename") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("a task file upload with file bytes but a blank filename") {
+        val upload = RestFileUpload(
+            file = "fake content".toByteArray(),
+            fileSize = 12,
+            filename = "   ",
+            type = "application/pdf"
+        )
+
+        When("validated") {
+            val result = validator.isValid(upload, null)
+
+            Then("it is rejected") {
+                result shouldBe false
+            }
+        }
+    }
+
     Given("a task file upload with a filename but an empty file byte array") {
         val upload = RestFileUpload(
             file = ByteArray(0),

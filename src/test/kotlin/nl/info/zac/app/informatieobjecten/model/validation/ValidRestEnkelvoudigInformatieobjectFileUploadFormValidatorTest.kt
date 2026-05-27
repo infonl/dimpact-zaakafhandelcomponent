@@ -50,6 +50,40 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         }
     }
 
+    Given("a REST enkelvoudig informatie object with file bytes but no bestandsnaam") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = null
+                formaat = "application/pdf"
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is rejected because the allowlist can only be applied with a bestandsnaam") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object with file bytes but a blank bestandsnaam") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "   "
+                formaat = "application/pdf"
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is rejected") {
+                result shouldBe false
+            }
+        }
+    }
+
     Given("a metadata-only update without a filename") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
 
