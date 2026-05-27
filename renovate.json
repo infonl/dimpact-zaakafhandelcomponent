@@ -527,6 +527,20 @@
       ]
     },
     {
+      "groupName": "Open-forms docker image",
+      "matchPackageNames": [
+        "openformulieren/open-forms",
+        "ghcr.io/infonl/open-forms"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 3.5.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
       "groupName": "Open-klant docker image",
       "matchPackageNames": [
         "maykinmedia/open-klant",
