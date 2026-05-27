@@ -237,7 +237,7 @@ describe(BedrijfViewComponent.name, () => {
     it("renders adres when no profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "adres");
+        .find((de) => de.componentInstance.label === "bezoekadres");
       expect(element).toBeTruthy();
     });
 
