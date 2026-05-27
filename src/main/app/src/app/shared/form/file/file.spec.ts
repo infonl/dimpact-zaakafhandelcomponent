@@ -83,9 +83,12 @@ describe(ZacFile.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     configuratieService.readMaxFileSizeMB = jest.fn().mockReturnValue(of(10));
-    configuratieService.readAllowedFileTypes = jest
-      .fn()
-      .mockReturnValue(of([]));
+    configuratieService.readAllowedFileTypes = jest.fn().mockReturnValue(
+      of([
+        { extension: ".txt", mediaType: "text/plain" },
+        { extension: ".pdf", mediaType: "application/pdf" },
+      ]),
+    );
 
     fixture = TestBed.createComponent(ZacFile<TestForm, keyof TestForm>);
     component = fixture.componentInstance;
