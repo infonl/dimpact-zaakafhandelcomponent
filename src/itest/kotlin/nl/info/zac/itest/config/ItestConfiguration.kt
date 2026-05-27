@@ -30,10 +30,6 @@ object ItestConfiguration {
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
-    /**
-     * Fake additional allowed file types just for testing purposes.
-     */
-    const val ADDITIONAL_ALLOWED_FILE_TYPES = "fakeFileExtension1,fakeFileExtension2"
     const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
     const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"

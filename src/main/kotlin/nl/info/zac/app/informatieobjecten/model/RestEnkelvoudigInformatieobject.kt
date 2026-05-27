@@ -64,9 +64,6 @@ data class RestEnkelvoudigInformatieobject(
     @field:FormParam("status")
     var status: StatusEnum? = null,
 
-    @field:FormParam("formaat")
-    var formaat: String? = null,
-
     @field:FormParam("bestandsomvang")
     var bestandsomvang: Long? = null,
 

@@ -33,9 +33,6 @@ data:
   KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
   KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
   KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
-  {{- if .Values.additionalAllowedFileTypes }}
-  ADDITIONAL_ALLOWED_FILE_TYPES: {{ .Values.additionalAllowedFileTypes }}
-  {{- end}}
   MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}

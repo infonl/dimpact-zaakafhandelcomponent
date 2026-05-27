@@ -6,11 +6,13 @@
 package nl.info.zac.app.informatieobjecten.model
 
 import jakarta.ws.rs.FormParam
+import nl.info.zac.app.informatieobjecten.model.validation.ValidRestFileUploadForm
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
+@ValidRestFileUploadForm
 data class RestFileUpload(
     @field:FormParam("file")
     var file: ByteArray? = null,

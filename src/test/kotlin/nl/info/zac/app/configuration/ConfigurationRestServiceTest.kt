@@ -96,27 +96,19 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Additional allowed file types are configured") {
-        val fileTypes = listOf("fakeFileType1", "fakeFileType2")
-        every { configurationService.readAdditionalAllowedFileTypes() } returns fileTypes
+    Given("The allowed file types endpoint is queried") {
+        When("listAllowedFileTypes is called") {
+            val result = configurationRestService.listAllowedFileTypes()
 
-        When("readAdditionalAllowedFileTypes is called") {
-            val result = configurationRestService.readAdditionalAllowedFileTypes()
-
-            Then("it should return the list of file types") {
-                result shouldBe fileTypes
-            }
-        }
-    }
-
-    Given("No additional file types are configured") {
-        every { configurationService.readAdditionalAllowedFileTypes() } returns emptyList()
-
-        When("readAdditionalAllowedFileTypes is called") {
-            val result = configurationRestService.readAdditionalAllowedFileTypes()
-
-            Then("it should return an empty list") {
-                result shouldBe emptyList()
+            Then("it returns the full canonical allowlist as extension/media-type pairs") {
+                result.map { it.extension } shouldBe listOf(
+                    ".avi", ".bmp", ".doc", ".docx", ".eml", ".flv", ".gif",
+                    ".jpeg", ".jpg", ".mkv", ".mov", ".mp4", ".mpeg", ".msg",
+                    ".ods", ".odt", ".pdf", ".png", ".ppt", ".pptx", ".rtf",
+                    ".txt", ".vsd", ".wmv", ".xls", ".xlsx"
+                )
+                result.first { it.extension == ".pdf" }.mediaType shouldBe "application/pdf"
+                result.first { it.extension == ".jpg" }.mediaType shouldBe "image/jpeg"
             }
         }
     }

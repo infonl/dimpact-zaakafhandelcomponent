@@ -12,6 +12,8 @@ import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.ser
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
+export type AllowedFileType = GeneratedType<"RestAllowedFileType">;
+
 @Injectable({
   providedIn: "root",
 })
@@ -21,7 +23,7 @@ export class ConfiguratieService {
   private readonly basepath = "/rest/configuratie";
   private talen$?: Observable<GeneratedType<"RestTaal">[]>;
   private maxFileSizeMB$?: Observable<number>;
-  private additionalAllowedFileTypes$?: Observable<string[]>;
+  private allowedFileTypes$?: Observable<AllowedFileType[]>;
   private gemeenteCode$?: Observable<string>;
   private gemeenteNaam$?: Observable<string>;
   private pabcIntegration$?: Observable<boolean>;
@@ -64,16 +66,16 @@ export class ConfiguratieService {
     return this.maxFileSizeMB$;
   }
 
-  readAdditionalAllowedFileTypes(): Observable<string[]> {
-    if (!this.additionalAllowedFileTypes$) {
-      this.additionalAllowedFileTypes$ = this.http
-        .get<string[]>(`${this.basepath}/additional-allowed-file-types`)
+  readAllowedFileTypes(): Observable<AllowedFileType[]> {
+    if (!this.allowedFileTypes$) {
+      this.allowedFileTypes$ = this.http
+        .get<AllowedFileType[]>(`${this.basepath}/file-types`)
         .pipe(
           catchError((err) => this.foutAfhandelingService.foutAfhandelen(err)),
           shareReplay(1),
         );
     }
-    return this.additionalAllowedFileTypes$;
+    return this.allowedFileTypes$;
   }
 
   readGemeenteCode(): Observable<string> {

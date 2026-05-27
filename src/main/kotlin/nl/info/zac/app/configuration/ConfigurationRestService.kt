@@ -12,9 +12,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.util.JsonbUtil
+import nl.info.zac.app.configuration.model.RestAllowedFileType
 import nl.info.zac.app.configuration.model.RestTaal
+import nl.info.zac.app.configuration.model.toRestAllowedFileType
 import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.configuration.model.toRestTalen
+import nl.info.zac.configuration.AllowedFileType
 import nl.info.zac.configuration.BrpConfiguration.Companion.BRP_PROTOCOLLERING_PROVIDER_ICONNECT
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
@@ -45,8 +48,9 @@ class ConfigurationRestService @Inject constructor(
     fun readMaxFileSizeMB(): Long = configurationService.readMaxFileSizeMB()
 
     @GET
-    @Path("additional-allowed-file-types")
-    fun readAdditionalAllowedFileTypes(): List<String> = configurationService.readAdditionalAllowedFileTypes()
+    @Path("file-types")
+    fun listAllowedFileTypes(): List<RestAllowedFileType> =
+        AllowedFileType.entries.map { it.toRestAllowedFileType() }
 
     @GET
     @Path("gemeente/code")

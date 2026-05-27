@@ -7,14 +7,15 @@ package nl.info.zac.app.informatieobjecten.model.validation
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload
+import nl.info.zac.configuration.AllowedFileType
 
 class ValidRestEnkelvoudigInformatieFileUploadFormValidator :
     ConstraintValidator<ValidRestEnkelvoudigInformatieFileUploadForm, RestEnkelvoudigInformatieFileUpload> {
 
     override fun isValid(value: RestEnkelvoudigInformatieFileUpload, context: ConstraintValidatorContext?): Boolean {
-        if (value.bestandsnaam != null) {
-            return value.file != null && value.file!!.isNotEmpty()
-        }
-        return true
+        val bestandsnaam = value.bestandsnaam ?: return true
+        val file = value.file
+        if (file == null || file.isEmpty()) return false
+        return AllowedFileType.isAllowed(bestandsnaam, value.formaat)
     }
 }

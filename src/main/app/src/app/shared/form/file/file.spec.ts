@@ -83,7 +83,7 @@ describe(ZacFile.name, () => {
 
     const configuratieService = TestBed.inject(ConfiguratieService);
     configuratieService.readMaxFileSizeMB = jest.fn().mockReturnValue(of(10));
-    configuratieService.readAdditionalAllowedFileTypes = jest
+    configuratieService.readAllowedFileTypes = jest
       .fn()
       .mockReturnValue(of([]));
 

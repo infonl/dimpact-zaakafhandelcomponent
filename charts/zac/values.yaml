@@ -175,9 +175,6 @@ opentelemetry_zaakafhandelcomponent:
 # -- Maximum size (in Mega Bytes) of files that can be uploaded.
 maxFileSizeMB: 80
 
-# -- An optional list of additional file extensions that can be uploaded
-additionalAllowedFileTypes:
-
 # -- Enable Java remote debugging
 remoteDebug: false
 

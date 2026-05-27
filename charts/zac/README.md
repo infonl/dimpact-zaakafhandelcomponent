@@ -46,7 +46,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |

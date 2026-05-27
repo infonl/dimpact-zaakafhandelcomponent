@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.informatieobjecten.model.validation
@@ -13,8 +13,8 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 @Target(CLASS)
 @Retention(RUNTIME)
-@Constraint(validatedBy = [ValidRestEnkelvoudigInformatieFileUploadFormValidator::class])
-annotation class ValidRestEnkelvoudigInformatieFileUploadForm(
+@Constraint(validatedBy = [ValidRestFileUploadFormValidator::class])
+annotation class ValidRestFileUploadForm(
     val message: String = INVALID_FILE_UPLOAD_FORM,
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = []

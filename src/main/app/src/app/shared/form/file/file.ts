@@ -20,7 +20,6 @@ import {
 import { AbstractControl, FormBuilder } from "@angular/forms";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
-import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
@@ -62,14 +61,10 @@ export class ZacFile<
         this.allowedFormats.set(this.allowedFileTypes());
         return;
       }
-      const additionalFileTypes = await lastValueFrom(
-        this.configuratieService.readAdditionalAllowedFileTypes(),
+      const backendFileTypes = await lastValueFrom(
+        this.configuratieService.readAllowedFileTypes(),
       );
-      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-        icon.getBestandsextensie(),
-      );
-
-      this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
+      this.allowedFormats.set(backendFileTypes.map((t) => t.extension));
     });
   }
 
