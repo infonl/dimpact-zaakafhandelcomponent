@@ -114,7 +114,6 @@
                 "required": [],
                 "properties": {
                     "type": {
-                        "$id": "#/properties/type",
                         "enum": [
                             "Haag",
                             "Fruitteelt",
@@ -532,21 +531,18 @@
                         "description": "Typering van het beheerobject."
                     },
                     "kiemjaar": {
-                        "$id": "#/properties/kiemjaar",
                         "type": "integer",
                         "title": "Kiemjaar",
                         "examples": [],
                         "description": "Kiemjaar van de boom.\nEenheid: Jaartal"
                     },
                     "leeftijd": {
-                        "$id": "#/properties/leeftijd",
                         "type": "integer",
                         "title": "Leeftijd",
                         "examples": [],
                         "description": "Leeftijd van het beheerobject in jaren.\nEenheid: Aantal"
                     },
                     "typeplus": {
-                        "$id": "#/properties/typeplus",
                         "enum": [
                             "Grind Rail",
                             "Overhead Ladder",
@@ -1084,14 +1080,12 @@
                         "description": "Nadere typering van het type beheerobject."
                     },
                     "verplant": {
-                        "$id": "#/properties/verplant",
                         "type": "boolean",
                         "title": "Verplant",
                         "examples": [],
                         "description": "Aanduidig of het groen- of vegetatieobject verplant is."
                     },
                     "boombeeld": {
-                        "$id": "#/properties/boombeeld",
                         "enum": [
                             "Niet van toepassing",
                             "Verwaarloosd boombeeld",
@@ -1108,7 +1102,6 @@
                         "description": "Onderhoudssituatie van de boom."
                     },
                     "boomgroep": {
-                        "$id": "#/properties/boomgroep",
                         "enum": [
                             "Laanboom",
                             "Boomweide",
@@ -1122,7 +1115,6 @@
                         "description": "Aanduiding of de boom onderdeel is van een boomgroep."
                     },
                     "groeifase": {
-                        "$id": "#/properties/groeifase",
                         "enum": [
                             "Jeugdfase",
                             "Volwassen fase",
@@ -1139,7 +1131,6 @@
                         "description": "Aanduiding van de groeifase van een boom.\nToelichting: Er is geen volledige eenduidigheid over de indeling, maar over het algemeen worden bij een boom zon 4 groeifasen onderscheiden. Het onderscheid is gebaseerd op de verschillen in beheermaatregelen."
                     },
                     "snoeifase": {
-                        "$id": "#/properties/snoeifase",
                         "enum": [
                             "Begeleidingssnoeifase",
                             "Onbekend",
@@ -1154,35 +1145,30 @@
                         "description": "Aanduiding van de snoeifase van de boom."
                     },
                     "boomspiegel": {
-                        "$id": "#/properties/boomspiegel",
                         "type": "string",
                         "title": "Boomspiegel",
                         "examples": [],
                         "description": "Wanneer een boomspiegel aanwezig is, wordt het GUID van het beheerobject Boomspiegel gekoppeld aan het object Boom.\nToelichting: Boomspiegel: afgebakend oppervlak rondom de stam van een boom, dat niet is ingeplant."
                     },
                     "kroonvolume": {
-                        "$id": "#/properties/kroonvolume",
                         "type": "integer",
                         "title": "Kroonvolume",
                         "examples": [],
                         "description": "Volume van de boomkroon in kubieke meters\nEenheid: m3"
                     },
                     "meerstammig": {
-                        "$id": "#/properties/meerstammig",
                         "type": "boolean",
                         "title": "Meerstammig",
                         "examples": [],
                         "description": "Aanduiding voor meerstammigheid bij een Boom"
                     },
                     "transponder": {
-                        "$id": "#/properties/transponder",
                         "type": "string",
                         "title": "Transponder",
                         "examples": [],
                         "description": "Nummer of identificatie van een transponder op een beheerobject."
                     },
                     "vrijetakval": {
-                        "$id": "#/properties/vrijetakval",
                         "enum": [
                             "Onbekend",
                             "Geen vrije takval mogelijk",
@@ -1196,14 +1182,12 @@
                         "description": "Aanduiding of vrije takval is toegestaan."
                     },
                     "stamdiameter": {
-                        "$id": "#/properties/stamdiameter",
                         "type": "integer",
                         "title": "Stamdiameter",
                         "examples": [],
                         "description": "Aanduiding voor de diameter van de stam.\nEenheid: cm"
                     },
                     "takvrijestam": {
-                        "$id": "#/properties/takvrijestam",
                         "enum": [
                             "0 m.",
                             "Anders, namelijk",
@@ -1222,14 +1206,12 @@
                         "description": "De benodigde takvrije stam in het eindbeeld, gemeten vanaf maaiveld tot aan de onderste gesteltak.\nEenheid: m\nToelichting: Takvrije stam: gedeelte van de stam, gemeten vanaf maaiveld tot aan eerste gesteltak. Eindbeeld: vorm van een boom in volgroeide staat, omschreven door middel van takvrije zone en/of takvrije stam. Als synoniem wordt vaak gebruikt de opkroonhoogte: de verticaal gemeten vrije hoogte tussen maaiveld en kroon van de boom."
                     },
                     "verplantbaar": {
-                        "$id": "#/properties/verplantbaar",
                         "type": "boolean",
                         "title": "Verplantbaar",
                         "examples": [],
                         "description": "Aanduiding of de boom verplant kan worden."
                     },
                     "beleidsstatus": {
-                        "$id": "#/properties/beleidsstatus",
                         "enum": [
                             "Structuurbepalend/hoofd(groen/bomen)structuur",
                             "Geen specifieke status-verkorte omloop (tot ca. 20 jaar) en bomen 3e grootte",
@@ -1244,28 +1226,24 @@
                         "description": "Beleidsstatus is een functiecategorie bomen conform de richtlijnen NVTB, t.b.v. de bepaling van de monetaire waarde."
                     },
                     "boombeschermer": {
-                        "$id": "#/properties/boombeschermer",
                         "type": "string",
                         "title": "Boombeschermer",
                         "examples": [],
                         "description": "Wanneer een boombeschermer aanwezig is, wordt het GUID van het beheerobject Boombeschermer gekoppeld aan het object Boom.\nToelichting: Constructie, meestal van metaal, rondom het onderste  gedeelte van de stam, bedoeld ter bescherming van de stam."
                     },
                     "herplantplicht": {
-                        "$id": "#/properties/herplantplicht",
                         "type": "boolean",
                         "title": "Herplantplicht",
                         "examples": [],
                         "description": "Aanduiding of er in het kader van de Wet Natuurbescherming sprake is van een herplantplicht."
                     },
                     "feestverlichting": {
-                        "$id": "#/properties/feestverlichting",
                         "type": "string",
                         "title": "Feestverlichting",
                         "examples": [],
                         "description": "Wanneer Feestverlichting aanwezig is, wordt het GUID van het beheerobject Feestverlichting gekoppeld aan het gekoppelde beheerobject."
                     },
                     "beoogdeomlooptijd": {
-                        "$id": "#/properties/beoogdeomlooptijd",
                         "enum": [
                             "75-100 jaar",
                             "30-50 jaar",
@@ -1286,14 +1264,12 @@
                         "description": "De potentieel haalbare omlooptijd, in relatie tot de standplaats (schatting)."
                     },
                     "boomhoogteactueel": {
-                        "$id": "#/properties/boomhoogteactueel",
                         "type": "integer",
                         "title": "BoomhoogteActueel",
                         "examples": [],
                         "description": "Hoogte van de boom in meters.\nEenheid: m"
                     },
                     "controlefrequentie": {
-                        "$id": "#/properties/controlefrequentie",
                         "enum": [
                             "dummyData"
                         ],
@@ -1305,7 +1281,6 @@
                         "description": "Aanduiding van de frequentie van de controle van het beheerobject.\nToelichting: \"De frequentie van de boomveiligheidscontrole. Dit is de periodieke visuele controle van een boom in het kader van de zorgplicht (voortkomend uit artikel 6:162 van het BW) ten behoeve van het vaststellen van een (potentieel toekomstig) risico dat de boom vormt voor zijn omgeving. \nDe term boomveiligheidscontrole heeft betrekking op het gehele proces om in het veld de benodigde gegevens te verkrijgen voor het logboek, zoals beschreven in de CROW Richtlijn Boomveiligheidsregistratie.\n\""
                     },
                     "stamdiameterklasse": {
-                        "$id": "#/properties/stamdiameterklasse",
                         "enum": [
                             "dummyData"
                         ],
@@ -1317,7 +1292,6 @@
                         "description": "Aanduiding van de diameter van de stam in diameterklassen."
                     },
                     "vrijedoorrijhoogte": {
-                        "$id": "#/properties/vrijedoorrijhoogte",
                         "enum": [
                             "4,5 m. en groter",
                             "6,5 m. en groter",
@@ -1333,7 +1307,6 @@
                         "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct of tunnel.\nEenheid: m\nToelichting: Takvrije zone boven het wegdek en onder de kroon waar bestuurders van voertuigen vrije doorgang genieten tot een hoogte zoals is bepaald door de wegbeheerder."
                     },
                     "boomboomvoorziening": {
-                        "$id": "#/properties/boomboomvoorziening",
                         "enum": [
                             "dummyData"
                         ],
@@ -1345,21 +1318,18 @@
                         "description": "Mogelijkheid om 1 of meerdere boomvoorzieningen bij een boom te registreren."
                     },
                     "monetaireboomwaarde": {
-                        "$id": "#/properties/monetaireboomwaarde",
                         "type": "number",
                         "title": "MonetaireBoomwaarde",
                         "examples": [],
                         "description": "Monetaire waarde volgens richtlijnen NVTB.\nEenheid: "
                     },
                     "takvrijezoneprimair": {
-                        "$id": "#/properties/takvrijezoneprimair",
                         "type": "integer",
                         "title": "TakvrijeZonePrimair",
                         "examples": [],
                         "description": "De benodigde takvrije ruimte tussen de weg of het fietspad en de onderkant van de boomkroon (eindbeeld van de boom). Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de takvrije ruimte boven de weg aangeduid met primair, en de takvrijke ruimte boven het fietspad met secundair.\nEenheid: m\nToelichting: Takvrije zone: vrije ruimte ten behoeve van verkeer of andere omgevingsfactoren."
                     },
                     "boomveiligheidsklasse": {
-                        "$id": "#/properties/boomveiligheidsklasse",
                         "enum": [
                             "Niet te beoordelen",
                             "Boom zonder gebreken",
@@ -1375,21 +1345,18 @@
                         "description": "Aanduiding van de veiligheid van de boom, ingedeeld in vaste klassen.\nToelichting: Voor bosplantsoen met boomvormers is de mate van veiligheid van het beheerobject voor de omgeving relevant. Hiervoor is nog geen landelijk vastgestelde classificatie. Boomveiligheid: Aanduiding voor de veiligheid van personen, dieren, objecten en goederen in de nabijheid van een boom."
                     },
                     "groeiplaatsinrichting": {
-                        "$id": "#/properties/groeiplaatsinrichting",
                         "type": "string",
                         "title": "Groeiplaatsinrichting",
                         "examples": [],
                         "description": "Wanneer een groeiplaatsinrichting aanwezig is, wordt het GUID van het beheerobject Groeiplaatsinrichting gekoppeld aan het object Boom"
                     },
                     "takvrijezonesecundair": {
-                        "$id": "#/properties/takvrijezonesecundair",
                         "type": "integer",
                         "title": "TakvrijeZoneSecundair",
                         "examples": [],
                         "description": "De benodigde takvrije ruimte tussen het fietspad en de onderkant van de boomkroon (eindbeeld van de boom). Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de takvrije ruimte boven de weg aangeduid met primair, en de takvrijke ruimte boven het fietspad met secundair.\nEenheid: m\nToelichting: Takvrije zone: vrije ruimte ten behoeve van verkeer of andere omgevingsfactoren."
                     },
                     "typebeschermingsstatus": {
-                        "$id": "#/properties/typebeschermingsstatus",
                         "enum": [
                             "Monumentale boom",
                             "Geen beschermingsstatus",
@@ -1403,7 +1370,6 @@
                         "description": "Aanduiding voor de speciale status van de boom."
                     },
                     "typevermeerderingsvorm": {
-                        "$id": "#/properties/typevermeerderingsvorm",
                         "enum": [
                             "Veredeld",
                             "Eigen wortel",
@@ -1419,7 +1385,6 @@
                         "description": "Wijze waarop de plant of boom is vermeerderd."
                     },
                     "boomhoogteklasseactueel": {
-                        "$id": "#/properties/boomhoogteklasseactueel",
                         "enum": [
                             "dummyData"
                         ],
@@ -1431,14 +1396,12 @@
                         "description": "Aanduiding van de boomhoogte in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
                     },
                     "takvrijeruimtetotgebouw": {
-                        "$id": "#/properties/takvrijeruimtetotgebouw",
                         "type": "integer",
                         "title": "TakvrijeRuimteTotGebouw",
                         "examples": [],
                         "description": "De benodigde takvrije ruimte tussen het gebouw en de zijkant van de boom.\nEenheid: m"
                     },
                     "boomhoogteklasseeindbeeld": {
-                        "$id": "#/properties/boomhoogteklasseeindbeeld",
                         "enum": [
                             "dummyData"
                         ],
@@ -1450,7 +1413,6 @@
                         "description": "Aanduiding van de boomhoogte van het eindbeeld, in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
                     },
                     "typeomgevingsrisicoklasse": {
-                        "$id": "#/properties/typeomgevingsrisicoklasse",
                         "enum": [
                             "Hoog",
                             "Gemiddeld",
@@ -1466,7 +1428,6 @@
                         "description": "Aanduiding van het omgevingsrisico van het beheerobject.\nToelichting: Classificering voor de intensiteit van het gebruik van de omgeving van een boom en daarmee de mate waarin de omgeving van de boom risicoverhogend is voor eventuele schade bij stambreuk, takbreuk of instabiliteit. Aanvullende informatie: vast te stellen door de boomeigenaar."
                     },
                     "vrijedoorrijhoogteprimair": {
-                        "$id": "#/properties/vrijedoorrijhoogteprimair",
                         "enum": [
                             "4,5 m. en groter",
                             "6,5 m. en groter",
@@ -1482,7 +1443,6 @@
                         "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct. Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de vrije doorrijhoogte boven de weg aangeduid met primair, en de takvrije ruimte boven het fietspad met secundair.\nEenheid: m"
                     },
                     "kroondiameterklasseactueel": {
-                        "$id": "#/properties/kroondiameterklasseactueel",
                         "enum": [
                             "dummyData"
                         ],
@@ -1494,7 +1454,6 @@
                         "description": "Diameter van de kroon van de boom in meters ingedeeld in vaste klassen."
                     },
                     "vrijedoorrijhoogtesecundair": {
-                        "$id": "#/properties/vrijedoorrijhoogtesecundair",
                         "enum": [
                             "4,5 m. en groter",
                             "6,5 m. en groter",
@@ -1510,7 +1469,6 @@
                         "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct. Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de vrije doorrijhoogte boven de weg aangeduid met primair, en de takvrije ruimte boven het fietspad met secundair.\nEenheid: m"
                     },
                     "kroondiameterklasseeindbeeld": {
-                        "$id": "#/properties/kroondiameterklasseeindbeeld",
                         "enum": [
                             "dummyData"
                         ],
@@ -1522,7 +1480,6 @@
                         "description": "Diameter van de kroon van het eindbeeld van de boom in meters ingedeeld in vaste klassen."
                     },
                     "boomtypebeschermingsstatusplus": {
-                        "$id": "#/properties/boomtypebeschermingsstatusplus",
                         "enum": [
                             "dummyData"
                         ],
@@ -1625,147 +1582,251 @@
             "modified_at": "2021-08-02",
             "published_at": "2021-07-12",
             "json_schema": {
-                "title": "Productaanvraag Dimpact",
-                "default": {},
-                "examples": [
-                    {
-                        "bron" : {
-                            "naam" : "Open Formulieren",
-                            "kenmerk" : "f56552a8-a082-4306-9111-eb1664fcb05d"
-                        },
-                        "type" : "verhuizing",
-                        "aanvraaggegevens" : {
-                            "uw-gegevens" : {
-                                "voornaam" : "Voorbeeld",
-                                "achternaam" : "Vries",
-                                "tussenvoegsel" : "de",
-                                "geboortedatum" : "1980-12-31"
-                            },
-                            "uw-verhuizing" : {
-                                "beschrijving" : "Lorem ipsum..."
-                            }
-                        },
-                        "taal" : "nld",
-                        "zaakgegevens" : {
-                            "identificatie" : "ZAAK-2023-0000000121",
-                            "communicatiekanaal" : "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
-                            "omschrijving" : "Verhuizing Blaak 27",
-                            "toelichting" : "Nieuw huis gekocht"
-                        },
-                        "betrokkenen" : [
-                            {
-                                "inpBsn" : "999993896",
-                                "rolOmschrijvingGeneriek" : "initiator",
-                                "indicatieMachtiging" : "gemachtigde",
-                                "indicatieCorrespondentie" : true
-                            },
-                            {
-                                "inpBsn" : "999992958",
-                                "rolOmschrijvingGeneriek" : "mede_initiator",
-                                "indicatieMachtiging" : "machtiginggever",
-                                "indicatieCorrespondentie" : false
-                            },
-                            {
-                                "medewerkerIdentificatie" : "MDW123",
-                                "rolOmschrijvingGeneriek" : "klantcontacter"
-                            }
-                        ],
-                        "betaling" : {
-                            "kenmerk" : "2022ESUITE0320",
-                            "bedrag" : 19.20,
-                            "status" : "niet_geslaagd",
-                            "transactieId" : "123456784",
-                            "transactiedatumtijd" : "2021-04-25T21:30:05+00",
-                            "statusCode" : "5",
-                            "melding" : "Saldo tekort"
-                        },
-                        "pdf" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
-                        "csv" : "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
-                        "bijlagen" : [
-                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
-                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
-                        ]
-                    }
-                ],
-                "required" : [
-                    "bron",
-                    "type",
-                    "aanvraaggegevens"
-                ],
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://open-objecten.org/schemas/productaanvraag",
+                "title": "Productaanvraag",
+                "type": "object",
                 "properties": {
                     "bron": {
-                        "$id": "#/properties/bron",
-                        "type": "object",
                         "title": "Bron",
-                        "description" : "Bron waaruit de productaanvraag voortkomt",
-                        "default": {},
-                        "properties" : {
-                            "naam" : {
-                                "title" : "Naam",
-                                "description" : "Naam van de bron",
-                                "type" : "string",
-                                "examples" : [
+                        "description": "Bron waaruit de productaanvraag voortkomt",
+                        "type": "object",
+                        "properties": {
+                            "naam": {
+                                "title": "Naam",
+                                "description": "Naam van de bron",
+                                "type": "string",
+                                "examples": [
                                     "Open Formulieren"
                                 ]
                             },
-                            "kenmerk" : {
-                                "title" : "Kenmerk",
-                                "description" : "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
-                                "type" : "string",
-                                "examples" : [
+                            "kenmerk": {
+                                "title": "Kenmerk",
+                                "description": "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
+                                "type": "string",
+                                "examples": [
                                     "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
                                 ]
                             }
                         },
-                        "examples": [
-                            {
-                                "naam": "Open Formulieren",
-                                "kenmerk": "f56552a8-a082-4306-9111-eb1664fcb05d"
-                            }
+                        "required": [
+                            "naam",
+                            "kenmerk"
                         ]
                     },
                     "type": {
-                        "$id": "#/properties/type",
-                        "type": "string",
                         "title": "Type",
-                        "description" : "Type productaanvraag",
-                        "default": "",
+                        "description": "Type productaanvraag",
+                        "type": "string",
                         "examples": [
                             "verhuizing",
                             "terugbelnotitie"
                         ]
                     },
-                    "betrokkenen": {
-                        "$id": "#/properties/betrokkenen",
-                        "type": "array",
-                        "title": "Betrokkenen",
-                        "default": [],
-                        "items" : {
-                            "$ref" : "#/$defs/betrokkene"
+                    "aanvraaggegevens": {
+                        "title": "Aanvraaggegevens",
+                        "description": "Gegevens uit de aanvraag van het product",
+                        "type": "object",
+                        "examples": [
+                            {
+                                "uw-gegevens": {
+                                    "voornaam": "Voorbeeld",
+                                    "achternaam": "Vries",
+                                    "tussenvoegsel": "de",
+                                    "geboortedatum": "1980-12-31"
+                                },
+                                "uw-verhuizing": {
+                                    "beschrijving": "Lorem ipsum..."
+                                }
+                            }
+                        ]
+                    },
+                    "taal": {
+                        "title": "Taal",
+                        "description": "ISO 639-2/B taalcode waarin de productaanvraag is vastgelegd. Zie: https://www.iso.org/standard/4767.html",
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3,
+                        "default": "nld"
+                    },
+                    "zaakgegevens": {
+                        "title": "Zaakgegevens",
+                        "description": "Gegevens voor de zaak welke kan voortvloeien uit de productaanvraag",
+                        "type": "object",
+                        "properties": {
+                            "identificatie": {
+                                "title": "Identificatie",
+                                "description": "Unieke identificatie van de zaak binnen de organisatie die verantwoordelijk is voor de behandeling van de zaak",
+                                "type": "string",
+                                "maxLength": 40,
+                                "examples": [
+                                    "123123",
+                                    "ZAAK-2023-0000000121"
+                                ]
+                            },
+                            "communicatiekanaal": {
+                                "title": "Communicatiekanaal",
+                                "description": "Medium waarlangs de aanleiding om een zaak te starten is ontvangen. URL naar een communicatiekanaal in de VNG-Referentielijst van communicatiekanalen.",
+                                "type": "string",
+                                "formaat": "uri",
+                                "examples": [
+                                    "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d"
+                                ]
+                            },
+                            "omschrijving": {
+                                "title": "Omschrijving",
+                                "description": "Korte omschrijving van de zaak",
+                                "type": "string",
+                                "maxLength": 80,
+                                "examples": [
+                                    "Verhuizing Blaak 27"
+                                ]
+                            },
+                            "toelichting": {
+                                "title": "Toelichting",
+                                "description": "Toelichting op de zaak",
+                                "type": "string",
+                                "maxLength": 1000,
+                                "examples": [
+                                    "Nieuw huis gekocht"
+                                ]
+                            },
+                            "geometry": {
+                                "title": "Geometry",
+                                "description": "Zaaklocatie",
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "title": "Type",
+                                        "description": "Geometry type",
+                                        "type": "string",
+                                        "enum": [
+                                            "Point"
+                                        ]
+                                    },
+                                    "coordinates": {
+                                        "title": "Coordinates",
+                                        "description": "Latitude en longitude in WGS 84 coordinatenstelsel",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        },
+                                        "minItems": 2,
+                                        "maxItems": 2,
+                                        "examples": [
+                                            "[52.36673378967122, 4.893164274470299]"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "coordinates"
+                                ]
+                            }
                         }
                     },
+                    "betrokkenen": {
+                        "title": "Betrokkenen",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/$defs/betrokkene"
+                        }
+                    },
+                    "betaling": {
+                        "title": "Betaling",
+                        "description": "Gegevens aangaande de betaling van de productaanvraag",
+                        "type": "object",
+                        "properties": {
+                            "kenmerk": {
+                                "title": "Kenmerk",
+                                "description": "Betalingskenmerk; Uniek kenmerk waarmee de betaling geidentificeerd kan worden",
+                                "type": "string",
+                                "examples": [
+                                    "2022ESUITE0320"
+                                ]
+                            },
+                            "bedrag": {
+                                "title": "Bedrag",
+                                "type": "number",
+                                "examples": [
+                                    19.2
+                                ]
+                            },
+                            "status": {
+                                "title": "Status",
+                                "description": "Status van de betaling",
+                                "type": "string",
+                                "enum": [
+                                    "in_behandeling",
+                                    "geslaagd",
+                                    "niet_geslaagd",
+                                    "geannuleerd"
+                                ]
+                            },
+                            "transactieId": {
+                                "title": "Transactie ID",
+                                "description": "Identificatie van de transactie uit het betaalsysteem",
+                                "type": "string",
+                                "examples": [
+                                    "123456784"
+                                ]
+                            },
+                            "transactiedatumtijd": {
+                                "title": "Transactie datum/tijd",
+                                "description": "Tijdstip waarop de transactie met het betaalsysteem heeft plaatsgevonden",
+                                "type": "string",
+                                "format": "date-time",
+                                "examples": [
+                                    "2022-03-15T22:15:30.123+01:00"
+                                ]
+                            },
+                            "statusCode": {
+                                "title": "Status code",
+                                "description": "Originele code van de betalingsstatus uit het betaalsysteem",
+                                "type": "string",
+                                "examples": [
+                                    "5"
+                                ]
+                            },
+                            "melding": {
+                                "title": "Melding",
+                                "description": "Toelichtende melding uit het betaalsysteem",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "kenmerk",
+                            "bedrag",
+                            "status"
+                        ]
+                    },
                     "pdf": {
-                        "$id": "#/properties/pdf",
-                        "type": "string",
                         "title": "PDF",
-                        "description" : "URL naar het informatieobject (in de Documenten API) dat de bevestigings PDF van de productaanvraag bevat",
+                        "description": "URL naar het informatieobject (in de Documenten API) dat de bevestigings PDF van de productaanvraag bevat",
+                        "type": "string",
                         "format": "uri",
-                        "default": "",
-                        "examples" : [
+                        "examples": [
                             "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8"
                         ]
                     },
+                    "csv": {
+                        "title": "CSV",
+                        "description": "URL naar het informatieobject (in de Documenten API) dat de CSV met ingezonden productaanvraag gegevens bevat",
+                        "type": "string",
+                        "format": "uri",
+                        "examples": [
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d"
+                        ]
+                    },
                     "bijlagen": {
-                        "$id": "#/properties/bijlagen",
+                        "title": "Bijlagen",
+                        "description": "Lijst met URLs naar informatieobjecten (in de Documenten API) zijnde de bijlagen van de productaanvraag",
                         "type": "array",
                         "items": {
                             "type": "string",
                             "format": "uri"
                         },
-                        "title": "Bijlagen",
-                        "description" : "Lijst met URLs naar informatieobjecten (in de Documenten API) zijnde de bijlagen van de productaanvraag",
-                        "default": [],
-                        "examples" : [
+                        "examples": [
                             [
                                 "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
                                 "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
@@ -1773,6 +1834,254 @@
                         ]
                     },
                     "additionalProperties": true
+                },
+                "required": [
+                    "bron",
+                    "type",
+                    "aanvraaggegevens"
+                ],
+                "examples": [
+                    {
+                        "bron": {
+                            "naam": "Open Formulieren"
+                        },
+                        "type": "verhuizing",
+                        "aanvraaggegevens": {
+                            "uw-gegevens": {
+                                "voornaam": "Voorbeeld",
+                                "achternaam": "Vries",
+                                "tussenvoegsel": "de",
+                                "geboortedatum": "1980-12-31"
+                            },
+                            "uw-verhuizing": {
+                                "beschrijving": "Lorem ipsum..."
+                            }
+                        }
+                    },
+                    {
+                        "bron": {
+                            "naam": "Open Formulieren",
+                            "kenmerk": "f56552a8-a082-4306-9111-eb1664fcb05d"
+                        },
+                        "type": "verhuizing",
+                        "aanvraaggegevens": {
+                            "uw-gegevens": {
+                                "voornaam": "Voorbeeld",
+                                "achternaam": "Vries",
+                                "tussenvoegsel": "de",
+                                "geboortedatum": "1980-12-31"
+                            },
+                            "uw-verhuizing": {
+                                "beschrijving": "Lorem ipsum..."
+                            }
+                        },
+                        "taal": "nld",
+                        "zaakgegevens": {
+                            "identificatie": "ZAAK-2023-0000000121",
+                            "communicatiekanaal": "https://referentielijsten-api.vng.cloud/api/v1/communicatiekanalen/f56552a8-a082-4306-9111-eb1664fcb05d",
+                            "omschrijving": "Verhuizing Blaak 27",
+                            "toelichting": "Nieuw huis gekocht"
+                        },
+                        "betrokkenen": [
+                            {
+                                "inpBsn": "999993896",
+                                "rolOmschrijvingGeneriek": "initiator",
+                                "indicatieMachtiging": "gemachtigde",
+                                "indicatieCorrespondentie": true
+                            },
+                            {
+                                "inpBsn": "999992958",
+                                "rolOmschrijvingGeneriek": "mede_initiator",
+                                "indicatieMachtiging": "machtiginggever",
+                                "indicatieCorrespondentie": false
+                            },
+                            {
+                                "medewerkerIdentificatie": "MDW123",
+                                "rolOmschrijvingGeneriek": "klantcontacter"
+                            }
+                        ],
+                        "betaling": {
+                            "kenmerk": "2022ESUITE0320",
+                            "bedrag": 19.2,
+                            "status": "niet_geslaagd",
+                            "transactieId": "123456784",
+                            "transactiedatumtijd": "2021-04-25T21:30:05.123+00:00",
+                            "statusCode": "5",
+                            "melding": "Saldo tekort"
+                        },
+                        "pdf": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/230bab4a-4b51-40c6-91b2-f2022008a7f8",
+                        "csv": "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/aeaba696-4968-46a6-8b1e-016f503ed88d",
+                        "bijlagen": [
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/94ff43d6-0ee5-4b5c-8ed7-b86eaa908718",
+                            "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
+                        ]
+                    }
+                ],
+                "$defs": {
+                    "betrokkene": {
+                        "title": "Betrokkene",
+                        "type": "object",
+                        "properties": {
+                            "inpBsn": {
+                                "title": "Inp bsn",
+                                "description": "Burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene bepalingen burgerservicenummer",
+                                "type": "string",
+                                "minLength": 9,
+                                "maxLength": 9,
+                                "examples": [
+                                    "999993896"
+                                ]
+                            },
+                            "innNnpId": {
+                                "title": "Inn nnp id",
+                                "description": "Door een kamer toegekend uniek nummer voor de ingeschreven niet-natuurlijke-persoon",
+                                "type": "string",
+                                "maxLength": 9
+                            },
+                            "vestigingsNummer": {
+                                "title": "KVK vestigingsnummer",
+                                "description": "Korte unieke aanduiding van de vestiging",
+                                "type": "string",
+                                "minLength": 12,
+                                "maxLength": 12,
+                                "pattern": "^\\d{12}$"
+                            },
+                            "kvkNummer": {
+                                "title": "KVK nummer",
+                                "description": "Unieke identificatie van de onderneming bij de Kamer van Koophandel (KVK)",
+                                "type": "string",
+                                "minLength": 8,
+                                "maxLength": 8,
+                                "pattern": "^\\d{8}$"
+                            },
+                            "organisatorischeEenheidIdentificatie": {
+                                "title": "Organisatorische eenheid identificatie",
+                                "description": "Korte identificatie van de organisatorische eenheid",
+                                "type": "string",
+                                "maxLength": 24
+                            },
+                            "medewerkerIdentificatie": {
+                                "title": "Medewerker identificatie",
+                                "description": "Korte unieke aanduiding van de medewerker",
+                                "type": "string",
+                                "maxLength": 24
+                            },
+                            "rolOmschrijvingGeneriek": {
+                                "title": "Rol omschrijving generiek",
+                                "description": "Algemeen gehanteerde benaming van de aard van de rol van de betrokkene",
+                                "type": "string",
+                                "enum": [
+                                    "adviseur",
+                                    "behandelaar",
+                                    "belanghebbende",
+                                    "beslisser",
+                                    "initiator",
+                                    "klantcontacter",
+                                    "zaakcoordinator",
+                                    "mede_initiator"
+                                ]
+                            },
+                            "roltypeOmschrijving": {
+                                "title": "Roltype omschrijving",
+                                "description": "Omschrijving van de aard van de rol van de betrokkene",
+                                "type": "string"
+                            },
+                            "indicatieMachtiging": {
+                                "title": "Indicatie machtiging",
+                                "description": "Uitleg bij mogelijke waarden: `gemachtigde` - Betrokkene is door een andere betrokkene gemachtigd om namens hem of haar te handelen. * `machtiginggever` - Betrokkene heeft een andere betrokkene gemachtigd om namens hem of haar te handelen",
+                                "type": "string",
+                                "enum": [
+                                    "gemachtigde",
+                                    "machtiginggever"
+                                ]
+                            },
+                            "indicatieCorrespondentie": {
+                                "title": "Indicatie correspondentie",
+                                "description": "Indicatie of met de betrokkene gecorrespondeerd moet/mag worden inzake de productaanvraag",
+                                "type": "boolean"
+                            }
+                        },
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "inpBsn",
+                                    "rolOmschrijvingGeneriek"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "inpBsn",
+                                    "roltypeOmschrijving"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "innNnpId",
+                                    "rolOmschrijvingGeneriek"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "innNnpId",
+                                    "roltypeOmschrijving"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "kvkNummer",
+                                    "rolOmschrijvingGeneriek"
+                                ],
+                                "optional": [
+                                    "vestigingsNummer"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "kvkNummer",
+                                    "roltypeOmschrijving"
+                                ],
+                                "optional": [
+                                    "vestigingsNummer"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "kvkNummer",
+                                    "rolOmschrijvingGeneriek"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "kvkNummer",
+                                    "roltypeOmschrijving"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "organisatorischeEenheidIdentificatie",
+                                    "rolOmschrijvingGeneriek"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "organisatorischeEenheidIdentificatie",
+                                    "roltypeOmschrijving"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "medewerkerIdentificatie",
+                                    "rolOmschrijvingGeneriek"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "medewerkerIdentificatie",
+                                    "roltypeOmschrijving"
+                                ]
+                            }
+                        ]
+                    }
                 }
             },
             "status": "draft"
