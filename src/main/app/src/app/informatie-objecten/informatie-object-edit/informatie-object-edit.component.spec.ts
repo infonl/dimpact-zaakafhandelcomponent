@@ -297,6 +297,34 @@ describe(InformatieObjectEditComponent.name, () => {
       );
     });
 
+    it("should include status in payload when status control is disabled due to ontvangstdatum", async () => {
+      // enkelvoudigInformatieObjectVersieGegevens has ontvangstdatum set, so initForm
+      // disables the status control. Without getRawValue(), form.value omits disabled controls.
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        taal: mockTalen[0],
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+      });
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+
+      expect(
+        informatieObjectenService.updateEnkelvoudigInformatieobject,
+      ).toHaveBeenCalledWith(
+        enkelvoudigInformatieObjectVersieGegevens.uuid,
+        "test-zaak-uuid",
+        expect.objectContaining({ status: "IN_BEWERKING" }),
+      );
+    });
+
     it("should emit document event after successful update", async () => {
       const emitSpy = jest.spyOn(component.document, "emit");
 

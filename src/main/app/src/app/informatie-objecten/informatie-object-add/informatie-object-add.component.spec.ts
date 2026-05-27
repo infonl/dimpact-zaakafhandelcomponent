@@ -324,6 +324,38 @@ describe(InformatieObjectAddComponent.name, () => {
     });
   });
 
+  describe("Submit when status is disabled by ontvangstdatum", () => {
+    it("should include DEFINITIEF status in FormData even when the status control is disabled", async () => {
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        taal: mockTalen[0],
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+      });
+      // Setting ontvangstdatum triggers valueChanges, which disables the status control
+      // and auto-sets it to DEFINITIEF. Without getRawValue(), form.value would omit it.
+      component["form"].controls.ontvangstdatum.setValue(moment());
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      const formData = Object.fromEntries(
+        (req.request.body as FormData).entries(),
+      );
+      expect(formData.status).toBe("DEFINITIEF");
+    });
+  });
+
   describe("EML file upload handling", () => {
     it("should convert .eml file to Blob with application/octet-stream and append to FormData", async () => {
       const emlFile = new File(
