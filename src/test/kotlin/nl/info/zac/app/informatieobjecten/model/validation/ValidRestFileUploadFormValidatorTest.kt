@@ -75,4 +75,21 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
             }
         }
     }
+
+    Given("a task file upload with a filename but an empty file byte array") {
+        val upload = RestFileUpload(
+            file = ByteArray(0),
+            fileSize = 0,
+            filename = "report.pdf",
+            type = "application/pdf"
+        )
+
+        When("validated") {
+            val result = validator.isValid(upload, null)
+
+            Then("it is rejected") {
+                result shouldBe false
+            }
+        }
+    }
 })
