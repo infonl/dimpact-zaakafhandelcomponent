@@ -95,8 +95,8 @@
       },
       {
         "uuid": "116f7f7c-b1a7-4660-8846-edf7d32fbc00",
-        "slug": "aanvraaggevens",
-        "form_definition": "Aanvraaggevens",
+        "slug": "aanvraaggegevens",
+        "form_definition": "Aanvraaggegevens",
         "index": 1,
         "literals": {
           "previous_text": {
