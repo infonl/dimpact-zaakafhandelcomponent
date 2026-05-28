@@ -344,6 +344,73 @@ describe(BedrijfsgegevensComponent.name, () => {
       expect(telefoonField?.textContent).toContain("0612345678");
       expect(emailField?.textContent).toContain("bedrijf@example.com");
     });
+
+    it("shows the aanvraagspecifiek hint when telephoneNumber comes from contact details", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, telefoonnummer: "0299123456" });
+      await sleep();
+      fixture.detectChanges();
+
+      const hints: HTMLElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll(".hint"),
+      );
+      expect(
+        hints.some((h) =>
+          h.textContent?.includes("initiator.aanvraagspecifiek-telefoonnummer"),
+        ),
+      ).toBe(true);
+    });
+
+    it("shows the aanvraagspecifiek hint when emailAddress comes from contact details", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: null,
+            emailAddress: "zaak@example.com",
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, emailadres: "bedrijf@example.com" });
+      await sleep();
+      fixture.detectChanges();
+
+      const hints: HTMLElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll(".hint"),
+      );
+      expect(
+        hints.some((h) =>
+          h.textContent?.includes("initiator.aanvraagspecifiek-emailadres"),
+        ),
+      ).toBe(true);
+    });
+
+    it("does not show any aanvraagspecifiek hint when no zaak-specific contact details are set", async () => {
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(".hint")).toBeNull();
+    });
   });
 
   describe.each([
