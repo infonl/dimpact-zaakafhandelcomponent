@@ -137,6 +137,7 @@ describe(TakenVrijgevenDialogComponent.name, () => {
           taken: [{ taakId: "t1", zaakUuid: "uuid-1" }],
         }),
       );
+      req.flush(null);
     });
 
     it("closes the dialog with true on success", async () => {

@@ -53,6 +53,9 @@ export class TakenVrijgevenDialogComponent {
     onMutate: () => {
       this.dialogRef.disableClose = true;
     },
+    onSettled: () => {
+      this.dialogRef.disableClose = false;
+    },
   }));
 
   protected readonly form = this.formBuilder.group({

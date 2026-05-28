@@ -49,6 +49,9 @@ export class ZakenVrijgevenDialogComponent {
     onMutate: () => {
       this.dialogRef.disableClose = true;
     },
+    onSettled: () => {
+      this.dialogRef.disableClose = false;
+    },
   }));
 
   constructor() {
