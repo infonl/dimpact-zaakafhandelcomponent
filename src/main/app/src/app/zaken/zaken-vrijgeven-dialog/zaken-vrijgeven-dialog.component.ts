@@ -59,6 +59,7 @@ export class ZakenVrijgevenDialogComponent {
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(100),
+      Validators.required,
     ]),
   });
 

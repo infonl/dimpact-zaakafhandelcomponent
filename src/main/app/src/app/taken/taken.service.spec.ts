@@ -145,14 +145,10 @@ describe(TakenService.name, () => {
   });
 
   describe("vrijgevenVanuitLijst", () => {
-    it("puts with the given body", () => {
-      const body = {
-        taken: [{ taakId: "taak-1", zaakUuid: "zaak-uuid-1" }],
-        reden: "test",
-      };
-      jest.spyOn(zacHttpClient, "PUT").mockReturnValue(of([] as never));
-      service.vrijgevenVanuitLijst(body).subscribe();
-      expect(zacHttpClient.PUT).toHaveBeenCalledWith(expect.any(String), body);
+    it("builds mutation options for vrijgeven", () => {
+      jest.spyOn(zacQueryClient, "PUT");
+      service.vrijgevenVanuitLijst();
+      expect(zacQueryClient.PUT).toHaveBeenCalledWith(expect.any(String));
     });
   });
 });
