@@ -230,7 +230,9 @@ class RestKlantenAdresTest : BehaviorSpec({
         When("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as straatHuisnummer, postcodeWoonplaats, land with non-breaking spaces replacing regular spaces") {
+            Then(
+                "formatted as straatHuisnummer, postcodeWoonplaats, land with non-breaking spaces replacing regular spaces"
+            ) {
                 result shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
