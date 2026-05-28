@@ -26,6 +26,7 @@
     {
       "type": "bezoekadres",
       "indAfgeschermd": "Nee",
+      "volledigAdres": "fakeStraatnaam1, fakePlaats1",
       "straatnaam": "fakeStraatnaam1",
       "huisnummer": 17,
       "huisletter": "M",
