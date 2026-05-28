@@ -6,23 +6,37 @@
       **FLAGS,
       "ENABLE_DEMO_PLUGINS": [{"condition": "boolean", "value": True}],
   }
+
+  STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
   ```
-  This enables the `digid-mock` authentication backend which is required by the form.
+  `ENABLE_DEMO_PLUGINS` enables the `digid-mock` authentication backend. `STATICFILES_STORAGE` works around a missing UMD `.js` SDK bundle in the ARM64 image manifest that otherwise crashes every page render.
 
 ## 2. Add Objects API Group to Setup Configuration
 
-- [x] 2.1 In `scripts/docker-compose/imports/openformulieren/setup-configuration/data.yaml`, add after the existing `zgw_consumers` block:
+- [x] 2.1 In `scripts/docker-compose/imports/openformulieren/setup-configuration/data.yaml`, add to `zgw_consumers.services` and then after the block:
   ```yaml
+  # in zgw_consumers.services:
+  - identifier: objecttypes-api
+    label: Objecttypes API
+    api_root: http://objecttypes-api:8000/api/v2/
+    api_type: orc
+    auth_type: api_key
+    header_key: Authorization
+    header_value: Token fakeOpenFormulierenObjecttypesToken
+
+  # after the zgw_consumers block:
   objects_api_config_enable: True
   objects_api:
     groups:
-    - name: Local Objects API
-      identifier: local-objects-api
-      objects_service_identifier: objecten-api
-      objecttypes_service_identifier: objecten-api
-      organisatie_rsin: "002564440"
+      - name: Local Objects API
+        identifier: local-objects-api
+        objects_service_identifier: objecten-api
+        objecttypes_service_identifier: objecttypes-api
+        documenten_service_identifier: openzaak-documenten
+        catalogi_service_identifier: openzaak-catalogi
+        organisatie_rsin: "002564440"
   ```
-  `objecttypes_service_identifier` is the same as objects — the local objects-api does not serve a real Objecttypes API but this field is only used by the admin UI for dropdown selection and is not required for form submission.
+  `objecttypes_service_identifier` points to the dedicated `objecttypes-api` service (not `objecten-api`). `documenten_service_identifier` and `catalogi_service_identifier` are required by Open Formulieren's admin UI for IOT validation; the registration backend does not upload PDFs/CSVs (all IOT fields in `forms.json` are `""`).
 
 ## 3. Register BRP Service in data.yaml
 
@@ -80,9 +94,8 @@
   ```sh
   # Configure BRP Personen API for the Profile (customerProfile) plugin
   OTEL_SDK_DISABLED=True src/manage.py shell -c "
-  from django.db import transaction
   try:
-      from openforms.contrib.haalcentraal.models import HaalCentraalConfig
+      from openforms.contrib.haal_centraal.models import HaalCentraalConfig
       from zgw_consumers.models import Service
       config = HaalCentraalConfig.get_solo()
       if not config.brp_personen_service_id:
@@ -96,37 +109,60 @@
       print(f'BRP config skipped: {e}')
   "
 
-  # Import productaanvraag-Dimpact test form (idempotent by UUID check)
+  # Import productaanvraag-Dimpact test form (idempotent by slug check)
   OTEL_SDK_DISABLED=True src/manage.py shell -c "
   from openforms.forms.models import Form
-  FORM_UUID = 'b056224a-bdb5-43c2-804a-5fd3f17214b2'
-  if not Form.objects.filter(uuid=FORM_UUID).exists():
-      import subprocess, sys, os, glob
-      os.chdir('/tmp')
+  FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
+  if not Form.objects.filter(slug=FORM_SLUG).exists():
+      import subprocess, sys, os, glob, zipfile
       json_files = glob.glob('/forms/*.json')
-      subprocess.run(['zip', '-j', 'forms.zip'] + json_files, check=True)
+      with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
+          for f in json_files:
+              zf.write(f, os.path.basename(f))
       result = subprocess.run(
           [sys.executable, '/app/src/manage.py', 'import', '--import-file', '/tmp/forms.zip'],
           capture_output=True, text=True
       )
       print(result.stdout)
       if result.returncode != 0:
-          print(result.stderr, file=sys.stderr)
+          print(result.stderr)
           sys.exit(result.returncode)
-      print('Form imported successfully')
+      print('Productaanvraag-Dimpact form imported successfully')
+  form = Form.objects.get(slug=FORM_SLUG)
+  if not form.active:
+      form.active = True
+      form.save(update_fields=['active'])
+      print('Productaanvraag-Dimpact form activated')
   else:
-      print('Form already exists, skipping import')
+      print('Productaanvraag-Dimpact form already active, skipping import')
   "
   ```
+  Note: module path is `openforms.contrib.haal_centraal` (underscore). Idempotency uses slug (not UUID). ZIP built with Python `zipfile`, no `zip` binary needed.
 
 ## 6. Check Klantinteracties API Group Setup Configuration Support
 
-- [x] 6.1 Check whether Open Forms 3.4.2 supports a setup_configuration step for klantinteracties groups by searching for `KlantInteracties` or `klantinteracties` in `openforms/contrib/klantinteracties/setup_configuration*` (or equivalent path in the Docker image). Run in a throwaway container:
+- [x] 6.1 Confirmed: Open Forms 3.4.2 does **not** support a `setup_configuration` step for klantinteracties groups.
+- [x] 6.2 Automated via Django shell in `openformulieren-init`. Append to the init script:
   ```sh
-  docker run --rm openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec \
-    python -c "from django.conf import settings; import django; django.setup(); from django_setup_configuration.configuration import ConfigurationStep; print([s.__module__ for s in ConfigurationStep.__subclasses__()])"
+  OTEL_SDK_DISABLED=True src/manage.py shell -c "
+  try:
+      from openforms.contrib.customer_interactions.models import CustomerInteractionsAPIGroupConfig
+      from zgw_consumers.models import Service
+      IDENTIFIER = 'klantinteracties-api-group'
+      if not CustomerInteractionsAPIGroupConfig.objects.filter(identifier=IDENTIFIER).exists():
+          svc = Service.objects.get(slug='openklant-klantinteracties')
+          CustomerInteractionsAPIGroupConfig.objects.create(
+              name='Local Klantinteracties API',
+              identifier=IDENTIFIER,
+              customer_interactions_service=svc,
+          )
+          print('Klantinteracties API group configured')
+      else:
+          print('Klantinteracties API group already exists')
+  except Exception as e:
+      print(f'Klantinteracties config skipped: {e}')
+  "
   ```
-- [x] 6.2 Not supported via setup_configuration. Automated via Django shell in `openformulieren-init`: creates `CustomerInteractionsAPIGroupConfig` (from `openforms.contrib.customer_interactions.models`) with `identifier: klantinteracties-api-group` pointing to the `openklant-klantinteracties` service. Idempotent — skips if group already exists.
 
 ## 7. Verification
 
