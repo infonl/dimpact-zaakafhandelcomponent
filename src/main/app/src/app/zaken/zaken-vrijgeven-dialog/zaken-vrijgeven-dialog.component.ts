@@ -49,6 +49,9 @@ export class ZakenVrijgevenDialogComponent {
     onMutate: () => {
       this.dialogRef.disableClose = true;
     },
+    onSettled: () => {
+      this.dialogRef.disableClose = false;
+    },
   }));
 
   constructor() {
@@ -59,6 +62,7 @@ export class ZakenVrijgevenDialogComponent {
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(100),
+      Validators.required,
     ]),
   });
 
