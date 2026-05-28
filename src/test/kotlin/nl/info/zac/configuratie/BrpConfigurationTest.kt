@@ -195,12 +195,12 @@ class BrpConfigurationTest : BehaviorSpec({
                     doelbindingZoekMetDefault.getValue().shouldBeNull()
                 }
                 And(
-                    """BrpProtocolleringConfigurationException is thrown on reading 
+                    """BrpProtocolleringConfigurationException is thrown on reading
                     |built Doelbinding header, because blank headers should not be requested
                     """.trimMargin()
                 ) {
                     shouldThrow<BrpProtocolleringConfigurationException> {
-                        doelbindingZoekMetDefault.getHeaderName()
+                        builtDoelbinding.getHeaderName()
                     }
                 }
                 And("built doelbinding value returns null") {

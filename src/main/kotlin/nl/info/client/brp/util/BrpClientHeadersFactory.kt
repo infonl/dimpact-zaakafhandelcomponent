@@ -16,8 +16,8 @@ class BrpClientHeadersFactory @Inject constructor(
         clientOutgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> {
         brpProtocolleringContext.headers
-            .filter { (h, _) -> !clientOutgoingHeaders.containsKey(h) }
-            .forEach { (h, v) -> clientOutgoingHeaders.add(h, v) }
+            .filter { (headerName, _) -> !clientOutgoingHeaders.containsKey(headerName) }
+            .forEach { (headerName, headerValue) -> clientOutgoingHeaders.add(headerName, headerValue) }
         return clientOutgoingHeaders
     }
 }

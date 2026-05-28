@@ -50,18 +50,12 @@ class BrpConfiguration @Inject constructor(
     @ConfigProperty(name = "BRP_PROTOCOLLERING_ENABLED", defaultValue = "false")
     private val protocolleringEnabled: Boolean,
 
-    /**
-     * OIN of the originator, which is required for BRP protocollering.
-     * If this variable is not set, BRP protocollering will be disabled.
-     */
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN)
     private val originOIN: Optional<String>,
 
     @ConfigProperty(name = "BRP_DOELBINDING_PER_ZAAKTYPE", defaultValue = "false")
     private val doelbindingPerZaaktypeEnabled: Boolean,
 
-    // Header name env vars — no defaultValue; Helm provides defaults.
-    // An empty string disables that header.
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN_HEADER)
     private val headerNameOriginOin: Optional<String>,
 
@@ -152,13 +146,22 @@ class BrpConfiguration @Inject constructor(
                     "BRP_API_KEY is required when BRP_API_KEY_HEADER is set"
                 }
             }
+            if (headerNameOriginOin.isPresentNotBlank()) {
+                originOIN.isEmptyOrBlank().thenThrow {
+                    "BRP_ORIGIN_OIN environment variable is required when BRP_ORIGIN_OIN_HEADER is set"
+                }
+            }
         }
     }
 
-    override fun getLogLevel(): Level = Level.parse(logLevel.getOrElse { "OFF" }) ?: Level.OFF
+    override fun getLogLevel(): Level = try {
+        Level.parse(logLevel.getOrElse { "OFF" })
+    } catch (_: IllegalArgumentException) {
+        Level.OFF
+    }
 
     override fun getOriginOIN() =
-        BrpConfigurationValueImpl(ENV_VAR_BRP_ORIGIN_OIN, MAX_HEADER_SIZE, headerNameOriginOin, originOIN::getOrNull)
+        BrpConfigurationValueImpl(ENV_VAR_BRP_ORIGIN_OIN_HEADER, MAX_HEADER_SIZE, headerNameOriginOin, originOIN::getOrNull)
 
     override fun getDoelbindingZoekMetDefault() =
         buildDoelbindingConfig(ENV_VAR_BRP_DOELBINDING_ZOEKMET, doelbindingZoekMetDefault::getOrNull)
@@ -169,7 +172,7 @@ class BrpConfiguration @Inject constructor(
     override fun buildDoelbinding(doelbindingSupplier: () -> String?) =
         BrpConfigurationValueImpl(
             ENV_VAR_BRP_DOELBINDING_HEADER,
-            MAX_USER_HEADER_SIZE,
+            MAX_HEADER_SIZE,
             headerNameDoelbinding,
             doelbindingSupplier
         )

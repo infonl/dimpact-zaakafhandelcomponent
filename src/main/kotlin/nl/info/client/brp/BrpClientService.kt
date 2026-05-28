@@ -85,7 +85,7 @@ class BrpClientService @Inject constructor(
      *
      * @param burgerservicenummer the burgerservicenummer of the person to retrieve
      * @param zaaktypeUuid the zaaktype UUID the person is requested for, if any
-     * @param userName the username making the request; null or blank will default to system user
+     * @param userName the username making the request; blank will default to system user
      * @return the person if found, otherwise null
      *
      */

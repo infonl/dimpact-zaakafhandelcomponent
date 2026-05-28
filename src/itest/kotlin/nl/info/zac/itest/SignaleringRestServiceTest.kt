@@ -211,7 +211,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
             Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
-                    // shouldContainJsonKeyValue("totaal", "1.0")
+                    shouldContainJsonKeyValue("totaal", 1)
                     with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                         shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                         shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
@@ -328,7 +328,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {
-                        shouldContainJsonKeyValue("totaal", "1.0")
+                        shouldContainJsonKeyValue("totaal", 1)
                         with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                             shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                             shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
