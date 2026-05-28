@@ -820,6 +820,8 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
+      - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # fake for now
       - OPEN_NOTIFICATIONS_API_SECRET_KEY=openNotificatiesApiSecretKey
