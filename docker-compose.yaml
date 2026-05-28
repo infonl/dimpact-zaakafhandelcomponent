@@ -205,7 +205,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - EMAIL_HOST=localhost
-      - OTEL_SDK_DISABLED=false
+      - OTEL_SDK_DISABLED=true
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
