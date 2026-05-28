@@ -41,7 +41,6 @@ import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
-import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
@@ -385,9 +384,9 @@ class ZaakService @Inject constructor(
     ) {
         if (bpmnService.isZaakProcessDriven(zaakUuid)) {
             try {
-                zaakVariabelenService.setGroup(zaakUuid, group.description)
+                zaakVariabelenService.setGroup(zaakUuid, group.name)
                 user?.let {
-                    zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+                    zaakVariabelenService.setUser(zaakUuid, it.id)
                 } ?: zaakVariabelenService.removeUser(zaakUuid)
             } catch (exception: CaseOrProcessNotFoundException) {
                 LOG.warning { exception.message }
