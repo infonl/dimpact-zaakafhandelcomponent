@@ -109,8 +109,16 @@ describe(TakenVrijgevenDialogComponent.name, () => {
   describe("vrijgeven()", () => {
     it("passes reden and filtered taken to the API", async () => {
       const taken = [
-        makeTaak({ id: "t1", zaakUuid: "uuid-1", behandelaarGebruikersnaam: "user1" }),
-        makeTaak({ id: "t2", zaakUuid: "uuid-2", behandelaarGebruikersnaam: undefined }),
+        makeTaak({
+          id: "t1",
+          zaakUuid: "uuid-1",
+          behandelaarGebruikersnaam: "user1",
+        }),
+        makeTaak({
+          id: "t2",
+          zaakUuid: "uuid-2",
+          behandelaarGebruikersnaam: undefined,
+        }),
       ];
       const { component, httpTestingController } = setup(taken);
 
@@ -118,7 +126,9 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       component["vrijgeven"]();
       await new Promise(requestAnimationFrame);
 
-      const req = httpTestingController.expectOne("/rest/taken/lijst/vrijgeven");
+      const req = httpTestingController.expectOne(
+        "/rest/taken/lijst/vrijgeven",
+      );
       expect(req.request.method).toBe("PUT");
       expect(req.request.body).toEqual(
         expect.objectContaining({
@@ -136,7 +146,9 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       component["vrijgeven"]();
       await new Promise(requestAnimationFrame);
 
-      httpTestingController.expectOne("/rest/taken/lijst/vrijgeven").flush(null);
+      httpTestingController
+        .expectOne("/rest/taken/lijst/vrijgeven")
+        .flush(null);
       await sleep();
 
       expect(dialogRefMock.close).toHaveBeenCalledWith(true);
@@ -150,7 +162,9 @@ describe(TakenVrijgevenDialogComponent.name, () => {
       await new Promise(requestAnimationFrame);
 
       expect(dialogRefMock.disableClose).toBe(true);
-      httpTestingController.expectOne("/rest/taken/lijst/vrijgeven").flush(null);
+      httpTestingController
+        .expectOne("/rest/taken/lijst/vrijgeven")
+        .flush(null);
     });
   });
 });

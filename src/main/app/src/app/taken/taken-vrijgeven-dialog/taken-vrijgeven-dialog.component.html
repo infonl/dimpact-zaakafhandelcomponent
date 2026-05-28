@@ -21,7 +21,9 @@
         <zac-input class="col-12" [form]="form" key="reden"></zac-input>
       </section>
     </fieldset>
-    <p *ngIf="data.taken.length === 1">{{ "msg.vrijgeven.taak" | translate }}</p>
+    <p *ngIf="data.taken.length === 1">
+      {{ "msg.vrijgeven.taak" | translate }}
+    </p>
     <p *ngIf="data.taken.length !== 1">
       {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
     </p>
