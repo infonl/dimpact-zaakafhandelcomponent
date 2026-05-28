@@ -12,7 +12,7 @@ import java.util.Locale
 import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres as VestigingsprofielAdres
 
-data class RestKlantenAdres(
+data class RestBedrijfAdres(
     /**
      * Correspondentieadres en/of bezoekadres
      */
@@ -22,14 +22,14 @@ data class RestKlantenAdres(
     var postcode: String? = null
 )
 
-fun VestigingsprofielAdres.toRestKlantenAdres() = RestKlantenAdres(
+fun VestigingsprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
     afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
     volledigAdres = this.volledigAdres ?: this.toFormattedAddress(),
     postcode = this.postcode
 )
 
-fun BasisprofielAdres.toRestKlantenAdres() = RestKlantenAdres(
+fun BasisprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
     afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
     volledigAdres = this.volledigAdres ?: this.toFormattedAddress(),

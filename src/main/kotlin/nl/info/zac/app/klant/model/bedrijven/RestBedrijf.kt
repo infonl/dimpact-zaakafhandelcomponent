@@ -20,7 +20,7 @@ data class RestBedrijf(
     var vestigingsnummer: String? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
-    var adres: RestKlantenAdres? = null,
+    var adres: RestBedrijfAdres? = null,
     var type: String? = null,
     override var emailadres: String? = null,
     override var naam: String? = null,
@@ -53,7 +53,7 @@ fun ResultaatItem.toRestBedrijf(): RestBedrijf {
         rsin = this.rsin,
         type = this.type.uppercase(Locale.getDefault()),
         adres = volledigAdres?.let {
-            RestKlantenAdres(
+            RestBedrijfAdres(
                 type = adresType.toString(),
                 afgeschermd = false,
                 volledigAdres = it,
