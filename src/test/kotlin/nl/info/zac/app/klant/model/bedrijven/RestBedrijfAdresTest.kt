@@ -7,6 +7,7 @@ package nl.info.zac.app.klant.model.bedrijven
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
 import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
@@ -319,36 +320,37 @@ class RestBedrijfAdresTest : BehaviorSpec({
         }
     }
 
-    Given("isIndicatie is called with 'ja'") {
-        When("called") {
+    Given("the string 'ja'") {
+        When("isIndicatie is called") {
             Then("returns true") {
                 "ja".isIndicatie() shouldBe true
             }
         }
     }
 
-    Given("isIndicatie is called with 'Ja' (uppercase)") {
-        When("called") {
+    Given("the string 'Ja' (uppercase)") {
+        When("isIndicatie is called") {
             Then("returns true regardless of case") {
                 "Ja".isIndicatie() shouldBe true
             }
         }
     }
 
-    Given("isIndicatie is called with 'nee'") {
-        When("called") {
+    Given("the string 'nee'") {
+        When("isIndicatie is called") {
             Then("returns false") {
                 "nee".isIndicatie() shouldBe false
             }
         }
     }
 
-    Given("isIndicatie is called with an unexpected value") {
-        When("called") {
-            Then("throws an IllegalStateException") {
-                shouldThrow<IllegalStateException> {
-                    "unknown".isIndicatie()
-                }
+    Given("an unexpected value 'unknown'") {
+        When("isIndicatie is called") {
+            val exception = shouldThrow<IllegalStateException> {
+                "unknown".isIndicatie()
+            }
+            Then("an IllegalStateException is thrown") {
+                exception shouldNotBe null
             }
         }
     }
