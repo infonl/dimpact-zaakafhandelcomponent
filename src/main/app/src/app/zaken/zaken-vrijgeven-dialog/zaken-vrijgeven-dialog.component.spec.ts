@@ -104,6 +104,13 @@ describe(ZakenVrijgevenDialogComponent.name, () => {
     expect(fixture.nativeElement.textContent).toContain("msg.vrijgeven.zaken");
   });
 
+    describe("with no taken", () => {
+        it("disables the form", () => {
+            const { component } = setup([]);
+            expect(component["form"].disabled).toBe(true);
+        });
+    });
+
   it("vrijgeven filters zaken without behandelaar", () => {
     const { component } = setup([
       makeZaakZoekObject({ id: "a", behandelaarGebruikersnaam: "user1" }),

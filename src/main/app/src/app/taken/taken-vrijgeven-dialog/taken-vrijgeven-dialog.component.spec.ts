@@ -98,6 +98,13 @@ describe(TakenVrijgevenDialogComponent.name, () => {
     });
   });
 
+  describe("with no taken", () => {
+    it("disables the form", () => {
+      const { component } = setup([]);
+      expect(component["form"].disabled).toBe(true);
+    });
+  });
+
   describe("close()", () => {
     it("closes the dialog with false", () => {
       const { component, dialogRefMock } = setup();
