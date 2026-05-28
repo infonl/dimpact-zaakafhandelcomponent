@@ -174,20 +174,38 @@ class RestBedrijfAdresTest : BehaviorSpec({
         }
     }
 
-    Given("a vestigingsprofiel address with volledigAdres already set") {
+    Given("a vestigingsprofiel address with both volledigAdres and individual fields set") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
             volledigAdres = "Precomputed adres 1"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
             postcode = "1234AB"
+            plaats = "fakePlaats1"
         }
 
         When("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("volledigAdres is returned directly without formatting") {
+            Then("individual fields are used for formatting, volledigAdres is ignored") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a vestigingsprofiel address with only volledigAdres set and no individual fields") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("volledigAdres is used as fallback since no individual address fields are present") {
                 result.volledigAdres shouldBe "Precomputed adres 1"
-                result.postcode shouldBe "1234AB"
             }
         }
     }
@@ -302,20 +320,38 @@ class RestBedrijfAdresTest : BehaviorSpec({
         }
     }
 
-    Given("a BasisprofielAdres with volledigAdres already set") {
+    Given("a BasisprofielAdres with both volledigAdres and individual fields set") {
         val adres = BasisprofielAdres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
             volledigAdres = "Precomputed adres 2"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
             postcode = "1234AB"
+            plaats = "fakePlaats1"
         }
 
         When("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("volledigAdres is returned directly without formatting") {
+            Then("individual fields are used for formatting, volledigAdres is ignored") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with only volledigAdres set and no individual fields") {
+        val adres = BasisprofielAdres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 2"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("volledigAdres is used as fallback since no individual address fields are present") {
                 result.volledigAdres shouldBe "Precomputed adres 2"
-                result.postcode shouldBe "1234AB"
             }
         }
     }

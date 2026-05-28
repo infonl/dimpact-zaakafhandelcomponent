@@ -25,14 +25,14 @@ data class RestBedrijfAdres(
 fun VestigingsprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
     afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
-    volledigAdres = this.volledigAdres ?: this.toFormattedAddress(),
+    volledigAdres = this.toFormattedAddress().ifBlank { this.volledigAdres ?: "" },
     postcode = this.postcode
 )
 
 fun BasisprofielAdres.toRestBedrijfAdres() = RestBedrijfAdres(
     type = this.type,
     afgeschermd = this.indAfgeschermd?.isIndicatie() == true,
-    volledigAdres = this.volledigAdres ?: this.toFormattedAddress(),
+    volledigAdres = this.toFormattedAddress().ifBlank { this.volledigAdres ?: "" },
     postcode = this.postcode
 )
 
