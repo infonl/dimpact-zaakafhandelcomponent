@@ -14,7 +14,7 @@ import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
 import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
 import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
 
-private const val NBSP = " "
+private const val NBSP = "\u00A0"
 
 class RestBedrijfAdresTest : BehaviorSpec({
 
