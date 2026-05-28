@@ -4,7 +4,7 @@
 #
 services:
   objecten-api.local:
-    image: ghcr.io/infonl/objects-api:3.3.1@sha256:725d02dd487497f4186ea9c7154bc8c8cd083fdd6099e422901b7e35fc17e6c1
+    image: ghcr.io/infonl/objects-api:3.5.0@sha256:1592ee72013a6d3bfd78af2cc9f194693056ce3ddd16cda39488ed01c395c0ab
     platform: linux/arm64
 
   objecten-api-database:
@@ -12,7 +12,7 @@ services:
     platform: linux/arm64
 
   objecten-api-import:
-    image: ghcr.io/infonl/objects-api:3.3.1@sha256:725d02dd487497f4186ea9c7154bc8c8cd083fdd6099e422901b7e35fc17e6c1
+    image: ghcr.io/infonl/objects-api:3.5.0@sha256:1592ee72013a6d3bfd78af2cc9f194693056ce3ddd16cda39488ed01c395c0ab
     platform: linux/arm64
 
   openarchiefbeheer-database:
