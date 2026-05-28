@@ -36,7 +36,12 @@
         {
           "type": "bezoekadres",
           "indAfgeschermd": "Nee",
-          "volledigAdres": "fakeStraatnaam1, fakePlaats1"
+          "volledigAdres": "fakeStraatnaam1, fakePlaats1",
+          "straatnaam": "fakeStraatnaam1",
+          "huisnummer": 17,
+          "postcode": "1034WL",
+          "plaats": "fakePlaats1",
+          "land": "Nederland"
         }
       ],
       "websites": ["https://fakebedrijf.nl"]
