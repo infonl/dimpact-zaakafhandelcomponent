@@ -276,7 +276,7 @@ export class InformatieObjectAddComponent {
   }
 
   protected submit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
     const payload = {
       bestand: value.bestand!,
       bestandsnaam: value.bestand?.name,
