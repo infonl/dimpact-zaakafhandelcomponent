@@ -218,7 +218,7 @@
     "submission_statements_configuration": [
       {
         "key": "privacyPolicyAccepted",
-        "label": "<p>Ja, ik heb kennis genomen van het  en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.</p>",
+        "label": "<p>Ja, ik heb kennis genomen van het en geef uitdrukkelijk toestemming voor het verwerken van de door mij opgegeven gegevens.</p>",
         "validate": {
           "required": true
         },
