@@ -767,7 +767,7 @@ describe(ZaakViewComponent.name, () => {
       ).toBeTruthy();
     });
 
-    it("should hide the initiator section entirely when zaakSpecificContactDetails is empty and no koppelingen are configured", () => {
+    it("should hide the initiator section when no koppelingen are configured and zaakSpecificContactDetails has only empty fields", () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,

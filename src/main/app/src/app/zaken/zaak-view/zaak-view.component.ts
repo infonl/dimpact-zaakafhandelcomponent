@@ -1346,8 +1346,11 @@ export class ZaakViewComponent
   }
 
   private hasZaakSpecificContactDetails(): boolean {
-    const details = this.zaak.zaakSpecificContactDetails;
-    return !!(details?.telephoneNumber || details?.emailAddress);
+    const { zaakSpecificContactDetails } = this.zaak;
+    return !!(
+      zaakSpecificContactDetails?.telephoneNumber ||
+      zaakSpecificContactDetails?.emailAddress
+    );
   }
 
   protected allowedToAddBetrokkene() {
