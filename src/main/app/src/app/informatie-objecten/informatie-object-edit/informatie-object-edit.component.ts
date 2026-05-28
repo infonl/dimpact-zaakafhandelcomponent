@@ -245,7 +245,7 @@ export class InformatieObjectEditComponent implements OnChanges {
   }
 
   protected submit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
         this.infoObject!.uuid!,
