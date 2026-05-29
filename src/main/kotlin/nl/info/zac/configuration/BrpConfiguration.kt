@@ -181,7 +181,12 @@ class BrpConfiguration @Inject constructor(
         )
 
     private fun buildDoelbindingConfig(envVariable: String, doelbindingSupplier: () -> String?) =
-        BrpConfigurationValueImpl(envVariable, MAX_HEADER_SIZE, headerNameDoelbinding, doelbindingSupplier)
+        BrpConfigurationValueImpl(
+            envVariable,
+            MAX_HEADER_SIZE,
+            headerNameDoelbinding,
+            doelbindingSupplier
+        )
 
     override fun getVerwerkingRegisterDefault() =
         buildVerwerkingRegisterConfig(ENV_VAR_BRP_VERWERKINGSREGISTER, verwerkingregister::getOrNull)
