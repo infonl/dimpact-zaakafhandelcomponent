@@ -8,6 +8,7 @@ INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autor
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{open-archiefbeheer}', 'Open Archiefbeheer', true);
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{open-notificaties}', 'Open notificaties', true);
 INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{open-formulieren}', 'Open Formulieren', true);
+INSERT INTO authorizations_applicatie (uuid, client_ids, label, heeft_alle_autorisaties) VALUES (uuid_generate_v4(), '{objectsapi}', 'Objects API', true);
 
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('zac_client', 'openzaakZaakafhandelcomponentClientSecret');
 INSERT INTO vng_api_common_jwtsecret (identifier, secret) VALUES ('open-zaak', 'opennotificatiesOpenzaakSecret');

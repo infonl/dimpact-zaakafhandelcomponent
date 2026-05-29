@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54326:5432"
     healthcheck:
@@ -170,7 +170,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
     ports:
       - "8001:8000"
     volumes:
@@ -180,7 +180,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.4.3@sha256:13f1112ffbf4514297812a2b3ed5c4811a526c9fc91aec013dc6907c6bcad45c
+    image: redis:8.4.3@sha256:b69f2ae9adef7d679fc7cace28e1d4d7e0359b1341861a55995aef5d1b285166
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -198,11 +198,14 @@ services:
       - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=objects.conf.docker
       - SECRET_KEY=objectenApiSecretKey
-      - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False
       - TWO_FACTOR_PATCH_ADMIN=False
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - EMAIL_HOST=localhost
+      - OTEL_SDK_DISABLED=true
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
@@ -211,6 +214,24 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
+    profiles: [ "objecten", "itest", "openformulieren" ]
+
+  objecten-api-celery:
+    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    platform: linux/amd64
+    environment: *objects-env
+    command: sh -c "cd /app/src && celery -A objects worker -l info"
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      objecten-api.local:
+        condition: service_healthy
+      redis:
+        condition: service_started
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-database:
@@ -246,7 +267,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61
+    image: solr:9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4
     ports:
       - "8983:8983"
     volumes:
@@ -286,7 +307,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54325:5432"
     healthcheck:
@@ -465,7 +486,7 @@ services:
 
   rabbitmq:
     # note: RabbitMQ 4.3.0 breaks Open Notificaties 1.13.0
-    image: rabbitmq:4.2.6-alpine@sha256:eb0bf75f2749de101492a7d3b031095e903fbb02aca3baa34dbaa27589c22efb
+    image: rabbitmq:4.2.7-alpine@sha256:685d619fa6ab3eed0fbdd6a94191fc359e9c172d6b71858ad0ee2b4787644726
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -684,7 +705,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
     ports:
       - "8005:8080"
     volumes:
@@ -695,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54329:5432"
     environment:
@@ -749,7 +770,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54320:5432"
     healthcheck:
@@ -854,8 +875,57 @@ services:
         condition: service_healthy
     profiles: ["zac"]
 
-  openformulieren-database:
+  objecttypes-api-database:
     image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    ports:
+      - "54324:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=objecttypes
+      - POSTGRES_PASSWORD=objecttypes
+      - POSTGRES_DB=objecttypes
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api:
+    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    platform: linux/amd64
+    ports:
+      - "8011:8000"
+    environment: &objecttypes-env
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - SECRET_KEY=objecttypesApiSecretKey
+      - DJANGO_SETTINGS_MODULE=objecttypes.conf.docker
+      - DB_HOST=objecttypes-api-database
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DISABLE_2FA=yes
+      - DEBUG=true
+      - OTEL_SDK_DISABLED=true
+      - ALLOWED_HOSTS=*
+    depends_on:
+      objecttypes-api-database:
+        condition: service_healthy
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api-import:
+    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    platform: linux/amd64
+    environment: *objecttypes-env
+    command: sh init/init.sh
+    volumes:
+      - ./scripts/docker-compose/imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
+      - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
+    depends_on:
+      - objecttypes-api
+    profiles: [ "openformulieren" ]
+
+  openformulieren-database:
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54330:5432"
     healthcheck:
@@ -873,6 +943,13 @@ services:
 
   openformulieren-init:
     image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
+    # results in a non-working Open Formulieren instance.
+    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
     environment: &openformulieren-env
       - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
       - SECRET_KEY=openFormulierenSecretKey
@@ -894,6 +971,7 @@ services:
       - DISABLE_2FA=true
       - DJANGO_SUPERUSER_PASSWORD=admin
       - RUN_SETUP_CONFIG=true
+      - DEBUG=true
       - OTEL_SDK_DISABLED=true
     command:
       - sh
@@ -910,6 +988,65 @@ services:
         else:
             print('Admin user already exists')
         "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.haal_centraal.models import HaalCentraalConfig
+            from zgw_consumers.models import Service
+            config = HaalCentraalConfig.get_solo()
+            if not config.brp_personen_service_id:
+                svc = Service.objects.get(slug='brp-personen')
+                config.brp_personen_service = svc
+                config.save()
+                print('BRP service configured')
+            else:
+                print('BRP service already configured')
+        except Exception as e:
+            print(f'BRP config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.customer_interactions.models import CustomerInteractionsAPIGroupConfig
+            from zgw_consumers.models import Service
+            IDENTIFIER = 'klantinteracties-api-group'
+            if not CustomerInteractionsAPIGroupConfig.objects.filter(identifier=IDENTIFIER).exists():
+                svc = Service.objects.get(slug='openklant-klantinteracties')
+                CustomerInteractionsAPIGroupConfig.objects.create(
+                    name='Local Klantinteracties API',
+                    identifier=IDENTIFIER,
+                    customer_interactions_service=svc,
+                )
+                print('Klantinteracties API group configured')
+            else:
+                print('Klantinteracties API group already exists')
+        except Exception as e:
+            print(f'Klantinteracties config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from openforms.forms.models import Form
+        FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
+        if not Form.objects.filter(slug=FORM_SLUG).exists():
+            import subprocess, sys, os, glob, zipfile
+            json_files = glob.glob('/forms/*.json')
+            with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
+                for f in json_files:
+                    zf.write(f, os.path.basename(f))
+            result = subprocess.run(
+                [sys.executable, '/app/src/manage.py', 'import', '--import-file', '/tmp/forms.zip'],
+                capture_output=True, text=True
+            )
+            print(result.stdout)
+            if result.returncode != 0:
+                print(result.stderr)
+                sys.exit(result.returncode)
+            print('Productaanvraag-Dimpact form imported successfully')
+        form = Form.objects.get(slug=FORM_SLUG)
+        if not form.active:
+            form.active = True
+            form.save(update_fields=['active'])
+            print('Productaanvraag-Dimpact form activated')
+        else:
+            print('Productaanvraag-Dimpact form already active, skipping import')
+        "
     volumes: &openformulieren-volumes
       - openformulieren-static:/srv/static
       - openformulieren-media:/app/media
@@ -917,10 +1054,13 @@ services:
       - openformulieren-log:/app/log
       - ./scripts/docker-compose/imports/openformulieren/setup-configuration:/app/setup_configuration
       - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+      - ./scripts/docker-compose/imports/openformulieren/forms:/forms:ro
     depends_on:
       openformulieren-database:
         condition: service_healthy
       redis:
+        condition: service_started
+      objecttypes-api:
         condition: service_started
     profiles: [ "openformulieren" ]
 
@@ -1005,7 +1145,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
     ports:
       - "8007:8080"
     volumes:

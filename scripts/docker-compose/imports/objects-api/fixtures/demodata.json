@@ -1544,7 +1544,7 @@
     "pk": 3,
     "fields": {
       "identifier": "openformulieren",
-      "token": "d667fec15cd7db980730dd843836604e638d1295",
+      "token": "fakeOpenFormulierenObjectsToken",
       "contact_person": "openformulieren",
       "email": "openformulieren@example.com",
       "organization": "Test",
@@ -1631,13 +1631,14 @@
     "pk": 1,
     "fields": {
       "label": "Objecttypen API",
+      "slug": "objecttypes-api",
       "api_type": "orc",
-      "api_root": "http://objecttypen-api:8000/api/v1/",
+      "api_root": "http://objecttypes-api:8000/api/v2/",
       "client_id": "",
       "secret": "",
       "auth_type": "api_key",
       "header_key": "Authorization",
-      "header_value": "Token 123456",
+      "header_value": "Token fakeObjectsObjecttypesToken",
       "nlx": "",
       "user_id": "",
       "user_representation": ""
@@ -1650,15 +1651,25 @@
       "label": "Open Notificaties",
       "slug": "open-notificaties",
       "api_type": "nrc",
-      "api_root": "http://open-notificaties:8000/api/v1/",
+      "api_root": "http://opennotificaties:8000/api/v1/",
       "client_id": "objectsapi",
-      "secret": "secretkey",
+      "secret": "opennotificatiesObjectsSecret",
       "auth_type": "zgw",
       "header_key": "",
       "header_value": "",
       "nlx": "",
       "user_id": "objects-api",
       "user_representation": "Objects API"
+    }
+  },
+  {
+    "model": "notifications_api_common.notificationsconfig",
+    "pk": 1,
+    "fields": {
+      "notifications_api_service": 2,
+      "notification_delivery_max_retries": 5,
+      "notification_delivery_retry_backoff": 3,
+      "notification_delivery_retry_backoff_max": 48
     }
   },
   {

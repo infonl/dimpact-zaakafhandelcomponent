@@ -110,8 +110,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+            every { zaakVariabelenService.setUser(zaak.uuid, user.id) } just runs
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
             When("the zaak is assigned to a user and a group") {
@@ -147,8 +147,8 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
-                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
+                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                        zaakVariabelenService.setUser(zaak.uuid, user.id)
                     }
                 }
             }
@@ -190,8 +190,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
-            every { zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName") } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
+            every { zaakVariabelenService.setUser(zaak.uuid, user.id) } just runs
 
             When("the zaak is assigned to a user and a group") {
                 every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
@@ -228,8 +228,8 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
-                        zaakVariabelenService.setUser(zaak.uuid, "fakeDisplayName")
+                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
+                        zaakVariabelenService.setUser(zaak.uuid, user.id)
                     }
                 }
             }
@@ -253,7 +253,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
-            every { zaakVariabelenService.setGroup(zaak.uuid, group.description) } just runs
+            every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
 
             When("the zaak is assigned to a group only") {
@@ -281,7 +281,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
+                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
                         zaakVariabelenService.removeUser(zaak.uuid)
                     }
                 }
@@ -318,7 +318,7 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 zaakVariabelenService.setGroup(
                     zaak.uuid,
-                    group.description
+                    group.name
                 )
             } throws CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
 
@@ -357,7 +357,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
-                        zaakVariabelenService.setGroup(zaak.uuid, group.description)
+                        zaakVariabelenService.setGroup(zaak.uuid, group.name)
                     }
                 }
             }

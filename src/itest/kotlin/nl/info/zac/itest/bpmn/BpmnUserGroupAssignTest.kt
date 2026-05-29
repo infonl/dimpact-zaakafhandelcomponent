@@ -12,9 +12,9 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
-import nl.info.zac.itest.config.BPMN_TEST_BEHANDELAAR_1
-import nl.info.zac.itest.config.BPMN_TEST_GROUP_1
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.GROUP_COORDINATORS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_USER_MANAGEMENT_DEFAULT_TASK_NAME
@@ -104,16 +104,14 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             )
 
             Then("task user and group are the zaak defaults") {
-                // currently BPMN sets the behandelaar display name and group description fields in the task data
-                // and not the respective id fields
                 taskData shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "groep" : {
-                    "id" : "${GROUP_BEHANDELAARS_TEST_1.description}",
+                    "id" : "${GROUP_BEHANDELAARS_TEST_1.name}",
                     "naam" : "${GROUP_BEHANDELAARS_TEST_1.description}"
                   },
                   "behandelaar" : {
-                    "id" : "${BEHANDELAAR_1.displayName}",
+                    "id" : "${BEHANDELAAR_1.username}",
                     "naam" : "${BEHANDELAAR_1.displayName}"
                   }
                 }
@@ -135,12 +133,12 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "${BPMN_TEST_GROUP_1.description}",
-                        "naam" : "${BPMN_TEST_GROUP_1.description}"
+                        "id" : "${GROUP_COORDINATORS_TEST_1.name}",
+                        "naam" : "${GROUP_COORDINATORS_TEST_1.description}"
                       },
                       "behandelaar" : {
-                        "id" : "${BPMN_TEST_BEHANDELAAR_1.description}",
-                        "naam" : "${BPMN_TEST_BEHANDELAAR_1.description}"
+                        "id" : "${COORDINATOR_1.username}",
+                        "naam" : "${COORDINATOR_1.displayName}"
                       }
                     }                    
                 """.trimIndent()
@@ -170,11 +168,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "${GROUP_RECORDMANAGERS_TEST_1.description}",
+                        "id" : "${GROUP_RECORDMANAGERS_TEST_1.name}",
                         "naam" : "${GROUP_RECORDMANAGERS_TEST_1.description}"
                       },
                       "behandelaar" : {
-                        "id" : "${RECORDMANAGER_1.displayName}",
+                        "id" : "${RECORDMANAGER_1.username}",
                         "naam" : "${RECORDMANAGER_1.displayName}"
                       }
                     }                    
@@ -194,8 +192,8 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 ) shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     {
                       "groep" : {
-                        "id" : "${BPMN_TEST_GROUP_1.description}",
-                        "naam" : "${BPMN_TEST_GROUP_1.description}"
+                        "id" : "${GROUP_COORDINATORS_TEST_1.name}",
+                        "naam" : "${GROUP_COORDINATORS_TEST_1.description}"
                       },
                       "behandelaar" : {
                         "id": "${BEHANDELAAR_1.username}",
