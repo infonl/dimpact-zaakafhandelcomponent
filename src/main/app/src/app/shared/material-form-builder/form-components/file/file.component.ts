@@ -19,6 +19,7 @@ import {
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { FoutAfhandelingService } from "../../../../fout-afhandeling/fout-afhandeling.service";
+import { appendFileToFormData } from "../../../utils/file-upload";
 import { FormComponent } from "../../model/form-component";
 import { FileFormField } from "./file-form-field";
 import { UploadStatus } from "./upload-status.enum";
@@ -129,14 +130,7 @@ export class FileComponent extends FormComponent implements OnInit {
     formData.append("filename", file.name);
     formData.append("filesize", file.size.toString());
     formData.append("type", file.type);
-    // Force octet-stream: browsers send .eml as message/rfc822, which RESTEasy won't bind to byte[].
-    formData.append(
-      "file",
-      file.name.toLowerCase().endsWith(".eml")
-        ? new Blob([file], { type: "application/octet-stream" })
-        : file,
-      file.name,
-    );
+    appendFileToFormData(formData, file, file.name);
     const httpHeaders = new HttpHeaders();
     httpHeaders.append("Content-Type", "multipart/form-data");
     httpHeaders.append("Accept", "application/json");

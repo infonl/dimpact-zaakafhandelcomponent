@@ -9,6 +9,7 @@ import { map, Observable } from "rxjs";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -112,14 +113,9 @@ export class InformatieObjectenService {
           );
           break;
         case "file":
-          // Force octet-stream: browsers send .eml as message/rfc822, which RESTEasy won't bind to byte[].
-          formData.append(
-            "file",
-            infoObject.bestandsnaam!.toLowerCase().endsWith(".eml")
-              ? new Blob([value as unknown as Blob], {
-                  type: "application/octet-stream",
-                })
-              : (value as unknown as Blob),
+          appendFileToFormData(
+            formData,
+            value as unknown as Blob,
             infoObject.bestandsnaam!,
           );
           break;
