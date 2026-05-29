@@ -94,7 +94,10 @@ objectenApi:
 brpApi:
   url: ""
   logLevel: "INFO"
-  apiKey: ""
+  # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
+  apiKey:
+    value: ""
+    header: ""  # -- Header name for the API key value. Set to empty string to disable this header.
   protocollering:
     # -- Set to true to enable BRP protocollering header injection
     enabled: false
@@ -125,10 +128,6 @@ brpApi:
       header: ""
     # -- Fallback user identifier sent in the gebruiker header when no logged-in user is available.
     systemUser: "SystemUser"
-  # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
-  apiKey:
-    value: ""
-    header: "" # -- Header name for the API key value. Set to empty string to disable this header.
 
 
 # Integration with the KVK API provider (KVK)

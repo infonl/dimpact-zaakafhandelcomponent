@@ -154,14 +154,17 @@ class BrpConfiguration @Inject constructor(
         }
     }
 
-    override fun getLogLevel(): Level = try {
-        Level.parse(logLevel.getOrElse { "OFF" })
-    } catch (_: IllegalArgumentException) {
-        Level.OFF
-    }
+    override fun getLogLevel(): Level = runCatching {
+        logLevel.getOrElse { "OFF" }.let(Level::parse)
+    }.getOrElse { Level.OFF }
 
     override fun getOriginOIN() =
-        BrpConfigurationValueImpl(ENV_VAR_BRP_ORIGIN_OIN_HEADER, MAX_HEADER_SIZE, headerNameOriginOin, originOIN::getOrNull)
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_ORIGIN_OIN_HEADER,
+            MAX_HEADER_SIZE,
+            headerNameOriginOin,
+            originOIN::getOrNull
+        )
 
     override fun getDoelbindingZoekMetDefault() =
         buildDoelbindingConfig(ENV_VAR_BRP_DOELBINDING_ZOEKMET, doelbindingZoekMetDefault::getOrNull)
