@@ -15,7 +15,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import {
@@ -144,7 +144,6 @@ export class TaakViewComponent
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly router: Router,
     private readonly takenService: TakenService,
     private readonly zakenService: ZakenService,
     public readonly utilService: UtilService,
@@ -482,14 +481,7 @@ export class TaakViewComponent
     if (!this.taak) return;
 
     if (submission.state === "submitted") {
-      const zaakIdentificatie = this.zaak?.identificatie;
-      this.completeTaakMutation.mutate(this.taak, {
-        onSuccess: () => {
-          if (zaakIdentificatie) {
-            void this.router.navigate(["/zaken/", zaakIdentificatie]);
-          }
-        },
-      });
+      this.completeTaakMutation.mutate(this.taak);
       return;
     }
 

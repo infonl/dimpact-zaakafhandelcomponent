@@ -18,7 +18,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { MatSidenav } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
@@ -86,7 +86,6 @@ describe(TaakViewComponent.name, () => {
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "test-zaak-uuid",
-    identificatie: "test-zaakIdentificatie",
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "test-zaaktype-uuid",
       omschrijving: "Test Zaaktype",
@@ -391,65 +390,6 @@ describe(TaakViewComponent.name, () => {
         ],
       ).toBe("actie.document.maken");
       expect(openSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe(TaakViewComponent.prototype.onFormioFormSubmit.name, () => {
-    let router: Router;
-    let navigateSpy: jest.SpyInstance;
-
-    // tanstack's mutation returns a non-configurable `mutate`, so we replace
-    // the whole mutation object on the component instead of spying on it.
-    const replaceMutation = (
-      key: "completeTaakMutation" | "updateTaakdataMutation",
-      mutate: jest.Mock,
-    ) => {
-      Object.defineProperty(component.instance, key, {
-        value: { mutate },
-        writable: true,
-        configurable: true,
-      });
-    };
-
-    beforeEach(() => {
-      router = TestBed.inject(Router);
-      navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    });
-
-    it("redirects to the zaak after a successful Form.io task submit", () => {
-      const completeMutate = jest.fn(
-        (_taak: unknown, options?: { onSuccess?: () => void }) => {
-          options?.onSuccess?.();
-        },
-      );
-      replaceMutation("completeTaakMutation", completeMutate);
-
-      component.instance.onFormioFormSubmit({
-        data: {},
-        state: "submitted",
-      });
-
-      expect(completeMutate).toHaveBeenCalled();
-      expect(navigateSpy).toHaveBeenCalledWith([
-        "/zaken/",
-        "test-zaakIdentificatie",
-      ]);
-    });
-
-    it("does not redirect for a partial save", () => {
-      const completeMutate = jest.fn();
-      const updateMutate = jest.fn();
-      replaceMutation("completeTaakMutation", completeMutate);
-      replaceMutation("updateTaakdataMutation", updateMutate);
-
-      component.instance.onFormioFormSubmit({
-        data: {},
-        state: "draft",
-      });
-
-      expect(completeMutate).not.toHaveBeenCalled();
-      expect(updateMutate).toHaveBeenCalled();
-      expect(navigateSpy).not.toHaveBeenCalled();
     });
   });
 
