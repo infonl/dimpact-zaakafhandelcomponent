@@ -112,9 +112,14 @@ export class InformatieObjectenService {
           );
           break;
         case "file":
+          // Force octet-stream: browsers send .eml as message/rfc822, which RESTEasy won't bind to byte[].
           formData.append(
             "file",
-            value as unknown as Blob,
+            infoObject.bestandsnaam!.toLowerCase().endsWith(".eml")
+              ? new Blob([value as unknown as Blob], {
+                  type: "application/octet-stream",
+                })
+              : (value as unknown as Blob),
             infoObject.bestandsnaam!,
           );
           break;

@@ -153,7 +153,14 @@ export class TaakDocumentUploadComponent
     formData.append("filename", file.name);
     formData.append("filesize", file.size.toString());
     formData.append("type", file.type);
-    formData.append("file", file, file.name);
+    // Force octet-stream: browsers send .eml as message/rfc822, which RESTEasy won't bind to byte[].
+    formData.append(
+      "file",
+      file.name.toLowerCase().endsWith(".eml")
+        ? new Blob([file], { type: "application/octet-stream" })
+        : file,
+      file.name,
+    );
     const httpHeaders = new HttpHeaders();
     httpHeaders.append("Content-Type", "multipart/form-data");
     httpHeaders.append("Accept", "application/json");

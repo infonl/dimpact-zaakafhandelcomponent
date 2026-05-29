@@ -256,16 +256,14 @@ export class InformatieObjectAddComponent {
           );
           break;
         case "bestand":
-          // .eml files are sent as "message/rfc822", which RESTEasy does not bind to byte[].
-          // Force "application/octet-stream" so the backend receives the file as raw bytes.
-          if (infoObject.bestandsnaam?.toLowerCase().endsWith(".eml")) {
-            const emlBlob = new Blob([value as Blob], {
-              type: "application/octet-stream",
-            });
-            formData.append("file", emlBlob, infoObject.bestandsnaam);
-          } else {
-            formData.append("file", value as Blob, infoObject.bestandsnaam!);
-          }
+          // Force octet-stream: browsers send .eml as message/rfc822, which RESTEasy won't bind to byte[].
+          formData.append(
+            "file",
+            infoObject.bestandsnaam!.toLowerCase().endsWith(".eml")
+              ? new Blob([value as Blob], { type: "application/octet-stream" })
+              : (value as Blob),
+            infoObject.bestandsnaam!,
+          );
           break;
         default:
           formData.append(key, value.toString());
