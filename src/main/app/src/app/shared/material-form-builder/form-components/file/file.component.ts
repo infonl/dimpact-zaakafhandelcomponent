@@ -30,11 +30,11 @@ import { UploadStatus } from "./upload-status.enum";
   standalone: false,
 })
 export class FileComponent extends FormComponent implements OnInit {
-  @ViewChild("fileInput") fileInput: ElementRef;
+  @ViewChild("fileInput") fileInput!: ElementRef;
 
-  data: FileFormField;
+  data!: FileFormField;
   progress = 0;
-  subscription: Subscription;
+  subscription!: Subscription;
   status: string = UploadStatus.SELECTEER_BESTAND;
 
   constructor(
@@ -53,7 +53,7 @@ export class FileComponent extends FormComponent implements OnInit {
   }
 
   uploadFile(file: File) {
-    this.data.uploadError = null;
+    this.data.uploadError = "";
     if (file) {
       if (!this.data.isBestandstypeToegestaan(file)) {
         this.data.uploadError = `Het bestandstype is niet toegestaan (${this.data.getBestandsextensie(

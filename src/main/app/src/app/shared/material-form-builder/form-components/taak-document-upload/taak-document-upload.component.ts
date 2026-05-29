@@ -34,15 +34,15 @@ export class TaakDocumentUploadComponent
   extends FormComponent
   implements OnInit
 {
-  @ViewChild("fileInput") fileInput: ElementRef;
-  data: TaakDocumentUploadFormField;
+  @ViewChild("fileInput") fileInput!: ElementRef;
+  data!: TaakDocumentUploadFormField;
   progress = 0;
-  subscription: Subscription;
-  formGroup: FormGroup;
-  uploadControl: FormControl;
-  titelControl: FormControl;
-  typeControl: FormControl;
-  types$: Observable<GeneratedType<"RestInformatieobjecttype">[]>;
+  subscription!: Subscription;
+  formGroup!: FormGroup;
+  uploadControl!: FormControl;
+  titelControl!: FormControl;
+  typeControl!: FormControl;
+  types$!: Observable<GeneratedType<"RestInformatieobjecttype">[]>;
   UploadStatus = {
     SELECTEER_BESTAND: "SELECTEER_BESTAND",
     BEZIG: "BEZIG",
@@ -78,7 +78,7 @@ export class TaakDocumentUploadComponent
   }
 
   uploadFile(file: File) {
-    this.data.uploadError = null;
+    this.data.uploadError = "";
     if (file) {
       if (!this.data.isBestandstypeToegestaan(file)) {
         this.data.uploadError = `Het bestandstype is niet toegestaan (${this.data.getBestandsextensie(
