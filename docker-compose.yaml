@@ -892,7 +892,7 @@ services:
     profiles: [ "openformulieren" ]
 
   objecttypes-api:
-    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
     platform: linux/amd64
     ports:
       - "8011:8000"
@@ -913,7 +913,7 @@ services:
     profiles: [ "openformulieren" ]
 
   objecttypes-api-import:
-    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
