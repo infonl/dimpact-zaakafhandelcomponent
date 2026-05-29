@@ -1051,8 +1051,8 @@ class ZaakRestService @Inject constructor(
                     zaaktypeUUID
                 ).bpmnProcessDefinitionKey,
                 zaakData = buildMap {
-                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.naam) }
-                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.naam) }
+                    restZaak.groep?.let { put(VAR_ZAAK_GROUP, it.id) }
+                    restZaak.behandelaar?.let { put(VAR_ZAAK_USER, it.id) }
                     restZaak.communicatiekanaal?.let { put(VAR_ZAAK_COMMUNICATIEKANAAL, it) }
                 }
             )
