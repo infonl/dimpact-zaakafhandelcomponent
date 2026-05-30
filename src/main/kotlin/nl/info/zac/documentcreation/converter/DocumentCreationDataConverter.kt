@@ -135,9 +135,8 @@ class DocumentCreationDataConverter @Inject constructor(
             else -> error("Initiator of type '${initiator.betrokkeneType}' is not supported")
         }
 
-    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaaktypeUuid: UUID, userName: String): AanvragerData? {
-        return brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)?.let { convertToAanvragerDataPersoon(it) }
-    }
+    private fun createAanvragerDataNatuurlijkPersoon(bsn: String, zaaktypeUuid: UUID, userName: String): AanvragerData? =
+        brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)?.let(::convertToAanvragerDataPersoon)
 
     private fun convertToAanvragerDataPersoon(persoon: Persoon) =
         AanvragerData(

@@ -108,9 +108,9 @@ class BrpClientService @Inject constructor(
         }
 
     private fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
+        val logLevel = brpConfiguration.getLogLevel()
         val start = System.currentTimeMillis()
-        // Log the request and context before the call
-        LOG.log(brpConfiguration.getLogLevel()) {
+        LOG.log(logLevel) {
             """PersonenApi.personen() >>>
             |request = $personenQuery
             |context = [${
@@ -120,8 +120,7 @@ class BrpClientService @Inject constructor(
         }
         return personenApi.personen(personenQuery)
             .also {
-                // Log the response and duration after the call
-                LOG.log(brpConfiguration.getLogLevel()) {
+                LOG.log(logLevel) {
                     """PersonenApi.personen() <<<
                     |response = $it
                     |duration = ${System.currentTimeMillis() - start}
@@ -132,7 +131,7 @@ class BrpClientService @Inject constructor(
 
     private fun populateProtocolleringHeaders(
         zaaktypeUuid: UUID?,
-        user: String?,
+        user: String,
         doelbindingConfig: BrpConfigurationValue,
         extractDoelbinding: (ZaaktypeCmmnConfiguration) -> String?
     ) {
@@ -166,8 +165,8 @@ class BrpClientService @Inject constructor(
         populateUserOriginAndToepassing(user)
     }
 
-    private fun populateUserOriginAndToepassing(user: String?) {
-        val userHeader = brpConfiguration.buildUser { user?.takeIf { it.isNotBlank() } }
+    private fun populateUserOriginAndToepassing(user: String) {
+        val userHeader = brpConfiguration.buildUser { user.takeIf { it.isNotBlank() } }
         if (userHeader.isAvailable()) {
             val userValue = userHeader.getValue()
             if (userValue == null) {
@@ -176,7 +175,7 @@ class BrpClientService @Inject constructor(
                 brpProtocolleringContext.headers[userHeader.getHeaderName()] = userValue
             }
         }
-        brpConfiguration.getOriginOIN().run {
+        with(brpConfiguration.getOriginOIN()) {
             if (isAvailable()) {
                 getValue()?.let { originOin ->
                     brpProtocolleringContext.headers[getHeaderName()] = originOin
@@ -190,12 +189,12 @@ class BrpClientService @Inject constructor(
                 )
             }
         }
-        brpConfiguration.getToepassing().run {
+        with(brpConfiguration.getToepassing()) {
             if (isAvailable()) {
                 getValue()?.let { brpProtocolleringContext.headers[getHeaderName()] = it }
             }
         }
-        brpConfiguration.getApiKey().run {
+        with(brpConfiguration.getApiKey()) {
             if (isAvailable()) {
                 getValue()?.let { brpProtocolleringContext.headers[getHeaderName()] = it }
             }

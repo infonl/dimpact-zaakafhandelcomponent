@@ -64,16 +64,16 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("find person is called with the BSN of the person") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = brpConfiguration,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("it should return the person and set doelbinding and verwerking in context headers") {
                 personResponse shouldBe person
@@ -92,7 +92,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "testUser")
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "fakeTestUser")
 
             Then("it should return null") {
                 personResponse shouldBe null
@@ -113,7 +113,7 @@ class BrpClientServiceTest : BehaviorSpec({
         )
 
         When("find person is called with the BSN of the person") {
-            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "testUser")
+            val personResponse = configuredBrpClientService.retrievePersoon("123456789", zaaktypeUuid, "fakeTestUser")
 
             Then("it should return the first person") {
                 personResponse shouldBe persons[0]
@@ -139,19 +139,19 @@ class BrpClientServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every { personenApi.personen(any<PersonenQuery>()) } returns raadpleegMetBurgerservicenummerResponse
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("a query is run on personen for this BSN") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = brpConfiguration,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
             val personResponse = localService.queryPersonen(
                 createRaadpleegMetBurgerservicenummer(listOf(bsn)),
                 zaaktypeUuid,
-                "testUser"
+                "fakeTestUser"
             )
 
             Then("it should return the person and set doelbinding in context headers") {
@@ -180,16 +180,16 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(),
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("find person is called with the BSN of the person") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = createBrpConfiguration(),
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("it should still return the person with default verwerking value used for unicode processing") {
                 personResponse shouldBe person
@@ -216,16 +216,16 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(),
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("find person is called with the BSN of the person") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = createBrpConfiguration(),
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("it should still return the person with trimmed processing value") {
                 personResponse shouldBe person
@@ -251,16 +251,16 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = createBrpConfiguration(),
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("find person is called with the BSN of the person") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = createBrpConfiguration(),
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("it should still return the person using defaults from context headers") {
                 personResponse shouldBe person
@@ -280,16 +280,16 @@ class BrpClientServiceTest : BehaviorSpec({
         every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
             persons = listOf(person)
         )
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
 
         When("retrieve persoon is called") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = brpConfiguration,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("retrieving a person should still work with default doelbinding and verwerking in context headers") {
                 personResponse shouldBe person
@@ -319,14 +319,15 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
 
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = brpConfiguration,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
         When("find person is called with the BSN of the person") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = brpConfiguration,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
             val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, userName)
 
             Then("it should return the person and set gebruiker in context headers") {
@@ -351,15 +352,16 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(createPersoon(bsn = bsn))
         )
 
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = configWithApiKey,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
         When("retrievePersoon is called") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = configWithApiKey,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
-            localService.retrievePersoon(bsn, zaaktypeUuid, "testUser")
+            localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
 
             Then("API key header is set on context headers") {
                 localContext.headers["x-api-key"] shouldBe apiKey
@@ -380,14 +382,15 @@ class BrpClientServiceTest : BehaviorSpec({
             persons = listOf(person)
         )
 
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = configWithSystemUser,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
         When("retrievePersoon is called with an empty userName") {
-            val localContext = BrpProtocolleringContext()
-            val localService = BrpClientService(
-                personenApi = personenApi,
-                brpConfiguration = configWithSystemUser,
-                zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
-                brpProtocolleringContext = localContext
-            )
             localService.retrievePersoon(bsn, zaaktypeUuid, "")
 
             Then("BRP_SYSTEM_USER is used as the gebruiker header value") {
