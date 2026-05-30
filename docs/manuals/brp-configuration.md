@@ -66,7 +66,7 @@ BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
 
 # Verwerkingregister — fallback value used when no zaaktype-level value is configured
 BRP_VERWERKING_HEADER=x-verwerking
-BRP_VERWERKINGSREGISTER=Algemeen
+BRP_VERWERKINGSREGISTER=<verwerkingsregister>
 
 # Logged-in user header
 BRP_GEBRUIKER_HEADER=x-gebruiker
@@ -105,7 +105,7 @@ brpApi:
       raadpleegmet: "BRPACT-Totaal"
     verwerking:
       header: "x-verwerking"
-      register: "Algemeen"
+      register: "<verwerkingsregister>"
     gebruiker:
       header: "x-gebruiker"
     toepassing:
@@ -139,20 +139,20 @@ BRP_ORIGIN_OIN_HEADER=x-origin-oin
 
 # Single doelbinding value used for all requests
 BRP_DOELBINDING_HEADER=x-doelbinding
-BRP_DOELBINDING_ZOEKMET=<zoekmet-value>
-BRP_DOELBINDING_RAADPLEEGMET=<raadpleegmet-value>
+BRP_DOELBINDING_ZOEKMET=BRPACT-ZoekenAlgemeen
+BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
 
 # Verwerkingregister
 BRP_VERWERKING_HEADER=x-verwerking
-BRP_VERWERKINGSREGISTER=<register-value>
+BRP_VERWERKINGSREGISTER=<verwerkingsregister>
 
 # Logged-in user header
 BRP_GEBRUIKER_HEADER=x-gebruiker
 BRP_SYSTEM_USER=SystemUser
 
-# Toepassing header (if required)
-BRP_TOEPASSING_HEADER=
-BRP_TOEPASSING=
+# Application name header
+BRP_TOEPASSING_HEADER=x-toepassing
+BRP_TOEPASSING=ZAC
 
 # API key (if required by your 2Secure instance)
 BRP_API_KEY_HEADER=x-api-key
@@ -179,48 +179,47 @@ brpApi:
     doelbinding:
       perZaaktype: false
       header: "x-doelbinding"
-      zoekmet: "<zoekmet-value>"
-      raadpleegmet: "<raadpleegmet-value>"
+      zoekmet: "BRPACT-ZoekenAlgemeen"
+      raadpleegmet: "BRPACT-Totaal"
     verwerking:
       header: "x-verwerking"
-      register: "<register-value>"
+      register: "<verwerkingsregister>"
     gebruiker:
       header: "x-gebruiker"
     toepassing:
-      header: ""
-      value: ""
+      header: "x-toepassing"
+      value: "ZAC"
 ```
 
 ---
 
 ## eServices
 
-> **Note:** Specific header names and doelbinding requirements for eServices Nederland should be verified against their BRP proxy documentation. Use the template below as a starting point and adjust the header names to match what eServices expects.
+The eServices proxy does not use a separate doelbinding header. The application name (`x-request-application`) is used for both the verwerking and toepassing headers; the toepassing value (`ZAC`) is what ultimately reaches the proxy on that header.
 
 ### Environment variables
 
 ```bash
 BRP_PROTOCOLLERING_ENABLED=true
-BRP_DOELBINDING_PER_ZAAKTYPE=<true|false>
+BRP_DOELBINDING_PER_ZAAKTYPE=false
 
+# Origin OIN of your organisation
 BRP_ORIGIN_OIN=<your-oin>
-BRP_ORIGIN_OIN_HEADER=<origin-oin-header-name>
+BRP_ORIGIN_OIN_HEADER=x-request-organization
 
-BRP_DOELBINDING_HEADER=<doelbinding-header-name>
-BRP_DOELBINDING_ZOEKMET=<zoekmet-value>
-BRP_DOELBINDING_RAADPLEEGMET=<raadpleegmet-value>
+# Doelbinding disabled for eServices
+BRP_DOELBINDING_HEADER=
 
-BRP_VERWERKING_HEADER=<verwerking-header-name>
-BRP_VERWERKINGSREGISTER=<register-value>
+# Verwerkingregister — sent on x-request-application
+BRP_VERWERKING_HEADER=x-request-application
+BRP_VERWERKINGSREGISTER=<verwerkingsregister>
 
-BRP_GEBRUIKER_HEADER=<gebruiker-header-name>
-BRP_SYSTEM_USER=SystemUser
+# Logged-in user header
+BRP_GEBRUIKER_HEADER=x-request-user
 
-BRP_TOEPASSING_HEADER=<toepassing-header-name>
+# Application name header (same header as verwerking — toepassing value takes effect)
+BRP_TOEPASSING_HEADER=x-request-application
 BRP_TOEPASSING=ZAC
-
-BRP_API_KEY_HEADER=<api-key-header-name>
-BRP_API_KEY=<your-api-key>
 
 BRP_LOG_LEVEL=OFF
 ```
@@ -230,28 +229,22 @@ BRP_LOG_LEVEL=OFF
 ```yaml
 brpApi:
   url: "https://<brp-proxy-url>"
-  apiKey:
-    header: "<api-key-header-name>"
-    value: "<your-api-key>"
   logLevel: "OFF"
   protocollering:
     enabled: true
-    systemUser: "SystemUser"
     originOin:
       oin: "<your-oin>"
-      header: "<origin-oin-header-name>"
+      header: "x-request-organization"
     doelbinding:
-      perZaaktype: <true|false>
-      header: "<doelbinding-header-name>"
-      zoekmet: "<zoekmet-value>"
-      raadpleegmet: "<raadpleegmet-value>"
+      perZaaktype: false
+      header: ""
     verwerking:
-      header: "<verwerking-header-name>"
-      register: "<register-value>"
+      header: "x-request-application"
+      register: "<verwerkingsregister>"
     gebruiker:
-      header: "<gebruiker-header-name>"
+      header: "x-request-user"
     toepassing:
-      header: "<toepassing-header-name>"
+      header: "x-request-application"
       value: "ZAC"
 ```
 
