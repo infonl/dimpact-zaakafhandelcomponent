@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.249](https://img.shields.io/badge/Version-1.0.249-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
+![Version: 1.0.250](https://img.shields.io/badge/Version-1.0.250-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -60,12 +60,21 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | backendConfig.enabled | bool | `false` |  |
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
-| brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
-| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
-| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
-| brpApi.protocollering.originOin | string | `""` | OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled. |
-| brpApi.protocollering.verwerkingsregister | string | `"Algemeen"` |  |
+| brpApi.apiKey | object | `{"header":"","value":""}` | Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret. |
+| brpApi.logLevel | string | `"INFO"` |  |
+| brpApi.protocollering.doelbinding.header | string | `""` | Header name for the doelbinding value. Set to empty string to disable this header. |
+| brpApi.protocollering.doelbinding.perZaaktype | bool | `false` | Set to true to require doelbinding values to be configured per zaaktype in the admin UI |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `""` | Default "RaadpleegMet" doelbinding as a fall-back |
+| brpApi.protocollering.doelbinding.zoekmet | string | `""` | Default "ZoekMet" doelbinding as a fall-back |
+| brpApi.protocollering.enabled | bool | `false` | Set to true to enable BRP protocollering header injection |
+| brpApi.protocollering.gebruiker.header | string | `""` | Header name for the gebruiker value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.header | string | `""` | Header name for the origin OIN value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.oin | string | `""` |  |
+| brpApi.protocollering.systemUser | string | `"SystemUser"` | Fallback user identifier sent in the gebruiker header when no logged-in user is available. |
+| brpApi.protocollering.toepassing.header | string | `""` | Header name for the toepassing value. Set to empty string to disable this header. |
+| brpApi.protocollering.toepassing.value | string | `"ZAC"` |  |
+| brpApi.protocollering.verwerking.header | string | `""` | Header name for the verwerking value. Set to empty string to disable this header. |
+| brpApi.protocollering.verwerking.register | string | `""` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
@@ -130,7 +139,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.api_proxy.brp.proxy_path | string | `"/haalcentraal/api/brp"` |  |
 | nginx.api_proxy.brp.server_secret | string | `"brp_server"` |  |
 | nginx.api_proxy.brp.ssl_verify | bool | `false` |  |
-| nginx.api_proxy.brp.x_doelbinding | string | `"test"` |  |
 | nginx.api_proxy.certificate_secret | string | `"nginx-certs"` |  |
 | nginx.api_proxy.enabled | bool | `false` |  |
 | nginx.api_proxy.kvk.basisprofiel.apikey_header_name | string | `"X-Api-Key"` |  |
