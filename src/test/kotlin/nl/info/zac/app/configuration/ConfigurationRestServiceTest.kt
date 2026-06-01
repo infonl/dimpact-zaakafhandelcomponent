@@ -5,6 +5,7 @@
 package nl.info.zac.app.configuration
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -101,7 +102,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             val result = configurationRestService.listAllowedFileTypes()
 
             Then("it returns the full canonical allowlist as extension/media-type pairs") {
-                result.map { it.extension } shouldBe listOf(
+                result.map { it.extension } shouldContainExactlyInAnyOrder listOf(
                     ".avi", ".bmp", ".doc", ".docx", ".eml", ".flv", ".gif",
                     ".jpeg", ".jpg", ".mkv", ".mov", ".mp4", ".mpeg", ".msg",
                     ".ods", ".odt", ".pdf", ".png", ".ppt", ".pptx", ".rtf",

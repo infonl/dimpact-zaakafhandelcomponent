@@ -50,7 +50,7 @@ class ConfigurationRestService @Inject constructor(
     @GET
     @Path("file-types")
     fun listAllowedFileTypes(): List<RestAllowedFileType> =
-        AllowedFileType.entries.map { it.toRestAllowedFileType() }
+        AllowedFileType.entries.map(AllowedFileType::toRestAllowedFileType)
 
     @GET
     @Path("gemeente/code")

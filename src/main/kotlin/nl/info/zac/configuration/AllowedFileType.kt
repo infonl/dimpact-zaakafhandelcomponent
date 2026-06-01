@@ -40,21 +40,22 @@ enum class AllowedFileType(val extension: String, val mediaType: String) {
     XLSX(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     companion object {
-        private val byExtension: Map<String, AllowedFileType> = entries.associateBy { it.extension }
+        private val byExtension = entries.associateBy(AllowedFileType::extension)
 
-        fun fromFilename(filename: String?): AllowedFileType? {
-            if (filename.isNullOrBlank()) return null
-            val dotIndex = filename.lastIndexOf('.')
-            return if (dotIndex < 0) null else byExtension[filename.substring(dotIndex).lowercase()]
-        }
+        fun fromFilename(filename: String?): AllowedFileType? =
+            filename?.takeUnless { it.isBlank() }?.let { name ->
+                name.lastIndexOf('.')
+                    .takeIf { it >= 0 }
+                    ?.let { byExtension[name.substring(it).lowercase()] }
+            }
 
         /**
          * Returns true when [filename]'s extension is on the allowlist and (if [mediaType] is
          * non-blank) matches the media type registered for that extension.
          */
-        fun isAllowed(filename: String?, mediaType: String?): Boolean {
-            val match = fromFilename(filename) ?: return false
-            return mediaType.isNullOrBlank() || mediaType.equals(match.mediaType, ignoreCase = true)
-        }
+        fun isAllowed(filename: String?, mediaType: String?): Boolean =
+            fromFilename(filename)?.let {
+                mediaType.isNullOrBlank() || mediaType.equals(it.mediaType, ignoreCase = true)
+            } ?: false
     }
 }

@@ -6,77 +6,83 @@ package nl.info.zac.configuration
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 
 class AllowedFileTypeTest : BehaviorSpec({
+    beforeEach { checkUnnecessaryStub() }
 
-    Given("a filename with an allowed extension") {
-        When("fromFilename is called") {
-            Then("the matching enum entry is returned") {
-                AllowedFileType.fromFilename("report.pdf") shouldBe AllowedFileType.PDF
-                AllowedFileType.fromFilename("photo.JPG") shouldBe AllowedFileType.JPG
-                AllowedFileType.fromFilename("movie.MP4") shouldBe AllowedFileType.MP4
+    Context("AllowedFileType.fromFilename") {
+        Given("a filename with an allowed extension") {
+            When("fromFilename is called") {
+                Then("the matching enum entry is returned") {
+                    AllowedFileType.fromFilename("fakeReport.pdf") shouldBe AllowedFileType.PDF
+                    AllowedFileType.fromFilename("fakePhoto.JPG") shouldBe AllowedFileType.JPG
+                    AllowedFileType.fromFilename("fakeMovie.MP4") shouldBe AllowedFileType.MP4
+                }
+            }
+        }
+
+        Given("a filename with a disallowed extension") {
+            When("fromFilename is called") {
+                Then("null is returned") {
+                    AllowedFileType.fromFilename("fakeMalware.exe") shouldBe null
+                    AllowedFileType.fromFilename("fakeArchive.zip") shouldBe null
+                }
+            }
+        }
+
+        Given("a filename without an extension") {
+            When("fromFilename is called") {
+                Then("null is returned") {
+                    AllowedFileType.fromFilename("fakeReadme") shouldBe null
+                }
+            }
+        }
+
+        Given("a null or blank filename") {
+            When("fromFilename is called") {
+                Then("null is returned") {
+                    AllowedFileType.fromFilename(null) shouldBe null
+                    AllowedFileType.fromFilename("") shouldBe null
+                    AllowedFileType.fromFilename("   ") shouldBe null
+                }
             }
         }
     }
 
-    Given("a filename with a disallowed extension") {
-        When("fromFilename is called") {
-            Then("null is returned") {
-                AllowedFileType.fromFilename("malware.exe") shouldBe null
-                AllowedFileType.fromFilename("archive.zip") shouldBe null
+    Context("AllowedFileType.isAllowed") {
+        Given("an allowed extension and matching media type") {
+            When("isAllowed is called") {
+                Then("it returns true (case-insensitive on media type)") {
+                    AllowedFileType.isAllowed("fakeReport.pdf", "application/pdf") shouldBe true
+                    AllowedFileType.isAllowed("fakeReport.pdf", "APPLICATION/PDF") shouldBe true
+                }
             }
         }
-    }
 
-    Given("a filename without an extension") {
-        When("fromFilename is called") {
-            Then("null is returned") {
-                AllowedFileType.fromFilename("README") shouldBe null
+        Given("an allowed extension but a mismatching media type") {
+            When("isAllowed is called") {
+                Then("it returns false") {
+                    AllowedFileType.isAllowed("fakeDocument.pdf", "image/png") shouldBe false
+                }
             }
         }
-    }
 
-    Given("a null or blank filename") {
-        When("fromFilename is called") {
-            Then("null is returned") {
-                AllowedFileType.fromFilename(null) shouldBe null
-                AllowedFileType.fromFilename("") shouldBe null
-                AllowedFileType.fromFilename("   ") shouldBe null
+        Given("an allowed extension and a missing/blank media type") {
+            When("isAllowed is called") {
+                Then("it returns true (extension is the security gate, media type is optional)") {
+                    AllowedFileType.isAllowed("fakeDocument.pdf", null) shouldBe true
+                    AllowedFileType.isAllowed("fakeDocument.pdf", "") shouldBe true
+                }
             }
         }
-    }
 
-    Given("an allowed extension and matching media type") {
-        When("isAllowed is called") {
-            Then("it returns true (case-insensitive on media type)") {
-                AllowedFileType.isAllowed("report.pdf", "application/pdf") shouldBe true
-                AllowedFileType.isAllowed("report.pdf", "APPLICATION/PDF") shouldBe true
-            }
-        }
-    }
-
-    Given("an allowed extension but a mismatching media type") {
-        When("isAllowed is called") {
-            Then("it returns false") {
-                AllowedFileType.isAllowed("document.pdf", "image/png") shouldBe false
-            }
-        }
-    }
-
-    Given("an allowed extension and a missing/blank media type") {
-        When("isAllowed is called") {
-            Then("it returns true (extension is the security gate, media type is optional)") {
-                AllowedFileType.isAllowed("document.pdf", null) shouldBe true
-                AllowedFileType.isAllowed("document.pdf", "") shouldBe true
-            }
-        }
-    }
-
-    Given("a disallowed extension") {
-        When("isAllowed is called") {
-            Then("it returns false regardless of media type") {
-                AllowedFileType.isAllowed("malware.exe", "application/x-msdownload") shouldBe false
-                AllowedFileType.isAllowed("malware.exe", null) shouldBe false
+        Given("a disallowed extension") {
+            When("isAllowed is called") {
+                Then("it returns false regardless of media type") {
+                    AllowedFileType.isAllowed("fakeMalware.exe", "application/x-msdownload") shouldBe false
+                    AllowedFileType.isAllowed("fakeMalware.exe", null) shouldBe false
+                }
             }
         }
     }

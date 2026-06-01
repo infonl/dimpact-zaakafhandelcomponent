@@ -22,6 +22,6 @@ data class RestAllowedFileType(
 )
 
 fun AllowedFileType.toRestAllowedFileType() = RestAllowedFileType(
-    extension = this.extension,
-    mediaType = this.mediaType
+    extension = extension,
+    mediaType = mediaType
 )
