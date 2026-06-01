@@ -336,8 +336,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         val user = createLoggedInUser()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val zaakData = mapOf(
-            "zaakGroep" to restZaak.groep!!.naam,
-            "zaakBehandelaar" to restZaak.behandelaar!!.naam,
+            "zaakGroep" to restZaak.groep!!.id,
+            "zaakBehandelaar" to restZaak.behandelaar!!.id,
             "zaakCommunicatiekanaal" to restZaak.communicatiekanaal!!
         )
         val zaakObjectPand = createZaakobjectPand()

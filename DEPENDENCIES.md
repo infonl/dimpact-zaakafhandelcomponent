@@ -11,7 +11,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.16.2-static
 - **brp-api/personen-mock**: 2.7.0-202603230846
-- **gotenberg**: 8.32.0
+- **gotenberg**: 8.33.0
 - **otel/opentelemetry-collector-contrib**: 0.152.1
 - **grafana/tempo**: 2.10.5
 - **prom/prometheus**: v3.11.3
