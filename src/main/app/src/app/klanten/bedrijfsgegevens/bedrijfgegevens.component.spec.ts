@@ -625,4 +625,43 @@ describe(BedrijfsgegevensComponent.name, () => {
       });
     });
   });
+
+  describe("when initiatorIdentificatie changes after profiel is loaded", () => {
+    beforeEach(async () => {
+      notifyManager.setScheduler((fn) => fn());
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush(testBedrijf);
+      await sleep();
+      fixture.detectChanges();
+
+      jest
+        .spyOn(klantenService, "readVestigingsprofiel")
+        .mockReturnValue(of(makeBedrijfsprofiel()));
+      component["ophalenProfiel"]();
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("clears profiel signal", () => {
+      expect(component["profiel"]()).not.toBeNull();
+
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          initiatorIdentificatie: fromPartial<BetrokkeneIdentificatie>({
+            type: "VN",
+            kvkNummer: "99999999",
+            vestigingsnummer: "99999999",
+          }),
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(component["profiel"]()).toBeNull();
+    });
+
+  });
 });
