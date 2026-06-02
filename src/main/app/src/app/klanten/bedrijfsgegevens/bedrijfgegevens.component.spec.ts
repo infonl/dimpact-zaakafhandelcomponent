@@ -662,6 +662,5 @@ describe(BedrijfsgegevensComponent.name, () => {
 
       expect(component["profiel"]()).toBeNull();
     });
-
   });
 });
