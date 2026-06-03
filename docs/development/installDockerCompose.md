@@ -170,6 +170,25 @@ For a ZAC admin the following user roles are required:
 Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.
 Also, a superuser account for the Open Klant UI on http://localhost:8002 is created automatically with username 'admin' and password 'admin'.
 
+### Open Formulieren
+
+To test the productaanvraag flow end-to-end locally (form submission in Open Formulieren → Objecten API → Open Zaak → Open Notificaties → ZAC), start the stack with the `-f` flag:
+
+```
+./start-docker-compose.sh -f
+```
+
+This automatically also starts the Objecten API and Open Notificaties services (they are required for the flow and are included automatically via the `openformulieren` profile).
+
+The Open Formulieren admin UI is available at http://localhost:8007/admin/ (username: `admin`, password: `admin`).
+Direct access to the Open Formulieren web container is also available at http://localhost:8009/admin/.
+
+The `openformulieren-init` container automatically registers all backend services (Open Zaak APIs, Objecten API, Open Klant) in Open Formulieren on first start.
+After the stack is up, you will still need to configure the following in the Open Formulieren admin UI before you can test the productaanvraag flow:
+- Create an **Objects API group** at http://localhost:8007/admin/registrations_objects_api/objectsapigroupconfig/add/ — select the pre-configured services and fill in the catalogue domain and RSIN from your local Open Zaak instance.
+- Create a **ZGW API group** at http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/ — same catalogue values.
+- Create a form with an **Objects API** or **ZGW** registration backend pointing to the group you just configured.
+
 ## Stopping
 
 1. Stop ZAC (only if you are running ZAC separately and not as part of the Docker Compose setup)

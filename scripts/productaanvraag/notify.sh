@@ -15,9 +15,9 @@ help()
    echo "-u     Base ZAC URL. Defaults to 'http://localhost:8080'."
    echo "-o     Base Objecten API URL. Defaults to 'http://host.docker.internal:8010'"
    echo "-k     ZAC internal endpoints API key. Defaults to 'openNotificatiesApiSecretKey'."
-   echo "-a     Use alternative object for application-specific email address test."
-   echo "-b     Use alternative object for application-specific email address test with betrokkene."
-   echo "-c     Use alternative object for changed email address during application."
+   echo "-a     Use object for an anonymous product request with application-specific email address."
+   echo "-b     Use object for an authenticated initiator with BSN and an application-specific email address."
+   echo "-c     Use object for an authenticated initiator with BSN who saved a new preferred email address."
    echo "-h     Print this help."
    echo
 }
@@ -33,8 +33,8 @@ objectenAPIURL="http://host.docker.internal:8010"
 openNotificatiesApiSecretKey="openNotificatiesApiSecretKey"
 objectUuid="7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e"
 altAObjectUuid="5658d286-9a84-4cde-b9af-6771bd599a06"
-altBObjectUuid="a3278b18-0562-48cd-ab9b-ee05f2d433bb"
-altCObjectUuid="39ded1f1-049f-4952-a6f6-a14fbede041e"
+altBObjectUuid="ce567a95-8b3b-4a14-8cba-122e450e1c57"
+altCObjectUuid="b1c2d3e4-f5a6-7890-bcde-f12345678901"
 
 while getopts 'u:o:k:abch' OPTION; do
   case $OPTION in

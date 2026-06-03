@@ -93,16 +93,41 @@ objectenApi:
 # Integration with the BRP API provider (Haal Centraal)
 brpApi:
   url: ""
-  apiKey: ""
+  logLevel: "INFO"
+  # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
+  apiKey:
+    value: ""
+    header: ""  # -- Header name for the API key value. Set to empty string to disable this header.
   protocollering:
-    # -- OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled.
-    originOin: ""
-    # -- Supported providers: iConnect, 2Secure
-    aanbieder: "iConnect"
+    # -- Set to true to enable BRP protocollering header injection
+    enabled: false
     doelbinding:
-      zoekmet: "BRPACT-ZoekenAlgemeen"
-      raadpleegmet: "BRPACT-Totaal"
-    verwerkingsregister: "Algemeen"
+      # -- Set to true to require doelbinding values to be configured per zaaktype in the admin UI
+      perZaaktype: false
+      # -- Default "ZoekMet" doelbinding as a fall-back
+      zoekmet: ""
+      # -- Default "RaadpleegMet" doelbinding as a fall-back
+      raadpleegmet: ""
+      # -- Header name for the doelbinding value. Set to empty string to disable this header.
+      header: ""
+    originOin:
+      # OIN for this organisation
+      oin: ""
+      # -- Header name for the origin OIN value. Set to empty string to disable this header.
+      header: ""
+    verwerking:
+      register: ""
+      # -- Header name for the verwerking value. Set to empty string to disable this header.
+      header: ""
+    toepassing:
+      value: "ZAC"
+      # -- Header name for the toepassing value. Set to empty string to disable this header.
+      header: ""
+    gebruiker:
+      # -- Header name for the gebruiker value. Set to empty string to disable this header.
+      header: ""
+    # -- Fallback user identifier sent in the gebruiker header when no logged-in user is available.
+    systemUser: "SystemUser"
 
 
 # Integration with the KVK API provider (KVK)
@@ -399,7 +424,7 @@ solr-operator:
       # -- solr busybox image reposity
       repository: library/busybox
       # -- solr busybox image tag
-      tag: 1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e
+      tag: 1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a
     # -- enable configuration of a solrcloud
     enabled: true
     # solr image parameters
@@ -409,7 +434,7 @@ solr-operator:
       # -- solr image repository
       repository: library/solr
       # -- solr image tag
-      tag: 9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61
+      tag: 9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4
     # -- solr memory settings
     javaMem: -Xms512m -Xmx768m
     # jobs settings
@@ -553,7 +578,7 @@ office_converter:
   # url: ""
   image:
     repository: gotenberg/gotenberg
-    tag: "8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"
+    tag: "8.33.0@sha256:bddd8ea9d076e2d08b6ddaa6efae6403185202c6dab65a6488ed0a6923d6d8e8"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -630,7 +655,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92
+    tag: 1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
   service:
     type: ClusterIP
     port: 80
@@ -713,7 +738,6 @@ nginx:
       ssl_verify: false
       apikey_header_name: ""
       apikey_value: ""
-      x_doelbinding: "test"
     bag:
       enabled: true
       key_secret: bag_key

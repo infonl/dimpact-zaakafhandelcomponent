@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.243](https://img.shields.io/badge/Version-1.0.243-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
+![Version: 1.0.250](https://img.shields.io/badge/Version-1.0.250-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -60,12 +60,21 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | backendConfig.enabled | bool | `false` |  |
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
-| brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
-| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
-| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
-| brpApi.protocollering.originOin | string | `""` | OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled. |
-| brpApi.protocollering.verwerkingsregister | string | `"Algemeen"` |  |
+| brpApi.apiKey | object | `{"header":"","value":""}` | Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret. |
+| brpApi.logLevel | string | `"INFO"` |  |
+| brpApi.protocollering.doelbinding.header | string | `""` | Header name for the doelbinding value. Set to empty string to disable this header. |
+| brpApi.protocollering.doelbinding.perZaaktype | bool | `false` | Set to true to require doelbinding values to be configured per zaaktype in the admin UI |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `""` | Default "RaadpleegMet" doelbinding as a fall-back |
+| brpApi.protocollering.doelbinding.zoekmet | string | `""` | Default "ZoekMet" doelbinding as a fall-back |
+| brpApi.protocollering.enabled | bool | `false` | Set to true to enable BRP protocollering header injection |
+| brpApi.protocollering.gebruiker.header | string | `""` | Header name for the gebruiker value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.header | string | `""` | Header name for the origin OIN value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.oin | string | `""` |  |
+| brpApi.protocollering.systemUser | string | `"SystemUser"` | Fallback user identifier sent in the gebruiker header when no logged-in user is available. |
+| brpApi.protocollering.toepassing.header | string | `""` | Header name for the toepassing value. Set to empty string to disable this header. |
+| brpApi.protocollering.toepassing.value | string | `"ZAC"` |  |
+| brpApi.protocollering.verwerking.header | string | `""` | Header name for the verwerking value. Set to empty string to disable this header. |
+| brpApi.protocollering.verwerking.register | string | `""` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
@@ -130,7 +139,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.api_proxy.brp.proxy_path | string | `"/haalcentraal/api/brp"` |  |
 | nginx.api_proxy.brp.server_secret | string | `"brp_server"` |  |
 | nginx.api_proxy.brp.ssl_verify | bool | `false` |  |
-| nginx.api_proxy.brp.x_doelbinding | string | `"test"` |  |
 | nginx.api_proxy.certificate_secret | string | `"nginx-certs"` |  |
 | nginx.api_proxy.enabled | bool | `false` |  |
 | nginx.api_proxy.kvk.basisprofiel.apikey_header_name | string | `"X-Api-Key"` |  |
@@ -169,7 +177,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92"` |  |
+| nginx.image.tag | string | `"1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -202,7 +210,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"` |  |
+| office_converter.image.tag | string | `"8.33.0@sha256:bddd8ea9d076e2d08b6ddaa6efae6403185202c6dab65a6488ed0a6923d6d8e8"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -307,11 +315,11 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e"` | solr busybox image tag |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a"` | solr busybox image tag |
 | solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
