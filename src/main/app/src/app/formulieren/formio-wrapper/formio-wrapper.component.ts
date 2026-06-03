@@ -58,6 +58,7 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+  @Output() isLoading = new EventEmitter<boolean>();
 
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
@@ -90,11 +91,13 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
 
   private async rebuildFormOptions(): Promise<void> {
     this.evalContextReady = false;
+    this.isLoading.emit(true);
     const evalContext = this.customFunctions.hasFunctionCalls(this.form)
       ? await this.customFunctions.buildEvalContext(this.form, this.zaakUuid!)
       : {};
     this.formOptions = { disableAlerts: true, evalContext };
     this.evalContextReady = true;
+    this.isLoading.emit(false);
   }
 
   async ngOnInit() {
