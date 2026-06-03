@@ -123,9 +123,6 @@ class BrpConfiguration @Inject constructor(
     @PostConstruct
     fun validateConfiguration() {
         if (isBrpProtocolleringEnabled()) {
-            headerNameApiKey.isEmptyOrBlank().thenThrow { "BRP_API_KEY_HEADER is required" }
-            apiKey.isEmptyOrBlank().thenThrow { "BRP_API_KEY is required when BRP_API_KEY_HEADER is set" }
-
             if (headerNameDoelbinding.isPresentNotBlank()) {
                 doelbindingZoekMetDefault.isEmptyOrBlank().thenThrow {
                     "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_DOELBINDING_HEADER is set"
@@ -142,6 +139,11 @@ class BrpConfiguration @Inject constructor(
             if (headerNameToepassing.isPresentNotBlank()) {
                 toepassingValue.isEmptyOrBlank().thenThrow {
                     "BRP_TOEPASSING environment variable is required when BRP_TOEPASSING_HEADER is set"
+                }
+            }
+            if (headerNameApiKey.isPresentNotBlank()) {
+                apiKey.isEmptyOrBlank().thenThrow {
+                    "BRP_API_KEY is required when BRP_API_KEY_HEADER is set"
                 }
             }
             if (headerNameOriginOin.isPresentNotBlank()) {
