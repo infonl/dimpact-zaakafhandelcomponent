@@ -12,51 +12,53 @@ export enum KNOWN_FORMIO_FUNCTIONS {
 }
 
 type EvalContext = Record<string, unknown>;
+type FormNode = string | unknown[] | Record<string, unknown> | null | undefined;
 
 @Injectable({ providedIn: "root" })
 export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(InformatieObjectenService);
 
   hasFunctionCalls(form: unknown): boolean {
-    return this.getFormFunctions(form).size > 0;
+    return this.extractFormFunctions(form as FormNode).size > 0;
   }
 
   async buildEvalContext(form: unknown, taakdata: Record<string, unknown>): Promise<EvalContext> {
-    const context: EvalContext = {};
-    const zaakDataKey = this.getFormFunctions(form);
-
+    const functionsContext: EvalContext = {};
+    const zaakDataKey = this.extractFormFunctions(form as FormNode);
     for (const functionName of Object.values(KNOWN_FORMIO_FUNCTIONS)) {
       const zaakdataField = zaakDataKey.get(functionName);
+      if (!zaakdataField) continue;
 
       switch (functionName) {
         case KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE: {
+            console.log("called getDocumentTitles")
           const documentUuids = (taakdata[zaakdataField!] as string[]) ?? [];
           const titlesString = await this.getDocumentTitles(documentUuids, );
-          context[functionName] = () => titlesString;
+          functionsContext[functionName] = () => titlesString;
           break;
         }
       }
     }
 
-    return { ...taakdata, ...context };
+    return { ...taakdata, ...functionsContext };
   }
 
-    private getFormFunctions(
-        form: unknown,
-        result = new Map<string, string>(),
+    private extractFormFunctions(
+        formNode: FormNode,
+        functionCallsByName = new Map<string, string>(),
     ): Map<string, string> {
-        if (typeof form === "string") {
-            const pattern = /\{\{\s*(\w+)\((\w+)\)/g;
-            let match: RegExpExecArray | null;
-            while ((match = pattern.exec(form)) !== null) {
-                result.set(match[1], match[2]);
+        if (typeof formNode === "string") {
+            const functionCallPattern = /\{\{\s*(\w+)\((\w+)\)/g;
+            let regexMatch: RegExpExecArray | null;
+            while ((regexMatch = functionCallPattern.exec(formNode)) !== null) {
+                functionCallsByName.set(regexMatch[1], regexMatch[2]);
             }
-        } else if (Array.isArray(form)) {
-            for (const item of form) this.getFormFunctions(item, result);
-        } else if (form !== null && typeof form === "object") {
-            for (const v of Object.values(form)) this.getFormFunctions(v, result);
+        } else if (Array.isArray(formNode)) {
+            for (const arrayElement of formNode) this.extractFormFunctions(arrayElement as FormNode, functionCallsByName);
+        } else if (formNode !== null && typeof formNode === "object") {
+            for (const nestedValue of Object.values(formNode)) this.extractFormFunctions(nestedValue as FormNode, functionCallsByName);
         }
-        return result;
+        return functionCallsByName;
     }
 
   private async getDocumentTitles(uuids: string[]): Promise<string> {
