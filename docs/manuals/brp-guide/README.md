@@ -39,8 +39,8 @@ Setting a header name environment variable to an empty string disables that head
 | `BRP_TOEPASSING_HEADER` | No | Header name for the toepassing value. Empty string disables the header |
 | `BRP_TOEPASSING` | When toepassing header is enabled | Value to send in the toepassing header, e.g. `ZAC` |
 | `BRP_SYSTEM_USER` | No | Fallback user identifier when no logged-in user is available. Default: `SystemUser` |
-| `BRP_API_KEY_HEADER` | Yes | Header name for the API key. Defaults to `X-API-KEY` when not set or empty |
-| `BRP_API_KEY` | Yes | API key value for BRP authentication |
+| `BRP_API_KEY_HEADER` | No | Header name for the API key. Defaults to `X-API-KEY`. Empty string disables the header |
+| `BRP_API_KEY` | When API key header is enabled | API key value for BRP authentication. Only injected as a secret when set |
 | `BRP_LOG_LEVEL` | No | Java log level for BRP request/response logging (`OFF`, `INFO`, `FINE`, etc.). Default: `OFF` |
 
 ---

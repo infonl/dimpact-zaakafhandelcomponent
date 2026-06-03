@@ -96,8 +96,8 @@ brpApi:
   logLevel: "INFO"
    # -- Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
   apiKey:
-    value: ""  # -- API key value is mandatory for helm deploy
-    header: ""  # -- Header name for the API key value. Defaults to X-API-KEY if not set.
+    value: ""  # -- Optional API key value for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret.
+    header: "X-API-KEY"  # -- Header name for the API key value. Set to empty string to disable this header.
   protocollering:
      # -- Set to true to enable BRP protocollering header injection
     enabled: false
