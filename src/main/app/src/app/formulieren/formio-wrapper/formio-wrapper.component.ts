@@ -12,8 +12,10 @@ import {
   HostListener,
   inject,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
@@ -26,6 +28,7 @@ import {
   FormioModule,
 } from "@formio/angular";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
+import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 
 @Component({
@@ -45,7 +48,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
     },
   ],
 })
-export class FormioWrapperComponent implements OnInit, AfterViewInit {
+export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() options?: FormioHookOptions;
@@ -74,6 +77,17 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   protected stylesLoaded = false;
 
   private static activeElementPatched = false;
+  private readonly customFunctions = new FormioCustomFunctions();
+  protected formOptions: Record<string, unknown> = {};
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["form"]) {
+      this.formOptions = {
+        disableAlerts: true,
+        evalContext: this.customFunctions.buildEvalContext(this.form),
+      };
+    }
+  }
 
   async ngOnInit() {
     await this.loadBootstrapStyles();
