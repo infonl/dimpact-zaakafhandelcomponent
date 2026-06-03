@@ -44,8 +44,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-001",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
+        Contactpersoon: [`P-${mockPersoon.bsn}`],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -53,7 +53,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-002",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -61,7 +61,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [mockPersoon.bsn, "999992958"],
+        Bewindvoerder: [`P-${mockPersoon.bsn}`, "999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -69,8 +69,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-004",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
+        Contactpersoon: [`P-${mockPersoon.bsn}`],
         Behandelaar: ["behandelaar-user"],
       },
     } as unknown as ZaakZoekObject,
@@ -153,7 +153,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Melder: ["999993896"],
+          Melder: ["P-999993896"],
           Contactpersoon: ["other-bsn"],
         },
       } as unknown as ZaakZoekObject;
@@ -173,7 +173,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["12345678"],
+          Belanghebbende: ["K-12345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -192,7 +192,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["12345678"],
+          Belanghebbende: ["K-12345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -212,7 +212,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678"],
+          Belanghebbende: ["V-12345678-000012345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -232,7 +232,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678", "12345678"], // both in same role
+          Belanghebbende: ["V-12345678-000012345678", "K-12345678"], // both in same role
         },
       } as unknown as ZaakZoekObject;
 
@@ -252,8 +252,8 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678"], // vestigingsnummer
-          Adviseur: ["12345678"], // kvkNummer
+          Belanghebbende: ["V-12345678-000012345678"], // vestigingsnummer
+          Adviseur: ["K-12345678"], // kvkNummer
         },
       } as unknown as ZaakZoekObject;
 
@@ -273,7 +273,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Adviseur: ["12345678"], // only kvkNummer in betrokkenen
+          Adviseur: ["K-12345678"], // only kvkNummer in betrokkenen
         },
       } as unknown as ZaakZoekObject;
 
@@ -286,9 +286,9 @@ describe(KlantZakenTabelComponent.name, () => {
     it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.bsn],
-          Melder: [mockPersoon.bsn],
-          Contactpersoon: [mockPersoon.bsn],
+          Initiator: [`P-${mockPersoon.bsn}`],
+          Melder: [`P-${mockPersoon.bsn}`],
+          Contactpersoon: [`P-${mockPersoon.bsn}`],
           Behandelaar: ["other-id"],
         },
       } as unknown as ZaakZoekObject;
@@ -324,7 +324,7 @@ describe(KlantZakenTabelComponent.name, () => {
     it("should not duplicate roles when same ID appears multiple times", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.bsn, "other-id"],
+          Initiator: [`P-${mockPersoon.bsn}`, "other-id"],
         },
       } as unknown as ZaakZoekObject;
 
