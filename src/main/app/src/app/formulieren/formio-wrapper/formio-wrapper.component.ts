@@ -51,6 +51,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
+  @Input() zaakUuid?: string;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
@@ -77,16 +78,26 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
   protected stylesLoaded = false;
 
   private static activeElementPatched = false;
-  private readonly customFunctions = new FormioCustomFunctions();
+  private readonly customFunctions = inject(FormioCustomFunctions);
   protected formOptions: Record<string, unknown> = {};
+  protected evalContextReady = false;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes["form"]) {
-      this.formOptions = {
-        disableAlerts: true,
-        evalContext: this.customFunctions.buildEvalContext(this.form),
-      };
+      void this.rebuildFormOptions();
     }
+  }
+
+  private async rebuildFormOptions(): Promise<void> {
+    this.evalContextReady = false;
+    this.formOptions = {
+      disableAlerts: true,
+      evalContext: await this.customFunctions.buildEvalContext(
+        this.form,
+        this.zaakUuid!,
+      ),
+    };
+    this.evalContextReady = true;
   }
 
   async ngOnInit() {
