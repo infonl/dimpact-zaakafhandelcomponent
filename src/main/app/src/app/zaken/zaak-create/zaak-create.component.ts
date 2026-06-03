@@ -214,7 +214,7 @@ export class ZaakCreateComponent {
   }
 
   formSubmit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
 
     this.createZaakMutation.mutate({
       zaak: {
