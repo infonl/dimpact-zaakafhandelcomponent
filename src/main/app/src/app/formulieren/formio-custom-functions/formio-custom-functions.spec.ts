@@ -50,7 +50,9 @@ describe(FormioCustomFunctions.name, () => {
 
   describe(FormioCustomFunctions.prototype.hasFunctionCalls.name, () => {
     it("should return true when form contains a {{ }} function call", () => {
-      expect(service.hasFunctionCalls(formWithFunction("ZAAK_Docs"))).toBe(true);
+      expect(service.hasFunctionCalls(formWithFunction("ZAAK_Docs"))).toBe(
+        true,
+      );
     });
 
     it("should return false for a form with no function calls", () => {
@@ -109,7 +111,9 @@ describe(FormioCustomFunctions.name, () => {
         { ZAAK_Docs: [UUID_A] },
       );
 
-      expect(typeof context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE]).toBe("function");
+      expect(typeof context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE]).toBe(
+        "function",
+      );
     });
 
     it("should return the pre-built title string when getDocumentTitles is called", async () => {
@@ -117,7 +121,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe("Document A");
     });
@@ -127,7 +133,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe("");
     });
@@ -141,7 +149,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe("Document A en Document B");
     });
@@ -150,7 +160,11 @@ describe(FormioCustomFunctions.name, () => {
       informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
         (uuid) =>
           mockDocument(
-            uuid === UUID_A ? "Document A" : uuid === UUID_B ? "Document B" : "Document C",
+            uuid === UUID_A
+              ? "Document A"
+              : uuid === UUID_B
+                ? "Document B"
+                : "Document C",
           ),
       );
 
@@ -158,7 +172,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe("Document A, Document B en Document C");
     });
@@ -172,7 +188,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe(UUID_A);
     });
@@ -186,16 +204,17 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as () => string;
+      const fn = context[
+        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
+      ] as () => string;
 
       expect(fn()).toBe(UUID_A);
     });
 
     it("should fetch each document by UUID", async () => {
-      await service.buildEvalContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A] },
-      );
+      await service.buildEvalContext(formWithFunction("ZAAK_Docs"), {
+        ZAAK_Docs: [UUID_A],
+      });
 
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,

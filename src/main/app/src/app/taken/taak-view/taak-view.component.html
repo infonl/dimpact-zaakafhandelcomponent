@@ -95,7 +95,10 @@
               (isLoading)="formioWrapperLoading = $event"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="(!formulier && !formioFormulier && !formFields.length) || formioWrapperLoading"
+              *ngIf="
+                (!formulier && !formioFormulier && !formFields.length) ||
+                formioWrapperLoading
+              "
               mode="query"
             ></mat-progress-bar>
           </div>
