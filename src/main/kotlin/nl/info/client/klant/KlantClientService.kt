@@ -192,10 +192,6 @@ class KlantClientService @Inject constructor(
                 null
             }
         } ?: return null
-        // temporary logging to troubleshoot potential issues on target environments. will be removed in future
-        LOG.info {
-            "Expanded betrokkene for betrokkene with UUID '${initiatorKlantBetrokkene.uuid}': '${initiatorKlantBetrokkene.expand}'"
-        }
         return initiatorKlantBetrokkene.expand?.digitaleAdressen
             ?.let { digitaleAdressen ->
                 val nonPreferredDigitalAddresses = digitaleAdressen.filter { it.isStandaardAdres == false }
