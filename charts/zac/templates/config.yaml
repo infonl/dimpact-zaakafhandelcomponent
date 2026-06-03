@@ -13,6 +13,7 @@ data:
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
+  BRP_API_KEY_HEADER: {{ .Values.brpApi.apiKey.header | default "X-API-KEY" | quote }}
   BRP_DOELBINDING_PER_ZAAKTYPE: {{ .Values.brpApi.protocollering.doelbinding.perZaaktype | quote }}
   BRP_PROTOCOLLERING_ENABLED: {{ .Values.brpApi.protocollering.enabled | quote }}
   {{- if .Values.brpApi.protocollering.enabled }}
@@ -28,7 +29,6 @@ data:
   BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerking.register entry required!" .Values.brpApi.protocollering.verwerking.register | quote }}
   {{- end }}
   BRP_GEBRUIKER_HEADER: {{ .Values.brpApi.protocollering.gebruiker.header | quote }}
-  BRP_API_KEY_HEADER: {{ .Values.brpApi.apiKey.header | default "X-API-KEY" | quote }}
   BRP_TOEPASSING_HEADER: {{ .Values.brpApi.protocollering.toepassing.header | quote }}
   {{- if .Values.brpApi.protocollering.toepassing.header }}
   BRP_TOEPASSING: {{ required "Valid .Values.brpApi.protocollering.toepassing.value entry required!" .Values.brpApi.protocollering.toepassing.value | quote }}
