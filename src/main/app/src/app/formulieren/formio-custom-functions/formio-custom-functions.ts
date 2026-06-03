@@ -33,6 +33,7 @@ export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(InformatieObjectenService);
 
   async buildEvalContext(form: unknown, zaakUuid: string): Promise<EvalContext> {
+      console.log("formio-custom-functions.ts: buildEvalContext");
     const context: EvalContext = {};
     const zaakDataKey = this.getZaakdataKeys(form);
     const zaakdata = await this.fetchZaakdata(zaakUuid);
@@ -91,7 +92,13 @@ export class FormioCustomFunctions {
         }
       }),
     );
-    console.log(titles.join(" and "));
-    return titles.join(" and ");
+
+    return this.formatValues(titles);
+  }
+
+  private formatValues(values: string[]): string {
+    if (values.length === 0) return "";
+    if (values.length === 1) return values[0];
+    return values.slice(0, -1).join(", ") + " en " + values[values.length - 1];
   }
 }
