@@ -20,6 +20,6 @@ annotation class ValidRestFileUploadForm(
     val payload: Array<KClass<out Payload>> = []
 ) {
     companion object {
-        const val INVALID_FILE_UPLOAD_FORM = "Uploaded file is empty or has a disallowed file type"
+        const val INVALID_FILE_UPLOAD_FORM = "Uploaded file is empty or the file type is not allowed"
     }
 }
