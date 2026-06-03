@@ -85,7 +85,7 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes["form"]) {
-      void this.rebuildFormOptions();
+      setTimeout(() => void this.rebuildFormOptions());
     }
   }
 
