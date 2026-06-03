@@ -300,7 +300,7 @@ export class InformatieObjectViewComponent
         () => {
           button.disabled = true;
           this.informatieObjectenService
-            .unlockInformatieObject(this.infoObject.uuid!, this.zaak!.uuid!)
+            .unlockInformatieObject(this.infoObject.uuid!, this.zaak?.uuid)
             .pipe(
               catchError((e) => {
                 // we only need to do this on error, because on success we get a new button
