@@ -62,7 +62,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should expose exactly 2 fields in order", () => {
-        expect(fields.map((f) => f.key)).toEqual([
+        expect(fields.map((field) => field.key)).toEqual([
           "documentenVerzendenPost",
           "toelichting",
         ]);
@@ -70,12 +70,14 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
       it("should render documentenVerzendenPost as documents", () => {
         expect(
-          fields.find((f) => f.key === "documentenVerzendenPost")?.type,
+          fields.find((field) => field.key === "documentenVerzendenPost")?.type,
         ).toBe("documents");
       });
 
       it("should open documents in a new tab", () => {
-        const field = fields.find((f) => f.key === "documentenVerzendenPost");
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
         expect(
           field && "viewDocumentInNewTab" in field
             ? field.viewDocumentInNewTab
@@ -84,7 +86,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should render toelichting as a textarea", () => {
-        expect(fields.find((f) => f.key === "toelichting")?.type).toBe(
+        expect(fields.find((field) => field.key === "toelichting")?.type).toBe(
           "textarea",
         );
       });
@@ -99,14 +101,16 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         ).toHaveBeenCalledWith("zaak-uuid");
       });
 
-      it("should set documents options to the resolved list", async () => {
+      it("should expose the fetched documents as selectable options", async () => {
         listVoorVerzendenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
         );
 
         const fields = await formulier.requestForm(mockZaak);
 
-        const field = fields.find((f) => f.key === "documentenVerzendenPost");
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
         expect("options" in field! ? field.options : []).toEqual([
           mockDocument1,
           mockDocument2,
@@ -117,8 +121,8 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const fields = await formulier.requestForm(mockZaak);
 
         expect(
-          fields.find((f) => f.key === "documentenVerzendenPost")?.control
-            ?.value,
+          fields.find((field) => field.key === "documentenVerzendenPost")
+            ?.control?.value,
         ).toEqual([]);
       });
 
@@ -126,7 +130,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const fields = await formulier.requestForm(mockZaak);
 
         const control = fields.find(
-          (f) => f.key === "documentenVerzendenPost",
+          (field) => field.key === "documentenVerzendenPost",
         )?.control;
         control?.setValue([]);
         control?.markAsTouched();
@@ -134,11 +138,11 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         expect(control?.errors?.["required"]).toBeDefined();
       });
 
-      it("should accept a non-empty document selection", async () => {
+      it("should be valid when at least one document is selected", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
         const control = fields.find(
-          (f) => f.key === "documentenVerzendenPost",
+          (field) => field.key === "documentenVerzendenPost",
         )?.control;
         control?.setValue([mockDocument1]);
 
@@ -151,14 +155,16 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const fields = await formulier.requestForm(mockZaak);
 
         expect(
-          fields.find((f) => f.key === "toelichting")?.control?.value,
+          fields.find((field) => field.key === "toelichting")?.control?.value,
         ).toBeNull();
       });
 
       it("should enforce maxLength of 1000 on toelichting", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        const control = fields.find((f) => f.key === "toelichting")?.control;
+        const control = fields.find(
+          (field) => field.key === "toelichting",
+        )?.control;
         control?.setValue("a".repeat(1001));
 
         expect(control?.errors?.["maxlength"]).toBeDefined();
@@ -167,7 +173,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should accept toelichting within 1000 characters", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        const control = fields.find((f) => f.key === "toelichting")?.control;
+        const control = fields.find(
+          (field) => field.key === "toelichting",
+        )?.control;
         control?.setValue("a".repeat(1000));
 
         expect(control?.errors).toBeNull();
@@ -176,7 +184,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should accept an empty toelichting (not required)", async () => {
         const fields = await formulier.requestForm(mockZaak);
 
-        const control = fields.find((f) => f.key === "toelichting")?.control;
+        const control = fields.find(
+          (field) => field.key === "toelichting",
+        )?.control;
         control?.setValue("");
 
         expect(control?.errors?.["required"]).toBeUndefined();
@@ -200,7 +210,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should expose exactly 3 fields in order", () => {
-        expect(fields.map((f) => f.key)).toEqual([
+        expect(fields.map((field) => field.key)).toEqual([
           "intro",
           "documentenVerzendenPost",
           "verzenddatum",
@@ -208,17 +218,21 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       });
 
       it("should render intro as plain-text", () => {
-        expect(fields.find((f) => f.key === "intro")?.type).toBe("plain-text");
+        expect(fields.find((field) => field.key === "intro")?.type).toBe(
+          "plain-text",
+        );
       });
 
       it("should render documentenVerzendenPost as documents", () => {
         expect(
-          fields.find((f) => f.key === "documentenVerzendenPost")?.type,
+          fields.find((field) => field.key === "documentenVerzendenPost")?.type,
         ).toBe("documents");
       });
 
       it("should render verzenddatum as a date field", () => {
-        expect(fields.find((f) => f.key === "verzenddatum")?.type).toBe("date");
+        expect(fields.find((field) => field.key === "verzenddatum")?.type).toBe(
+          "date",
+        );
       });
     });
 
@@ -234,9 +248,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should set intro control value to the translated string", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
-        expect(fields.find((f) => f.key === "intro")?.control?.value).toBe(
-          "translated-intro",
-        );
+        expect(
+          fields.find((field) => field.key === "intro")?.control?.value,
+        ).toBe("translated-intro");
       });
     });
 
@@ -245,7 +259,8 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
         const fields = await formulier.handleForm(baseTaak);
 
         expect(
-          fields.find((f) => f.key === "documentenVerzendenPost")?.readonly,
+          fields.find((field) => field.key === "documentenVerzendenPost")
+            ?.readonly,
         ).toBe(true);
       });
 
@@ -275,7 +290,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
         const fields = await formulier.handleForm(taakWithDocs);
 
-        const field = fields.find((f) => f.key === "documentenVerzendenPost");
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
         expect("options" in field! ? field.options : []).toEqual([
           mockDocument1,
           mockDocument2,
@@ -294,7 +311,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should expose an empty list and control when taakdata has no documentenVerzendenPost", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
-        const field = fields.find((f) => f.key === "documentenVerzendenPost");
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
         expect("options" in field! ? field.options : null).toEqual([]);
         expect(field?.control?.value).toEqual([]);
       });
@@ -307,7 +326,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           }),
         );
 
-        const field = fields.find((f) => f.key === "documentenVerzendenPost");
+        const field = fields.find(
+          (field) => field.key === "documentenVerzendenPost",
+        );
         expect("options" in field! ? field.options : null).toEqual([]);
         expect(field?.control?.value).toEqual([]);
         expect(
@@ -320,7 +341,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should require verzenddatum", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
-        const control = fields.find((f) => f.key === "verzenddatum")?.control;
+        const control = fields.find(
+          (field) => field.key === "verzenddatum",
+        )?.control;
         control?.setValue(null);
         control?.markAsTouched();
 
@@ -330,8 +353,8 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       it("should default verzenddatum to today (moment) when taakdata is empty", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
-        const value = fields.find((f) => f.key === "verzenddatum")?.control
-          ?.value;
+        const value = fields.find((field) => field.key === "verzenddatum")
+          ?.control?.value;
         expect(moment.isMoment(value)).toBe(true);
         expect((value as moment.Moment).isSame(moment(), "day")).toBe(true);
       });
@@ -344,8 +367,8 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
 
         const fields = await formulier.handleForm(taakWithDate);
 
-        const value = fields.find((f) => f.key === "verzenddatum")?.control
-          ?.value;
+        const value = fields.find((field) => field.key === "verzenddatum")
+          ?.control?.value;
         expect(moment.isMoment(value)).toBe(true);
         expect(
           (value as moment.Moment).isSame(moment("2026-03-15T00:00:00.000Z")),
@@ -362,9 +385,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           }),
         );
 
-        expect(fields.find((f) => f.key === "verzenddatum")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "verzenddatum")?.readonly,
+        ).toBe(true);
       });
 
       it("should mark verzenddatum readonly when user cannot wijzigen", async () => {
@@ -375,9 +398,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           }),
         );
 
-        expect(fields.find((f) => f.key === "verzenddatum")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "verzenddatum")?.readonly,
+        ).toBe(true);
       });
 
       it("should mark verzenddatum readonly when rechten is missing", async () => {
@@ -388,17 +411,17 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           }),
         );
 
-        expect(fields.find((f) => f.key === "verzenddatum")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "verzenddatum")?.readonly,
+        ).toBe(true);
       });
 
       it("should keep verzenddatum editable when task is OPEN and user can wijzigen", async () => {
         const fields = await formulier.handleForm(baseTaak);
 
-        expect(fields.find((f) => f.key === "verzenddatum")?.readonly).toBe(
-          false,
-        );
+        expect(
+          fields.find((field) => field.key === "verzenddatum")?.readonly,
+        ).toBe(false);
       });
     });
   });

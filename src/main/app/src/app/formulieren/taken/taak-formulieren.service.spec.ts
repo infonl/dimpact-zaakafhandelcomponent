@@ -114,31 +114,4 @@ describe("TaakFormulierenService", () => {
       expect(spy).toHaveBeenCalledWith(mockZaak);
     });
   });
-
-  describe("getAngularHandleFormBuilder", () => {
-    const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
-      uuid: "zaak-uuid",
-    });
-
-    it("should delegate to documentVerzendenPostTaskForm for DOCUMENT_VERZENDEN_POST", async () => {
-      const spy = jest
-        .spyOn(TestBed.inject(DocumentVerzendenPostTaskForm), "handleForm")
-        .mockReturnValue(Promise.resolve([]));
-      const taak = fromPartial<GeneratedType<"RestTask">>({
-        formulierDefinitieId: "DOCUMENT_VERZENDEN_POST",
-      });
-
-      await service.getAngularHandleFormBuilder(taak, mockZaak);
-
-      expect(spy).toHaveBeenCalledWith(taak);
-    });
-  });
-
-  describe("getFormulierBuilder", () => {
-    it("should throw the DEPRECATED error for DOCUMENT_VERZENDEN_POST", () => {
-      expect(() =>
-        service.getFormulierBuilder("DOCUMENT_VERZENDEN_POST"),
-      ).toThrow("DOCUMENT_VERZENDEN_POST is DEPRECATED, use Angular form");
-    });
-  });
 });
