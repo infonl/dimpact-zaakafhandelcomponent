@@ -9,7 +9,10 @@ import { mapTaskdataToTaskInformation } from "./taak.utils";
 
 describe("mapTaskdataToTaskInformation", () => {
   it.each([
-    { formulierDefinitieId: "DEFAULT_TAAKFORMULIER", uitkomstKey: "afhandeling" },
+    {
+      formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
+      uitkomstKey: "afhandeling",
+    },
     { formulierDefinitieId: "GOEDKEUREN", uitkomstKey: "goedkeuren" },
     {
       formulierDefinitieId: "AANVULLENDE_INFORMATIE",
