@@ -39,8 +39,8 @@ Setting a header name environment variable to an empty string disables that head
 | `BRP_TOEPASSING_HEADER` | No | Header name for the toepassing value. Empty string disables the header |
 | `BRP_TOEPASSING` | When toepassing header is enabled | Value to send in the toepassing header, e.g. `ZAC` |
 | `BRP_SYSTEM_USER` | No | Fallback user identifier when no logged-in user is available. Default: `SystemUser` |
-| `BRP_API_KEY_HEADER` | No | Header name for the API key. Empty string disables the header |
-| `BRP_API_KEY` | When API key header is enabled | API key value for BRP authentication |
+| `BRP_API_KEY_HEADER` | No | Header name for the API key. Defaults to `X-API-KEY`. Empty string disables the header |
+| `BRP_API_KEY` | When API key header is enabled | API key value for BRP authentication. Only injected as a secret when set |
 | `BRP_LOG_LEVEL` | No | Java log level for BRP request/response logging (`OFF`, `INFO`, `FINE`, etc.). Default: `OFF` |
 
 ---
@@ -76,7 +76,7 @@ BRP_SYSTEM_USER=SystemUser
 BRP_TOEPASSING_HEADER=x-toepassing
 BRP_TOEPASSING=ZAC
 
-# API key (if required by your iConnect instance)
+# API key
 BRP_API_KEY_HEADER=x-api-key
 BRP_API_KEY=<your-api-key>
 
@@ -154,7 +154,7 @@ BRP_SYSTEM_USER=SystemUser
 BRP_TOEPASSING_HEADER=x-toepassing
 BRP_TOEPASSING=ZAC
 
-# API key (if required by your 2Secure instance)
+# API key
 BRP_API_KEY_HEADER=x-api-key
 BRP_API_KEY=<your-api-key>
 
@@ -221,6 +221,10 @@ BRP_GEBRUIKER_HEADER=x-request-user
 BRP_TOEPASSING_HEADER=x-request-application
 BRP_TOEPASSING=ZAC
 
+# API key
+BRP_API_KEY_HEADER=x-api-key
+BRP_API_KEY=<your-api-key>
+
 BRP_LOG_LEVEL=OFF
 ```
 
@@ -229,6 +233,9 @@ BRP_LOG_LEVEL=OFF
 ```yaml
 brpApi:
   url: "https://<brp-proxy-url>"
+  apiKey:
+    header: "x-api-key"
+    value: "<your-api-key>"
   logLevel: "OFF"
   protocollering:
     enabled: true
@@ -264,7 +271,7 @@ All header injection is bypassed. BRP API calls are still made but without any p
 
 ## Enabling request/response logging
 
-Set `BRP_LOG_LEVEL` to a Java log level to log BRP request and response payloads. This is useful for debugging but should not be used in production as it logs personal data.
+Set `BRP_LOG_LEVEL` to a Java log level to log BRP request and response payloads. This is useful for debugging but is not recommended for production environments.
 
 ```bash
 BRP_LOG_LEVEL=INFO   # logs to the INFO level
