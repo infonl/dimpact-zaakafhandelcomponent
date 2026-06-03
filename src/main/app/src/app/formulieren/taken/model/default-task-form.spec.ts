@@ -9,10 +9,10 @@ import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "../../../../test-helpers";
 import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { DefaultTaakTaskForm } from "./default-taak-task-form";
+import { DefaultTaskForm } from "./default-task-form";
 
-describe(DefaultTaakTaskForm.name, () => {
-  let formulier: DefaultTaakTaskForm;
+describe(DefaultTaskForm.name, () => {
+  let formulier: DefaultTaskForm;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -20,7 +20,7 @@ describe(DefaultTaakTaskForm.name, () => {
       providers: [provideHttpClient()],
     });
 
-    formulier = TestBed.inject(DefaultTaakTaskForm);
+    formulier = TestBed.inject(DefaultTaskForm);
   });
 
   describe("requestForm (_initStartForm)", () => {

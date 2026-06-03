@@ -8,24 +8,51 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { mapTaskdataToTaskInformation } from "./taak.utils";
 
 describe("mapTaskdataToTaskInformation", () => {
-  it("maps uitkomst to the 'afhandeling' taakdata key for DEFAULT_TAAKFORMULIER", () => {
+  it.each([
+    { formulierDefinitieId: "DEFAULT_TAAKFORMULIER", uitkomstKey: "afhandeling" },
+    { formulierDefinitieId: "GOEDKEUREN", uitkomstKey: "goedkeuren" },
+    {
+      formulierDefinitieId: "AANVULLENDE_INFORMATIE",
+      uitkomstKey: "aanvullendeInformatie",
+    },
+    { formulierDefinitieId: "ADVIES", uitkomstKey: "advies" },
+    {
+      formulierDefinitieId: "EXTERN_ADVIES_VASTLEGGEN",
+      uitkomstKey: "externAdvies",
+    },
+    { formulierDefinitieId: "EXTERN_ADVIES_MAIL", uitkomstKey: "externAdvies" },
+  ] as const)(
+    "maps uitkomst from the '$uitkomstKey' taakdata key for $formulierDefinitieId",
+    ({ formulierDefinitieId, uitkomstKey }) => {
+      const taak = fromPartial<GeneratedType<"RestTask">>({
+        formulierDefinitieId,
+      });
+
+      expect(
+        mapTaskdataToTaskInformation(
+          {
+            [uitkomstKey]: "de uitkomst",
+            toelichting: "extra context",
+            bijlagen: "doc-uuid-1",
+          },
+          taak,
+        ),
+      ).toEqual({
+        uitkomst: "de uitkomst",
+        bijlagen: "doc-uuid-1",
+        opmerking: "extra context",
+      });
+    },
+  );
+
+  it("throws for an unknown formulierDefinitieId", () => {
     const taak = fromPartial<GeneratedType<"RestTask">>({
-      formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
+      formulierDefinitieId:
+        "UNKNOWN" as GeneratedType<"RestTask">["formulierDefinitieId"],
     });
 
-    expect(
-      mapTaskdataToTaskInformation(
-        {
-          afhandeling: "verwerkt door behandelaar",
-          toelichting: "extra context",
-          bijlagen: "doc-uuid-1",
-        },
-        taak,
-      ),
-    ).toEqual({
-      uitkomst: "verwerkt door behandelaar",
-      bijlagen: "doc-uuid-1",
-      opmerking: "extra context",
-    });
+    expect(() => mapTaskdataToTaskInformation({}, taak)).toThrow(
+      "Onbekend formulier: UNKNOWN",
+    );
   });
 });

@@ -17,7 +17,7 @@ import { fromPartial } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
-import { DefaultTaakTaskForm } from "./model/default-taak-task-form";
+import { DefaultTaskForm } from "./model/default-task-form";
 import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
 import { TaakFormulierenService } from "./taak-formulieren.service";
 
@@ -46,9 +46,9 @@ describe("TaakFormulierenService", () => {
       uuid: "zaak-uuid",
     });
 
-    it("should delegate to defaultTaakTaskForm for DEFAULT_TAAKFORMULIER", async () => {
+    it("should delegate to defaultTaskForm for DEFAULT_TAAKFORMULIER", async () => {
       const spy = jest
-        .spyOn(TestBed.inject(DefaultTaakTaskForm), "requestForm")
+        .spyOn(TestBed.inject(DefaultTaskForm), "requestForm")
         .mockReturnValue(Promise.resolve([]));
       const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
         formulierDefinitie: "DEFAULT_TAAKFORMULIER",

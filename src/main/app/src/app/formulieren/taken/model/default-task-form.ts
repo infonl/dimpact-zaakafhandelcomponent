@@ -12,7 +12,7 @@ import { AbstractTaskForm } from "./abstract-task-form";
 @Injectable({
   providedIn: "root",
 })
-export class DefaultTaakTaskForm extends AbstractTaskForm {
+export class DefaultTaskForm extends AbstractTaskForm {
   async requestForm(): Promise<FormField[]> {
     return [
       {
