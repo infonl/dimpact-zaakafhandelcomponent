@@ -1,0 +1,50 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+// BAG display field overrides disabled MDC colors to match enabled appearance.
+zac-input.bag-display-field {
+  --mdc-filled-text-field-disabled-label-text-color: var(
+    --mdc-filled-text-field-label-text-color
+  );
+  --mdc-filled-text-field-disabled-container-color: var(
+    --mdc-filled-text-field-container-color
+  );
+  --mdc-filled-text-field-disabled-active-indicator-color: var(
+    --mdc-filled-text-field-active-indicator-color
+  );
+
+  ::ng-deep .mdc-text-field--filled.mdc-text-field--disabled {
+    pointer-events: auto !important;
+
+    // Fake the missing focus-overlay for hover background
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(
+        --mat-form-field-state-layer-color,
+        var(--mat-sys-on-surface)
+      );
+      opacity: 0;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    &:hover {
+      &::after {
+        opacity: var(
+          --mat-form-field-hover-state-layer-opacity,
+          var(--mat-sys-hover-state-layer-opacity)
+        );
+      }
+
+      .mdc-line-ripple::before {
+        border-bottom-color: var(
+          --mdc-filled-text-field-hover-active-indicator-color
+        );
+      }
+    }
+  }
+}

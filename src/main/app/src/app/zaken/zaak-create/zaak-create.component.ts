@@ -46,6 +46,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
+  styleUrls: ["./zaak-create.component.less"],
   standalone: true,
   imports: [
     NgSwitch,
