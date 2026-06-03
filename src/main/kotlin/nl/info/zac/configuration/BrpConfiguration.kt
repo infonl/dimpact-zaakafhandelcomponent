@@ -12,24 +12,55 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.Optional
+import java.util.logging.Level
+import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
+class BrpConfigurationValueImpl(
+    private val envVariable: String,
+    private val maxSize: Int,
+    private val headerName: Optional<String>,
+    private val valueSupplier: () -> String?,
+    private val defaultValueSupplier: () -> String? = { null }
+) : BrpConfigurationValue {
+    override fun isAvailable() = headerName.isPresent && (headerName.getOrNull()?.isNotBlank() ?: false)
+
+    override fun getHeaderName() =
+        if (isAvailable()) {
+            headerName.get()
+        } else {
+            throw BrpProtocolleringConfigurationException(
+                "HeaderName is required. Environment variable '$envVariable' has to be set."
+            )
+        }
+
+    override fun getValue(): String? =
+        if (isAvailable()) {
+            valueSupplier() ?: defaultValueSupplier()
+        } else {
+            null
+        }?.take(maxSize)
+}
+
+@Suppress("LongParameterList", "TooManyFunctions")
 @ApplicationScoped
 @AllOpen
 @NoArgConstructor
 class BrpConfiguration @Inject constructor(
-    @ConfigProperty(name = ENV_VAR_BRP_API_KEY)
-    private val apiKey: Optional<String>,
+    @ConfigProperty(name = "BRP_PROTOCOLLERING_ENABLED", defaultValue = "false")
+    private val protocolleringEnabled: Boolean,
 
-    /**
-     * OIN of the originator, which is required for BRP protocollering.
-     * If this variable is not set, BRP protocollering will be disabled.
-     */
     @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN)
     private val originOIN: Optional<String>,
 
-    @ConfigProperty(name = ENV_VAR_BRP_PROTOCOLLERING_PROVIDER)
-    private val brpProtocolleringProvider: Optional<String>,
+    @ConfigProperty(name = "BRP_DOELBINDING_PER_ZAAKTYPE", defaultValue = "false")
+    private val doelbindingPerZaaktypeEnabled: Boolean,
+
+    @ConfigProperty(name = ENV_VAR_BRP_ORIGIN_OIN_HEADER)
+    private val headerNameOriginOin: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_HEADER)
+    private val headerNameDoelbinding: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_ZOEKMET)
     private val doelbindingZoekMetDefault: Optional<String>,
@@ -37,74 +68,196 @@ class BrpConfiguration @Inject constructor(
     @ConfigProperty(name = ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET)
     private val doelbindingRaadpleegMetDefault: Optional<String>,
 
+    @ConfigProperty(name = ENV_VAR_BRP_VERWERKING_HEADER)
+    private val headerNameVerwerking: Optional<String>,
+
     @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER)
-    private val verwerkingsregister: Optional<String>
-) {
+    private val verwerkingregister: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_GEBRUIKER_HEADER)
+    private val headerNameGebruiker: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_TOEPASSING_HEADER)
+    private val headerNameToepassing: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_TOEPASSING)
+    private val toepassingValue: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_SYSTEM_USER)
+    private val systemUser: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_LOG_LEVEL)
+    private val logLevel: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_API_KEY_HEADER)
+    private val headerNameApiKey: Optional<String>,
+
+    @ConfigProperty(name = ENV_VAR_BRP_API_KEY)
+    private val apiKey: Optional<String>,
+) : BrpConfigurationProvider {
     companion object {
-        const val ENV_VAR_BRP_API_KEY = "BRP_API_KEY"
         const val ENV_VAR_BRP_ORIGIN_OIN = "BRP_ORIGIN_OIN"
-        const val ENV_VAR_BRP_PROTOCOLLERING_PROVIDER = "BRP_PROTOCOLLERING"
+        const val ENV_VAR_BRP_ORIGIN_OIN_HEADER = "BRP_ORIGIN_OIN_HEADER"
+        const val ENV_VAR_BRP_DOELBINDING_HEADER = "BRP_DOELBINDING_HEADER"
         const val ENV_VAR_BRP_DOELBINDING_ZOEKMET = "BRP_DOELBINDING_ZOEKMET"
         const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "BRP_DOELBINDING_RAADPLEEGMET"
+        const val ENV_VAR_BRP_VERWERKING_HEADER = "BRP_VERWERKING_HEADER"
         const val ENV_VAR_BRP_VERWERKINGSREGISTER = "BRP_VERWERKINGSREGISTER"
-        const val BRP_PROTOCOLLERING_PROVIDER_2SECURE = "2Secure"
-        const val BRP_PROTOCOLLERING_PROVIDER_ICONNECT = "iConnect"
-        val SUPPORTED_PROTOCOLLERING_PROVIDERS =
-            arrayOf(BRP_PROTOCOLLERING_PROVIDER_ICONNECT, BRP_PROTOCOLLERING_PROVIDER_2SECURE)
+        const val ENV_VAR_BRP_GEBRUIKER_HEADER = "BRP_GEBRUIKER_HEADER"
+        const val ENV_VAR_BRP_TOEPASSING_HEADER = "BRP_TOEPASSING_HEADER"
+        const val ENV_VAR_BRP_TOEPASSING = "BRP_TOEPASSING"
+        const val ENV_VAR_BRP_SYSTEM_USER = "BRP_SYSTEM_USER"
+        const val ENV_VAR_BRP_LOG_LEVEL = "BRP_LOG_LEVEL"
+        const val ENV_VAR_BRP_API_KEY_HEADER = "BRP_API_KEY_HEADER"
+        const val ENV_VAR_BRP_API_KEY = "BRP_API_KEY"
+
+        // Audit log headers are limited to 242 characters as this is the maximum length of the DB columns:
+        // https://github.com/VNG-Realisatie/gemma-verwerkingenlogging/blob/002df5b01bf7d10142c9ae042a041b096989ced9/docs/api-write/oas-specification/logging-verwerkingen-api/openapi.yaml#L1170-L1175
+        const val MAX_HEADER_SIZE = 242
+
+        // User headers are limited to 40 characters as this is the maximum length of the DB column:
+        // https://github.com/VNG-Realisatie/gemma-verwerkingenlogging/blob/002df5b01bf7d10142c9ae042a041b096989ced9/docs/api-write/oas-specification/logging-verwerkingen-api/openapi.yaml#L1224-L1229
+        const val MAX_USER_HEADER_SIZE = 40
     }
 
     @PostConstruct
     fun validateConfiguration() {
         if (isBrpProtocolleringEnabled()) {
-            throwIf(!doelbindingZoekMetDefault.isPresent) {
-                "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_ORIGIN_OIN is set"
+            if (headerNameDoelbinding.isPresentNotBlank()) {
+                doelbindingZoekMetDefault.isEmptyOrBlank().thenThrow {
+                    "BRP_DOELBINDING_ZOEKMET environment variable is required when BRP_DOELBINDING_HEADER is set"
+                }
+                doelbindingRaadpleegMetDefault.isEmptyOrBlank().thenThrow {
+                    "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_DOELBINDING_HEADER is set"
+                }
             }
-            throwIf(!doelbindingRaadpleegMetDefault.isPresent) {
-                "BRP_DOELBINDING_RAADPLEEGMET environment variable is required when BRP_ORIGIN_OIN is set"
+            if (headerNameVerwerking.isPresentNotBlank()) {
+                verwerkingregister.isEmptyOrBlank().thenThrow {
+                    "BRP_VERWERKINGSREGISTER environment variable is required when BRP_VERWERKING_HEADER is set"
+                }
             }
-            throwIf(!verwerkingsregister.isPresent) {
-                "BRP_VERWERKINGSREGISTER environment variable is required when BRP_ORIGIN_OIN is set"
+            if (headerNameToepassing.isPresentNotBlank()) {
+                toepassingValue.isEmptyOrBlank().thenThrow {
+                    "BRP_TOEPASSING environment variable is required when BRP_TOEPASSING_HEADER is set"
+                }
             }
-            throwIf(!brpProtocolleringProvider.isPresent) {
-                "BRP_PROTOCOLLERING environment variable is required when BRP_ORIGIN_OIN is set"
+            if (headerNameApiKey.isPresentNotBlank()) {
+                apiKey.isEmptyOrBlank().thenThrow {
+                    "BRP_API_KEY is required when BRP_API_KEY_HEADER is set"
+                }
             }
-            throwIf(brpProtocolleringProvider.getOrNull() !in SUPPORTED_PROTOCOLLERING_PROVIDERS) {
-                SUPPORTED_PROTOCOLLERING_PROVIDERS.joinToString().let {
-                    "Invalid environment variable 'BRP_PROTOCOLLERING' value '${brpProtocolleringProvider.getOrNull()}'. Supported: $it"
+            if (headerNameOriginOin.isPresentNotBlank()) {
+                originOIN.isEmptyOrBlank().thenThrow {
+                    "BRP_ORIGIN_OIN environment variable is required when BRP_ORIGIN_OIN_HEADER is set"
                 }
             }
         }
     }
 
-    fun getApiKey() = apiKey.getOrNull()
+    override fun getLogLevel(): Level = runCatching {
+        logLevel.getOrElse { "OFF" }.let(Level::parse)
+    }.getOrElse { Level.OFF }
 
-    fun getOriginOIN() = originOIN.getOrNull()
+    override fun getOriginOIN() =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_ORIGIN_OIN_HEADER,
+            MAX_HEADER_SIZE,
+            headerNameOriginOin,
+            originOIN::getOrNull
+        )
 
-    fun getDoelbindingZoekMetDefault() = doelbindingZoekMetDefault.getOrNull()
+    override fun getDoelbindingZoekMetDefault() =
+        buildDoelbindingConfig(ENV_VAR_BRP_DOELBINDING_ZOEKMET, doelbindingZoekMetDefault::getOrNull)
 
-    fun getDoelbindingRaadpleegMetDefault() = doelbindingRaadpleegMetDefault.getOrNull()
+    override fun getDoelbindingRaadpleegMetDefault() =
+        buildDoelbindingConfig(ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET, doelbindingRaadpleegMetDefault::getOrNull)
 
-    fun getVerwerkingsRegister() = verwerkingsregister.getOrNull()
+    override fun buildDoelbinding(doelbindingSupplier: () -> String?) =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_DOELBINDING_HEADER,
+            MAX_HEADER_SIZE,
+            headerNameDoelbinding,
+            doelbindingSupplier
+        )
+
+    private fun buildDoelbindingConfig(envVariable: String, doelbindingSupplier: () -> String?) =
+        BrpConfigurationValueImpl(
+            envVariable,
+            MAX_HEADER_SIZE,
+            headerNameDoelbinding,
+            doelbindingSupplier
+        )
+
+    override fun getVerwerkingRegisterDefault() =
+        buildVerwerkingRegisterConfig(ENV_VAR_BRP_VERWERKINGSREGISTER, verwerkingregister::getOrNull)
+
+    override fun buildVerwerkingRegister(verwerkingSupplier: () -> String?) =
+        buildVerwerkingRegisterConfig(ENV_VAR_BRP_VERWERKING_HEADER, verwerkingSupplier)
+
+    private fun buildVerwerkingRegisterConfig(envVariable: String, verwerkingSupplier: () -> String?) =
+        BrpConfigurationValueImpl(
+            envVariable,
+            MAX_HEADER_SIZE,
+            headerNameVerwerking,
+            verwerkingSupplier,
+            verwerkingregister::getOrNull
+        )
+
+    override fun getToepassing() =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_TOEPASSING_HEADER,
+            MAX_HEADER_SIZE,
+            headerNameToepassing,
+            toepassingValue::getOrNull
+        )
+
+    override fun getApiKey() =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_API_KEY_HEADER,
+            Int.MAX_VALUE,
+            headerNameApiKey,
+            apiKey::getOrNull
+        )
+
+    override fun buildUser(userSupplier: () -> String?) =
+        BrpConfigurationValueImpl(
+            ENV_VAR_BRP_GEBRUIKER_HEADER,
+            MAX_USER_HEADER_SIZE,
+            headerNameGebruiker,
+            userSupplier,
+            systemUser::getOrNull
+        )
 
     override fun toString() = """
-        |- $ENV_VAR_BRP_API_KEY: '${if (apiKey.isPresent) { "***" } else { "null" }}'
+        |- BRP_PROTOCOLLERING_ENABLED: '$protocolleringEnabled'
         |- $ENV_VAR_BRP_ORIGIN_OIN: '${originOIN.getOrNull()}'
-        |- $ENV_VAR_BRP_PROTOCOLLERING_PROVIDER: '${brpProtocolleringProvider.getOrNull()}'
-        |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${getDoelbindingZoekMetDefault()}'
-        |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${getDoelbindingRaadpleegMetDefault()}'
-        |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${getVerwerkingsRegister()}'
+        |- BRP_DOELBINDING_PER_ZAAKTYPE: '$doelbindingPerZaaktypeEnabled'
+        |- $ENV_VAR_BRP_ORIGIN_OIN_HEADER: '${headerNameOriginOin.getOrNull()}'
+        |- $ENV_VAR_BRP_DOELBINDING_HEADER: '${headerNameDoelbinding.getOrNull()}'
+        |- $ENV_VAR_BRP_DOELBINDING_ZOEKMET: '${doelbindingZoekMetDefault.getOrNull()}'
+        |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${doelbindingRaadpleegMetDefault.getOrNull()}'
+        |- $ENV_VAR_BRP_VERWERKING_HEADER: '${headerNameVerwerking.getOrNull()}'
+        |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${verwerkingregister.getOrNull()}'
+        |- $ENV_VAR_BRP_GEBRUIKER_HEADER: '${headerNameGebruiker.getOrNull()}'
+        |- $ENV_VAR_BRP_TOEPASSING_HEADER: '${headerNameToepassing.getOrNull()}'
+        |- $ENV_VAR_BRP_TOEPASSING: '${toepassingValue.getOrNull()}'
+        |- $ENV_VAR_BRP_SYSTEM_USER: '${systemUser.getOrNull()}'
+        |- $ENV_VAR_BRP_API_KEY_HEADER: '${headerNameApiKey.getOrNull()}'
+        |- $ENV_VAR_BRP_API_KEY: [REDACTED]
     """.trimMargin()
 
-    fun isBrpProtocolleringEnabled(): Boolean = originOIN.isPresent
+    override fun isBrpProtocolleringEnabled(): Boolean = protocolleringEnabled
 
-    fun readBrpProtocolleringProvider(): String =
-        if (isBrpProtocolleringEnabled()) {
-            brpProtocolleringProvider.get()
-        } else {
-            ""
-        }
+    override fun isDoelbindingPerZaaktypeEnabled(): Boolean =
+        doelbindingPerZaaktypeEnabled && headerNameDoelbinding.isPresentNotBlank()
 
-    private inline fun throwIf(throwCondition: Boolean, messageProvider: () -> String) {
-        if (throwCondition) throw BrpProtocolleringConfigurationException(messageProvider())
+    override fun getHeaderUser(): String? = headerNameGebruiker.getOrNull()
+
+    private fun Optional<String>.isEmptyOrBlank(): Boolean = this.isEmpty || get().isBlank()
+
+    private fun Optional<String>.isPresentNotBlank(): Boolean = !this.isEmptyOrBlank()
+
+    private inline fun Boolean.thenThrow(messageProvider: () -> String) {
+        if (this) throw BrpProtocolleringConfigurationException(messageProvider())
     }
 }

@@ -55,28 +55,33 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFI
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_CREATED
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
 class MailtemplateBeheerRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("The CMMN and BPMN zaaktype configurations have been created and a beheerder is logged in") {
-        When("mail template list is fetched") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/beheer/mailtemplates",
-                testUser = BEHEERDER_1
-            )
-            lateinit var responseBody: String
+    Context("Listing mail templates") {
+        Given("The default mail templates have been provisioned on ZAC startup") {
+            When("mail template list is fetched as a beheerder") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/beheer/mailtemplates",
+                    testUser = BEHEERDER_1
+                )
+                lateinit var responseBody: String
 
-            Then("the response should be a 200 HTTP response") {
-                response.code shouldBe HTTP_OK
-                responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-            }
+                Then("the response should be a 200 HTTP response") {
+                    response.code shouldBe HTTP_OK
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                }
 
-            And("all templates are returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                And("all templates are returned") {
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
                   [
                     {
                       "defaultMailtemplate": true,
@@ -144,25 +149,31 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                       "mailTemplateNaam": "$MAIL_TEMPLATE_ZAAK_ONTVANKELIJK_NAME"
                     }
                   ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
             }
         }
+    }
 
-        When("mail template koppeling list is fetched") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
-                testUser = BEHEERDER_1
-            )
-            lateinit var responseBody: String
+    Context("Listing mail template koppelingen") {
+        Given(
+            "The test CMMN and BPMN zaaktype configurations have been created as part of the integration test setup"
+        ) {
+            When("the mail template koppelingen list is fetched as a beheerder") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
+                    testUser = BEHEERDER_1
+                )
+                lateinit var responseBody: String
 
-            Then("the response should be a 200 HTTP response") {
-                response.code shouldBe HTTP_OK
-                responseBody = response.bodyAsString
-                logger.info { "Response: $responseBody" }
-            }
+                Then("the response should be a 200 HTTP response") {
+                    response.code shouldBe HTTP_OK
+                    responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                }
 
-            And("all mail template koppelingen are returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                And("all mail template koppelingen are returned") {
+                    responseBody shouldEqualJsonIgnoringExtraneousFields """
                   [
                     {
                       "mailtemplate": {
@@ -369,7 +380,91 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                       }
                     }
                   ]
-                """.trimIndent()
+                    """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Creating, updating and deleting a mail template") {
+        Given("A beheerder wants to create a new mail template") {
+            When("the full create-read-update-delete lifecycle is executed") {
+                Then("all operations succeed in order") {
+                    val createResponse = itestHttpClient.performJSONPostRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates",
+                        requestBodyAsString = """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate",
+                              "onderwerp": "Test onderwerp",
+                              "body": "<p>Test body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent(),
+                        testUser = BEHEERDER_1
+                    )
+                    createResponse.code shouldBe HTTP_CREATED
+                    logger.info { "Create response: ${createResponse.bodyAsString}" }
+                    val createdTemplateId = JSONObject(createResponse.bodyAsString).run {
+                        getString("mailTemplateNaam") shouldBe "itest-mailtemplate"
+                        getString("onderwerp") shouldBe "Test onderwerp"
+                        getString("body") shouldBe "<p>Test body</p>"
+                        getString("mail") shouldBe MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL
+                        getBoolean("defaultMailtemplate") shouldBe false
+                        getLong("id").toString()
+                    }
+
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
+                        testUser = BEHEERDER_1
+                    ).also {
+                        it.code shouldBe HTTP_OK
+                        it.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate",
+                              "onderwerp": "Test onderwerp",
+                              "body": "<p>Test body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent()
+                    }
+
+                    itestHttpClient.performPutRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
+                        requestBodyAsString = """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate-updated",
+                              "onderwerp": "Updated onderwerp",
+                              "body": "<p>Updated body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent(),
+                        testUser = BEHEERDER_1
+                    ).also {
+                        it.code shouldBe HTTP_OK
+                        it.bodyAsString shouldEqualJsonIgnoringExtraneousFields """
+                            {
+                              "mailTemplateNaam": "itest-mailtemplate-updated",
+                              "onderwerp": "Updated onderwerp",
+                              "body": "<p>Updated body</p>",
+                              "mail": "$MAIL_TEMPLATE_ZAAK_ALGEMEEN_MAIL",
+                              "defaultMailtemplate": false
+                            }
+                        """.trimIndent()
+                    }
+
+                    itestHttpClient.performDeleteRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
+                        testUser = BEHEERDER_1
+                    ).code shouldBe HTTP_NO_CONTENT
+
+                    itestHttpClient.performGetRequest(
+                        url = "$ZAC_API_URI/beheer/mailtemplates/$createdTemplateId",
+                        testUser = BEHEERDER_1
+                    ).code shouldBe HTTP_NOT_FOUND
+                }
             }
         }
     }

@@ -69,7 +69,7 @@ class MailTemplateHelper @Inject constructor(
         )
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    fun resolveZaakVariables(tekst: String, zaak: Zaak): String {
+    fun resolveZaakVariables(tekst: String, zaak: Zaak, userName: String): String {
         var resolvedTekst = tekst
         resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_NUMMER, zaak.getIdentificatie())
 
@@ -118,7 +118,8 @@ class MailTemplateHelper @Inject constructor(
                 replaceInitiatorVariables(
                     resolvedText = resolvedTekst,
                     zaaktypeUuid = zaak.zaaktype.extractUuid(),
-                    initiatorRole = initiatorRole
+                    initiatorRole = initiatorRole,
+                    userName = userName
                 )
             } ?: replaceInitiatorVariablesWithEmptyText(resolvedTekst)
         }
@@ -246,14 +247,19 @@ class MailTemplateHelper @Inject constructor(
         )
 
     @Suppress("NestedBlockDepth")
-    private fun replaceInitiatorVariables(resolvedText: String, zaaktypeUuid: UUID, initiatorRole: Rol<*>): String {
+    private fun replaceInitiatorVariables(
+        resolvedText: String,
+        zaaktypeUuid: UUID,
+        initiatorRole: Rol<*>,
+        userName: String
+    ): String {
         val identificatie = initiatorRole.getIdentificatienummer() ?: run {
             LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
             return ""
         }
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
-                brpClientService.retrievePersoon(identificatie, zaaktypeUuid)?.let {
+                brpClientService.retrievePersoon(identificatie, zaaktypeUuid, userName)?.let {
                     replaceInitiatorVariablesPersoon(resolvedText, it)
                 } ?: ""
 

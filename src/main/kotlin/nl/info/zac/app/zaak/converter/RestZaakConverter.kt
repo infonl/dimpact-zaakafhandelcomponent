@@ -20,6 +20,7 @@ import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isWachtOpAanvullendeInformatie
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -143,7 +144,7 @@ class RestZaakConverter @Inject constructor(
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
             isHeropend = statustype.isHeropend(),
-            isInIntakeFase = statustype.isIntake(),
+            isInIntakeFase = statustype.isIntake() || statustype.isWachtOpAanvullendeInformatie(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnProcessDefinition != null,
             bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),

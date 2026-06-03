@@ -214,18 +214,21 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     return Object.entries(zaak.betrokkenen || {}).reduce<string[]>(
       (acc, [rol, identifiers]) => {
         const identifierList = identifiers as string[];
-        if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
+        if (betrokkene.bsn && identifierList.includes(`P-${betrokkene.bsn}`)) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }
 
         if (
           betrokkene.vestigingsnummer &&
-          identifierList.includes(betrokkene.vestigingsnummer)
+          betrokkene.kvkNummer &&
+          identifierList.includes(
+            `V-${betrokkene.kvkNummer}-${betrokkene.vestigingsnummer}`,
+          )
         ) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         } else if (
           betrokkene.kvkNummer &&
-          identifierList.includes(betrokkene.kvkNummer)
+          identifierList.includes(`K-${betrokkene.kvkNummer}`)
         ) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }

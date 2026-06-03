@@ -23,11 +23,17 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.model.createAdresWithBinnenlandsAdres
+import nl.info.client.kvk.model.createBasisprofiel
+import nl.info.client.kvk.model.createBasisprofielAdres
+import nl.info.client.kvk.model.createBasisprofielSBIActiviteit
+import nl.info.client.kvk.model.createEigenaar
+import nl.info.client.kvk.model.createHandelsnaam
 import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.model.createSBIActiviteit
 import nl.info.client.kvk.model.createVestiging
 import nl.info.client.kvk.model.createVestigingsAdres
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
@@ -87,12 +93,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe null
@@ -157,12 +166,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging including contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkResultaatItem.kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe "+123-456-789"
@@ -337,8 +349,12 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -438,10 +454,14 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
                         this.telefoonnummer shouldBe "+123-456-789"
                         this.emailadres shouldBe "fake@example.com"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -477,6 +497,11 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe null
                         this.telefoonnummer shouldBe null
                         this.emailadres shouldBe null
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -610,6 +635,120 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Context("Reading a readbasisprofiel") {
+        Given("A KVK basisprofiel for a rechtspersoon with all fields populated") {
+            val kvkNummer = "12345678"
+            val basisprofiel = createBasisprofiel(
+                kvkNummer = kvkNummer,
+                sbiActiviteiten = listOf(
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeHoofdactiviteit",
+                        indHoofdactiviteit = "ja"
+                    ),
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeNevenactiviteit1",
+                        indHoofdactiviteit = "nee"
+                    ),
+                    createBasisprofielSBIActiviteit(
+                        sbiOmschrijving = "fakeNevenactiviteit2",
+                        indHoofdactiviteit = "nee"
+                    )
+                ),
+                handelsnamen = listOf(
+                    createHandelsnaam(naam = "fakeHandelsnaam1", volgorde = 2),
+                    createHandelsnaam(naam = "fakeHandelsnaam2", volgorde = 1)
+                ),
+                eigenaar = createEigenaar(
+                    rsin = "fakeRsin",
+                    rechtsvorm = "fakeRechtsvorm",
+                    uitgebreideRechtsvorm = "fakeUitgebreideRechtsvorm",
+                    adressen = listOf(
+                        createBasisprofielAdres(
+                            type = "fakeType1",
+                            indAfgeschermd = "nee",
+                            volledigAdres = "fakeAdres1"
+                        ),
+                        createBasisprofielAdres(
+                            type = "fakeType2",
+                            indAfgeschermd = "ja",
+                            volledigAdres = "fakeAdres2"
+                        )
+                    ),
+                    websites = listOf("https://fake.nl", "https://other.nl")
+                )
+            )
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
+
+                Then("the basisprofiel is returned with all fields mapped correctly") {
+                    with(restBedrijfsprofiel) {
+                        this.kvkNummer shouldBe kvkNummer
+                        this.totaalWerkzamePersonen shouldBe basisprofiel.totaalWerkzamePersonen
+                        this.statutaireNaam shouldBe basisprofiel.statutaireNaam
+                        this.eersteHandelsnaam shouldBe "fakeHandelsnaam2"
+                        this.sbiHoofdActiviteit shouldBe "fakeHoofdactiviteit"
+                        this.sbiActiviteiten shouldBe listOf("fakeNevenactiviteit1", "fakeNevenactiviteit2")
+                        this.rsin shouldBe "fakeRsin"
+                        this.rechtsvorm shouldBe "fakeRechtsvorm"
+                        this.uitgebreideRechtsvorm shouldBe "fakeUitgebreideRechtsvorm"
+                        this.website shouldBe "https://fake.nl"
+                        with(this.adressen!!) {
+                            size shouldBe 2
+                            with(this[0]) {
+                                type shouldBe "fakeType1"
+                                afgeschermd shouldBe false
+                                volledigAdres shouldBe "fakeAdres1"
+                            }
+                            with(this[1]) {
+                                type shouldBe "fakeType2"
+                                afgeschermd shouldBe true
+                                volledigAdres shouldBe "fakeAdres2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Given("A KVK basisprofiel without an eigenaar") {
+            val kvkNummer = "12345678"
+            val basisprofiel = createBasisprofiel(kvkNummer = kvkNummer, eigenaar = null)
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
+
+                Then("the basisprofiel is returned with null eigenaar fields") {
+                    with(restBedrijfsprofiel) {
+                        this.kvkNummer shouldBe kvkNummer
+                        this.rsin shouldBe null
+                        this.rechtsvorm shouldBe null
+                        this.uitgebreideRechtsvorm shouldBe null
+                        this.adressen shouldBe null
+                        this.website shouldBe null
+                    }
+                }
+            }
+        }
+
+        Given("No KVK basisprofiel found for the given KVK nummer") {
+            val kvkNummer = "12345678"
+            every { kvkClientService.findBasisprofiel(kvkNummer) } returns null
+
+            When("the basisprofiel is requested for a given KVK nummer") {
+                val exception = shouldThrow<RechtspersoonNotFoundException> {
+                    klantRestService.readBasisprofiel(kvkNummer)
+                }
+
+                Then("a RechtspersoonNotFoundException is thrown") {
+                    exception.message shouldBe "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
                 }
             }
         }
@@ -770,12 +909,14 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Listing personen") {
         Given("A person exists for a given BSN") {
             val bsn = "123456789"
+            val userName = "testUser"
             val temporaryPersonId = UUID.randomUUID()
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.retrievePersoon(bsn)
+                brpClientService.retrievePersoon(bsn, any(), any())
             } returns person
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
@@ -783,12 +924,12 @@ class KlantRestServiceTest : BehaviorSpec({
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 Then("it should return the retrieved person in the result") {
-                    verify { brpClientService.retrievePersoon(bsn) }
+                    verify { brpClientService.retrievePersoon(bsn, any(), any()) }
                     result.resultaten.size shouldBe 1
                 }
                 Then("queryPersonen should not be called") {
                     verify(exactly = 0) {
-                        brpClientService.queryPersonen(any())
+                        brpClientService.queryPersonen(any(), any(), any())
                     }
                 }
             }
@@ -796,10 +937,12 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("No person exists for a given BSN") {
             val bsn = "123456789"
+            val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.retrievePersoon(bsn)
+                brpClientService.retrievePersoon(bsn, any(), any())
             } returns null
 
             When("listPersonen is called no persoon is found") {
@@ -817,12 +960,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 geboortedatum = LocalDate.of(1990, 1, 1)
             )
             val bsn = "987654321"
+            val userName = "testUser"
             val temporaryPersonId = UUID.randomUUID()
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.queryPersonen(any())
+                brpClientService.queryPersonen(any(), any(), any())
             } returns personenResponse
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
@@ -832,14 +977,16 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the searched person in the result") {
                     verify {
                         brpClientService.queryPersonen(
-                            restListPersonenParameters.toPersonenQuery()
+                            restListPersonenParameters.toPersonenQuery(),
+                            any(),
+                            any()
                         )
                     }
                     result.resultaten.size shouldBe 1
                 }
                 Then("retrievePersonen should not be called") {
                     verify(exactly = 0) {
-                        brpClientService.retrievePersoon(any(), any())
+                        brpClientService.retrievePersoon(any(), any(), any())
                     }
                 }
             }

@@ -1,0 +1,94 @@
+# Open Formulieren setup configuration for local development.
+# Applied automatically by the openformulieren-init container on first start.
+# Format reference: https://github.com/open-formulieren/open-forms/blob/3.4.2/docker/setup_configuration/data.yaml
+
+# Register all backend services as ZGW consumers so they appear in the
+# Open Formulieren admin UI under Services and can be selected in form backends.
+zgw_consumers_config_enable: True
+zgw_consumers:
+  services:
+    # Open Zaak - Zaken API
+    - identifier: openzaak-zaken
+      label: Open Zaak - Zaken API
+      api_root: http://openzaak-nginx:8000/zaken/api/v1/
+      api_type: zrc
+      auth_type: zgw
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
+
+    # Open Zaak - Documenten API
+    - identifier: openzaak-documenten
+      label: Open Zaak - Documenten API
+      api_root: http://openzaak-nginx:8000/documenten/api/v1/
+      api_type: drc
+      auth_type: zgw
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
+
+    # Open Zaak - Catalogi API
+    - identifier: openzaak-catalogi
+      label: Open Zaak - Catalogi API
+      api_root: http://openzaak-nginx:8000/catalogi/api/v1/
+      api_type: ztc
+      auth_type: zgw
+      client_id: open-formulieren
+      secret: openFormulierenOpenzaakClientSecret
+
+    # Objecten API (stores productaanvraag objects)
+    - identifier: objecten-api
+      label: Objecten API
+      api_root: http://objecten-api.local:8000/api/v2/
+      api_type: orc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeOpenFormulierenObjectsToken
+
+    # Open Klant - Klantinteracties API
+    - identifier: openklant-klantinteracties
+      label: Open Klant - Klantinteracties API
+      api_root: http://openklant.local:8000/klantinteracties/api/v1/
+      api_type: orc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeToken
+
+    # BRP Personen (local wiremock) — used by the Profile (customerProfile) component
+    - identifier: brp-personen
+      label: BRP Personen (Wiremock)
+      api_root: http://brp-personen-wiremock:8080/haalcentraal/api/brp/
+      api_type: orc
+      auth_type: no_auth
+
+    # Objecttypen API — used by Open Formulieren to validate objecttypes
+    - identifier: objecttypes-api
+      label: Objecttypes API
+      api_root: http://objecttypes-api:8000/api/v2/
+      api_type: orc
+      auth_type: api_key
+      header_key: Authorization
+      header_value: Token fakeOpenFormulierenObjecttypesToken
+
+# Objects API group for the productaanvraag-Dimpact test form.
+# Uses the local objecten-api service registered above.
+# catalogue_domain / catalogue_rsin and document-type fields are omitted because
+# the v1 (verouderd/sjabloon) registration backend does not upload PDFs/CSVs.
+# ZGW API groups still require manual setup (they need catalogue_domain / catalogue_rsin
+# values from your local Open Zaak instance which vary per environment):
+#   http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/
+objects_api_config_enable: True
+objects_api:
+  groups:
+    - name: Local Objects API
+      identifier: local-objects-api
+      objects_service_identifier: objecten-api
+      objecttypes_service_identifier: objecttypes-api
+      documenten_service_identifier: openzaak-documenten
+      catalogi_service_identifier: openzaak-catalogi
+      organisatie_rsin: "002564440"
+
+# ZGW API groups (for ZAC integration via zaak creation) still require manual setup
+# because they need catalogue_domain / catalogue_rsin from your local Open Zaak instance:
+#   http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/
+#
+# All other groups (Objects API, Klantinteracties) are configured automatically by
+# the openformulieren-init container on first start.
