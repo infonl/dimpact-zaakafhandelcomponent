@@ -51,7 +51,7 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() form: unknown;
   @Input() submission: unknown;
-  @Input() zaakUuid?: string;
+  @Input() taakdata?: Record<string, unknown>;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
@@ -93,7 +93,7 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
     this.evalContextReady = false;
     this.isLoading.emit(true);
     const evalContext = this.customFunctions.hasFunctionCalls(this.form)
-      ? await this.customFunctions.buildEvalContext(this.form, this.zaakUuid!)
+      ? await this.customFunctions.buildEvalContext(this.form, this.taakdata ?? {})
       : {};
     this.formOptions = { disableAlerts: true, evalContext };
     this.evalContextReady = true;

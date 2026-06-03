@@ -87,7 +87,7 @@
               *ngIf="formioFormulier"
               [submission]="{ data: taak.taakdata }"
               [form]="formioFormulier"
-              [zaakUuid]="taak.zaakUuid"
+              [taakdata]="taak.taakdata"
               [readOnly]="isReadonly()"
               (formSubmit)="onFormioFormSubmit($event)"
               (formChange)="onFormioFormChange($event)"
