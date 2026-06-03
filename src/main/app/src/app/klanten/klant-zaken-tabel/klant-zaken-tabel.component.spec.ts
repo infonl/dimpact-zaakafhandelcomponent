@@ -61,7 +61,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [`P-${mockPersoon.bsn}`, "999992958"],
+        Bewindvoerder: [`P-${mockPersoon.bsn}`, "P-999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
