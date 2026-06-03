@@ -32,10 +32,14 @@ export class FormioCustomFunctions {
   private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(InformatieObjectenService);
 
+  hasFunctionCalls(form: unknown): boolean {
+    return this.getFormFunctions(form).size > 0;
+  }
+
   async buildEvalContext(form: unknown, zaakUuid: string): Promise<EvalContext> {
       console.log("formio-custom-functions.ts: buildEvalContext");
     const context: EvalContext = {};
-    const zaakDataKey = this.getZaakdataKeys(form);
+    const zaakDataKey = this.getFormFunctions(form);
     const zaakdata = await this.fetchZaakdata(zaakUuid);
 
     for (const functionName of Object.values(KNOWN_FORMIO_FUNCTIONS)) {
@@ -56,7 +60,7 @@ export class FormioCustomFunctions {
     return { ...zaakdata, ...context };
   }
 
-    private getZaakdataKeys(
+    private getFormFunctions(
         form: unknown,
         result = new Map<string, string>(),
     ): Map<string, string> {
@@ -67,9 +71,9 @@ export class FormioCustomFunctions {
                 result.set(match[1], match[2]);
             }
         } else if (Array.isArray(form)) {
-            for (const item of form) this.getZaakdataKeys(item, result);
+            for (const item of form) this.getFormFunctions(item, result);
         } else if (form !== null && typeof form === "object") {
-            for (const v of Object.values(form)) this.getZaakdataKeys(v, result);
+            for (const v of Object.values(form)) this.getFormFunctions(v, result);
         }
         return result;
     }

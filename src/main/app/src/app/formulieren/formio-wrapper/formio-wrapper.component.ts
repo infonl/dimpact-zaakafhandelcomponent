@@ -90,13 +90,10 @@ export class FormioWrapperComponent implements OnInit, OnChanges, AfterViewInit 
 
   private async rebuildFormOptions(): Promise<void> {
     this.evalContextReady = false;
-    this.formOptions = {
-      disableAlerts: true,
-      evalContext: await this.customFunctions.buildEvalContext(
-        this.form,
-        this.zaakUuid!,
-      ),
-    };
+    const evalContext = this.customFunctions.hasFunctionCalls(this.form)
+      ? await this.customFunctions.buildEvalContext(this.form, this.zaakUuid!)
+      : {};
+    this.formOptions = { disableAlerts: true, evalContext };
     this.evalContextReady = true;
   }
 
