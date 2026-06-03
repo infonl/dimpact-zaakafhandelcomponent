@@ -37,32 +37,38 @@ describe(DefaultTaskForm.name, () => {
 
     describe("redenStart field", () => {
       it("should be a textarea", () => {
-        expect(fields.find((f) => f.key === "redenStart")?.type).toBe(
+        expect(fields.find((field) => field.key === "redenStart")?.type).toBe(
           "textarea",
         );
       });
 
       it("should be initialised to null", () => {
         expect(
-          fields.find((f) => f.key === "redenStart")?.control?.value,
+          fields.find((field) => field.key === "redenStart")?.control?.value,
         ).toBeNull();
       });
 
       it("should be required", () => {
-        const control = fields.find((f) => f.key === "redenStart")?.control;
+        const control = fields.find(
+          (field) => field.key === "redenStart",
+        )?.control;
         control?.setValue("");
         control?.markAsTouched();
         expect(control?.errors?.["required"]).toBeDefined();
       });
 
       it("should enforce maxlength of 1000", () => {
-        const control = fields.find((f) => f.key === "redenStart")?.control;
+        const control = fields.find(
+          (field) => field.key === "redenStart",
+        )?.control;
         control?.setValue("a".repeat(1001));
         expect(control?.errors?.["maxlength"]).toBeDefined();
       });
 
       it("should accept a valid value", () => {
-        const control = fields.find((f) => f.key === "redenStart")?.control;
+        const control = fields.find(
+          (field) => field.key === "redenStart",
+        )?.control;
         control?.setValue("a".repeat(1000));
         expect(control?.errors).toBeNull();
       });
@@ -85,42 +91,51 @@ describe(DefaultTaskForm.name, () => {
 
       it("should expose redenStart and afhandeling fields", () => {
         expect(fields).toHaveLength(2);
-        expect(fields.map((f) => f.key)).toEqual(["redenStart", "afhandeling"]);
+        expect(fields.map((field) => field.key)).toEqual([
+          "redenStart",
+          "afhandeling",
+        ]);
       });
 
       it("should render redenStart as plain-text", () => {
-        const field = fields.find((f) => f.key === "redenStart");
+        const field = fields.find((field) => field.key === "redenStart");
         expect(field?.type).toBe("plain-text");
         expect(field?.label).toBe("redenStart");
       });
 
       it("should render afhandeling as a textarea", () => {
-        expect(fields.find((f) => f.key === "afhandeling")?.type).toBe(
+        expect(fields.find((field) => field.key === "afhandeling")?.type).toBe(
           "textarea",
         );
       });
 
       it("should render afhandeling as editable when task is OPEN and user can wijzigen", () => {
-        expect(fields.find((f) => f.key === "afhandeling")?.readonly).toBe(
-          false,
-        );
+        expect(
+          fields.find((field) => field.key === "afhandeling")?.readonly,
+        ).toBe(false);
       });
 
       it("should require afhandeling", () => {
-        const control = fields.find((f) => f.key === "afhandeling")?.control;
+        const control = fields.find(
+          (field) => field.key === "afhandeling",
+        )?.control;
         control?.setValue("");
         control?.markAsTouched();
         expect(control?.errors?.["required"]).toBeDefined();
       });
 
       it("should enforce maxlength of 1000 on afhandeling", () => {
-        const control = fields.find((f) => f.key === "afhandeling")?.control;
+        const control = fields.find(
+          (field) => field.key === "afhandeling",
+        )?.control;
         control?.setValue("a".repeat(1001));
         expect(control?.errors?.["maxlength"]).toBeDefined();
       });
 
       it("should accept a valid afhandeling value", () => {
-        const control = fields.find((f) => f.key === "afhandeling")?.control;
+        const control = fields.find(
+          (field) => field.key === "afhandeling",
+        )?.control;
         control?.setValue("a".repeat(1000));
         expect(control?.errors).toBeNull();
       });
@@ -136,7 +151,7 @@ describe(DefaultTaskForm.name, () => {
           }),
         );
         expect(
-          fields.find((f) => f.key === "afhandeling")?.control?.value,
+          fields.find((field) => field.key === "afhandeling")?.control?.value,
         ).toBe("eerder opgeslagen afhandeling");
       });
 
@@ -149,7 +164,7 @@ describe(DefaultTaskForm.name, () => {
           }),
         );
         expect(
-          fields.find((f) => f.key === "afhandeling")?.control?.value,
+          fields.find((field) => field.key === "afhandeling")?.control?.value,
         ).toBeNull();
       });
 
@@ -161,7 +176,7 @@ describe(DefaultTaskForm.name, () => {
           }),
         );
         expect(
-          fields.find((f) => f.key === "afhandeling")?.control?.value,
+          fields.find((field) => field.key === "afhandeling")?.control?.value,
         ).toBeNull();
       });
     });
@@ -175,9 +190,9 @@ describe(DefaultTaskForm.name, () => {
             rechten: fromPartial({ wijzigen: true }),
           }),
         );
-        expect(fields.find((f) => f.key === "afhandeling")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "afhandeling")?.readonly,
+        ).toBe(true);
       });
 
       it("should render afhandeling as readonly when user cannot wijzigen", async () => {
@@ -188,9 +203,9 @@ describe(DefaultTaskForm.name, () => {
             rechten: fromPartial({ wijzigen: false }),
           }),
         );
-        expect(fields.find((f) => f.key === "afhandeling")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "afhandeling")?.readonly,
+        ).toBe(true);
       });
 
       it("should render afhandeling as readonly when rechten is missing", async () => {
@@ -200,9 +215,9 @@ describe(DefaultTaskForm.name, () => {
             status: "OPEN" as GeneratedType<"TaakStatus">,
           }),
         );
-        expect(fields.find((f) => f.key === "afhandeling")?.readonly).toBe(
-          true,
-        );
+        expect(
+          fields.find((field) => field.key === "afhandeling")?.readonly,
+        ).toBe(true);
       });
     });
   });
