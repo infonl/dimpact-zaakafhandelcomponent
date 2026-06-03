@@ -33,6 +33,7 @@
           cdkFocusInitial
           maxlength="255"
           (keyup.enter)="!trefwoorden.valid || zoek()"
+          placeholder="{{ 'msg.zoeken.bagObject.label' | translate }}"
           [formControl]="trefwoorden"
         />
         <mat-hint align="end"
