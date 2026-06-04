@@ -8,7 +8,6 @@ import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 
 type EvalContext = Record<string, unknown>;
-type FormNode = string | unknown[] | Record<string, unknown> | null | undefined;
 
 // Each factory pre-fetches async data and returns a synchronous closure for form.io's {{ }} evaluator.
 type FormioFunctionFactory = (
@@ -35,14 +34,14 @@ export class FormioCustomFunctions {
   };
 
   hasFunctionCalls(form: unknown): boolean {
-    return this.extractFormFunctions(form as FormNode).size > 0;
+    return this.extractFormFunctions(form).size > 0;
   }
 
   async prepareFormContext(
     form: unknown,
     taakdata: Record<string, unknown>,
   ): Promise<EvalContext> {
-    const foundFunctions = this.extractFormFunctions(form as FormNode);
+    const foundFunctions = this.extractFormFunctions(form);
 
     for (const funcName of foundFunctions.keys()) {
       if (!(funcName in this.functionRegistry)) {
@@ -64,28 +63,14 @@ export class FormioCustomFunctions {
 
   // ── Private helpers ──────────────────────────────────────────────────────────
 
-  private extractFormFunctions(
-    formNode: FormNode,
-    functionCallsByName = new Map<string, string[]>(),
-  ): Map<string, string[]> {
-    if (typeof formNode === "string") {
-        // Add ZAC_ to regex
-      const functionCallPattern = /\{\{\s*(\w+)\((\w+)\)/g;
-      let regexMatch: RegExpExecArray | null;
-      while ((regexMatch = functionCallPattern.exec(formNode)) !== null) {
-        const [, funcName, parameter] = regexMatch;
-        const existingParams = functionCallsByName.get(funcName) ?? [];
-        if (!existingParams.includes(parameter)) existingParams.push(parameter);
-        functionCallsByName.set(funcName, existingParams);
-      }
-    } else if (Array.isArray(formNode)) {
-      for (const arrayElement of formNode)
-        this.extractFormFunctions(arrayElement as FormNode, functionCallsByName);
-    } else if (formNode !== null && typeof formNode === "object") {
-      for (const nestedValue of Object.values(formNode))
-        this.extractFormFunctions(nestedValue as FormNode, functionCallsByName);
+  private extractFormFunctions(form: unknown): Map<string, string[]> {
+    const result = new Map<string, string[]>();
+    for (const [, funcName, parameter] of JSON.stringify(form ?? "").matchAll(/\{\{\s*(\w+)\((\w+)\)/g)) {
+      const params = result.get(funcName) ?? [];
+      if (!params.includes(parameter)) params.push(parameter);
+      result.set(funcName, params);
     }
-    return functionCallsByName;
+    return result;
   }
 
   private async fetchTitlesByUuid(
