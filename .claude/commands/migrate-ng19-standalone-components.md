@@ -1,25 +1,21 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 15 remaining** (2026-05-11)
+**Progress: 11 remaining** (2026-06-04)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ## Remaining Components
 
 - `app/app.component.ts`
-- `app/core/toolbar/toolbar.component.ts`
-- `app/dashboard/dashboard-card/dashboard-card.component.ts`
-- `app/dashboard/dashboard.component.ts`
-- `app/dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
-- `app/dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
-- `app/dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
-- `app/dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
-- `app/dashboard/zaken-card/zaken-card.component.ts`
 - `app/plan-items/human-task-do/human-task-do.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
 - `app/taken/taak-view/taak-view.component.ts`
+- `app/taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
 - `app/zaken/besluit-edit/besluit-edit.component.ts`
 - `app/zaken/besluit-view/besluit-view.component.ts`
 - `app/zaken/zaak-view/zaak-view.component.ts`
+- `app/zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
+- `app/zoeken/zoek/zoek.component.ts`
+
 ---
 
 ## ⛔ Hard Gates — NEVER skip, NEVER auto-proceed
@@ -52,6 +48,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Async + fakeAsync split `beforeEach` (child HTTP calls) | First `beforeEach` is `async` (TestBed + spies); second is `fakeAsync` (create + `tick(0)`); use `delay(0)` on all mock observables |
 | `By.directive` for directive presence | `fixture.debugElement.query(By.directive(MatTooltip))` — raw attribute selectors don't work after Angular processes them |
 | Cherry-pick an unmerged dep before migrating | `git cherry-pick <sha>` onto work branch when a dep PR hasn't merged to `main` yet |
+| `loadComponent` for routed standalones | Replace `component: XyzComponent` with `loadComponent: () => import('./path/xyz.component').then(m => m.XyzComponent)` in routing modules. This is the idiomatic Angular 19 pattern — each routed standalone gets its own lazy chunk. Remove the static import too. Only worth doing if the resulting chunk is **≥ 10 kB** (uncompressed) — below that the extra HTTP round-trip overhead outweighs the saving. Check chunk size with `npm run build` and look for the named chunk in the output. |
 
 ---
 
@@ -60,8 +57,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Rule | Detail |
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
-| **Skip routing** | Do not touch `*-routing.module.ts`. |
-| **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
+| **Update routing** | When a component is migrated to standalone, also update its route in `*-routing.module.ts` to use `loadComponent` with a dynamic import. Remove the static import. |
+| **No SharedModule in `imports[]`** | Never add `SharedModule`, `MaterialModule`, or any other barrel/shared module to a standalone component's `imports[]` or to a spec's `TestBed` imports. Import every directive, component, and pipe individually. Barrel modules defeat tree-shaking and lazy loading — the entire point of going standalone. In specs, the standalone component under test already declares its own imports, so the spec only needs `[TheComponent, NoopAnimationsModule, TranslateModule.forRoot()]`. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
 | **Methods: `protected` by default** | All methods are `protected`. Never `public` just because a spec calls it. |
@@ -212,6 +209,8 @@ TBD — run step 0 (claims check) at start of next session.
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
 | batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
 | batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
+| batch-17 (dashboard) | `DashboardCardComponent`, `DashboardComponent`, `InformatieobjectenCardComponent`, `TaakZoekenCardComponent`, `ZaakWaarschuwingenCardComponent`, `ZaakZoekenCardComponent`, `ZakenCardComponent` + `DashboardModule` deleted | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-17b (toolbar) | `BackButtonDirective`, `ToolbarComponent` | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
 
 ---
 
