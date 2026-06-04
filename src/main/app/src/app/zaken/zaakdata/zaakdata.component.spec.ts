@@ -6,7 +6,6 @@
 import { Clipboard } from "@angular/cdk/clipboard";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { MatIconHarness } from "@angular/material/icon/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -16,6 +15,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -178,9 +178,15 @@ describe(ZaakdataComponent.name, () => {
       const icons = await loader.getAllHarnesses(
         MatIconHarness.with({ name: "content_copy" }),
       );
-      expect(await (await icons[0].host()).hasClass("copy-icon--sm")).toBe(true);
-      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(false);
-      expect(await (await icons[2].host()).hasClass("copy-icon--sm")).toBe(false);
+      expect(await (await icons[0].host()).hasClass("copy-icon--sm")).toBe(
+        true,
+      );
+      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(
+        false,
+      );
+      expect(await (await icons[2].host()).hasClass("copy-icon--sm")).toBe(
+        false,
+      );
     });
   });
 });
