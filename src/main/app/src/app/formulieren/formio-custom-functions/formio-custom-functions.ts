@@ -16,7 +16,9 @@ type FormNode = string | unknown[] | Record<string, unknown> | null | undefined;
 
 @Injectable({ providedIn: "root" })
 export class FormioCustomFunctions {
-  private readonly informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
 
   hasFunctionCalls(form: unknown): boolean {
     return this.extractFormFunctions(form as FormNode).size > 0;
@@ -69,7 +71,10 @@ export class FormioCustomFunctions {
       }
     } else if (Array.isArray(formNode)) {
       for (const arrayElement of formNode)
-        this.extractFormFunctions(arrayElement as FormNode, functionCallsByName);
+        this.extractFormFunctions(
+          arrayElement as FormNode,
+          functionCallsByName,
+        );
     } else if (formNode !== null && typeof formNode === "object") {
       for (const nestedValue of Object.values(formNode))
         this.extractFormFunctions(nestedValue as FormNode, functionCallsByName);
@@ -77,17 +82,21 @@ export class FormioCustomFunctions {
     return functionCallsByName;
   }
 
-  private async fetchTitlesByUuid(uuids: string[]): Promise<Map<string, string>> {
+  private async fetchTitlesByUuid(
+    uuids: string[],
+  ): Promise<Map<string, string>> {
     const titlesById = new Map<string, string>();
     await Promise.all(
       uuids.map(async (uuid) => {
         try {
           const document = await lastValueFrom(
-            this.informatieObjectenService.readEnkelvoudigInformatieobject(uuid),
+            this.informatieObjectenService.readEnkelvoudigInformatieobject(
+              uuid,
+            ),
           );
           if (document?.titel) titlesById.set(uuid, document.titel);
         } catch {
-          return uuid
+          return uuid;
         }
       }),
     );

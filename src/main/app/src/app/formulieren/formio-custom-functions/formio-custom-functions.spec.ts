@@ -89,7 +89,7 @@ describe(FormioCustomFunctions.name, () => {
     });
   });
 
-  describe(FormioCustomFunctions.prototype.buildEvalContext.name, () => {
+  describe(FormioCustomFunctions.prototype.prepareFormContext.name, () => {
     beforeEach(() => {
       informatieObjectenService.readEnkelvoudigInformatieobject.mockReturnValue(
         mockDocument("Document A"),
@@ -97,7 +97,7 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should spread taakdata as top-level keys in the context", async () => {
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
@@ -106,42 +106,48 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it("should register getDocumentTitles as a function in the context", async () => {
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
 
-      expect(typeof context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE]).toBe(
+      expect(typeof context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES]).toBe(
         "function",
       );
     });
 
     it("should return the title string when getDocumentTitles is called with UUIDs", async () => {
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([UUID_A])).toBe("Document A");
     });
 
     it("should return empty string when called with an empty array", async () => {
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([])).toBe("");
     });
 
     it("should return empty string when the taakdata field is missing", async () => {
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: unknown) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: unknown,
+      ) => string;
 
       expect(fn(undefined)).toBe("");
     });
@@ -151,11 +157,13 @@ describe(FormioCustomFunctions.name, () => {
         (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
       );
 
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([UUID_A, UUID_B])).toBe("Document A en Document B");
     });
@@ -164,17 +172,25 @@ describe(FormioCustomFunctions.name, () => {
       informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
         (uuid) =>
           mockDocument(
-            uuid === UUID_A ? "Document A" : uuid === UUID_B ? "Document B" : "Document C",
+            uuid === UUID_A
+              ? "Document A"
+              : uuid === UUID_B
+                ? "Document B"
+                : "Document C",
           ),
       );
 
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
-      expect(fn([UUID_A, UUID_B, UUID_C])).toBe("Document A, Document B en Document C");
+      expect(fn([UUID_A, UUID_B, UUID_C])).toBe(
+        "Document A, Document B en Document C",
+      );
     });
 
     it("should fall back to UUID when document fetch fails", async () => {
@@ -182,11 +198,13 @@ describe(FormioCustomFunctions.name, () => {
         throwError(() => new Error("Not found")),
       );
 
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([UUID_A])).toBe(UUID_A);
     });
@@ -196,11 +214,13 @@ describe(FormioCustomFunctions.name, () => {
         mockDocument(null),
       );
 
-      const context = await service.buildEvalContext(
+      const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([UUID_A])).toBe(UUID_A);
     });
@@ -216,18 +236,20 @@ describe(FormioCustomFunctions.name, () => {
         ],
       };
 
-      const context = await service.buildEvalContext(formWithTwoCalls, {
+      const context = await service.prepareFormContext(formWithTwoCalls, {
         ZAAK_Docs_A: [UUID_A],
         ZAAK_Docs_B: [UUID_B],
       });
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+        uuids: string[],
+      ) => string;
 
       expect(fn([UUID_A])).toBe("Document A");
       expect(fn([UUID_B])).toBe("Document B");
     });
 
     it("should fetch each document by UUID", async () => {
-      await service.buildEvalContext(formWithFunction("ZAAK_Docs"), {
+      await service.prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],
       });
 
