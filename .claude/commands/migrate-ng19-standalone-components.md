@@ -1,19 +1,11 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 15 remaining** (2026-05-11)
+**Progress: 11 remaining** (2026-06-04)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
 
 ## Remaining Components
 
 - `app/app.component.ts`
-- `app/core/toolbar/toolbar.component.ts`
-- `app/dashboard/dashboard-card/dashboard-card.component.ts`
-- `app/dashboard/dashboard.component.ts`
-- `app/dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
-- `app/dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
-- `app/dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
-- `app/dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
-- `app/dashboard/zaken-card/zaken-card.component.ts`
 - `app/plan-items/human-task-do/human-task-do.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
 - `app/taken/taak-view/taak-view.component.ts`
@@ -66,7 +58,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
 | **Update routing** | When a component is migrated to standalone, also update its route in `*-routing.module.ts` to use `loadComponent` with a dynamic import. Remove the static import. |
-| **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
+| **No SharedModule in `imports[]`** | Never add `SharedModule`, `MaterialModule`, or any other barrel/shared module to a standalone component's `imports[]` or to a spec's `TestBed` imports. Import every directive, component, and pipe individually. Barrel modules defeat tree-shaking and lazy loading — the entire point of going standalone. In specs, the standalone component under test already declares its own imports, so the spec only needs `[TheComponent, NoopAnimationsModule, TranslateModule.forRoot()]`. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
 | **Methods: `protected` by default** | All methods are `protected`. Never `public` just because a spec calls it. |
@@ -217,6 +209,8 @@ TBD — run step 0 (claims check) at start of next session.
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
 | batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
 | batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
+| batch-17 (dashboard) | `DashboardCardComponent`, `DashboardComponent`, `InformatieobjectenCardComponent`, `TaakZoekenCardComponent`, `ZaakWaarschuwingenCardComponent`, `ZaakZoekenCardComponent`, `ZakenCardComponent` + `DashboardModule` deleted | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-17b (toolbar) | `BackButtonDirective`, `ToolbarComponent` | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
 
 ---
 
