@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <mask id="m">
+      <!-- white = show, black = cut transparent -->
+      <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="white"/>
+      <polygon points="46.08,64.00 64.00,35.20 64.00,64.00" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="#3f51b5" mask="url(#m)"/>
+  <text x="32.0" y="54.32"
+        font-family="Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-size="62" font-weight="900" font-style="italic"
+        text-anchor="middle" fill="white"
+        stroke="white" stroke-width="3.84" stroke-linejoin="round"
+        paint-order="stroke fill"
+        dominant-baseline="auto">Z</text>
+</svg>
