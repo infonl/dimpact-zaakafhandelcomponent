@@ -169,17 +169,18 @@ describe(ZaakdataComponent.name, () => {
       expect(clipboard.copy).toHaveBeenCalledWith("myField");
     });
 
-    it("applies copy-icon--sm class only when control has no value", async () => {
+    it("applies copy-icon--sm class only when control value is null/undefined/empty string", async () => {
       setupWithForm(
-        makeZaak({ zaakdata: { emptyField: "", filledField: "hello" } }),
+        makeZaak({
+          zaakdata: { emptyField: "", filledField: "hello", zeroField: 0 },
+        }),
       );
       const icons = await loader.getAllHarnesses(
         MatIconHarness.with({ name: "content_copy" }),
       );
       expect(await (await icons[0].host()).hasClass("copy-icon--sm")).toBe(true);
-      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(
-        false,
-      );
+      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(false);
+      expect(await (await icons[2].host()).hasClass("copy-icon--sm")).toBe(false);
     });
   });
 });
