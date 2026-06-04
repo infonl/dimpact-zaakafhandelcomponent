@@ -5,7 +5,7 @@
 name: Playwright Tests
 on:
   schedule:
-    # Runs at 9:00 PM UTC from Monday to Friday
+    # Runs at 1:00 AM UTC from Monday to Friday
     - cron: "0 1 * * 1-5"
   workflow_dispatch:
 
