@@ -1,20 +1,21 @@
 # Generic TDD Standalone Migration Plan
 
 **Progress: 11 remaining** (2026-06-04)
-Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
+Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
 
 ## Remaining Components
 
 - `app/app.component.ts`
 - `app/plan-items/human-task-do/human-task-do.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
+- `app/shared/form/documents/documents.ts`
+- `app/shared/form/file/file.ts`
+- `app/shared/form/form.ts`
+- `app/shared/form/html-editor/html-editor.ts`
 - `app/taken/taak-view/taak-view.component.ts`
-- `app/taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
 - `app/zaken/besluit-edit/besluit-edit.component.ts`
 - `app/zaken/besluit-view/besluit-view.component.ts`
 - `app/zaken/zaak-view/zaak-view.component.ts`
-- `app/zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
-- `app/zoeken/zoek/zoek.component.ts`
 
 ---
 
