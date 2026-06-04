@@ -6,6 +6,7 @@
 import { Clipboard } from "@angular/cdk/clipboard";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -157,24 +158,28 @@ describe(ZaakdataComponent.name, () => {
   };
 
   describe("clipboard copy icons", () => {
-    it("copies the field name to clipboard when icon is clicked", () => {
+    it("copies the field name to clipboard when icon is clicked", async () => {
       setupWithForm(makeZaak({ zaakdata: { myField: "someValue" } }));
       const clipboard = TestBed.inject(Clipboard);
       jest.spyOn(clipboard, "copy");
-      const icon: HTMLElement =
-        fixture.nativeElement.querySelector("mat-icon.copy-icon");
-      icon.click();
+      const icon = await loader.getHarness(
+        MatIconHarness.with({ name: "content_copy" }),
+      );
+      await (await icon.host()).click();
       expect(clipboard.copy).toHaveBeenCalledWith("myField");
     });
 
-    it("applies copy-icon--sm class only when control has no value", () => {
+    it("applies copy-icon--sm class only when control has no value", async () => {
       setupWithForm(
         makeZaak({ zaakdata: { emptyField: "", filledField: "hello" } }),
       );
-      const icons: NodeListOf<Element> =
-        fixture.nativeElement.querySelectorAll("mat-icon.copy-icon");
-      expect(icons[0].classList).toContain("copy-icon--sm");
-      expect(icons[1].classList).not.toContain("copy-icon--sm");
+      const icons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "content_copy" }),
+      );
+      expect(await (await icons[0].host()).hasClass("copy-icon--sm")).toBe(true);
+      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(
+        false,
+      );
     });
   });
 });
