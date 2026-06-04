@@ -35,8 +35,8 @@ export class FormioCustomFunctions {
 
       switch (functionName) {
         case KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE: {
-          const allUuids = zaakdataFields.flatMap((field) => {
-            const fieldValue = taakdata[field];
+          const allUuids = zaakdataFields.flatMap((parameter) => {
+            const fieldValue = taakdata[parameter];
             return Array.isArray(fieldValue) ? (fieldValue as string[]) : [];
           });
           const titlesById = await this.fetchTitlesById(allUuids);
@@ -62,10 +62,10 @@ export class FormioCustomFunctions {
       const functionCallPattern = /\{\{\s*(\w+)\((\w+)\)/g;
       let regexMatch: RegExpExecArray | null;
       while ((regexMatch = functionCallPattern.exec(formNode)) !== null) {
-        const [, funcName, paramName] = regexMatch;
-        const existing = functionCallsByName.get(funcName) ?? [];
-        if (!existing.includes(paramName)) existing.push(paramName);
-        functionCallsByName.set(funcName, existing);
+        const [, funcName, parameter] = regexMatch;
+        const existingParams = functionCallsByName.get(funcName) ?? [];
+        if (!existingParams.includes(parameter)) existingParams.push(parameter);
+        functionCallsByName.set(funcName, existingParams);
       }
     } else if (Array.isArray(formNode)) {
       for (const arrayElement of formNode)
