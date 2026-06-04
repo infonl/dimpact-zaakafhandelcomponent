@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Clipboard } from "@angular/cdk/clipboard";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
@@ -146,5 +147,34 @@ describe(ZaakdataComponent.name, () => {
     );
     await buttons[1].click();
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  const setupWithForm = (zaak: GeneratedType<"RestZaak">) => {
+    testQueryClient.setQueryData(["procesvariabelen"], []);
+    const result = setup(zaak);
+    fixture.detectChanges();
+    return result;
+  };
+
+  describe("clipboard copy icons", () => {
+    it("copies the field name to clipboard when icon is clicked", () => {
+      setupWithForm(makeZaak({ zaakdata: { myField: "someValue" } }));
+      const clipboard = TestBed.inject(Clipboard);
+      jest.spyOn(clipboard, "copy");
+      const icon: HTMLElement =
+        fixture.nativeElement.querySelector("mat-icon.copy-icon");
+      icon.click();
+      expect(clipboard.copy).toHaveBeenCalledWith("myField");
+    });
+
+    it("applies copy-icon--sm class only when control has no value", () => {
+      setupWithForm(
+        makeZaak({ zaakdata: { emptyField: "", filledField: "hello" } }),
+      );
+      const icons: NodeListOf<Element> =
+        fixture.nativeElement.querySelectorAll("mat-icon.copy-icon");
+      expect(icons[0].classList).toContain("copy-icon--sm");
+      expect(icons[1].classList).not.toContain("copy-icon--sm");
+    });
   });
 });
