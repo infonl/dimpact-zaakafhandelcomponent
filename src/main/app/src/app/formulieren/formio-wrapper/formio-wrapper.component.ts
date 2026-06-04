@@ -94,15 +94,21 @@ export class FormioWrapperComponent
   private async rebuildFormOptions(): Promise<void> {
     this.evalContextReady = false;
     this.isLoading.emit(true);
-    const evalContext = this.customFunctions.hasFunctionCalls(this.form)
-      ? await this.customFunctions.buildEvalContext(
-          this.form,
-          this.taakdata ?? {},
-        )
-      : {};
-    this.formOptions = { disableAlerts: true, evalContext };
-    this.evalContextReady = true;
-    this.isLoading.emit(false);
+    try {
+      const evalContext = this.customFunctions.hasFunctionCalls(this.form)
+        ? await this.customFunctions.buildEvalContext(
+            this.form,
+            this.taakdata ?? {},
+          )
+        : {};
+      this.formOptions = { disableAlerts: true, evalContext };
+    } catch (error) {
+      console.error("Failed to build form eval context:", error);
+      this.formOptions = { disableAlerts: true, evalContext: {} };
+    } finally {
+      this.evalContextReady = true;
+      this.isLoading.emit(false);
+    }
   }
 
   async ngOnInit() {
