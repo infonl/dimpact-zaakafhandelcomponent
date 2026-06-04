@@ -176,15 +176,15 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
 - [x] `zoeken/zoek/zoek.component.ts`
 
-### Batch 17 — claimed (branch: `temp/standalone-migration`)
+### Batch 17 — done (branch: `temp/standalone-migration`)
 
-- [ ] `dashboard/dashboard-card/dashboard-card.component.ts`
-- [ ] `dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
-- [ ] `dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
-- [ ] `dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
-- [ ] `dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
-- [ ] `dashboard/zaken-card/zaken-card.component.ts`
-- [ ] `dashboard/dashboard.component.ts`
+- [x] `dashboard/dashboard-card/dashboard-card.component.ts`
+- [x] `dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
+- [x] `dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
+- [x] `dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
+- [x] `dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
+- [x] `dashboard/zaken-card/zaken-card.component.ts`
+- [x] `dashboard/dashboard.component.ts`
 
 ## Colleague
 
