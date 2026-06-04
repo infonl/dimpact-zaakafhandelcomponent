@@ -116,16 +116,24 @@ describe(FormioCustomFunctions.name, () => {
       );
     });
 
-    it("should return the pre-built title string when getDocumentTitles is called", async () => {
+    it("should return the title string when getDocumentTitles is called with UUIDs", async () => {
       const context = await service.buildEvalContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
 
-      expect(fn()).toBe("Document A");
+      expect(fn([UUID_A])).toBe("Document A");
+    });
+
+    it("should return empty string when called with an empty array", async () => {
+      const context = await service.buildEvalContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: [] },
+      );
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+
+      expect(fn([])).toBe("");
     });
 
     it("should return empty string when the taakdata field is missing", async () => {
@@ -133,11 +141,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: unknown) => string;
 
-      expect(fn()).toBe("");
+      expect(fn(undefined)).toBe("");
     });
 
     it("should format two documents with 'en'", async () => {
@@ -149,22 +155,16 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B] },
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
 
-      expect(fn()).toBe("Document A en Document B");
+      expect(fn([UUID_A, UUID_B])).toBe("Document A en Document B");
     });
 
     it("should format three documents with commas and 'en'", async () => {
       informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
         (uuid) =>
           mockDocument(
-            uuid === UUID_A
-              ? "Document A"
-              : uuid === UUID_B
-                ? "Document B"
-                : "Document C",
+            uuid === UUID_A ? "Document A" : uuid === UUID_B ? "Document B" : "Document C",
           ),
       );
 
@@ -172,11 +172,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
 
-      expect(fn()).toBe("Document A, Document B en Document C");
+      expect(fn([UUID_A, UUID_B, UUID_C])).toBe("Document A, Document B en Document C");
     });
 
     it("should fall back to UUID when document fetch fails", async () => {
@@ -188,11 +186,9 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
 
-      expect(fn()).toBe(UUID_A);
+      expect(fn([UUID_A])).toBe(UUID_A);
     });
 
     it("should fall back to UUID when document has no titel", async () => {
@@ -204,11 +200,30 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[
-        KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE
-      ] as () => string;
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
 
-      expect(fn()).toBe(UUID_A);
+      expect(fn([UUID_A])).toBe(UUID_A);
+    });
+
+    it("should pre-fetch titles for all fields when the same function appears multiple times", async () => {
+      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
+        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
+      );
+      const formWithTwoCalls = {
+        components: [
+          { html: "{{ getDocumentTitles(ZAAK_Docs_A) }}", type: "content" },
+          { html: "{{ getDocumentTitles(ZAAK_Docs_B) }}", type: "content" },
+        ],
+      };
+
+      const context = await service.buildEvalContext(formWithTwoCalls, {
+        ZAAK_Docs_A: [UUID_A],
+        ZAAK_Docs_B: [UUID_B],
+      });
+      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE] as (uuids: string[]) => string;
+
+      expect(fn([UUID_A])).toBe("Document A");
+      expect(fn([UUID_B])).toBe("Document B");
     });
 
     it("should fetch each document by UUID", async () => {

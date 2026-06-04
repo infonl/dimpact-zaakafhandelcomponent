@@ -86,7 +86,7 @@ export class FormioWrapperComponent
   protected evalContextReady = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["form"]) {
+    if (changes["form"] || changes["taakdata"]) {
       setTimeout(() => void this.rebuildFormOptions());
     }
   }
