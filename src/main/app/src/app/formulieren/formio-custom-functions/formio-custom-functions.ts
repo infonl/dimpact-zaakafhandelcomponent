@@ -9,9 +9,11 @@ import { InformatieObjectenService } from "../../informatie-objecten/informatie-
 
 type EvalContext = Record<string, unknown>;
 
-// Each factory pre-fetches async data and returns a synchronous closure for form.io's {{ }} evaluator.
+// Each factory receives the taakdata and the specific parameter names found in the form,
+// pre-fetches async data, and returns a synchronous closure for form.io's {{ }} evaluator.
 type FormioFunctionFactory = (
   taakdata: Record<string, unknown>,
+  parameters: string[],
 ) => Promise<(uuids: unknown) => string>;
 
 @Injectable({ providedIn: "root" })
@@ -19,11 +21,12 @@ export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(InformatieObjectenService);
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
-    getDocumentTitles: async (taakdata) => {
-      const allUuids = Object.values(taakdata)
-        .filter(Array.isArray)
-        .flat() as string[];
-      const titlesById = await this.fetchTitlesByUuid(allUuids);
+    getDocumentTitles: async (taakdata, parameters) => {
+      const documentUuids = parameters.flatMap((parameter) => {
+        const fieldValue = taakdata[parameter];
+        return Array.isArray(fieldValue) ? (fieldValue as string[]) : [];
+      });
+      const titlesById = await this.fetchTitlesByUuid(documentUuids);
       return (uuids: unknown) =>
         this.formatValues(
           (Array.isArray(uuids) ? (uuids as string[]) : []).map(
@@ -55,7 +58,7 @@ export class FormioCustomFunctions {
     const context: EvalContext = { ...taakdata };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
-        context[funcName] = await factory(taakdata);
+        context[funcName] = await factory(taakdata, foundFunctions.get(funcName) ?? []);
       }
     }
     return context;
