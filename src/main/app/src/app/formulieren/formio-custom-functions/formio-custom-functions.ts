@@ -8,7 +8,7 @@ import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 
 export enum KNOWN_FORMIO_FUNCTIONS {
-  GET_DOCUMENT_TITLE = "getDocumentTitles",
+  GET_DOCUMENT_TITLES = "getDocumentTitles",
 }
 
 type EvalContext = Record<string, unknown>;
@@ -22,7 +22,7 @@ export class FormioCustomFunctions {
     return this.extractFormFunctions(form as FormNode).size > 0;
   }
 
-  async buildEvalContext(
+  async prepareFormContext(
     form: unknown,
     taakdata: Record<string, unknown>,
   ): Promise<EvalContext> {
@@ -34,12 +34,12 @@ export class FormioCustomFunctions {
       if (!zaakdataFields?.length) continue;
 
       switch (functionName) {
-        case KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLE: {
+        case KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES: {
           const allUuids = zaakdataFields.flatMap((parameter) => {
             const fieldValue = taakdata[parameter];
             return Array.isArray(fieldValue) ? (fieldValue as string[]) : [];
           });
-          const titlesById = await this.fetchTitlesById(allUuids);
+          const titlesById = await this.fetchTitlesByUuid(allUuids);
           functionsContext[functionName] = (uuids: unknown) =>
             this.formatValues(
               (Array.isArray(uuids) ? (uuids as string[]) : []).map(
@@ -77,7 +77,7 @@ export class FormioCustomFunctions {
     return functionCallsByName;
   }
 
-  private async fetchTitlesById(uuids: string[]): Promise<Map<string, string>> {
+  private async fetchTitlesByUuid(uuids: string[]): Promise<Map<string, string>> {
     const titlesById = new Map<string, string>();
     await Promise.all(
       uuids.map(async (uuid) => {

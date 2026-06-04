@@ -96,7 +96,7 @@ export class FormioWrapperComponent
     this.isLoading.emit(true);
     try {
       const evalContext = this.customFunctions.hasFunctionCalls(this.form)
-        ? await this.customFunctions.buildEvalContext(
+        ? await this.customFunctions.prepareFormContext(
             this.form,
             this.taakdata ?? {},
           )
