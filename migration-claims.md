@@ -178,6 +178,11 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 
 ### Batch 17 — done (branch: `temp/standalone-migration`)
 
+### Batch 17b — done (branch: `temp/standalone-migration`)
+
+- [x] `shared/navigation/back-button.directive.ts`
+- [x] `core/toolbar/toolbar.component.ts`
+
 - [x] `dashboard/dashboard-card/dashboard-card.component.ts`
 - [x] `dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
 - [x] `dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
