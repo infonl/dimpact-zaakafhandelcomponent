@@ -183,6 +183,13 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `shared/navigation/back-button.directive.ts`
 - [x] `core/toolbar/toolbar.component.ts`
 
+### Batch 18 — claimed (branch: `temp/standalone-migration`)
+
+- [ ] `shared/form/html-editor/html-editor.ts`
+- [ ] `shared/form/file/file.ts`
+- [ ] `shared/form/documents/documents.ts`
+- [ ] `shared/form/form.ts`
+
 - [x] `dashboard/dashboard-card/dashboard-card.component.ts`
 - [x] `dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
 - [x] `dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
