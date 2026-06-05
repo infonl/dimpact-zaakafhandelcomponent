@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   booleanAttribute,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   HostListener,
@@ -19,6 +20,8 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
 import {
   ExtendedComponentSchema,
   FormioAppConfig,
@@ -82,36 +85,41 @@ export class FormioWrapperComponent
 
   private static activeElementPatched = false;
   private readonly customFunctions = inject(FormioCustomFunctions);
-  protected formOptions: Record<string, unknown> = {};
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly rebuild$ = new ReplaySubject<void>(1);
+  protected evalContext: Record<string, unknown> = {};
   protected evalContextReady = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["form"] || changes["taakdata"]) {
-      setTimeout(() => void this.rebuildFormOptions());
-    }
-  }
-
-  private async rebuildFormOptions(): Promise<void> {
-    this.evalContextReady = false;
-    this.isLoading.emit(true);
-    try {
-      const evalContext = this.customFunctions.hasFunctionCalls(this.form)
-        ? await this.customFunctions.prepareFormContext(
-            this.form,
-            this.taakdata ?? {},
-          )
-        : {};
-      this.formOptions = { disableAlerts: true, evalContext };
-    } catch (error) {
-      console.error("Failed to build form eval context:", error);
-      this.formOptions = { disableAlerts: true, evalContext: {} };
-    } finally {
-      this.evalContextReady = true;
-      this.isLoading.emit(false);
+    if (changes["form"]) {
+      this.rebuild$.next();
     }
   }
 
   async ngOnInit() {
+    this.rebuild$
+      .pipe(
+        switchMap(() => {
+          this.evalContextReady = false;
+          this.isLoading.emit(true);
+          const source = from(
+            this.customFunctions.prepareFormContext(this.form, this.taakdata ?? {}),
+          );
+          return source.pipe(
+            catchError((error) => {
+              console.error("Failed to build form eval context:", error);
+              return of({});
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((evalContext: Record<string, unknown>) => {
+        this.evalContext = evalContext;
+        this.evalContextReady = true;
+        this.isLoading.emit(false);
+      });
+
     await this.loadBootstrapStyles();
     this.stylesLoaded = true;
   }

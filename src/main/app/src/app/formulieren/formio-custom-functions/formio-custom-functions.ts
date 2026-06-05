@@ -18,27 +18,31 @@ type FormioFunctionFactory = (
 
 @Injectable({ providedIn: "root" })
 export class FormioCustomFunctions {
-  private readonly informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
-    getDocumentTitles: async (taakdata, parameters) => {
+    ZAC_getDocumentTitles: async (taakdata, parameters) => {
       const documentUuids = parameters.flatMap((parameter) => {
         const fieldValue = taakdata[parameter];
         return Array.isArray(fieldValue) ? (fieldValue as string[]) : [];
       });
-      const titlesById = await this.fetchTitlesByUuid(documentUuids);
-      return (uuids: unknown) =>
-        this.formatValues(
+      const titleByUuid =
+        await this.fetchInformatieObjectTitlesByUuid(documentUuids);
+
+      const listFormat = new Intl.ListFormat("nl", {
+        style: "long",
+        type: "conjunction",
+      });
+      return (uuids) =>
+        listFormat.format(
           (Array.isArray(uuids) ? (uuids as string[]) : []).map(
-            (uuid) => titlesById.get(uuid) ?? uuid,
+            (uuid) => titleByUuid.get(uuid) ?? uuid,
           ),
         );
     },
   };
-
-  hasFunctionCalls(form: unknown): boolean {
-    return this.extractFormFunctions(form).size > 0;
-  }
 
   async prepareFormContext(
     form: unknown,
@@ -58,17 +62,20 @@ export class FormioCustomFunctions {
     const context: EvalContext = { ...taakdata };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
-        context[funcName] = await factory(taakdata, foundFunctions.get(funcName) ?? []);
+        context[funcName] = await factory(
+          taakdata,
+          foundFunctions.get(funcName) ?? [],
+        );
       }
     }
     return context;
   }
 
-  // ── Private helpers ──────────────────────────────────────────────────────────
-
   private extractFormFunctions(form: unknown): Map<string, string[]> {
     const result = new Map<string, string[]>();
-    for (const [, funcName, parameter] of JSON.stringify(form ?? "").matchAll(/\{\{\s*(\w+)\((\w+)\)/g)) {
+    for (const [, funcName, parameter] of JSON.stringify(form ?? "").matchAll(
+      /\{\{\s*(\w+)\((\w+)\)/g,
+    )) {
       const params = result.get(funcName) ?? [];
       if (!params.includes(parameter)) params.push(parameter);
       result.set(funcName, params);
@@ -76,28 +83,23 @@ export class FormioCustomFunctions {
     return result;
   }
 
-  private async fetchTitlesByUuid(
+  private async fetchInformatieObjectTitlesByUuid(
     uuids: string[],
   ): Promise<Map<string, string>> {
-    const titlesById = new Map<string, string>();
-    await Promise.all(
+    const entries = await Promise.all(
       uuids.map(async (uuid) => {
         try {
           const document = await lastValueFrom(
-            this.informatieObjectenService.readEnkelvoudigInformatieobject(uuid),
+            this.informatieObjectenService.readEnkelvoudigInformatieobject(
+              uuid,
+            ),
           );
-          if (document?.titel) titlesById.set(uuid, document.titel);
+          return document?.titel ? ([uuid, document.titel] as const) : null;
         } catch {
-
+          return null;
         }
       }),
     );
-    return titlesById;
-  }
-
-  private formatValues(values: string[]): string {
-    if (values.length === 0) return "";
-    if (values.length === 1) return values[0];
-    return values.slice(0, -1).join(", ") + " en " + values[values.length - 1];
+    return new Map(entries.filter((entry) => entry !== null));
   }
 }
