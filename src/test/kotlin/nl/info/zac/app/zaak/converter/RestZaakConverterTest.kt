@@ -43,8 +43,10 @@ import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
@@ -475,6 +477,50 @@ class RestZaakConverterTest : BehaviorSpec({
                         restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
                     }
                 }
+            }
+        }
+    }
+
+    Given("A zaak with an intake-related status type") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val status = createZaakStatus().apply { statustoelichting = "fake status" }
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns null
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+
+        When("converting a zaak with the 'Intake' status") {
+            val statusType = createStatusType().apply { omschrijving = STATUSTYPE_OMSCHRIJVING_INTAKE }
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+
+            Then("isInIntakeFase should be true") {
+                restZaak.isInIntakeFase shouldBe true
+            }
+        }
+
+        When("converting a zaak with the 'Wacht op aanvullende informatie' status") {
+            val statusType = createStatusType().apply {
+                omschrijving = STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+            }
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+
+            Then("isInIntakeFase should be true") {
+                restZaak.isInIntakeFase shouldBe true
             }
         }
     }

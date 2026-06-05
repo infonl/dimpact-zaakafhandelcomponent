@@ -21,6 +21,7 @@ import {
   provideQueryClient,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
@@ -548,6 +549,29 @@ describe(ZaakCreateComponent.name, () => {
       expect(
         fixture.nativeElement.querySelector("zac-bag-zoek"),
       ).not.toBeNull();
+    });
+  });
+
+  describe("formSubmit()", () => {
+    beforeEach(() => notifyManager.setScheduler((fn) => fn()));
+    afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
+
+    it("includes selected BAG objects in the submit payload", () => {
+      const bagObject = fromPartial<GeneratedType<"RESTBAGObject">>({
+        omschrijving: "Teststraat 1",
+      });
+
+      fixture.componentInstance["form"].controls.bagObjecten.setValue([
+        bagObject,
+      ]);
+      fixture.componentInstance["formSubmit"]();
+
+      const variables = (
+        fixture.componentInstance["createZaakMutation"] as unknown as {
+          variables: () => unknown;
+        }
+      ).variables();
+      expect(variables).toMatchObject({ bagObjecten: [bagObject] });
     });
   });
 

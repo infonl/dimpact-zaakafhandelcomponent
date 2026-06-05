@@ -46,6 +46,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
+  styleUrls: ["./zaak-create.component.less"],
   standalone: true,
   imports: [
     NgSwitch,
@@ -213,7 +214,7 @@ export class ZaakCreateComponent {
   }
 
   formSubmit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
 
     this.createZaakMutation.mutate({
       zaak: {

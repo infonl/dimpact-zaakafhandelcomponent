@@ -170,7 +170,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8001:8000"
     volumes:
@@ -486,7 +486,7 @@ services:
 
   rabbitmq:
     # note: RabbitMQ 4.3.0 breaks Open Notificaties 1.13.0
-    image: rabbitmq:4.2.7-alpine@sha256:685d619fa6ab3eed0fbdd6a94191fc359e9c172d6b71858ad0ee2b4787644726
+    image: rabbitmq:4.2.7-alpine@sha256:ebb1336b51e43e94dedb0ebcdb66899e2b01e096bc2b8d6c1915d1da3d9a0ddf
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -705,7 +705,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8005:8080"
     volumes:
@@ -800,10 +800,21 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
       - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
-      - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
+      - BRP_ORIGIN_OIN_HEADER=${BRP_ORIGIN_OIN_HEADER:-x-origin-oin}
+      - BRP_PROTOCOLLERING_ENABLED=${BRP_PROTOCOLLERING_ENABLED:-true}
+      - BRP_DOELBINDING_PER_ZAAKTYPE=${BRP_DOELBINDING_PER_ZAAKTYPE:-true}
+      - BRP_DOELBINDING_HEADER=${BRP_DOELBINDING_HEADER:-x-doelbinding}
       - BRP_DOELBINDING_ZOEKMET=${BRP_DOELBINDING_ZOEKMET:-BRPACT-Totaal}
       - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
+      - BRP_VERWERKING_HEADER=${BRP_VERWERKING_HEADER:-x-verwerking}
       - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
+      - BRP_GEBRUIKER_HEADER=${BRP_GEBRUIKER_HEADER:-x-gebruiker}
+      - BRP_TOEPASSING_HEADER=${BRP_TOEPASSING_HEADER:-x-toepassing}
+      - BRP_TOEPASSING=${BRP_TOEPASSING:-ZAC}
+      - BRP_LOG_LEVEL=INFO
+      - BRP_SYSTEM_USER=ZacSystemUser
+      - BRP_API_KEY_HEADER=${BRP_API_KEY_HEADER:-}
+      - BRP_API_KEY=${BRP_API_KEY:-}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
@@ -1145,7 +1156,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8007:8080"
     volumes:

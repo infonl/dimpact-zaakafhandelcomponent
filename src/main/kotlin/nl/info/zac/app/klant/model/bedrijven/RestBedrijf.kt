@@ -6,13 +6,13 @@ package nl.info.zac.app.klant.model.bedrijven
 
 import net.atos.zac.app.shared.RESTResultaat
 import net.atos.zac.util.StringUtil
+import nl.info.client.kvk.zoeken.model.generated.AdresType
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.klant.model.klant.RestKlant
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.Locale
-import java.util.Objects
 
 @AllOpen
 @NoArgConstructor
@@ -20,8 +20,7 @@ data class RestBedrijf(
     var vestigingsnummer: String? = null,
     var kvkNummer: String? = null,
     var rsin: String? = null,
-    var adres: String? = null,
-    var postcode: String? = null,
+    var adres: RestBedrijfAdres? = null,
     var type: String? = null,
     override var emailadres: String? = null,
     override var naam: String? = null,
@@ -43,15 +42,26 @@ data class RestBedrijf(
         }
 }
 
-fun ResultaatItem.toRestBedrijf() = RestBedrijf(
-    kvkNummer = this.kvkNummer,
-    vestigingsnummer = this.vestigingsnummer,
-    naam = this.toName(),
-    postcode = this.adres?.binnenlandsAdres?.postcode,
-    rsin = this.rsin,
-    type = this.type.uppercase(Locale.getDefault()),
-    adres = this.toAddress()
-)
+fun ResultaatItem.toRestBedrijf(): RestBedrijf {
+    val adresType = this.adres?.binnenlandsAdres?.type ?: this.adres?.buitenlandsAdres?.type
+    val isBezoekadres = adresType == AdresType.BEZOEKADRES
+    val volledigAdres = if (isBezoekadres) this.toAddress() else null
+    return RestBedrijf(
+        kvkNummer = this.kvkNummer,
+        vestigingsnummer = this.vestigingsnummer,
+        naam = this.toName(),
+        rsin = this.rsin,
+        type = this.type.uppercase(Locale.getDefault()),
+        adres = volledigAdres?.let {
+            RestBedrijfAdres(
+                type = adresType.toString(),
+                afgeschermd = false,
+                volledigAdres = it,
+                postcode = this.adres?.binnenlandsAdres?.postcode
+            )
+        }
+    )
+}
 
 fun List<RestBedrijf>.toRestResultaat() = RESTResultaat(this)
 
@@ -59,18 +69,5 @@ private fun ResultaatItem.toName(): String =
     this.naam.replace(" ", StringUtil.NON_BREAKING_SPACE)
 
 private fun ResultaatItem.toAddress(): String? =
-    this.adres?.binnenlandsAdres?.let { binnenlandsAdres ->
-        StringUtil.joinNonBlankWith(
-            StringUtil.NON_BREAKING_SPACE,
-            binnenlandsAdres.straatnaam,
-            Objects.toString(binnenlandsAdres.huisnummer, null),
-            binnenlandsAdres.huisletter
-        ).replace(" ", StringUtil.NON_BREAKING_SPACE).let { adres ->
-            StringUtil.joinNonBlankWith(
-                ", ",
-                adres,
-                binnenlandsAdres.postcode?.replace(" ", StringUtil.NON_BREAKING_SPACE),
-                binnenlandsAdres.plaats?.replace(" ", StringUtil.NON_BREAKING_SPACE)
-            )
-        }
-    }
+    this.adres?.binnenlandsAdres?.toFormattedAddress()
+        ?: this.adres?.buitenlandsAdres?.toFormattedAddress()

@@ -13,6 +13,7 @@ import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
+import java.time.Instant
 import java.util.Locale
 
 plugins {
@@ -209,7 +210,7 @@ testing {
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
-        register("itest", JvmTestSuite::class) {
+        register<JvmTestSuite>("itest") {
             useJUnitJupiter()
 
             dependencies {
@@ -748,11 +749,22 @@ tasks {
         group = "verification"
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
-
         npmCommand.set(listOf("run", "lint"))
 
-        inputs.files(fileTree("$appPath/node_modules"))
+        val sentinelFile = file("${layout.buildDirectory}/.lint-sentinel")
+
         inputs.files(fileTree("$appPath/src"))
+        inputs.files(
+            fileTree(appPath) {
+                include("*.json", "*.js", "*.cjs")
+            }
+        )
+        outputs.file(sentinelFile)
+
+        doLast {
+            sentinelFile.parentFile.mkdirs()
+            sentinelFile.writeText(Instant.now().toString())
+        }
     }
 
     register<NpmTask>("npmRunBuild") {

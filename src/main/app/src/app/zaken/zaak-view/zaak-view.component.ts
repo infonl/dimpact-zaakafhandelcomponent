@@ -1252,7 +1252,8 @@ export class ZaakViewComponent
         if (!bedrijf) return;
 
         betrokkene["gegevens"] = bedrijf.naam;
-        if (bedrijf.adres) betrokkene["gegevens"] += `,\n${bedrijf.adres}`;
+        if (bedrijf.adres?.volledigAdres)
+          betrokkene["gegevens"] += `,\n${bedrijf.adres.volledigAdres}`;
         break;
       }
       case "ORGANISATORISCHE_EENHEID":

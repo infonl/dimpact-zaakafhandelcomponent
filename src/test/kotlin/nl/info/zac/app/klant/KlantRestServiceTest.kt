@@ -93,12 +93,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe null
@@ -163,12 +166,15 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the vestiging including contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
-                        this.adres shouldBe with(adres.binnenlandsAdres) {
-                            "$straatnaam$NON_BREAKING_SPACE$huisnummer$NON_BREAKING_SPACE$huisletter, $postcode, $plaats"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            postcode shouldBe adres.binnenlandsAdres!!.postcode
+                            volledigAdres shouldBe "Postbus ${adres.binnenlandsAdres!!.postbusnummer}, " +
+                                "${adres.binnenlandsAdres!!.postcode}$NON_BREAKING_SPACE${adres.binnenlandsAdres!!.plaats}"
                         }
                         naam shouldBe kvkResultaatItem.naam
                         kvkNummer shouldBe kvkResultaatItem.kvkNummer
-                        postcode shouldBe kvkResultaatItem.adres.binnenlandsAdres.postcode
                         rsin shouldBe kvkResultaatItem.rsin
                         type shouldBe "NEVENVESTIGING"
                         telefoonnummer shouldBe "+123-456-789"
@@ -343,8 +349,12 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -444,10 +454,14 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.naam shouldBe name
                         this.kvkNummer shouldBe kvkNummer
                         this.vestigingsnummer shouldBe null
-                        this.postcode shouldBe postcode
                         this.type shouldBe type
                         this.telefoonnummer shouldBe "+123-456-789"
                         this.emailadres shouldBe "fake@example.com"
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -483,6 +497,11 @@ class KlantRestServiceTest : BehaviorSpec({
                         this.vestigingsnummer shouldBe null
                         this.telefoonnummer shouldBe null
                         this.emailadres shouldBe null
+                        with(this.adres!!) {
+                            type shouldBe "bezoekadres"
+                            afgeschermd shouldBe false
+                            this.postcode shouldBe postcode
+                        }
                     }
                 }
             }
@@ -890,12 +909,14 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Listing personen") {
         Given("A person exists for a given BSN") {
             val bsn = "123456789"
+            val userName = "testUser"
             val temporaryPersonId = UUID.randomUUID()
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.retrievePersoon(bsn)
+                brpClientService.retrievePersoon(bsn, any(), any())
             } returns person
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
@@ -903,12 +924,12 @@ class KlantRestServiceTest : BehaviorSpec({
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
                 Then("it should return the retrieved person in the result") {
-                    verify { brpClientService.retrievePersoon(bsn) }
+                    verify { brpClientService.retrievePersoon(bsn, any(), any()) }
                     result.resultaten.size shouldBe 1
                 }
                 Then("queryPersonen should not be called") {
                     verify(exactly = 0) {
-                        brpClientService.queryPersonen(any())
+                        brpClientService.queryPersonen(any(), any(), any())
                     }
                 }
             }
@@ -916,10 +937,12 @@ class KlantRestServiceTest : BehaviorSpec({
 
         Given("No person exists for a given BSN") {
             val bsn = "123456789"
+            val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.retrievePersoon(bsn)
+                brpClientService.retrievePersoon(bsn, any(), any())
             } returns null
 
             When("listPersonen is called no persoon is found") {
@@ -937,12 +960,14 @@ class KlantRestServiceTest : BehaviorSpec({
                 geboortedatum = LocalDate.of(1990, 1, 1)
             )
             val bsn = "987654321"
+            val userName = "testUser"
             val temporaryPersonId = UUID.randomUUID()
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
+            every { loggedInUserInstance.get().id } returns userName
             every {
-                brpClientService.queryPersonen(any())
+                brpClientService.queryPersonen(any(), any(), any())
             } returns personenResponse
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
@@ -952,14 +977,16 @@ class KlantRestServiceTest : BehaviorSpec({
                 Then("it should return the searched person in the result") {
                     verify {
                         brpClientService.queryPersonen(
-                            restListPersonenParameters.toPersonenQuery()
+                            restListPersonenParameters.toPersonenQuery(),
+                            any(),
+                            any()
                         )
                     }
                     result.resultaten.size shouldBe 1
                 }
                 Then("retrievePersonen should not be called") {
                     verify(exactly = 0) {
-                        brpClientService.retrievePersoon(any(), any())
+                        brpClientService.retrievePersoon(any(), any(), any())
                     }
                 }
             }

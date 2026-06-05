@@ -15,7 +15,7 @@ private const val VESTIGINGTYPE_NEVENVESTIGING = "NEVENVESTIGING"
 @AllOpen
 @NoArgConstructor
 data class RestBedrijfsprofiel(
-    var adressen: List<RestKlantenAdres>? = null,
+    var adressen: List<RestBedrijfAdres>? = null,
     var commercieleVestiging: Boolean = false,
     var deeltijdWerkzamePersonen: Int? = null,
     var eersteHandelsnaam: String? = null,
@@ -49,7 +49,7 @@ fun Vestiging.toRestBedrijfsprofiel() = RestBedrijfsprofiel(
     sbiActiviteiten = this.sbiActiviteiten?.filter {
         it.indHoofdactiviteit?.isIndicatie() == false
     }?.map { it.sbiOmschrijving },
-    adressen = this.adressen?.map { it.toRestKlantenAdres() },
+    adressen = this.adressen?.map { it.toRestBedrijfAdres() },
     website = this.websites?.first()
 )
 
@@ -66,7 +66,7 @@ fun Basisprofiel.toRestBedrijfsprofiel() = RestBedrijfsprofiel(
     rsin = this.embedded?.eigenaar?.rsin,
     rechtsvorm = this.embedded?.eigenaar?.rechtsvorm,
     uitgebreideRechtsvorm = this.embedded?.eigenaar?.uitgebreideRechtsvorm,
-    adressen = this.embedded?.eigenaar?.adressen?.map { it.toRestKlantenAdres() },
+    adressen = this.embedded?.eigenaar?.adressen?.map { it.toRestBedrijfAdres() },
     website = this.embedded?.eigenaar?.websites?.firstOrNull(),
     statutaireNaam = this.statutaireNaam
 )

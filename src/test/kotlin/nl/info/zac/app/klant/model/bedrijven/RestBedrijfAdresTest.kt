@@ -1,0 +1,393 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.app.klant.model.bedrijven
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.mockk.checkUnnecessaryStub
+import nl.info.client.kvk.vestigingsprofiel.model.generated.Adres
+import nl.info.client.kvk.zoeken.model.generated.BinnenlandsAdres
+import nl.info.client.kvk.zoeken.model.generated.BuitenlandsAdres
+import nl.info.client.kvk.basisprofiel.model.generated.Adres as BasisprofielAdres
+
+private const val NBSP = "\u00A0"
+
+class RestBedrijfAdresTest : BehaviorSpec({
+
+    afterEach {
+        checkUnnecessaryStub()
+    }
+
+    Given("a regular Dutch address with all fields including huisnummerToevoeging") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            huisletter = "A"
+            huisnummerToevoeging = "bis"
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as straat huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A${NBSP}bis, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a regular Dutch address without huisnummerToevoeging") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            huisletter = "A"
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as straat huisnummer+huisletter, postcode plaats") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a regular Dutch address without huisletter and huisnummerToevoeging") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as straat huisnummer, postcode plaats") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a postbus address") {
+        val adres = Adres().apply {
+            type = "correspondentieadres"
+            indAfgeschermd = "nee"
+            postbusnummer = 1234
+            postcode = "3440AD"
+            plaats = "fakePlaats2"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as Postbus postbusnummer, postcode plaats") {
+                result.volledigAdres shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
+            }
+        }
+    }
+
+    Given("a postbus address without postcode") {
+        val adres = Adres().apply {
+            type = "correspondentieadres"
+            indAfgeschermd = "nee"
+            postbusnummer = 1234
+            plaats = "fakePlaats2"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as Postbus postbusnummer, plaats") {
+                result.volledigAdres shouldBe "Postbus 1234, fakePlaats2"
+            }
+        }
+    }
+
+    Given("a foreign address with all fields") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatHuisnummer = "fakeStraatnaam3 1"
+            toevoegingAdres = "fakeToevoeging3"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
+                result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1${NBSP}fakeToevoeging3, 12345${NBSP}fakePlaats3, fakeLand3"
+            }
+        }
+    }
+
+    Given("a foreign address without toevoegingAdres") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatHuisnummer = "fakeStraatnaam3 1"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is formatted as straatHuisnummer, postcodeWoonplaats, land") {
+                result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
+            }
+        }
+    }
+
+    Given("a Dutch address that also has a land field set") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+            land = "Nederland"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("address is treated as regular Dutch address, not as foreign") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a vestigingsprofiel address with both volledigAdres and individual fields set") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 1"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("individual fields are used for formatting, volledigAdres is ignored") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a vestigingsprofiel address with only volledigAdres set and no individual fields") {
+        val adres = Adres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("volledigAdres is used as fallback since no individual address fields are present") {
+                result.volledigAdres shouldBe "Precomputed adres 1"
+            }
+        }
+    }
+
+    Given("a BinnenlandsAdres with street fields") {
+        val adres = BinnenlandsAdres().apply {
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            huisletter = "A"
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then("formatted as straatnaam huisnummer+huisletter, postcode plaats") {
+                result shouldBe "fakeStraatnaam1${NBSP}12A, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a BinnenlandsAdres with postbusnummer") {
+        val adres = BinnenlandsAdres().apply {
+            postbusnummer = 1234
+            postcode = "3440AD"
+            plaats = "fakePlaats2"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then("formatted as Postbus postbusnummer, postcode plaats") {
+                result shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
+            }
+        }
+    }
+
+    Given("a BuitenlandsAdres with all fields") {
+        val adres = BuitenlandsAdres().apply {
+            straatHuisnummer = "fakeStraatnaam3 1"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then(
+                "formatted as straatHuisnummer, postcodeWoonplaats, land with non-breaking spaces replacing regular spaces"
+            ) {
+                result shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with postbusnummer") {
+        val adres = BasisprofielAdres().apply {
+            type = "correspondentieadres"
+            indAfgeschermd = "nee"
+            postbusnummer = 1234
+            postcode = "3440AD"
+            plaats = "fakePlaats2"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then("formatted as Postbus postbusnummer, postcode plaats") {
+                result shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with straatHuisnummer (foreign address) including toevoegingAdres") {
+        val adres = BasisprofielAdres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatHuisnummer = "fakeStraatnaam3 1"
+            toevoegingAdres = "fakeToevoeging3"
+            postcodeWoonplaats = "12345 fakePlaats3"
+            land = "fakeLand3"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then("formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
+                result shouldBe "fakeStraatnaam3${NBSP}1${NBSP}fakeToevoeging3, 12345${NBSP}fakePlaats3, fakeLand3"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with straatnaam fields including huisnummerToevoeging") {
+        val adres = BasisprofielAdres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            huisletter = "A"
+            huisnummerToevoeging = "bis"
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("toFormattedAddress is called") {
+            val result = adres.toFormattedAddress()
+
+            Then("formatted as straatnaam huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
+                result shouldBe "fakeStraatnaam1${NBSP}12A${NBSP}bis, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with both volledigAdres and individual fields set") {
+        val adres = BasisprofielAdres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 2"
+            straatnaam = "fakeStraatnaam1"
+            huisnummer = 12
+            postcode = "1234AB"
+            plaats = "fakePlaats1"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("individual fields are used for formatting, volledigAdres is ignored") {
+                result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
+            }
+        }
+    }
+
+    Given("a BasisprofielAdres with only volledigAdres set and no individual fields") {
+        val adres = BasisprofielAdres().apply {
+            type = "bezoekadres"
+            indAfgeschermd = "nee"
+            volledigAdres = "Precomputed adres 2"
+        }
+
+        When("converted to RestBedrijfAdres") {
+            val result = adres.toRestBedrijfAdres()
+
+            Then("volledigAdres is used as fallback since no individual address fields are present") {
+                result.volledigAdres shouldBe "Precomputed adres 2"
+            }
+        }
+    }
+
+    Given("the string 'ja'") {
+        When("isIndicatie is called") {
+            Then("returns true") {
+                "ja".isIndicatie() shouldBe true
+            }
+        }
+    }
+
+    Given("the string 'Ja' (uppercase)") {
+        When("isIndicatie is called") {
+            Then("returns true regardless of case") {
+                "Ja".isIndicatie() shouldBe true
+            }
+        }
+    }
+
+    Given("the string 'nee'") {
+        When("isIndicatie is called") {
+            Then("returns false") {
+                "nee".isIndicatie() shouldBe false
+            }
+        }
+    }
+
+    Given("an unexpected value 'unknown'") {
+        When("isIndicatie is called") {
+            val exception = shouldThrow<IllegalStateException> {
+                "unknown".isIndicatie()
+            }
+            Then("an IllegalStateException is thrown") {
+                exception shouldNotBe null
+            }
+        }
+    }
+})

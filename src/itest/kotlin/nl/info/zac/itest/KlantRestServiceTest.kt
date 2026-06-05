@@ -30,20 +30,40 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_RECHTSV
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_WEBSITE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_RSIN_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_TYPE_RECHTSPERSOON
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_BEZOEKADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_BEZOEKADRES_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING3_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING3_PROFIEL_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING4_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING4_PROFIEL_ADRES
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
@@ -76,7 +96,7 @@ import java.util.UUID
 
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
-@Suppress("LongParameterList", "LargeClass")
+@Suppress("LongParameterList", "LargeClass", "MagicNumber")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
@@ -430,7 +450,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the response should contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "emailadres": "$TEST_VESTIGING_EMAIL",
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
@@ -462,7 +486,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     // so the response should not contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -488,7 +516,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         with(JSONArray(adressen).get(0).toString()) {
                             shouldContainJsonKeyValue("type", "bezoekadres")
                             shouldContainJsonKeyValue("afgeschermd", false)
-                            shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                            shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES)
                         }
                         shouldContainJsonKeyValue("commercieleVestiging", true)
                         shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
@@ -534,7 +562,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         with(JSONArray(adressen).get(0).toString()) {
                             shouldContainJsonKeyValue("type", "bezoekadres")
                             shouldContainJsonKeyValue("afgeschermd", false)
-                            shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                            shouldContainJsonKeyValue("volledigAdres", TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES)
                         }
                         shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
                         shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
@@ -575,7 +603,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -605,7 +637,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
                             "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
@@ -692,7 +728,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                     {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "identificatieType" : "RSIN",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
@@ -719,7 +759,11 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                     {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "emailadres": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
@@ -807,6 +851,178 @@ class KlantRestServiceTest : BehaviorSpec({
                     } 
                   ]
                     """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Retrieving a vestiging with multiple adressen (2 bezoek + 2 correspondentie)") {
+        Given("A vestiging with multiple adressen and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_2/$TEST_KVK_NUMMER_2",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the first bezoekadres with adresType") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING2_ADRES",
+                        "postcode": "1234AB"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_2",
+                      "naam": "$TEST_KVK_NAAM_2",
+                      "type": "HOOFDVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_2"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_2",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("all 4 adressen are returned with correct type labels and formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    val numberOfAdressen = 4
+                    adressen.length() shouldBe numberOfAdressen
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_1)
+                    }
+                    with(JSONArray(adressen).get(1).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_2)
+                    }
+                    with(JSONArray(adressen).get(2).toString()) {
+                        shouldContainJsonKeyValue("type", "correspondentieadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1)
+                    }
+                    val lastAdresIndex = 3
+                    with(JSONArray(adressen).get(lastAdresIndex).toString()) {
+                        shouldContainJsonKeyValue("type", "correspondentieadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2)
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Retrieving a vestiging with a buitenlands adres") {
+        Given("A vestiging with a foreign address and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_3/$TEST_KVK_NUMMER_3",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the buitenlands bezoekadres with adresType") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING3_ADRES"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_3",
+                      "naam": "$TEST_KVK_NAAM_3",
+                      "type": "NEVENVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_3"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_3",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the profiel bezoekadres includes toevoegingAdres in the formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    adressen.length() shouldBe 1
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING3_PROFIEL_ADRES)
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Retrieving a vestiging with a full binnenlands adres") {
+        Given("A vestiging with all Dutch address fields populated and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_4/$TEST_KVK_NUMMER_4",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the address with huisnummer and huisletter") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING4_ADRES",
+                        "postcode": "4321DC"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_4",
+                      "naam": "$TEST_KVK_NAAM_4",
+                      "type": "HOOFDVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_4"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_4",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the profiel bezoekadres includes huisnummerToevoeging in the formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    adressen.length() shouldBe 1
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING4_PROFIEL_ADRES)
+                    }
                 }
             }
         }

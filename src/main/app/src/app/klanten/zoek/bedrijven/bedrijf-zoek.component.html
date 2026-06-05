@@ -82,7 +82,9 @@
       <th *matHeaderCellDef mat-header-cell mat-sort-header>
         {{ "adres" | translate }}
       </th>
-      <td *matCellDef="let bedrijf" mat-cell>{{ bedrijf.adres | empty }}</td>
+      <td *matCellDef="let bedrijf" mat-cell>
+        {{ bedrijf.adres?.volledigAdres | empty }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="acties" stickyEnd>
