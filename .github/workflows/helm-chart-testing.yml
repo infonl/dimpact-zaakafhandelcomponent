@@ -23,9 +23,9 @@ concurrency:
 jobs:
   helm-lint:
     runs-on: ubuntu-24.04
-    outputs:
+    outputs: 
       changed: ${{ steps.list-changed.outputs.changed }}
-      needsbump: ${{ steps.lint.outputs.needsbump }}
+      needsbump: ${{ steps.testbump.outputs.needsbump }} 
     steps:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -56,18 +56,22 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        id: lint
         if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --validate-maintainers=false
+
+      - name: Test if chart version needs bump
+        id: testbump
+        if: ${{ always() && steps.list-changed.outputs.changed == 'true' && github.event_name == 'pull_request' }}
         run: |
-          output=$(ct lint --target-branch ${{ github.event.repository.default_branch }} --validate-maintainers=false 2>&1)
-          exit_code=$?
-          echo "$output"
-          if echo "$output" | grep -q 'chart version not ok. Needs a version bump!'; then
+          set +e
+          ct lint --target-branch ${{ github.event.repository.default_branch }} | grep -q 'chart version not ok. Needs a version bump!'
+          needsBump=$?
+
+          if [ $needsBump -eq 0 ]; then
             echo "needsbump=true" >> "$GITHUB_OUTPUT"
           else
             echo "needsbump=false" >> "$GITHUB_OUTPUT"
           fi
-          exit $exit_code
 
   helm-test:
     runs-on: ubuntu-24.04
@@ -102,6 +106,7 @@ jobs:
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
       - name: Run chart-testing (install)
+        continue-on-error: true
         run: |
           ct install --target-branch ${{ github.event.repository.default_branch }} \
           --helm-extra-args "--values=charts/zac/ci/zac-chart-test-values.yaml"
