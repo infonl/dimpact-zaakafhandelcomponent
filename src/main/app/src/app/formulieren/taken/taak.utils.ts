@@ -95,6 +95,11 @@ function getToelichtingMapping(
   taak: GeneratedType<"RestTask">,
 ): ToelichtingMapping {
   switch (taak.formulierDefinitieId) {
+    case "DEFAULT_TAAKFORMULIER":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "afhandeling",
+      };
     case "GOEDKEUREN":
       return {
         ...DEFAULT_TOELICHTING_MAPPING,

@@ -17,6 +17,7 @@ import { fromPartial } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
+import { DefaultTaskForm } from "./model/default-task-form";
 import { DocumentVerzendenPostTaskForm } from "./model/document-verzenden-post-task-form";
 import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
 import { TaakFormulierenService } from "./taak-formulieren.service";
@@ -44,6 +45,19 @@ describe("TaakFormulierenService", () => {
   describe("getAngularRequestFormBuilder", () => {
     const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
       uuid: "zaak-uuid",
+    });
+
+    it("should delegate to defaultTaskForm for DEFAULT_TAAKFORMULIER", async () => {
+      const spy = jest
+        .spyOn(TestBed.inject(DefaultTaskForm), "requestForm")
+        .mockReturnValue(Promise.resolve([]));
+      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        formulierDefinitie: "DEFAULT_TAAKFORMULIER",
+      });
+
+      await service.getAngularRequestFormBuilder(mockZaak, planItem);
+
+      expect(spy).toHaveBeenCalledWith();
     });
 
     it("should delegate to goedkeurenFormulier for GOEDKEUREN", async () => {

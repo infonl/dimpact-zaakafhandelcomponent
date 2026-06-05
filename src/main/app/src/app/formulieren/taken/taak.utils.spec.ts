@@ -8,24 +8,67 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { mapTaskdataToTaskInformation } from "./taak.utils";
 
 describe("mapTaskdataToTaskInformation", () => {
-  it("maps uitkomst to the 'verzonden' taakdata key for DOCUMENT_VERZENDEN_POST", () => {
-    const taak = fromPartial<GeneratedType<"RestTask">>({
+  const ALL_UITKOMST_VALUES = {
+    afhandeling: "waarde voor afhandeling",
+    goedkeuren: "waarde voor goedkeuren",
+    aanvullendeInformatie: "waarde voor aanvullendeInformatie",
+    advies: "waarde voor advies",
+    externAdvies: "waarde voor externAdvies",
+    verzonden: "waarde voor verzonden",
+  } as const;
+
+  it.each([
+    {
+      formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
+      uitkomstKey: "afhandeling",
+    },
+    { formulierDefinitieId: "GOEDKEUREN", uitkomstKey: "goedkeuren" },
+    {
+      formulierDefinitieId: "AANVULLENDE_INFORMATIE",
+      uitkomstKey: "aanvullendeInformatie",
+    },
+    { formulierDefinitieId: "ADVIES", uitkomstKey: "advies" },
+    {
+      formulierDefinitieId: "EXTERN_ADVIES_VASTLEGGEN",
+      uitkomstKey: "externAdvies",
+    },
+    { formulierDefinitieId: "EXTERN_ADVIES_MAIL", uitkomstKey: "externAdvies" },
+    {
       formulierDefinitieId: "DOCUMENT_VERZENDEN_POST",
+      uitkomstKey: "verzonden",
+    },
+  ] as const)(
+    "maps uitkomst from the '$uitkomstKey' taakdata key for $formulierDefinitieId",
+    ({ formulierDefinitieId, uitkomstKey }) => {
+      const taak = fromPartial<GeneratedType<"RestTask">>({
+        formulierDefinitieId,
+      });
+
+      expect(
+        mapTaskdataToTaskInformation(
+          {
+            ...ALL_UITKOMST_VALUES,
+            toelichting: "extra context",
+            bijlagen: "doc-uuid-1",
+          },
+          taak,
+        ),
+      ).toEqual({
+        uitkomst: ALL_UITKOMST_VALUES[uitkomstKey],
+        bijlagen: "doc-uuid-1",
+        opmerking: "extra context",
+      });
+    },
+  );
+
+  it("throws for an unknown formulierDefinitieId", () => {
+    const taak = fromPartial<GeneratedType<"RestTask">>({
+      formulierDefinitieId:
+        "UNKNOWN" as GeneratedType<"RestTask">["formulierDefinitieId"],
     });
 
-    expect(
-      mapTaskdataToTaskInformation(
-        {
-          verzonden: "doc-uuid-1;doc-uuid-2",
-          toelichting: "verzonden per post",
-          bijlagen: "doc-uuid-3",
-        },
-        taak,
-      ),
-    ).toEqual({
-      uitkomst: "doc-uuid-1;doc-uuid-2",
-      bijlagen: "doc-uuid-3",
-      opmerking: "verzonden per post",
-    });
+    expect(() => mapTaskdataToTaskInformation({}, taak)).toThrow(
+      "Onbekend formulier: UNKNOWN",
+    );
   });
 });
