@@ -19,7 +19,7 @@
 
 <form [formGroup]="form" (ngSubmit)="formSubmit()" class="mt-2">
   <fieldset>
-    <section class="row">
+    <section class="row mt-2">
       @for (control of form.controls | keyvalue; track control.key) {
         <ng-container
           *ngTemplateOutlet="
@@ -60,11 +60,32 @@
 >
   @if (isFormControl(control)) {
     <zac-input [form]="parentForm" [key]="controlName" class="col-12">
-      <mat-label>{{ controlName }}</mat-label>
+      <mat-label>
+        {{ controlName }}
+        <mat-icon
+          class="copy-icon"
+          [class.copy-icon--sm]="control.value == null || control.value === ''"
+          outlined
+          [cdkCopyToClipboard]="controlName"
+          matTooltipClass="tooltip-wide"
+          [matTooltip]="('action.copy-text' | translate) + ': ' + controlName"
+          >content_copy</mat-icon
+        >
+      </mat-label>
     </zac-input>
   } @else if (isFormGroup(control)) {
     <div class="col-12">
-      <mat-label class="font-weight-bold">{{ controlName }}</mat-label>
+      <mat-label class="font-weight-bold">
+        {{ controlName }}
+        <mat-icon
+          class="copy-icon"
+          outlined
+          [cdkCopyToClipboard]="controlName"
+          matTooltipClass="tooltip-wide"
+          [matTooltip]="('action.copy-text' | translate) + ': ' + controlName"
+          >content_copy</mat-icon
+        >
+      </mat-label>
       <div [formGroup]="control" class="row mt-2">
         @for (item of control.controls | keyvalue; track item.key) {
           <ng-container
@@ -82,47 +103,51 @@
       </div>
     </div>
   } @else if (isFormArray(control)) {
-    <div class="col-12">
-      <mat-label class="font-weight-bold">{{ controlName }}</mat-label>
+    <div class="col-12 p-3">
+      <mat-label class="font-weight-bold" [class.readonly-label]="readonly()">
+        {{ controlName }}
+        <mat-icon
+          class="copy-icon copy-icon--sm"
+          outlined
+          [cdkCopyToClipboard]="controlName"
+          matTooltipClass="tooltip-wide"
+          [matTooltip]="('action.copy-text' | translate) + ': ' + controlName"
+          >content_copy</mat-icon
+        >
+      </mat-label>
       <div [formGroup]="parentForm">
-        <div [formArrayName]="controlName" class="row mt-2">
+        <div [formArrayName]="controlName" class="row p-3">
           @for (item of getFormArrayControls(control); track $index) {
             <div class="col-12">
-              <fieldset>
-                <legend>{{ controlName }} ({{ $index + 1 }})</legend>
-                @if (isFormGroup(item)) {
-                  <div [formGroupName]="$index" class="row">
-                    @for (
-                      nestedItem of item.controls | keyvalue;
-                      track nestedItem.key
-                    ) {
-                      <ng-container
-                        *ngTemplateOutlet="
-                          renderControl;
-                          context: {
-                            control: nestedItem.value,
-                            controlName: nestedItem.key,
-                            parentForm: item,
-                          }
-                        "
-                      >
-                      </ng-container>
-                    }
-                  </div>
-                } @else {
-                  <mat-form-field class="col-12 full-width" appearance="fill">
-                    <mat-label>
-                      {{ controlName }}
-                    </mat-label>
-                    <input
-                      matInput
-                      autocomplete="off"
-                      [formControlName]="$index"
-                      [readonly]="readonly()"
-                    />
-                  </mat-form-field>
-                }
-              </fieldset>
+              @if (isFormGroup(item)) {
+                <div [formGroupName]="$index" class="row">
+                  @for (
+                    nestedItem of item.controls | keyvalue;
+                    track nestedItem.key
+                  ) {
+                    <ng-container
+                      *ngTemplateOutlet="
+                        renderControl;
+                        context: {
+                          control: nestedItem.value,
+                          controlName: nestedItem.key,
+                          parentForm: item,
+                        }
+                      "
+                    >
+                    </ng-container>
+                  }
+                </div>
+              } @else {
+                <mat-form-field class="col-12 full-width" appearance="fill">
+                  <input
+                    matInput
+                    autocomplete="off"
+                    [formControlName]="$index"
+                    [readonly]="readonly()"
+                  />
+                </mat-form-field>
+              }
             </div>
           }
         </div>
