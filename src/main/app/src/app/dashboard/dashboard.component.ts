@@ -4,10 +4,15 @@
  */
 
 import {
+  CdkDrag,
   CdkDragDrop,
+  CdkDragPlaceholder,
+  CdkDropList,
+  CdkDropListGroup,
   moveItemInArray,
   transferArrayItem,
 } from "@angular/cdk/drag-drop";
+import { NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -19,8 +24,20 @@ import {
   ViewChild,
   ViewChildren,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MatMenuTrigger } from "@angular/material/menu";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButton, MatIconButton } from "@angular/material/button";
+import {
+  MatCard,
+  MatCardContent,
+  MatCardHeader,
+  MatCardTitle,
+  MatCardTitleGroup,
+} from "@angular/material/card";
+import { MatDivider } from "@angular/material/divider";
+import { MatIcon } from "@angular/material/icon";
+import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
+import { MatSlideToggle } from "@angular/material/slide-toggle";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectIsFetching } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin, Subscription } from "rxjs";
@@ -29,14 +46,52 @@ import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersv
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
+import { InformatieobjectenCardComponent } from "./informatieobjecten-card/informatieobjecten-card.component";
 import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardType } from "./model/dashboard-card-type";
+import { TaakZoekenCardComponent } from "./taak-zoeken-card/taak-zoeken-card.component";
+import { TakenCardComponent } from "./taken-card/taken-card.component";
+import { ZaakWaarschuwingenCardComponent } from "./zaak-waarschuwingen-card/zaak-waarschuwingen-card.component";
+import { ZaakZoekenCardComponent } from "./zaak-zoeken-card/zaak-zoeken-card.component";
+import { ZakenCardComponent } from "./zaken-card/zaken-card.component";
 
 @Component({
   templateUrl: "./dashboard.component.html",
   styleUrls: ["./dashboard.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    NgSwitch,
+    NgSwitchCase,
+    ReactiveFormsModule,
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
+    CdkDragPlaceholder,
+    MatSlideToggle,
+    MatIconButton,
+    MatButton,
+    MatMenu,
+    MatMenuItem,
+    MatMenuTrigger,
+    MatDivider,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardTitleGroup,
+    MatCardContent,
+    MatIcon,
+    TranslateModule,
+    InformatieobjectenCardComponent,
+    TaakZoekenCardComponent,
+    TakenCardComponent,
+    ZaakWaarschuwingenCardComponent,
+    ZaakZoekenCardComponent,
+    ZakenCardComponent,
+  ],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
