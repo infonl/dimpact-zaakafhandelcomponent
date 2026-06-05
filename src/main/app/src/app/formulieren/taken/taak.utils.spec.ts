@@ -8,6 +8,14 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { mapTaskdataToTaskInformation } from "./taak.utils";
 
 describe("mapTaskdataToTaskInformation", () => {
+  const ALL_UITKOMST_VALUES = {
+    afhandeling: "waarde voor afhandeling",
+    goedkeuren: "waarde voor goedkeuren",
+    aanvullendeInformatie: "waarde voor aanvullendeInformatie",
+    advies: "waarde voor advies",
+    externAdvies: "waarde voor externAdvies",
+  } as const;
+
   it.each([
     {
       formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
@@ -34,14 +42,14 @@ describe("mapTaskdataToTaskInformation", () => {
       expect(
         mapTaskdataToTaskInformation(
           {
-            [uitkomstKey]: "de uitkomst",
+            ...ALL_UITKOMST_VALUES,
             toelichting: "extra context",
             bijlagen: "doc-uuid-1",
           },
           taak,
         ),
       ).toEqual({
-        uitkomst: "de uitkomst",
+        uitkomst: ALL_UITKOMST_VALUES[uitkomstKey],
         bijlagen: "doc-uuid-1",
         opmerking: "extra context",
       });
