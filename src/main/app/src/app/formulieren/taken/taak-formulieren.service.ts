@@ -6,7 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { FormField } from "../../shared/form/dynamic-form/dynamic-form";
+import { FormField } from "../../shared/form/form";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";

@@ -47,7 +47,7 @@ import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFile } from "../form/file/file";
-import { ZacDynamicForm } from "../form/dynamic-form/dynamic-form";
+import { ZacForm } from "../form/form";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { ZacInput } from "../form/input/input";
@@ -95,7 +95,7 @@ import { FormComponent } from "./form/form/form.component";
     DividerComponent,
     HiddenComponent,
     MessageComponent,
-    ZacDynamicForm,
+    ZacForm,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -119,9 +119,10 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
+    ZacFile,
     ZacDocuments,
     ZacRadio,
-    ZacDynamicForm,
+    ZacForm,
     CapitalizeFirstLetterPipe,
     EmptyPipe,
     ZacFormActions,
@@ -165,8 +166,8 @@ import { FormComponent } from "./form/form/form.component";
     ZacSelect,
     ZacInput,
     ZacAutoComplete,
-    ZacDocuments,
     ZacFile,
+    ZacDocuments,
     ZacHtmlEditor,
     VariabelenKiesMenuComponent,
   ],

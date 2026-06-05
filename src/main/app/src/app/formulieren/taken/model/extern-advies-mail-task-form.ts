@@ -10,7 +10,7 @@ import { lastValueFrom } from "rxjs";
 import { KlantenService } from "src/app/klanten/klanten.service";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { FormField } from "../../../shared/form/dynamic-form/dynamic-form";
+import { FormField } from "../../../shared/form/form";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { ZakenService } from "../../../zaken/zaken.service";
