@@ -141,10 +141,23 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
+      - name: Get cache date
+        id: cache_date
+        run: echo "date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Cache OWASP dependency-check data
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.gradle/dependency-check-data
+          key: owasp-nvd-db-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}-${{ steps.cache_date.outputs.date }}
+          restore-keys: |
+            owasp-nvd-db-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}-
+            owasp-nvd-db-${{ runner.os }}-
+
       - name: Update OWASP dependency database
         run: |
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache -DdependencyCheck.connectionTimeout=2400000 || true
+          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
@@ -177,9 +190,9 @@ jobs:
 
           # Save vulnerability counts for Slack notification
           if [ -f "build/reports/dependency-check-report.json" ]; then
-            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            TOTAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]?] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
             echo "vuln_total=$TOTAL_VULNS" >> $GITHUB_OUTPUT
             echo "vuln_critical=$CRITICAL_VULNS" >> $GITHUB_OUTPUT
             echo "vuln_high=$HIGH_VULNS" >> $GITHUB_OUTPUT
@@ -198,11 +211,11 @@ jobs:
 
           if [ -f "build/reports/dependency-check-report.json" ]; then
             # Extract vulnerability counts from JSON report
-            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            MEDIUM_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            LOW_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            TOTAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]?] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            MEDIUM_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            LOW_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
           fi
 
           # Write summary to GitHub Step Summary
