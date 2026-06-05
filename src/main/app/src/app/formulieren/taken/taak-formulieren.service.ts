@@ -11,7 +11,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
-import { DefaultTaakformulier } from "./model/default-taakformulier";
+import { DefaultTaskForm } from "./model/default-task-form";
 import { DocumentVerzendenPost } from "./model/document-verzenden-post";
 import { ExternAdviesMailTaskForm } from "./model/extern-advies-mail-task-form";
 import { ExternAdviesVastleggenTaskForm } from "./model/extern-advies-vastleggen-task-form";
@@ -37,6 +37,7 @@ export class TaakFormulierenService {
     ExternAdviesVastleggenTaskForm,
   );
   private readonly externAdviesMailTaskForm = inject(ExternAdviesMailTaskForm);
+  private readonly defaultTaskForm = inject(DefaultTaskForm);
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
@@ -44,6 +45,8 @@ export class TaakFormulierenService {
   ): Promise<FormField[]> {
     const formulierDefinitie = planItem?.formulierDefinitie;
     switch (formulierDefinitie) {
+      case "DEFAULT_TAAKFORMULIER":
+        return this.defaultTaskForm.requestForm();
       case "GOEDKEUREN":
         return this.goedkeurenTaskForm.requestForm(zaak);
       case "AANVULLENDE_INFORMATIE":
@@ -66,6 +69,8 @@ export class TaakFormulierenService {
     zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
+      case "DEFAULT_TAAKFORMULIER":
+        return this.defaultTaskForm.handleForm(taak);
       case "GOEDKEUREN":
         return this.goedkeurenTaskForm.handleForm(taak);
       case "AANVULLENDE_INFORMATIE":
@@ -88,11 +93,8 @@ export class TaakFormulierenService {
   ): TaakFormulierBuilder {
     switch (formulierDefinitie) {
       case "DEFAULT_TAAKFORMULIER":
-        return new TaakFormulierBuilder(
-          new DefaultTaakformulier(
-            this.translateService,
-            this.informatieObjectenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "AANVULLENDE_INFORMATIE":
         throw new Error(
