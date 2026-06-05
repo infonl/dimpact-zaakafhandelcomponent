@@ -14,6 +14,7 @@ describe("mapTaskdataToTaskInformation", () => {
     aanvullendeInformatie: "waarde voor aanvullendeInformatie",
     advies: "waarde voor advies",
     externAdvies: "waarde voor externAdvies",
+    verzonden: "waarde voor verzonden",
   } as const;
 
   it.each([
@@ -32,6 +33,10 @@ describe("mapTaskdataToTaskInformation", () => {
       uitkomstKey: "externAdvies",
     },
     { formulierDefinitieId: "EXTERN_ADVIES_MAIL", uitkomstKey: "externAdvies" },
+    {
+      formulierDefinitieId: "DOCUMENT_VERZENDEN_POST",
+      uitkomstKey: "verzonden",
+    },
   ] as const)(
     "maps uitkomst from the '$uitkomstKey' taakdata key for $formulierDefinitieId",
     ({ formulierDefinitieId, uitkomstKey }) => {

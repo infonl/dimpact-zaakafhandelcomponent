@@ -18,6 +18,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
 import { DefaultTaskForm } from "./model/default-task-form";
+import { DocumentVerzendenPostTaskForm } from "./model/document-verzenden-post-task-form";
 import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
 import { TaakFormulierenService } from "./taak-formulieren.service";
 
@@ -112,6 +113,19 @@ describe("TaakFormulierenService", () => {
       await expect(
         service.getAngularRequestFormBuilder(mockZaak, undefined),
       ).rejects.toThrow("Onbekende formulierDefinitie for Angular form");
+    });
+
+    it("should delegate to documentVerzendenPostTaskForm for DOCUMENT_VERZENDEN_POST", async () => {
+      const spy = jest
+        .spyOn(TestBed.inject(DocumentVerzendenPostTaskForm), "requestForm")
+        .mockReturnValue(Promise.resolve([]));
+      const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        formulierDefinitie: "DOCUMENT_VERZENDEN_POST",
+      });
+
+      await service.getAngularRequestFormBuilder(mockZaak, planItem);
+
+      expect(spy).toHaveBeenCalledWith(mockZaak);
     });
   });
 });
