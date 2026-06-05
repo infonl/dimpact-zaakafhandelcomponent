@@ -14,17 +14,21 @@ import {
   OnDestroy,
   SecurityContext,
 } from "@angular/core";
-import { AbstractControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatError, MatHint, MatLabel } from "@angular/material/form-field";
 import { DomSanitizer } from "@angular/platform-browser";
 import { TranslatePipe } from "@ngx-translate/core";
-import { NgxEditorModule, Editor, Toolbar } from "ngx-editor";
+import { Editor, NgxEditorModule, Toolbar } from "ngx-editor";
 import { Schema } from "prosemirror-model";
-import { VariabelenKiesMenuComponent } from "./variabelen-kies-menu/variabelen-kies-menu.component";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { CustomValidators } from "../../validators/customValidators";
 import { SingleInputFormField } from "../BaseFormField";
 import { FormHelper } from "../helpers";
+import { VariabelenKiesMenuComponent } from "./variabelen-kies-menu/variabelen-kies-menu.component";
 
 const plainTextSchema = new Schema({
   nodes: {

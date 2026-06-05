@@ -16,7 +16,13 @@ import { Editor } from "ngx-editor";
   templateUrl: "./variabelen-kies-menu.component.html",
   styleUrls: ["./variabelen-kies-menu.component.less"],
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, NgFor, TranslatePipe],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    NgFor,
+    TranslatePipe,
+  ],
 })
 export class VariabelenKiesMenuComponent {
   @Input({ required: true }) editor!: Editor;

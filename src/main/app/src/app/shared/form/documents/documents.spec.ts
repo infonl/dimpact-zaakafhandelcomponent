@@ -131,9 +131,8 @@ describe(ZacDocuments.name, () => {
     });
 
     it("should render a view link with correct href", () => {
-      const viewLinks = fixture.nativeElement.querySelectorAll(
-        "a[mat-icon-button]",
-      );
+      const viewLinks =
+        fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
       const viewLink = Array.from(viewLinks).find((link: Element) =>
         (link as HTMLAnchorElement).href?.includes(
           "/informatie-objecten/doc-uuid-1",
@@ -143,9 +142,8 @@ describe(ZacDocuments.name, () => {
     });
 
     it("should render a download link via service", () => {
-      const downloadLinks = fixture.nativeElement.querySelectorAll(
-        "a[mat-icon-button]",
-      );
+      const downloadLinks =
+        fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
       const downloadLink = Array.from(downloadLinks).find((link: Element) =>
         (link as HTMLAnchorElement).href?.includes("/download/doc-uuid-1"),
       );
