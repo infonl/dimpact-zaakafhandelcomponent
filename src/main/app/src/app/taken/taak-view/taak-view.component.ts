@@ -81,7 +81,6 @@ export class TaakViewComponent
   protected formulier?: AbstractTaakFormulier | null = null;
   protected formConfig?: FormConfig | null = null;
   protected formioFormulier?: FormioForm;
-  protected formioWrapperLoading = false;
 
   protected smartDocumentsGroupId?: string;
   protected smartDocumentsTemplateId?: string;

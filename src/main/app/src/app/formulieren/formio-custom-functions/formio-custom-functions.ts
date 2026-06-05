@@ -37,7 +37,7 @@ export class FormioCustomFunctions {
       });
       return (uuids) =>
         listFormat.format(
-          (Array.isArray(uuids) ? (uuids as string[]) : []).map(
+          (Array.isArray(uuids) ? uuids : []).map(
             (uuid) => titleByUuid.get(uuid) ?? uuid,
           ),
         );

@@ -21,7 +21,6 @@ import {
   ViewEncapsulation,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
 import {
   ExtendedComponentSchema,
   FormioAppConfig,
@@ -30,6 +29,7 @@ import {
   FormioHookOptions,
   FormioModule,
 } from "@formio/angular";
+import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
@@ -63,7 +63,6 @@ export class FormioWrapperComponent
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
-  @Output() isLoading = new EventEmitter<boolean>();
 
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
@@ -101,9 +100,11 @@ export class FormioWrapperComponent
       .pipe(
         switchMap(() => {
           this.evalContextReady = false;
-          this.isLoading.emit(true);
           const source = from(
-            this.customFunctions.prepareFormContext(this.form, this.taakdata ?? {}),
+            this.customFunctions.prepareFormContext(
+              this.form,
+              this.taakdata ?? {},
+            ),
           );
           return source.pipe(
             catchError((error) => {
@@ -117,7 +118,6 @@ export class FormioWrapperComponent
       .subscribe((evalContext: Record<string, unknown>) => {
         this.evalContext = evalContext;
         this.evalContextReady = true;
-        this.isLoading.emit(false);
       });
 
     await this.loadBootstrapStyles();
