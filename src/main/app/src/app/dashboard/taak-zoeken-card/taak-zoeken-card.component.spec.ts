@@ -19,7 +19,6 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenMijnDatasource } from "../../taken/taken-mijn/taken-mijn-datasource";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
@@ -67,8 +66,11 @@ describe(TaakZoekenCardComponent.name, () => {
     notifyManager.setScheduler((fn) => fn());
 
     await TestBed.configureTestingModule({
-      declarations: [TaakZoekenCardComponent],
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        TaakZoekenCardComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
