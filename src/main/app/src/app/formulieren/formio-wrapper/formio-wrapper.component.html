@@ -9,7 +9,6 @@
     [submitDone]="submissionDone"
     [form]="form"
     [readOnly]="readOnly"
-    <!-- options: Angular wrapper config; renderOptions: passed to Form.io core renderer — evalContext must reach both -->
     [options]="{ disableAlerts: true, evalContext: evalContext }"
     [renderOptions]="{ disableAlerts: true, evalContext: evalContext }"
     (ready)="onFormioReady($event)"
