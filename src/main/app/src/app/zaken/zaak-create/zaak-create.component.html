@@ -47,9 +47,9 @@
         <zac-input
           key="initiatorIdentificatie"
           label="initiator"
-          [form]="form"
           readonly
           class="col-12 col-md-6"
+          [form]="form"
           [displayValue]="'naam'"
           (click)="canAddInitiator() && openSideNav('actie.initiator.koppelen')"
         >
@@ -75,9 +75,9 @@
         </zac-date>
         <zac-input
           key="bagObjecten"
-          [form]="form"
           readonly
-          class="col-12 col-md-6"
+          class="col-12 col-md-6 bag-display-field"
+          [form]="form"
           [displayValue]="bagDisplayValue"
           (click)="openSideNav('actie.bagObject.koppelen')"
         >
