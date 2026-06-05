@@ -24,7 +24,7 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
-import { FormField, ZacForm } from "../../../shared/form/form";
+import { FormField, ZacDynamicForm as ZacForm } from "../../../shared/form/dynamic-form/dynamic-form";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaskForm } from "./abstract-task-form";

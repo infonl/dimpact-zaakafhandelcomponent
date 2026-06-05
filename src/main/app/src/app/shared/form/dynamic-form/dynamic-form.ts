@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { Observable } from "rxjs";
-import { GeneratedType } from "../utils/generated-types";
+import { GeneratedType } from "../../utils/generated-types";
 
 type _Form = Record<string, AbstractControl<unknown, unknown>>;
 
@@ -99,7 +99,7 @@ type RadioFormField<
 };
 
 /**
- * This type is meant to be used **only** in the `ZacForm` component.
+ * This type is meant to be used **only** in the `ZacDynamicForm` component.
  */
 type _FormConfig = {
   submitLabel?: string;
@@ -131,11 +131,11 @@ export type FormField<Form extends _Form = _Form> =
   | RadioFormField<Form>;
 
 @Component({
-  selector: "zac-form",
-  templateUrl: "./form.html",
+  selector: "zac-dynamic-form",
+  templateUrl: "./dynamic-form.html",
   standalone: false,
 })
-export class ZacForm<Form extends _Form> {
+export class ZacDynamicForm<Form extends _Form> {
   protected readonly form = input.required<FormGroup<Form>>();
   protected readonly fields = input.required<FormField[]>();
   protected readonly config = input<FormConfig>({ hideCancelButton: false });

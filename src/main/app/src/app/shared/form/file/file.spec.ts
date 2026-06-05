@@ -12,7 +12,6 @@ import {
   AbstractControl,
   FormControl,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -20,13 +19,10 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideHttpClient } from "@angular/common/http";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
-import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../material/material.module";
-import { PipesModule } from "../../pipes/pipes.module";
 import { ZacFile } from "./file";
 
 interface TestForm extends Record<string, AbstractControl> {
@@ -66,17 +62,12 @@ describe(ZacFile.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacFile],
       imports: [
-        ReactiveFormsModule,
-        MaterialModule,
-        TranslateModule.forRoot(),
-        PipesModule,
-        FileDragAndDropDirective,
-        MaterialFormBuilderModule,
+        ZacFile,
         NoopAnimationsModule,
+        TranslateModule.forRoot(),
       ],
-      providers: [TranslateService],
+      providers: [TranslateService, provideHttpClient()],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
