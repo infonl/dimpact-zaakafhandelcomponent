@@ -150,7 +150,7 @@ components:
           type: integer
           format: int32
       description: Alle namen waaronder een vestiging handelt (op volgorde van registreren).
-        Dit outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging.
+        Dit outputveld wordt niet vermeld in de EmbeddedContainer van hoofdvestiging.
     Links:
       type: array
       items:
@@ -171,7 +171,7 @@ components:
         datumEinde:
           type: string
           description: Einddatum onderneming. Voor API Vestigingsprofiel verwijst
-            datumAanvang naar de einddatum van de vestiging en niet de onderneming.
+            datumEinde naar de einddatum van de vestiging en niet de onderneming.
     SBIActiviteit:
       type: object
       properties:
@@ -196,7 +196,7 @@ components:
         rsin:
           type: string
           description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer (dit
-            outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging).
+            outputveld wordt niet vermeld in de EmbeddedContainer van hoofdvestiging).
         indNonMailing:
           type: string
           description: Hiermee geeft de onderneming aan geen ongevraagde reclame per
@@ -231,7 +231,7 @@ components:
         handelsnamen:
           type: array
           description: Alle namen waaronder een vestiging handelt (op volgorde van
-            registreren). Dit outputveld wordt niet vermeld in de EmbeddedCointainer
+            registreren). Dit outputveld wordt niet vermeld in de EmbeddedContainer
             van hoofdvestiging.
           items:
             $ref: '#/components/schemas/Handelsnaam'

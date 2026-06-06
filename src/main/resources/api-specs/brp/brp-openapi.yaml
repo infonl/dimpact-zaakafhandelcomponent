@@ -1266,11 +1266,11 @@ components:
               $ref: '#/components/schemas/AbstractDatum'
             vanuitVerblijfplaatsOnbekend:
               description: |
-                Geeft aan dat de persoon zich vanuit het buitenland heeft ingeschreven.
+                Geeft aan dat de persoon is teruggekeerd uit een situatie van onbekende verblijfplaats.
               type: boolean
             indicatieVestigingVanuitBuitenland:
               description: |
-                Geeft aan dat de persoon is teruggekeerd uit een situatie van onbekende verblijfplaats
+                Geeft aan dat de persoon zich vanuit het buitenland heeft ingeschreven.
               type: boolean
             inOnderzoek:
               $ref: '#/components/schemas/ImmigratieInOnderzoek'
@@ -1553,7 +1553,7 @@ components:
               $ref: '#/components/schemas/Geboorte'
     OuderAanduiding:
       type: string
-      pattern: ^[1|2]$
+      pattern: ^[12]$
     OuderBasis:
       type: object
       properties:
