@@ -1,21 +1,17 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: API Vestigingsprofiel
   description: Documentatie voor API Vestigingsprofiel.
-  version: "1.4"
+  version: "1.4.0"
 servers:
-- url: /test/api
-  description: only for testing with Swagger widget
-- url: https://api.kvk.nl/test/api
+- url: https://api.kvk.nl/test/api/v1
   description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
     chain)
-- url: https://api.kvk.nl/api
+- url: https://api.kvk.nl/api/v1
   description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
     chain)
-tags:
-- name: Vestigingsprofiel
 paths:
-  /v1/vestigingsprofielen/{vestigingsnummer}:
+  /vestigingsprofielen/{vestigingsnummer}:
     get:
       tags:
       - Vestigingsprofiel
@@ -37,12 +33,41 @@ paths:
           type: boolean
           default: false
       responses:
-        default:
-          description: default response
+        '200':
+          description: OK
+          headers:
+            api-version:
+              $ref: '#/components/headers/api_version'
+            warning:
+              $ref: '#/components/headers/warning'
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vestiging'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/Vestiging'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: Er is een onverwachte fout opgetreden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
 components:
@@ -63,9 +88,9 @@ components:
         huisnummer:
           type: integer
           format: int32
-        huisnummerToevoeging:
-          type: string
         huisletter:
+          type: string
+        huisnummerToevoeging:
           type: string
         toevoegingAdres:
           type: string
@@ -124,37 +149,29 @@ components:
         volgorde:
           type: integer
           format: int32
-      description: Alle namen waaronder een vestiging handelt (op volgorde van registreren)
-    Link:
-      type: object
-      properties:
-        rel:
-          type: string
-        href:
-          type: string
-        hreflang:
-          type: string
-        media:
-          type: string
-        title:
-          type: string
-        type:
-          type: string
-        deprecation:
-          type: string
-        profile:
-          type: string
-        name:
-          type: string
+      description: Alle namen waaronder een vestiging handelt (op volgorde van registreren).
+        Dit outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging.
+    Links:
+      type: array
+      items:
+        type: object
+        properties:
+          rel:
+            type: string
+          href:
+            type: string
+            format: uri
     MaterieleRegistratie:
       type: object
       properties:
         datumAanvang:
           type: string
-          description: Startdatum onderneming
+          description: Startdatum onderneming. Voor API Vestigingsprofiel verwijst
+            datumAanvang naar de startdatum van de vestiging en niet de onderneming.
         datumEinde:
           type: string
-          description: Einddatum onderneming
+          description: Einddatum onderneming. Voor API Vestigingsprofiel verwijst
+            datumAanvang naar de einddatum van de vestiging en niet de onderneming.
     SBIActiviteit:
       type: object
       properties:
@@ -178,7 +195,8 @@ components:
           description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
         rsin:
           type: string
-          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
+          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer (dit
+            outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging).
         indNonMailing:
           type: string
           description: Hiermee geeft de onderneming aan geen ongevraagde reclame per
@@ -188,6 +206,10 @@ components:
           description: Registratiedatum onderneming in HR
         materieleRegistratie:
           $ref: '#/components/schemas/MaterieleRegistratie'
+        statutaireNaam:
+          type: string
+          description: De naam van de vestiging wanneer er statuten geregistreerd
+            zijn.
         eersteHandelsnaam:
           type: string
           description: De naam waaronder een onderneming of vestiging handelt
@@ -209,7 +231,8 @@ components:
         handelsnamen:
           type: array
           description: Alle namen waaronder een vestiging handelt (op volgorde van
-            registreren)
+            registreren). Dit outputveld wordt niet vermeld in de EmbeddedCointainer
+            van hoofdvestiging.
           items:
             $ref: '#/components/schemas/Handelsnaam'
         adressen:
@@ -228,9 +251,77 @@ components:
           items:
             $ref: '#/components/schemas/SBIActiviteit'
         links:
+          $ref: '#/components/schemas/Links'
+    Error:
+      type: object
+      properties:
+        fout:
           type: array
           items:
-            $ref: '#/components/schemas/Link'
+            $ref: '#/components/schemas/Fout'
+    Fout:
+      type: object
+      properties:
+        code:
+          description: Foutcode
+          type: string
+        omschrijving:
+          description: Omschrijving van de foutmelding
+          type: string
+  responses:
+    BadRequest:
+      description: Een opgegeven parameter is niet valide
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Geen of onjuiste apikey aangeleverd
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Niet geautoriseerd voor deze operatie
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Er zijn geen resultaten gevonden aan de hand van de opgegeven parameter(s)
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotAcceptable:
+      description: Opgegeven Accept header wordt niet ondersteund
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Er is een interne fout opgetreden
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  headers:
+    api_version:
+      schema:
+        type: string
+        description: Geeft een specifieke API-versie aan in de context van een specifieke
+          aanroep.
+        example: 1.0.0
+    warning:
+      schema:
+        type: string
+        description: zie RFC 7234. In het geval een major versie wordt uitgefaseerd,
+          gebruiken we warn-code 299 ("Miscellaneous Persistent Warning") en het API
+          end-point (inclusief versienummer) als de warn-agent van de warning, gevolgd
+          door de warn-text met de human-readable waarschuwing
+        example: '299 https://api.kvk.nl/api/v1/vestigingsprofielen/ "Deze versie van de API is verouderd
+          en zal uit dienst worden genomen op 2025-02-01. Raadpleeg voor meer informatie
+          hier de documentatie: https://developers.kvk.nl/apis/vestigingsprofiel".'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

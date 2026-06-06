@@ -1,21 +1,17 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: API Basisprofiel
   description: Documentatie voor API Basisprofiel.
-  version: "1.4"
+  version: "1.5.0"
 servers:
-- url: /test/api
-  description: only for testing with Swagger widget
-- url: https://api.kvk.nl/test/api
+- url: https://api.kvk.nl/test/api/v1
   description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
     chain)
-- url: https://api.kvk.nl/api
+- url: https://api.kvk.nl/api/v1
   description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
     chain)
-tags:
-- name: Basisprofiel
 paths:
-  /v1/basisprofielen/{kvkNummer}:
+  /basisprofielen/{kvkNummer}:
     get:
       tags:
       - Basisprofiel
@@ -36,15 +32,44 @@ paths:
           type: boolean
           default: false
       responses:
-        default:
-          description: default response
+        '200':
+          description: OK
+          headers:
+            api-version:
+              $ref: '#/components/headers/api_version'
+            warning:
+              $ref: '#/components/headers/warning'
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Basisprofiel'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/Basisprofiel'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: Er is een onverwachte fout opgetreden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
-  /v1/basisprofielen/{kvkNummer}/eigenaar:
+  /basisprofielen/{kvkNummer}/eigenaar:
     get:
       tags:
       - Basisprofiel
@@ -65,15 +90,44 @@ paths:
           type: boolean
           default: false
       responses:
-        default:
-          description: default response
+        '200':
+          description: OK
+          headers:
+            api-version:
+              $ref: '#/components/headers/api_version'
+            warning:
+              $ref: '#/components/headers/warning'
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Eigenaar'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/Eigenaar'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: Er is een onverwachte fout opgetreden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
-  /v1/basisprofielen/{kvkNummer}/hoofdvestiging:
+  /basisprofielen/{kvkNummer}/hoofdvestiging:
     get:
       tags:
       - Basisprofiel
@@ -94,15 +148,44 @@ paths:
           type: boolean
           default: false
       responses:
-        default:
-          description: default response
+        '200':
+          description: OK
+          headers:
+            api-version:
+              $ref: '#/components/headers/api_version'
+            warning:
+              $ref: '#/components/headers/warning'
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vestiging'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/Vestiging'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: Er is een onverwachte fout opgetreden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
-  /v1/basisprofielen/{kvkNummer}/vestigingen:
+  /basisprofielen/{kvkNummer}/vestigingen:
     get:
       tags:
       - Basisprofiel
@@ -117,16 +200,101 @@ paths:
           pattern: "^[0-9]{8}$"
           type: string
       responses:
-        default:
-          description: default response
+        '200':
+          description: OK
+          headers:
+            api-version:
+              $ref: '#/components/headers/api_version'
+            warning:
+              $ref: '#/components/headers/warning'
           content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VestigingList'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/VestigingList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          description: Er is een onverwachte fout opgetreden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/Error'
       security:
       - ApiKeyAuth: []
 components:
   schemas:
+    Links:
+      type: array
+      items:
+        type: object
+        properties:
+          rel:
+            type: string
+          href:
+            type: string
+            format: uri
+    VestigingBasis:
+      type: object
+      properties:
+        vestigingsnummer:
+          type: string
+          description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
+        kvkNummer:
+          type: string
+          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        eersteHandelsnaam:
+          type: string
+          description: De naam waaronder een onderneming of vestiging handelt
+        indHoofdvestiging:
+          type: string
+          description: Hoofdvestiging (Ja/Nee)
+        indAdresAfgeschermd:
+          type: string
+          description: Indicatie of het adres is afgeschermd
+        indCommercieleVestiging:
+          type: string
+          description: Commerciele vestiging  (Ja/Nee)
+        volledigAdres:
+          type: string
+        links:
+          $ref: '#/components/schemas/Links'
+    VestigingList:
+      type: object
+      properties:
+        kvkNummer:
+          type: string
+          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        aantalCommercieleVestigingen:
+          type: integer
+          format: int64
+        aantalNietCommercieleVestigingen:
+          type: integer
+          format: int64
+        totaalAantalVestigingen:
+          type: integer
+          format: int64
+        vestigingen:
+          type: array
+          items:
+            $ref: '#/components/schemas/VestigingBasis'
+        links:
+          $ref: '#/components/schemas/Links'
     Adres:
       type: object
       properties:
@@ -143,9 +311,9 @@ components:
         huisnummer:
           type: integer
           format: int32
-        huisnummerToevoeging:
-          type: string
         huisletter:
+          type: string
+        huisnummerToevoeging:
           type: string
         toevoegingAdres:
           type: string
@@ -166,6 +334,155 @@ components:
           type: string
         geoData:
           $ref: '#/components/schemas/GeoData'
+    GeoData:
+      type: object
+      properties:
+        addresseerbaarObjectId:
+          type: string
+          description: Unieke BAG id
+        nummerAanduidingId:
+          type: string
+          description: Unieke BAG nummeraanduiding id
+        gpsLatitude:
+          type: number
+          description: Lengtegraad
+          format: double
+        gpsLongitude:
+          type: number
+          description: Breedtegraad
+          format: double
+        rijksdriehoekX:
+          type: number
+          description: Rijksdriehoek X-coördinaat
+          format: double
+        rijksdriehoekY:
+          type: number
+          description: Rijksdriehoek Y-coördinaat
+          format: double
+        rijksdriehoekZ:
+          type: number
+          description: Rijksdriehoek Z-coördinaat
+          format: double
+      description: Basisregistratie Adressen en Gebouwen gegevens uit het kadaster
+    Handelsnaam:
+      type: object
+      properties:
+        naam:
+          type: string
+        volgorde:
+          type: integer
+          format: int32
+      description: Alle namen waaronder een vestiging handelt (op volgorde van registreren). Dit outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging.
+    MaterieleRegistratie:
+      type: object
+      properties:
+        datumAanvang:
+          type: string
+          description: Startdatum onderneming
+        datumEinde:
+          type: string
+          description: Einddatum onderneming
+    SBIActiviteit:
+      type: object
+      properties:
+        sbiCode:
+          type: string
+        sbiOmschrijving:
+          type: string
+        indHoofdactiviteit:
+          type: string
+      description: Code beschrijving van SBI activiteiten conform SBI 2008 (Standard
+        Industrial Classification). Er wordt geen maximering toegepast in de resultaten.
+        Zie ook KVK.nl/sbi
+    Vestiging:
+      type: object
+      properties:
+        vestigingsnummer:
+          type: string
+          description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
+        kvkNummer:
+          type: string
+          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
+        rsin:
+          type: string
+          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer (dit
+            outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging).
+        indNonMailing:
+          type: string
+          description: Hiermee geeft de onderneming aan geen ongevraagde reclame per
+            post of verkoop aan de deur te willen ontvangen
+        formeleRegistratiedatum:
+          type: string
+          description: Registratiedatum onderneming in HR
+        materieleRegistratie:
+          $ref: '#/components/schemas/MaterieleRegistratie'
+        statutaireNaam:
+          type: string
+          description: De naam van de vestiging wanneer er statuten geregistreerd
+            zijn.
+        eersteHandelsnaam:
+          type: string
+          description: De naam waaronder een onderneming of vestiging handelt
+        indHoofdvestiging:
+          type: string
+          description: Hoofdvestiging (Ja/Nee)
+        indCommercieleVestiging:
+          type: string
+          description: Commerciele vestiging  (Ja/Nee)
+        voltijdWerkzamePersonen:
+          type: integer
+          description: Aantal voltijd werkzame personen
+        totaalWerkzamePersonen:
+          type: integer
+          description: Totaal aantal werkzame personen
+        deeltijdWerkzamePersonen:
+          type: integer
+          description: Aantal deeltijd werkzame personen
+        handelsnamen:
+          type: array
+          description: Alle namen waaronder een vestiging handelt (op volgorde van registreren). Dit outputveld wordt niet vermeld in de EmbeddedCointainer van hoofdvestiging.
+          items:
+            $ref: '#/components/schemas/Handelsnaam'
+        adressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/Adres'
+        websites:
+          type: array
+          items:
+            type: string
+        sbiActiviteiten:
+          type: array
+          description: Code beschrijving van SBI activiteiten conform SBI 2008 (Standard
+            Industrial Classification). Er wordt geen maximering toegepast in de resultaten.
+            Zie ook KVK.nl/sbi
+          items:
+            $ref: '#/components/schemas/SBIActiviteit'
+        links:
+          $ref: '#/components/schemas/Links'
+    Eigenaar:
+      type: object
+      properties:
+        rsin:
+          type: string
+          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
+        rechtsvorm:
+          type: string
+        uitgebreideRechtsvorm:
+          type: string
+        datumUitschrijving:
+          type: string
+          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
+        adressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/Adres'
+        websites:
+          type: array
+          items:
+            type: string
+        links:
+          $ref: '#/components/schemas/Links'
     Basisprofiel:
       type: object
       properties:
@@ -206,33 +523,9 @@ components:
           items:
             $ref: '#/components/schemas/SBIActiviteit'
         links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+          $ref: '#/components/schemas/Links'
         _embedded:
           $ref: '#/components/schemas/EmbeddedContainer'
-    Eigenaar:
-      type: object
-      properties:
-        rsin:
-          type: string
-          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
-        rechtsvorm:
-          type: string
-        uitgebreideRechtsvorm:
-          type: string
-        adressen:
-          type: array
-          items:
-            $ref: '#/components/schemas/Adres'
-        websites:
-          type: array
-          items:
-            type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
     EmbeddedContainer:
       type: object
       properties:
@@ -240,201 +533,76 @@ components:
           $ref: '#/components/schemas/Vestiging'
         eigenaar:
           $ref: '#/components/schemas/Eigenaar'
-    GeoData:
+    Error:
       type: object
       properties:
-        addresseerbaarObjectId:
-          type: string
-          description: Unieke BAG id
-        nummerAanduidingId:
-          type: string
-          description: Unieke BAG nummeraanduiding id
-        gpsLatitude:
-          type: number
-          description: Lengtegraad
-          format: double
-        gpsLongitude:
-          type: number
-          description: Breedtegraad
-          format: double
-        rijksdriehoekX:
-          type: number
-          description: Rijksdriehoek X-coördinaat
-          format: double
-        rijksdriehoekY:
-          type: number
-          description: Rijksdriehoek Y-coördinaat
-          format: double
-        rijksdriehoekZ:
-          type: number
-          description: Rijksdriehoek Z-coördinaat
-          format: double
-      description: Basisregistratie Adressen en Gebouwen gegevens uit het kadaster
-    Handelsnaam:
+        fout:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fout'
+    Fout:
       type: object
       properties:
-        naam:
+        code:
+          description: Foutcode
           type: string
-        volgorde:
-          type: integer
-          format: int32
-      description: Alle namen waaronder een vestiging handelt (op volgorde van registreren)
-    Link:
-      type: object
-      properties:
-        rel:
+        omschrijving:
+          description: Omschrijving van de foutmelding
           type: string
-        href:
-          type: string
-        hreflang:
-          type: string
-        media:
-          type: string
-        title:
-          type: string
-        type:
-          type: string
-        deprecation:
-          type: string
-        profile:
-          type: string
-        name:
-          type: string
-    MaterieleRegistratie:
-      type: object
-      properties:
-        datumAanvang:
-          type: string
-          description: Startdatum onderneming
-        datumEinde:
-          type: string
-          description: Einddatum onderneming
-    SBIActiviteit:
-      type: object
-      properties:
-        sbiCode:
-          type: string
-        sbiOmschrijving:
-          type: string
-        indHoofdactiviteit:
-          type: string
-      description: Code beschrijving van SBI activiteiten conform SBI 2008 (Standard
-        Industrial Classification). Er wordt geen maximering toegepast in de resultaten.
-        Zie ook KVK.nl/sbi
-    Vestiging:
-      type: object
-      properties:
-        vestigingsnummer:
-          type: string
-          description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
-        kvkNummer:
-          type: string
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-        rsin:
-          type: string
-          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
-        indNonMailing:
-          type: string
-          description: Hiermee geeft de onderneming aan geen ongevraagde reclame per
-            post of verkoop aan de deur te willen ontvangen
-        formeleRegistratiedatum:
-          type: string
-          description: Registratiedatum onderneming in HR
-        materieleRegistratie:
-          $ref: '#/components/schemas/MaterieleRegistratie'
-        eersteHandelsnaam:
-          type: string
-          description: De naam waaronder een onderneming of vestiging handelt
-        indHoofdvestiging:
-          type: string
-          description: Hoofdvestiging (Ja/Nee)
-        indCommercieleVestiging:
-          type: string
-          description: Commerciele vestiging  (Ja/Nee)
-        voltijdWerkzamePersonen:
-          type: integer
-          description: Aantal voltijd werkzame personen
-        totaalWerkzamePersonen:
-          type: integer
-          description: Totaal aantal werkzame personen
-        deeltijdWerkzamePersonen:
-          type: integer
-          description: Aantal deeltijd werkzame personen
-        handelsnamen:
-          type: array
-          description: Alle namen waaronder een vestiging handelt (op volgorde van
-            registreren)
-          items:
-            $ref: '#/components/schemas/Handelsnaam'
-        adressen:
-          type: array
-          items:
-            $ref: '#/components/schemas/Adres'
-        websites:
-          type: array
-          items:
-            type: string
-        sbiActiviteiten:
-          type: array
-          description: Code beschrijving van SBI activiteiten conform SBI 2008 (Standard
-            Industrial Classification). Er wordt geen maximering toegepast in de resultaten.
-            Zie ook KVK.nl/sbi
-          items:
-            $ref: '#/components/schemas/SBIActiviteit'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    VestigingBasis:
-      type: object
-      properties:
-        vestigingsnummer:
-          type: string
-          description: "Vestigingsnummer: uniek nummer dat bestaat uit 12 cijfers"
-        kvkNummer:
-          type: string
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-        eersteHandelsnaam:
-          type: string
-          description: De naam waaronder een onderneming of vestiging handelt
-        indHoofdvestiging:
-          type: string
-          description: Hoofdvestiging (Ja/Nee)
-        indAdresAfgeschermd:
-          type: string
-          description: Indicatie of het adres is afgeschermd
-        indCommercieleVestiging:
-          type: string
-          description: Commerciele vestiging  (Ja/Nee)
-        volledigAdres:
-          type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-    VestigingList:
-      type: object
-      properties:
-        kvkNummer:
-          type: string
-          description: "Nederlands Kamer van Koophandel nummer: bestaat uit 8 cijfers"
-        aantalCommercieleVestigingen:
-          type: integer
-          format: int64
-        aantalNietCommercieleVestigingen:
-          type: integer
-          format: int64
-        totaalAantalVestigingen:
-          type: integer
-          format: int64
-        vestigingen:
-          type: array
-          items:
-            $ref: '#/components/schemas/VestigingBasis'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
+  responses:
+    BadRequest:
+      description: Een opgegeven parameter is niet valide
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Geen of onjuiste apikey aangeleverd
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Niet geautoriseerd voor deze operatie
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Er zijn geen resultaten gevonden aan de hand van de opgegeven parameter(s)
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotAcceptable:
+      description: Opgegeven Accept header wordt niet ondersteund
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Er is een interne fout opgetreden
+      content:
+        application/hal+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  headers:
+    api_version:
+      schema:
+        type: string
+        description: Geeft een specifieke API-versie aan in de context van een specifieke
+          aanroep.
+        example: 1.0.0
+    warning:
+      schema:
+        type: string
+        description: zie RFC 7234. In het geval een major versie wordt uitgefaseerd,
+          gebruiken we warn-code 299 ("Miscellaneous Persistent Warning") en het API
+          end-point (inclusief versienummer) als de warn-agent van de warning, gevolgd
+          door de warn-text met de human-readable waarschuwing
+        example: '299 https://api.kvk.nl/api/v1/basisprofielen/ "Deze versie van de API is verouderd
+          en zal uit dienst worden genomen op 2025-02-01. Raadpleeg voor meer informatie
+          hier de documentatie: https://developers.kvk.nl/apis/basisprofiel".'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
