@@ -206,6 +206,22 @@ dependencies {
         implementation(libs.apache.zookeeper)
         // CVE-2026-22745: Uncontrolled Resource Consumption - force upgrade of transitive Spring dependency from Flowable
         implementation(libs.spring.beans)
+        // Force Netty to the latest patch version. Netty is pulled in transitively via
+        // solr-solrj -> zookeeper and does not update automatically with Solr upgrades.
+        val nettyVersion = libs.versions.netty.get()
+        listOf(
+            "io.netty:netty-buffer",
+            "io.netty:netty-codec",
+            "io.netty:netty-common",
+            "io.netty:netty-handler",
+            "io.netty:netty-resolver",
+            "io.netty:netty-transport",
+            "io.netty:netty-transport-native-epoll",
+            "io.netty:netty-transport-native-unix-common",
+        ).forEach { module ->
+            implementation(module) { version { require(nettyVersion) } }
+            runtimeOnly(module) { version { require(nettyVersion) } }
+        }
     }
 }
 
