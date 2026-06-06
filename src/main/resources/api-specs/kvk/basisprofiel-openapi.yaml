@@ -472,7 +472,6 @@ components:
           type: string
         datumUitschrijving:
           type: string
-          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer
         adressen:
           type: array
           items:
