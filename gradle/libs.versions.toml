@@ -32,6 +32,8 @@ itextpdf = "9.6.0"
 itextpdf-html2pdf = "6.3.2"
 flyway = "12.6.2"
 apache-solr = "9.10.1"
+apache-zookeeper = "3.9.5"
+spring-framework = "6.2.18"
 webdav-servlet = "1.2.287"
 htmlcleaner = "2.29"
 infinispan = "16.1.4"
@@ -98,6 +100,8 @@ itextpdf-html2pdf = { group = "com.itextpdf", name = "html2pdf", version.ref = "
 flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
 flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
 apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "apache-solr" }
+apache-zookeeper = { group = "org.apache.zookeeper", name = "zookeeper", version.ref = "apache-zookeeper" }
+spring-beans = { group = "org.springframework", name = "spring-beans", version.ref = "spring-framework" }
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

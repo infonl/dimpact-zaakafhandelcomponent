@@ -200,6 +200,13 @@ dependencies {
     testImplementation(libs.glassfish.expressly)
 
     jacocoAgentJarForItest(variantOf(libs.jacoco.agent) { classifier("runtime") })
+
+    constraints {
+        // CVE-2026-24281: Improper Certificate Validation - force upgrade of transitive ZooKeeper dependency from Solr
+        implementation(libs.apache.zookeeper)
+        // CVE-2026-22745: Uncontrolled Resource Consumption - force upgrade of transitive Spring dependency from Flowable
+        implementation(libs.spring.beans)
+    }
 }
 
 testing {
