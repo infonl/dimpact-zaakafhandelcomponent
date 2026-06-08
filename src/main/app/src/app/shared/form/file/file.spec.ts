@@ -20,7 +20,6 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { provideHttpClient } from "@angular/common/http";
 import { of } from "rxjs";
 import { ConfiguratieService } from "src/app/configuratie/configuratie.service";
 import { fromPartial } from "src/test-helpers";
@@ -63,15 +62,7 @@ describe(ZacFile.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-<<<<<<< HEAD
-      imports: [
-        ZacFile,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-=======
       imports: [ZacFile, NoopAnimationsModule, TranslateModule.forRoot()],
->>>>>>> origin/main
       providers: [TranslateService, provideHttpClient()],
     }).compileComponents();
 
