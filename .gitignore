@@ -59,6 +59,7 @@ fix-permissions.sh
 
 ### Claude ###
 .claude/settings.local.json
+.claude/worktrees/
 
 .kiro
 

@@ -17,4 +17,7 @@ abstract class RestEnkelvoudigInformatieFileUpload {
 
     @field:FormParam("bestandsnaam")
     var bestandsnaam: String? = null
+
+    @field:FormParam("formaat")
+    var formaat: String? = null
 }
