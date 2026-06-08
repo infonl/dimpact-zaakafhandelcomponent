@@ -7,10 +7,7 @@ import { TestBed } from "@angular/core/testing";
 import { of, throwError } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import {
-  FormioCustomFunctions,
-  KNOWN_FORMIO_FUNCTIONS,
-} from "./formio-custom-functions";
+import { FormioCustomFunctions } from "./formio-custom-functions";
 
 const mockDocument = (titel: string | null) =>
   of({ titel } as GeneratedType<"RestEnkelvoudigInformatieobject">);
@@ -21,7 +18,10 @@ const UUID_C = "cccccccc-0000-0000-0000-000000000003";
 
 const formWithFunction = (field: string) => ({
   components: [
-    { html: `<p>{{ getDocumentTitles(${field}) }}</p>`, type: "content" },
+    {
+      html: `<p>{{ ZAC_getDocumentTitles(${field}) }}</p>`,
+      type: "content",
+    },
   ],
 });
 
@@ -48,47 +48,6 @@ describe(FormioCustomFunctions.name, () => {
     service = TestBed.inject(FormioCustomFunctions);
   });
 
-  describe(FormioCustomFunctions.prototype.hasFunctionCalls.name, () => {
-    it("should return true when form contains a {{ }} function call", () => {
-      expect(service.hasFunctionCalls(formWithFunction("ZAAK_Docs"))).toBe(
-        true,
-      );
-    });
-
-    it("should return false for a form with no function calls", () => {
-      const form = { components: [{ label: "Name", type: "textfield" }] };
-      expect(service.hasFunctionCalls(form)).toBe(false);
-    });
-
-    it("should return false for null", () => {
-      expect(service.hasFunctionCalls(null)).toBe(false);
-    });
-
-    it("should return false for an empty object", () => {
-      expect(service.hasFunctionCalls({})).toBe(false);
-    });
-
-    it("should detect function calls in deeply nested components", () => {
-      const form = {
-        components: [
-          {
-            components: [
-              { html: "{{ getDocumentTitles(ZAAK_Docs) }}", type: "content" },
-            ],
-          },
-        ],
-      };
-      expect(service.hasFunctionCalls(form)).toBe(true);
-    });
-
-    it("should return false for plain HTML without function syntax", () => {
-      const form = {
-        components: [{ html: "<p>Vaste tekst zonder functies</p>" }],
-      };
-      expect(service.hasFunctionCalls(form)).toBe(false);
-    });
-  });
-
   describe(FormioCustomFunctions.prototype.prepareFormContext.name, () => {
     beforeEach(() => {
       informatieObjectenService.readEnkelvoudigInformatieobject.mockReturnValue(
@@ -105,23 +64,21 @@ describe(FormioCustomFunctions.name, () => {
       expect(context["ZAAK_Docs"]).toEqual([UUID_A]);
     });
 
-    it("should register getDocumentTitles as a function in the context", async () => {
+    it("should register ZAC_getDocumentTitles as a function in the context", async () => {
       const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
 
-      expect(typeof context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES]).toBe(
-        "function",
-      );
+      expect(typeof context["ZAC_getDocumentTitles"]).toBe("function");
     });
 
-    it("should return the title string when getDocumentTitles is called with UUIDs", async () => {
+    it("should return the title string when ZAC_getDocumentTitles is called with UUIDs", async () => {
       const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -133,7 +90,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -145,7 +102,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: unknown,
       ) => string;
 
@@ -161,7 +118,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -184,7 +141,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -202,7 +159,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -218,7 +175,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
@@ -231,8 +188,14 @@ describe(FormioCustomFunctions.name, () => {
       );
       const formWithTwoCalls = {
         components: [
-          { html: "{{ getDocumentTitles(ZAAK_Docs_A) }}", type: "content" },
-          { html: "{{ getDocumentTitles(ZAAK_Docs_B) }}", type: "content" },
+          {
+            html: "{{ ZAC_getDocumentTitles(ZAAK_Docs_A) }}",
+            type: "content",
+          },
+          {
+            html: "{{ ZAC_getDocumentTitles(ZAAK_Docs_B) }}",
+            type: "content",
+          },
         ],
       };
 
@@ -240,7 +203,7 @@ describe(FormioCustomFunctions.name, () => {
         ZAAK_Docs_A: [UUID_A],
         ZAAK_Docs_B: [UUID_B],
       });
-      const fn = context[KNOWN_FORMIO_FUNCTIONS.GET_DOCUMENT_TITLES] as (
+      const fn = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
