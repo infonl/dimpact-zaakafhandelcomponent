@@ -66,8 +66,8 @@ type AutocompleteFormField<
 type DocumentFormField<
   F extends Form,
   Key extends keyof F = keyof F,
-  Option extends GeneratedType<"RestEnkelvoudigInformatieobject"> =
-    GeneratedType<"RestEnkelvoudigInformatieobject">,
+  Option extends
+    GeneratedType<"RestEnkelvoudigInformatieobject"> = GeneratedType<"RestEnkelvoudigInformatieobject">,
 > = MultipleInputFormField<F, Key, Option> & {
   type: "documents";
   viewDocumentInNewTab?: boolean;

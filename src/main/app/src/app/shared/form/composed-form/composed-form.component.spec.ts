@@ -3,10 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { By } from "@angular/platform-browser";
@@ -17,13 +23,13 @@ import { ZacAutoComplete } from "../auto-complete/auto-complete";
 import { ZacCheckbox } from "../checkbox/checkbox";
 import { ZacDate } from "../date/date";
 import { ZacDocuments } from "../documents/documents";
-import { ZacComposedForm } from "./composed-form.component";
-import { FormConfig, FormField } from "./form-field.types";
 import { ZacHtmlEditor } from "../html-editor/html-editor";
 import { ZacInput } from "../input/input";
 import { ZacRadio } from "../radio/radio";
 import { ZacSelect } from "../select/select";
 import { ZacTextarea } from "../textarea/textarea";
+import { ZacComposedForm } from "./composed-form.component";
+import { FormConfig, FormField } from "./form-field.types";
 
 interface TestForm extends Record<string, AbstractControl> {
   name: FormControl<string | null>;
@@ -94,9 +100,7 @@ describe(ZacComposedForm.name, () => {
     it("should render zac-input for type input", () => {
       createComponent(createTestForm(), [{ type: "input", key: "name" }]);
 
-      expect(
-        fixture.debugElement.query(By.directive(ZacInput)),
-      ).toBeTruthy();
+      expect(fixture.debugElement.query(By.directive(ZacInput))).toBeTruthy();
     });
 
     it("should render zac-select for type select", () => {
@@ -104,9 +108,7 @@ describe(ZacComposedForm.name, () => {
         { type: "select", key: "name", options: [] },
       ]);
 
-      expect(
-        fixture.debugElement.query(By.directive(ZacSelect)),
-      ).toBeTruthy();
+      expect(fixture.debugElement.query(By.directive(ZacSelect))).toBeTruthy();
     });
 
     it("should render zac-textarea for type textarea", () => {
@@ -213,9 +215,9 @@ describe(ZacComposedForm.name, () => {
         (value: FormGroup<TestForm>) => (emitted = value),
       );
 
-      fixture.nativeElement.querySelector("form").dispatchEvent(
-        new Event("submit"),
-      );
+      fixture.nativeElement
+        .querySelector("form")
+        .dispatchEvent(new Event("submit"));
       fixture.detectChanges();
 
       expect(emitted).toBe(form);
@@ -229,9 +231,8 @@ describe(ZacComposedForm.name, () => {
       let emitted = false;
       componentRef.instance["formCancelled"].subscribe(() => (emitted = true));
 
-      const cancelButton = fixture.nativeElement.querySelector(
-        "button[type=reset]",
-      );
+      const cancelButton =
+        fixture.nativeElement.querySelector("button[type=reset]");
       cancelButton.click();
       fixture.detectChanges();
 
@@ -251,9 +252,7 @@ describe(ZacComposedForm.name, () => {
         (value: FormGroup<TestForm>) => (emitted = value),
       );
 
-      fixture.nativeElement
-        .querySelector("button[type=button]")
-        .click();
+      fixture.nativeElement.querySelector("button[type=button]").click();
       fixture.detectChanges();
 
       expect(emitted).toBe(form);
@@ -264,31 +263,27 @@ describe(ZacComposedForm.name, () => {
     it("should show cancel button by default", () => {
       createComponent(createTestForm(), [{ type: "input", key: "name" }]);
 
-      const cancelButton = fixture.nativeElement.querySelector(
-        "button[type=reset]",
-      );
+      const cancelButton =
+        fixture.nativeElement.querySelector("button[type=reset]");
       expect(cancelButton).toBeTruthy();
     });
 
     it("should hide cancel button when hideCancelButton is true", () => {
-      createComponent(
-        createTestForm(),
-        [{ type: "input", key: "name" }],
-        { partialSubmitLabel: "save", hideCancelButton: true },
-      );
+      createComponent(createTestForm(), [{ type: "input", key: "name" }], {
+        partialSubmitLabel: "save",
+        hideCancelButton: true,
+      });
 
-      const cancelButton = fixture.nativeElement.querySelector(
-        "button[type=reset]",
-      );
+      const cancelButton =
+        fixture.nativeElement.querySelector("button[type=reset]");
       expect(cancelButton).toBeNull();
     });
 
     it("should show partial submit button when hideCancelButton is true", () => {
-      createComponent(
-        createTestForm(),
-        [{ type: "input", key: "name" }],
-        { partialSubmitLabel: "save", hideCancelButton: true },
-      );
+      createComponent(createTestForm(), [{ type: "input", key: "name" }], {
+        partialSubmitLabel: "save",
+        hideCancelButton: true,
+      });
 
       const partialButton = fixture.nativeElement.querySelector(
         "button[type=button]",
