@@ -7,7 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { fromPartial } from "../../../../test-helpers";
-import { FormField } from "../../../shared/form/composed-form/composed-form.component";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DefaultTaskForm } from "./default-task-form";
 

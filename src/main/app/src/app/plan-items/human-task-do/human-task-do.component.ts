@@ -22,7 +22,7 @@ import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-for
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
-import { FormField, FormConfig as NewFormConfig } from "../../shared/form/composed-form/composed-form.component";
+import { FormField, FormConfig as NewFormConfig } from "../../shared/form/composed-form/form-field.types";
 import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
 import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { GeneratedType } from "../../shared/utils/generated-types";

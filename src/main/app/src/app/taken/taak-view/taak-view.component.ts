@@ -44,7 +44,7 @@ import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
-import { FormField, FormConfig as NewFormConfig } from "../../shared/form/composed-form/composed-form.component";
+import { FormField, FormConfig as NewFormConfig } from "../../shared/form/composed-form/form-field.types";
 import { PatchBody, PutBody } from "../../shared/http/http-client";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
