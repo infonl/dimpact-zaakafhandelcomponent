@@ -37,9 +37,9 @@ class SuspendZaakDelegate : AbstractDelegate() {
             "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to suspend zaak ${zaak.identificatie}"
         )
         assertPolicy(
-            zaak.opschorting.reden.isNullOrEmpty(),
+            zaak.opschorting?.reden.isNullOrEmpty(),
             LOG,
-            "Reason to suspend zaak ${zaak.identificatie} cannot be empty"
+            "Zaak ${zaak.identificatie} already has a suspension reason; refusing to suspend again"
         )
 
         LOG.fine(

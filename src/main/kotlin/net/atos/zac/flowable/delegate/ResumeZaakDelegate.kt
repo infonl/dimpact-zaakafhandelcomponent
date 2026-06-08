@@ -37,7 +37,11 @@ class ResumeZaakDelegate : AbstractDelegate() {
             LOG,
             "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to resume zaak ${zaak.identificatie}"
         )
-        assertPolicy(zaak.isOpgeschort())
+        assertPolicy(
+            zaak.isOpgeschort(),
+            LOG,
+            "Zaak ${zaak.identificatie} is not suspended and cannot be resumed"
+        )
         val resumeReason = hervattenReden.resolveValueAsString(execution)
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)
 
