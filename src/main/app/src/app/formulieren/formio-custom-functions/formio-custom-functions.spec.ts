@@ -102,9 +102,7 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
-        uuids: unknown,
-      ) => string;
+      const fn = context["ZAC_getDocumentTitles"] as (uuids: unknown) => string;
 
       expect(fn(undefined)).toBe("");
     });
