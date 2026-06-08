@@ -185,6 +185,33 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Deny all HTTP methods on favicon and PWA files except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>pwa-static-files</web-resource-name>
+            <description>Favicon, PWA manifest and apple-touch-icon — must be publicly accessible for browsers and PWA installs</description>
+            <url-pattern>/favicon.ico</url-pattern>
+            <url-pattern>/favicon.svg</url-pattern>
+            <url-pattern>/apple-touch-icon.png</url-pattern>
+            <url-pattern>/site.webmanifest</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET on favicon and PWA files without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>pwa-static-files-get</web-resource-name>
+            <description>GET is allowed without OIDC session requirement.</description>
+            <url-pattern>/favicon.ico</url-pattern>
+            <url-pattern>/favicon.svg</url-pattern>
+            <url-pattern>/apple-touch-icon.png</url-pattern>
+            <url-pattern>/site.webmanifest</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Require at least an authenticated user for all other endpoints</display-name>
         <web-resource-collection>
             <web-resource-name>zaakafhandelcomponent</web-resource-name>

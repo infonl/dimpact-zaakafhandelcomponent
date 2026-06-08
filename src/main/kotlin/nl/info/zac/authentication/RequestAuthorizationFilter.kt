@@ -71,7 +71,9 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             requestPath == "/websocket" -> httpRequestMethod == GET
             requestPath.startsWith("/rest/document-creation/smartdocuments/callback/") -> httpRequestMethod == POST
             requestPath == "/static/smart-documents-result.html" -> httpRequestMethod == GET
-            requestPath.startsWith("/assets/") || requestPath == "/logout" || requestPath == "/favicon.ico" -> httpRequestMethod == GET
+            requestPath.startsWith("/assets/") || requestPath == "/logout" ||
+                requestPath == "/favicon.ico" || requestPath == "/favicon.svg" ||
+                requestPath == "/apple-touch-icon.png" || requestPath == "/site.webmanifest" -> httpRequestMethod == GET
             // for all other paths, authorization is required
             else -> isAuthorizationAllowed(request)
         }
