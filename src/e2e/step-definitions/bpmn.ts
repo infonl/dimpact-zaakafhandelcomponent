@@ -398,20 +398,17 @@ When(
 );
 
 Then(
-  "{string} sees {int} documents in the to be signed list",
+  "{string} sees document {string} in the to be signed list",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
-    expectedCount: number,
+    fileName: string,
   ) {
-    const options = formioForm(this.page).getByRole("option", {
-      name: UUID_V4_REGEX,
-    });
-    await waitForFormioContent(this.page, options.first());
-    await expect(options).toHaveCount(expectedCount, {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    const selectedDocuments = formioForm(this.page).locator(
+      ".formio-component-selectedDocuments .formio-component-htmlelement",
+    );
+    await expect(selectedDocuments).toContainText(fileName);
   },
 );
 

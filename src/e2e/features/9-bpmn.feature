@@ -60,7 +60,8 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the active task
-    Then "Bob" sees 2 documents in the to be signed list
+    Then "Bob" sees document "file A" in the to be signed list
+    Then "Bob" sees document "file B" in the to be signed list
     When "Bob" confirms the signing of the documents
     When Employee "Bob" is on the newly created zaak
     And "Bob" sees document "file A" has been signed
