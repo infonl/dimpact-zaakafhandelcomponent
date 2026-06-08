@@ -751,7 +751,7 @@ tasks {
         dependsOn("generateOpenApiSpec")
         npmCommand.set(listOf("run", "lint"))
 
-        val sentinelFile = file("${layout.buildDirectory}/.lint-sentinel")
+        val sentinelFile = layout.buildDirectory.file(".lint-sentinel").get().asFile
 
         inputs.files(fileTree("$appPath/src"))
         inputs.files(
