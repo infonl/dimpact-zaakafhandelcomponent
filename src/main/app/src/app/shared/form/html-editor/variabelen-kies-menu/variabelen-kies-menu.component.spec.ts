@@ -19,7 +19,7 @@ describe(VariabelenKiesMenuComponent.name, () => {
   let fixture: ComponentFixture<VariabelenKiesMenuComponent>;
   let loader: HarnessLoader;
   let mockEditor: Editor;
-  let insertTextSpy: jest.SpyInstance;
+  let insertTextSpy: jest.Mock;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
