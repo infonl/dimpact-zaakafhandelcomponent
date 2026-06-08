@@ -188,7 +188,7 @@ Zaken (branch: `temp/standalone-migration-zaken`, done):
 - [x] `shared/form/html-editor/html-editor.ts`
 - [x] `shared/form/file/file.ts`
 - [x] `shared/form/documents/documents.ts`
-- [ ] `shared/form/form.ts` (moved to separate branch `temp/standalone-dynamic-form`)
+- [ ] `shared/form/form.ts` → renamed to `ZacComposedForm` in `shared/form/composed-form/` (branch: `temp/standalone-dynamic-form`)
 
 - [x] `dashboard/dashboard-card/dashboard-card.component.ts`
 - [x] `dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
