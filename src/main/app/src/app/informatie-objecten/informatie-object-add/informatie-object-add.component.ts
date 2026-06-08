@@ -29,6 +29,7 @@ import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { appendFileToFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -258,16 +259,11 @@ export class InformatieObjectAddComponent {
           );
           break;
         case "bestand":
-          // .eml files are sent as "message/rfc822", which RESTEasy does not bind to byte[].
-          // Force "application/octet-stream" so the backend receives the file as raw bytes.
-          if (infoObject.bestandsnaam?.toLowerCase().endsWith(".eml")) {
-            const emlBlob = new Blob([value as Blob], {
-              type: "application/octet-stream",
-            });
-            formData.append("file", emlBlob, infoObject.bestandsnaam);
-          } else {
-            formData.append("file", value as Blob, infoObject.bestandsnaam!);
-          }
+          appendFileToFormData(
+            formData,
+            value as Blob,
+            infoObject.bestandsnaam!,
+          );
           break;
         default:
           formData.append(key, value.toString());

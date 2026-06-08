@@ -86,14 +86,12 @@ export class ZacFile<
         this.allowedFormats.set(this.allowedFileTypes());
         return;
       }
-      const additionalFileTypes = await lastValueFrom(
-        this.configuratieService.readAdditionalAllowedFileTypes(),
+      const allowedFileTypes = await lastValueFrom(
+        this.configuratieService.readAllowedFileTypes(),
       );
-      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-        icon.getBestandsextensie(),
+      this.allowedFormats.set(
+        allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
       );
-
-      this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
     });
   }
 

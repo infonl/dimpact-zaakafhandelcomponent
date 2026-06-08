@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.253](https://img.shields.io/badge/Version-1.0.253-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
+![Version: 1.0.254](https://img.shields.io/badge/Version-1.0.254-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -46,7 +46,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |
@@ -230,7 +229,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.17.0-static@sha256:94830e998dd9df8e49a61826f1ad03d8a68d3ecd52f105e06a2adb93b459ad46"` |  |
+| opa.image.tag | string | `"1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
