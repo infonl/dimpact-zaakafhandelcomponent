@@ -41,6 +41,13 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             "/rest/admin/",
             "/admin",
         )
+        private val PUBLIC_STATIC_PATHS = setOf(
+            "/logout",
+            "/favicon.ico",
+            "/favicon.svg",
+            "/apple-touch-icon.png",
+            "/site.webmanifest",
+        )
     }
 
     override fun doFilter(
@@ -71,9 +78,7 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             requestPath == "/websocket" -> httpRequestMethod == GET
             requestPath.startsWith("/rest/document-creation/smartdocuments/callback/") -> httpRequestMethod == POST
             requestPath == "/static/smart-documents-result.html" -> httpRequestMethod == GET
-            requestPath.startsWith("/assets/") || requestPath == "/logout" ||
-                requestPath == "/favicon.ico" || requestPath == "/favicon.svg" ||
-                requestPath == "/apple-touch-icon.png" || requestPath == "/site.webmanifest" -> httpRequestMethod == GET
+            requestPath.startsWith("/assets/") || requestPath in PUBLIC_STATIC_PATHS -> httpRequestMethod == GET
             // for all other paths, authorization is required
             else -> isAuthorizationAllowed(request)
         }
