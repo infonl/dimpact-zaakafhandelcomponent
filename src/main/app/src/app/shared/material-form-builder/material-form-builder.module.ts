@@ -168,6 +168,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacDocuments,
     ZacHtmlEditor,
     VariabelenKiesMenuComponent,
+    ZacComposedForm,
   ],
   providers: [
     {
