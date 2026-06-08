@@ -295,7 +295,7 @@ class TaskRestService @Inject constructor(
     fun uploadFile(
         @PathParam("field") field: String,
         @PathParam("uuid") uuid: UUID,
-        @MultipartForm data: RestFileUpload
+        @Valid @MultipartForm data: RestFileUpload
     ): Response {
         httpSession.get().setAttribute("_FILE__${uuid}__$field", data)
         return Response.ok("\"Success\"").build()
