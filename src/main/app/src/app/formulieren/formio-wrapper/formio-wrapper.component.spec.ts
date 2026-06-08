@@ -4,6 +4,7 @@
  */
 import { ElementRef } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FormioWrapperComponent } from "./formio-wrapper.component";
 
@@ -25,6 +26,13 @@ describe(FormioWrapperComponent.name, () => {
       providers: [
         FormioWrapperComponent,
         { provide: ElementRef, useValue: mockElementRef },
+        {
+          provide: FormioCustomFunctions,
+          useValue: {
+            hasFunctionCalls: jest.fn().mockReturnValue(false),
+            buildEvalContext: jest.fn().mockResolvedValue({}),
+          },
+        },
       ],
     }).compileComponents();
 
