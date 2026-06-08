@@ -7,17 +7,17 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgres**: 17.10
 - **keycloak**: 26.5.7
 - **postgis**: 17-3.4
-- **redis**: 8.4.3
+- **redis**: 8.4.4
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.17.0-static
-- **brp-api/personen-mock**: 2.7.0-202606041530
+- **openpolicyagent/opa**: 1.17.1-static
+- **brp-api/personen-mock**: 2.7.0-202606080929
 - **gotenberg**: 8.33.0
 - **otel/opentelemetry-collector-contrib**: 0.152.1
 - **grafana/tempo**: 2.10.5
 - **prom/prometheus**: v3.11.3
-- **grafana/grafana**: 13.0.1
+- **grafana/grafana**: 13.0.2
 - **greenmail/standalone**: 2.1.8
-- **rabbitmq**: 4.3.0-alpine
+- **rabbitmq**: 4.3.1-alpine
 - **nginxinc/nginx-unprivileged**: 1.31.1
 
 ## Common Ground components

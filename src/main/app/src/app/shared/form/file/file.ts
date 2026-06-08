@@ -26,7 +26,6 @@ import { AsyncPipe, NgIf } from "@angular/common";
 import { TranslatePipe } from "@ngx-translate/core";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
-import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
@@ -82,14 +81,12 @@ export class ZacFile<
         this.allowedFormats.set(this.allowedFileTypes());
         return;
       }
-      const additionalFileTypes = await lastValueFrom(
-        this.configuratieService.readAdditionalAllowedFileTypes(),
+      const allowedFileTypes = await lastValueFrom(
+        this.configuratieService.readAllowedFileTypes(),
       );
-      const defaultFileTypes = FileIcon.fileIcons.map((icon) =>
-        icon.getBestandsextensie(),
+      this.allowedFormats.set(
+        allowedFileTypes.map((allowedFileType) => allowedFileType.extension),
       );
-
-      this.allowedFormats.set(defaultFileTypes.concat(additionalFileTypes));
     });
   }
 

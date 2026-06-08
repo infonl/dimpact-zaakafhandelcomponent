@@ -4,7 +4,6 @@
  */
 
 import { Observable } from "rxjs";
-import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { AbstractFileFormField } from "./abstract-file-form-field";
 import { AbstractFormFieldBuilder } from "./abstract-form-field-builder";
 import { FormFieldHint } from "./form-field-hint";
@@ -23,23 +22,6 @@ export abstract class AbstractFileFormFieldBuilder<
     maxFileSizeMB$.subscribe((fileSizeMB) => {
       this.formField.maxFileSizeMB = fileSizeMB;
       this.updateHint();
-    });
-    return this;
-  }
-
-  additionalAllowedFileTypes(additionalFileTypes$: Observable<string[]>): this {
-    additionalFileTypes$.subscribe((fileTypes) => {
-      if (fileTypes.length > 0) {
-        fileTypes
-          .map(
-            (fileType) => new FileIcon(fileType.trim().toLowerCase(), "draft"),
-          )
-          .forEach((fileIcon) => this.formField.fileIcons.push(fileIcon));
-        this.formField.fileIcons.sort((fileIconA, fileIconB) =>
-          fileIconA.compare(fileIconB),
-        );
-        this.updateHint();
-      }
     });
     return this;
   }
