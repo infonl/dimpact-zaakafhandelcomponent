@@ -96,6 +96,7 @@ export class FormioCustomFunctions {
           );
           return document?.titel ? ([uuid, document.titel] as const) : null;
         } catch {
+          console.error(`[FormioCustomFunctions] Failed to fetch document with UUID ${uuid}`);
           return null;
         }
       }),
