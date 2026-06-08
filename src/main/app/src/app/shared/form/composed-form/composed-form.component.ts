@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   booleanAttribute,
   Component,
@@ -10,13 +11,47 @@ import {
   input,
   output,
 } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { ReactiveFormsModule, FormGroup } from "@angular/forms";
+import { MatButton } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIcon } from "@angular/material/icon";
+import { MatLabel } from "@angular/material/form-field";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { TranslatePipe } from "@ngx-translate/core";
+import { ZacAutoComplete } from "../auto-complete/auto-complete";
+import { ZacCheckbox } from "../checkbox/checkbox";
+import { ZacDate } from "../date/date";
+import { ZacDocuments } from "../documents/documents";
+import { ZacHtmlEditor } from "../html-editor/html-editor";
+import { ZacInput } from "../input/input";
+import { ZacRadio } from "../radio/radio";
+import { ZacSelect } from "../select/select";
+import { ZacTextarea } from "../textarea/textarea";
 import { Form, FormConfig, FormField } from "./form-field.types";
 
 @Component({
   selector: "zac-composed-form",
   templateUrl: "./composed-form.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    MatButton,
+    MatExpansionPanelActionRow,
+    MatIcon,
+    MatLabel,
+    MatProgressSpinner,
+    NgIf,
+    ReactiveFormsModule,
+    TranslatePipe,
+    ZacAutoComplete,
+    ZacCheckbox,
+    ZacDate,
+    ZacDocuments,
+    ZacHtmlEditor,
+    ZacInput,
+    ZacRadio,
+    ZacSelect,
+    ZacTextarea,
+  ],
 })
 export class ZacComposedForm<F extends Form> {
   protected readonly form = input.required<FormGroup<F>>();

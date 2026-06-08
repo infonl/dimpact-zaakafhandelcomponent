@@ -10,22 +10,15 @@ import {
   AbstractControl,
   FormControl,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
 import { provideNativeDateAdapter } from "@angular/material/core";
-import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { ZacAutoComplete } from "../auto-complete/auto-complete";
-import { ZacCheckbox } from "../checkbox/checkbox";
-import { ZacDate } from "../date/date";
-import { ZacDocuments } from "../documents/documents";
 import { ZacHtmlEditor } from "../html-editor/html-editor";
 import { ZacInput } from "../input/input";
-import { ZacRadio } from "../radio/radio";
 import { ZacSelect } from "../select/select";
 import { ZacTextarea } from "../textarea/textarea";
 import { ZacComposedForm } from "./composed-form.component";
@@ -61,22 +54,7 @@ describe(ZacComposedForm.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacComposedForm],
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        ReactiveFormsModule,
-        MatExpansionPanelActionRow,
-        ZacAutoComplete,
-        ZacCheckbox,
-        ZacDate,
-        ZacDocuments,
-        ZacHtmlEditor,
-        ZacInput,
-        ZacRadio,
-        ZacSelect,
-        ZacTextarea,
-      ],
+      imports: [ZacComposedForm, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideRouter([]),
