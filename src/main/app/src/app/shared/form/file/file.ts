@@ -30,7 +30,6 @@ import { MatInputModule } from "@angular/material/input";
 import { TranslatePipe } from "@ngx-translate/core";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
-import { FileIcon } from "../../../informatie-objecten/model/file-icon";
 import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
@@ -53,9 +52,9 @@ import { SingleInputFormField } from "../BaseFormField";
   ],
 })
 export class ZacFile<
-    Form extends Record<string, AbstractControl>,
-    Key extends keyof Form,
-  >
+  Form extends Record<string, AbstractControl>,
+  Key extends keyof Form,
+>
   extends SingleInputFormField<Form, Key, File>
   implements OnInit, OnDestroy
 {
