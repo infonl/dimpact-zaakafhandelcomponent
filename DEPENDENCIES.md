@@ -7,7 +7,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgres**: 17.10
 - **keycloak**: 26.5.7
 - **postgis**: 17-3.4
-- **redis**: 8.4.3
+- **redis**: 8.4.4
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.17.0-static
 - **brp-api/personen-mock**: 2.7.0-202606080929
