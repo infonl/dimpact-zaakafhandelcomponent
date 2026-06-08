@@ -50,6 +50,7 @@ import { ZacFile } from "../form/file/file";
 import { ZacForm } from "../form/form";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
+import { VariabelenKiesMenuComponent } from "../form/html-editor/variabelen-kies-menu/variabelen-kies-menu.component";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
@@ -64,7 +65,6 @@ import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
-import { HtmlEditorVariabelenKiesMenuComponent } from "./form-components/html-editor/html-editor-variabelen-kies-menu.component";
 import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
 import { InputComponent } from "./form-components/input/input.component";
 import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
@@ -84,7 +84,6 @@ import { FormComponent } from "./form/form/form.component";
     DateComponent,
     HeadingComponent,
     HtmlEditorComponent,
-    HtmlEditorVariabelenKiesMenuComponent,
     InputComponent,
     SelectComponent,
     MedewerkerGroepComponent,
@@ -96,9 +95,6 @@ import { FormComponent } from "./form/form/form.component";
     DividerComponent,
     HiddenComponent,
     MessageComponent,
-    ZacHtmlEditor,
-    ZacFile,
-    ZacDocuments,
     ZacForm,
   ],
   exports: [
@@ -170,6 +166,10 @@ import { FormComponent } from "./form/form/form.component";
     ZacSelect,
     ZacInput,
     ZacAutoComplete,
+    ZacFile,
+    ZacDocuments,
+    ZacHtmlEditor,
+    VariabelenKiesMenuComponent,
   ],
   providers: [
     {

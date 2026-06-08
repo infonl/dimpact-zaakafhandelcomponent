@@ -4,6 +4,7 @@
  *
  */
 
+import { AsyncPipe, NgIf } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -17,15 +18,38 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { AbstractControl, FormBuilder } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { TranslatePipe } from "@ngx-translate/core";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
+import { FileDragAndDropDirective } from "../../directives/file-drag-and-drop.directive";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { SingleInputFormField } from "../BaseFormField";
 
 @Component({
   selector: "zac-file",
   templateUrl: "./file.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    AsyncPipe,
+    CapitalizeFirstLetterPipe,
+    FileDragAndDropDirective,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    NgIf,
+    ReactiveFormsModule,
+    TranslatePipe,
+  ],
 })
 export class ZacFile<
     Form extends Record<string, AbstractControl>,

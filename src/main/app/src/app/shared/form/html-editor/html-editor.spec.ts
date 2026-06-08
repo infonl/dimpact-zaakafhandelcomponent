@@ -6,27 +6,18 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { CommonModule } from "@angular/common";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   AbstractControl,
   FormControl,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatErrorHarness } from "@angular/material/form-field/testing";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatMenuModule } from "@angular/material/menu";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { NgxEditorModule, Toolbar } from "ngx-editor";
-import { MaterialFormBuilderModule } from "../../material-form-builder/material-form-builder.module";
-import { PipesModule } from "../../pipes/pipes.module";
+import { Toolbar } from "ngx-editor";
 import { CustomValidators } from "../../validators/customValidators";
 import { ZacHtmlEditor } from "./html-editor";
 
@@ -52,22 +43,7 @@ describe(ZacHtmlEditor.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacHtmlEditor],
-      imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        NoopAnimationsModule,
-        NgxEditorModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatIconModule,
-        MatButtonModule,
-        MatMenuModule,
-        PipesModule,
-        MaterialFormBuilderModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [],
+      imports: [ZacHtmlEditor, NoopAnimationsModule, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZacHtmlEditor<TestForm, keyof TestForm>);

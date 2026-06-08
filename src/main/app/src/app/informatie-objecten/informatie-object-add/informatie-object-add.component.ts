@@ -23,6 +23,7 @@ import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacFile } from "../../shared/form/file/file";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -50,6 +51,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
     ZacDate,
     ZacFormActions,
     ZacInput,
+    ZacFile,
     ZacSelect,
     MaterialFormBuilderModule,
   ],
