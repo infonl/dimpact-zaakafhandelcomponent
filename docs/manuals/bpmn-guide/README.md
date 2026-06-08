@@ -663,6 +663,31 @@ Example:
 }
 ```
 
+### Custom functions
+
+ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.
+These functions are evaluated client-side and can be used to display dynamic data in read-only content blocks.
+
+#### ZAC_getDocumentTitles
+
+Resolves a list of document UUIDs stored in a taakdata field to their human-readable document titles.
+The titles are formatted as a Dutch conjunction list (e.g. `Document A, Document B en Document C`).
+
+* Use a `content` component with an `html` property containing `{{ ZAC_getDocumentTitles(<fieldKey>) }}`
+* `<fieldKey>` must match the `key` of a form field whose value is a list of document UUIDs
+
+```json
+{
+  "label": "Selected documents",
+  "type": "content",
+  "key": "selectedDocuments",
+  "html": "<p>Te ondertekenen documenten:</p><p>{{ ZAC_getDocumentTitles(ZAAK_Documenten_Ondertekenen_Selectie) }}</p>",
+  "input": false
+}
+```
+
+ If a document cannot be fetched or has no title, the UUID is used as a fallback.
+
 #### Supported process data variables
 * `zaakUUID` - zaak UUID
 * `zaakIdentificatie` - zaak id
