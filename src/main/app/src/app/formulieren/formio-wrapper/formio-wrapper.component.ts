@@ -7,16 +7,20 @@ import {
   AfterViewInit,
   booleanAttribute,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   HostListener,
   inject,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   ExtendedComponentSchema,
   FormioAppConfig,
@@ -25,6 +29,8 @@ import {
   FormioHookOptions,
   FormioModule,
 } from "@formio/angular";
+import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
+import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
 
@@ -45,9 +51,12 @@ import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
     },
   ],
 })
-export class FormioWrapperComponent implements OnInit, AfterViewInit {
+export class FormioWrapperComponent
+  implements OnInit, OnChanges, AfterViewInit
+{
   @Input() form: unknown;
   @Input() submission: unknown;
+  @Input() taakdata?: Record<string, unknown>;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
@@ -74,8 +83,43 @@ export class FormioWrapperComponent implements OnInit, AfterViewInit {
   protected stylesLoaded = false;
 
   private static activeElementPatched = false;
+  private readonly customFunctions = inject(FormioCustomFunctions);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly rebuild$ = new ReplaySubject<void>(1);
+  protected evalContext: Record<string, unknown> = {};
+  protected evalContextReady = false;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["form"]) {
+      this.rebuild$.next();
+    }
+  }
 
   async ngOnInit() {
+    this.rebuild$
+      .pipe(
+        switchMap(() => {
+          this.evalContextReady = false;
+          const source = from(
+            this.customFunctions.prepareFormContext(
+              this.form,
+              this.taakdata ?? {},
+            ),
+          );
+          return source.pipe(
+            catchError((error) => {
+              console.error("Failed to build form eval context:", error);
+              return of({});
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((evalContext: Record<string, unknown>) => {
+        this.evalContext = evalContext;
+        this.evalContextReady = true;
+      });
+
     await this.loadBootstrapStyles();
     this.stylesLoaded = true;
   }
