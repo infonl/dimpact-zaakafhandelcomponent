@@ -73,7 +73,7 @@ testcontainers-postgresql = "1.21.4"
 json-json = "20250517"
 slf4j-simple = "2.0.18"
 
-github-kotlin-logging = "8.0.03"
+github-kotlin-logging = "8.0.4"
 okhttp = "5.3.2"
 
 [libraries]
