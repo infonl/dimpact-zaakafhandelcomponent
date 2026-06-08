@@ -1,0 +1,14 @@
+{
+  "name": "Zaakafhandelcomponent",
+  "short_name": "ZAC",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#3f51b5",
+  "background_color": "#3f51b5",
+  "display": "standalone"
+}

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { ClipboardModule } from "@angular/cdk/clipboard";
 import { KeyValuePipe, NgIf, NgTemplateOutlet } from "@angular/common";
 import { Component, effect, inject, input, output } from "@angular/core";
 import {
@@ -21,6 +22,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   injectMutation,
@@ -33,6 +35,7 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaakdata",
   templateUrl: "./zaakdata.component.html",
+  styleUrl: "./zaakdata.component.less",
   standalone: true,
   imports: [
     NgIf,
@@ -49,6 +52,8 @@ import { ZakenService } from "../zaken.service";
     MatInputModule,
     TranslateModule,
     ZacInput,
+    ClipboardModule,
+    MatTooltipModule,
   ],
 })
 export class ZaakdataComponent {

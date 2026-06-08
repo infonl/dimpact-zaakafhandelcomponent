@@ -201,12 +201,12 @@ class KlantRestService @Inject constructor(
         restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
+                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid, loggedInUserInstance.get().id))
                     .map { it.toRestPersoon() }
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
+            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid, loggedInUserInstance.get().id)
                 .toRestPersonen()
                 .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
                 .toRestResultaat()

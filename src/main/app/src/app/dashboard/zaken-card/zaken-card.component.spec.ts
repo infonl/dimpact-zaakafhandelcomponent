@@ -16,7 +16,6 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCard } from "../model/dashboard-card";
@@ -57,8 +56,11 @@ describe(ZakenCardComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZakenCardComponent],
-      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        ZakenCardComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),

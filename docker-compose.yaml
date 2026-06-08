@@ -170,7 +170,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8001:8000"
     volumes:
@@ -282,7 +282,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61
+    image: openpolicyagent/opa:1.17.0-static@sha256:94830e998dd9df8e49a61826f1ad03d8a68d3ecd52f105e06a2adb93b459ad46
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -299,7 +299,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202603230846@sha256:7bf8c2ea61cc39d363711b4b43537680a84f5ba9a795dabc1bd7d497072233ea
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202606041530@sha256:d304c47e677e4c653287c29f32cb52fbbd83376dfda707ccd9d8ac153cd25f8f
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -386,7 +386,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.16.2@sha256:a915d8b59ddb09a9badecd8e061d43cf3111283494c4cf1d38a675bdb4e81a13
+    image: openpolicyagent/opa:1.17.0@sha256:3c6e9e4d433b6e94df424c3385134312a95042aa991cdfc8e01944115675fb9d
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -448,7 +448,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
+    image: grafana/grafana:13.0.2@sha256:5dad0df181cb644a14e13617b913b261a54f7d4fd4510721dba420929f35bea2
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -486,7 +486,7 @@ services:
 
   rabbitmq:
     # note: RabbitMQ 4.3.0 breaks Open Notificaties 1.13.0
-    image: rabbitmq:4.2.7-alpine@sha256:685d619fa6ab3eed0fbdd6a94191fc359e9c172d6b71858ad0ee2b4787644726
+    image: rabbitmq:4.2.7-alpine@sha256:ebb1336b51e43e94dedb0ebcdb66899e2b01e096bc2b8d6c1915d1da3d9a0ddf
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -705,7 +705,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8005:8080"
     volumes:
@@ -799,10 +799,21 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
       - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
-      - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
+      - BRP_ORIGIN_OIN_HEADER=${BRP_ORIGIN_OIN_HEADER:-x-origin-oin}
+      - BRP_PROTOCOLLERING_ENABLED=${BRP_PROTOCOLLERING_ENABLED:-true}
+      - BRP_DOELBINDING_PER_ZAAKTYPE=${BRP_DOELBINDING_PER_ZAAKTYPE:-true}
+      - BRP_DOELBINDING_HEADER=${BRP_DOELBINDING_HEADER:-x-doelbinding}
       - BRP_DOELBINDING_ZOEKMET=${BRP_DOELBINDING_ZOEKMET:-BRPACT-Totaal}
       - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
+      - BRP_VERWERKING_HEADER=${BRP_VERWERKING_HEADER:-x-verwerking}
       - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
+      - BRP_GEBRUIKER_HEADER=${BRP_GEBRUIKER_HEADER:-x-gebruiker}
+      - BRP_TOEPASSING_HEADER=${BRP_TOEPASSING_HEADER:-x-toepassing}
+      - BRP_TOEPASSING=${BRP_TOEPASSING:-ZAC}
+      - BRP_LOG_LEVEL=INFO
+      - BRP_SYSTEM_USER=ZacSystemUser
+      - BRP_API_KEY_HEADER=${BRP_API_KEY_HEADER:-}
+      - BRP_API_KEY=${BRP_API_KEY:-}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
@@ -875,7 +886,7 @@ services:
     profiles: ["zac"]
 
   objecttypes-api-database:
-    image: postgres:17.10@sha256:538bdb8c6b278f2f09070a4d79f04a83363a795ed23ec0d92d6b70cabc398eae
+    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
     ports:
       - "54324:5432"
     healthcheck:
@@ -891,7 +902,7 @@ services:
     profiles: [ "openformulieren" ]
 
   objecttypes-api:
-    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
     platform: linux/amd64
     ports:
       - "8011:8000"
@@ -912,7 +923,7 @@ services:
     profiles: [ "openformulieren" ]
 
   objecttypes-api-import:
-    image: maykinmedia/objecttypes-api:3.4.1@sha256:8565a3101bf2b0f1e5c56e00844a4cd1e4936f184122fdcae12407c67aeb51d9
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
     platform: linux/amd64
     environment: *objecttypes-env
     command: sh init/init.sh
@@ -1144,7 +1155,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:1a3f97f13b245fd6307668326a9a43adfe8bab1853572e0970430285f95e5208
+    image: nginxinc/nginx-unprivileged:1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070
     ports:
       - "8007:8080"
     volumes:

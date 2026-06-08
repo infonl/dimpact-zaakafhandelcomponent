@@ -59,13 +59,9 @@ import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
-import { AutocompleteComponent } from "./form-components/autocomplete/autocomplete.component";
-import { CheckboxComponent } from "./form-components/checkbox/checkbox.component";
 import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
-import { DocumentenOndertekenenComponent } from "./form-components/documenten-ondertekenen/documenten-ondertekenen.component";
-import { FileComponent } from "./form-components/file/file.component";
 import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
 import { HtmlEditorVariabelenKiesMenuComponent } from "./form-components/html-editor/html-editor-variabelen-kies-menu.component";
@@ -74,10 +70,8 @@ import { InputComponent } from "./form-components/input/input.component";
 import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { MessageComponent } from "./form-components/message/message.component";
 import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
-import { RadioComponent } from "./form-components/radio/radio.component";
 import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
 import { SelectComponent } from "./form-components/select/select.component";
-import { TaakDocumentUploadComponent } from "./form-components/taak-document-upload/taak-document-upload.component";
 import { TextareaComponent } from "./form-components/textarea/textarea.component";
 import { FormFieldComponent } from "./form/form-field/form-field.component";
 import { FormFieldDirective } from "./form/form-field/form-field.directive";
@@ -92,18 +86,12 @@ import { FormComponent } from "./form/form/form.component";
     HtmlEditorComponent,
     HtmlEditorVariabelenKiesMenuComponent,
     InputComponent,
-    FileComponent,
     SelectComponent,
     MedewerkerGroepComponent,
-    CheckboxComponent,
     TextareaComponent,
     FormFieldDirective,
     ReadonlyComponent,
-    AutocompleteComponent,
     DocumentenLijstComponent,
-    DocumentenOndertekenenComponent,
-    TaakDocumentUploadComponent,
-    RadioComponent,
     ParagraphComponent,
     DividerComponent,
     HiddenComponent,
@@ -121,16 +109,10 @@ import { FormComponent } from "./form/form/form.component";
     HeadingComponent,
     HtmlEditorComponent,
     InputComponent,
-    FileComponent,
     SelectComponent,
     MedewerkerGroepComponent,
-    CheckboxComponent,
     TextareaComponent,
-    AutocompleteComponent,
     DocumentenLijstComponent,
-    DocumentenOndertekenenComponent,
-    TaakDocumentUploadComponent,
-    RadioComponent,
     ParagraphComponent,
     MessageComponent,
     ZacAutoComplete,

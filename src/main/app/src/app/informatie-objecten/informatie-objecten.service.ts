@@ -199,13 +199,13 @@ export class InformatieObjectenService {
     );
   }
 
-  unlockInformatieObject(uuid: string, zaakUuid: string) {
+  unlockInformatieObject(uuid: string, zaakUuid?: string) {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
       undefined as never,
       {
         path: { uuid },
-        query: { zaak: zaakUuid },
+        query: { zaak: zaakUuid ?? null },
       },
     );
   }

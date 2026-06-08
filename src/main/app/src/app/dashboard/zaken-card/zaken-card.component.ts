@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   computed,
@@ -13,11 +14,32 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Sort } from "@angular/material/sort";
+import { MatIconAnchor } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { MatSort, MatSortHeader, Sort } from "@angular/material/sort";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatNoDataRow,
+  MatRow,
+  MatRowDef,
+  MatTable,
+} from "@angular/material/table";
+import { RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCardComponent } from "../dashboard-card/dashboard-card.component";
@@ -32,7 +54,31 @@ const DEFAULT_SORT_ORDER: GeneratedType<"SorteerRichting"> = "DESC";
     "../dashboard-card/dashboard-card.component.less",
     "./zaken-card.component.less",
   ],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatNoDataRow,
+    MatPaginator,
+    MatProgressSpinner,
+    MatIconAnchor,
+    MatIcon,
+    RouterLink,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+  ],
 })
 export class ZakenCardComponent
   extends DashboardCardComponent<GeneratedType<"RestZaakOverzicht">>

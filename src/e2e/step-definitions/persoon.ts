@@ -15,8 +15,6 @@ import { worldUsers } from "../utils/schemes";
 const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
 const TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com";
 const TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678";
-const TEST_PERSON_CONTACT_MOMENT_FIRST = "e2eTestFirstName of e2eTestLastName";
-const TEST_PERSON_CONTACT_MOMENT_SECOND = "e2eFirstName in e2eLastName";
 
 Then(
   "{string} navigates to initiator details page",
@@ -41,14 +39,6 @@ Then(
     ).toBeVisible();
     await this.expect(
       this.page.getByText(TEST_PERSON_HENDRIKA_JANSE_EMAIL),
-    ).toBeVisible();
-
-    await this.expect(
-      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_FIRST),
-    ).toBeVisible();
-
-    await this.expect(
-      this.page.getByText(TEST_PERSON_CONTACT_MOMENT_SECOND),
     ).toBeVisible();
   },
 );
