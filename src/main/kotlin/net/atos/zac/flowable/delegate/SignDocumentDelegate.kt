@@ -10,6 +10,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.UUID
@@ -36,6 +37,7 @@ class SignDocumentDelegate : AbstractDelegate() {
         val enkelvoudigInformatieObjectUpdateService =
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
+        val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
         val zaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
             ?: DEFAULT_DOCUMENTEN_KEY
         LOG.fine("Signing documents with key '$zaakDataKey' from activity '${execution.currentActivityName}'")
@@ -57,6 +59,11 @@ class SignDocumentDelegate : AbstractDelegate() {
 
         documentsToSign.forEach { uuid ->
             val enkelvoudigInformatieobject = flowableHelper.drcClientService.readEnkelvoudigInformatieobject(uuid)
+            assertPolicy(
+                flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen,
+                LOG,
+                "Not allowed to sign document ${enkelvoudigInformatieobject.identificatie} for zaak ${zaak.identificatie}"
+            )
 
             if (enkelvoudigInformatieobject.ondertekening?.datum != null) {
                 LOG.warning("Document '${enkelvoudigInformatieobject.identificatie}' is already signed, skipping")

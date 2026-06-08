@@ -6,6 +6,8 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.client.zgw.zrc.util.isOpgeschort
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -30,6 +32,12 @@ class ResumeZaakDelegate : AbstractDelegate() {
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        assertPolicy(
+            flowableHelper.policyService.readZaakRechten(zaak, flowableHelper.loggedInUserInstance.get()).hervatten,
+            LOG,
+            "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to resume zaak ${zaak.identificatie}"
+        )
+        assertPolicy(zaak.isOpgeschort())
         val resumeReason = hervattenReden.resolveValueAsString(execution)
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)
 
