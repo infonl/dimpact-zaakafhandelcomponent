@@ -4,6 +4,7 @@
  *
  */
 
+import { AsyncPipe, NgIf } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -17,12 +18,15 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { AbstractControl, FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { AsyncPipe, NgIf } from "@angular/common";
 import { TranslatePipe } from "@ngx-translate/core";
 import { lastValueFrom, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";

@@ -6,6 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { provideHttpClient } from "@angular/common/http";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
@@ -62,11 +63,15 @@ describe(ZacFile.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+<<<<<<< HEAD
       imports: [
         ZacFile,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
+=======
+      imports: [ZacFile, NoopAnimationsModule, TranslateModule.forRoot()],
+>>>>>>> origin/main
       providers: [TranslateService, provideHttpClient()],
     }).compileComponents();
 
