@@ -11,11 +11,11 @@ import {
   input,
   output,
 } from "@angular/core";
-import { ReactiveFormsModule, FormGroup } from "@angular/forms";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButton } from "@angular/material/button";
 import { MatExpansionPanelActionRow } from "@angular/material/expansion";
-import { MatIcon } from "@angular/material/icon";
 import { MatLabel } from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { TranslatePipe } from "@ngx-translate/core";
 import { ZacAutoComplete } from "../auto-complete/auto-complete";

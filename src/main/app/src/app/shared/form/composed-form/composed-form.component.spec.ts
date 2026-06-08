@@ -54,7 +54,11 @@ describe(ZacComposedForm.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZacComposedForm, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        ZacComposedForm,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(),
         provideRouter([]),
