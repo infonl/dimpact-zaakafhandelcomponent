@@ -99,7 +99,7 @@ type RadioFormField<
 };
 
 /**
- * This type is meant to be used **only** in the `ZacDynamicForm` component.
+ * This type is meant to be used **only** in the `ZacComposedForm` component.
  */
 type _FormConfig = {
   submitLabel?: string;
@@ -131,11 +131,11 @@ export type FormField<Form extends _Form = _Form> =
   | RadioFormField<Form>;
 
 @Component({
-  selector: "zac-dynamic-form",
-  templateUrl: "./dynamic-form.html",
+  selector: "zac-composed-form",
+  templateUrl: "./composed-form.component.html",
   standalone: false,
 })
-export class ZacDynamicForm<Form extends _Form> {
+export class ZacComposedForm<Form extends _Form> {
   protected readonly form = input.required<FormGroup<Form>>();
   protected readonly fields = input.required<FormField[]>();
   protected readonly config = input<FormConfig>({ hideCancelButton: false });

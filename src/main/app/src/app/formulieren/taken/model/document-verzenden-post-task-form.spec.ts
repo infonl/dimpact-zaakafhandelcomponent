@@ -10,7 +10,7 @@ import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { FormField } from "../../../shared/form/dynamic-form/dynamic-form";
+import { FormField } from "../../../shared/form/composed-form/composed-form.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentVerzendenPostTaskForm } from "./document-verzenden-post-task-form";
 

@@ -17,7 +17,7 @@ import { ZacAutoComplete } from "../auto-complete/auto-complete";
 import { ZacCheckbox } from "../checkbox/checkbox";
 import { ZacDate } from "../date/date";
 import { ZacDocuments } from "../documents/documents";
-import { ZacDynamicForm, FormConfig, FormField } from "./dynamic-form";
+import { ZacComposedForm, FormConfig, FormField } from "./composed-form.component";
 import { ZacHtmlEditor } from "../html-editor/html-editor";
 import { ZacInput } from "../input/input";
 import { ZacRadio } from "../radio/radio";
@@ -29,9 +29,9 @@ interface TestForm extends Record<string, AbstractControl> {
   description: FormControl<string | null>;
 }
 
-describe(ZacDynamicForm.name, () => {
-  let fixture: ComponentFixture<ZacDynamicForm<TestForm>>;
-  let componentRef: ComponentRef<ZacDynamicForm<TestForm>>;
+describe(ZacComposedForm.name, () => {
+  let fixture: ComponentFixture<ZacComposedForm<TestForm>>;
+  let componentRef: ComponentRef<ZacComposedForm<TestForm>>;
 
   const createTestForm = () =>
     new FormGroup<TestForm>({
@@ -44,7 +44,7 @@ describe(ZacDynamicForm.name, () => {
     fields: FormField[],
     config?: FormConfig,
   ) => {
-    fixture = TestBed.createComponent(ZacDynamicForm<TestForm>);
+    fixture = TestBed.createComponent(ZacComposedForm<TestForm>);
     componentRef = fixture.componentRef;
     componentRef.setInput("form", form);
     componentRef.setInput("fields", fields);
@@ -54,7 +54,7 @@ describe(ZacDynamicForm.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ZacDynamicForm],
+      declarations: [ZacComposedForm],
       imports: [
         NoopAnimationsModule,
         TranslateModule.forRoot(),
