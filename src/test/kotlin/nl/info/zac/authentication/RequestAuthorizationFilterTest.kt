@@ -246,6 +246,50 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
+        listOf("/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", "/site.webmanifest").forEach { path ->
+            Given("An unauthenticated GET request on '$path'") {
+                val filter = RequestAuthorizationFilter()
+                every { httpServletRequest.contextPath } returns "fakeContextPath"
+                every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.method } returns "GET"
+                every { filterChain.doFilter(any(), any()) } just runs
+
+                When("the filter processes the request") {
+                    filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                    Then("the request is allowed") {
+                        verify(exactly = 1) {
+                            filterChain.doFilter(httpServletRequest, httpServletResponse)
+                        }
+                        verify(exactly = 0) {
+                            httpServletResponse.sendError(any())
+                        }
+                    }
+                }
+            }
+
+            Given("An unauthenticated POST request on '$path'") {
+                val filter = RequestAuthorizationFilter()
+                every { httpServletRequest.contextPath } returns "fakeContextPath"
+                every { httpServletRequest.requestURI } returns path
+                every { httpServletRequest.method } returns "POST"
+                every { httpServletResponse.sendError(any()) } just runs
+
+                When("the filter processes the request") {
+                    filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
+
+                    Then("a 403 is returned") {
+                        verify(exactly = 1) {
+                            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
+                        }
+                        verify(exactly = 0) {
+                            filterChain.doFilter(any(), any())
+                        }
+                    }
+                }
+            }
+        }
+
         Given("An unauthenticated POST request on '/assets/*'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
