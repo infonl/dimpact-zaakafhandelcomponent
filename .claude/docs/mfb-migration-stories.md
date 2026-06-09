@@ -1,15 +1,19 @@
 # MFB-migratie — Jira Rovo story-voorbereiding
 
 - Elk blok hieronder is één user story. Kopieer het als body naar Rovo of plak het als story-beschrijving.
-- Parent is PZ-11246
-- Subtaken
-  - Ombouwen
-  - Testen
-  - Demo slide
+- Have the next info
+  - Parent is PZ-11246 (Bonus Work)
+  - Subtaken
+    - Ombouwen
+    - Standalone migratie (alleen stories 5, 6, 7 en 8)
+    - Testen
+    - Demo slide
+  - Project ZAC
+  - Prio Medium
 
 ---
 
-## Story 1 — Taakaanpak opschonen
+## Story 1 — HumanTaskDoComponent: verouderde formulierlogica vervangen door Angular-formuliercomponenten
 
 **Als** behandelaar
 **Wil ik** dat het afhandelen van taken (`HumanTaskDoComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar uitsluitend van de nieuwe Angular-formuliercomponenten
@@ -28,7 +32,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 2 — Inline bewerken loskoppelen van verouderd systeem
+## Story 2 — EditComponent + EditInputComponent: inline bewerken migreren naar standaard Angular Material invoerveld
 
 **Als** behandelaar
 **Wil ik** dat het inline bewerken van velden (`EditComponent` + `EditInputComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar van een eenvoudig Angular Material invoerveld
@@ -47,7 +51,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 3 — Documenten verzenden via vernieuwd formulier
+## Story 3 — InformatieObjectVerzendenComponent: verzendpaneel migreren naar expliciete formuliercomponenten
 
 **Als** behandelaar
 **Wil ik** dat het verzendpaneel voor documenten (`InformatieObjectVerzendenComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar van een set expliciete formuliercomponenten: `zac-documents`, `zac-date` en `zac-textarea`
@@ -68,7 +72,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 4a — Bevestigingsvensters vernieuwen (eerste vijf)
+## Story 4a — PromptDialogComponent (batch a): vijf zaakacties migreren naar nieuw bevestigingsvenster met foutafhandeling
 
 **Als** behandelaar
 **Wil ik** dat de bevestigingsvensters voor zaakacties (`PromptDialogComponent`, batch a: afbreken, heropenen, hervatten, initiator wijzigen, document ontkoppelen) geen gebruik meer maken van de verouderde MFB-formulierlogica, maar van `zac-input`, `zac-textarea` of `zac-select`
@@ -88,7 +92,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 4b — Bevestigingsvensters vernieuwen (resterende vijf)
+## Story 4b — PromptDialogComponent (batch b): resterende vijf acties migreren en DialogComponent opschonen
 
 **Als** behandelaar
 **Wil ik** dat de overige bevestigingsvensters (`PromptDialogComponent`, batch b: betrokkene ontkoppelen, BAG-object ontkoppelen, zaak-documenten document ontkoppelen, document verwijderen, besluit intrekken) geen gebruik meer maken van de verouderde MFB-formulierlogica, maar van `zac-input`, `zac-textarea` of `zac-select`
@@ -107,7 +111,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 5 — Besluit bewerken via vernieuwd formulier
+## Story 5 — BesluitEditComponent: besluit-bewerkpaneel migreren naar expliciete formuliercomponenten en standalone
 
 **Als** behandelaar
 **Wil ik** dat het bewerkpaneel voor besluiten (`BesluitEditComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar van een set expliciete formuliercomponenten: `zac-input`, `zac-date`, `zac-textarea` en `zac-documents`
@@ -115,6 +119,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 **Acceptatiecriteria:**
 
+- De component is standalone (geen NgModule-declaratie meer nodig)
 - Het paneel toont alle velden vooraf ingevuld met de huidige besluitwaarden
 - Het besluittype-veld is alleen-lezen
 - De ingangsdatum is verplicht; opslaan zonder ingangsdatum is niet mogelijk
@@ -131,7 +136,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 6 — Besluit bekijken en intrekken via vernieuwd scherm
+## Story 6 — BesluitViewComponent: besluitdetailscherm migreren naar statische weergave, nieuw bevestigingsvenster en standalone
 
 **Als** behandelaar
 **Wil ik** dat het besluitdetailscherm (`BesluitViewComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar van statische weergavecomponenten en `zac-documents`
@@ -139,6 +144,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 **Acceptatiecriteria:**
 
+- De component is standalone (geen NgModule-declaratie meer nodig)
 - Alle besluitvelden zijn leesbaar weergegeven op het scherm
 - De gekoppelde documenten per besluit zijn zichtbaar in een documentenlijst
 - De documentenlijst is alleen-lezen (geen selectie of bewerking mogelijk)
@@ -152,7 +158,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 7 — Taakdetails bekijken via vernieuwd scherm
+## Story 7 — TaakViewComponent: taakdetailscherm migreren naar expliciete groeps-, medewerkers- en taakvelden en standalone
 
 **Als** behandelaar
 **Wil ik** dat het taakdetailscherm (`TaakViewComponent`) geen gebruik meer maakt van de verouderde MFB-formulierlogica, maar van `zac-auto-complete` voor groep en medewerker en de bestaande Angular-formuliercomponenten voor de taakvelden
@@ -160,6 +166,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 **Acceptatiecriteria:**
 
+- De component is standalone (geen NgModule-declaratie meer nodig)
 - Het taakformulier toont de juiste velden voor de betreffende taaksoort
 - Het groepsveld toont een zoekbare lijst van beschikbare groepen
 - Het medewerkerveld toont een zoekbare lijst van medewerkers binnen de gekozen groep
@@ -174,7 +181,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 ---
 
-## Story 8 — Procestaak: beslissing nemen en uitvoeren
+## Story 8 — ProcessTaskDoComponent: beslissen over bouwen of volledig verwijderen van procestaak-functionaliteit (inclusief standalone)
 
 > ⚠️ Deze story kan pas worden ingepland nadat een product- en technische beslissing is genomen: de functionaliteit volledig bouwen, of bewust verwijderen.
 
@@ -189,6 +196,7 @@ Zie [MFB-migratie op Confluence](https://dimpact.atlassian.net/wiki/spaces/PZW/p
 
 **Acceptatiecriteria (bij keuze "bouwen"):**
 
+- De component is standalone (geen NgModule-declaratie meer nodig)
 - Een procestaak opent het juiste formulier met de benodigde velden
 - Na invullen en bevestigen wordt de procestaak correct verwerkt in de backend
 - Bij een fout krijgt de behandelaar een foutmelding en kan het opnieuw proberen
