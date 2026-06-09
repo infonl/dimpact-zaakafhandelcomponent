@@ -11,8 +11,12 @@ package nl.info.zac.configuration
  * This is the single source of truth for upload validation. Adding a new file type
  * requires extending this enum.
  */
-enum class AllowedFileType(val extension: String, val mediaType: String) {
-    AVI(".avi", "video/x-msvideo"),
+enum class AllowedFileType(
+    val extension: String,
+    val mediaType: String,
+    val alternativeMediaTypes: Set<String> = emptySet()
+) {
+    AVI(".avi", "video/x-msvideo", setOf("video/avi", "video/msvideo", "video/vnd.avi")),
     BMP(".bmp", "image/bmp"),
     DOC(".doc", "application/msword"),
     DOCX(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
@@ -21,7 +25,7 @@ enum class AllowedFileType(val extension: String, val mediaType: String) {
     GIF(".gif", "image/gif"),
     JPEG(".jpeg", "image/jpeg"),
     JPG(".jpg", "image/jpeg"),
-    MKV(".mkv", "video/x-matroska"),
+    MKV(".mkv", "video/x-matroska", setOf("video/mkv")),
     MOV(".mov", "video/quicktime"),
     MP4(".mp4", "video/mp4"),
     MPEG(".mpeg", "video/mpeg"),
@@ -32,9 +36,18 @@ enum class AllowedFileType(val extension: String, val mediaType: String) {
     PNG(".png", "image/png"),
     PPT(".ppt", "application/vnd.ms-powerpoint"),
     PPTX(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
-    RTF(".rtf", "application/rtf"),
+    RTF(".rtf", "application/rtf", setOf("text/rtf", "application/msword")),
     TXT(".txt", "text/plain"),
-    VSD(".vsd", "application/vnd.visio"),
+    VSD(
+        ".vsd",
+        "application/vnd.visio",
+        setOf(
+            "application/x-visio",
+            "application/visio",
+            "application/vnd.ms-visio.drawing",
+            "application/vnd.ms-visio.viewer"
+        )
+    ),
     WMV(".wmv", "video/x-ms-wmv"),
     XLS(".xls", "application/vnd.ms-excel"),
     XLSX(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -51,11 +64,14 @@ enum class AllowedFileType(val extension: String, val mediaType: String) {
 
         /**
          * Returns true when [filename]'s extension is on the allowlist and (if [mediaType] is
-         * non-blank) matches the media type registered for that extension.
+         * non-blank) matches the canonical media type registered for that extension or one of
+         * its [alternativeMediaTypes]. Matching is case-insensitive.
          */
         fun isAllowed(filename: String?, mediaType: String?): Boolean =
-            fromFilename(filename)?.let {
-                mediaType.isNullOrBlank() || mediaType.equals(it.mediaType, ignoreCase = true)
+            fromFilename(filename)?.let { fileType ->
+                mediaType.isNullOrBlank() ||
+                    mediaType.equals(fileType.mediaType, ignoreCase = true) ||
+                    fileType.alternativeMediaTypes.any { it.equals(mediaType, ignoreCase = true) }
             } ?: false
     }
 }

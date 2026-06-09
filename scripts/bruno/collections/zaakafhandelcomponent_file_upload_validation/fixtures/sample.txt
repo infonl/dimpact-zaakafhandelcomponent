@@ -1,0 +1,1 @@
+Bruno upload validation test — happy path.
