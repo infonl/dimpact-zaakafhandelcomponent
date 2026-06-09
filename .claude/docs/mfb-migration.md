@@ -7,6 +7,7 @@ located at `src/main/app/src/app/shared/material-form-builder/`. This library wa
 developed by Atos and is being phased out.
 
 MFB consists of:
+
 - **`<mfb-form>`** — a full dynamic form renderer driven by `FormConfig` + `AbstractFormField[][]`
 - **`<mfb-form-field>`** — a single dynamic field renderer driven by `AbstractFormField`
 - **Field builder classes** — `InputFormFieldBuilder`, `DateFormFieldBuilder`, etc. — that produce
@@ -35,17 +36,17 @@ form field should appear once in the template as a typed component, bound to an 
 
 **Use these atomic shared form components from `shared/form/`:**
 
-| MFB builder | Replacement selector |
-|---|---|
-| `InputFormFieldBuilder` | `<zac-input>` |
-| `TextareaFormFieldBuilder` | `<zac-textarea>` |
-| `DateFormFieldBuilder` | `<zac-date>` |
-| `SelectFormFieldBuilder` | `<zac-select>` |
-| `MedewerkerGroepFieldBuilder` | Two separate `<zac-auto-complete>` fields: one for group, one for medewerker (see §9) |
-| `DocumentenLijstFieldBuilder` | `<zac-documents>` |
-| `ParagraphFormFieldBuilder` / `DividerFormFieldBuilder` | Plain `<p>` / `<mat-divider>` in template |
-| `HiddenFormFieldBuilder` | No component — just a `FormControl` in the group, not rendered |
-| `MessageFormFieldBuilder` | `<p>` or Angular Material `<mat-hint>` / `<span>` in template |
+| MFB builder                                             | Replacement selector                                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `InputFormFieldBuilder`                                 | `<zac-input>`                                                                         |
+| `TextareaFormFieldBuilder`                              | `<zac-textarea>`                                                                      |
+| `DateFormFieldBuilder`                                  | `<zac-date>`                                                                          |
+| `SelectFormFieldBuilder`                                | `<zac-select>`                                                                        |
+| `MedewerkerGroepFieldBuilder`                           | Two separate `<zac-auto-complete>` fields: one for group, one for medewerker (see §9) |
+| `DocumentenLijstFieldBuilder`                           | `<zac-documents>`                                                                     |
+| `ParagraphFormFieldBuilder` / `DividerFormFieldBuilder` | Plain `<p>` / `<mat-divider>` in template                                             |
+| `HiddenFormFieldBuilder`                                | No component — just a `FormControl` in the group, not rendered                        |
+| `MessageFormFieldBuilder`                               | `<p>` or Angular Material `<mat-hint>` / `<span>` in template                         |
 
 Submit/cancel actions should use `shared/form/form-actions/` or be written directly in the
 component template with `<button>` elements bound to component methods.
@@ -58,7 +59,7 @@ explicitly in each component's own template.
 
 ## Affected components (verified)
 
-#### 1. `plan-items/human-task-do/human-task-do.component.ts` *(MFB cleanup)*
+#### 1. `plan-items/human-task-do/human-task-do.component.ts` _(MFB cleanup)_
 
 The taak formulieren migration is complete — `getFormulierBuilder` now throws
 `"DEPRECATED, use Angular form"` for every known `formulierDefinitie`, so the MFB `catch` block
@@ -66,7 +67,8 @@ is entirely dead code and can be removed immediately.
 
 **Exact changes:**
 
-*`human-task-do.component.ts`:*
+_`human-task-do.component.ts`:_
+
 - Remove `private formulier?: AbstractTaakFormulier` field and its import (`AbstractTaakFormulier`)
 - Remove `formItems: Array<AbstractFormField[]> = []` field
 - Remove `formConfig = new FormConfigBuilder()...build()` field
@@ -76,7 +78,8 @@ is entirely dead code and can be removed immediately.
 - In `onFormSubmit`: remove the `try/catch` wrapper — the Angular path is the only path; keep only
   the mutation call that was previously in the `catch` body
 
-*`human-task-do.component.html`:*
+_`human-task-do.component.html`:_
+
 - Remove the `<div class="form"> … <mfb-form> … </div>` block (lines 36–43)
 - Simplify the spinner `*ngIf` from `!formFields.length && !formItems.length` to `!formFields.length`
 
@@ -116,11 +119,13 @@ The component exists but is entirely non-functional:
    `CMMNService.startProcessTaskPlanItem()` have never been called from the frontend.
 
 **Dead backend code to flag for cleanup:**
+
 - `PlanItemsRestService.kt` — `processTaskPlanItem/{id}` (GET) and `doProcessTaskPlanItem` (POST) endpoints
 - `CMMNService.startProcessTaskPlanItem()` — called only from the dead POST endpoint
 - `RESTProcessTaskData` — model used only by the dead endpoint
 
 **MFB imports in component:**
+
 - `AbstractFormField`, `FormConfig`, `FormConfigBuilder`
 
 **Migration approach:**
@@ -153,6 +158,7 @@ decision.
 the `FormGroup`. Has no selector and cannot be used directly.
 
 **MFB imports:**
+
 - `MaterialFormBuilderService`
 - `AbstractFormField`
 
@@ -161,6 +167,7 @@ tested independently. Its migration is therefore coupled to `EditInputComponent`
 ship in the same PR.
 
 **Migration approach:**
+
 1. Replace `formField: AbstractFormField` with a plain `FormControl` input. `EditComponent`
    currently uses `MaterialFormBuilderService` only to wire the incoming `AbstractFormField`'s
    embedded control into a `FormGroup`. After migration the component should accept a `FormControl`
@@ -168,6 +175,7 @@ ship in the same PR.
 2. Remove `MaterialFormBuilderService` from the constructor and all `AbstractFormField` imports.
 
 **Caller inventory (only one direct consumer of `<zac-edit-input>`):**
+
 - `admin/referentie-tabel/referentie-tabel.component` — passes `[formField]="codeFormField"`,
   `[formField]="naamFormField"`, `[formField]="waardeFormField[row.id]"` where each is an
   `InputFormField` created by `InputFormFieldBuilder`. After migration these should be plain
@@ -184,10 +192,12 @@ clicking it activates an editable `<mfb-form-field>` (an `InputFormField`) direc
 Used for inline editing of individual fields across the app.
 
 **MFB imports:**
+
 - `MaterialFormBuilderModule`
 - `InputFormField` (type)
 
 **Migration approach:**
+
 1. Remove the dependency on `InputFormField` (an MFB type). Let the callers drive the API decision.
 2. Replace `<mfb-form-field>` in the template with a plain Angular Material field:
    ```html
@@ -209,6 +219,7 @@ Used for inline editing of individual fields across the app.
 and a textarea for notes.
 
 **MFB imports:**
+
 - `MaterialFormBuilderModule`, `FormComponent`, `FormConfigBuilder`, `FormConfig`,
   `AbstractFormField`
 - `ParagraphFormFieldBuilder`, `DateFormFieldBuilder`, `DocumentenLijstFieldBuilder`,
@@ -219,6 +230,7 @@ swap the document list observable when the active case changes. This embedded-ob
 is what MFB uses instead of a plain input binding.
 
 **Migration approach:**
+
 1. Define an explicit `FormGroup` in the component with three controls: `documenten`, `verzenddatum`,
    `toelichting`
 2. Write an explicit template replacing `<mfb-form>` with:
@@ -242,6 +254,7 @@ is what MFB uses instead of a plain input binding.
 `<mfb-form-field [field]="formField">`.
 
 **MFB imports:**
+
 - `MaterialFormBuilderModule`
 - `FieldType` (enum)
 - `AbstractFormField` (in `dialog-data.ts`)
@@ -258,44 +271,49 @@ pass a different field descriptor type — it is to stop passing fields into the
 **Additional problem with the `callback` pattern:** Currently `DialogComponent` owns the API call
 — it subscribes to the `callback` observable internally and closes itself on success or error.
 This is the wrong responsibility split:
+
 - The dialog is coupled to business logic it should know nothing about
 - On error the dialog silently closes with `false` — no user feedback, no retry
 - The `callback` return type is `Observable<unknown>`, making the result untypeable at the call site
 
 **The correct pattern** (standard Angular Material contract) is: the dialog collects input,
-closes with a typed result via `MatDialogRef.close(value)`, and the *caller* owns what happens
+closes with a typed result via `MatDialogRef.close(value)`, and the _caller_ owns what happens
 next. This moves the API call back to the component that has the context for it:
 
 ```typescript
 // caller
 const ref = this.dialog.open(ZaakHeropenenDialogComponent);
-ref.afterClosed()
+ref
+  .afterClosed()
   .pipe(filter(Boolean))
-  .subscribe(({ reden }) => this.zakenService.heropenen(this.zaak.uuid, { reden }));
+  .subscribe(({ reden }) =>
+    this.zakenService.heropenen(this.zaak.uuid, { reden }),
+  );
 ```
 
 This migration is the natural moment to fix both problems at once.
 
 **Audit of all 10 call sites:**
 
-| # | Call site | Field | `confirmButtonActionKey` | `icon` | Callback |
-|---|---|---|---|---|---|
-| a1 | `zaak-view` — afbreken | `reden` (select: `RestZaakbeeindigReden`) | `actie.zaak.afbreken` | `thumb_down_alt` | `zakenService.afbreken(uuid, { zaakbeeindigRedenId })` |
-| a2 | `zaak-view` — heropenen | `reden` (input) | `actie.zaak.heropenen` | `restart_alt` | `zakenService.heropenen(uuid, { reden })` |
-| a3 | `zaak-view` — hervatten | `redenOpschortingField` (input) | `actie.zaak.hervatten` | `play_circle` | `zakenService.resumeZaak(uuid, { reason })` |
-| a4 | `zaak-view` — initiator wijzigen | `reden` (textarea) | `actie.initiator.wijzigen` | `link` | `zakenService.updateInitiator(...)` |
-| a5 | `zaak-view` — document ontkoppelen | `reden` (textarea) | `actie.document.ontkoppelen` | `link_off` | `zakenService.ontkoppelen(...)` |
-| b1 | `zaak-view` — betrokkene ontkoppelen | `reden` (textarea) | `actie.betrokkene.ontkoppelen` | `link_off` | `zakenService.deleteBetrokkene(rolid, reden)` |
-| b2 | `zaak-view` — BAG-object ontkoppelen | `reden` (input) | `actie.bagObject.ontkoppelen` | `link_off` | `bagService.delete(...)` |
-| b3 | `zaak-documenten` — document ontkoppelen | `reden` (textarea) | `actie.document.ontkoppelen` | `link_off` | `zakenService.ontkoppelInformatieObject(...)` |
-| b4 | `informatie-object-view` — document verwijderen | `reden` (input) | `actie.document.verwijderen` | `delete` | `deleteEnkelvoudigInformatieObject$(reden)` |
-| b5 | `besluit-view` — intrekken | `vervalReden` (select: `VervalReden`) | `actie.besluit.intrekken` | `stop_circle` | `saveIntrekking(results)` |
+| #   | Call site                                       | Field                                     | `confirmButtonActionKey`       | `icon`           | Callback                                               |
+| --- | ----------------------------------------------- | ----------------------------------------- | ------------------------------ | ---------------- | ------------------------------------------------------ |
+| a1  | `zaak-view` — afbreken                          | `reden` (select: `RestZaakbeeindigReden`) | `actie.zaak.afbreken`          | `thumb_down_alt` | `zakenService.afbreken(uuid, { zaakbeeindigRedenId })` |
+| a2  | `zaak-view` — heropenen                         | `reden` (input)                           | `actie.zaak.heropenen`         | `restart_alt`    | `zakenService.heropenen(uuid, { reden })`              |
+| a3  | `zaak-view` — hervatten                         | `redenOpschortingField` (input)           | `actie.zaak.hervatten`         | `play_circle`    | `zakenService.resumeZaak(uuid, { reason })`            |
+| a4  | `zaak-view` — initiator wijzigen                | `reden` (textarea)                        | `actie.initiator.wijzigen`     | `link`           | `zakenService.updateInitiator(...)`                    |
+| a5  | `zaak-view` — document ontkoppelen              | `reden` (textarea)                        | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelen(...)`                        |
+| b1  | `zaak-view` — betrokkene ontkoppelen            | `reden` (textarea)                        | `actie.betrokkene.ontkoppelen` | `link_off`       | `zakenService.deleteBetrokkene(rolid, reden)`          |
+| b2  | `zaak-view` — BAG-object ontkoppelen            | `reden` (input)                           | `actie.bagObject.ontkoppelen`  | `link_off`       | `bagService.delete(...)`                               |
+| b3  | `zaak-documenten` — document ontkoppelen        | `reden` (textarea)                        | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelInformatieObject(...)`          |
+| b4  | `informatie-object-view` — document verwijderen | `reden` (input)                           | `actie.document.verwijderen`   | `delete`         | `deleteEnkelvoudigInformatieObject$(reden)`            |
+| b5  | `besluit-view` — intrekken                      | `vervalReden` (select: `VervalReden`)     | `actie.besluit.intrekken`      | `stop_circle`    | `saveIntrekking(results)`                              |
 
 All 10 call sites receive their result via a `callback: (results) => Observable<unknown>` that the
 dialog subscribes to internally before closing. The `#` column maps directly to the batch split
 defined below.
 
 **Conclusions for the migration:**
+
 - There is no single generic `RedenDialogComponent` that fits all cases — the field type, title,
   icon, and callback all vary per call site.
 - The right approach is **one dedicated dialog component per call site**, each with an explicit
@@ -307,6 +325,7 @@ defined below.
   This eliminates dynamic rendering while avoiding 10× duplication of the toolbar/button chrome.
 
 **Migration approach:**
+
 1. Migrate call sites in two batches (batch a: a1–a5, batch b: b1–b5). For each call site: create
    a fully standalone dedicated dialog component with its own explicit template and typed
    `FormControl`/`FormGroup`. The dedicated dialog closes via `this.dialogRef.close(typedResult)`
@@ -332,6 +351,7 @@ dynamic `<mfb-form>` with many fields: dividers, paragraphs, dates, document lis
 and textareas.
 
 **MFB imports:**
+
 - `FormConfigBuilder`, `AbstractFormField`
 - `DateFormField`, `DateFormFieldBuilder`
 - `DividerFormFieldBuilder`, `ParagraphFormFieldBuilder`
@@ -340,6 +360,7 @@ and textareas.
 
 **Special complexity:** Two reactive field dependencies currently encoded inside MFB's
 observable-per-field model:
+
 1. `ingangsdatum` value changes → update `vervaldatum` minDate
 2. `besluittype` value changes → swap the document list observable (calls
    `listInformatieObjecten(besluittype.id)`)
@@ -348,6 +369,7 @@ Additionally, a conditional publication section (divider + paragraph + `publicat
 `lastResponseDate`) is only shown when `besluittype.publication.enabled` is true.
 
 **Migration approach:**
+
 1. Define an explicit `FormGroup` with all required controls:
    - `besluittype` (disabled input — read-only display of the besluittype name)
    - `ingangsdatum` (date, required)
@@ -382,17 +404,20 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 "intrekkingsreden" before revoking a decision.
 
 **MFB imports:**
+
 - `DateFormFieldBuilder`, `HiddenFormFieldBuilder`, `InputFormFieldBuilder`
 - `DocumentenLijstFieldBuilder`, `DocumentenLijstFormField`
 - `MessageFormFieldBuilder`, `MessageLevel`
 - `SelectFormFieldBuilder`
 
 **Special complexity:**
+
 - Uses `DocumentenLijstFormField` instances stored in `besluitInformatieobjecten` record
   (keyed by besluit UUID) to drive per-besluit document list rendering
 - Passes MFB field builders into `DialogData` for the intrekking confirmation — blocked by §6 dialog batch b
 
 **Migration approach:**
+
 1. Replace `besluitInformatieobjecten: Record<string, DocumentenLijstFormField>` with a plain
    `Record<string, RestEnkelvoudigInformatieobject[]>` populated via the existing service call
 2. Replace each `<mfb-form-field>` in the template with the appropriate direct display: use
@@ -412,10 +437,12 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 `AbstractTaakFormulier`.
 
 **MFB imports:**
+
 - `InputFormFieldBuilder`, `MedewerkerGroepFieldBuilder`, `TextareaFormFieldBuilder`
 - `FormConfig`, `FormConfigBuilder`
 
 **Migration approach:**
+
 1. Verify that `TaakFormulierenService.getAngularHandleFormBuilder` covers all known
    `formulierDefinitieId` values (the same check that unblocked §1 — confirm by reading
    `taak-formulieren.service.ts`). If every case is handled, this component is unblocked.
@@ -431,17 +458,17 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 
 ## Suggested execution order
 
-| Component (§) | Blocked by | Complexity |
-|---|---|---|
-| `human-task-do` cleanup (§1) | — *(taak formulieren migration complete)* | Low |
-| `edit.component` (§3) + `edit-input.component` (§4) — one PR | — | Medium-High |
-| `informatie-object-verzenden` (§5) | — | Medium |
-| `shared/dialog` batch a: 5 dedicated dialog components — all `zaak-view` (§6) | — | Medium |
-| `shared/dialog` batch b: 5 dedicated dialog components + remove `formFields` from `DialogData` (§6) | batch a | Medium-High |
-| `besluit-edit` (§7) | — | Medium-High |
-| `besluit-view` (§8) | §6 dialog batch b | Medium |
-| `taak-view` (§9) | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |
-| `process-task-do` (§2) | **Product/tech decision required** (see §2) | High |
+| Component (§)                                                                                       | Blocked by                                             | Complexity  |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- |
+| `human-task-do` cleanup (§1)                                                                        | — _(taak formulieren migration complete)_              | Low         |
+| `edit.component` (§3) + `edit-input.component` (§4) — one PR                                        | —                                                      | Medium-High |
+| `informatie-object-verzenden` (§5)                                                                  | —                                                      | Medium      |
+| `shared/dialog` batch a: 5 dedicated dialog components — all `zaak-view` (§6)                       | —                                                      | Medium      |
+| `shared/dialog` batch b: 5 dedicated dialog components + remove `formFields` from `DialogData` (§6) | batch a                                                | Medium-High |
+| `besluit-edit` (§7)                                                                                 | —                                                      | Medium-High |
+| `besluit-view` (§8)                                                                                 | §6 dialog batch b                                      | Medium      |
+| `taak-view` (§9)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |
+| `process-task-do` (§2)                                                                              | **Product/tech decision required** (see §2)            | High        |
 
 `shared/dialog` (§6) is split into two batches of 5 call sites each (batch a: all in `zaak-view`;
 batch b: cross-component, ending with `besluit-view` intrekken). `DialogComponent` is not touched
