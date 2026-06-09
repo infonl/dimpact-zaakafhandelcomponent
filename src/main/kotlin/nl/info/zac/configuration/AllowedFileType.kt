@@ -14,7 +14,7 @@ package nl.info.zac.configuration
 enum class AllowedFileType(
     val extension: String,
     val mediaType: String,
-    val additionalMediaTypes: Set<String> = emptySet()
+    val alternativeMediaTypes: Set<String> = emptySet()
 ) {
     AVI(".avi", "video/x-msvideo", setOf("video/avi", "video/msvideo", "video/vnd.avi")),
     BMP(".bmp", "image/bmp"),
@@ -65,13 +65,13 @@ enum class AllowedFileType(
         /**
          * Returns true when [filename]'s extension is on the allowlist and (if [mediaType] is
          * non-blank) matches the canonical media type registered for that extension or one of
-         * its [additionalMediaTypes]. Matching is case-insensitive.
+         * its [alternativeMediaTypes]. Matching is case-insensitive.
          */
         fun isAllowed(filename: String?, mediaType: String?): Boolean =
             fromFilename(filename)?.let { fileType ->
                 mediaType.isNullOrBlank() ||
                     mediaType.equals(fileType.mediaType, ignoreCase = true) ||
-                    fileType.additionalMediaTypes.any { it.equals(mediaType, ignoreCase = true) }
+                    fileType.alternativeMediaTypes.any { it.equals(mediaType, ignoreCase = true) }
             } ?: false
     }
 }
