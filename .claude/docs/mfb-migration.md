@@ -7,8 +7,8 @@
 | `human-task-do` cleanup (§1)                                                                        | — _(taak formulieren migration complete)_              | Low         |      |
 | `edit.component` (§3) + `edit-input.component` (§4) — one PR                                       | —                                                      | Medium-High |      |
 | `informatie-object-verzenden` (§5)                                                                  | —                                                      | Medium      |      |
-| `shared/dialog` batch a: 5 dedicated dialog components — all `zaak-view` (§6)                      | —                                                      | Medium      |      |
-| `shared/dialog` batch b: 5 dedicated dialog components + remove `formFields` from `DialogData` (§6) | batch a                                                | Medium-High |      |
+| `shared/dialog` — create `PromptDialogComponent` + batch a: migrate 5 `zaak-view` call sites (§6)  | —                                                      | Medium      |      |
+| `shared/dialog` batch b: migrate remaining 5 call sites + clean up `DialogComponent` (§6)           | batch a                                                | Medium-High |      |
 | `besluit-edit` (§7)                                                                                 | —                                                      | Medium-High |      |
 | `besluit-view` (§8)                                                                                 | §6 dialog batch b                                      | Medium      |      |
 | `taak-view` (§9)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |      |
@@ -279,84 +279,108 @@ is what MFB uses instead of a plain input binding.
 `besluit-view`, `zaak-documenten`, `informatie-object-view` — all passing MFB field builder
 instances.
 
-**Problem with a generic dialog carrying form fields:** The root issue is that this dialog was
-designed to be a single reusable component that adapts its form at runtime based on whatever
-fields are passed in. This is itself the anti-pattern to eliminate. The right fix is **not** to
-pass a different field descriptor type — it is to stop passing fields into the dialog at all.
+**Problems with the current design:**
 
-**Additional problem with the `callback` pattern:** Currently `DialogComponent` owns the API call
-— it subscribes to the `callback` observable internally and closes itself on success or error.
-This is the wrong responsibility split:
+1. **MFB dependency** — `formFields: AbstractFormField[]` drives the dynamic field rendering.
+2. **`callback` anti-pattern** — `DialogComponent` owns the API call, subscribes to the callback
+   observable internally, and closes on success or error. This is the wrong responsibility split:
+   on error the dialog silently closes with `false` — no user feedback, no retry possible.
+3. **Spinner is internal** — `loading` state is managed inside `DialogComponent` while the API
+   call runs. After removing the callback, a new mechanism is needed to preserve the spinner.
 
-- The dialog is coupled to business logic it should know nothing about
-- On error the dialog silently closes with `false` — no user feedback, no retry
-- The `callback` return type is `Observable<unknown>`, making the result untypeable at the call site
+**Chosen solution — `PromptDialogComponent`:**
 
-**The correct pattern** (standard Angular Material contract) is: the dialog collects input,
-closes with a typed result via `MatDialogRef.close(value)`, and the _caller_ owns what happens
-next. This moves the API call back to the component that has the context for it:
+Replace `DialogComponent` with a new `PromptDialogComponent` that is self-contained: it owns the
+mutation, shows a spinner via TanStack's `isPending()`, and closes on success. The name
+`PromptDialogComponent` signals that this component does more than layout — it actively executes
+an action. The caller only opens it and reacts to success (reload data, show snackbar).
+
+**`PromptDialogData` interface:**
 
 ```typescript
-// caller
-const ref = this.dialog.open(ZaakHeropenenDialogComponent);
-ref
-  .afterClosed()
-  .pipe(filter(Boolean))
-  .subscribe(({ reden }) =>
-    this.zakenService.heropenen(this.zaak.uuid, { reden }),
-  );
+interface PromptDialogData {
+  title: string;                           // toolbar title (i18n key)
+  icon?: string;                           // toolbar icon (Material icon name)
+  message?: string;                        // optional explanation paragraph
+  fieldConfig?: PromptFieldConfig;         // absent = pure confirmation, no input field
+  mutationFn: (value: string) => Promise<unknown>;  // owned by the dialog
+}
+
+type PromptFieldConfig =
+  | { type: 'input' | 'textarea'; label: string; maxlength?: number }
+  | { type: 'select'; label: string; options$: Observable<{ id: string; naam: string }[]> };
 ```
 
-This migration is the natural moment to fix both problems at once.
+`fieldConfig` is optional — when absent the dialog is a pure confirmation (no input field). This
+covers `informatie-object-view` which conditionally passes an empty `formFields` array today.
+
+**`PromptDialogComponent` internals:**
+
+- `injectMutation(() => ({ mutationFn: this.data.mutationFn }))` — TanStack owns lifecycle
+- Confirm button: `[disabled]="mutation.isPending()"` + spinner icon while `isPending()`
+- Template uses `@switch (data.fieldConfig?.type)` — no `<zac-form>`, no dynamic renderer:
+
+```html
+@if (data.fieldConfig) {
+  @switch (data.fieldConfig.type) {
+    @case ('input')    { <zac-input    [formControl]="control" ... /> }
+    @case ('textarea') { <zac-textarea [formControl]="control" ... /> }
+    @case ('select')   { <zac-select   [formControl]="control" [options$]="data.fieldConfig.options$" ... /> }
+  }
+}
+```
+
+- `onSuccess`: `this.dialogRef.close(true)` — caller reacts via `afterClosed()`
+- `onError`: `this.foutAfhandelingService.foutAfhandelen(error)` — dialog stays open, button
+  re-enables, user can retry
+
+**Note on service methods:** Most callbacks currently use `zacHttpClient` methods that return
+plain Observables (not `zacQueryClient` mutations). Wrap them in `lastValueFrom()` in the
+caller's `mutationFn` — no service changes needed:
+
+```typescript
+mutationFn: (reden: string) =>
+  lastValueFrom(this.zakenService.afbreken(this.zaak.uuid, { zaakbeeindigRedenId: reden }))
+```
 
 **Audit of all 10 call sites:**
 
-| #   | Call site                                       | Field                                     | `confirmButtonActionKey`       | `icon`           | Callback                                               |
-| --- | ----------------------------------------------- | ----------------------------------------- | ------------------------------ | ---------------- | ------------------------------------------------------ |
-| a1  | `zaak-view` — afbreken                          | `reden` (select: `RestZaakbeeindigReden`) | `actie.zaak.afbreken`          | `thumb_down_alt` | `zakenService.afbreken(uuid, { zaakbeeindigRedenId })` |
-| a2  | `zaak-view` — heropenen                         | `reden` (input)                           | `actie.zaak.heropenen`         | `restart_alt`    | `zakenService.heropenen(uuid, { reden })`              |
-| a3  | `zaak-view` — hervatten                         | `redenOpschortingField` (input)           | `actie.zaak.hervatten`         | `play_circle`    | `zakenService.resumeZaak(uuid, { reason })`            |
-| a4  | `zaak-view` — initiator wijzigen                | `reden` (textarea)                        | `actie.initiator.wijzigen`     | `link`           | `zakenService.updateInitiator(...)`                    |
-| a5  | `zaak-view` — document ontkoppelen              | `reden` (textarea)                        | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelen(...)`                        |
-| b1  | `zaak-view` — betrokkene ontkoppelen            | `reden` (textarea)                        | `actie.betrokkene.ontkoppelen` | `link_off`       | `zakenService.deleteBetrokkene(rolid, reden)`          |
-| b2  | `zaak-view` — BAG-object ontkoppelen            | `reden` (input)                           | `actie.bagObject.ontkoppelen`  | `link_off`       | `bagService.delete(...)`                               |
-| b3  | `zaak-documenten` — document ontkoppelen        | `reden` (textarea)                        | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelInformatieObject(...)`          |
-| b4  | `informatie-object-view` — document verwijderen | `reden` (input)                           | `actie.document.verwijderen`   | `delete`         | `deleteEnkelvoudigInformatieObject$(reden)`            |
-| b5  | `besluit-view` — intrekken                      | `vervalReden` (select: `VervalReden`)     | `actie.besluit.intrekken`      | `stop_circle`    | `saveIntrekking(results)`                              |
+| #  | Call site                                       | Field                                     | `title` (i18n key)             | `icon`           | `mutationFn` |
+| -- | ----------------------------------------------- | ----------------------------------------- | ------------------------------ | ---------------- | ------------ |
+| a1 | `zaak-view` — afbreken                          | select: `RestZaakbeeindigReden`           | `actie.zaak.afbreken`          | `thumb_down_alt` | `zakenService.afbreken(uuid, { zaakbeeindigRedenId })` |
+| a2 | `zaak-view` — heropenen                         | input                                     | `actie.zaak.heropenen`         | `restart_alt`    | `zakenService.heropenen(uuid, { reden })` |
+| a3 | `zaak-view` — hervatten                         | input                                     | `actie.zaak.hervatten`         | `play_circle`    | `zakenService.resumeZaak(uuid, { reason })` |
+| a4 | `zaak-view` — initiator wijzigen                | textarea                                  | `actie.initiator.wijzigen`     | `link`           | `zakenService.updateInitiator(...)` |
+| a5 | `zaak-view` — document ontkoppelen              | textarea                                  | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelen(...)` |
+| b1 | `zaak-view` — betrokkene ontkoppelen            | textarea                                  | `actie.betrokkene.ontkoppelen` | `link_off`       | `zakenService.deleteBetrokkene(rolid, reden)` |
+| b2 | `zaak-view` — BAG-object ontkoppelen            | input                                     | `actie.bagObject.ontkoppelen`  | `link_off`       | `bagService.delete(...)` |
+| b3 | `zaak-documenten` — document ontkoppelen        | textarea                                  | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelInformatieObject(...)` |
+| b4 | `informatie-object-view` — document verwijderen | input _(absent when no zaak — see below)_ | `actie.document.verwijderen`   | `delete`         | `deleteEnkelvoudigInformatieObject$(reden)` |
+| b5 | `besluit-view` — intrekken                      | select: `VervalReden`                     | `actie.besluit.intrekken`      | `stop_circle`    | `saveIntrekking(reden)` |
 
-All 10 call sites receive their result via a `callback: (results) => Observable<unknown>` that the
-dialog subscribes to internally before closing. The `#` column maps directly to the batch split
-defined below.
-
-**Conclusions for the migration:**
-
-- There is no single generic `RedenDialogComponent` that fits all cases — the field type, title,
-  icon, and callback all vary per call site.
-- The right approach is **one dedicated dialog component per call site**, each with an explicit
-  template and typed form control. The shared boilerplate (toolbar, divider, spinner, confirm/cancel
-  buttons) stays in `DialogComponent`; only the form field content moves out.
-- The cleanest structural pattern: keep `DialogComponent` as a layout shell and use **content
-  projection** (`<ng-content>`) for the form body, removing `formFields` from `DialogData`.
-  Each call site then opens its own dialog class that projects its own typed field into the shell.
-  This eliminates dynamic rendering while avoiding 10× duplication of the toolbar/button chrome.
+**b4 special case:** `informatie-object-view` currently passes `formFields: this.zaak ? [...] : []`.
+When `this.zaak` is absent, pass `fieldConfig: undefined` — `PromptDialogComponent` renders as a
+pure confirmation dialog with no input field.
 
 **Migration approach:**
 
-1. Migrate call sites in two batches (batch a: a1–a5, batch b: b1–b5). For each call site: create
-   a fully standalone dedicated dialog component with its own explicit template and typed
-   `FormControl`/`FormGroup`. The dedicated dialog closes via `this.dialogRef.close(typedResult)`
-   — no callback, no internal API call. The opening component subscribes to
-   `dialogRef.afterClosed()` and owns the service call. `DialogComponent` is not touched during
-   this phase — remaining old call sites continue to work as-is.
+1. **Create `PromptDialogComponent`** in `shared/prompt-dialog/` (standalone). Implement the
+   `PromptDialogData` interface, `@switch` template, and TanStack mutation as described above.
+   Write unit tests. `DialogComponent` is not touched yet.
+2. **Migrate call sites in two batches** (batch a: a1–a5, batch b: b1–b5). For each call site:
+   replace `this.dialog.open(DialogComponent, { data: new DialogData(...) })` with
+   `this.dialog.open(PromptDialogComponent, { data: { ... } as PromptDialogData })`. The caller
+   subscribes to `afterClosed().pipe(filter(Boolean))` for post-success UI updates only (reload,
+   snackbar). No service call in the subscriber.
    - **Batch a** (5 call sites — all in `zaak-view`): a1 afbreken, a2 heropenen, a3 hervatten,
      a4 initiator wijzigen, a5 document ontkoppelen.
    - **Batch b** (5 call sites — cross-component, ends with `besluit-view`): b1 betrokkene
      ontkoppelen, b2 BAG-object ontkoppelen, b3 zaak-documenten document ontkoppelen, b4
      informatie-object-view document verwijderen, b5 besluit-view intrekken.
      `besluit-view` (§8) is unblocked once b5 is done.
-2. After the final call site in batch b is migrated, clean up `DialogComponent`: remove `formFields`
-   from `DialogData`, remove `MaterialFormBuilderModule`, `FieldType`, `AbstractFormField` from
-   `dialog.component.ts`, and remove the `*ngFor` + `<mfb-form-field>` block from the template.
+3. **Clean up `DialogComponent`** after batch b: remove `formFields` from `DialogData`, remove
+   `MaterialFormBuilderModule`, `FieldType`, `AbstractFormField` from `dialog.component.ts`, and
+   remove the `*ngFor` + `<mfb-form-field>` block from the template.
 
 ---
 
@@ -472,7 +496,7 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 
 ---
 
-`shared/dialog` (§6) is split into two batches of 5 call sites each (batch a: all in `zaak-view`;
-batch b: cross-component, ending with `besluit-view` intrekken). `DialogComponent` is not touched
-during either batch. The final step of batch b is removing `formFields` from `DialogData` and MFB
-imports from `dialog.component.ts`.
+`shared/dialog` (§6) starts with creating `PromptDialogComponent`, then migrates call sites in two
+batches of 5 (batch a: all in `zaak-view`; batch b: cross-component, ending with `besluit-view`
+intrekken). `DialogComponent` is not touched until the final step of batch b, which cleans up its
+MFB imports and removes the `*ngFor` + `<mfb-form-field>` block.
