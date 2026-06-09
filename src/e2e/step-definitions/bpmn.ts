@@ -398,6 +398,24 @@ When(
 );
 
 Then(
+    "{string} sees {int} documents in the to be signed list",
+    { timeout: FORTY_SECONDS_IN_MS },
+    async function (
+        this: CustomWorld,
+        _user: z.infer<typeof worldUsers>,
+        expectedCount: number,
+    ) {
+        const titlesParagraph = formioForm(this.page).locator(
+            ".formio-component-selectedDocuments .formio-component-htmlelement p:nth-child(2)",
+        );
+        await expect(titlesParagraph).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+        const text = (await titlesParagraph.textContent()) ?? "";
+        const count = text.split(" en ").filter(Boolean).length;
+        expect(count).toBe(expectedCount);
+    },
+);
+
+Then(
   "{string} sees document {string} in the to be signed list",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
@@ -408,7 +426,10 @@ Then(
     const selectedDocuments = formioForm(this.page).locator(
       ".formio-component-selectedDocuments .formio-component-htmlelement",
     );
-    await expect(selectedDocuments).toContainText(fileName);
+      await waitForFormioContent(this.page, selectedDocuments);
+      await expect(selectedDocuments).toContainText(fileName, {
+          timeout: FORTY_SECONDS_IN_MS,
+      });
   },
 );
 

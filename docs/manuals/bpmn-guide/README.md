@@ -674,7 +674,7 @@ Resolves a list of document UUIDs stored in a taakdata field to their human-read
 The titles are formatted as a Dutch conjunction list (e.g. `Document A, Document B en Document C`).
 
 * Use a `content` component with an `html` property containing `{{ ZAC_getDocumentTitles(<fieldKey>) }}`
-* `<fieldKey>` must match the `key` of a form field whose value is a list of document UUIDs
+* `<fieldKey>` must match the name of a taakdata field containing a list of document UUIDs (it does not need to be a component in the form)
 
 ```json
 {
@@ -686,7 +686,7 @@ The titles are formatted as a Dutch conjunction list (e.g. `Document A, Document
 }
 ```
 
- If a document cannot be fetched or has no title, the UUID is used as a fallback.
+If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
 #### Supported process data variables
 * `zaakUUID` - zaak UUID
