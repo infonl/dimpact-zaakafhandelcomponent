@@ -104,13 +104,15 @@ _`human-task-do.component.html`:_
 #### 2. `shared/edit/edit.component.ts`
 
 **What it does:** Abstract base class for all inline-edit components. Takes
-`formField: AbstractFormField` as an `@Input` and uses `MaterialFormBuilderService` to wire up
-the `FormGroup`. Has no selector and cannot be used directly.
+`formField: AbstractFormField` as an `@Input` and wires it into a `FormGroup` for inline editing.
+Has no selector and cannot be used directly.
 
 **MFB imports:**
 
-- `MaterialFormBuilderService`
-- `AbstractFormField`
+- `MaterialFormBuilderService` — injected in the constructor but **never called**. Dead injection,
+  leftover from an earlier version. Can be removed with zero behaviour change.
+- `AbstractFormField` — genuinely used: `edit()` accesses `.id` (as the `FormGroup` control key)
+  and `.formControl` (the actual `AbstractControl`) directly.
 
 **Note:** `EditComponent` is abstract — it has no template or selector and cannot compile or be
 tested independently. Its migration is therefore coupled to `EditInputComponent` (§3) and must
@@ -118,18 +120,22 @@ ship in the same PR.
 
 **Migration approach:**
 
-1. Replace `formField: AbstractFormField` with a plain `FormControl` input. `EditComponent`
-   currently uses `MaterialFormBuilderService` only to wire the incoming `AbstractFormField`'s
-   embedded control into a `FormGroup`. After migration the component should accept a `FormControl`
-   directly and build the `FormGroup` itself.
-2. Remove `MaterialFormBuilderService` from the constructor and all `AbstractFormField` imports.
+1. Remove `MaterialFormBuilderService` from the constructor — it is never called, so this is a
+   pure dead-code removal with no behaviour change.
+2. Replace `@Input() abstract formField: AbstractFormField` with
+   `@Input({ required: true }) formControl!: FormControl`. The two usages of `AbstractFormField`
+   in `EditComponent` collapse cleanly:
+   - `this.formField.id` (the `FormGroup` control key) → replace with a fixed key `'value'`,
+     since there is always exactly one control per inline-edit instance.
+   - `this.formField.formControl` → replace with `this.formControl` directly.
+3. Remove all `AbstractFormField` and `MaterialFormBuilderService` imports.
 
 **Caller inventory (only one direct consumer of `<zac-edit-input>`):**
 
 - `admin/referentie-tabel/referentie-tabel.component` — passes `[formField]="codeFormField"`,
   `[formField]="naamFormField"`, `[formField]="waardeFormField[row.id]"` where each is an
   `InputFormField` created by `InputFormFieldBuilder`. After migration these should be plain
-  `FormControl` fields on the component, passed as `[formControl]="codeControl"` etc.
+  `FormControl` instances on the component, passed as `[formControl]="codeControl"` etc.
   `referentie-tabel.component.ts` must be updated in the same PR to remove the three
   `InputFormFieldBuilder` usages and replace them with `FormControl` instances.
 
