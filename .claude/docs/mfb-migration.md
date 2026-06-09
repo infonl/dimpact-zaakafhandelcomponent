@@ -1,5 +1,21 @@
 # ATOS Material Form Builder (MFB) — Migration Plan
 
+## Summary
+
+| Component (§)                                                                                       | Blocked by                                             | Complexity  | Jira |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- | ---- |
+| `human-task-do` cleanup (§1)                                                                        | — _(taak formulieren migration complete)_              | Low         |      |
+| `edit.component` (§3) + `edit-input.component` (§4) — one PR                                       | —                                                      | Medium-High |      |
+| `informatie-object-verzenden` (§5)                                                                  | —                                                      | Medium      |      |
+| `shared/dialog` batch a: 5 dedicated dialog components — all `zaak-view` (§6)                      | —                                                      | Medium      |      |
+| `shared/dialog` batch b: 5 dedicated dialog components + remove `formFields` from `DialogData` (§6) | batch a                                                | Medium-High |      |
+| `besluit-edit` (§7)                                                                                 | —                                                      | Medium-High |      |
+| `besluit-view` (§8)                                                                                 | §6 dialog batch b                                      | Medium      |      |
+| `taak-view` (§9)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |      |
+| `process-task-do` (§2)                                                                              | **Product/tech decision required** (see §2)            | High        |      |
+
+---
+
 ## Background
 
 The project uses a legacy Angular form framework called the **ATOS Material Form Builder (MFB)**,
@@ -455,20 +471,6 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
    `FormConfig`, `FormConfigBuilder`
 
 ---
-
-## Suggested execution order
-
-| Component (§)                                                                                       | Blocked by                                             | Complexity  |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- |
-| `human-task-do` cleanup (§1)                                                                        | — _(taak formulieren migration complete)_              | Low         |
-| `edit.component` (§3) + `edit-input.component` (§4) — one PR                                        | —                                                      | Medium-High |
-| `informatie-object-verzenden` (§5)                                                                  | —                                                      | Medium      |
-| `shared/dialog` batch a: 5 dedicated dialog components — all `zaak-view` (§6)                       | —                                                      | Medium      |
-| `shared/dialog` batch b: 5 dedicated dialog components + remove `formFields` from `DialogData` (§6) | batch a                                                | Medium-High |
-| `besluit-edit` (§7)                                                                                 | —                                                      | Medium-High |
-| `besluit-view` (§8)                                                                                 | §6 dialog batch b                                      | Medium      |
-| `taak-view` (§9)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |
-| `process-task-do` (§2)                                                                              | **Product/tech decision required** (see §2)            | High        |
 
 `shared/dialog` (§6) is split into two batches of 5 call sites each (batch a: all in `zaak-view`;
 batch b: cross-component, ending with `besluit-view` intrekken). `DialogComponent` is not touched
