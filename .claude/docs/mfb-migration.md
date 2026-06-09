@@ -5,14 +5,14 @@
 | Component (§)                                                                                       | Blocked by                                             | Complexity  | Jira |
 | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- | ---- |
 | `human-task-do` cleanup (§1)                                                                        | — _(taak formulieren migration complete)_              | Low         |      |
-| `edit.component` (§3) + `edit-input.component` (§4) — one PR                                       | —                                                      | Medium-High |      |
-| `informatie-object-verzenden` (§5)                                                                  | —                                                      | Medium      |      |
-| `shared/dialog` — create `PromptDialogComponent` + batch a: migrate 5 `zaak-view` call sites (§6)  | —                                                      | Medium      |      |
-| `shared/dialog` batch b: migrate remaining 5 call sites + clean up `DialogComponent` (§6)           | batch a                                                | Medium-High |      |
-| `besluit-edit` (§7)                                                                                 | —                                                      | Medium-High |      |
-| `besluit-view` (§8)                                                                                 | §6 dialog batch b                                      | Medium      |      |
-| `taak-view` (§9)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §9) | Medium-High |      |
-| `process-task-do` (§2)                                                                              | **Product/tech decision required** (see §2)            | High        |      |
+| `edit.component` (§2) + `edit-input.component` (§3) — one PR                                       | —                                                      | Medium-High |      |
+| `informatie-object-verzenden` (§4)                                                                  | —                                                      | Medium      |      |
+| `shared/dialog` — create `PromptDialogComponent` + batch a: migrate 5 `zaak-view` call sites (§5)  | —                                                      | Medium      |      |
+| `shared/dialog` batch b: migrate remaining 5 call sites + clean up `DialogComponent` (§5)           | batch a                                                | Medium-High |      |
+| `besluit-edit` (§6)                                                                                 | —                                                      | Medium-High |      |
+| `besluit-view` (§7)                                                                                 | §5 dialog batch b                                      | Medium      |      |
+| `taak-view` (§8)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §8) | Medium-High |      |
+| `process-task-do` (§9)                                                                              | **Product/tech decision required** (see §9)            | High        |      |
 
 ---
 
@@ -58,7 +58,7 @@ form field should appear once in the template as a typed component, bound to an 
 | `TextareaFormFieldBuilder`                              | `<zac-textarea>`                                                                      |
 | `DateFormFieldBuilder`                                  | `<zac-date>`                                                                          |
 | `SelectFormFieldBuilder`                                | `<zac-select>`                                                                        |
-| `MedewerkerGroepFieldBuilder`                           | Two separate `<zac-auto-complete>` fields: one for group, one for medewerker (see §9) |
+| `MedewerkerGroepFieldBuilder`                           | Two separate `<zac-auto-complete>` fields: one for group, one for medewerker (see §8) |
 | `DocumentenLijstFieldBuilder`                           | `<zac-documents>`                                                                     |
 | `ParagraphFormFieldBuilder` / `DividerFormFieldBuilder` | Plain `<p>` / `<mat-divider>` in template                                             |
 | `HiddenFormFieldBuilder`                                | No component — just a `FormControl` in the group, not rendered                        |
@@ -101,73 +101,7 @@ _`human-task-do.component.html`:_
 
 ---
 
-#### 2. `plan-items/process-task-do/process-task-do.component.ts`
-
-> ⚠️ **Product/tech decision required before this ticket can be scoped.** This is not a
-> straightforward MFB migration — the feature is currently broken end-to-end and the backend
-> API for it has never been called from the frontend.
-
-**Current state — broken in production:**
-
-The component exists but is entirely non-functional:
-
-1. **`ngSwitchCase` collision** — `zaak-view.component.html` uses the same expression
-   (`actiefPlanItem?.naam ?? 'none'`) for both `*ngSwitchCase` blocks (human-task-do and
-   process-task-do). Angular evaluates the first match and never reaches the second. Process
-   tasks always open the human task panel.
-
-2. **Wrong read endpoint called** — `createPlanItemMenuItem` in `zaak-view.component.ts` calls
-   `readHumanTaskPlanItem` for every plan item, including process tasks.
-   `planItemsService.readProcessTaskPlanItem()` exists but is never called anywhere.
-
-3. **`ProcessFormulierenBuilder` never assigns `_formulier`** —
-   `build()` always returns `undefined`. There are no concrete
-   `AbstractProcessFormulier` implementations anywhere in the codebase.
-
-4. **`AbstractProcessFormulier.getData()` returns `null`** — cast to
-   `GeneratedType<"RESTProcessTaskData">`. Any code that reaches it would produce a null
-   payload.
-
-5. **`<mfb-form>` never renders** — `formItems` is declared as `Array<AbstractFormField[]>` but
-   is never populated, so `<mfb-form>` receives an empty array.
-
-6. **`doProcessTaskPlanItem` backend endpoint unreachable** — The REST endpoint and
-   `CMMNService.startProcessTaskPlanItem()` have never been called from the frontend.
-
-**Dead backend code to flag for cleanup:**
-
-- `PlanItemsRestService.kt` — `processTaskPlanItem/{id}` (GET) and `doProcessTaskPlanItem` (POST) endpoints
-- `CMMNService.startProcessTaskPlanItem()` — called only from the dead POST endpoint
-- `RESTProcessTaskData` — model used only by the dead endpoint
-
-**MFB imports in component:**
-
-- `AbstractFormField`, `FormConfig`, `FormConfigBuilder`
-
-**Migration approach:**
-
-This ticket is a combination of three things, and the scope cannot be determined until a
-product/tech decision is made:
-
-1. **Bug fix** — Fix `zaak-view.component.html` `ngSwitchCase` collision and fix
-   `createPlanItemMenuItem` to call `readProcessTaskPlanItem` for process tasks.
-
-2. **Feature implementation** — Define what data a process task actually needs (group, user,
-   deadline?), implement the complete flow: read → display form → `doProcessTaskPlanItem` POST.
-   This requires aligning with product on expected UX and with backend on what fields the
-   endpoint should accept.
-
-3. **MFB migration** — Once the feature is defined and implemented, replace `<mfb-form>` with an
-   explicit Angular template and remove all MFB imports. Delete `AbstractProcessFormulier`,
-   `ProcessFormulierenBuilder`, `ProcessFormulierenService` (all are effectively dead).
-
-**Decision required:** Fix the full process task flow, or consciously remove the feature
-end-to-end (frontend + dead backend endpoints). Do not start implementation without this
-decision.
-
----
-
-#### 3. `shared/edit/edit.component.ts`
+#### 2. `shared/edit/edit.component.ts`
 
 **What it does:** Abstract base class for all inline-edit components. Takes
 `formField: AbstractFormField` as an `@Input` and uses `MaterialFormBuilderService` to wire up
@@ -179,7 +113,7 @@ the `FormGroup`. Has no selector and cannot be used directly.
 - `AbstractFormField`
 
 **Note:** `EditComponent` is abstract — it has no template or selector and cannot compile or be
-tested independently. Its migration is therefore coupled to `EditInputComponent` (§4) and must
+tested independently. Its migration is therefore coupled to `EditInputComponent` (§3) and must
 ship in the same PR.
 
 **Migration approach:**
@@ -201,7 +135,7 @@ ship in the same PR.
 
 ---
 
-#### 4. `shared/edit/edit-input/edit-input.component.ts`
+#### 3. `shared/edit/edit-input/edit-input.component.ts`
 
 **What it does:** An inline-edit component rendered as `<zac-edit-input>`. Shows a static value;
 clicking it activates an editable `<mfb-form-field>` (an `InputFormField`) directly in place.
@@ -228,7 +162,7 @@ Used for inline editing of individual fields across the app.
 
 ---
 
-#### 5. `informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts`
+#### 4. `informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component.ts`
 
 **What it does:** A side-nav panel for sending documents linked to a case. Renders a full
 `<mfb-form>` with 4 rows: an explanatory paragraph, a multi-document selector, a date picker,
@@ -262,7 +196,7 @@ is what MFB uses instead of a plain input binding.
 
 ---
 
-#### 6. `shared/dialog/dialog.component.ts` + `dialog-data.ts`
+#### 5. `shared/dialog/dialog.component.ts` + `dialog-data.ts`
 
 **What it does:** A generic reusable dialog that can optionally render a list of MFB form fields
 (e.g. a "reason" text input before a destructive action). The `DialogData` class carries an
@@ -377,14 +311,14 @@ pure confirmation dialog with no input field.
    - **Batch b** (5 call sites — cross-component, ends with `besluit-view`): b1 betrokkene
      ontkoppelen, b2 BAG-object ontkoppelen, b3 zaak-documenten document ontkoppelen, b4
      informatie-object-view document verwijderen, b5 besluit-view intrekken.
-     `besluit-view` (§8) is unblocked once b5 is done.
+     `besluit-view` (§7) is unblocked once b5 is done.
 3. **Clean up `DialogComponent`** after batch b: remove `formFields` from `DialogData`, remove
    `MaterialFormBuilderModule`, `FieldType`, `AbstractFormField` from `dialog.component.ts`, and
    remove the `*ngFor` + `<mfb-form-field>` block from the template.
 
 ---
 
-#### 7. `zaken/besluit-edit/besluit-edit.component.ts`
+#### 6. `zaken/besluit-edit/besluit-edit.component.ts`
 
 **What it does:** Side-nav panel for editing an existing decision (`besluit`). Currently builds a
 dynamic `<mfb-form>` with many fields: dividers, paragraphs, dates, document lists, text inputs,
@@ -437,7 +371,7 @@ Additionally, a conditional publication section (divider + paragraph + `publicat
 
 ---
 
-#### 8. `zaken/besluit-view/besluit-view.component.ts`
+#### 7. `zaken/besluit-view/besluit-view.component.ts`
 
 **What it does:** Read-only view of a decision. Renders individual `<mfb-form-field>` instances
 for each besluit field. Also opens a `DialogComponent` carrying MFB field builders to collect an
@@ -454,7 +388,7 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 
 - Uses `DocumentenLijstFormField` instances stored in `besluitInformatieobjecten` record
   (keyed by besluit UUID) to drive per-besluit document list rendering
-- Passes MFB field builders into `DialogData` for the intrekking confirmation — blocked by §6 dialog batch b
+- Passes MFB field builders into `DialogData` for the intrekking confirmation — blocked by §5 dialog batch b
 
 **Migration approach:**
 
@@ -464,12 +398,12 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
    `<zac-documents [readonly]="true">` for document lists, and static bindings (`{{ value }}`,
    `<zac-static-text>`, or equivalent) for scalar fields
 3. Replace the `DialogData` call site with the dedicated "intrekking bevestigen" dialog component
-   created in §6 batch b
+   created in §5 batch b
 4. Remove all MFB field builder imports
 
 ---
 
-#### 9. `taken/taak-view/taak-view.component.ts`
+#### 8. `taken/taak-view/taak-view.component.ts`
 
 **What it does:** The full task detail view. Has a dual rendering path: Form.io tasks use
 `<formio>`; legacy MFB tasks use `<mfb-form>`. The MFB form renders task assignment fields
@@ -496,7 +430,73 @@ for each besluit field. Also opens a `DialogComponent` carrying MFB field builde
 
 ---
 
-`shared/dialog` (§6) starts with creating `PromptDialogComponent`, then migrates call sites in two
+`shared/dialog` (§5) starts with creating `PromptDialogComponent`, then migrates call sites in two
 batches of 5 (batch a: all in `zaak-view`; batch b: cross-component, ending with `besluit-view`
 intrekken). `DialogComponent` is not touched until the final step of batch b, which cleans up its
 MFB imports and removes the `*ngFor` + `<mfb-form-field>` block.
+
+#### 9. `plan-items/process-task-do/process-task-do.component.ts`
+
+> ⚠️ **Product/tech decision required before this ticket can be scoped.** This is not a
+> straightforward MFB migration — the feature is currently broken end-to-end and the backend
+> API for it has never been called from the frontend.
+
+**Current state — broken in production:**
+
+The component exists but is entirely non-functional:
+
+1. **`ngSwitchCase` collision** — `zaak-view.component.html` uses the same expression
+   (`actiefPlanItem?.naam ?? 'none'`) for both `*ngSwitchCase` blocks (human-task-do and
+   process-task-do). Angular evaluates the first match and never reaches the second. Process
+   tasks always open the human task panel.
+
+2. **Wrong read endpoint called** — `createPlanItemMenuItem` in `zaak-view.component.ts` calls
+   `readHumanTaskPlanItem` for every plan item, including process tasks.
+   `planItemsService.readProcessTaskPlanItem()` exists but is never called anywhere.
+
+3. **`ProcessFormulierenBuilder` never assigns `_formulier`** —
+   `build()` always returns `undefined`. There are no concrete
+   `AbstractProcessFormulier` implementations anywhere in the codebase.
+
+4. **`AbstractProcessFormulier.getData()` returns `null`** — cast to
+   `GeneratedType<"RESTProcessTaskData">`. Any code that reaches it would produce a null
+   payload.
+
+5. **`<mfb-form>` never renders** — `formItems` is declared as `Array<AbstractFormField[]>` but
+   is never populated, so `<mfb-form>` receives an empty array.
+
+6. **`doProcessTaskPlanItem` backend endpoint unreachable** — The REST endpoint and
+   `CMMNService.startProcessTaskPlanItem()` have never been called from the frontend.
+
+**Dead backend code to flag for cleanup:**
+
+- `PlanItemsRestService.kt` — `processTaskPlanItem/{id}` (GET) and `doProcessTaskPlanItem` (POST) endpoints
+- `CMMNService.startProcessTaskPlanItem()` — called only from the dead POST endpoint
+- `RESTProcessTaskData` — model used only by the dead endpoint
+
+**MFB imports in component:**
+
+- `AbstractFormField`, `FormConfig`, `FormConfigBuilder`
+
+**Migration approach:**
+
+This ticket is a combination of three things, and the scope cannot be determined until a
+product/tech decision is made:
+
+1. **Bug fix** — Fix `zaak-view.component.html` `ngSwitchCase` collision and fix
+   `createPlanItemMenuItem` to call `readProcessTaskPlanItem` for process tasks.
+
+2. **Feature implementation** — Define what data a process task actually needs (group, user,
+   deadline?), implement the complete flow: read → display form → `doProcessTaskPlanItem` POST.
+   This requires aligning with product on expected UX and with backend on what fields the
+   endpoint should accept.
+
+3. **MFB migration** — Once the feature is defined and implemented, replace `<mfb-form>` with an
+   explicit Angular template and remove all MFB imports. Delete `AbstractProcessFormulier`,
+   `ProcessFormulierenBuilder`, `ProcessFormulierenService` (all are effectively dead).
+
+**Decision required:** Fix the full process task flow, or consciously remove the feature
+end-to-end (frontend + dead backend endpoints). Do not start implementation without this
+decision.
+
+---
