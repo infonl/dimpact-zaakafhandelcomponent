@@ -60,10 +60,25 @@ class AllowedFileTypeTest : BehaviorSpec({
             }
         }
 
+        Given("an allowed extension and an OS- or browser-variant media type") {
+            When("isAllowed is called") {
+                Then("it returns true for any of the extension's additional media types") {
+                    // Windows commonly reports these media types instead of the canonical one
+                    AllowedFileType.isAllowed("fakeMovie.avi", "video/avi") shouldBe true
+                    AllowedFileType.isAllowed("fakeMovie.avi", "VIDEO/AVI") shouldBe true
+                    AllowedFileType.isAllowed("fakeMovie.mkv", "video/mkv") shouldBe true
+                    AllowedFileType.isAllowed("fakeDocument.rtf", "application/msword") shouldBe true
+                    AllowedFileType.isAllowed("fakeDocument.rtf", "text/rtf") shouldBe true
+                    AllowedFileType.isAllowed("fakeDiagram.vsd", "application/x-visio") shouldBe true
+                }
+            }
+        }
+
         Given("an allowed extension but a mismatching media type") {
             When("isAllowed is called") {
                 Then("it returns false") {
                     AllowedFileType.isAllowed("fakeDocument.pdf", "image/png") shouldBe false
+                    AllowedFileType.isAllowed("fakeMovie.avi", "video/mp4") shouldBe false
                 }
             }
         }

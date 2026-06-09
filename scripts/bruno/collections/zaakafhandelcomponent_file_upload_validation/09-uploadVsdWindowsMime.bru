@@ -1,0 +1,53 @@
+meta {
+  name: 09 - Upload allowed .vsd with Windows MIME (must be accepted)
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/rest/informatieobjecten/informatieobject/:zaakUuid/:documentReferenceId
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  zaakUuid: {{zaakUuid}}
+  documentReferenceId: {{zaakUuid}}
+}
+
+params:query {
+  taakObject: false
+}
+
+body:multipart-form {
+  file: @file(fixtures/sample.vsd)
+  bestandsnaam: sample.vsd
+  formaat: application/x-visio
+  titel: Bruno test — vsd with Windows MIME
+  beschrijving: regression — Windows reports .vsd under x-visio / vnd.ms-visio variants
+  informatieobjectTypeUUID: {{documentTypeUuid}}
+  status: definitief
+  vertrouwelijkheidaanduiding: openbaar
+  creatiedatum: 2026-01-01T00:00+00:00
+  taal: dut
+  auteur: Bruno test runner
+}
+
+tests {
+  test("returns 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response carries the new document identificatie", function() {
+    expect(res.getBody()).to.have.property("identificatie");
+  });
+}
+
+docs {
+  Regression test for the Windows MIME-mismatch bug. The canonical media type for .vsd is
+  `application/vnd.visio`; Windows / Visio report variants such as `application/x-visio`,
+  `application/visio`, or `application/vnd.ms-visio.*`. The allowlist now accepts these. Creates
+  a real document on the case — clean up afterwards if needed.
+
+  Note: if the tester's machine reports a different .vsd media type, read the exact value from
+  the error dialog, then add it to AllowedFileType.VSD.
+}

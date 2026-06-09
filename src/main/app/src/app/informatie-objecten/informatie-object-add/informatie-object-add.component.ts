@@ -20,6 +20,7 @@ import {
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
@@ -62,6 +63,7 @@ export class InformatieObjectAddComponent {
   );
   private readonly utilService = inject(UtilService);
   private readonly configuratieService = inject(ConfiguratieService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly identityService = inject(IdentityService);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -98,8 +100,8 @@ export class InformatieObjectAddComponent {
       }
       this.resetAndClose();
     },
-    onError: () => {
-      this.form.reset();
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
     },
   }));
 
