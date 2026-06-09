@@ -24,7 +24,8 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
-import { FormField, ZacForm } from "../../../shared/form/form";
+import { ZacComposedForm } from "../../../shared/form/composed-form/composed-form.component";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaskForm } from "./abstract-task-form";
@@ -116,10 +117,10 @@ class TestForm extends AbstractTaskForm {
 describe(AbstractTaskForm.name, () => {
   let formulier: TestForm;
   let fixture: ComponentFixture<
-    ZacForm<Record<string, AbstractControl<unknown, unknown>>>
+    ZacComposedForm<Record<string, AbstractControl<unknown, unknown>>>
   >;
   let componentRef: ComponentRef<
-    ZacForm<Record<string, AbstractControl<unknown, unknown>>>
+    ZacComposedForm<Record<string, AbstractControl<unknown, unknown>>>
   >;
   let loader: HarnessLoader;
   let formGroup: FormGroup;
@@ -153,7 +154,7 @@ describe(AbstractTaskForm.name, () => {
         );
       }
 
-      fixture = TestBed.createComponent(ZacForm);
+      fixture = TestBed.createComponent(ZacComposedForm);
       componentRef = fixture.componentRef;
       componentRef.setInput("fields", fields);
       componentRef.setInput("form", formGroup);

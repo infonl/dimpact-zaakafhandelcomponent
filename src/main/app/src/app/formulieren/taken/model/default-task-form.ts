@@ -5,7 +5,7 @@
 
 import { Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { FormField } from "../../../shared/form/form";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaskForm } from "./abstract-task-form";
 

@@ -44,10 +44,10 @@ import { NgxEditorModule } from "ngx-editor";
 import { FileDragAndDropDirective } from "../directives/file-drag-and-drop.directive";
 import { ZacAutoComplete } from "../form/auto-complete/auto-complete";
 import { ZacCheckbox } from "../form/checkbox/checkbox";
+import { ZacComposedForm } from "../form/composed-form/composed-form.component";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
 import { ZacFile } from "../form/file/file";
-import { ZacForm } from "../form/form";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
 import { VariabelenKiesMenuComponent } from "../form/html-editor/variabelen-kies-menu/variabelen-kies-menu.component";
@@ -95,7 +95,6 @@ import { FormComponent } from "./form/form/form.component";
     DividerComponent,
     HiddenComponent,
     MessageComponent,
-    ZacForm,
   ],
   exports: [
     FileDragAndDropDirective,
@@ -119,10 +118,9 @@ import { FormComponent } from "./form/form/form.component";
     ZacToggle,
     ZacCheckbox,
     ZacHtmlEditor,
-    ZacFile,
     ZacDocuments,
     ZacRadio,
-    ZacForm,
+    ZacComposedForm,
     CapitalizeFirstLetterPipe,
     EmptyPipe,
     ZacFormActions,
@@ -170,6 +168,7 @@ import { FormComponent } from "./form/form/form.component";
     ZacDocuments,
     ZacHtmlEditor,
     VariabelenKiesMenuComponent,
+    ZacComposedForm,
   ],
   providers: [
     {

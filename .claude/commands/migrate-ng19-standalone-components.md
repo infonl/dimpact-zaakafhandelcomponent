@@ -1,6 +1,6 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 11 remaining** (2026-06-04)
+**Progress: 7 remaining** (2026-06-08)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
 
 ## Remaining Components
@@ -8,10 +8,6 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 - `app/app.component.ts`
 - `app/plan-items/human-task-do/human-task-do.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
-- `app/shared/form/documents/documents.ts`
-- `app/shared/form/file/file.ts`
-- `app/shared/form/form.ts`
-- `app/shared/form/html-editor/html-editor.ts`
 - `app/taken/taak-view/taak-view.component.ts`
 - `app/zaken/besluit-edit/besluit-edit.component.ts`
 - `app/zaken/besluit-view/besluit-view.component.ts`
@@ -191,6 +187,14 @@ Solves PZ-XXXXX
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
 
+### Patterns added in batch-18
+| Pattern | Detail |
+|---|---|
+| Extracting types from component file | When a component file contains exported types used widely across the codebase, extract them to a sibling `<name>.types.ts` file. Component imports from types file; consumers import types directly. |
+| `VariabelenKiesMenuComponent` moved out of ATOS | Old `HtmlEditorVariabelenKiesMenuComponent` (non-standalone, ATOS) replaced by new `VariabelenKiesMenuComponent` (standalone) in `shared/form/html-editor/variabelen-kies-menu/`. Module imports the new one. |
+| Standalone component re-export via NgModule | To make a standalone component available to non-standalone consumers via a module: add it to both `imports[]` AND `exports[]` of the module. |
+| Rename `ZacForm` → `ZacComposedForm` | `ZacForm` was too generic; renamed to `ZacComposedForm` and moved to `shared/form/composed-form/`. Types extracted to `form-field.types.ts`. |
+
 ### Patterns added in batch-16
 | Pattern | Detail |
 |---|---|
@@ -212,6 +216,8 @@ TBD — run step 0 (claims check) at start of next session.
 | batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
 | batch-17 (dashboard) | `DashboardCardComponent`, `DashboardComponent`, `InformatieobjectenCardComponent`, `TaakZoekenCardComponent`, `ZaakWaarschuwingenCardComponent`, `ZaakZoekenCardComponent`, `ZakenCardComponent` + `DashboardModule` deleted | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
 | batch-17b (toolbar) | `BackButtonDirective`, `ToolbarComponent` | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-18 (form components) | `ZacFile`, `ZacDocuments`, `ZacHtmlEditor`, `VariabelenKiesMenuComponent` (new, replaces ATOS) | `chore/PZ-11415--FE--Angular-v19-migration--ZacFile-ZacDocuments-ZacHtmlEditor` |
+| batch-18b (composed form) | `ZacForm` → renamed `ZacComposedForm`, moved to `shared/form/composed-form/`, types extracted to `form-field.types.ts` | `chore/PZ-11417--FE--Angular-v19-migration--ZacComposedForm` |
 
 ---
 

@@ -9,7 +9,7 @@ import moment from "moment";
 import { lastValueFrom } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
-import { FormField } from "../../../shared/form/form";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AbstractTaskForm } from "./abstract-task-form";
 

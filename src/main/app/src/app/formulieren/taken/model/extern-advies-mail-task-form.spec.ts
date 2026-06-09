@@ -11,7 +11,7 @@ import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
-import { FormField } from "../../../shared/form/form";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { ExternAdviesMailTaskForm } from "./extern-advies-mail-task-form";
