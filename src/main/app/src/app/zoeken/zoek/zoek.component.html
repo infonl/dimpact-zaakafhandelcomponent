@@ -30,17 +30,25 @@
     >
       <mat-icon>cases</mat-icon>
     </button>
-    <button
-      mat-icon-button
-      type="button"
-      matSuffix
-      id="personen-button"
-      title="{{ 'actie.zoeken.persoon' | translate }}"
-      [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
-      (click)="setZoektype(ZoekType.PERSONEN)"
+    <span
+      [matTooltip]="
+        !overigeRechtenQuery.data()?.brpZoeken
+          ? ('msg.rechten.geen.persoon.koppelen' | translate)
+          : ''
+      "
     >
-      <mat-icon>person</mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        type="button"
+        matSuffix
+        id="personen-button"
+        [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
+        [disabled]="!overigeRechtenQuery.data()?.brpZoeken"
+        (click)="setZoektype(ZoekType.PERSONEN)"
+      >
+        <mat-icon>person</mat-icon>
+      </button>
+    </span>
     <button
       mat-icon-button
       type="button"
@@ -215,6 +223,7 @@
     <zac-persoon-zoek [sideNav]="zoekenSideNav()!"> </zac-persoon-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BEDRIJVEN">
+      hgfhgfhg
     <zac-bedrijf-zoek [sideNav]="zoekenSideNav()!"></zac-bedrijf-zoek>
   </ng-container>
   <ng-container *ngIf="zoekType === ZoekType.BAG_OBJECTEN">

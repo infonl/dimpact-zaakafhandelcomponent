@@ -5,19 +5,20 @@
 
 import { Injectable } from "@angular/core";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import {ZacQueryClient} from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class PolicyService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  constructor(private readonly zacHttpClient: ZacHttpClient, private zacQueryClient: ZacQueryClient) {}
 
   readWerklijstRechten() {
     return this.zacHttpClient.GET(`/rest/policy/werklijstRechten`);
   }
 
   readOverigeRechten() {
-    return this.zacHttpClient.GET(`/rest/policy/overigeRechten`);
+    return this.zacQueryClient.GET(`/rest/policy/overigeRechten`);
   }
 
   readNotitieRechten() {

@@ -26,6 +26,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatTooltip } from "@angular/material/tooltip";
 import {
   MatFormField,
   MatLabel,
@@ -38,10 +39,12 @@ import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
+import { PolicyService } from "../../policy/policy.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -88,6 +91,7 @@ import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/
     NgIf,
     NgSwitch,
     NgSwitchCase,
+    MatTooltip,
     PersoonZoekComponent,
     ReactiveFormsModule,
     TaakZoekObjectComponent,
@@ -99,6 +103,11 @@ import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/
 export class ZoekComponent implements AfterViewInit, OnDestroy {
   private readonly zoekenService = inject(ZoekenService);
   protected readonly utilService = inject(UtilService);
+  private readonly policyService = inject(PolicyService);
+
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
 
   private readonly paginator = viewChild.required(MatPaginator);
   protected readonly zoekenSideNav = input<MatSidenav>();
@@ -140,6 +149,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.zoekenService.reset$
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reset());
+
   }
 
   ngAfterViewInit() {

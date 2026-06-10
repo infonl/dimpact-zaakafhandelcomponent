@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Output } from "@angular/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { PolicyService } from "../../../policy/policy.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
@@ -19,6 +22,7 @@ import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component
   imports: [
     MatTabsModule,
     MatIconModule,
+    MatTooltip,
     TranslateModule,
     PersoonZoekComponent,
     BedrijfZoekComponent,
@@ -28,6 +32,11 @@ export class KlantZoekComponent {
   @Output() klant = new EventEmitter<
     GeneratedType<"RestBedrijf" | "RestPersoon">
   >();
+
+  private readonly policyService = inject(PolicyService);
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
 
   protected klantGeselecteerd(
     klant: GeneratedType<"RestBedrijf" | "RestPersoon">,
