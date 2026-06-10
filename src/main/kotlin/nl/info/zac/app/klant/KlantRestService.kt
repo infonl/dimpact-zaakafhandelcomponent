@@ -21,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import net.atos.zac.app.shared.RESTResultaat
+import net.atos.zac.flowable.delegate.ResumeZaakDelegate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
@@ -54,11 +55,14 @@ import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
+import java.util.logging.Logger
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -73,10 +77,13 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
     val identificationService: IdentificationService,
+    val policyService: PolicyService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
+        private val LOG = Logger.getLogger(ResumeZaakDelegate::class.java.name)
+
     }
 
     @GET
@@ -190,15 +197,22 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("personen/parameters")
-    fun personenParameters(): List<RestPersonenParameters> = VALID_PERSONEN_QUERIES
+    fun personenParameters(): List<RestPersonenParameters> {
+        val brpRechten = policyService.readOverigeRechten()
+        assertPolicy(brpRechten.brpZoeken)
+        return VALID_PERSONEN_QUERIES
+    }
 
     @PUT
     @Path("personen")
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
-    ): RESTResultaat<RestPersoon> =
-        restListPersonenParameters.bsn
+    ): RESTResultaat<RestPersoon> {
+        LOG.info("listPersonen called with parameters: $restListPersonenParameters")
+        val brpRechten = policyService.readOverigeRechten()
+        assertPolicy(brpRechten.brpZoeken)
+        return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
                 listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid, loggedInUserInstance.get().id))
@@ -206,10 +220,15 @@ class KlantRestService @Inject constructor(
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid, loggedInUserInstance.get().id)
+            ?: brpClientService.queryPersonen(
+                restListPersonenParameters.toPersonenQuery(),
+                zaaktypeUuid,
+                loggedInUserInstance.get().id
+            )
                 .toRestPersonen()
                 .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
                 .toRestResultaat()
+    }
 
     @PUT
     @Path("bedrijven")
