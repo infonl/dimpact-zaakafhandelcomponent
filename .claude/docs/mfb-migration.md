@@ -11,7 +11,7 @@
 | `shared/dialog` batch b: migrate remaining 5 call sites + clean up `DialogComponent` (§5)           | batch a                                                | Medium-High |      |
 | `besluit-edit` (§6)                                                                                 | —                                                      | Medium-High |      |
 | `besluit-view` (§7)                                                                                 | §5 dialog batch b                                      | Medium      |      |
-| `taak-view` (§8)                                                                                    | Verify `getAngularHandleFormBuilder` complete (see §8) | Medium-High |      |
+| `taak-view` (§8)                                                                                    | — _(dead-code removal only, missed leftover from #5535)_ | Low         |      |
 | `process-task-do` (§9)                                                                              | **Product/tech decision required** (see §9)            | High        |      |
 
 ---
@@ -86,13 +86,15 @@ is entirely dead code and can be removed immediately.
 _`human-task-do.component.ts`:_
 
 - Remove `private formulier?: AbstractTaakFormulier` field and its import (`AbstractTaakFormulier`)
-- Remove `formItems: Array<AbstractFormField[]> = []` field
-- Remove `formConfig = new FormConfigBuilder()...build()` field
-- Remove imports: `AbstractFormField`, `FormConfigBuilder`
+- Remove `formItems: Array<AbstractFormField[]> = []` field and its import (`AbstractFormField`)
+- Remove `formConfig = new FormConfigBuilder()...build()` field and `FormConfigBuilder` import.
+  Note: `_formConfig: NewFormConfig` is the Angular-path config — this is a **different import**
+  (`shared/form/form`) and must stay.
 - In `ngOnInit` early-return branch: remove only the `this.formItems = [[]]` assignment; the `this.formFields = []` assignment must stay
-- Delete the entire `catch` block (lines 167–178)
-- In `onFormSubmit`: remove the `try/catch` wrapper — the Angular path is the only path; keep only
-  the mutation call that was previously in the `catch` body
+- Delete the entire `catch` block (the MFB fallback at the bottom of `ngOnInit`)
+- In `onFormSubmit`: the `try` branch is the **MFB path** (`this.formulier.getHumanTaskData`);
+  the `catch` branch is the **Angular path** (mutation call). Remove the try/catch wrapper and
+  keep only the mutation call that is currently in the `catch` body.
 
 _`human-task-do.component.html`:_
 
@@ -174,12 +176,17 @@ Used for inline editing of individual fields across the app.
 `<mfb-form>` with 4 rows: an explanatory paragraph, a multi-document selector, a date picker,
 and a textarea for notes.
 
-**MFB imports:**
+**MFB imports (verified):**
 
-- `MaterialFormBuilderModule`, `FormComponent`, `FormConfigBuilder`, `FormConfig`,
-  `AbstractFormField`
-- `ParagraphFormFieldBuilder`, `DateFormFieldBuilder`, `DocumentenLijstFieldBuilder`,
-  `DocumentenLijstFormField`, `TextareaFormFieldBuilder`
+- `MaterialFormBuilderModule` — brings in `<mfb-form>` and `<mfb-form-field>`
+- `FormComponent` — `@ViewChild(FormComponent)` used to call `form.reset()` (commented out but still declared)
+- `FormConfigBuilder`, `FormConfig` — used for `formConfig` field driving `<mfb-form [config]>`
+- `AbstractFormField` — type of `fields: Array<AbstractFormField[]>`
+- `ParagraphFormFieldBuilder` — used to build explanation paragraph row
+- `DateFormFieldBuilder` — used to build `verzenddatum` field
+- `DocumentenLijstFieldBuilder`, `DocumentenLijstFormField` — builder used in `ngOnInit`;
+  `DocumentenLijstFormField` type used to hold reference for `updateDocumenten()` in `ngOnChanges`
+- `TextareaFormFieldBuilder` — used to build `toelichting` field
 
 **Special complexity:** Uses `DocumentenLijstFormField.updateDocumenten()` in `ngOnChanges` to
 swap the document list observable when the active case changes. This embedded-observable pattern
@@ -296,7 +303,7 @@ mutationFn: (reden: string) =>
 | b2 | `zaak-view` — BAG-object ontkoppelen            | input                                     | `actie.bagObject.ontkoppelen`  | `link_off`       | `bagService.delete(...)` |
 | b3 | `zaak-documenten` — document ontkoppelen        | textarea                                  | `actie.document.ontkoppelen`   | `link_off`       | `zakenService.ontkoppelInformatieObject(...)` |
 | b4 | `informatie-object-view` — document verwijderen | input _(absent when no zaak — see below)_ | `actie.document.verwijderen`   | `delete`         | `deleteEnkelvoudigInformatieObject$(reden)` |
-| b5 | `besluit-view` — intrekken                      | select: `VervalReden`                     | `actie.besluit.intrekken`      | `stop_circle`    | `saveIntrekking(reden)` |
+| b5 | `besluit-view` — intrekken                      | **5 fields** (see §7 — needs own dialog)  | `actie.besluit.intrekken`      | `stop_circle`    | dedicated `BesluitIntrekkenDialogComponent` (see §7) |
 
 **b4 special case:** `informatie-object-view` currently passes `formFields: this.zaak ? [...] : []`.
 When `this.zaak` is absent, pass `fieldConfig: undefined` — `PromptDialogComponent` renders as a
@@ -330,13 +337,17 @@ pure confirmation dialog with no input field.
 dynamic `<mfb-form>` with many fields: dividers, paragraphs, dates, document lists, text inputs,
 and textareas.
 
-**MFB imports:**
+**MFB imports (verified):**
 
-- `FormConfigBuilder`, `AbstractFormField`
-- `DateFormField`, `DateFormFieldBuilder`
-- `DividerFormFieldBuilder`, `ParagraphFormFieldBuilder`
-- `DocumentenLijstFieldBuilder`
-- `InputFormFieldBuilder`, `TextareaFormFieldBuilder`
+- `FormConfigBuilder` — used for `formConfig` field (`FormConfigBuilder().saveText(...).build()`)
+- `AbstractFormField` — type of `fields: Array<AbstractFormField[]>`
+- `DateFormField` — used **directly by type** for the cast `(vervaldatumField as DateFormField).minDate = ...` and `(lastResponseDateField as DateFormField).minDate = ...`; also needed for `DateFormFieldBuilder`
+- `DateFormFieldBuilder` — builds `ingangsdatum`, `vervaldatum`, `publicationDate`, `lastResponseDate`
+- `DividerFormFieldBuilder` — builds `divider` row (rendered only when `besluittype.publication.enabled`)
+- `ParagraphFormFieldBuilder` — builds publication section heading paragraph
+- `DocumentenLijstFieldBuilder` — builds `documenten` field
+- `InputFormFieldBuilder` — builds `besluittype` (disabled) and `reden` fields
+- `TextareaFormFieldBuilder` — builds `toelichting` field
 
 **Special complexity:** Two reactive field dependencies currently encoded inside MFB's
 observable-per-field model:
@@ -383,56 +394,85 @@ Additionally, a conditional publication section (divider + paragraph + `publicat
 for each besluit field. Also opens a `DialogComponent` carrying MFB field builders to collect an
 "intrekkingsreden" before revoking a decision.
 
-**MFB imports:**
+**MFB imports (verified):**
 
-- `DateFormFieldBuilder`, `HiddenFormFieldBuilder`, `InputFormFieldBuilder`
-- `DocumentenLijstFieldBuilder`, `DocumentenLijstFormField`
-- `MessageFormFieldBuilder`, `MessageLevel`
-- `SelectFormFieldBuilder`
+- `DateFormFieldBuilder` — builds `vervaldatum` field for the intrekken dialog
+- `HiddenFormFieldBuilder` — builds a hidden `uuid` field passed into the intrekken dialog so
+  the callback receives the besluit UUID alongside the form values
+- `InputFormFieldBuilder` — builds `toelichting` field for the intrekken dialog
+- `DocumentenLijstFieldBuilder`, `DocumentenLijstFormField` — builder used in `loadBesluitData`;
+  `DocumentenLijstFormField` type used for `besluitInformatieobjecten` record and `updateDocumenten()` in `ngOnChanges`
+- `MessageFormFieldBuilder`, `MessageLevel` — builds a warning message when documents have
+  already been sent (`documentenVerstuurd`)
+- `SelectFormFieldBuilder` — builds `vervalReden` dropdown for the intrekken dialog
 
 **Special complexity:**
 
 - Uses `DocumentenLijstFormField` instances stored in `besluitInformatieobjecten` record
-  (keyed by besluit UUID) to drive per-besluit document list rendering
-- Passes MFB field builders into `DialogData` for the intrekking confirmation — blocked by §5 dialog batch b
+  (keyed by besluit UUID) to drive per-besluit document list rendering in the template
+- The `intrekken()` dialog passes **5 fields** into `DialogData`: `uuid` (hidden), `vervaldatum`
+  (date), `vervalReden` (select), `toelichting` (input), and an optional message. The `callback`
+  receives all 5 values as a `results` record and emits them to the parent via `@Output() doIntrekking`
+  — the **parent** owns the actual API call.
+- This is a design mismatch with `PromptDialogComponent` (§5), which owns the mutation itself.
+  `PromptDialogComponent` supports at most 1 field — it cannot carry `uuid` + `vervaldatum` +
+  `vervalReden` + `toelichting` + a message. Therefore `besluit-view` needs its own dedicated
+  `BesluitIntrekkenDialogComponent` rather than reusing `PromptDialogComponent`.
 
 **Migration approach:**
 
 1. Replace `besluitInformatieobjecten: Record<string, DocumentenLijstFormField>` with a plain
-   `Record<string, RestEnkelvoudigInformatieobject[]>` populated via the existing service call
-2. Replace each `<mfb-form-field>` in the template with the appropriate direct display: use
-   `<zac-documents [readonly]="true">` for document lists, and static bindings (`{{ value }}`,
-   `<zac-static-text>`, or equivalent) for scalar fields
-3. Replace the `DialogData` call site with the dedicated "intrekking bevestigen" dialog component
-   created in §5 batch b
+   `Record<string, GeneratedType<"RestEnkelvoudigInformatieobject">[]>` populated via the existing
+   service call. Update `ngOnChanges` to refresh the plain array instead of calling
+   `updateDocumenten()`.
+2. Replace each `<mfb-form-field>` in the template with appropriate direct display: use
+   `<zac-documents [readonly]="true">` for document lists, and static text bindings for scalar fields.
+3. Create a dedicated `BesluitIntrekkenDialogComponent` (standalone) that:
+   - Accepts `besluit: RestDecision` via `MAT_DIALOG_DATA`
+   - Owns an explicit `FormGroup` with `vervaldatum`, `vervalReden`, `toelichting` controls
+   - Owns the intrekken mutation via `injectMutation` + `ZakenService`
+   - Shows the "documenten verstuurd" warning `@if` in its own template
+   - Emits success and closes; parent reloads on `afterClosed()`
 4. Remove all MFB field builder imports
 
 ---
 
 #### 8. `taken/taak-view/taak-view.component.ts`
 
-**What it does:** The full task detail view. Has a dual rendering path: Form.io tasks use
-`<formio>`; legacy MFB tasks use `<mfb-form>`. The MFB form renders task assignment fields
-(group + employee) built with `MedewerkerGroepFieldBuilder` plus task-specific fields from
-`AbstractTaakFormulier`.
+**What it does:** The full task detail view. Has three rendering paths: Angular-native task forms
+(active, driven by `getAngularHandleFormBuilder`), Form.io tasks (`<zac-formio-wrapper>`), and a
+legacy MFB catch-block fallback (`<mfb-form *ngIf="formulier">`). The MFB path is **confirmed
+dead code** — `this.formulier` is only set in the `catch` block of `createHardCodedTaakForm`,
+which is unreachable because `getAngularHandleFormBuilder` handles all 7 `FormulierDefinitie`
+enum values. This is a **missed leftover from PR #5535** (chore: removal of all formulier
+definities code) which removed `<zac-formulier>` but not this `<mfb-form>` catch-block.
 
-**MFB imports:**
+**Important:** `MedewerkerGroepFieldBuilder`, `InputFormFieldBuilder`, `TextareaFormFieldBuilder`,
+`FormConfigBuilder`, and `FormConfig` are all imported in `taak-view.component.ts` but they are
+**not** part of the dead `<mfb-form>` path. They are used in `setEditableFormFields()` to build
+the **sidebar inline-edit fields** (groep/behandelaar assignment, toelichting, reden) rendered via
+`<zac-edit-*>` components. These are live and must not be removed.
 
-- `InputFormFieldBuilder`, `MedewerkerGroepFieldBuilder`, `TextareaFormFieldBuilder`
-- `FormConfig`, `FormConfigBuilder`
+**Scope of this ticket — dead-code removal only:**
+
+- `AbstractTaakFormulier` import and `protected formulier?: AbstractTaakFormulier | null` field
+- The entire `catch` block in `createHardCodedTaakForm` (sets `this.formulier`, disables partial save for MFB)
+- `<mfb-form *ngIf="formulier">` block in the template
+
+**MFB imports to remove (only these three — nothing else):**
+
+- `AbstractTaakFormulier` (from `formulieren/taken/abstract-taak-formulier`)
+
+`FormConfig`, `FormConfigBuilder`, `MedewerkerGroepFieldBuilder`, `InputFormFieldBuilder`,
+`TextareaFormFieldBuilder` all remain — they serve the live inline-edit sidebar.
 
 **Migration approach:**
 
-1. Verify that `TaakFormulierenService.getAngularHandleFormBuilder` covers all known
-   `formulierDefinitieId` values (the same check that unblocked §1 — confirm by reading
-   `taak-formulieren.service.ts`). If every case is handled, this component is unblocked.
-   Note: this is the **handle/behandel** form path in `taak-view`, distinct from the
-   **request/start** form path already confirmed complete for §1 (`human-task-do`).
-2. The group/employee assignment fields are already handled explicitly in `human-task-do` using
-   two `<zac-auto-complete>` components — replicate that same explicit template pattern here
-3. Once confirmed unblocked, delete the `<mfb-form>` branch from the template
-4. Remove `MedewerkerGroepFieldBuilder`, `InputFormFieldBuilder`, `TextareaFormFieldBuilder`,
-   `FormConfig`, `FormConfigBuilder`
+1. Delete `<mfb-form *ngIf="formulier"> … </mfb-form>` from the template
+2. In `taak-view.component.ts`: remove `protected formulier?: AbstractTaakFormulier | null = null`
+   and the `catch` block in `createHardCodedTaakForm` (lines ~314–327)
+3. Remove `AbstractTaakFormulier` import
+4. The `this.formulier = null` reset in the load function (line ~241) also becomes dead — remove it
 
 ---
 
