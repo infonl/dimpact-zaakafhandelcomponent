@@ -17,7 +17,7 @@ class ValidRestEnkelvoudigInformatieFileUploadFormValidator :
         val hasName = !value.bestandsnaam.isNullOrBlank()
         return when {
             !hasFile && !hasName -> true
-            hasFile && hasName -> AllowedFileType.isAllowed(value.bestandsnaam, value.formaat)
+            hasFile && hasName -> AllowedFileType.isAllowed(value.bestandsnaam)
             else -> false
         }
     }
