@@ -14,7 +14,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
     val validator =
         ValidRestEnkelvoudigInformatieFileUploadFormValidator()
 
-    Given("a REST enkelvoudig informatie object with an allowed extension and matching media type") {
+    Given("a REST enkelvoudig informatie object with an allowed extension") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "fakeFileName.txt"
@@ -124,8 +124,8 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         When("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is rejected because the declared media type does not match the extension") {
-                result shouldBe false
+            Then("it is accepted because only the extension is validated; the media type is OS-dependent") {
+                result shouldBe true
             }
         }
     }
@@ -141,7 +141,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
         When("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is accepted (the extension check is the security gate; media type is optional)") {
+            Then("it is accepted because the extension check is the security gate") {
                 result shouldBe true
             }
         }

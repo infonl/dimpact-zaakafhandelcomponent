@@ -16,7 +16,7 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
     val validator = ValidRestFileUploadFormValidator()
 
     Context("ValidRestFileUploadFormValidator.isValid") {
-        Given("a task file upload with an allowed extension and matching media type") {
+        Given("a task file upload with an allowed extension") {
             val upload = RestFileUpload(
                 file = "fake content".toByteArray(),
                 fileSize = 12,
@@ -28,6 +28,23 @@ class ValidRestFileUploadFormValidatorTest : BehaviorSpec({
                 val result = validator.isValid(upload, null)
 
                 Then("it is accepted") {
+                    result shouldBe true
+                }
+            }
+        }
+
+        Given("a task file upload with an allowed extension and an OS-specific media type") {
+            val upload = RestFileUpload(
+                file = "fake content".toByteArray(),
+                fileSize = 12,
+                filename = "fakeMovie.mkv",
+                type = "video/webm"
+            )
+
+            When("validated") {
+                val result = validator.isValid(upload, null)
+
+                Then("it is accepted because only the extension is validated") {
                     result shouldBe true
                 }
             }
