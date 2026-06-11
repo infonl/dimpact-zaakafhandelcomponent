@@ -1,4 +1,4 @@
--- SQL script that creates the 'BPMN test zaaktype 4' zaaktype in the Open Zaak database.
+-- SQL script that creates the 'BPMN test zaaktype 5' zaaktype in the Open Zaak database.
 -- This zaaktype is used for the suspend/resume BPMN integration tests.
 
 INSERT INTO catalogi_zaaktype

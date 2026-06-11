@@ -31,10 +31,11 @@ class SuspendZaakDelegate : AbstractDelegate() {
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
-            flowableHelper.policyService.readZaakRechten(zaak, flowableHelper.loggedInUserInstance.get()).opschorten,
+            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).opschorten,
             LOG,
-            "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to suspend zaak ${zaak.identificatie}"
+            "User ${loggedInUser.id} not allowed to suspend zaak ${zaak.identificatie}"
         )
         assertPolicy(
             zaak.opschorting?.reden.isNullOrEmpty(),

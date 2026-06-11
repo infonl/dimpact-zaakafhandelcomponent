@@ -32,10 +32,11 @@ class ResumeZaakDelegate : AbstractDelegate() {
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
-            flowableHelper.policyService.readZaakRechten(zaak, flowableHelper.loggedInUserInstance.get()).hervatten,
+            flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).hervatten,
             LOG,
-            "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to resume zaak ${zaak.identificatie}"
+            "User ${loggedInUser.id} not allowed to resume zaak ${zaak.identificatie}"
         )
         assertPolicy(
             zaak.isOpgeschort(),

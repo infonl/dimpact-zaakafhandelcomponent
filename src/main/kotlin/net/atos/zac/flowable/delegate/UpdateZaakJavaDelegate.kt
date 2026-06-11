@@ -35,14 +35,15 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val (zaak, zaaktype) = flowableHelper.zaakService.readZaakAndZaakTypeByZaakID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(
                 zaak,
                 zaaktype,
-                flowableHelper.loggedInUserInstance.get()
+                loggedInUser
             ).behandelen,
             LOG,
-            "User ${flowableHelper.loggedInUserInstance.get().id} not allowed to handle zaak ${zaak.identificatie}"
+            "User ${loggedInUser.id} not allowed to handle zaak ${zaak.identificatie}"
         )
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)
