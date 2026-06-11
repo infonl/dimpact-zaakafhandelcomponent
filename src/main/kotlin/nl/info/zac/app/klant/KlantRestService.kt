@@ -82,8 +82,6 @@ class KlantRestService @Inject constructor(
 ) {
     companion object {
         const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
-        private val LOG = Logger.getLogger(ResumeZaakDelegate::class.java.name)
-
     }
 
     @GET
@@ -197,11 +195,7 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("personen/parameters")
-    fun personenParameters(): List<RestPersonenParameters> {
-        val brpRechten = policyService.readOverigeRechten()
-        assertPolicy(brpRechten.brpZoeken)
-        return VALID_PERSONEN_QUERIES
-    }
+    fun personenParameters(): List<RestPersonenParameters> = VALID_PERSONEN_QUERIES
 
     @PUT
     @Path("personen")
@@ -209,7 +203,6 @@ class KlantRestService @Inject constructor(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> {
-        LOG.info("listPersonen called with parameters: $restListPersonenParameters")
         val brpRechten = policyService.readOverigeRechten()
         assertPolicy(brpRechten.brpZoeken)
         return restListPersonenParameters.bsn

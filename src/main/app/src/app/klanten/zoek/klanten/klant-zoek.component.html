@@ -2,14 +2,17 @@
   ~ SPDX-FileCopyrightText: 2022 Atos
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
-<mat-tab-group mat-stretch-tabs="false">
+<mat-tab-group
+  mat-stretch-tabs="false"
+  [selectedIndex]="overigeRechtenQuery.data()?.brpZoeken === false ? 1 : 0"
+>
   <mat-tab [disabled]="!overigeRechtenQuery.data()?.brpZoeken">
     <ng-template mat-tab-label>
       <span
         style="pointer-events: auto"
         [matTooltip]="
           !overigeRechtenQuery.data()?.brpZoeken
-            ? ('msg.rechten.geen.persoon.koppelen' | translate)
+            ? ('msg.rechten.geen.persoon.zoeken' | translate)
             : ''
         "
       >

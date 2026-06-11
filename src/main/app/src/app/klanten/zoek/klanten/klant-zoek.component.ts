@@ -4,15 +4,15 @@
  */
 
 import { Component, EventEmitter, inject, Output } from "@angular/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltip } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { PolicyService } from "../../../policy/policy.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.component";
-import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
+import { BedrijfZoekComponent } from "../bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
 
 @Component({
   selector: "zac-klant-zoek",
