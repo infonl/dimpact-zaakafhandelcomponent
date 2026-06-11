@@ -191,7 +191,7 @@ TBD — run step 0 (claims check) at start of next session.
 |---|---|
 | Extracting types from component file | When a component file contains exported types used widely across the codebase, extract them to a sibling `<name>.types.ts` file. Component imports from types file; consumers import types directly. |
 | `VariabelenKiesMenuComponent` moved out of ATOS | Old `HtmlEditorVariabelenKiesMenuComponent` (non-standalone, ATOS) replaced by new `VariabelenKiesMenuComponent` (standalone) in `shared/form/html-editor/variabelen-kies-menu/`. Module imports the new one. |
-| Standalone component re-export via NgModule | To make a standalone component available to non-standalone consumers via a module: add it to both `imports[]` AND `exports[]` of the module. |
+| Standalone component for non-standalone consumers | Do NOT re-export a standalone component through an NgModule (modules are being phased out). Import it directly in the `imports[]` of the module that *declares* the consuming component (e.g. `HumanTaskDoComponent` in `ZakenModule`, which declares `ZaakViewComponent`). Once the consumer itself goes standalone, move the import into the consumer's own `imports[]`. (Review feedback marcel, PR #6179) |
 | Rename `ZacForm` → `ZacComposedForm` | `ZacForm` was too generic; renamed to `ZacComposedForm` and moved to `shared/form/composed-form/`. Types extracted to `form-field.types.ts`. |
 
 ### Patterns added in batch-16
