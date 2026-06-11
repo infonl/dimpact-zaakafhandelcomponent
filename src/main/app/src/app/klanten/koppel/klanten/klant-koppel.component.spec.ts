@@ -19,10 +19,10 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { testQueryClient } from "../../../../../setupJest";
 import { PolicyService } from "src/app/policy/policy.service";
 import { SharedModule } from "src/app/shared/shared.module";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 import { KlantKoppelComponent } from "./klant-koppel.component";
@@ -54,7 +54,11 @@ const mockSideNav = { close: jest.fn() } as unknown as MatDrawer;
 describe(KlantKoppelComponent.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [KlantKoppelComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [
+        KlantKoppelComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),

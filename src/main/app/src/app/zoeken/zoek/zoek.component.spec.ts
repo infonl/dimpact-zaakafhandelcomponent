@@ -14,11 +14,11 @@ import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { MatTooltip } from "@angular/material/tooltip";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslatePipe, TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslatePipe } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { PolicyService } from "../../policy/policy.service";
-import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
@@ -231,9 +231,8 @@ describe(ZoekComponent.name, () => {
 
     describe("when brpZoeken is true", () => {
       it("should have the personen button enabled", () => {
-        const button = fixture.debugElement.query(
-          By.css("#personen-button"),
-        )?.nativeElement as HTMLButtonElement;
+        const button = fixture.debugElement.query(By.css("#personen-button"))
+          ?.nativeElement as HTMLButtonElement;
         expect(button.disabled).toBe(false);
       });
 
@@ -261,9 +260,8 @@ describe(ZoekComponent.name, () => {
       });
 
       it("should have the personen button disabled", () => {
-        const button = fixture.debugElement.query(
-          By.css("#personen-button"),
-        )?.nativeElement as HTMLButtonElement;
+        const button = fixture.debugElement.query(By.css("#personen-button"))
+          ?.nativeElement as HTMLButtonElement;
         expect(button.disabled).toBe(true);
       });
 
