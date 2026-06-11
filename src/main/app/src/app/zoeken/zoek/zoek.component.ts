@@ -26,7 +26,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
-import { MatTooltip } from "@angular/material/tooltip";
 import {
   MatFormField,
   MatLabel,
@@ -38,15 +37,16 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
-import { PolicyService } from "../../policy/policy.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
+import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
