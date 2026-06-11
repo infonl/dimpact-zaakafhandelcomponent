@@ -102,7 +102,7 @@ export class HumanTaskDoComponent implements OnInit {
         this.planItem,
       );
 
-    formFields.map((formField) => {
+    formFields.forEach((formField) => {
       this.form.addControl(
         formField.key,
         formField.control ?? this.formBuilder.control(null),
