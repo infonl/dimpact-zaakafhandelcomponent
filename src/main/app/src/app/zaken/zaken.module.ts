@@ -12,6 +12,7 @@ import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.com
 import { MailCreateComponent } from "../mail/mail-create/mail-create.component";
 import { OntvangstbevestigingComponent } from "../mail/ontvangstbevestiging/ontvangstbevestiging.component";
 import { NotitiesComponent } from "../notities/notities.component";
+import { HumanTaskDoComponent } from "../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -44,6 +45,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
+    HumanTaskDoComponent,
     PlanItemsModule,
     MailCreateComponent,
     OntvangstbevestigingComponent,
