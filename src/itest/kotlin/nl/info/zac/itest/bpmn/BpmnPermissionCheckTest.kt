@@ -64,7 +64,7 @@ class BpmnPermissionCheckTest : BehaviorSpec({
 
             Then("process task is not completed") {
                 takenResponse.code shouldBe HttpURLConnection.HTTP_FORBIDDEN
-                logger.info { "Cannot complete task for zaak ${zaakIdentificatie} because it is forbidden" }
+                logger.info { "Cannot complete task for zaak $zaakIdentificatie because it is forbidden" }
             }
         }
 
@@ -105,7 +105,7 @@ class BpmnPermissionCheckTest : BehaviorSpec({
 
             Then("process task is not completed") {
                 takenResponse.code shouldBe HttpURLConnection.HTTP_FORBIDDEN
-                logger.info { "Cannot complete task for zaak ${zaakIdentificatie} because it is forbidden" }
+                logger.info { "Cannot complete task for zaak $zaakIdentificatie because it is forbidden" }
             }
         }
     }
