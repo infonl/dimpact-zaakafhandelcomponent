@@ -14,12 +14,7 @@ import {
   inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
 import { MatDivider } from "@angular/material/divider";
 import { MatIcon } from "@angular/material/icon";
@@ -35,8 +30,8 @@ import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacComposedForm } from "../../shared/form/composed-form/composed-form.component";
 import {
+  FormConfig,
   FormField,
-  FormConfig as NewFormConfig,
 } from "../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
@@ -53,7 +48,6 @@ import { PlanItemsService } from "../plan-items.service";
     MatProgressSpinner,
     MatToolbar,
     NgIf,
-    ReactiveFormsModule,
     TranslatePipe,
     ZacComposedForm,
   ],
@@ -78,7 +72,7 @@ export class HumanTaskDoComponent implements OnInit {
   protected form = this.formBuilder.group({});
   protected formFields: FormField[] = [];
 
-  protected _formConfig: NewFormConfig = {
+  protected formConfig: FormConfig = {
     submitLabel: "actie.starten",
   };
 
@@ -92,7 +86,6 @@ export class HumanTaskDoComponent implements OnInit {
 
   async ngOnInit() {
     if (this.planItem?.type !== "HUMAN_TASK") {
-      this.formFields = [];
       return;
     }
 
@@ -193,11 +186,7 @@ export class HumanTaskDoComponent implements OnInit {
     this.done.emit();
   }
 
-  protected onFormSubmit(formGroup?: FormGroup) {
-    if (!formGroup) {
-      this.done.emit();
-      return;
-    }
+  protected onFormSubmit(formGroup: FormGroup) {
     this.doHumanTaskPlanItemMutation.mutate({
       planItemInstanceId: this.planItem!.id!,
       groep: this.form.get("group")!.value!,

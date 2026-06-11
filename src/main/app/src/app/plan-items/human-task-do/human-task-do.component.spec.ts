@@ -23,8 +23,8 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -315,16 +315,6 @@ describe("HumanTaskDoComponent", () => {
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
       expect(doneSpy).not.toHaveBeenCalled();
-    });
-
-    it("should emit done without sending anything when no form group is provided", async () => {
-      const doneSpy = jest.spyOn(component.done, "emit");
-
-      component["onFormSubmit"](undefined);
-      await sleep();
-
-      httpTestingController.expectNone("/rest/planitems/doHumanTaskPlanItem");
-      expect(doneSpy).toHaveBeenCalled();
     });
   });
 

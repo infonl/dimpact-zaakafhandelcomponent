@@ -26,7 +26,7 @@
   <zac-composed-form
     [form]="form"
     [fields]="formFields"
-    [config]="_formConfig"
+    [config]="formConfig"
     [loading]="doHumanTaskPlanItemMutation.isPending()"
     (formSubmitted)="onFormSubmit($event)"
     (formCancelled)="onFormCancel()"
