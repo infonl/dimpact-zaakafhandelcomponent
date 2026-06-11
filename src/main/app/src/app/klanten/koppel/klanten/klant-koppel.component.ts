@@ -92,11 +92,36 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
       </mat-tab-group>
 
       <!--Betrokkene-->
-      <mat-tab-group mat-stretch-tabs="false" *ngIf="!initiator">
-        <mat-tab *ngIf="allowPersoon">
+      <mat-tab-group
+        mat-stretch-tabs="false"
+        *ngIf="!initiator"
+        [selectedIndex]="
+          allowPersoon && overigeRechtenQuery.data()?.brpZoeken === false
+            ? 1
+            : 0
+        "
+      >
+        <mat-tab
+          *ngIf="allowPersoon"
+          [disabled]="overigeRechtenQuery.data()?.brpZoeken === false"
+        >
           <ng-template mat-tab-label>
-            <mat-icon>emoji_people</mat-icon>
-            {{ "betrokkene.persoon" | translate }}
+            <span
+              style="pointer-events: auto; display: inline-flex; align-items: center"
+              [style.cursor]="
+                overigeRechtenQuery.data()?.brpZoeken === false
+                  ? 'default'
+                  : null
+              "
+              [matTooltip]="
+                overigeRechtenQuery.data()?.brpZoeken === false
+                  ? ('msg.rechten.geen.persoon.zoeken' | translate)
+                  : ''
+              "
+            >
+              <mat-icon>emoji_people</mat-icon>
+              {{ "betrokkene.persoon" | translate }}
+            </span>
           </ng-template>
           <zac-klant-koppel-betrokkene-persoon
             type="persoon"
