@@ -15,7 +15,7 @@
 <mat-divider></mat-divider>
 
 <section
-  *ngIf="!formFields.length && !formItems.length"
+  *ngIf="!formFields.length"
   class="flex-fill flex-row justify-center items-center"
 >
   <mat-spinner diameter="30" />
@@ -32,12 +32,3 @@
     (formCancelled)="onFormCancel()"
   />
 </section>
-
-<div class="form" *ngIf="!formFields.length">
-  <mfb-form
-    *ngIf="formItems"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="formItems"
-    [config]="formConfig"
-  ></mfb-form>
-</div>

@@ -11,7 +11,7 @@ import {
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -23,9 +23,6 @@ import { testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { HumanTaskDoComponent } from "./human-task-do.component";
 
@@ -39,12 +36,8 @@ describe("HumanTaskDoComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HumanTaskDoComponent],
       imports: [
-        ReactiveFormsModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
-        PipesModule,
+        HumanTaskDoComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
@@ -182,33 +175,6 @@ describe("HumanTaskDoComponent", () => {
 
       const input = await loader.getHarness(MatInputHarness);
       expect(input).not.toBeNull(); // `question` input
-    });
-  });
-
-  describe("custom form builder", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockImplementation(() => {
-          throw new Error("Not implemented");
-        });
-      jest.spyOn(taakFormulierenService, "getFormulierBuilder").mockReturnValue(
-        fromPartial({
-          startForm: () =>
-            fromPartial({
-              build: () =>
-                fromPartial({
-                  form: [],
-                }),
-            }),
-        }),
-      );
-    });
-
-    it("should fallback to the old custom form builder", async () => {
-      const spy = jest.spyOn(taakFormulierenService, "getFormulierBuilder");
-      await component.ngOnInit();
-      expect(spy).toHaveBeenCalledWith(component.planItem?.formulierDefinitie);
     });
   });
 });

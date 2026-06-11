@@ -10,8 +10,8 @@ import { HumanTaskDoComponent } from "./human-task-do/human-task-do.component";
 import { ProcessTaskDoComponent } from "./process-task-do/process-task-do.component";
 
 @NgModule({
-  declarations: [HumanTaskDoComponent, ProcessTaskDoComponent],
+  declarations: [ProcessTaskDoComponent],
   exports: [HumanTaskDoComponent, ProcessTaskDoComponent],
-  imports: [SharedModule],
+  imports: [SharedModule, HumanTaskDoComponent],
 })
 export class PlanItemsModule {}
