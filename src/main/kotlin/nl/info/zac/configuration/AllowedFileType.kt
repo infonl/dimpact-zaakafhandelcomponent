@@ -10,13 +10,16 @@ package nl.info.zac.configuration
  *
  * This is the single source of truth for upload validation. Adding a new file type
  * requires extending this enum.
+ *
+ * Only the extension is validated. The media type reported by browsers comes from the
+ * client OS and varies per machine (registry on Windows), so it cannot be validated
+ * against; [mediaType] is the canonical type ZAC associates with the extension.
  */
 enum class AllowedFileType(
     val extension: String,
-    val mediaType: String,
-    val alternativeMediaTypes: Set<String> = emptySet()
+    val mediaType: String
 ) {
-    AVI(".avi", "video/x-msvideo", setOf("video/avi", "video/msvideo", "video/vnd.avi")),
+    AVI(".avi", "video/x-msvideo"),
     BMP(".bmp", "image/bmp"),
     DOC(".doc", "application/msword"),
     DOCX(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
@@ -25,7 +28,7 @@ enum class AllowedFileType(
     GIF(".gif", "image/gif"),
     JPEG(".jpeg", "image/jpeg"),
     JPG(".jpg", "image/jpeg"),
-    MKV(".mkv", "video/x-matroska", setOf("video/mkv")),
+    MKV(".mkv", "video/x-matroska"),
     MOV(".mov", "video/quicktime"),
     MP4(".mp4", "video/mp4"),
     MPEG(".mpeg", "video/mpeg"),
@@ -36,18 +39,9 @@ enum class AllowedFileType(
     PNG(".png", "image/png"),
     PPT(".ppt", "application/vnd.ms-powerpoint"),
     PPTX(".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
-    RTF(".rtf", "application/rtf", setOf("text/rtf", "application/msword")),
+    RTF(".rtf", "application/rtf"),
     TXT(".txt", "text/plain"),
-    VSD(
-        ".vsd",
-        "application/vnd.visio",
-        setOf(
-            "application/x-visio",
-            "application/visio",
-            "application/vnd.ms-visio.drawing",
-            "application/vnd.ms-visio.viewer"
-        )
-    ),
+    VSD(".vsd", "application/vnd.visio"),
     WMV(".wmv", "video/x-ms-wmv"),
     XLS(".xls", "application/vnd.ms-excel"),
     XLSX(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -63,15 +57,9 @@ enum class AllowedFileType(
             }
 
         /**
-         * Returns true when [filename]'s extension is on the allowlist and (if [mediaType] is
-         * non-blank) matches the canonical media type registered for that extension or one of
-         * its [alternativeMediaTypes]. Matching is case-insensitive.
+         * Returns true when [filename]'s extension is on the allowlist. Matching is
+         * case-insensitive.
          */
-        fun isAllowed(filename: String?, mediaType: String?): Boolean =
-            fromFilename(filename)?.let { fileType ->
-                mediaType.isNullOrBlank() ||
-                    mediaType.equals(fileType.mediaType, ignoreCase = true) ||
-                    fileType.alternativeMediaTypes.any { it.equals(mediaType, ignoreCase = true) }
-            } ?: false
+        fun isAllowed(filename: String?): Boolean = fromFilename(filename) != null
     }
 }
