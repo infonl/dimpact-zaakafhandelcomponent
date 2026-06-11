@@ -6,12 +6,11 @@
 import { NgModule } from "@angular/core";
 
 import { SharedModule } from "../shared/shared.module";
-import { HumanTaskDoComponent } from "./human-task-do/human-task-do.component";
 import { ProcessTaskDoComponent } from "./process-task-do/process-task-do.component";
 
 @NgModule({
   declarations: [ProcessTaskDoComponent],
-  exports: [HumanTaskDoComponent, ProcessTaskDoComponent],
-  imports: [SharedModule, HumanTaskDoComponent],
+  exports: [ProcessTaskDoComponent],
+  imports: [SharedModule],
 })
 export class PlanItemsModule {}
