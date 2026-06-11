@@ -4,6 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   DestroyRef,
@@ -89,89 +90,99 @@ export class HumanTaskDoComponent implements OnInit {
       return;
     }
 
-    const formFields =
-      await this.taakFormulierenService.getAngularRequestFormBuilder(
-        this.zaak,
-        this.planItem,
+    try {
+      const formFields =
+        await this.taakFormulierenService.getAngularRequestFormBuilder(
+          this.zaak,
+          this.planItem,
+        );
+
+      formFields.forEach((formField) => {
+        this.form.addControl(
+          formField.key,
+          formField.control ?? this.formBuilder.control(null),
+        );
+
+        this.formFields.push(formField);
+      });
+
+      this.formFields.push({
+        type: "plain-text",
+        key: "actie.taak.toewijzing",
+        label: "actie.taak.toewijzing",
+      });
+
+      const groupControl =
+        this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
+          Validators.required,
+        ]);
+      this.form.addControl("group", groupControl);
+
+      const groups = await lastValueFrom(
+        this.identityService.listBehandelaarGroupsForZaaktype(
+          this.zaak.zaaktype.omschrijving!,
+        ),
       );
 
-    formFields.forEach((formField) => {
-      this.form.addControl(
-        formField.key,
-        formField.control ?? this.formBuilder.control(null),
-      );
-
-      this.formFields.push(formField);
-    });
-
-    this.formFields.push({
-      type: "plain-text",
-      key: "actie.taak.toewijzing",
-      label: "actie.taak.toewijzing",
-    });
-
-    const groupControl =
-      this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
-        Validators.required,
-      ]);
-    this.form.addControl("group", groupControl);
-
-    const groups = await lastValueFrom(
-      this.identityService.listBehandelaarGroupsForZaaktype(
-        this.zaak.zaaktype.omschrijving!,
-      ),
-    );
-
-    if (this.planItem.groepId) {
-      const defaultGroup = groups.find(
-        (group) => group.id === this.planItem!.groepId,
-      );
-      if (defaultGroup) {
-        groupControl.setValue(defaultGroup);
+      if (this.planItem.groepId) {
+        const defaultGroup = groups.find(
+          (group) => group.id === this.planItem!.groepId,
+        );
+        if (defaultGroup) {
+          groupControl.setValue(defaultGroup);
+        }
       }
-    }
 
-    this.formFields.push({
-      type: "auto-complete",
-      key: "group",
-      label: "actie.taak.toekennen.groep",
-      options: groups,
-      optionDisplayValue: "naam",
-    });
+      this.formFields.push({
+        type: "auto-complete",
+        key: "group",
+        label: "actie.taak.toekennen.groep",
+        options: groups,
+        optionDisplayValue: "naam",
+      });
 
-    const userControl =
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
-    this.form.addControl("user", userControl);
-    userControl.disable();
-    this.formFields.push({
-      type: "auto-complete",
-      key: "user",
-      label: "actie.taak.toekennen.medewerker",
-      options: [],
-      optionDisplayValue: "naam",
-    });
+      const userControl =
+        this.formBuilder.control<GeneratedType<"RestUser"> | null>(null, []);
+      this.form.addControl("user", userControl);
+      userControl.disable();
+      this.formFields.push({
+        type: "auto-complete",
+        key: "user",
+        label: "actie.taak.toekennen.medewerker",
+        options: [],
+        optionDisplayValue: "naam",
+      });
 
-    if (groupControl.value) {
-      userControl.enable();
-      this.identityService
-        .listUsersInGroup(groupControl.value.id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+      if (groupControl.value) {
+        userControl.enable();
+        this.identityService
+          .listUsersInGroup(groupControl.value.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((users) => this.updateUserOptions(users));
+      }
+      groupControl.valueChanges
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap((value) => {
+            userControl.reset();
+            if (!value) {
+              userControl.disable();
+              return EMPTY;
+            }
+            userControl.enable();
+            return this.identityService.listUsersInGroup(value.id);
+          }),
+        )
         .subscribe((users) => this.updateUserOptions(users));
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        this.foutAfhandelingService.foutAfhandelen(error);
+        return;
+      }
+      this.foutAfhandelingService.openFoutDialog(
+        error instanceof Error ? error.message : String(error),
+      );
     }
-    groupControl.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap((value) => {
-          userControl.reset();
-          if (!value) {
-            userControl.disable();
-            return EMPTY;
-          }
-          userControl.enable();
-          return this.identityService.listUsersInGroup(value.id);
-        }),
-      )
-      .subscribe((users) => this.updateUserOptions(users));
   }
 
   private updateUserOptions(users: GeneratedType<"RestUser">[]) {

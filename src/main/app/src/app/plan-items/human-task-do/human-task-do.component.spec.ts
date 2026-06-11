@@ -6,6 +6,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
+  HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -20,7 +21,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
@@ -325,6 +326,45 @@ describe("HumanTaskDoComponent", () => {
       component["onFormCancel"]();
 
       expect(doneSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("form loading errors", () => {
+    it("should open an error dialog when building the form fails", async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockRejectedValue(
+          new Error("Onbekende formulierDefinitie for Angular form: FAKE"),
+        );
+      const openFoutDialogSpy = jest
+        .spyOn(foutAfhandelingService, "openFoutDialog")
+        .mockReturnValue(of(undefined) as never);
+
+      await component.ngOnInit();
+
+      expect(openFoutDialogSpy).toHaveBeenCalledWith(
+        "Onbekende formulierDefinitie for Angular form: FAKE",
+      );
+    });
+
+    it("should hand off to the error handler when loading the groups fails", async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockResolvedValue([]);
+      const httpErrorResponse = new HttpErrorResponse({
+        status: 500,
+        statusText: "Internal Server Error",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(throwError(() => httpErrorResponse));
+      const foutAfhandelenSpy = jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(of(undefined) as never);
+
+      await component.ngOnInit();
+
+      expect(foutAfhandelenSpy).toHaveBeenCalledWith(httpErrorResponse);
     });
   });
 });
