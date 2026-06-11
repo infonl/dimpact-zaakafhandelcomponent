@@ -48,7 +48,6 @@ fun createRestEnkelvoudigInformatieobject(
     auteur = auteur,
     taal = taal,
     informatieobjectTypeUUID = informatieobjectTypeUUID,
-    formaat = formaat,
     indicatieGebruiksrecht = indicatieGebruiksrecht,
     gelockedDoor = gelockedDoor,
     ondertekening = ondertekening,
@@ -57,6 +56,7 @@ fun createRestEnkelvoudigInformatieobject(
 ).also {
     it.file = file
     it.bestandsnaam = bestandsNaam
+    it.formaat = formaat
 }
 
 fun createRestFileUpload(
@@ -95,12 +95,12 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
 ) = RestEnkelvoudigInformatieObjectVersieGegevens(
     uuid = uuid,
     zaakUuid = zaakUuid,
-    formaat = formaat,
     informatieobjectTypeUUID = informatieobjectTypeUUID,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 ).also {
     it.bestandsnaam = bestandsnaam
     it.file = file
+    it.formaat = formaat
 }
 
 fun createRestInformatieobjectZoekParameters(

@@ -1,0 +1,1 @@
+Not a real PDF. Fixture only — the point of this test is to demonstrate that the validator only inspects filename+formaat, so uploading anything under a .pdf name with application/pdf MIME currently slips through regardless of content.

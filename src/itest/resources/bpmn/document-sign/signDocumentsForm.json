@@ -1,27 +1,20 @@
 {
-  "display": "form",
-  "name": "signDocumentForm",
   "title": "signDocumentForm",
+  "type": "form",
+  "name": "signDocumentForm",
+  "path": "signDocumentForm",
+  "pdfComponents": [],
+  "display": "form",
+  "tags": [],
+  "settings": {},
   "components": [
     {
-      "label": "Document(s) to sign",
-      "widget": "choicesjs",
-      "tableView": true,
-      "validateWhenHidden": false,
-      "key": "ZAAK_Documenten_Ondertekenen_Selectie",
-      "type": "select",
-      "input": true,
-      "dataSrc": "custom",
-      "multiple": true,
-      "customOptions": {
-        "choicesOptions": {
-          "removeItemButton": true,
-          "placeholder": false,
-          "searchEnabled": true,
-          "shouldSort": false
-        }
-      },
-      "disabled": true
+      "html": "<p>Te ondertekenen documenten:</p><p>{{ZAC_getDocumentTitles(ZAAK_Documenten_Ondertekenen_Selectie)}}</p>",
+      "refreshOnChange": false,
+      "key": "selectedDocuments",
+      "type": "content",
+      "input": false,
+      "tableView": false
     },
     {
       "type": "button",

@@ -9,7 +9,7 @@
 # zaakafhandelparameters for all 7 zaaktypes in Open Zaak (3 CMMN, 4 BPMN),
 # then creates a user-specified number of zaken distributed across all zaaktypes.
 #
-# Prerequisites: all Docker Compose services (including ZAC) must be running.
+# Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
 #
 # Usage:
 #   ./scripts/load-test/create-load.py <zaken_count> [--skip-config]
@@ -21,11 +21,16 @@
 #   ./scripts/load-test/create-load.py 100 --skip-config --concurrency 4
 #   ./scripts/load-test/create-load.py 50 --add-documents --concurrency 4
 
+import sys
+
+if sys.version_info < (3, 10):
+    print(f"ERROR: Python 3.10+ required, running {sys.version_info.major}.{sys.version_info.minor}")
+    sys.exit(1)
+
 import argparse
 import base64
 import json
 import pathlib
-import sys
 import threading
 import time
 import urllib.error

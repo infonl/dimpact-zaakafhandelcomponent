@@ -19,7 +19,6 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "../material-form-builder/material-form-builder.module";
-import { FieldType } from "../material-form-builder/model/field-type.enum";
 import { DialogData } from "./dialog-data";
 
 @Component({
@@ -66,14 +65,7 @@ export class DialogComponent implements OnInit {
 
     const results: Record<string, unknown> = {};
     for (const formField of this.data.options.formFields) {
-      switch (formField.fieldType) {
-        case FieldType.CHECKBOX:
-          results[formField.id] = !!formField.formControl.value;
-          break;
-        default:
-          results[formField.id] = formField.formControl.value;
-          break;
-      }
+      results[formField.id] = formField.formControl.value;
     }
     this.data.options.callback(results).subscribe({
       next: (data) => this.dialogRef.close(data ?? true),

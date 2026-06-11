@@ -7,7 +7,7 @@ import { inject, Injectable, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { FormField } from "../../../shared/form/form";
+import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
 @Injectable({

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { Clipboard } from "@angular/cdk/clipboard";
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
@@ -14,6 +15,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -146,5 +148,45 @@ describe(ZaakdataComponent.name, () => {
     );
     await buttons[1].click();
     expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  const setupWithForm = (zaak: GeneratedType<"RestZaak">) => {
+    testQueryClient.setQueryData(["procesvariabelen"], []);
+    const result = setup(zaak);
+    fixture.detectChanges();
+    return result;
+  };
+
+  describe("clipboard copy icons", () => {
+    it("copies the field name to clipboard when icon is clicked", async () => {
+      setupWithForm(makeZaak({ zaakdata: { myField: "someValue" } }));
+      const clipboard = TestBed.inject(Clipboard);
+      jest.spyOn(clipboard, "copy");
+      const icon = await loader.getHarness(
+        MatIconHarness.with({ name: "content_copy" }),
+      );
+      await (await icon.host()).click();
+      expect(clipboard.copy).toHaveBeenCalledWith("myField");
+    });
+
+    it("applies copy-icon--sm class only when control value is null/undefined/empty string", async () => {
+      setupWithForm(
+        makeZaak({
+          zaakdata: { emptyField: "", filledField: "hello", zeroField: 0 },
+        }),
+      );
+      const icons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "content_copy" }),
+      );
+      expect(await (await icons[0].host()).hasClass("copy-icon--sm")).toBe(
+        true,
+      );
+      expect(await (await icons[1].host()).hasClass("copy-icon--sm")).toBe(
+        false,
+      );
+      expect(await (await icons[2].host()).hasClass("copy-icon--sm")).toBe(
+        false,
+      );
+    });
   });
 });

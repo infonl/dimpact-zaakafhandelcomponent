@@ -6,13 +6,12 @@
 import { inject, Injectable } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { FormField } from "../../shared/form/form";
+import { FormField } from "../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
-import { DefaultTaakformulier } from "./model/default-taakformulier";
-import { DocumentVerzendenPost } from "./model/document-verzenden-post";
+import { DefaultTaskForm } from "./model/default-task-form";
+import { DocumentVerzendenPostTaskForm } from "./model/document-verzenden-post-task-form";
 import { ExternAdviesMailTaskForm } from "./model/extern-advies-mail-task-form";
 import { ExternAdviesVastleggenTaskForm } from "./model/extern-advies-vastleggen-task-form";
 import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
@@ -26,7 +25,6 @@ export class TaakFormulierenService {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
-  private readonly takenService = inject(TakenService);
 
   private readonly goedkeurenTaskForm = inject(GoedkeurenTaskForm);
   private readonly aanvullendeInformatieTaskForm = inject(
@@ -37,6 +35,10 @@ export class TaakFormulierenService {
     ExternAdviesVastleggenTaskForm,
   );
   private readonly externAdviesMailTaskForm = inject(ExternAdviesMailTaskForm);
+  private readonly defaultTaskForm = inject(DefaultTaskForm);
+  private readonly documentVerzendenPostTaskForm = inject(
+    DocumentVerzendenPostTaskForm,
+  );
 
   public async getAngularRequestFormBuilder(
     zaak: GeneratedType<"RestZaak">,
@@ -44,6 +46,8 @@ export class TaakFormulierenService {
   ): Promise<FormField[]> {
     const formulierDefinitie = planItem?.formulierDefinitie;
     switch (formulierDefinitie) {
+      case "DEFAULT_TAAKFORMULIER":
+        return this.defaultTaskForm.requestForm();
       case "GOEDKEUREN":
         return this.goedkeurenTaskForm.requestForm(zaak);
       case "AANVULLENDE_INFORMATIE":
@@ -54,6 +58,8 @@ export class TaakFormulierenService {
         return this.externAdviesVastleggenTaskForm.requestForm(zaak);
       case "EXTERN_ADVIES_MAIL":
         return this.externAdviesMailTaskForm.requestForm(zaak);
+      case "DOCUMENT_VERZENDEN_POST":
+        return this.documentVerzendenPostTaskForm.requestForm(zaak);
       default:
         throw new Error(
           `Onbekende formulierDefinitie for Angular form: ${formulierDefinitie}`,
@@ -66,6 +72,8 @@ export class TaakFormulierenService {
     zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
     switch (taak.formulierDefinitieId) {
+      case "DEFAULT_TAAKFORMULIER":
+        return this.defaultTaskForm.handleForm(taak);
       case "GOEDKEUREN":
         return this.goedkeurenTaskForm.handleForm(taak);
       case "AANVULLENDE_INFORMATIE":
@@ -76,6 +84,8 @@ export class TaakFormulierenService {
         return this.externAdviesVastleggenTaskForm.handleForm(taak);
       case "EXTERN_ADVIES_MAIL":
         return this.externAdviesMailTaskForm.handleForm(taak);
+      case "DOCUMENT_VERZENDEN_POST":
+        return this.documentVerzendenPostTaskForm.handleForm(taak);
       default:
         throw new Error(
           `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
@@ -88,11 +98,8 @@ export class TaakFormulierenService {
   ): TaakFormulierBuilder {
     switch (formulierDefinitie) {
       case "DEFAULT_TAAKFORMULIER":
-        return new TaakFormulierBuilder(
-          new DefaultTaakformulier(
-            this.translateService,
-            this.informatieObjectenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "AANVULLENDE_INFORMATIE":
         throw new Error(
@@ -115,12 +122,8 @@ export class TaakFormulierenService {
           `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       case "DOCUMENT_VERZENDEN_POST":
-        return new TaakFormulierBuilder(
-          new DocumentVerzendenPost(
-            this.translateService,
-            this.takenService,
-            this.informatieObjectenService,
-          ),
+        throw new Error(
+          `${formulierDefinitie} is DEPRECATED, use Angular form`,
         );
       default:
         throw new Error(`Onbekende formulierDefinitie: ${formulierDefinitie}`);

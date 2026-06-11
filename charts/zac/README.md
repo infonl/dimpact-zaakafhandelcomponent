@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.251](https://img.shields.io/badge/Version-1.0.251-informational?style=flat-square) ![AppVersion: 5.0](https://img.shields.io/badge/AppVersion-5.0-informational?style=flat-square)
+![Version: 1.0.257](https://img.shields.io/badge/Version-1.0.257-informational?style=flat-square) ![AppVersion: 5.1](https://img.shields.io/badge/AppVersion-5.1-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.156.1 |
+| @opentelemetry | opentelemetry-collector | 0.158.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -46,7 +46,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |
@@ -177,7 +176,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.1@sha256:24623e90be3447fce56c1d85db722403619f411ab10d1cfd9937a5654f8b6070"` |  |
+| nginx.image.tag | string | `"1.31.1@sha256:9f6b32064a29d747404d959e078c713a0523a9bd4e41f6912058126ebca94e61"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -230,7 +229,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61"` |  |
+| opa.image.tag | string | `"1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |

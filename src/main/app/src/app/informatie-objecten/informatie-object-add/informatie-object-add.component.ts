@@ -20,14 +20,17 @@ import {
 import moment, { Moment } from "moment";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacFile } from "../../shared/form/file/file";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { appendFileToFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -49,6 +52,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
     ZacDate,
     ZacFormActions,
     ZacInput,
+    ZacFile,
     ZacSelect,
     MaterialFormBuilderModule,
   ],
@@ -59,6 +63,7 @@ export class InformatieObjectAddComponent {
   );
   private readonly utilService = inject(UtilService);
   private readonly configuratieService = inject(ConfiguratieService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly identityService = inject(IdentityService);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -95,8 +100,8 @@ export class InformatieObjectAddComponent {
       }
       this.resetAndClose();
     },
-    onError: () => {
-      this.form.reset();
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
     },
   }));
 
@@ -256,16 +261,11 @@ export class InformatieObjectAddComponent {
           );
           break;
         case "bestand":
-          // .eml files are sent as "message/rfc822", which RESTEasy does not bind to byte[].
-          // Force "application/octet-stream" so the backend receives the file as raw bytes.
-          if (infoObject.bestandsnaam?.toLowerCase().endsWith(".eml")) {
-            const emlBlob = new Blob([value as Blob], {
-              type: "application/octet-stream",
-            });
-            formData.append("file", emlBlob, infoObject.bestandsnaam);
-          } else {
-            formData.append("file", value as Blob, infoObject.bestandsnaam!);
-          }
+          appendFileToFormData(
+            formData,
+            value as Blob,
+            infoObject.bestandsnaam!,
+          );
           break;
         default:
           formData.append(key, value.toString());

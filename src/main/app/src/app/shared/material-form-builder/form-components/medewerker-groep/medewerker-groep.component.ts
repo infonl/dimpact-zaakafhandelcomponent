@@ -16,7 +16,7 @@ import { IdentityService } from "../../../../identity/identity.service";
 import { OrderUtil } from "../../../order/order-util";
 import { GeneratedType } from "../../../utils/generated-types";
 import { FormComponent } from "../../model/form-component";
-import { AutocompleteValidators } from "../autocomplete/autocomplete-validators";
+import { AutocompleteValidators } from "./autocomplete-validators";
 import { MedewerkerGroepFormField } from "./medewerker-groep-form-field";
 
 @Component({

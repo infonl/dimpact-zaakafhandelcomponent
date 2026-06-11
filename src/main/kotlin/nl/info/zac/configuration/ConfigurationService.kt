@@ -19,7 +19,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -34,9 +33,6 @@ class ConfigurationService @Inject constructor(
     private val entityManager: EntityManager,
 
     private val ztcClientService: ZtcClientService,
-
-    @ConfigProperty(name = ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES)
-    private val additionalAllowedFileTypes: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRON_ORGANISATIE_RSIN)
     private val bronOrganisatie: String,
@@ -66,7 +62,6 @@ class ConfigurationService @Inject constructor(
     private val zgwApiClientMpRestUrl: String
 ) {
     companion object {
-        const val ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES = "ADDITIONAL_ALLOWED_FILE_TYPES"
         const val ENV_VAR_BRON_ORGANISATIE_RSIN = "BRON_ORGANISATIE_RSIN"
         const val ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN = "VERANTWOORDELIJKE_ORGANISATIE_RSIN"
         const val ENV_VAR_CATALOGUS_DOMEIN = "CATALOGUS_DOMEIN"
@@ -116,7 +111,6 @@ class ConfigurationService @Inject constructor(
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
             """ZAC configuration environment variables:
-            |- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
             |- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
             |- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
             |- $ENV_VAR_CONTEXT_URL: '$contextUrl'
@@ -151,13 +145,6 @@ class ConfigurationService @Inject constructor(
     }
 
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB
-
-    fun readAdditionalAllowedFileTypes(): List<String> =
-        if (additionalAllowedFileTypes.isEmpty) {
-            emptyList()
-        } else {
-            additionalAllowedFileTypes.get().split(",").filter { it.isNotEmpty() }
-        }
 
     fun readDefaultCatalogusURI(): URI = catalogusURI
 
