@@ -5,14 +5,23 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component, EventEmitter, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
+import { MatTooltip } from "@angular/material/tooltip";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { testQueryClient } from "../../../../../setupJest";
+import { PolicyService } from "../../../policy/policy.service";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantZoekComponent } from "./klant-zoek.component";
@@ -52,6 +61,7 @@ describe(KlantZoekComponent.name, () => {
   let component: KlantZoekComponent;
   let fixture: ComponentFixture<KlantZoekComponent>;
   let loader: HarnessLoader;
+  let policyService: PolicyService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -60,12 +70,18 @@ describe(KlantZoekComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideTanStackQuery(testQueryClient),
+      ],
     })
       .overrideComponent(KlantZoekComponent, {
         set: {
           imports: [
             MatTabsModule,
             MatIconModule,
+            MatTooltip,
             TranslateModule,
             PersoonZoekStubComponent,
             BedrijfZoekStubComponent,
@@ -73,6 +89,13 @@ describe(KlantZoekComponent.name, () => {
         },
       })
       .compileComponents();
+
+    policyService = TestBed.inject(PolicyService);
+
+    testQueryClient.setQueryData(
+      policyService.readOverigeRechten().queryKey,
+      fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+    );
 
     fixture = TestBed.createComponent(KlantZoekComponent);
     component = fixture.componentInstance;
@@ -160,6 +183,62 @@ describe(KlantZoekComponent.name, () => {
 
       expect(emittedValues).toHaveLength(1);
       expect(emittedValues[0]).toBe(bedrijf);
+    });
+  });
+
+  describe("brpZoeken recht", () => {
+    describe("when brpZoeken is true", () => {
+      it("should have the persoon tab enabled", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const [persoonTab] = await tabGroup.getTabs();
+        expect(await persoonTab.isDisabled()).toBe(false);
+      });
+
+      it("should select the persoon tab by default", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const [persoonTab] = await tabGroup.getTabs();
+        expect(await persoonTab.isSelected()).toBe(true);
+      });
+
+      it("should show an empty tooltip on the persoon tab label", () => {
+        const tooltip = fixture.debugElement
+          .query(By.directive(MatTooltip))
+          ?.injector.get(MatTooltip);
+        expect(tooltip?.message).toBe("");
+      });
+    });
+
+    describe("when brpZoeken is false", () => {
+      beforeEach(() => {
+        testQueryClient.setQueryData(
+          policyService.readOverigeRechten().queryKey,
+          fromPartial<GeneratedType<"RestOverigeRechten">>({
+            brpZoeken: false,
+          }),
+        );
+        fixture = TestBed.createComponent(KlantZoekComponent);
+        loader = TestbedHarnessEnvironment.loader(fixture);
+        fixture.detectChanges();
+      });
+
+      it("should have the persoon tab disabled", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const [persoonTab] = await tabGroup.getTabs();
+        expect(await persoonTab.isDisabled()).toBe(true);
+      });
+
+      it("should select the bedrijf tab by default", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const [, bedrijfTab] = await tabGroup.getTabs();
+        expect(await bedrijfTab.isSelected()).toBe(true);
+      });
+
+      it("should show a tooltip on the persoon tab label", () => {
+        const tooltip = fixture.debugElement
+          .query(By.directive(MatTooltip))
+          ?.injector.get(MatTooltip);
+        expect(tooltip?.message).toBe("msg.rechten.geen.persoon.zoeken");
+      });
     });
   });
 });

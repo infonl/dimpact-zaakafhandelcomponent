@@ -162,8 +162,4 @@ export class KlantKoppelComponent {
   protected readonly overigeRechtenQuery = injectQuery(() =>
     this.policyService.readOverigeRechten(),
   );
-
-  constructor() {
-    console.log("allowPersoon");
-  }
 }
