@@ -810,7 +810,6 @@
   "msg.error.group.not.in.keycloak": "The entered group not found.",
   "msg.error.server.generic": "Unfortunately a technical error has occurred.",
   "msg.error.server.forbidden": "You do not have permission to perform this action.",
-  "msg.rechten.geen.persoon.koppelen": "You do not have permission to link a person",
   "msg.rechten.geen.persoon.zoeken": "You do not have permission to search for a person",
   "msg.error.bag.client.exception": "Unfortunately a technical error has occurred. No BAG objects could be retrieved.",
   "msg.error.brc.client.exception": "Unfortunately a technical error has occurred. No decisions could be retrieved.",

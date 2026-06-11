@@ -804,7 +804,6 @@
   "msg.error.field.generic": "Dit veld bevat een fout",
   "msg.error.server.generic": "Er heeft zich helaas een technische fout voorgedaan.",
   "msg.error.server.forbidden": "U heeft helaas onvoldoende rechten om deze actie uit te voeren.",
-  "msg.rechten.geen.persoon.koppelen": "Je hebt geen rechten om een persoon te koppelen",
   "msg.rechten.geen.persoon.zoeken": "Je hebt geen rechten om een persoon te zoeken",
   "msg.error.bag.client.exception": "Er heeft zich helaas een technische fout voorgedaan. Er kunnen geen BAG objecten worden opgehaald.",
   "msg.error.brc.client.exception": "Er heeft zich helaas een technische fout voorgedaan. Er kunnen geen besluiten worden opgehaald.",

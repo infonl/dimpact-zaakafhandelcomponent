@@ -9,7 +9,7 @@
   <mat-tab [disabled]="!overigeRechtenQuery.data()?.brpZoeken">
     <ng-template mat-tab-label>
       <span
-        style="pointer-events: auto"
+        style="pointer-events: auto; display: inline-flex; align-items: center"
         [matTooltip]="
           !overigeRechtenQuery.data()?.brpZoeken
             ? ('msg.rechten.geen.persoon.zoeken' | translate)

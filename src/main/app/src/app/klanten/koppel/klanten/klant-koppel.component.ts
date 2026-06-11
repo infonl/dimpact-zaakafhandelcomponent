@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatTooltip } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { PolicyService } from "src/app/policy/policy.service";
 import { SharedModule } from "src/app/shared/shared.module";
 import { KlantGegevens } from "../../model/klanten/klant-gegevens";
 import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
@@ -16,6 +19,7 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
   imports: [
     KlantKoppelBetrokkeneComponent,
     KlantKoppelInitiator,
+    MatTooltip,
     SharedModule,
     TranslateModule,
   ],
@@ -38,11 +42,36 @@ import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
       <mat-divider></mat-divider>
 
       <!--Initiator-->
-      <mat-tab-group mat-stretch-tabs="false" *ngIf="initiator">
-        <mat-tab *ngIf="allowPersoon">
+      <mat-tab-group
+        mat-stretch-tabs="false"
+        *ngIf="initiator"
+        [selectedIndex]="
+          allowPersoon && overigeRechtenQuery.data()?.brpZoeken === false
+            ? 1
+            : 0
+        "
+      >
+        <mat-tab
+          *ngIf="allowPersoon"
+          [disabled]="overigeRechtenQuery.data()?.brpZoeken === false"
+        >
           <ng-template mat-tab-label>
-            <mat-icon>emoji_people</mat-icon>
-            {{ "betrokkene.persoon" | translate }}
+            <span
+              style="pointer-events: auto; display: inline-flex; align-items: center"
+              [style.cursor]="
+                overigeRechtenQuery.data()?.brpZoeken === false
+                  ? 'default'
+                  : null
+              "
+              [matTooltip]="
+                overigeRechtenQuery.data()?.brpZoeken === false
+                  ? ('msg.rechten.geen.persoon.zoeken' | translate)
+                  : ''
+              "
+            >
+              <mat-icon>emoji_people</mat-icon>
+              {{ "betrokkene.persoon" | translate }}
+            </span>
           </ng-template>
           <zac-klant-koppel-initiator-persoon
             type="persoon"
@@ -103,4 +132,13 @@ export class KlantKoppelComponent {
   @Input() allowPersoon?: boolean;
   @Input() allowBedrijf?: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
+
+  private readonly policyService = inject(PolicyService);
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
+
+  constructor() {
+    console.log("allowPersoon");
+  }
 }
