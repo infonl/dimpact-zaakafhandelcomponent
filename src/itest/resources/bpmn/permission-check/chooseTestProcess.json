@@ -115,6 +115,10 @@
             "value": "sendEmailAfterClosingZaak"
           },
           {
+            "label": "Assign zaak",
+            "value": "assignZaak"
+          },
+          {
             "label": "Resume zaak which is not suspended",
             "value": "resumeZaakWhichIsNotSuspended"
           }
