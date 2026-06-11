@@ -149,7 +149,6 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     this.zoekenService.reset$
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.reset());
-
   }
 
   ngAfterViewInit() {

@@ -21,7 +21,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import net.atos.zac.app.shared.RESTResultaat
-import net.atos.zac.flowable.delegate.ResumeZaakDelegate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
 import nl.info.client.klant.KlantClientService
@@ -62,7 +61,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
-import java.util.logging.Logger
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
