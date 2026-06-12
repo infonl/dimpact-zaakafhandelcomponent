@@ -15,6 +15,7 @@ import {
   provideExperimentalZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTableHarness } from "@angular/material/table/testing";
@@ -83,6 +84,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideMomentDateAdapter(),
         provideQueryClient(testQueryClient),
         InformatieObjectenService,
         UtilService,
