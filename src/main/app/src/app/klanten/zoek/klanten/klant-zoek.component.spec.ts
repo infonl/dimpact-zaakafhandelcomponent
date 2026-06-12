@@ -10,12 +10,12 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { NgIf } from "@angular/common";
 import { Component, EventEmitter, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
-import { MatTooltip } from "@angular/material/tooltip";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -79,9 +79,9 @@ describe(KlantZoekComponent.name, () => {
       .overrideComponent(KlantZoekComponent, {
         set: {
           imports: [
+            NgIf,
             MatTabsModule,
             MatIconModule,
-            MatTooltip,
             TranslateModule,
             PersoonZoekStubComponent,
             BedrijfZoekStubComponent,
@@ -103,7 +103,7 @@ describe(KlantZoekComponent.name, () => {
     fixture.detectChanges();
   });
 
-  it("should render a tab group with two tabs", async () => {
+  it("should render a tab group with two tabs when brpZoeken is true", async () => {
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     const tabs = await tabGroup.getTabs();
     expect(tabs.length).toBe(2);
@@ -188,23 +188,11 @@ describe(KlantZoekComponent.name, () => {
 
   describe("brpZoeken recht", () => {
     describe("when brpZoeken is true", () => {
-      it("should have the persoon tab enabled", async () => {
+      it("should show the persoon tab", async () => {
         const tabGroup = await loader.getHarness(MatTabGroupHarness);
-        const [persoonTab] = await tabGroup.getTabs();
-        expect(await persoonTab.isDisabled()).toBe(false);
-      });
-
-      it("should select the persoon tab by default", async () => {
-        const tabGroup = await loader.getHarness(MatTabGroupHarness);
-        const [persoonTab] = await tabGroup.getTabs();
-        expect(await persoonTab.isSelected()).toBe(true);
-      });
-
-      it("should show an empty tooltip on the persoon tab label", () => {
-        const tooltip = fixture.debugElement
-          .query(By.directive(MatTooltip))
-          ?.injector.get(MatTooltip);
-        expect(tooltip?.message).toBe("");
+        const tabs = await tabGroup.getTabs();
+        expect(tabs.length).toBe(2);
+        expect(await tabs[0].getLabel()).toContain("actie.zoeken.persoon");
       });
     });
 
@@ -221,23 +209,17 @@ describe(KlantZoekComponent.name, () => {
         fixture.detectChanges();
       });
 
-      it("should have the persoon tab disabled", async () => {
+      it("should hide the persoon tab", async () => {
         const tabGroup = await loader.getHarness(MatTabGroupHarness);
-        const [persoonTab] = await tabGroup.getTabs();
-        expect(await persoonTab.isDisabled()).toBe(true);
+        const tabs = await tabGroup.getTabs();
+        expect(tabs.length).toBe(1);
+        expect(await tabs[0].getLabel()).toContain("actie.zoeken.bedrijf");
       });
 
-      it("should select the bedrijf tab by default", async () => {
+      it("should show the bedrijf tab as the only tab", async () => {
         const tabGroup = await loader.getHarness(MatTabGroupHarness);
-        const [, bedrijfTab] = await tabGroup.getTabs();
+        const [bedrijfTab] = await tabGroup.getTabs();
         expect(await bedrijfTab.isSelected()).toBe(true);
-      });
-
-      it("should show a tooltip on the persoon tab label", () => {
-        const tooltip = fixture.debugElement
-          .query(By.directive(MatTooltip))
-          ?.injector.get(MatTooltip);
-        expect(tooltip?.message).toBe("msg.rechten.geen.persoon.zoeken");
       });
     });
   });
