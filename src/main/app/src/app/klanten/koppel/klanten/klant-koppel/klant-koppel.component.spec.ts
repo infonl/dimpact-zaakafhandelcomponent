@@ -14,17 +14,15 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
-import { MatTooltip } from "@angular/material/tooltip";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { PolicyService } from "src/app/policy/policy.service";
 import { SharedModule } from "src/app/shared/shared.module";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../../setupJest";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { KlantGegevens } from "../../model/klanten/klant-gegevens";
+import { testQueryClient } from "../../../../../../setupJest";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelComponent } from "./klant-koppel.component";
 
 @Component({
@@ -87,7 +85,6 @@ describe(KlantKoppelComponent.name, () => {
         set: {
           imports: [
             SharedModule,
-            MatTooltip,
             TranslateModule,
             KlantKoppelInitiatorStubComponent,
             KlantKoppelBetrokkeneStubComponent,
@@ -105,30 +102,24 @@ describe(KlantKoppelComponent.name, () => {
       createFixture();
     });
 
-    it("should render two tabs when allowPersoon and allowBedrijf are true", async () => {
+    it("should render two tabs when allowPersoon, allowBedrijf and brpZoeken are true", async () => {
       const tabGroup = await loader.getHarness(MatTabGroupHarness);
-      expect(await (await tabGroup.getTabs()).length).toBe(2);
+      expect((await tabGroup.getTabs()).length).toBe(2);
     });
 
     describe("betrokkene tab group (initiator=false)", () => {
       describe("when brpZoeken is true", () => {
-        it("should have the persoon tab enabled", async () => {
+        it("should show the persoon tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isDisabled()).toBe(false);
+          const tabs = await tabGroup.getTabs();
+          expect(tabs.length).toBe(2);
+          expect(await tabs[0].getLabel()).toContain("betrokkene.persoon");
         });
 
         it("should select the persoon tab by default", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
           const [persoonTab] = await tabGroup.getTabs();
           expect(await persoonTab.isSelected()).toBe(true);
-        });
-
-        it("should show an empty tooltip on the persoon tab label", () => {
-          const tooltip = fixture.debugElement
-            .query(By.directive(MatTooltip))
-            ?.injector.get(MatTooltip);
-          expect(tooltip?.message).toBe("");
         });
       });
 
@@ -143,23 +134,17 @@ describe(KlantKoppelComponent.name, () => {
           createFixture();
         });
 
-        it("should have the persoon tab disabled", async () => {
+        it("should hide the persoon tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isDisabled()).toBe(true);
+          const tabs = await tabGroup.getTabs();
+          expect(tabs.length).toBe(1);
+          expect(await tabs[0].getLabel()).toContain("betrokkene.bedrijf");
         });
 
-        it("should select the bedrijf tab by default", async () => {
+        it("should show the bedrijf tab as the only tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [, bedrijfTab] = await tabGroup.getTabs();
+          const [bedrijfTab] = await tabGroup.getTabs();
           expect(await bedrijfTab.isSelected()).toBe(true);
-        });
-
-        it("should show a tooltip on the persoon tab label", () => {
-          const tooltip = fixture.debugElement
-            .query(By.directive(MatTooltip))
-            ?.injector.get(MatTooltip);
-          expect(tooltip?.message).toBe("msg.rechten.geen.persoon.zoeken");
         });
       });
     });
@@ -170,10 +155,11 @@ describe(KlantKoppelComponent.name, () => {
       });
 
       describe("when brpZoeken is true", () => {
-        it("should have the persoon tab enabled", async () => {
+        it("should show the persoon tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isDisabled()).toBe(false);
+          const tabs = await tabGroup.getTabs();
+          expect(tabs.length).toBe(2);
+          expect(await tabs[0].getLabel()).toContain("betrokkene.persoon");
         });
 
         it("should select the persoon tab by default", async () => {
@@ -194,15 +180,16 @@ describe(KlantKoppelComponent.name, () => {
           createFixture(true);
         });
 
-        it("should have the persoon tab disabled", async () => {
+        it("should hide the persoon tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [persoonTab] = await tabGroup.getTabs();
-          expect(await persoonTab.isDisabled()).toBe(true);
+          const tabs = await tabGroup.getTabs();
+          expect(tabs.length).toBe(1);
+          expect(await tabs[0].getLabel()).toContain("betrokkene.bedrijf");
         });
 
-        it("should select the bedrijf tab by default", async () => {
+        it("should show the bedrijf tab as the only tab", async () => {
           const tabGroup = await loader.getHarness(MatTabGroupHarness);
-          const [, bedrijfTab] = await tabGroup.getTabs();
+          const [bedrijfTab] = await tabGroup.getTabs();
           expect(await bedrijfTab.isSelected()).toBe(true);
         });
       });
