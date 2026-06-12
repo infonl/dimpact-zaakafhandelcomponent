@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54326:5432"
     healthcheck:
@@ -307,7 +307,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54325:5432"
     healthcheck:
@@ -716,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54329:5432"
     environment:
@@ -770,7 +770,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54320:5432"
     healthcheck:
@@ -886,7 +886,7 @@ services:
     profiles: ["zac"]
 
   objecttypes-api-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54324:5432"
     healthcheck:
@@ -935,7 +935,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-database:
-    image: postgres:17.10@sha256:0027bef26712baaee437a4ea48fdf3d2d2e2bc5f0d81615374408ca320f3c7e3
+    image: postgres:17.10@sha256:ef92240eff6b0bcce8ccf038c2edcd0d8fd8ef90621849993b8c8995881ab09a
     ports:
       - "54330:5432"
     healthcheck:
