@@ -656,7 +656,9 @@ describe(ZaakViewComponent.name, () => {
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
               betrokkeneKoppelingen: koppelingen,
             }),
           },
@@ -680,7 +682,9 @@ describe(ZaakViewComponent.name, () => {
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
               betrokkeneKoppelingen: koppelingen,
             }),
           },
@@ -705,7 +709,9 @@ describe(ZaakViewComponent.name, () => {
           zaakSpecificContactDetails: null,
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
               betrokkeneKoppelingen: koppelingen,
             }),
           },
@@ -751,7 +757,9 @@ describe(ZaakViewComponent.name, () => {
           }),
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
               betrokkeneKoppelingen: koppelingen,
             }),
           },
@@ -780,7 +788,9 @@ describe(ZaakViewComponent.name, () => {
           }),
           zaaktype: {
             ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial({
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
               >({ brpKoppelen: false, kvkKoppelen: false }),
@@ -952,6 +962,90 @@ describe(ZaakViewComponent.name, () => {
         );
         expect(button).toBeNull();
       });
+    });
+  });
+
+  describe("allowPersoon", () => {
+    let policyService: PolicyService;
+
+    const zaakWithPersoonRechten = {
+      ...zaak,
+      rechten: {
+        ...zaak.rechten,
+        toevoegenInitiatorPersoon: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaakafhandelParameters">
+        >({
+          betrokkeneKoppelingen: fromPartial<
+            GeneratedType<"RestBetrokkeneKoppelingen">
+          >({ brpKoppelen: true }),
+        }),
+      },
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      policyService = TestBed.inject(PolicyService);
+
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+      );
+
+      mockActivatedRoute.data.next({ zaak: zaakWithPersoonRechten });
+      fixture.detectChanges();
+    });
+
+    it("should return true when toevoegenInitiatorPersoon, brpKoppelen and brpZoeken are all true", () => {
+      expect(fixture.componentInstance["allowPersoon"]()).toBe(true);
+    });
+
+    it("should return false when toevoegenInitiatorPersoon is false", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithPersoonRechten,
+          rechten: {
+            ...zaakWithPersoonRechten.rechten,
+            toevoegenInitiatorPersoon: false,
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
+    });
+
+    it("should return false when brpKoppelen is false", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithPersoonRechten,
+          zaaktype: {
+            ...zaakWithPersoonRechten.zaaktype,
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
+              betrokkeneKoppelingen: fromPartial<
+                GeneratedType<"RestBetrokkeneKoppelingen">
+              >({ brpKoppelen: false }),
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
+    });
+
+    it("should return false when brpZoeken is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+      );
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
     });
   });
 
