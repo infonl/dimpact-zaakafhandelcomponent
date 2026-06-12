@@ -406,6 +406,16 @@
   ],
   "packageRules": [
     {
+      "groupName": "Helm CLI",
+      "matchPackageNames": [
+        "helm",
+        "helm/helm"
+      ],
+      "description": [
+        "Group Helm CLI updates (built-in detector and custom regex manager) into a single PR"
+      ]
+    },
+    {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
         "/^wildfly/",
