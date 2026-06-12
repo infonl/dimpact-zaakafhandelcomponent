@@ -152,15 +152,6 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         informatieObjectenService.listInformatieobjectenVoorVerzenden,
       ).toHaveBeenCalledWith("zaak-uuid-002");
     });
-
-    it("drops the document selection when the active zaak changes", async () => {
-      component["form"].controls.documenten.setValue([mockDocuments[0]]);
-
-      componentRef.setInput("zaak", makeZaak({ uuid: "zaak-uuid-002" }));
-      await fixture.whenStable();
-
-      expect(component["form"].controls.documenten.value).toEqual([]);
-    });
   });
 
   describe("form validation", () => {

@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { Component, computed, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -91,18 +84,6 @@ export class InformatieObjectVerzendenComponent {
     },
     onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
   }));
-
-  constructor() {
-    effect(() => {
-      this.zaak(); // Drop the form state of the previously shown zaak
-
-      this.form.reset({
-        documenten: [],
-        verzenddatum: moment(),
-        toelichting: null,
-      });
-    });
-  }
 
   protected submit() {
     const { documenten, verzenddatum, toelichting } = this.form.value;
