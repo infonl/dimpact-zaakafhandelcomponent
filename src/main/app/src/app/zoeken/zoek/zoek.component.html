@@ -30,25 +30,18 @@
     >
       <mat-icon>cases</mat-icon>
     </button>
-    <span
-      [matTooltip]="
-        !overigeRechtenQuery.data()?.brpZoeken
-          ? ('msg.rechten.geen.persoon.zoeken' | translate)
-          : ''
-      "
+    <button
+      *ngIf="overigeRechtenQuery.data()?.brpZoeken"
+      mat-icon-button
+      type="button"
+      matSuffix
+      id="personen-button"
+      title="{{ 'actie.zoeken.persoon' | translate }}"
+      [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
+      (click)="setZoektype(ZoekType.PERSONEN)"
     >
-      <button
-        mat-icon-button
-        type="button"
-        matSuffix
-        id="personen-button"
-        [color]="zoekType === ZoekType.PERSONEN ? 'primary' : null"
-        [disabled]="!overigeRechtenQuery.data()?.brpZoeken"
-        (click)="setZoektype(ZoekType.PERSONEN)"
-      >
-        <mat-icon>person</mat-icon>
-      </button>
-    </span>
+      <mat-icon>person</mat-icon>
+    </button>
     <button
       mat-icon-button
       type="button"

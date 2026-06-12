@@ -37,7 +37,7 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatTooltip } from "@angular/material/tooltip";
+
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
@@ -91,7 +91,6 @@ import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/
     NgIf,
     NgSwitch,
     NgSwitchCase,
-    MatTooltip,
     PersoonZoekComponent,
     ReactiveFormsModule,
     TaakZoekObjectComponent,

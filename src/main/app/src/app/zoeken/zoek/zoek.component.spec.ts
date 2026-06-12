@@ -8,13 +8,13 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { NgIf } from "@angular/common";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { MatTooltip } from "@angular/material/tooltip";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { TranslateModule, TranslatePipe } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -204,14 +204,12 @@ describe(ZoekComponent.name, () => {
       await TestBed.overrideComponent(ZoekComponent, {
         set: {
           template: `
-            <span [matTooltip]="!overigeRechtenQuery.data()?.brpZoeken
-              ? ('msg.rechten.geen.persoon.zoeken' | translate) : ''">
-              <button id="personen-button"
-                [disabled]="!overigeRechtenQuery.data()?.brpZoeken">
-              </button>
-            </span>
+            <button
+              *ngIf="overigeRechtenQuery.data()?.brpZoeken"
+              id="personen-button">
+            </button>
           `,
-          imports: [MatTooltip, TranslatePipe],
+          imports: [NgIf],
         },
       }).compileComponents();
 
@@ -230,17 +228,9 @@ describe(ZoekComponent.name, () => {
     });
 
     describe("when brpZoeken is true", () => {
-      it("should have the personen button enabled", () => {
-        const button = fixture.debugElement.query(By.css("#personen-button"))
-          ?.nativeElement as HTMLButtonElement;
-        expect(button.disabled).toBe(false);
-      });
-
-      it("should show an empty tooltip on the personen button", () => {
-        const tooltip = fixture.debugElement
-          .query(By.directive(MatTooltip))
-          ?.injector.get(MatTooltip);
-        expect(tooltip?.message).toBe("");
+      it("should show the personen button", () => {
+        const button = fixture.debugElement.query(By.css("#personen-button"));
+        expect(button).not.toBeNull();
       });
     });
 
@@ -259,17 +249,9 @@ describe(ZoekComponent.name, () => {
         fixture.detectChanges();
       });
 
-      it("should have the personen button disabled", () => {
-        const button = fixture.debugElement.query(By.css("#personen-button"))
-          ?.nativeElement as HTMLButtonElement;
-        expect(button.disabled).toBe(true);
-      });
-
-      it("should show a tooltip on the personen button", () => {
-        const tooltip = fixture.debugElement
-          .query(By.directive(MatTooltip))
-          ?.injector.get(MatTooltip);
-        expect(tooltip?.message).toBe("msg.rechten.geen.persoon.zoeken");
+      it("should hide the personen button", () => {
+        const button = fixture.debugElement.query(By.css("#personen-button"));
+        expect(button).toBeNull();
       });
     });
   });
