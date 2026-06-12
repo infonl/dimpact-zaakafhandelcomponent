@@ -170,12 +170,9 @@ export class InformatieObjectenService {
     );
   }
 
-  verzenden(
-    body: PostBody<"/rest/informatieobjecten/informatieobjecten/verzenden">,
-  ) {
-    return this.zacHttpClient.POST(
+  verzenden() {
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobjecten/verzenden",
-      body,
     );
   }
 

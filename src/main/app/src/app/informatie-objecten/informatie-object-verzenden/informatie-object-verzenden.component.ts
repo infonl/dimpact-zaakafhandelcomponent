@@ -3,39 +3,30 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
 } from "@angular/core";
-import { FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { ParagraphFormFieldBuilder } from "src/app/shared/material-form-builder/form-components/paragraph/paragraph-form-field-builder";
+import { TranslateModule } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
+import moment, { Moment } from "moment";
+import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../core/service/util.service";
-import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { FormComponent } from "../../shared/material-form-builder/form/form/form.component";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacDocuments } from "../../shared/form/documents/documents";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
@@ -45,134 +36,82 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   styleUrls: ["./informatie-object-verzenden.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatButtonModule,
     MatDividerModule,
+    MatExpansionModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatToolbarModule,
+    ReactiveFormsModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacDate,
+    ZacDocuments,
+    ZacTextarea,
   ],
 })
-export class InformatieObjectVerzendenComponent
-  implements OnInit, OnChanges, OnDestroy
-{
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() documentSent = new EventEmitter<void>();
+export class InformatieObjectVerzendenComponent {
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly utilService = inject(UtilService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly formBuilder = inject(FormBuilder);
 
-  @ViewChild(FormComponent) form!: FormComponent;
+  protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  protected readonly sideNav = input.required<MatDrawer>();
+  protected readonly documentSent = output<void>();
 
-  fields: Array<AbstractFormField[]> = [];
-  formConfig: FormConfig | null = null;
-  private documentSelectFormField!: DocumentenLijstFormField;
-  private destroy$ = new Subject<void>(); // Subject for handling unsubscription
+  protected readonly documenten = computed(() =>
+    this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
+      this.zaak().uuid,
+    ),
+  );
 
-  constructor(
-    private translate: TranslateService,
-    private informatieObjectenService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-  ) {}
+  protected readonly form = this.formBuilder.group({
+    documenten: this.formBuilder.control<
+      GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    >([], [Validators.required]),
+    verzenddatum: this.formBuilder.control<Moment | null>(moment(), [
+      Validators.required,
+    ]),
+    toelichting: this.formBuilder.control<string | null>(null, [
+      Validators.maxLength(1000),
+    ]),
+  });
 
-  ngOnInit() {
-    this.formConfig = new FormConfigBuilder()
-      .saveText("actie.verzenden")
-      .cancelText("actie.annuleren")
-      .build();
-
-    this.documentSelectFormField = new DocumentenLijstFieldBuilder()
-      .id("documenten")
-      .label("documenten")
-      .removeColumn("status")
-      .validators(Validators.required)
-      .documenten(
-        this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
-          this.zaak.uuid,
-        ),
-      )
-      .build();
-
-    const paragraph = new ParagraphFormFieldBuilder()
-      .text(this.translate.instant("msg.document.verzenden.post.uitleg"))
-      .build();
-
-    const verzendDatum = new DateFormFieldBuilder(new Date())
-      .id("verzenddatum")
-      .validators(Validators.required)
-      .label("verzenddatum")
-      .build();
-
-    const toelichtingField = new TextareaFormFieldBuilder()
-      .id("toelichting")
-      .label("toelichting")
-      .validators(Validators.required)
-      .maxlength(1000)
-      .build();
-
-    this.fields = [
-      [paragraph],
-      [this.documentSelectFormField],
-      [verzendDatum],
-      [toelichtingField],
-    ];
-  }
-
-  protected onFormSubmit(formGroup: FormGroup) {
-    if (formGroup) {
-      const informatieobjecten = mapStringToDocumentenStrings(
-        formGroup.controls["documenten"].value,
+  protected readonly verzendenMutation = injectMutation(() => ({
+    ...this.informatieObjectenService.verzenden(),
+    onSuccess: (_, { informatieobjecten }) => {
+      this.utilService.openSnackbar(
+        informatieobjecten.length > 1
+          ? "msg.documenten.verzenden.uitgevoerd"
+          : "msg.document.verzenden.uitgevoerd",
       );
-      this.informatieObjectenService
-        .verzenden({
-          informatieobjecten,
-          verzenddatum: formGroup.controls["verzenddatum"].value,
-          zaakUuid: this.zaak.uuid,
-          toelichting: formGroup.controls["toelichting"].value,
-        })
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          this.utilService.openSnackbar(
-            informatieobjecten.length > 1
-              ? "msg.documenten.verzenden.uitgevoerd"
-              : "msg.document.verzenden.uitgevoerd",
-          );
-          this.documentSent.emit();
-          //
-          // On the above emit, the parent closes (and destroys) the sidebar and so this form.
-          // The form gets reloaded/remounted again upon opening the sidebar, and so having this form in a nice pristine state.
-          // Explicitly resetting the form is not needed.
-          //
-          // To actually do a form reset that suppresses validation errors (for sake of documenting the gained knowledge putting it here):
-          //
-          // this.form.reset();
-          // Object.keys(formGroup.controls).forEach((key) => {
-          //   const control = formGroup.get(key);
-          //   if (control) {
-          //     control.reset();
-          //     control.setErrors(null);
-          //     control.markAsPristine();
-          //     control.markAsUntouched();
-          //   }
-          // });
-        });
-    } else {
-      this.sideNav.close();
-    }
+      this.documentSent.emit();
+    },
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+  }));
+
+  constructor() {
+    effect(() => {
+      this.zaak(); // Drop the form state of the previously shown zaak
+
+      this.form.reset({
+        documenten: [],
+        verzenddatum: moment(),
+        toelichting: null,
+      });
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.zaak.previousValue) {
-      this.documentSelectFormField.updateDocumenten(
-        this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
-          this.zaak.uuid,
-        ),
-      );
-    }
-  }
+  protected submit() {
+    const { documenten, verzenddatum, toelichting } = this.form.value;
 
-  ngOnDestroy() {
-    // Trigger completion of all subscriptions
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.verzendenMutation.mutate({
+      zaakUuid: this.zaak().uuid,
+      verzenddatum: verzenddatum!.toISOString(),
+      informatieobjecten: documenten?.map(({ uuid }) => uuid!) ?? [],
+      toelichting,
+    });
   }
 }
