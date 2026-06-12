@@ -1049,6 +1049,93 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("allowedToAddBetrokkene", () => {
+    let policyService: PolicyService;
+
+    const zaakWithBetrokkeneRechten = {
+      ...zaak,
+      rechten: {
+        ...zaak.rechten,
+        toevoegenInitiatorPersoon: true,
+        toevoegenInitiatorBedrijf: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaakafhandelParameters">
+        >({
+          betrokkeneKoppelingen: fromPartial<
+            GeneratedType<"RestBetrokkeneKoppelingen">
+          >({ brpKoppelen: true, kvkKoppelen: false }),
+        }),
+      },
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      policyService = TestBed.inject(PolicyService);
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+      );
+      mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
+      fixture.detectChanges();
+    });
+
+    it("should return true when brpKoppelen, toevoegenInitiatorPersoon and brpZoeken are true", () => {
+      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
+    });
+
+    it("should return true when kvkKoppelen and toevoegenInitiatorBedrijf are true regardless of brpZoeken", () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+      );
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithBetrokkeneRechten,
+          zaaktype: {
+            ...zaakWithBetrokkeneRechten.zaaktype,
+            zaakafhandelparameters: fromPartial<
+              GeneratedType<"RestZaakafhandelParameters">
+            >({
+              betrokkeneKoppelingen: fromPartial<
+                GeneratedType<"RestBetrokkeneKoppelingen">
+              >({ brpKoppelen: false, kvkKoppelen: true }),
+            }),
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
+    });
+
+    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+      );
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);
+    });
+
+    it("should return false when toevoegenInitiatorPersoon is false and kvkAllowed is false", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithBetrokkeneRechten,
+          rechten: {
+            ...zaakWithBetrokkeneRechten.rechten,
+            toevoegenInitiatorPersoon: false,
+          },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);
+    });
+  });
+
   describe("inactive group indicator", () => {
     it("should show 'inactief' label when groep is inactive", () => {
       mockActivatedRoute.data.next({

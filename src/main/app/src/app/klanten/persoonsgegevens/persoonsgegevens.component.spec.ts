@@ -4,7 +4,9 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { TestBed } from "@angular/core/testing";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
@@ -18,6 +20,7 @@ import { randomUUID } from "crypto";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
@@ -54,6 +57,8 @@ describe(PersoonsgegevensComponent.name, () => {
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
         provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
@@ -204,6 +209,115 @@ describe(PersoonsgegevensComponent.name, () => {
       });
 
       expect(fixture.nativeElement.querySelector(".hint")).toBeTruthy();
+    });
+  });
+
+  describe("allowWijzigen", () => {
+    let policyService: PolicyService;
+    let fixture: ComponentFixture<PersoonsgegevensComponent>;
+
+    const zaakWithWijzigenRechten = fromPartial<GeneratedType<"RestZaak">>({
+      zaaktype: {
+        uuid: "test-zaaktype-uuid",
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaakafhandelParameters">
+        >({
+          betrokkeneKoppelingen: fromPartial<
+            GeneratedType<"RestBetrokkeneKoppelingen">
+          >({ kvkKoppelen: false }),
+        }),
+      },
+      initiatorIdentificatie: {
+        temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
+      },
+      rechten: { toevoegenInitiatorPersoon: true, verwijderenInitiator: false },
+    });
+
+    beforeEach(() => {
+      policyService = TestBed.inject(PolicyService);
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+      );
+      fixture = TestBed.createComponent(PersoonsgegevensComponent);
+      fixture.componentRef.setInput("zaak", zaakWithWijzigenRechten);
+      fixture.detectChanges();
+    });
+
+    it("should return true when toevoegenInitiatorPersoon and brpZoeken are true", () => {
+      expect(fixture.componentInstance["allowWijzigen"]()).toBe(true);
+    });
+
+    it("should return true when toevoegenInitiatorPersoon and kvkKoppelen are true and brpZoeken is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+      );
+      fixture.componentRef.setInput("zaak", {
+        ...zaakWithWijzigenRechten,
+        zaaktype: {
+          ...zaakWithWijzigenRechten.zaaktype,
+          zaakafhandelparameters: fromPartial<
+            GeneratedType<"RestZaakafhandelParameters">
+          >({
+            betrokkeneKoppelingen: fromPartial<
+              GeneratedType<"RestBetrokkeneKoppelingen">
+            >({ kvkKoppelen: true }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowWijzigen"]()).toBe(true);
+    });
+
+    it("should return false when toevoegenInitiatorPersoon is false", () => {
+      fixture.componentRef.setInput("zaak", {
+        ...zaakWithWijzigenRechten,
+        rechten: {
+          ...zaakWithWijzigenRechten.rechten,
+          toevoegenInitiatorPersoon: false,
+        },
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
+    });
+
+    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+      );
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
+    });
+
+    describe("wijzigen button", () => {
+      it("should show the button when allowWijzigen returns true", () => {
+        expect(
+          fixture.nativeElement.querySelector(
+            '[title="actie.initiator.wijzigen"]',
+          ),
+        ).toBeTruthy();
+      });
+
+      it("should hide the button when allowWijzigen returns false", () => {
+        testQueryClient.setQueryData(
+          policyService.readOverigeRechten().queryKey,
+          fromPartial<GeneratedType<"RestOverigeRechten">>({
+            brpZoeken: false,
+          }),
+        );
+        fixture.detectChanges();
+
+        expect(
+          fixture.nativeElement.querySelector(
+            '[title="actie.initiator.wijzigen"]',
+          ),
+        ).toBeNull();
+      });
     });
   });
 });

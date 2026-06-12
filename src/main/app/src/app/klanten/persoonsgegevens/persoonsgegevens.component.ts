@@ -28,6 +28,7 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
+import {PolicyService} from "../../policy/policy.service";
 
 @Component({
   selector: "zac-persoongegevens",
@@ -51,6 +52,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
+  private readonly policyService = inject(PolicyService);
 
   protected zaak = input.required<GeneratedType<"RestZaak">>();
 
@@ -69,9 +71,22 @@ export class PersoonsgegevensComponent {
     enabled: !!this.temporaryPersonId(),
   }));
 
+    protected readonly overigeRechtenQuery = injectQuery(() =>
+        this.policyService.readOverigeRechten(),
+    );
+
   protected readonly isDisabled = signal(false);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
+
+  protected allowWijzigen() {
+    return (
+      this.zaak().rechten.toevoegenInitiatorPersoon &&
+      (this.overigeRechtenQuery.data()?.brpZoeken ||
+        this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen)
+    );
+  }
 
   constructor() {
     effect(() => {
