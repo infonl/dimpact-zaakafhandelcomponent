@@ -952,7 +952,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1075,7 +1075,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1103,7 +1103,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1132,7 +1132,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.4.2@sha256:70574342ab610792478b38e73eecf23d5f9d91a571e48a7a9327ea6e7008bcec
+    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
