@@ -3,11 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
-import { PolicyService } from "src/app/policy/policy.service";
 import { SharedModule } from "src/app/shared/shared.module";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
 import { KlantKoppelBetrokkeneComponent } from "../klant-koppel-betrokkene/klant-koppel-betrokkene.component";
@@ -41,9 +39,7 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
 
       <!--Initiator-->
       <mat-tab-group mat-stretch-tabs="false" *ngIf="initiator">
-        <mat-tab
-          *ngIf="allowPersoon && overigeRechtenQuery.data()?.brpZoeken"
-        >
+        <mat-tab *ngIf="allowPersoon">
           <ng-template mat-tab-label>
             <mat-icon>emoji_people</mat-icon>
             {{ "betrokkene.persoon" | translate }}
@@ -68,9 +64,7 @@ import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-ini
 
       <!--Betrokkene-->
       <mat-tab-group mat-stretch-tabs="false" *ngIf="!initiator">
-        <mat-tab
-          *ngIf="allowPersoon && overigeRechtenQuery.data()?.brpZoeken"
-        >
+        <mat-tab *ngIf="allowPersoon">
           <ng-template mat-tab-label>
             <mat-icon>emoji_people</mat-icon>
             {{ "betrokkene.persoon" | translate }}
@@ -109,9 +103,4 @@ export class KlantKoppelComponent {
   @Input() allowPersoon?: boolean;
   @Input() allowBedrijf?: boolean;
   @Output() klantGegevens = new EventEmitter<KlantGegevens>();
-
-  private readonly policyService = inject(PolicyService);
-  protected readonly overigeRechtenQuery = injectQuery(() =>
-    this.policyService.readOverigeRechten(),
-  );
 }
