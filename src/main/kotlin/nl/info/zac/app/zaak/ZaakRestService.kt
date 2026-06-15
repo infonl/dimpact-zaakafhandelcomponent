@@ -46,9 +46,11 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.NillableGerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
@@ -687,9 +689,15 @@ class ZaakRestService @Inject constructor(
             restZaakLinkData.teKoppelenZaakUuid
         )
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).koppelen)
-        assertPolicy(
-            policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
-        )
+        if (restZaakLinkData.relatieType == RelatieType.GERELATEERD) {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).lezen
+            )
+        } else {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
+            )
+        }
 
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
@@ -697,6 +705,7 @@ class ZaakRestService @Inject constructor(
             RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
+            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, otherZaak = zaakToLinkTo, restZaakLinkData.reden)
             RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
@@ -746,6 +755,11 @@ class ZaakRestService @Inject constructor(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 aardRelatie = AardRelatieEnum.BIJDRAGE,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.GERELATEERD -> ontkoppelGerelateerdeZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
             )
             RelatieType.OVERIG -> {
@@ -1164,6 +1178,18 @@ class ZaakRestService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
+    private fun koppelGerelateerdeZaken(
+        zaak: Zaak,
+        otherZaak: Zaak,
+        explanation: String?
+    ) {
+        zrcClientService.patchZaak(
+            zaak.uuid,
+            zaak.addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = otherZaak.url }),
+            explanation
+        )
+    }
+
     private fun koppelInboxProductaanvraag(
         zaak: Zaak,
         inboxProductaanvraag: RestInboxProductaanvraag
@@ -1220,6 +1246,26 @@ class ZaakRestService @Inject constructor(
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
+    }
+
+    private fun ontkoppelGerelateerdeZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        explanation: String
+    ) = zrcClientService.patchZaak(
+        zaakUUID = zaak.uuid,
+        zaak = NillableGerelateerdeZakenZaakPatch(
+            gerelateerdeZaken = removeGerelateerdeZaak(zaak.gerelateerdeZaken, andereZaak.url)
+        ),
+        explanation = explanation
+    )
+
+    private fun removeGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak>? {
+        gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
+        return gerelateerdeZaken
     }
 
     private fun ontkoppelRelevanteZaken(
