@@ -232,7 +232,7 @@ describe(PersoonsgegevensComponent.name, () => {
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ kvkKoppelen: false }),
+          >({ brpKoppelen: true, kvkKoppelen: false }),
         }),
       },
       initiatorIdentificatie: {
@@ -256,13 +256,17 @@ describe(PersoonsgegevensComponent.name, () => {
       expect(fixture.componentInstance["allowWijzigen"]()).toBe(true);
     });
 
-    it("should return true when toevoegenInitiatorPersoon and kvkKoppelen are true and brpZoeken is false", () => {
+    it("should return true when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
       fixture.componentRef.setInput("zaak", {
         ...zaakWithWijzigenRechten,
+        rechten: {
+          ...zaakWithWijzigenRechten.rechten,
+          toevoegenInitiatorBedrijf: true,
+        },
         zaaktype: {
           ...zaakWithWijzigenRechten.zaaktype,
           zaakafhandelparameters: fromPartial<
@@ -270,7 +274,7 @@ describe(PersoonsgegevensComponent.name, () => {
           >({
             betrokkeneKoppelingen: fromPartial<
               GeneratedType<"RestBetrokkeneKoppelingen">
-            >({ kvkKoppelen: true }),
+            >({ brpKoppelen: false, kvkKoppelen: true }),
           }),
         },
       });
