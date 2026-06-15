@@ -406,6 +406,16 @@
   ],
   "packageRules": [
     {
+      "groupName": "Helm CLI",
+      "matchPackageNames": [
+        "helm",
+        "helm/helm"
+      ],
+      "description": [
+        "Group Helm CLI updates (built-in detector and custom regex manager) into a single PR"
+      ]
+    },
+    {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
         "/^wildfly/",
@@ -603,6 +613,18 @@
       "allowedVersions": "< 8.7.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "rabbitmq"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 4.2.8",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Remove this pin when upgrading Open Notificaties to >= 1.16.0 (RabbitMQ is expected to no longer be required)."
       ]
     },
     {
