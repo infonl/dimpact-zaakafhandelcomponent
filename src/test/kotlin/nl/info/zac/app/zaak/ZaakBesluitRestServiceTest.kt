@@ -84,7 +84,6 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
             every { restDecisionConverter.convertToRestDecision(besluit) } returns restDecision
 
