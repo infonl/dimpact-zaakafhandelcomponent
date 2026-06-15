@@ -17,7 +17,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **prom/prometheus**: v3.12.0
 - **grafana/grafana**: 13.0.2
 - **greenmail/standalone**: 2.1.9
-- **rabbitmq**: 4.3.1-alpine
+- **rabbitmq**: 4.2.7-alpine
 - **nginxinc/nginx-unprivileged**: 1.31.1
 
 ## Common Ground components
