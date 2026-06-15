@@ -616,6 +616,18 @@
       ]
     },
     {
+      "matchPackageNames": [
+        "rabbitmq"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 4.2.8",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Also note that RabbitMQ will no longer be used starting with Open Notificaties 1.16.0."
+      ]
+    },
+    {
       "groupName": "Open-archiefbeheer docker image",
       "matchPackageNames": [
         "maykinmedia/open-archiefbeheer",
