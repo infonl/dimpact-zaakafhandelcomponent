@@ -34,7 +34,12 @@ class IdentificationService @Inject constructor(
 
     fun createBetrokkeneIdentificatieForInitiatorRole(initiatorRole: Rol<*>): BetrokkeneIdentificatie? {
         val betrokkeneIdentificatie = initiatorRole.betrokkeneIdentificatie
-        val initiatorIdentificatieType = getInitiatorIdentificationType(initiatorRole, betrokkeneIdentificatie)
+        val initiatorIdentificatieType = betrokkeneIdentificatie?.let {
+            getInitiatorIdentificationType(
+                initiatorRole,
+                it
+            )
+        }
         return initiatorIdentificatieType?.let {
             BetrokkeneIdentificatie(
                 type = it,
