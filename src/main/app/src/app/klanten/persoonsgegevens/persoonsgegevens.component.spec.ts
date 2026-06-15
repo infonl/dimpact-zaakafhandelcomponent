@@ -216,6 +216,14 @@ describe(PersoonsgegevensComponent.name, () => {
     let policyService: PolicyService;
     let fixture: ComponentFixture<PersoonsgegevensComponent>;
 
+    beforeEach(() => {
+      notifyManager.setScheduler((fn) => fn());
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
     const zaakWithWijzigenRechten = fromPartial<GeneratedType<"RestZaak">>({
       zaaktype: {
         uuid: "test-zaaktype-uuid",
@@ -284,12 +292,11 @@ describe(PersoonsgegevensComponent.name, () => {
       expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
     });
 
-    it("should return false when brpZoeken is false and kvkKoppelen is false", async () => {
+    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
-      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
@@ -304,14 +311,13 @@ describe(PersoonsgegevensComponent.name, () => {
         ).toBeTruthy();
       });
 
-      it("should hide the button when allowWijzigen returns false", async () => {
+      it("should hide the button when allowWijzigen returns false", () => {
         testQueryClient.setQueryData(
           policyService.readOverigeRechten().queryKey,
           fromPartial<GeneratedType<"RestOverigeRechten">>({
             brpZoeken: false,
           }),
         );
-        await sleep(0);
         fixture.detectChanges();
 
         expect(

@@ -20,12 +20,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
 import { EMPTY, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../setupJest";
+import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -67,6 +68,14 @@ describe(ZaakViewComponent.name, () => {
   const mockActivatedRoute = {
     data: new ReplaySubject<{ zaak: GeneratedType<"RestZaak"> }>(1),
   };
+
+  beforeEach(() => {
+    notifyManager.setScheduler((fn) => fn());
+  });
+
+  afterEach(() => {
+    notifyManager.setScheduler(queueMicrotask);
+  });
 
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "1234",
@@ -1038,12 +1047,11 @@ describe(ZaakViewComponent.name, () => {
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
     });
 
-    it("should return false when brpZoeken is false", async () => {
+    it("should return false when brpZoeken is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
-      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
@@ -1072,16 +1080,14 @@ describe(ZaakViewComponent.name, () => {
       },
     } satisfies GeneratedType<"RestZaak">;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       policyService = TestBed.inject(PolicyService);
       mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
       fixture.detectChanges();
-      await sleep(0);
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
       );
-      await sleep(0);
       fixture.detectChanges();
     });
 
@@ -1114,12 +1120,11 @@ describe(ZaakViewComponent.name, () => {
       expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
     });
 
-    it("should return false when brpZoeken is false and kvkKoppelen is false", async () => {
+    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
-      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);
