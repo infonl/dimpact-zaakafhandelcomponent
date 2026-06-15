@@ -1,22 +1,69 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>edit</mat-icon>
   <span class="flex-grow-1">{{ "actie.besluit.wijzigen" | translate }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
-<mat-divider></mat-divider>
+<mat-divider />
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
+  <fieldset>
+    <zac-input [form]="form" key="besluittype" label="besluit" />
+    <zac-date [form]="form" key="ingangsdatum" />
+    <zac-date [form]="form" key="vervaldatum" />
+    <zac-textarea [form]="form" key="toelichting" label="besluitToelichting" />
+    <zac-documents [form]="form" key="documenten" [options]="documenten()" />
+  </fieldset>
+
+  @if (showPublicationSection()) {
+    <section>
+      <mat-divider />
+      <fieldset>
+        <p class="mb-2">
+          {{ "besluit.publicatie.indicatie.koptitel" | translate }}
+        </p>
+        <zac-date [form]="form" key="publicationDate" label="publicatiedatum" />
+        <zac-date
+          [form]="form"
+          key="lastResponseDate"
+          label="uiterlijkereactiedatum"
+        />
+      </fieldset>
+      <mat-divider />
+    </section>
+  }
+
+  <fieldset>
+    <zac-input [form]="form" key="reden" label="wijziging.reden" />
+  </fieldset>
+
+  <fieldset>
+    <mat-action-row>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="form.invalid || updateBesluitMutation.isPending()"
+      >
+        @if (updateBesluitMutation.isPending()) {
+          <mat-icon><mat-spinner diameter="18"></mat-spinner></mat-icon>
+        }
+        {{ "actie.wijzigen" | translate }}
+      </button>
+      <button
+        mat-raised-button
+        type="button"
+        [disabled]="updateBesluitMutation.isPending()"
+        (click)="sideNav().close()"
+      >
+        {{ "actie.annuleren" | translate }}
+      </button>
+    </mat-action-row>
+  </fieldset>
+</form>
