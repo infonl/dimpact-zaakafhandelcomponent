@@ -13,7 +13,7 @@
   - `GET /zaken/besluit/{uuid}/historie` – list besluit history
   - `GET /zaken/besluittypes/{zaaktypeUUID}` – list besluit types
 - Unit tests added for all moved endpoints in a new `ZaakBesluitRestServiceTest`.
-- Existing integration tests remain untouched.
+- Existing integration tests were only updated to rename the test class (no behavior/coverage changes).
 
 ## Capabilities
 
