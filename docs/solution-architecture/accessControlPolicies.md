@@ -103,6 +103,8 @@ various resources on which a user can perform actions:
 | starten_zaak                                         |            |                                                             ✅                                                             |             |                                                                    |           |
 | beheren                                              |            |                                                                                                                           |             |                                                                    |     ✅     |
 | zoeken                                               |     ✅      |                                                                                                                           |             |                                                                    |           |
+| brp_zoeken                                           |     ✅      |                                                                                                                           |             |                                                                    |           |
+
 
 Notes:
 
