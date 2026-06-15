@@ -44,15 +44,15 @@ services:
     platform: linux/arm64
 
   opennotificaties:
-    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    image: ghcr.io/infonl/open-notificaties:1.14.0@sha256:92732eef419f3e4904c71800bbf86eb8f22aa9b3c4e541a92852a25c947deaeb
     platform: linux/arm64
 
   opennotificaties-init:
-    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    image: ghcr.io/infonl/open-notificaties:1.14.0@sha256:92732eef419f3e4904c71800bbf86eb8f22aa9b3c4e541a92852a25c947deaeb
     platform: linux/arm64
 
   opennotificaties-celery:
-    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    image: ghcr.io/infonl/open-notificaties:1.14.0@sha256:92732eef419f3e4904c71800bbf86eb8f22aa9b3c4e541a92852a25c947deaeb
     platform: linux/arm64
 
   openzaak-database:

@@ -516,7 +516,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &opennotificaties-env
@@ -560,7 +560,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
@@ -579,7 +579,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.14.0@sha256:fbd0aaaaa8a6e5395510c4d0a28501425b7f9036ece7f99ff70a4465d7d95c38
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *opennotificaties-env
