@@ -21,7 +21,9 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
@@ -41,6 +43,7 @@ import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 class ZaakBesluitRestServiceTest : BehaviorSpec({
@@ -253,6 +256,25 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("user has zaak behandelen permission but zaak is closed") {
+            val closedZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN)
+            val closedZaakBesluit = createBesluit(
+                zaakUri = closedZaak.url,
+                url = URI("http://localhost/besluit/$besluitUUID")
+            )
+
+            every { decisionService.readDecision(withdrawalData) } returns closedZaakBesluit
+            every { zrcClientService.readZaak(closedZaakBesluit.zaak) } returns closedZaak
+
+            When("besluit withdrawal is attempted on a closed zaak") {
+                Then("a PolicyException is thrown") {
+                    shouldThrow<PolicyException> {
+                        zaakBesluitRestService.intrekkenBesluit(withdrawalData)
+                    }
+                }
+            }
+        }
     }
 
     Context("List besluit history") {
@@ -276,17 +298,26 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
     Context("List besluit types for zaaktype") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaakType = createZaakType()
+        val inRangeBesluitType = createBesluitType(description = "inRangeBesluitType").apply {
+            setBeginGeldigheid(LocalDate.now().minusDays(1))
+            setEindeGeldigheid(LocalDate.now().plusDays(1))
+        }
+        val outOfRangeBesluitType = createBesluitType(description = "outOfRangeBesluitType").apply {
+            setBeginGeldigheid(LocalDate.now().minusDays(10))
+            setEindeGeldigheid(LocalDate.now().minusDays(1))
+        }
 
         Given("user has zakenTaken permission") {
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
-            every { ztcClientService.readBesluittypen(zaakType.url) } returns emptyList()
+            every { ztcClientService.readBesluittypen(zaakType.url) } returns listOf(inRangeBesluitType, outOfRangeBesluitType)
 
             When("besluit types are requested") {
                 val result = zaakBesluitRestService.listBesluittypes(zaaktypeUUID)
 
-                Then("the list of besluit types is returned") {
-                    result shouldHaveSize 0
+                Then("only the in-range besluit type is returned") {
+                    result shouldHaveSize 1
+                    result.first().naam shouldBe "inRangeBesluitType"
                 }
             }
         }
