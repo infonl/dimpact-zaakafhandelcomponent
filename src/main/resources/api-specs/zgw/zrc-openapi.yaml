@@ -97,9 +97,9 @@ info:
     * [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)
     * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)
   contact:
-    email: support@maykinmedia.nl
-    url: https://www.maykinmedia.nl
-    name: Maykin Media
+    email: support@maykin.nl
+    url: https://www.maykin.nl
+    name: Maykin
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
@@ -122,7 +122,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -759,7 +760,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -1829,7 +1831,9 @@ paths:
         name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -1925,7 +1929,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -2773,7 +2778,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -5924,7 +5930,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -6586,6 +6593,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakNotitieRequest'
+      security:
+      - JWT-Claims:
+        - zaken.bijwerken
       responses:
         '200':
           headers:
@@ -7089,7 +7099,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -8871,7 +8882,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -8960,7 +8972,9 @@ paths:
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -12602,7 +12616,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -12691,7 +12706,9 @@ paths:
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -13138,7 +13155,9 @@ paths:
                     karakters zijn toegestaan in plaats van 24'
                 rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
                   type: string
-                  description: Een korte identificatie van de organisatorische eenheid.
+                  description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+                    eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters
+                    zijn toegestaan in plaats van 24'
                 rol__machtiging:
                   type: string
                   enum:
@@ -14986,6 +15005,30 @@ components:
       - Feature
       - FeatureCollection
       - GeometryCollection
+    GerelateerdeZaak:
+      type: object
+      properties:
+        url:
+          type: string
+          description: URL-referentie naar de ZAAK. (Het ZAAKTYPE van deze ZAAK hoeft
+            niet te zijn toegevoegd aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)
+          format: uri
+          minLength: 1
+          maxLength: 1000
+      required:
+      - url
+    GerelateerdeZaakRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          minLength: 1
+          description: URL-referentie naar de ZAAK. (Het ZAAKTYPE van deze ZAAK hoeft
+            niet te zijn toegevoegd aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)
+          format: uri
+          maxLength: 1000
+      required:
+      - url
     GeslachtsaanduidingEnum:
       enum:
       - m
@@ -16513,29 +16556,41 @@ components:
       properties:
         identificatie:
           type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 24'
+          maxLength: 255
         naam:
           type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
+          description: '**EXPERIMENTEEL** De feitelijke naam van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 50'
+          maxLength: 255
         isGehuisvestIn:
           type: string
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
+            er 255 karakters zijn toegestaan in plaats van 24'
+          maxLength: 255
     OrganisatorischeEenheidIdentificatieRequest:
       type: object
       properties:
         identificatie:
           type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 24'
+          maxLength: 255
         naam:
           type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
+          description: '**EXPERIMENTEEL** De feitelijke naam van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 50'
+          maxLength: 255
         isGehuisvestIn:
           type: string
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
+            er 255 karakters zijn toegestaan in plaats van 24'
+          maxLength: 255
     PaginatedExpandZaakList:
       type: object
       required:
@@ -17088,7 +17143,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -17322,7 +17387,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -18698,7 +18773,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -18811,7 +18887,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaak'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -19166,7 +19252,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
           format: uri
-          minLength: 1
           maxLength: 1000
         zaak:
           type: string
@@ -19280,7 +19365,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
           format: uri
-          minLength: 1
           maxLength: 1000
         zaak:
           type: string
@@ -19865,7 +19949,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -19990,7 +20075,18 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          readOnly: true
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -20122,6 +20218,7 @@ components:
       - eigenschappen
       - einddatum
       - einddatumGepland
+      - gerelateerdeZaken
       - hoofdzaak
       - identificatie
       - kenmerken
@@ -20380,7 +20477,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -20542,7 +20649,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -20655,7 +20763,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaak'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -20947,7 +21065,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -21140,7 +21268,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -21265,7 +21394,18 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          readOnly: true
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -21396,6 +21536,7 @@ components:
       - eigenschappen
       - einddatum
       - einddatumGepland
+      - gerelateerdeZaken
       - hoofdzaak
       - identificatie
       - kenmerken
