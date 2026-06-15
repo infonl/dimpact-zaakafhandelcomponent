@@ -25,7 +25,7 @@ import { EMPTY, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -1038,11 +1038,12 @@ describe(ZaakViewComponent.name, () => {
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
     });
 
-    it("should return false when brpZoeken is false", () => {
+    it("should return false when brpZoeken is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
+      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
@@ -1071,13 +1072,16 @@ describe(ZaakViewComponent.name, () => {
       },
     } satisfies GeneratedType<"RestZaak">;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       policyService = TestBed.inject(PolicyService);
+      mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
+      fixture.detectChanges();
+      await sleep(0);
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
       );
-      mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
+      await sleep(0);
       fixture.detectChanges();
     });
 
@@ -1110,11 +1114,12 @@ describe(ZaakViewComponent.name, () => {
       expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
     });
 
-    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
+    it("should return false when brpZoeken is false and kvkKoppelen is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
+      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);

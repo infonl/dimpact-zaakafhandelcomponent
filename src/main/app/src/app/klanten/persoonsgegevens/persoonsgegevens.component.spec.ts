@@ -284,11 +284,12 @@ describe(PersoonsgegevensComponent.name, () => {
       expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
     });
 
-    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
+    it("should return false when brpZoeken is false and kvkKoppelen is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
+      await sleep(0);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
@@ -303,13 +304,14 @@ describe(PersoonsgegevensComponent.name, () => {
         ).toBeTruthy();
       });
 
-      it("should hide the button when allowWijzigen returns false", () => {
+      it("should hide the button when allowWijzigen returns false", async () => {
         testQueryClient.setQueryData(
           policyService.readOverigeRechten().queryKey,
           fromPartial<GeneratedType<"RestOverigeRechten">>({
             brpZoeken: false,
           }),
         );
+        await sleep(0);
         fixture.detectChanges();
 
         expect(

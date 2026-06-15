@@ -1366,7 +1366,9 @@ export class ZaakViewComponent
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
 
-    return Boolean(brpAllowed && this.overigeRechtenQuery.data()?.brpZoeken || kvkAllowed);
+    return Boolean(
+      (brpAllowed && this.overigeRechtenQuery.data()?.brpZoeken) || kvkAllowed,
+    );
   }
 
   protected allowBedrijf() {

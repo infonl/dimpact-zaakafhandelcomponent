@@ -76,8 +76,9 @@ describe(KlantKoppelInitiator.name, () => {
       fixture.componentRef.setInput("zaaktypeUUID", "fake-zaaktype-uuid");
       fixture.detectChanges();
 
-      const stub = fixture.debugElement.query(By.directive(PersoonZoekStubComponent))
-        .componentInstance as PersoonZoekStubComponent;
+      const stub = fixture.debugElement.query(
+        By.directive(PersoonZoekStubComponent),
+      ).componentInstance as PersoonZoekStubComponent;
       expect(stub.zaaktypeUUID).toBe("fake-zaaktype-uuid");
     });
 
@@ -85,8 +86,9 @@ describe(KlantKoppelInitiator.name, () => {
       const emitted: KlantGegevens[] = [];
       component.klantGegevens.subscribe((v) => emitted.push(v));
 
-      const stub = fixture.debugElement.query(By.directive(PersoonZoekStubComponent))
-        .componentInstance as PersoonZoekStubComponent;
+      const stub = fixture.debugElement.query(
+        By.directive(PersoonZoekStubComponent),
+      ).componentInstance as PersoonZoekStubComponent;
       const persoon = fromPartial<GeneratedType<"RestPersoon">>({
         bsn: "999990408",
       });
@@ -119,8 +121,9 @@ describe(KlantKoppelInitiator.name, () => {
       const emitted: KlantGegevens[] = [];
       component.klantGegevens.subscribe((v) => emitted.push(v));
 
-      const stub = fixture.debugElement.query(By.directive(BedrijfZoekStubComponent))
-        .componentInstance as BedrijfZoekStubComponent;
+      const stub = fixture.debugElement.query(
+        By.directive(BedrijfZoekStubComponent),
+      ).componentInstance as BedrijfZoekStubComponent;
       const bedrijf = fromPartial<GeneratedType<"RestBedrijf">>({
         kvkNummer: "12345678",
       });

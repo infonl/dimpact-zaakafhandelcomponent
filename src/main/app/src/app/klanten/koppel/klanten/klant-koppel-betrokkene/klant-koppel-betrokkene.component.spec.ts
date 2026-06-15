@@ -63,7 +63,8 @@ describe(KlantKoppelBetrokkeneComponent.name, () => {
     fixture = TestBed.createComponent(KlantKoppelBetrokkeneComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("type", type);
-    if (zaaktypeUUID) fixture.componentRef.setInput("zaaktypeUUID", zaaktypeUUID);
+    if (zaaktypeUUID)
+      fixture.componentRef.setInput("zaaktypeUUID", zaaktypeUUID);
     fixture.detectChanges();
   }
 

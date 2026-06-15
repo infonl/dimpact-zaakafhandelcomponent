@@ -21,6 +21,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { PolicyService } from "../../policy/policy.service";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { PersoonIndicatiesComponent } from "../../shared/indicaties/persoon-indicaties/persoon-indicaties.component";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -28,7 +29,6 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
-import {PolicyService} from "../../policy/policy.service";
 
 @Component({
   selector: "zac-persoongegevens",
@@ -71,9 +71,9 @@ export class PersoonsgegevensComponent {
     enabled: !!this.temporaryPersonId(),
   }));
 
-    protected readonly overigeRechtenQuery = injectQuery(() =>
-        this.policyService.readOverigeRechten(),
-    );
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
 
   protected readonly isDisabled = signal(false);
 
