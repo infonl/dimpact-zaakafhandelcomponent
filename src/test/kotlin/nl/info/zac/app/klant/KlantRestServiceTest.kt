@@ -971,9 +971,9 @@ class KlantRestServiceTest : BehaviorSpec({
                     klantRestService.listPersonen(restListPersonenParameters)
                 }
 
-Then("a PolicyException should be thrown") {
-    exception::class shouldBe PolicyException::class
-}
+                Then("a PolicyException should be thrown") {
+                    exception::class shouldBe PolicyException::class
+                }
             }
         }
 
