@@ -162,8 +162,11 @@ if [ -n "${DOCKER_USE_ARM64_CONTAINERS:-}" ]; then
   compose_files="$compose_files -f docker-compose.arm64-override.yaml"
 fi
 
-host_docker_internal_ip=$(getent hosts host.docker.internal | awk '{print $1}')
-if [ "$host_docker_internal_ip" != "127.0.0.1" ]; then
+host_docker_internal_ip=$(
+  command -v getent >/dev/null 2>&1 &&
+  getent hosts host.docker.internal | awk '{print $1}'
+)
+if [ -n "$host_docker_internal_ip" ] && [ "$host_docker_internal_ip" != "127.0.0.1" ]; then
   echo "Error: host.docker.internal is not pointing to localhost. Please check your hosts file as per the instructions. you might not be able to login from the browser."
 fi
 
