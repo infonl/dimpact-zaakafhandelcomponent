@@ -180,7 +180,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.4.4@sha256:f1ce9745c681d32a9b209934dcf410a2240028bd773c11a542d9ba576f76e74a
+    image: redis:8.6.4@sha256:c00011808d8c33f83e4eedb0a50f04a4c8e86b08d7727e7d809a75a59298846b
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -421,7 +421,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.6@sha256:6ea351a2186822a044d5e326ed4c7a43d019378e4c033c271b89584216db03e7
+    image: grafana/tempo:2.10.7@sha256:032b3acb51ed02c4b801473d54bb63e9e9f13738d215126d9843c30283794f4b
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -435,7 +435,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.11.3@sha256:e4254400b85610324913f0dc4acf92603d9984e7519414c5a12811aa6146acc3
+    image: prom/prometheus:v3.12.0@sha256:69f5241418838263316593f7274a304b095c40bcf22e57272865da91bd60a8ac
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
