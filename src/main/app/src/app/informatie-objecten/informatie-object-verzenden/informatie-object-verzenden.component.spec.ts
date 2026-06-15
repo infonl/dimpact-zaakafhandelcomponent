@@ -149,6 +149,9 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
       ).toHaveBeenCalledWith("zaak-uuid-001");
 
+      await sleep();
+      fixture.detectChanges();
+
       const table = await loader.getHarness(MatTableHarness);
       expect(await table.getRows()).toHaveLength(mockDocuments.length);
     });
