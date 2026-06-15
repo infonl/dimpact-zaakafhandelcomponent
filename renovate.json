@@ -624,7 +624,7 @@
       ],
       "allowedVersions": "< 4.2.8",
       "description": [
-        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Also note that RabbitMQ will no longer be used starting with Open Notificaties 1.16.0."
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Remove this pin when upgrading Open Notificaties to >= 1.16.0 (RabbitMQ is expected to no longer be required)."
       ]
     },
     {
