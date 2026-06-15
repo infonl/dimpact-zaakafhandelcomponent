@@ -124,10 +124,8 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
-        brcClientService = brcClientService,
         cmmnService = cmmnService,
         configurationService = configurationService,
-        decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
@@ -142,12 +140,10 @@ class ZaakRestServiceCreateTest : BehaviorSpec({
         policyService = policyService,
         productaanvraagService = productaanvraagService,
         productaanvraagDocumentService = productaanvraagDocumentService,
-        restDecisionConverter = restDecisionConverter,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         signaleringService = signaleringService,
-        zaakHistoryLineConverter = zaakHistoryLineConverter,
         zaakHistoryService = zaakHistoryService,
         zaakService = zaakService,
         zaakVariabelenService = zaakVariabelenService,
