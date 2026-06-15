@@ -135,8 +135,8 @@ class ZaakBesluitRestService @Inject constructor(
 
                 decisionService.updateDecision(besluit, restDecisionChangeData).let {
                     restDecisionConverter.convertToRestDecision(besluit).also {
-                        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-                        // but open_zaak does not send that one, so emulate it here.
+                        // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel,
+                        // but Open Zaak unfortunately does not send such a notification, so we emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
                     }
                 }
