@@ -927,12 +927,11 @@ class KlantRestServiceTest : BehaviorSpec({
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
             When("listPersonen is called") {
-                shouldThrow<PolicyException> {
-                    klantRestService.listPersonen(restListPersonenParameters)
-                }
-                Then("a PolicyException should be thrown") {
-                    verify(exactly = 0) { brpClientService.retrievePersoon(any(), any(), any()) }
-                    verify(exactly = 0) { brpClientService.queryPersonen(any(), any(), any()) }
+                val result = klantRestService.listPersonen(restListPersonenParameters)
+
+                Then("it should return the found person in the result") {
+                    verify { brpClientService.retrievePersoon(bsn, any(), any()) }
+                    result.resultaten.size shouldBe 1
                 }
             }
         }
