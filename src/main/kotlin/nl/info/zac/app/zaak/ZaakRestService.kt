@@ -826,10 +826,15 @@ class ZaakRestService @Inject constructor(
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
-    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RestDecision> =
-        zrcClientService.readZaak(zaakUuid)
+    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUUID: UUID): List<RestDecision> {
+        val loggedInUser = loggedInUserInstance.get()
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(zaakRechten.lezen)
+        return zrcClientService.readZaak(zaakUUID)
             .let { brcClientService.listBesluiten(it) }
             .map { restDecisionConverter.convertToRestDecision(it) }
+    }
 
     @POST
     @Path("besluit")
