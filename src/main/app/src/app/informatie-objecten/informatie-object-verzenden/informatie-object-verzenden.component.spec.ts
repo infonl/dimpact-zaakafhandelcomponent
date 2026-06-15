@@ -71,6 +71,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
       verzenddatum: moment("2026-06-12"),
       toelichting: null,
     });
+    component["form"].markAsDirty();
   };
 
   beforeEach(async () => {

@@ -7,9 +7,7 @@ import { Component, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
-import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
@@ -22,6 +20,7 @@ import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandelin
 import { UtilService } from "../../core/service/util.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { StaleTimes } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -35,14 +34,13 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   imports: [
     MatButtonModule,
     MatDividerModule,
-    MatExpansionModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatToolbarModule,
     ReactiveFormsModule,
     TranslateModule,
     ZacDate,
     ZacDocuments,
+    ZacFormActions,
     ZacTextarea,
   ],
 })

@@ -12,7 +12,12 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="sideNav().close()"
+  class="mt-2"
+>
   <fieldset>
     <p [innerHTML]="'msg.document.verzenden.post.uitleg' | translate"></p>
     <zac-documents
@@ -24,26 +29,10 @@
     <zac-textarea [form]="form" key="toelichting" />
   </fieldset>
   <fieldset>
-    <mat-action-row>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="form.invalid || verzendenMutation.isPending()"
-      >
-        @if (verzendenMutation.isPending()) {
-          <mat-icon><mat-spinner diameter="18"></mat-spinner></mat-icon>
-        }
-        {{ "actie.verzenden" | translate }}
-      </button>
-      <button
-        mat-raised-button
-        type="button"
-        [disabled]="verzendenMutation.isPending()"
-        (click)="sideNav().close()"
-      >
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="verzendenMutation"
+      submitLabel="actie.verzenden"
+    />
   </fieldset>
 </form>
