@@ -13,7 +13,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class PolicyService {
   constructor(
     private readonly zacHttpClient: ZacHttpClient,
-    private zacQueryClient: ZacQueryClient,
+    private readonly zacQueryClient: ZacQueryClient,
   ) {}
 
   readWerklijstRechten() {

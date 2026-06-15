@@ -927,16 +927,12 @@ class KlantRestServiceTest : BehaviorSpec({
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
             When("listPersonen is called") {
-                val result = klantRestService.listPersonen(restListPersonenParameters)
-
-                Then("it should return the retrieved person in the result") {
-                    verify { brpClientService.retrievePersoon(bsn, any(), any()) }
-                    result.resultaten.size shouldBe 1
+                shouldThrow<PolicyException> {
+                    klantRestService.listPersonen(restListPersonenParameters)
                 }
-                Then("queryPersonen should not be called") {
-                    verify(exactly = 0) {
-                        brpClientService.queryPersonen(any(), any(), any())
-                    }
+                Then("a PolicyException should be thrown") {
+                    verify(exactly = 0) { brpClientService.retrievePersoon(any(), any(), any()) }
+                    verify(exactly = 0) { brpClientService.queryPersonen(any(), any(), any()) }
                 }
             }
         }
