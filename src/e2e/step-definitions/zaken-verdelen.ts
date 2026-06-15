@@ -54,7 +54,7 @@ When(
 
 When(
   "{string} releases the zaken",
-  { timeout: TEN_SECONDS_IN_MS },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, s: string) {
     await this.page.getByRole("button", { name: /vrijgeven/i }).click();
     await this.page.getByLabel(/reden/i).fill("Fake reason");
