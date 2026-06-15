@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, computed, inject, input, output } from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -13,13 +13,17 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
@@ -54,11 +58,12 @@ export class InformatieObjectVerzendenComponent {
   protected readonly sideNav = input.required<MatDrawer>();
   protected readonly documentSent = output<void>();
 
-  protected readonly documenten = computed(() =>
-    this.informatieObjectenService.listInformatieobjectenVoorVerzenden(
+  protected readonly documentenQuery = injectQuery(() => ({
+    ...this.informatieObjectenService.listInformatieobjectenVoorVerzendenQuery(
       this.zaak().uuid,
     ),
-  );
+    staleTime: StaleTimes.Instant,
+  }));
 
   protected readonly form = this.formBuilder.group({
     documenten: this.formBuilder.control<

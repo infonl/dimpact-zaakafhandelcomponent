@@ -23,7 +23,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { EMPTY, of } from "rxjs";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -97,8 +97,16 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
-      .spyOn(informatieObjectenService, "listInformatieobjectenVoorVerzenden")
-      .mockReturnValue(of(mockDocuments));
+      .spyOn(
+        informatieObjectenService,
+        "listInformatieobjectenVoorVerzendenQuery",
+      )
+      .mockImplementation((zaakUuid) =>
+        fromPartial({
+          queryKey: ["teVerzenden", zaakUuid],
+          queryFn: () => Promise.resolve(mockDocuments),
+        }),
+      );
     jest.spyOn(utilService, "openSnackbar");
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
@@ -111,6 +119,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
 
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   afterEach(() => {
@@ -137,7 +146,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
   describe("document list", () => {
     it("loads the documents that can be sent for the active zaak", async () => {
       expect(
-        informatieObjectenService.listInformatieobjectenVoorVerzenden,
+        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
       ).toHaveBeenCalledWith("zaak-uuid-001");
 
       const table = await loader.getHarness(MatTableHarness);
@@ -149,7 +158,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
       await fixture.whenStable();
 
       expect(
-        informatieObjectenService.listInformatieobjectenVoorVerzenden,
+        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
       ).toHaveBeenCalledWith("zaak-uuid-002");
     });
   });

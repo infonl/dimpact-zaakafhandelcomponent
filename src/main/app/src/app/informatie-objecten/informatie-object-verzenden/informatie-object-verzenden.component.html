@@ -15,7 +15,11 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
   <fieldset>
     <p [innerHTML]="'msg.document.verzenden.post.uitleg' | translate"></p>
-    <zac-documents [form]="form" key="documenten" [options]="documenten()" />
+    <zac-documents
+      [form]="form"
+      key="documenten"
+      [options]="documentenQuery.data() ?? []"
+    />
     <zac-date [form]="form" key="verzenddatum" />
     <zac-textarea [form]="form" key="toelichting" />
   </fieldset>
