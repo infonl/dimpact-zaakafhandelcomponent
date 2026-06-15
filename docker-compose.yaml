@@ -470,7 +470,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.8@sha256:d556b8c7df01ba04a0e0f67dacab2c5f75a61207a51774e0654c179b83a671e1
+    image: greenmail/standalone:2.1.9@sha256:3ac5a83dd6727cf95e4d50e18907fb8ee7bbf5f67e8534714dee2fb1b5b2e1d4
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
