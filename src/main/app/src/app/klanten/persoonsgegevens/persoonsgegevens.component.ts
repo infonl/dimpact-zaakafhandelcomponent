@@ -80,14 +80,15 @@ export class PersoonsgegevensComponent {
   protected readonly indicatiesLayout = IndicatiesLayout;
 
   protected allowWijzigen() {
-      const koppelingen =
-          this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
-      return Boolean(
-          (this.zaak().rechten.toevoegenInitiatorPersoon &&
-              koppelingen?.brpKoppelen &&
-              this.overigeRechtenQuery.data()?.brpZoeken) ||
-          (this.zaak().rechten.toevoegenInitiatorBedrijf && koppelingen?.kvkKoppelen)
-      );
+    const koppelingen =
+      this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
+    return Boolean(
+      (this.zaak().rechten.toevoegenInitiatorPersoon &&
+        koppelingen?.brpKoppelen &&
+        this.overigeRechtenQuery.data()?.brpZoeken) ||
+        (this.zaak().rechten.toevoegenInitiatorBedrijf &&
+          koppelingen?.kvkKoppelen),
+    );
   }
 
   constructor() {
