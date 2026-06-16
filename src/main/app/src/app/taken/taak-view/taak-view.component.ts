@@ -34,7 +34,6 @@ import {
   FormioChangeEvent,
   FormioCustomEvent,
 } from "../../formulieren/formio-wrapper/formio-wrapper.component";
-import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import {
   mapFormGroupToTaskData,
@@ -52,8 +51,6 @@ import { PatchBody, PutBody } from "../../shared/http/http-client";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
-import { FormConfig } from "../../shared/material-form-builder/model/form-config";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -81,8 +78,6 @@ export class TaakViewComponent
 
   protected taak?: GeneratedType<"RestTask">;
   protected zaak?: GeneratedType<"RestZaak">;
-  protected formulier?: AbstractTaakFormulier | null = null;
-  protected formConfig?: FormConfig | null = null;
   protected formioFormulier?: FormioForm;
 
   protected smartDocumentsGroupId?: string;
@@ -219,8 +214,7 @@ export class TaakViewComponent
 
     this.initTaakGegevens(taak);
 
-    // For legacy forms, we need to re-create the form to fix the loading state
-    if (!readZaak && !this.formulier) {
+    if (!readZaak) {
       this.initialized = true;
       return;
     }
@@ -237,8 +231,6 @@ export class TaakViewComponent
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    this.formConfig = null;
-    this.formulier = null;
     this.formioFormulier = undefined;
 
     this.changeDetectorRef.detectChanges();
@@ -256,15 +248,6 @@ export class TaakViewComponent
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
-    if (taak.status !== "AFGEROND" && taak.rechten.wijzigen) {
-      this.formConfig = new FormConfigBuilder()
-        .partialText("actie.opslaan")
-        .saveText("actie.opslaan.afronden")
-        .build();
-    } else {
-      this.formConfig = null;
-    }
-
     try {
       const formFields =
         await this.taakFormulierenService.getAngularHandleFormBuilder(
@@ -313,17 +296,6 @@ export class TaakViewComponent
       });
     } catch (e) {
       console.warn(e);
-      // Handle form in the old way
-      this.formulier = this.taakFormulierenService
-        .getFormulierBuilder(
-          this.taak
-            ?.formulierDefinitieId as GeneratedType<"FormulierDefinitie">,
-        )
-        .behandelForm(taak, zaak)
-        .build();
-      if (this.formulier.disablePartialSave && this.formConfig) {
-        this.formConfig.partialButtonText = null;
-      }
     }
 
     this.utilService.setTitle("title.taak", {
@@ -420,39 +392,30 @@ export class TaakViewComponent
   }
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
-    let taskBody:
+    const taskBody:
       | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete">;
-
-    try {
-      if (!this.formulier) throw new Error("Handling form in Angular way");
-      console.info("Handling form in the DEPRECATED way");
-      taskBody = this.formulier.getTaak(formGroup);
-    } catch {
-      console.info("Handling form in Angular way");
-      taskBody = {
-        ...this.taak!,
-        taakdata: {
-          ...this.taak!.taakdata,
-          ...mapFormGroupToTaskData(formGroup, {
-            ignoreKeys: ["bijlagen"],
+      | PatchBody<"/rest/taken/complete"> = {
+      ...this.taak!,
+      taakdata: {
+        ...this.taak!.taakdata,
+        ...mapFormGroupToTaskData(formGroup, {
+          ignoreKeys: ["bijlagen"],
+        }),
+      },
+      toelichting: formGroup.get("toelichting")?.value,
+      taakinformatie: {
+        ...this.taak!.taakinformatie,
+        ...mapTaskdataToTaskInformation(
+          mapFormGroupToTaskData(formGroup, {
+            mapControlOptions: {
+              documentKey: "titel",
+              documentSeparator: ", ",
+            },
           }),
-        },
-        toelichting: formGroup.get("toelichting")?.value,
-        taakinformatie: {
-          ...this.taak!.taakinformatie,
-          ...mapTaskdataToTaskInformation(
-            mapFormGroupToTaskData(formGroup, {
-              mapControlOptions: {
-                documentKey: "titel",
-                documentSeparator: ", ",
-              },
-            }),
-            this.taak!,
-          ),
-        },
-      };
-    }
+          this.taak!,
+        ),
+      },
+    };
 
     if (!taskBody) return;
 
@@ -520,21 +483,15 @@ export class TaakViewComponent
 
     this.taak.taakdocumenten.push(informatieobject.uuid!);
 
-    if (this.formulier) {
-      // Old way of handling new attachments (using the ATOS forms)
-      this.formulier.refreshTaakdocumentenEnBijlagen();
-    } else {
-      // New way of handling new attachments (using Angular forms)
-      const control = this.form.get("bijlagen");
-      if (!control) return;
-      const newAttachments = [...(control.value ?? []), informatieobject];
-      this.formFields.forEach((field) => {
-        if (field.type === "documents" && field.key === "bijlagen") {
-          field.options = newAttachments;
-        }
-      });
-      control.setValue(newAttachments as never);
-    }
+    const control = this.form.get("bijlagen");
+    if (!control) return;
+    const newAttachments = [...(control.value ?? []), informatieobject];
+    this.formFields.forEach((field) => {
+      if (field.type === "documents" && field.key === "bijlagen") {
+        field.options = newAttachments;
+      }
+    });
+    control.setValue(newAttachments as never);
   }
 
   documentCreated() {
