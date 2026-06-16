@@ -210,7 +210,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with a decision cannot be terminated. A bad request is returned") {
+        Given("A zaak with a besluit cannot be terminated. A bad request is returned") {
             val zaakUuid = UUID.randomUUID()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(

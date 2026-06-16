@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.zaak.model
+package nl.info.zac.app.zaak.model.besluit
 
 import net.atos.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
@@ -15,7 +15,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestDecisionType(
+data class RestBesluitType(
     var id: UUID,
 
     var naam: String,
@@ -24,15 +24,15 @@ data class RestDecisionType(
 
     var informatieobjecttypen: List<URI>,
 
-    var publication: RestDecisionTypePublication,
+    var publication: RestBesluitTypePublication,
 )
 
-fun BesluitType.toRestDecisionType() = RestDecisionType(
+fun BesluitType.toRestBesluitType() = RestBesluitType(
     id = this.url.extractUuid(),
     naam = this.omschrijving,
     toelichting = this.toelichting,
     informatieobjecttypen = this.informatieobjecttypen,
-    publication = RestDecisionTypePublication(
+    publication = RestBesluitTypePublication(
         enabled = this.publicatieIndicatie,
         publicationTerm = this.publicatietermijn?.let { PeriodUtil.format(Period.parse(it)) },
         publicationTermDays = this.publicatietermijn?.let { PeriodUtil.numberOfDaysFromToday(Period.parse(it)) },
@@ -41,5 +41,5 @@ fun BesluitType.toRestDecisionType() = RestDecisionType(
     )
 )
 
-fun List<BesluitType>.toRestDecisionTypes() =
-    this.map { it.toRestDecisionType() }
+fun List<BesluitType>.toRestBesluitTypes() =
+    this.map { it.toRestBesluitType() }

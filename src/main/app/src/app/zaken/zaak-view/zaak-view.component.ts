@@ -82,7 +82,7 @@ export class ZaakViewComponent
   menu: MenuItem[] = [];
   actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit!: GeneratedType<"RestDecision">;
+  teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   historie = new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
@@ -1180,7 +1180,7 @@ export class ZaakViewComponent
     this.sluitSidenav();
   }
 
-  protected besluitWijzigen($event: GeneratedType<"RestDecision">) {
+  protected besluitWijzigen($event: GeneratedType<"RestBesluit">) {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();

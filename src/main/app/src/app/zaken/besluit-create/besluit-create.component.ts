@@ -55,11 +55,11 @@ export class BesluitCreateComponent implements OnInit {
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  protected besluittypes: GeneratedType<"RestDecisionType">[] = [];
+  protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
-    besluit: this.formBuilder.control<GeneratedType<"RestDecisionType"> | null>(
+    besluit: this.formBuilder.control<GeneratedType<"RestBesluitType"> | null>(
       null,
       Validators.required,
     ),

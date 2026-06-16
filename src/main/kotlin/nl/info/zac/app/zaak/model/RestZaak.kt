@@ -9,6 +9,7 @@ import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.app.policy.model.RestZaakRechten
+import nl.info.zac.app.zaak.model.besluit.RestBesluit
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -23,7 +24,7 @@ data class RestZaak(
     var startdatumBewaartermijn: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RestUser?,
-    var besluiten: List<RestDecision>?,
+    var besluiten: List<RestBesluit>?,
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
     var duurVerlenging: String?,
