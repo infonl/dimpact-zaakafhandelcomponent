@@ -1091,9 +1091,11 @@ class ZaakRestService @Inject constructor(
         explanation: String?
     ) {
         zrcClientService.patchZaak(
-            zaak.uuid,
-            zaak.addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = otherZaak.url }),
-            explanation
+            zaakUUID = zaak.uuid,
+            zaak = NillableGerelateerdeZakenZaakPatch(
+                gerelateerdeZaken = addGerelateerdeZaak(zaak.gerelateerdeZaken, otherZaak.url)
+            ),
+            explanation = explanation
         )
     }
 
@@ -1166,6 +1168,16 @@ class ZaakRestService @Inject constructor(
         ),
         explanation = explanation
     )
+
+    private fun addGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak> {
+        val gerelateerdeZaak = GerelateerdeZaak().apply { url = andereZaakURI }
+        return gerelateerdeZaken?.apply {
+            if (none { it.url == andereZaakURI }) add(gerelateerdeZaak)
+        } ?: listOf(gerelateerdeZaak)
+    }
 
     private fun removeGerelateerdeZaak(
         gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
