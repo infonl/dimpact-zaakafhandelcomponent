@@ -5,6 +5,12 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { NgIf } from "@angular/common";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { Component, EventEmitter, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatIconModule } from "@angular/material/icon";
@@ -13,7 +19,10 @@ import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
+import { PolicyService } from "../../../policy/policy.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { KlantZoekComponent } from "./klant-zoek.component";
 
@@ -52,6 +61,7 @@ describe(KlantZoekComponent.name, () => {
   let component: KlantZoekComponent;
   let fixture: ComponentFixture<KlantZoekComponent>;
   let loader: HarnessLoader;
+  let policyService: PolicyService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -60,10 +70,16 @@ describe(KlantZoekComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideTanStackQuery(testQueryClient),
+      ],
     })
       .overrideComponent(KlantZoekComponent, {
         set: {
           imports: [
+            NgIf,
             MatTabsModule,
             MatIconModule,
             TranslateModule,
@@ -74,13 +90,20 @@ describe(KlantZoekComponent.name, () => {
       })
       .compileComponents();
 
+    policyService = TestBed.inject(PolicyService);
+
+    testQueryClient.setQueryData(
+      policyService.readOverigeRechten().queryKey,
+      fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+    );
+
     fixture = TestBed.createComponent(KlantZoekComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
   });
 
-  it("should render a tab group with two tabs", async () => {
+  it("should render a tab group with two tabs when brpZoeken is true", async () => {
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     const tabs = await tabGroup.getTabs();
     expect(tabs.length).toBe(2);
@@ -160,6 +183,44 @@ describe(KlantZoekComponent.name, () => {
 
       expect(emittedValues).toHaveLength(1);
       expect(emittedValues[0]).toBe(bedrijf);
+    });
+  });
+
+  describe("brpZoeken recht", () => {
+    describe("when brpZoeken is true", () => {
+      it("should show the persoon tab", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const tabs = await tabGroup.getTabs();
+        expect(tabs.length).toBe(2);
+        expect(await tabs[0].getLabel()).toContain("actie.zoeken.persoon");
+      });
+    });
+
+    describe("when brpZoeken is false", () => {
+      beforeEach(() => {
+        testQueryClient.setQueryData(
+          policyService.readOverigeRechten().queryKey,
+          fromPartial<GeneratedType<"RestOverigeRechten">>({
+            brpZoeken: false,
+          }),
+        );
+        fixture = TestBed.createComponent(KlantZoekComponent);
+        loader = TestbedHarnessEnvironment.loader(fixture);
+        fixture.detectChanges();
+      });
+
+      it("should hide the persoon tab", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const tabs = await tabGroup.getTabs();
+        expect(tabs.length).toBe(1);
+        expect(await tabs[0].getLabel()).toContain("actie.zoeken.bedrijf");
+      });
+
+      it("should show the bedrijf tab as the only tab", async () => {
+        const tabGroup = await loader.getHarness(MatTabGroupHarness);
+        const [bedrijfTab] = await tabGroup.getTabs();
+        expect(await bedrijfTab.isSelected()).toBe(true);
+      });
     });
   });
 });

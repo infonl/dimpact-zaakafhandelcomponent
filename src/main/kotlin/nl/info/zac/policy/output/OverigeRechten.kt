@@ -11,5 +11,6 @@ import nl.info.client.opa.model.OpaRuleResult
 data class OverigeRechten @JsonbCreator constructor(
     @param:JsonbProperty("starten_zaak") val startenZaak: Boolean,
     @param:JsonbProperty("beheren") val beheren: Boolean,
-    @param:JsonbProperty("zoeken") val zoeken: Boolean
+    @param:JsonbProperty("zoeken") val zoeken: Boolean,
+    @param:JsonbProperty("brp_zoeken") val brpZoeken: Boolean
 ) : OpaRuleResult

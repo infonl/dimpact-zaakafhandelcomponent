@@ -96,7 +96,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   protected headerTitle$?: Observable<string>;
   protected hasNewSignaleringen = false;
-  protected overigeRechten?: GeneratedType<"RestOverigeRechten">;
   protected werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
 
   private subscription$?: Subscription;
@@ -104,6 +103,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   protected readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
   );
   protected readonly medewerkerNaamToolbar = computed(() =>
     this.loggedInUserQuery
@@ -157,9 +159,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.headerTitle$ = this.utilService.headerTitle$;
 
-    this.policyService
-      .readOverigeRechten()
-      .subscribe((rechten) => (this.overigeRechten = rechten));
     this.policyService
       .readWerklijstRechten()
       .subscribe((rechten) => (this.werklijstRechten = rechten));

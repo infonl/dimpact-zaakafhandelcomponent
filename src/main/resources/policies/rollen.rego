@@ -26,3 +26,7 @@ beheerder := {
 raadpleger := {
     "rol": "raadpleger"
 }
+
+brpZoeken := {
+    "rol": "brp_zoeken"
+}
