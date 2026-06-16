@@ -39,7 +39,7 @@ const makeForm = (
     [label]="label"
     [readonly]="readonly"
   />`,
-  standalone: false,
+  imports: [ZacTextarea],
 })
 class HostComponent {
   form = makeForm();
@@ -54,9 +54,8 @@ describe(ZacTextarea.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HostComponent],
       imports: [
-        ZacTextarea,
+        HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),

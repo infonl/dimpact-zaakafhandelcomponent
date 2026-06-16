@@ -29,7 +29,7 @@ const makeForm = (
 
 @Component({
   template: `<zac-toggle [form]="form" key="enabled" [label]="label" />`,
-  standalone: false,
+  imports: [ZacToggle],
 })
 class HostComponent {
   form = makeForm();
@@ -43,9 +43,8 @@ describe(ZacToggle.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HostComponent],
       imports: [
-        ZacToggle,
+        HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
