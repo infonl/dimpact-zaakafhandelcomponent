@@ -417,7 +417,6 @@ export class TaakViewComponent
       },
     };
 
-    if (!taskBody) return;
 
     if (partial) {
       this.updateTaakdataMutation.mutate(taskBody, {
