@@ -212,7 +212,7 @@ describe(PersoonsgegevensComponent.name, () => {
     });
   });
 
-  describe("allowWijzigen", () => {
+  describe("allowInitiatorWijzigen", () => {
     let policyService: PolicyService;
     let fixture: ComponentFixture<PersoonsgegevensComponent>;
 
@@ -253,7 +253,7 @@ describe(PersoonsgegevensComponent.name, () => {
     });
 
     it("should return true when toevoegenInitiatorPersoon and brpZoeken are true", () => {
-      expect(fixture.componentInstance["allowWijzigen"]()).toBe(true);
+      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(true);
     });
 
     it("should return true when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
@@ -280,7 +280,7 @@ describe(PersoonsgegevensComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowWijzigen"]()).toBe(true);
+      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(true);
     });
 
     it("should return false when toevoegenInitiatorPersoon is false", () => {
@@ -293,7 +293,7 @@ describe(PersoonsgegevensComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
+      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(false);
     });
 
     it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
@@ -303,11 +303,11 @@ describe(PersoonsgegevensComponent.name, () => {
       );
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowWijzigen"]()).toBe(false);
+      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(false);
     });
 
     describe("wijzigen button", () => {
-      it("should show the button when allowWijzigen returns true", () => {
+      it("should show the button when allowInitiatorWijzigen returns true", () => {
         expect(
           fixture.nativeElement.querySelector(
             '[title="actie.initiator.wijzigen"]',
@@ -315,7 +315,7 @@ describe(PersoonsgegevensComponent.name, () => {
         ).toBeTruthy();
       });
 
-      it("should hide the button when allowWijzigen returns false", () => {
+      it("should hide the button when allowInitiatorWijzigen returns false", () => {
         testQueryClient.setQueryData(
           policyService.readOverigeRechten().queryKey,
           fromPartial<GeneratedType<"RestOverigeRechten">>({

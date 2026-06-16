@@ -79,7 +79,7 @@ export class PersoonsgegevensComponent {
 
   protected readonly indicatiesLayout = IndicatiesLayout;
 
-  protected allowWijzigen() {
+  protected allowInitiatorWijzigen() {
     const koppelingen =
       this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
     return Boolean(

@@ -956,7 +956,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("The logged-in user does not have the brpZoeken right") {
+        Given("The logged-in user does not have the brpZoeken permission") {
             val restListPersonenParameters = RestListPersonenParameters(bsn = "123456789")
 
             every { policyService.readOverigeRechten() } returns createOverigeRechten(brpZoeken = false)
