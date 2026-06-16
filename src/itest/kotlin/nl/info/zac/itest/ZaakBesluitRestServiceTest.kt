@@ -32,7 +32,7 @@ import java.util.UUID
  * and withdraws a besluit to the zaak.
  */
 @Suppress("MagicNumber")
-class ZaakRestServiceBesluitTest : BehaviorSpec({
+class ZaakBesluitRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
