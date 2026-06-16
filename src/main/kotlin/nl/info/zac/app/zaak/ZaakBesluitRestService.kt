@@ -60,7 +60,7 @@ class ZaakBesluitRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService
-) {  
+) {
     @POST
     @Path("besluit")
     fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData): RestDecision {
@@ -106,8 +106,8 @@ class ZaakBesluitRestService @Inject constructor(
         return zrcClientService.readZaak(zaakUUID)
             .let { brcClientService.listBesluiten(it) }
             .map { restDecisionConverter.convertToRestDecision(it) }
-    }       
-        
+    }
+
     @GET
     @Path("besluit/{uuid}/historie")
     fun listBesluitHistorie(@PathParam("uuid") besluitUuid: UUID): List<HistoryLine> {
