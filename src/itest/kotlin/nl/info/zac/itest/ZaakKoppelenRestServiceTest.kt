@@ -135,10 +135,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken" +
-                "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
-                "&relationType=GERELATEERD" +
-                "&rows=$ROWS_DEFAULT" +
-                "&page=$PAGE_DEFAULT",
+                    "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
+                    "&relationType=GERELATEERD" +
+                    "&rows=$ROWS_DEFAULT" +
+                    "&page=$PAGE_DEFAULT",
                 testUser = BEHANDELAAR_1
             )
 
