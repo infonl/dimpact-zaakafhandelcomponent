@@ -278,13 +278,13 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 with(JSONArray(responseBody)) {
-                    // 1 create line + 3 update lines (toelichting, ingangsdatum, vervaldatum)
-                    // + 1 withdrawal line (vervaldatum set to null)
-                    shouldHaveSize(5)
+                    // 1 create line + 3 update lines (ingangsdatum, vervaldatum, toelichting);
+                    // withdrawal only changes vervalreden/ingetrokken which are not tracked by AuditBesluitConverter
+                    shouldHaveSize(4)
                     // history is sorted newest first; creation entry is last
                     getJSONObject(0).run {
                         getString("actie") shouldBe "GEWIJZIGD"
-                        getString("attribuutLabel") shouldBe "vervaldatum"
+                        getString("attribuutLabel") shouldBe "ingangsdatum"
                         getString("door") shouldBe BEHANDELAAR_1.displayName
                         has("datumTijd") shouldBe true
                     }
