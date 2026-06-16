@@ -48,6 +48,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
+import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -239,6 +240,17 @@ class PolicyService @Inject constructor(
  */
 fun assertPolicy(policy: Boolean) {
     if (!policy) {
+        throw PolicyException()
+    }
+}
+
+/**
+ * Assert that the given policy is true.
+ * If it is not, log the event with the passed logger and message and finally throw a [PolicyException].
+ */
+fun assertPolicy(policy: Boolean, logger: Logger, message: String) {
+    if (!policy) {
+        logger.info(message)
         throw PolicyException()
     }
 }

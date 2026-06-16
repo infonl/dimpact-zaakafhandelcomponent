@@ -66,7 +66,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                 responseBody.shouldContainJsonKeyValue("isOpgeschort", true)
             }
 
-            When("the suspension details of the zaak are read") {
+            And("the suspension details of the zaak are read") {
                 val readResponse = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
                     testUser = BEHANDELAAR_1
@@ -80,7 +80,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the zaak is resumed") {
+            And("the zaak is resumed") {
                 val resumeReason = "fakeResumeReason"
                 val resumeResponse = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/resume",
@@ -99,7 +99,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                     responseBody.shouldNotContainJsonKey("redenOpschorting")
                 }
 
-                When("the suspension details of the resumed zaak are read") {
+                And("the suspension details of the resumed zaak are read") {
                     val readAfterResumeResponse = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
                         testUser = BEHANDELAAR_1

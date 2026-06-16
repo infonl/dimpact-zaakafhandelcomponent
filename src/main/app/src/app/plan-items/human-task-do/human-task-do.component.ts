@@ -4,7 +4,6 @@
  */
 
 import { NgIf } from "@angular/common";
-import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   DestroyRef,
@@ -175,10 +174,6 @@ export class HumanTaskDoComponent implements OnInit {
         )
         .subscribe((users) => this.updateUserOptions(users));
     } catch (error) {
-      if (error instanceof HttpErrorResponse) {
-        this.foutAfhandelingService.foutAfhandelen(error);
-        return;
-      }
       this.foutAfhandelingService.openFoutDialog(
         error instanceof Error ? error.message : String(error),
       );

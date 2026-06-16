@@ -39,6 +39,11 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "version": 1
                   },
                   {
+                    "key": "permissionCheckProcess",
+                    "name": "Permission Check Process",
+                    "version": 1
+                  },
+                  {
                     "key": "sendConfirmationEmailAndSignDocumentsProcess",
                     "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1
@@ -90,6 +95,23 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                         {
                           "formKey": "testForm",
                           "title": "Test form",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
+                  },
+                  {
+                    "key": "permissionCheckProcess",
+                    "name": "Permission Check Process",
+                    "version": 1,
+                    "details": {
+                      "inUse": true,
+                      "documentation": "Integration Test Process To Check Permissions",
+                      "forms": [
+                        {
+                          "formKey": "chooseTestProcess",
+                          "title": "Choose Test Process",
                           "uploaded": true
                         }
                       ],

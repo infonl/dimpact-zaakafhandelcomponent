@@ -32,7 +32,7 @@ import java.util.UUID
  * and withdraws a besluit to the zaak.
  */
 @Suppress("MagicNumber")
-class ZaakRestServiceBesluitTest : BehaviorSpec({
+class ZaakBesluitRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
@@ -260,6 +260,40 @@ class ZaakRestServiceBesluitTest : BehaviorSpec({
                         shouldContainJsonKeyValue("isIngetrokken", true)
                         shouldContainJsonKeyValue("toelichting", "fakeBesluitUpdateToelichting")
                         shouldContainJsonKeyValue("vervalreden", "ingetrokken_belanghebbende")
+                    }
+                }
+            }
+        }
+
+        When("the besluit history is requested after create, update, and withdrawal") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/besluit/$besluitUuid/historie",
+                testUser = BEHANDELAAR_1
+            )
+
+            Then(
+                "the besluit history is returned with history items for the create, update, and withdrawal operations"
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(JSONArray(responseBody)) {
+                    // 1 create line + 3 update lines (ingangsdatum, vervaldatum, toelichting);
+                    // withdrawal only changes vervalreden/ingetrokken which are not tracked by AuditBesluitConverter
+                    shouldHaveSize(4)
+                    // history is sorted newest first; creation entry is last
+                    getJSONObject(0).run {
+                        getString("actie") shouldBe "GEWIJZIGD"
+                        getString("attribuutLabel") shouldBe "ingangsdatum"
+                        getString("door") shouldBe BEHANDELAAR_1.displayName
+                        has("datumTijd") shouldBe true
+                    }
+                    getJSONObject(length() - 1).run {
+                        getString("actie") shouldBe "GEKOPPELD"
+                        getString("attribuutLabel") shouldBe "Besluit"
+                        getString("door") shouldBe BEHANDELAAR_1.displayName
+                        getString("nieuweWaarde") shouldNotBe null
+                        has("datumTijd") shouldBe true
                     }
                 }
             }
