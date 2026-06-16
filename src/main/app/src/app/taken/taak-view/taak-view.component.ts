@@ -417,7 +417,6 @@ export class TaakViewComponent
       },
     };
 
-
     if (partial) {
       this.updateTaakdataMutation.mutate(taskBody, {
         onSuccess: (task) => {
