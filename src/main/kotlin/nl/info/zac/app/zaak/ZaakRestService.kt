@@ -625,14 +625,6 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    private fun terminateZaak(
-        zaak: Zaak,
-        resultaattypeUUID: UUID,
-        zaakbeeindigRedenNaam: String
-    ) {
-        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
-    }
-
     @PATCH
     @Path("/zaak/{uuid}/heropenen")
     fun reopenZaak(
@@ -661,7 +653,6 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).behandelen)
-
         zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
     }
 
@@ -773,8 +764,8 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaak/{uuid}/historie")
     fun listZaakHistory(@PathParam("uuid") zaakUUID: UUID): List<HistoryLine> {
-        val zaak = zrcClientService.readZaak(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).lezen)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).lezen)
         return zaakHistoryService.getZaakHistory(zaakUUID)
     }
 
@@ -801,7 +792,8 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("zaak/{uuid}/afzender")
     fun listAfzendersVoorZaak(@PathParam("uuid") zaakUUID: UUID): List<RestZaakAfzender> {
-        val zaak = zrcClientService.readZaak(zaakUUID)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).lezen)
         return sortAndRemoveDuplicateAfzenders(
             resolveZaakAfzenderMail(
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaak.zaaktype.extractUuid())
@@ -847,13 +839,16 @@ class ZaakRestService @Inject constructor(
     @GET
     @Path("{uuid}/process-diagram")
     @Produces("image/png")
-    fun downloadProcessDiagram(@PathParam("uuid") uuid: UUID): Response =
-        Response.ok(bpmnService.getProcessDiagram(uuid))
+    fun downloadProcessDiagram(@PathParam("uuid") zaakUUID: UUID): Response {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).lezen)
+        return Response.ok(bpmnService.getProcessDiagram(zaakUUID))
             .header(
                 "Content-Disposition",
                 """inline; filename="process-diagram.png"""".trimIndent()
             )
             .build()
+    }
 
     @GET
     @Path("procesvariabelen")
@@ -1259,6 +1254,14 @@ class ZaakRestService @Inject constructor(
         } else {
             null
         }
+
+    private fun terminateZaak(
+        zaak: Zaak,
+        resultaattypeUUID: UUID,
+        zaakbeeindigRedenNaam: String
+    ) {
+        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
+    }
 
     @Suppress("ThrowsCount")
     private fun assertCanAddBetrokkene(restZaak: RestZaakCreateData, zaakTypeUUID: UUID) {
