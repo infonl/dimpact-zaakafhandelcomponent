@@ -45,7 +45,7 @@ import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
+import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.lang.reflect.InvocationTargetException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -124,7 +124,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 exception = exception,
                 logLevel = Level.SEVERE
             )
-            is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
+            is ZaakWithABesluitCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
                 errorCode = ErrorCode.ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED,
                 exception = exception,

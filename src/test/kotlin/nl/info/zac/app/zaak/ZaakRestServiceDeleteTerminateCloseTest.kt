@@ -68,7 +68,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
-import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
+import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.net.URI
 import java.util.*
 
@@ -225,7 +225,7 @@ class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("trying to terminate the zaak") {
-                shouldThrow<ZaakWithADecisionCannotBeTerminatedException> {
+                shouldThrow<ZaakWithABesluitCannotBeTerminatedException> {
                     zaakRestService.terminateZaak(
                         zaakUuid,
                         RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)

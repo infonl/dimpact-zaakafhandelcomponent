@@ -123,7 +123,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
-import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
+import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -593,7 +593,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).afbreken)
         assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaak.resultaat?.run {
-            throw ZaakWithADecisionCannotBeTerminatedException(
+            throw ZaakWithABesluitCannotBeTerminatedException(
                 "The zaak with UUID '${zaak.uuid}' cannot be terminated because a besluit has already been added to it."
             )
         }
