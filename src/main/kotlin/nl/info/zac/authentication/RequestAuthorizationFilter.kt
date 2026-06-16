@@ -42,7 +42,7 @@ class RequestAuthorizationFilter @Inject constructor() : Filter {
             "/admin",
         )
         private val PUBLIC_STATIC_PATHS = setOf(
-            "/logout",
+            "/sign-out",
             "/favicon.ico",
             "/favicon.svg",
             "/apple-touch-icon.png",
