@@ -127,10 +127,15 @@ class ZaakBesluitRestService @Inject constructor(
 
     @GET
     @Path("besluit/{uuid}/historie")
-    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<HistoryLine> =
-        brcClientService.listAuditTrail(uuid).let {
+    fun listBesluitHistorie(@PathParam("uuid") besluitUuid: UUID): List<HistoryLine> {
+        val besluit = brcClientService.readBesluit(besluitUuid)
+        val zaak = zrcClientService.readZaak(besluit.zaak)
+        val zaakType = ztcClientService.readZaaktype(zaak.zaaktype)
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).lezen)
+        return brcClientService.listAuditTrail(besluitUuid).let {
             zaakHistoryLineConverter.convert(it)
         }
+    }
 
     @GET
     @Path("besluittypes/{zaaktypeUUID}")

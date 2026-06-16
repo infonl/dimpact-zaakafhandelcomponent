@@ -259,7 +259,16 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         val besluitUUID = UUID.randomUUID()
         val historyLines = listOf(HistoryLine("fakeLabel", "fakeOld", "fakeNew"))
 
-        Given("a valid besluit UUID") {
+        Given("a valid besluit UUID and a user with lezen permission") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            val besluit = createBesluit(zaakUri = zaak.url)
+            every { brcClientService.readBesluit(besluitUUID) } returns besluit
+            every { zrcClientService.readZaak(besluit.zaak) } returns zaak
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
             every { brcClientService.listAuditTrail(besluitUUID) } returns emptyList()
             every { zaakHistoryLineConverter.convert(emptyList()) } returns historyLines
 
