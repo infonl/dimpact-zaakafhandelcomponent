@@ -217,7 +217,7 @@ class KlantRestService @Inject constructor(
                 loggedInUserInstance.get().id
             )
                 .toRestPersonen()
-                .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
+                .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                 .toRestResultaat()
     }
 
