@@ -318,6 +318,12 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     Context("Downloading a process diagram") {
         Given("An existing BPMN process diagram for a given zaak UUID") {
             val uuid = UUID.randomUUID()
+            val zaak = createZaak(uuid = uuid)
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
             every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("fakeDiagram".toByteArray())
 
             When("the process diagram is requested") {
@@ -416,6 +422,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
                 createZaakAfzender(
@@ -427,14 +435,13 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 )
             )
             zaaktypeCmmnConfiguration.setZaakAfzenders(zaakAfzenders)
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                email = "fake-medewerker@example.com"
-            )
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
@@ -493,16 +500,17 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             zaaktypeCmmnConfiguration.setZaakAfzenders(emptyList())
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                email = "fake-medewerker@example.com"
-            )
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
