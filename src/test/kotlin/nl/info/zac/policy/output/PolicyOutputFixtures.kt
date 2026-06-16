@@ -185,11 +185,13 @@ fun createWerklijstRechtenAllDeny(
 fun createOverigeRechten(
     startenZaak: Boolean = true,
     beheren: Boolean = true,
-    zoeken: Boolean = true
+    zoeken: Boolean = true,
+    brpZoeken: Boolean = true
 ) = OverigeRechten(
     startenZaak,
     beheren,
-    zoeken
+    zoeken,
+    brpZoeken
 )
 
 fun createNotitieRechten(
@@ -203,9 +205,11 @@ fun createNotitieRechten(
 fun createOverigeRechtenAllDeny(
     startenZaak: Boolean = false,
     beheren: Boolean = false,
-    zoeken: Boolean = false
+    zoeken: Boolean = false,
+    brpZoeken: Boolean = false
 ) = createOverigeRechten(
     startenZaak = startenZaak,
     beheren = beheren,
-    zoeken = zoeken
+    zoeken = zoeken,
+    brpZoeken = brpZoeken
 )

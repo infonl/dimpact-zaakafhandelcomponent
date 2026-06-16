@@ -15,12 +15,12 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { KlantenModule } from "../../klanten.module";
-import { KlantenService } from "../../klanten.service";
-import { KlantGegevens } from "../../model/klanten/klant-gegevens";
-import { BedrijfZoekComponent } from "../../zoek/bedrijven/bedrijf-zoek.component";
-import { PersoonZoekComponent } from "../../zoek/personen/persoon-zoek.component";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { KlantenModule } from "../../../klanten.module";
+import { KlantenService } from "../../../klanten.service";
+import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
+import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.component";
 
 @Component({
   selector: "zac-klant-koppel-betrokkene-persoon",
