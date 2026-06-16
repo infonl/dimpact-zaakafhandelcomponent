@@ -313,12 +313,14 @@ fun createRestZaakLinkData(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
     relatieType: RelatieType,
-    reverseRelatieType: RelatieType? = null
+    reverseRelatieType: RelatieType? = null,
+    reden: String? = null
 ) = RestZaakLinkData(
     zaakUuid = zaakUuid,
     teKoppelenZaakUuid = teKoppelenZaakUuid,
     relatieType = relatieType,
-    reverseRelatieType = reverseRelatieType
+    reverseRelatieType = reverseRelatieType,
+    reden = reden
 )
 
 fun createRestZaakUnlinkData(

@@ -351,6 +351,16 @@ describe(ZaakLinkComponent.name, () => {
     });
   });
 
+  describe("caseRelationOptionsList", () => {
+    it("contains an entry with value 'GERELATEERD'", () => {
+      const { component } = setup();
+      const gerelateerdeOption = component["caseRelationOptionsList"].find(
+        (option) => option.value === "GERELATEERD",
+      );
+      expect(gerelateerdeOption).toBeDefined();
+    });
+  });
+
   describe("DOM behaviour", () => {
     it("search button is disabled when form is invalid", () => {
       const { fixture } = setup();
