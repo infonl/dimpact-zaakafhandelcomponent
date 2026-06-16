@@ -238,33 +238,6 @@ describe(TaakViewComponent.name, () => {
     });
   });
 
-  describe("custom form builder", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(taakFormulierenService, "getAngularHandleFormBuilder")
-        .mockImplementation(() => {
-          throw new Error("Not implemented");
-        });
-      jest.spyOn(taakFormulierenService, "getFormulierBuilder").mockReturnValue(
-        fromPartial({
-          behandelForm: () =>
-            fromPartial({
-              build: () =>
-                fromPartial({
-                  form: [],
-                }),
-            }),
-        }),
-      );
-    });
-
-    it("should fallback to the old custom form builder", () => {
-      const spy = jest.spyOn(taakFormulierenService, "getFormulierBuilder");
-      component.instance.ngOnInit();
-      expect(spy).toHaveBeenCalledWith(taak.formulierDefinitieId);
-    });
-  });
-
   describe("document action buttons visibility for smartDocuments settings", () => {
     const smartDocumentVariants = [
       {

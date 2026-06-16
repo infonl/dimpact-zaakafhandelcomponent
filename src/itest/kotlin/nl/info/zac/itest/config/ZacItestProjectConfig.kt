@@ -16,12 +16,14 @@ import io.kotest.core.spec.SpecExecutionOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.ItestConfiguration.ADDITIONAL_ALLOWED_FILE_TYPES
 import nl.info.zac.itest.config.ItestConfiguration.BAG_MOCK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_PERMISSION_CHECK_PROCESS_CHOOSE_FORM_RESOURCE_PATH
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_PERMISSION_CHECK_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUMMARY_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY
@@ -38,7 +40,6 @@ import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_NEW
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
-import nl.info.zac.itest.config.ItestConfiguration.BRP_PROTOCOLLERING_ICONNECT
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.KEYCLOAK_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.KVK_MOCK_BASE_URI
@@ -65,6 +66,10 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEBROKEN_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
@@ -120,13 +125,13 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val dockerComposeOverrideEnvironment = mapOf(
             "APP_ENV" to "itest",
             "AUTH_SSL_REQUIRED" to "none",
-            "ADDITIONAL_ALLOWED_FILE_TYPES" to ADDITIONAL_ALLOWED_FILE_TYPES,
             "BAG_API_CLIENT_MP_REST_URL" to "$BAG_MOCK_BASE_URI/lvbag/individuelebevragingen/v2/",
             "KVK_API_CLIENT_MP_REST_URL" to KVK_MOCK_BASE_URI,
             "OFFICE_CONVERTER_CLIENT_MP_REST_URL" to OFFICE_CONVERTER_BASE_URI,
             "PABC_API_CLIENT_MP_REST_URL" to PABC_CLIENT_BASE_URI,
             "PABC_API_KEY" to PABC_API_KEY,
-            "BRP_PROTOCOLLERING" to BRP_PROTOCOLLERING_ICONNECT,
+            "BRP_PROTOCOLLERING_ENABLED" to "true",
+            "BRP_DOELBINDING_PER_ZAAKTYPE" to "true",
             "SMARTDOCUMENTS_ENABLED" to "true",
             "SMARTDOCUMENTS_CLIENT_MP_REST_URL" to SMART_DOCUMENTS_MOCK_BASE_URI,
             "SMTP_SERVER" to "greenmail",
@@ -366,7 +371,8 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             BPMN_TEST_PROCESS_RESOURCE_PATH,
             BPMN_TEST_USER_MANAGEMENT_PROCESS_RESOURCE_PATH,
             BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH,
-            BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH
+            BPMN_SUSPEND_RESUME_PROCESS_RESOURCE_PATH,
+            BPMN_PERMISSION_CHECK_PROCESS_RESOURCE_PATH
         ).forEach {
             itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
@@ -407,6 +413,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 BPMN_SUSPEND_RESUME_RESUME_FORM_RESOURCE_PATH,
                 BPMN_SUSPEND_RESUME_EXTEND_FORM_RESOURCE_PATH
             ),
+            BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY to listOf(
+                BPMN_PERMISSION_CHECK_PROCESS_CHOOSE_FORM_RESOURCE_PATH
+            )
         ).forEach { (processDefinitionKey, formResourcePaths) ->
             formResourcePaths.forEach { formResourcePath ->
                 itestHttpClient.performJSONPostRequest(
@@ -487,6 +496,20 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             defaultBehandelaarId = BEHANDELAAR_1.username,
             testUser = BEHEERDER_1,
             nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID
+        ).run {
+            val responseBody = bodyAsString
+            logger.info { "Response: $responseBody" }
+            code shouldBe HTTP_OK
+        }
+        zacClient.createZaaktypeBpmnConfiguration(
+            zaakTypeUuid = ZAAKTYPE_BPMN_TEST_5_UUID,
+            zaakTypeDescription = ZAAKTYPE_BPMN_TEST_5_DESCRIPTION,
+            bpmnProcessDefinitionKey = BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY,
+            productaanvraagType = ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE,
+            defaultGroupName = GROUP_BEHANDELAARS_TEST_1.name,
+            defaultBehandelaarId = BEHANDELAAR_1.username,
+            testUser = BEHEERDER_1,
+            nietOntvankelijkResultaattype = ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEBROKEN_UUID
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }

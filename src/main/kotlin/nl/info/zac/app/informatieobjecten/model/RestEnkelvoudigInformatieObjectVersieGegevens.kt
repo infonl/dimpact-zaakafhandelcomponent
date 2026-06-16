@@ -38,9 +38,6 @@ data class RestEnkelvoudigInformatieObjectVersieGegevens(
     @field:FormParam("taal")
     var taal: RestTaal? = null,
 
-    @field:FormParam("formaat")
-    var formaat: String? = null,
-
     @field:FormParam("beschrijving")
     var beschrijving: String? = null,
 

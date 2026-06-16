@@ -13,6 +13,7 @@ import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
+import java.time.Instant
 import java.util.Locale
 
 plugins {
@@ -209,7 +210,7 @@ testing {
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
-        register("itest", JvmTestSuite::class) {
+        register<JvmTestSuite>("itest") {
             useJUnitJupiter()
 
             dependencies {
@@ -748,11 +749,22 @@ tasks {
         group = "verification"
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
-
         npmCommand.set(listOf("run", "lint"))
 
-        inputs.files(fileTree("$appPath/node_modules"))
+        val sentinelFile = layout.buildDirectory.file(".lint-sentinel").get().asFile
+
         inputs.files(fileTree("$appPath/src"))
+        inputs.files(
+            fileTree(appPath) {
+                include("*.json", "*.js", "*.cjs")
+            }
+        )
+        outputs.file(sentinelFile)
+
+        doLast {
+            sentinelFile.parentFile.mkdirs()
+            sentinelFile.writeText(Instant.now().toString())
+        }
     }
 
     register<NpmTask>("npmRunBuild") {
@@ -895,7 +907,7 @@ dependencyCheck {
     )
 
     // Configure output formats - generates HTML, JSON, and SARIF reports
-    formats = listOf("HTML", "SARIF")
+    formats = listOf("HTML", "JSON", "SARIF")
 
     // Set severity threshold - only report HIGH and CRITICAL vulnerabilities
     failBuildOnCVSS = 7.0f
@@ -945,10 +957,14 @@ dependencyCheck {
     }
 
     // Configure NVD API settings (optional - improves performance)
+    val nvdApiKey = System.getenv("NVD_API_KEY")
+        ?.takeIf(String::isNotBlank)
+        ?: project.findProperty("nvdApiKey")?.toString()?.takeIf(String::isNotBlank)
     nvd {
-        // Read from environment variable (CI/CD) or gradle.properties (local dev)
-        apiKey = System.getenv("NVD_API_KEY") ?: project.findProperty("nvdApiKey")?.toString()
-        delay = 16000 // 16 seconds between API calls (free tier limit)
+        apiKey = nvdApiKey
+        // With an API key NVD allows 50 req/30s so 2s delay is safe;
+        // without a key the free-tier limit requires 16s between calls.
+        delay = if (nvdApiKey != null) 2000 else 16000
     }
 }
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgFor, NgIf, TitleCasePipe } from "@angular/common";
+import { NgFor, NgIf } from "@angular/common";
 import { Component } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -31,7 +31,6 @@ import { KlantenService } from "../klanten.service";
     MatButtonModule,
     MatIconModule,
     TranslateModule,
-    TitleCasePipe,
     StaticTextComponent,
     KlantZakenTabelComponent,
     KlantContactmomentenTabelComponent,

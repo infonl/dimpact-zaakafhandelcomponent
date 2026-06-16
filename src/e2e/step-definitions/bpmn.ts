@@ -402,14 +402,32 @@ Then(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
-    user: z.infer<typeof worldUsers>,
+    _user: z.infer<typeof worldUsers>,
     expectedCount: number,
   ) {
-    const options = formioForm(this.page).getByRole("option", {
-      name: UUID_V4_REGEX,
-    });
-    await waitForFormioContent(this.page, options.first());
-    await expect(options).toHaveCount(expectedCount, {
+    const titlesParagraph = formioForm(this.page).locator(
+      ".formio-component-selectedDocuments .formio-component-htmlelement p:nth-child(2)",
+    );
+    await expect(titlesParagraph).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    const text = (await titlesParagraph.textContent()) ?? "";
+    const count = text.split(" en ").filter(Boolean).length;
+    expect(count).toBe(expectedCount);
+  },
+);
+
+Then(
+  "{string} sees document {string} in the to be signed list",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    fileName: string,
+  ) {
+    const selectedDocuments = formioForm(this.page).locator(
+      ".formio-component-selectedDocuments .formio-component-htmlelement",
+    );
+    await waitForFormioContent(this.page, selectedDocuments);
+    await expect(selectedDocuments).toContainText(fileName, {
       timeout: FORTY_SECONDS_IN_MS,
     });
   },

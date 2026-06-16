@@ -7,10 +7,12 @@ import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
   signal,
+  untracked,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -69,6 +71,23 @@ export class BedrijfsgegevensComponent {
   });
 
   protected profiel = signal<GeneratedType<"RestBedrijfsprofiel"> | null>(null);
+
+  private _prevIdentificatie: string | null = null;
+
+  constructor() {
+    effect(() => {
+      const currentId = JSON.stringify(this.initiatorIdentificatie());
+      untracked(() => {
+        if (
+          this._prevIdentificatie !== null &&
+          this._prevIdentificatie !== currentId
+        ) {
+          this.profiel.set(null);
+        }
+        this._prevIdentificatie = currentId;
+      });
+    });
+  }
 
   protected warningIcon = new TextIcon(
     () => true,

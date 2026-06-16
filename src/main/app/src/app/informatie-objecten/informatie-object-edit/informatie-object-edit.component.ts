@@ -29,6 +29,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacFile } from "../../shared/form/file/file";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -51,6 +52,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
     MatToolbarModule,
     TranslateModule,
     ZacDate,
+    ZacFile,
     ZacInput,
     ZacSelect,
     MaterialFormBuilderModule,
@@ -245,7 +247,7 @@ export class InformatieObjectEditComponent implements OnChanges {
   }
 
   protected submit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
     this.informatieObjectenService
       .updateEnkelvoudigInformatieobject(
         this.infoObject!.uuid!,

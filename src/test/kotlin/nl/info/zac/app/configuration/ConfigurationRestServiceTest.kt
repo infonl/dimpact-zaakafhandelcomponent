@@ -5,12 +5,14 @@
 package nl.info.zac.app.configuration
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.atos.zac.util.JsonbUtil
 import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
+import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.ConfigurationService
 
 class ConfigurationRestServiceTest : BehaviorSpec({
@@ -96,27 +98,19 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Additional allowed file types are configured") {
-        val fileTypes = listOf("fakeFileType1", "fakeFileType2")
-        every { configurationService.readAdditionalAllowedFileTypes() } returns fileTypes
+    Given("The allowed file types endpoint is queried") {
+        When("listAllowedFileTypes is called") {
+            val result = configurationRestService.listAllowedFileTypes()
 
-        When("readAdditionalAllowedFileTypes is called") {
-            val result = configurationRestService.readAdditionalAllowedFileTypes()
-
-            Then("it should return the list of file types") {
-                result shouldBe fileTypes
-            }
-        }
-    }
-
-    Given("No additional file types are configured") {
-        every { configurationService.readAdditionalAllowedFileTypes() } returns emptyList()
-
-        When("readAdditionalAllowedFileTypes is called") {
-            val result = configurationRestService.readAdditionalAllowedFileTypes()
-
-            Then("it should return an empty list") {
-                result shouldBe emptyList()
+            Then("it returns the full canonical allowlist as extension/media-type pairs") {
+                result.map { it.extension } shouldContainExactlyInAnyOrder listOf(
+                    ".avi", ".bmp", ".doc", ".docx", ".eml", ".flv", ".gif",
+                    ".jpeg", ".jpg", ".mkv", ".mov", ".mp4", ".mpeg", ".msg",
+                    ".ods", ".odt", ".pdf", ".png", ".ppt", ".pptx", ".rtf",
+                    ".txt", ".vsd", ".wmv", ".xls", ".xlsx"
+                )
+                result.first { it.extension == ".pdf" }.mediaType shouldBe "application/pdf"
+                result.first { it.extension == ".jpg" }.mediaType shouldBe "image/jpeg"
             }
         }
     }
@@ -147,12 +141,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("BRP protocollering is enabled with iConnect provider") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "iConnect"
+    Given("doelbindingPerZaaktype is true") {
+        val brpConfiguration = mockk<BrpConfigurationProvider>()
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns true
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("isBrpDoelbindingSetupEnabled is called") {
+        When("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return true") {
@@ -161,40 +155,12 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("BRP protocollering is enabled with 2Secure provider") {
+    Given("doelbindingPerZaaktype is false") {
         val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "2Secure"
+        every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns false
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
-
-            Then("it should return false") {
-                result shouldBe false
-            }
-        }
-    }
-
-    Given("BRP protocollering is disabled") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns ""
-        every { configurationService.readBrpConfiguration() } returns brpConfiguration
-
-        When("isBrpDoelbindingSetupEnabled is called") {
-            val result = configurationRestService.readBrpDoelbindingSetupEnabled()
-
-            Then("it should return false") {
-                result shouldBe false
-            }
-        }
-    }
-
-    Given("BRP protocollering has an unknown provider") {
-        val brpConfiguration = mockk<BrpConfiguration>()
-        every { brpConfiguration.readBrpProtocolleringProvider() } returns "UnknownProvider"
-        every { configurationService.readBrpConfiguration() } returns brpConfiguration
-
-        When("isBrpDoelbindingSetupEnabled is called") {
+        When("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
             Then("it should return false") {

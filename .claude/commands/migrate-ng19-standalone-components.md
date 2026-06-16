@@ -1,28 +1,16 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 15 remaining** (2026-05-11)
-Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
+**Progress: 6 remaining** (2026-06-11)
+Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
 
 ## Remaining Components
 
 - `app/app.component.ts`
-- `app/core/toolbar/toolbar.component.ts`
-- `app/dashboard/dashboard-card/dashboard-card.component.ts`
-- `app/dashboard/dashboard.component.ts`
-- `app/dashboard/informatieobjecten-card/informatieobjecten-card.component.ts`
-- `app/dashboard/taak-zoeken-card/taak-zoeken-card.component.ts`
-- `app/dashboard/zaak-waarschuwingen-card/zaak-waarschuwingen-card.component.ts`
-- `app/dashboard/zaak-zoeken-card/zaak-zoeken-card.component.ts`
-- `app/dashboard/zaken-card/zaken-card.component.ts`
-- `app/plan-items/human-task-do/human-task-do.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
 - `app/taken/taak-view/taak-view.component.ts`
-- `app/taken/taken-werkvoorraad/taken-werkvoorraad.component.ts`
 - `app/zaken/besluit-edit/besluit-edit.component.ts`
 - `app/zaken/besluit-view/besluit-view.component.ts`
 - `app/zaken/zaak-view/zaak-view.component.ts`
-- `app/zaken/zaken-werkvoorraad/zaken-werkvoorraad.component.ts`
-- `app/zoeken/zoek/zoek.component.ts`
 
 ---
 
@@ -66,7 +54,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
 | **Update routing** | When a component is migrated to standalone, also update its route in `*-routing.module.ts` to use `loadComponent` with a dynamic import. Remove the static import. |
-| **No SharedModule in `imports[]`** | Never add `SharedModule` (or any other barrel/shared module) to a standalone component's `imports[]`. Import every directive, component, and pipe individually. `SharedModule` is a monolithic import that defeats tree-shaking and lazy loading — the entire point of going standalone. |
+| **No SharedModule in `imports[]`** | Never add `SharedModule`, `MaterialModule`, or any other barrel/shared module to a standalone component's `imports[]` or to a spec's `TestBed` imports. Import every directive, component, and pipe individually. Barrel modules defeat tree-shaking and lazy loading — the entire point of going standalone. In specs, the standalone component under test already declares its own imports, so the spec only needs `[TheComponent, NoopAnimationsModule, TranslateModule.forRoot()]`. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
 | **Methods: `protected` by default** | All methods are `protected`. Never `public` just because a spec calls it. |
@@ -198,6 +186,14 @@ Solves PZ-XXXXX
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
 
+### Patterns added in batch-18
+| Pattern | Detail |
+|---|---|
+| Extracting types from component file | When a component file contains exported types used widely across the codebase, extract them to a sibling `<name>.types.ts` file. Component imports from types file; consumers import types directly. |
+| `VariabelenKiesMenuComponent` moved out of ATOS | Old `HtmlEditorVariabelenKiesMenuComponent` (non-standalone, ATOS) replaced by new `VariabelenKiesMenuComponent` (standalone) in `shared/form/html-editor/variabelen-kies-menu/`. Module imports the new one. |
+| Standalone component for non-standalone consumers | Do NOT re-export a standalone component through an NgModule (modules are being phased out). Import it directly in the `imports[]` of the module that *declares* the consuming component (e.g. `HumanTaskDoComponent` in `ZakenModule`, which declares `ZaakViewComponent`). Once the consumer itself goes standalone, move the import into the consumer's own `imports[]`. (Review feedback marcel, PR #6179) |
+| Rename `ZacForm` → `ZacComposedForm` | `ZacForm` was too generic; renamed to `ZacComposedForm` and moved to `shared/form/composed-form/`. Types extracted to `form-field.types.ts`. |
+
 ### Patterns added in batch-16
 | Pattern | Detail |
 |---|---|
@@ -217,6 +213,11 @@ TBD — run step 0 (claims check) at start of next session.
 | batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
 | batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
 | batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
+| batch-17 (dashboard) | `DashboardCardComponent`, `DashboardComponent`, `InformatieobjectenCardComponent`, `TaakZoekenCardComponent`, `ZaakWaarschuwingenCardComponent`, `ZaakZoekenCardComponent`, `ZakenCardComponent` + `DashboardModule` deleted | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-17b (toolbar) | `BackButtonDirective`, `ToolbarComponent` | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-18 (form components) | `ZacFile`, `ZacDocuments`, `ZacHtmlEditor`, `VariabelenKiesMenuComponent` (new, replaces ATOS) | `chore/PZ-11415--FE--Angular-v19-migration--ZacFile-ZacDocuments-ZacHtmlEditor` |
+| batch-18b (composed form) | `ZacForm` → renamed `ZacComposedForm`, moved to `shared/form/composed-form/`, types extracted to `form-field.types.ts` | `chore/PZ-11417--FE--Angular-v19-migration--ZacComposedForm` |
+| PZ-11441 (MFB-migratie §1) | `HumanTaskDoComponent` — removed dead MFB fallback (`formulier`/`formItems`/`formConfig` + unreachable `ngOnInit` catch block) and made standalone | `feature/PZ-11441-human-task-do-angular-forms` (PR #6179) |
 
 ---
 

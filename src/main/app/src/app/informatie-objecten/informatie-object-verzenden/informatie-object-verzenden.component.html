@@ -1,22 +1,38 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2023 Atos, 2025 INFO.nl
+  ~ SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>local_post_office</mat-icon>
   <span class="flex-grow-1">{{ "actie.document.verzenden" | translate }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<div class="form">
-  <mfb-form
-    *ngIf="fields"
-    (formSubmit)="onFormSubmit($event)"
-    [formFields]="fields"
-    [config]="formConfig"
-  ></mfb-form>
-</div>
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="sideNav().close()"
+  class="mt-2"
+>
+  <fieldset>
+    <p [innerHTML]="'msg.document.verzenden.post.uitleg' | translate"></p>
+    <zac-documents
+      [form]="form"
+      key="documenten"
+      [options]="documentenQuery.data() ?? []"
+    />
+    <zac-date [form]="form" key="verzenddatum" />
+    <zac-textarea [form]="form" key="toelichting" />
+  </fieldset>
+  <fieldset>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="verzendenMutation"
+      submitLabel="actie.verzenden"
+    />
+  </fieldset>
+</form>

@@ -237,6 +237,182 @@ describe(BedrijfsgegevensComponent.name, () => {
     });
   });
 
+  describe("zaakSpecificContactDetails", () => {
+    beforeEach(() => {
+      notifyManager.setScheduler((fn) => fn());
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("renders the zaak-specific telephoneNumber when set, overriding the bedrijf telefoonnummer", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, telefoonnummer: "0299123456" });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      expect(telefoonField?.textContent).toContain("0612345678");
+      expect(telefoonField?.textContent).not.toContain("0299123456");
+    });
+
+    it("renders the zaak-specific emailAddress when set, overriding the bedrijf emailadres", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: null,
+            emailAddress: "zaak@example.com",
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, emailadres: "bedrijf@example.com" });
+      await sleep();
+      fixture.detectChanges();
+
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(emailField?.textContent).toContain("zaak@example.com");
+      expect(emailField?.textContent).not.toContain("bedrijf@example.com");
+    });
+
+    it("falls back to the bedrijf telefoonnummer and emailadres when zaakSpecificContactDetails is absent", async () => {
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(telefoonField?.textContent).toContain("0299123456");
+      expect(emailField?.textContent).toContain("bedrijf@example.com");
+    });
+
+    it("falls back per-field to bedrijf data when only one zaak-specific contact value is set", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      const telefoonField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="telefoonnummer"]',
+      );
+      const emailField: HTMLElement = fixture.nativeElement.querySelector(
+        'zac-static-text[label="emailadres"]',
+      );
+      expect(telefoonField?.textContent).toContain("0612345678");
+      expect(emailField?.textContent).toContain("bedrijf@example.com");
+    });
+
+    it("shows the aanvraagspecifiek hint when telephoneNumber comes from contact details", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: "0612345678",
+            emailAddress: null,
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, telefoonnummer: "0299123456" });
+      await sleep();
+      fixture.detectChanges();
+
+      const hints: HTMLElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll(".hint"),
+      );
+      expect(
+        hints.some((h) =>
+          h.textContent?.includes("initiator.aanvraagspecifiek-telefoonnummer"),
+        ),
+      ).toBe(true);
+    });
+
+    it("shows the aanvraagspecifiek hint when emailAddress comes from contact details", async () => {
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          zaakSpecificContactDetails: {
+            telephoneNumber: null,
+            emailAddress: "zaak@example.com",
+          },
+        }),
+      );
+
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({ ...testBedrijf, emailadres: "bedrijf@example.com" });
+      await sleep();
+      fixture.detectChanges();
+
+      const hints: HTMLElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll(".hint"),
+      );
+      expect(
+        hints.some((h) =>
+          h.textContent?.includes("initiator.aanvraagspecifiek-emailadres"),
+        ),
+      ).toBe(true);
+    });
+
+    it("does not show any aanvraagspecifiek hint when no zaak-specific contact details are set", async () => {
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush({
+        ...testBedrijf,
+        telefoonnummer: "0299123456",
+        emailadres: "bedrijf@example.com",
+      });
+      await sleep();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector(".hint")).toBeNull();
+    });
+  });
+
   describe.each([
     {
       status: 404,
@@ -447,6 +623,44 @@ describe(BedrijfsgegevensComponent.name, () => {
           .find((de) => de.componentInstance.label === "statutaireNaam");
         expect(element).toBeTruthy();
       });
+    });
+  });
+
+  describe("when initiatorIdentificatie changes after profiel is loaded", () => {
+    beforeEach(async () => {
+      notifyManager.setScheduler((fn) => fn());
+      const request = httpController.expectOne(vestigingUrl);
+      request.flush(testBedrijf);
+      await sleep();
+      fixture.detectChanges();
+
+      jest
+        .spyOn(klantenService, "readVestigingsprofiel")
+        .mockReturnValue(of(makeBedrijfsprofiel()));
+      component["ophalenProfiel"]();
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    it("clears profiel signal", () => {
+      expect(component["profiel"]()).not.toBeNull();
+
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          ...testZaak,
+          initiatorIdentificatie: fromPartial<BetrokkeneIdentificatie>({
+            type: "VN",
+            kvkNummer: "99999999",
+            vestigingsnummer: "99999999",
+          }),
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(component["profiel"]()).toBeNull();
     });
   });
 });

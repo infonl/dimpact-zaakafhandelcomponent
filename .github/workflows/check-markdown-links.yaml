@@ -7,7 +7,7 @@ name: Check Markdown Links
 on:
   pull_request:
     paths:
-      - '**/*.md'
+      - "**/*.md"
 
 permissions:
   contents: read
@@ -17,10 +17,12 @@ jobs:
   check-markdown-links:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Run linkspector
-        uses: umbrelladocs/action-linkspector@963b6264d7de32c904942a70b488d3407453049e # v1.5.1
+        uses: umbrelladocs/action-linkspector@6c637d70424624231467a4ca918be54fa3b792d0 # v1.5.4
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review

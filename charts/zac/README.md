@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.243](https://img.shields.io/badge/Version-1.0.243-informational?style=flat-square) ![AppVersion: 4.9](https://img.shields.io/badge/AppVersion-4.9-informational?style=flat-square)
+![Version: 1.0.260](https://img.shields.io/badge/Version-1.0.260-informational?style=flat-square) ![AppVersion: 5.1](https://img.shields.io/badge/AppVersion-5.1-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.156.1 |
+| @opentelemetry | opentelemetry-collector | 0.158.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -46,7 +46,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalAllowedFileTypes | string | `nil` | An optional list of additional file extensions that can be uploaded |
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
 | auth.realm | string | `""` |  |
@@ -60,12 +59,21 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | backendConfig.enabled | bool | `false` |  |
 | bagApi.apiKey | string | `""` |  |
 | bagApi.url | string | `""` |  |
-| brpApi.apiKey | string | `""` |  |
-| brpApi.protocollering.aanbieder | string | `"iConnect"` | Supported providers: iConnect, 2Secure |
-| brpApi.protocollering.doelbinding.raadpleegmet | string | `"BRPACT-Totaal"` |  |
-| brpApi.protocollering.doelbinding.zoekmet | string | `"BRPACT-ZoekenAlgemeen"` |  |
-| brpApi.protocollering.originOin | string | `""` | OIN of the originator, which is required for BRP protocollering. If this variable is not set, BRP protocollering will be disabled. |
-| brpApi.protocollering.verwerkingsregister | string | `"Algemeen"` |  |
+| brpApi.apiKey | object | `{"header":"X-API-KEY","value":""}` | Optional API key for BRP authentication. When set, BRP_API_KEY is injected as a Kubernetes Secret. |
+| brpApi.logLevel | string | `"INFO"` |  |
+| brpApi.protocollering.doelbinding.header | string | `""` | Header name for the doelbinding value. Set to empty string to disable this header. |
+| brpApi.protocollering.doelbinding.perZaaktype | bool | `false` | Set to true to require doelbinding values to be configured per zaaktype in the admin UI |
+| brpApi.protocollering.doelbinding.raadpleegmet | string | `""` | Default "RaadpleegMet" doelbinding as a fall-back |
+| brpApi.protocollering.doelbinding.zoekmet | string | `""` | Default "ZoekMet" doelbinding as a fall-back |
+| brpApi.protocollering.enabled | bool | `false` | Set to true to enable BRP protocollering header injection |
+| brpApi.protocollering.gebruiker.header | string | `""` | Header name for the gebruiker value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.header | string | `""` | Header name for the origin OIN value. Set to empty string to disable this header. |
+| brpApi.protocollering.originOin.oin | string | `""` |  |
+| brpApi.protocollering.systemUser | string | `"SystemUser"` |  |
+| brpApi.protocollering.toepassing.header | string | `""` | Header name for the toepassing value. Set to empty string to disable this header. |
+| brpApi.protocollering.toepassing.value | string | `"ZAC"` |  |
+| brpApi.protocollering.verwerking.header | string | `""` | Header name for the verwerking value. Set to empty string to disable this header. |
+| brpApi.protocollering.verwerking.register | string | `""` |  |
 | brpApi.url | string | `""` |  |
 | catalogusDomein | string | `"ALG"` | ZAC OpenZaak Catalogus Domein |
 | contextUrl | string | `""` | External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com) |
@@ -130,7 +138,6 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.api_proxy.brp.proxy_path | string | `"/haalcentraal/api/brp"` |  |
 | nginx.api_proxy.brp.server_secret | string | `"brp_server"` |  |
 | nginx.api_proxy.brp.ssl_verify | bool | `false` |  |
-| nginx.api_proxy.brp.x_doelbinding | string | `"test"` |  |
 | nginx.api_proxy.certificate_secret | string | `"nginx-certs"` |  |
 | nginx.api_proxy.enabled | bool | `false` |  |
 | nginx.api_proxy.kvk.basisprofiel.apikey_header_name | string | `"X-Api-Key"` |  |
@@ -166,10 +173,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.autoscaling.enabled | bool | `false` |  |
 | nginx.client_max_body_size | string | `"120M"` |  |
 | nginx.enabled | bool | `false` |  |
-| nginx.existingConfigmap | string | `nil` | mount existing nginx vhost config |
+| nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.0@sha256:dacab5ad452555790911c9764ca9f1affe15ca9612073dd98b3ede4c68567e92"` |  |
+| nginx.image.tag | string | `"1.31.1@sha256:a863b95eaf9d868354e336b1a38cce4f8d73cb029ef45cb6dfcc935a0c1524c1"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -197,12 +204,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | objectenApi.token | string | `""` |  |
 | objectenApi.url | string | `""` |  |
 | office_converter.affinity | object | `{}` |  |
-| office_converter.containerPort | int | `3000` | Container port the office-converter listens on. Gotenberg default is 3000; override to 8080 if using an alternative image (e.g. kontextwork-converter). |
+| office_converter.containerPort | int | `3000` |  |
 | office_converter.enabled | bool | `true` |  |
 | office_converter.env.CHROMIUM_DISABLE_ROUTES | string | `"true"` |  |
 | office_converter.image.pullPolicy | string | `"IfNotPresent"` |  |
 | office_converter.image.repository | string | `"gotenberg/gotenberg"` |  |
-| office_converter.image.tag | string | `"8.32.0@sha256:a40c5a46b79d812ce2f5e139278163142a054050bfd1e5f162da36d3d11c7138"` |  |
+| office_converter.image.tag | string | `"8.34.0@sha256:67097317623a503ba2a6a7e9ae8db6929a1f7e1bbd88077bacf2d325fbdab923"` |  |
 | office_converter.imagePullSecrets | list | `[]` |  |
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
@@ -222,7 +229,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61"` |  |
+| opa.image.tag | string | `"1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -248,7 +255,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.152.1@sha256:fa1f6ea8dabd3042fabf4411eed7fa52f253edd8940140bec89a573e62a24eb7"` |  |
+| opentelemetry-collector.image.tag | string | `"0.154.0@sha256:b3079f45e19bdb7326bf49cdddce6cf60dfd865138db39f2733ea48ab17bc4cb"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |
@@ -302,34 +309,34 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.image.repository | string | `"apache/solr-operator"` | solr-operator repository |
 | solr-operator.image.tag | string | `"v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2"` | solr-operator tag |
 | solr-operator.metrics.enabled | bool | `true` | enable to have solr-operator metric endpoints |
-| solr-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
+| solr-operator.nodeSelector | object | `{}` |  |
 | solr-operator.solr.affinity | object | `{}` | affinity for solr in solrcloud |
 | solr-operator.solr.annotations | object | `{}` | annotations for solr in solrcloud |
 | solr-operator.solr.busyBoxImage.pullPolicy | string | `"IfNotPresent"` | solr busybox image imagePullPolicy |
 | solr-operator.solr.busyBoxImage.repository | string | `"library/busybox"` | solr busybox image reposity |
-| solr-operator.solr.busyBoxImage.tag | string | `"1.37.0-glibc@sha256:3f9777e7e82e8591542f72b965ec7db7e8b3bdb59692976af1bb9b2850b05a4e"` | solr busybox image tag |
-| solr-operator.solr.enabled | bool | `true` | enable configuration of a solrcloud |
+| solr-operator.solr.busyBoxImage.tag | string | `"1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a"` | solr busybox image tag |
+| solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:c31309064085bd43b3f368d5fddea34ba5236865647e6427f128b9f3e300da61"` | solr image tag |
-| solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` | solr memory settings |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4"` | solr image tag |
+| solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
 | solr-operator.solr.jobs.nodeSelector | object | `{}` | nodeSelector for jobs |
 | solr-operator.solr.jobs.tolerations | list | `[]` | tolerations for jobs |
 | solr-operator.solr.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/solr/admin/info/health","port":8983},"periodSeconds":20,"timeoutSeconds":1}` | livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period. failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts. |
-| solr-operator.solr.logLevel | string | `"INFO"` | solr loglevel |
+| solr-operator.solr.logLevel | string | `"INFO"` |  |
 | solr-operator.solr.nodeSelector | object | `{}` | nodeSelector for solr in solrcloud |
-| solr-operator.solr.readinessProbe | object | `{}` | readinessProbe override for solr in solrcloud. The Solr Operator already defaults to /solr/admin/info/health for readiness. Override only if custom thresholds are needed. |
+| solr-operator.solr.readinessProbe | object | `{}` |  |
 | solr-operator.solr.replicas | int | `3` | replicas for solr in solrcloud, should be an odd number |
-| solr-operator.solr.resources | object | `{}` | resource limits and requests for solr in solrcloud |
-| solr-operator.solr.startupProbe | object | `{}` | startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system. Override only if custom startup timing is needed. |
+| solr-operator.solr.resources | object | `{}` |  |
+| solr-operator.solr.startupProbe | object | `{}` |  |
 | solr-operator.solr.storage.reclaimPolicy | string | `"Delete"` | solr storage reclaimPolicy |
 | solr-operator.solr.storage.size | string | `"1Gi"` | solr storage size |
 | solr-operator.solr.storage.storageClassName | string | `"managed-csi"` | solr storage storageClassName |
 | solr-operator.solr.tolerations | list | `[]` | tolerations for solr in solrcloud |
 | solr-operator.solr.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"solr-cloud"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for solr in solrcloud |
-| solr-operator.tolerations | list | `[]` | tolerations for solr-operator |
+| solr-operator.tolerations | list | `[]` |  |
 | solr-operator.watchNamespaces | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
 | solr-operator.zookeeper-operator.affinity | object | `{}` | affinity for zookeeper-operator |
 | solr-operator.zookeeper-operator.annotations | object | `{}` | annotations for zookeeper-operator |
@@ -340,7 +347,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.image.pullPolicy | string | `"IfNotPresent"` | zookeeper-operator imagePullPolicy |
 | solr-operator.zookeeper-operator.image.repository | string | `"pravega/zookeeper-operator"` | zookeeper-operator image repository |
 | solr-operator.zookeeper-operator.image.tag | string | `"0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e"` | zookeeper-operator image tag |
-| solr-operator.zookeeper-operator.nodeSelector | object | `{}` | nodeSelector for solr-operator |
+| solr-operator.zookeeper-operator.nodeSelector | object | `{}` |  |
 | solr-operator.zookeeper-operator.tolerations | list | `[]` | tolerations for solr-operator |
 | solr-operator.zookeeper-operator.watchNamespace | string | `"default"` | a comma-seperated list of namespaces to watch, watches all namespaces if empty |
 | solr-operator.zookeeper-operator.zookeeper.affinity | object | `{}` | affinity for zookeeper |
@@ -348,9 +355,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.image.pullPolicy | string | `"IfNotPresent"` | zookeeper imagePullPolicy |
 | solr-operator.zookeeper-operator.zookeeper.image.repository | string | `"pravega/zookeeper"` | zookeeper image repository |
 | solr-operator.zookeeper-operator.zookeeper.image.tag | string | `"0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8"` | zookeeper image tag |
-| solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` | nodeSelector for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.nodeSelector | object | `{}` |  |
 | solr-operator.zookeeper-operator.zookeeper.replicas | int | `3` | replicas for zookeeper, should be an odd number |
-| solr-operator.zookeeper-operator.zookeeper.resources | object | `{}` | resource limits and requests for zookeeper |
+| solr-operator.zookeeper-operator.zookeeper.resources | object | `{}` |  |
 | solr-operator.zookeeper-operator.zookeeper.storage.reclaimPolicy | string | `"Delete"` | zookeeper storage reclaimPolicy |
 | solr-operator.zookeeper-operator.zookeeper.storage.size | string | `"1Gi"` | zookeeper storage size |
 | solr-operator.zookeeper-operator.zookeeper.storage.storageClassName | string | `"managed-csi"` | zookeeper storageClassName |

@@ -211,7 +211,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
             Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
-                    shouldContainJsonKeyValue("totaal", "1.0")
+                    shouldContainJsonKeyValue("totaal", 1)
                     with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                         shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                         shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
@@ -304,7 +304,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
-            When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
+            And("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
                 // it may take a while before the notification is processed and the signalering is created
                 lateinit var responseBody: String
                 eventually(10.seconds) {
@@ -328,7 +328,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {
-                        shouldContainJsonKeyValue("totaal", "1.0")
+                        shouldContainJsonKeyValue("totaal", 1)
                         with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                             shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                             shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())

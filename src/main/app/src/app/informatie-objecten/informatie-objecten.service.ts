@@ -9,6 +9,7 @@ import { map, Observable } from "rxjs";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -112,8 +113,8 @@ export class InformatieObjectenService {
           );
           break;
         case "file":
-          formData.append(
-            "file",
+          appendFileToFormData(
+            formData,
             value as unknown as Blob,
             infoObject.bestandsnaam!,
           );
@@ -169,12 +170,18 @@ export class InformatieObjectenService {
     );
   }
 
-  verzenden(
-    body: PostBody<"/rest/informatieobjecten/informatieobjecten/verzenden">,
-  ) {
-    return this.zacHttpClient.POST(
+  listInformatieobjectenVoorVerzendenQuery(zaakUuid: string) {
+    return this.zacQueryClient.GET(
+      "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
+      {
+        path: { zaakUuid },
+      },
+    );
+  }
+
+  verzenden() {
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobjecten/verzenden",
-      body,
     );
   }
 
@@ -198,13 +205,13 @@ export class InformatieObjectenService {
     );
   }
 
-  unlockInformatieObject(uuid: string, zaakUuid: string) {
+  unlockInformatieObject(uuid: string, zaakUuid?: string) {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
       undefined as never,
       {
         path: { uuid },
-        query: { zaak: zaakUuid },
+        query: { zaak: zaakUuid ?? null },
       },
     );
   }

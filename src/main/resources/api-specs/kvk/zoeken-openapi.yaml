@@ -1,176 +1,174 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: API Zoeken
   description: Documentatie voor API Zoeken.
-  version: 2.0.0
+  version: 2.1.0
 servers:
-  - url: /test/api/v2
-    description: only for testing with Swagger widget
-  - url: https://api.kvk.nl/test/api/v2
-    description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
-  - url: https://api.kvk.nl/api/v2
-    description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
-      chain)
+- url: https://api.kvk.nl/test/api/v2
+  description: Test API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
+- url: https://api.kvk.nl/api/v2
+  description: Production API (uses Staat der Nederlanden Private Root CA – G1 certificate
+    chain)
 paths:
   /zoeken:
     get:
       tags:
-        - Zoeken
+      - Zoeken
       summary: Voor een bedrijf zoeken naar basisinformatie.
       description: Er wordt max. 1000 resultaten getoond.
       operationId: getResults
       parameters:
-        - name: kvkNummer
-          in: query
-          description: Nederlands Kamer van Koophandel nummer dat bestaat uit 8 cijfers
-          schema:
-            pattern: "^[0-9]{8}$"
+      - name: kvkNummer
+        in: query
+        description: Nederlands Kamer van Koophandel nummer dat bestaat uit 8 cijfers
+        schema:
+          pattern: "^[0-9]{8}$"
+          type: string
+        example: 59581883
+      - name: rsin
+        in: query
+        description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer dat bestaat
+          uit 9 cijfers
+        schema:
+          pattern: "^[0-9]{9}$"
+          type: string
+        example: 823807071
+      - name: vestigingsnummer
+        in: query
+        description: Vestigingsnummer dat bestaat uit 12 cijfers
+        schema:
+          pattern: "^[0-9]{12}$"
+          type: string
+        example: "000015063097"
+      - name: naam
+        in: query
+        description: De naam waaronder een vestiging of rechtspersoon handelt
+        schema:
+          type: string
+        example: Kamer van Koophandel
+      - name: straatnaam
+        in: query
+        schema:
+          type: string
+        example: St.-Jacobsstraat
+      - name: plaats
+        in: query
+        schema:
+          type: string
+        example: Utrecht
+      - name: postcode
+        in: query
+        description: Mag alleen in combinatie met huisnummer of postbusnummer gezocht
+          worden
+        schema:
+          pattern: "^[0-9]{4}[a-z,A-Z]{2}$"
+          type: string
+        example: 3511BT
+      - name: huisnummer
+        in: query
+        description: Mag alleen in combinatie met postcode gezocht worden
+        schema:
+          pattern: "^[0-9]{1,5}$"
+          type: integer
+        example: 300
+      - name: huisletter
+        in: query
+        description: Optioneel. Alleen in combinatie met huisnummer
+        schema:
+          pattern: "^[a-z,A-Z]{1}$"
+          type: string
+        example: D
+      - name: postbusnummer
+        in: query
+        description: Mag alleen in combinatie met postcode gezocht worden
+        schema:
+          pattern: "^[0-9]{1,5}$"
+          type: integer
+        example: 9292
+      - name: type
+        in: query
+        description: "Filter op type: hoofdvestiging, nevenvestiging en/of rechtspersoon"
+        schema:
+          type: array
+          items:
             type: string
-          example: 59581883
-        - name: rsin
-          in: query
-          description: Rechtspersonen Samenwerkingsverbanden Informatie Nummer dat bestaat
-            uit 9 cijfers
-          schema:
-            pattern: "^[0-9]{9}$"
-            type: string
-          example: 823807071
-        - name: vestigingsnummer
-          in: query
-          description: Vestigingsnummer dat bestaat uit 12 cijfers
-          schema:
-            pattern: "^[0-9]{12}$"
-            type: string
-          example: "000015063097"
-        - name: naam
-          in: query
-          description: De naam waaronder een vestiging of rechtspersoon handelt
-          schema:
-            type: string
-          example: Kamer van Koophandel
-        - name: straatnaam
-          in: query
-          schema:
-            type: string
-          example: St.-Jacobsstraat
-        - name: plaats
-          in: query
-          schema:
-            type: string
-          example: Utrecht
-        - name: postcode
-          in: query
-          description: Mag alleen in combinatie met huisnummer of postbusnummer gezocht
-            worden
-          schema:
-            pattern: "^[0-9]{4}[a-z,A-Z]{2}$"
-            type: string
-          example: 3511BT
-        - name: huisnummer
-          in: query
-          description: Mag alleen in combinatie met postcode gezocht worden
-          schema:
-            pattern: "^[0-9]{1,5}$"
-            type: integer
-          example: 300
-        - name: huisletter
-          in: query
-          description: Optioneel. Alleen in combinatie met huisnummer
-          schema:
-            pattern: "^[a-z,A-Z]{1}$"
-            type: string
-          example: D
-        - name: postbusnummer
-          in: query
-          description: Mag alleen in combinatie met postcode gezocht worden
-          schema:
-            pattern: "^[0-9]{1,5}$"
-            type: integer
-          example: 9292
-        - name: type
-          in: query
-          description: "Filter op type: hoofdvestiging, nevenvestiging en/of rechtspersoon"
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-                - hoofdvestiging
-                - nevenvestiging
-                - rechtspersoon
-          example: hoofdvestiging
-        - name: inclusiefInactieveRegistraties
-          in: query
-          description: Inclusief inactieve registraties
-          schema:
-            type: boolean
-          example: true
-        - name: pagina
-          in: query
-          description: "Paginanummer, minimaal 1 en maximaal 1000"
-          schema:
-            maximum: 1000
-            type: integer
-            default: 1
-        - name: resultatenPerPagina
-          in: query
-          description: "Kies het aantal resultaten per pagina, minimaal 1 en maximaal 100"
-          schema:
-            maximum: 100
-            minimum: 1
-            type: integer
-            default: 10
+            enum:
+            - hoofdvestiging
+            - nevenvestiging
+            - rechtspersoon
+        example: [hoofdvestiging]
+      - name: inclusiefInactieveRegistraties
+        in: query
+        description: Inclusief inactieve registraties
+        schema:
+          type: boolean
+        example: true
+      - name: pagina
+        in: query
+        description: "Paginanummer, minimaal 1 en maximaal 1000"
+        schema:
+          maximum: 1000
+          type: integer
+          default: 1
+      - name: resultatenPerPagina
+        in: query
+        description: "Kies het aantal resultaten per pagina, minimaal 1 en maximaal 100"
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 10
       responses:
         "200":
           description: OK
           headers:
             api-version:
-              $ref: '#/components/headers/api_version'
+              $ref: "#/components/headers/api_version"
             warning:
-              $ref: '#/components/headers/warning'
+              $ref: "#/components/headers/warning"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resultaat'
+                $ref: "#/components/schemas/Resultaat"
             application/hal+json:
               schema:
-                $ref: '#/components/schemas/Resultaat'
+                $ref: "#/components/schemas/Resultaat"
         "400":
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         "401":
-          $ref: '#/components/responses/Unauthorized'
+          $ref: "#/components/responses/Unauthorized"
         "403":
-          $ref: '#/components/responses/Forbidden'
+          $ref: "#/components/responses/Forbidden"
         "404":
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         "406":
-          $ref: '#/components/responses/NotAcceptable'
+          $ref: "#/components/responses/NotAcceptable"
         "500":
-          $ref: '#/components/responses/InternalServerError'
+          $ref: "#/components/responses/InternalServerError"
       security:
-        - ApiKeyAuth: []
+      - ApiKeyAuth: []
 components:
   schemas:
     Adres:
       type: object
       properties:
         binnenlandsAdres:
-          $ref: '#/components/schemas/BinnenlandsAdres'
+          $ref: "#/components/schemas/BinnenlandsAdres"
         buitenlandsAdres:
-          $ref: '#/components/schemas/BuitenlandsAdres'
+          $ref: "#/components/schemas/BuitenlandsAdres"
       description: Binnenlands of buitenlands adres
     AdresType:
       type: string
       description: Bezoekadres of postadres
       enum:
-        - bezoekadres
-        - postadres
+      - bezoekadres
+      - postadres
     BinnenlandsAdres:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/AdresType'
+          $ref: "#/components/schemas/AdresType"
         straatnaam:
           type: string
         huisnummer:
@@ -191,7 +189,7 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/AdresType'
+          $ref: "#/components/schemas/AdresType"
         straatHuisnummer:
           type: string
           description: Het straat/huisnummer is een combinatie van de straat en huisnummer
@@ -206,9 +204,15 @@ components:
           description: De naam van het land waar het adres bevindt
           example: Frankrijk
     Links:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Link'
+      type: array
+      items:
+        type: object
+        properties:
+          rel:
+            type: string
+          href:
+            type: string
+            format: uri
     Resultaat:
       type: object
       properties:
@@ -234,9 +238,9 @@ components:
         resultaten:
           type: array
           items:
-            $ref: '#/components/schemas/ResultaatItem'
-        _links:
-          $ref: '#/components/schemas/Links'
+            $ref: "#/components/schemas/ResultaatItem"
+        links:
+          $ref: "#/components/schemas/Links"
     ResultaatItem:
       type: object
       properties:
@@ -254,7 +258,7 @@ components:
           type: string
           description: De naam waaronder een vestiging of rechtspersoon handelt
         adres:
-          $ref: '#/components/schemas/Adres'
+          $ref: "#/components/schemas/Adres"
         type:
           type: string
           description: hoofdvestiging/nevenvestiging/rechtspersoon
@@ -265,22 +269,15 @@ components:
           type: string
           description: Bevat de vervallen naam waaronder een vestiging of rechtspersoon
             heeft gehandeld
-        _links:
-          $ref: '#/components/schemas/Links'
-    Link:
-      type: object
-      properties:
-        href:
-          type: string
-        title:
-          type: string
+        links:
+          $ref: "#/components/schemas/Links"
     Error:
       type: object
       properties:
         fout:
           type: array
           items:
-            $ref: '#/components/schemas/Fout'
+            $ref: "#/components/schemas/Fout"
     Fout:
       type: object
       properties:
@@ -296,55 +293,55 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     Unauthorized:
       description: Geen of onjuiste apikey aangeleverd
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     Forbidden:
       description: Niet geautoriseerd voor deze operatie
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     NotFound:
       description: Er zijn geen resultaten gevonden aan de hand van de opgegeven parameter(s)
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     NotAcceptable:
       description: Opgegeven Accept header wordt niet ondersteund
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     InternalServerError:
       description: Er is een interne fout opgetreden
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
         application/hal+json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
   headers:
     api_version:
       schema:

@@ -15,13 +15,13 @@
 <div class="form">
   <div class="flex-row flex-col-md gap-10 flex-wrap">
     <div class="w100">
-      <mat-form-field appearance="fill" floatLabel="always" class="full-width">
+      <mat-form-field appearance="fill" class="full-width">
         <button
-          [disabled]="trefwoorden.invalid || loading"
           mat-icon-button
           type="button"
           matSuffix
           title="{{ 'zoeken' | translate }}"
+          [disabled]="trefwoorden.invalid || loading"
           (click)="zoek()"
         >
           <mat-icon>search</mat-icon>
@@ -32,8 +32,8 @@
           id="trefwoorden"
           cdkFocusInitial
           maxlength="255"
-          (keyup.enter)="!trefwoorden.valid || zoek()"
           placeholder="{{ 'msg.zoeken.bagObject.label' | translate }}"
+          (keyup.enter)="!trefwoorden.valid || zoek()"
           [formControl]="trefwoorden"
         />
         <mat-hint align="end"

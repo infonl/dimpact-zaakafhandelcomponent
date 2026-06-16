@@ -98,22 +98,48 @@
     <zac-static-text *ngIf="profiel()" label="rsin" [value]="profiel()?.rsin" />
     <zac-static-text
       *ngIf="!profiel()"
-      label="adres"
-      [value]="bedrijfQuery.data()?.adres"
+      [label]="bedrijfQuery.data()?.adres?.type ?? 'adres'"
+      [value]="bedrijfQuery.data()?.adres?.volledigAdres"
     />
     <zac-static-text
       *ngFor="let adres of profiel()?.adressen"
-      label="adres"
+      [label]="adres.type"
       [value]="adres.volledigAdres"
     />
-    <zac-static-text
-      label="telefoonnummer"
-      [value]="bedrijfQuery.data()?.telefoonnummer"
-    />
-    <zac-static-text
-      label="emailadres"
-      [value]="bedrijfQuery.data()?.emailadres"
-    />
+    <div class="flex-column gap-2">
+      <zac-static-text
+        label="telefoonnummer"
+        [value]="
+          zaak().zaakSpecificContactDetails?.telephoneNumber ??
+          bedrijfQuery.data()?.telefoonnummer
+        "
+      />
+      @if (zaak().zaakSpecificContactDetails?.telephoneNumber) {
+        <div class="hint flex-row items-center gap-5">
+          <mat-icon outlined>info</mat-icon>
+          <span>{{
+            "initiator.aanvraagspecifiek-telefoonnummer" | translate
+          }}</span>
+        </div>
+      }
+    </div>
+    <div class="flex-column gap-2">
+      <zac-static-text
+        label="emailadres"
+        [value]="
+          zaak().zaakSpecificContactDetails?.emailAddress ??
+          bedrijfQuery.data()?.emailadres
+        "
+      />
+      @if (zaak().zaakSpecificContactDetails?.emailAddress) {
+        <div class="hint flex-row items-center gap-5">
+          <mat-icon outlined>info</mat-icon>
+          <span>{{
+            "initiator.aanvraagspecifiek-emailadres" | translate
+          }}</span>
+        </div>
+      }
+    </div>
     <zac-static-text
       *ngIf="profiel()"
       label="totaalWerkzamePersonen"

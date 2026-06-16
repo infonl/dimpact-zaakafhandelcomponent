@@ -105,18 +105,45 @@ class ConfigurationRestServiceTest : BehaviorSpec({
                 response.bodyAsString.toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
             }
         }
-        When("the additional file types are retrieved") {
+        When("the allowed file types are retrieved") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/configuratie/additional-allowed-file-types",
+                url = "$ZAC_API_URI/configuratie/file-types",
                 testUser = RAADPLEGER_1
             )
 
-            Then("no additional file types are returned because ZAC does not provide any by default") {
+            Then("the canonical allowlist of extension/media type pairs is returned") {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                responseBody shouldEqualJson """
-                    [ "fakeFileExtension1", "fakeFileExtension2"]
+                responseBody shouldEqualJsonIgnoringOrder """
+                    [
+                      { "extension": ".avi",  "mediaType": "video/x-msvideo" },
+                      { "extension": ".bmp",  "mediaType": "image/bmp" },
+                      { "extension": ".doc",  "mediaType": "application/msword" },
+                      { "extension": ".docx", "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                      { "extension": ".eml",  "mediaType": "message/rfc822" },
+                      { "extension": ".flv",  "mediaType": "video/x-flv" },
+                      { "extension": ".gif",  "mediaType": "image/gif" },
+                      { "extension": ".jpeg", "mediaType": "image/jpeg" },
+                      { "extension": ".jpg",  "mediaType": "image/jpeg" },
+                      { "extension": ".mkv",  "mediaType": "video/x-matroska" },
+                      { "extension": ".mov",  "mediaType": "video/quicktime" },
+                      { "extension": ".mp4",  "mediaType": "video/mp4" },
+                      { "extension": ".mpeg", "mediaType": "video/mpeg" },
+                      { "extension": ".msg",  "mediaType": "application/vnd.ms-outlook" },
+                      { "extension": ".ods",  "mediaType": "application/vnd.oasis.opendocument.spreadsheet" },
+                      { "extension": ".odt",  "mediaType": "application/vnd.oasis.opendocument.text" },
+                      { "extension": ".pdf",  "mediaType": "application/pdf" },
+                      { "extension": ".png",  "mediaType": "image/png" },
+                      { "extension": ".ppt",  "mediaType": "application/vnd.ms-powerpoint" },
+                      { "extension": ".pptx", "mediaType": "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+                      { "extension": ".rtf",  "mediaType": "application/rtf" },
+                      { "extension": ".txt",  "mediaType": "text/plain" },
+                      { "extension": ".vsd",  "mediaType": "application/vnd.visio" },
+                      { "extension": ".wmv",  "mediaType": "video/x-ms-wmv" },
+                      { "extension": ".xls",  "mediaType": "application/vnd.ms-excel" },
+                      { "extension": ".xlsx", "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+                    ]
                 """.trimIndent()
             }
         }
@@ -154,7 +181,7 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             )
 
             Then(
-                "'true' is returned because the BRP protocollering provider is set to 'iConnect' in the itest configuration"
+                "'true' is returned because BRP_DOELBINDING_PER_ZAAKTYPE is set to true in the itest configuration"
             ) {
                 response.code shouldBe HTTP_OK
                 val responseBody = response.bodyAsString

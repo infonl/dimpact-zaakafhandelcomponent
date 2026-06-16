@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import {
   Component,
   DestroyRef,
@@ -14,17 +15,24 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { MatIconButton } from "@angular/material/button";
+import { MatDivider } from "@angular/material/divider";
+import { MatIcon } from "@angular/material/icon";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbar } from "@angular/material/toolbar";
+import { TranslatePipe } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { EMPTY, lastValueFrom, switchMap } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
-import { AbstractTaakFormulier } from "../../formulieren/taken/abstract-taak-formulier";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import { mapFormGroupToTaskData } from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
-import { FormField, FormConfig as NewFormConfig } from "../../shared/form/form";
-import { AbstractFormField } from "../../shared/material-form-builder/model/abstract-form-field";
-import { FormConfigBuilder } from "../../shared/material-form-builder/model/form-config-builder";
+import { ZacComposedForm } from "../../shared/form/composed-form/composed-form.component";
+import {
+  FormConfig,
+  FormField,
+} from "../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
@@ -32,11 +40,20 @@ import { PlanItemsService } from "../plan-items.service";
   selector: "zac-human-task-do",
   templateUrl: "./human-task-do.component.html",
   styleUrls: ["./human-task-do.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    MatDivider,
+    MatIcon,
+    MatIconButton,
+    MatProgressSpinner,
+    MatToolbar,
+    NgIf,
+    TranslatePipe,
+    ZacComposedForm,
+  ],
 })
 export class HumanTaskDoComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private formulier?: AbstractTaakFormulier;
   @Input() planItem?: GeneratedType<"RESTPlanItem"> | null = null;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
@@ -52,16 +69,10 @@ export class HumanTaskDoComponent implements OnInit {
     },
   }));
 
-  protected formItems: Array<AbstractFormField[]> = [];
-  protected formConfig = new FormConfigBuilder()
-    .saveText("actie.starten")
-    .cancelText("actie.annuleren")
-    .build();
-
   protected form = this.formBuilder.group({});
   protected formFields: FormField[] = [];
 
-  protected _formConfig: NewFormConfig = {
+  protected formConfig: FormConfig = {
     submitLabel: "actie.starten",
   };
 
@@ -75,8 +86,6 @@ export class HumanTaskDoComponent implements OnInit {
 
   async ngOnInit() {
     if (this.planItem?.type !== "HUMAN_TASK") {
-      this.formItems = [[]];
-      this.formFields = [];
       return;
     }
 
@@ -87,7 +96,7 @@ export class HumanTaskDoComponent implements OnInit {
           this.planItem,
         );
 
-      formFields.map((formField) => {
+      formFields.forEach((formField) => {
         this.form.addControl(
           formField.key,
           formField.control ?? this.formBuilder.control(null),
@@ -164,17 +173,10 @@ export class HumanTaskDoComponent implements OnInit {
           }),
         )
         .subscribe((users) => this.updateUserOptions(users));
-    } catch (e) {
-      console.warn(e);
-
-      this.formulier = this.taakFormulierenService
-        .getFormulierBuilder(this.planItem.formulierDefinitie)
-        .startForm(this.planItem, this.zaak)
-        .build();
-      if (this.formulier.disablePartialSave) {
-        this.formConfig.partialButtonText = null;
-      }
-      this.formItems = this.formulier.form;
+    } catch (error) {
+      this.foutAfhandelingService.openFoutDialog(
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 
@@ -186,34 +188,23 @@ export class HumanTaskDoComponent implements OnInit {
     });
   }
 
-  onFormCancel() {
+  protected onFormCancel() {
     this.done.emit();
   }
 
-  onFormSubmit(formGroup?: FormGroup) {
-    if (!formGroup) {
-      this.done.emit();
-      return;
-    }
-    try {
-      if (!this.formulier) throw new Error("Handling form in Angular way");
-      const taakData = this.formulier.getHumanTaskData(formGroup);
-      this.doHumanTaskPlanItemMutation.mutate(taakData);
-    } catch {
-      // Handling form in Angular way
-      this.doHumanTaskPlanItemMutation.mutate({
-        planItemInstanceId: this.planItem!.id!,
-        groep: this.form.get("group")!.value!,
-        medewerker: this.form.get("user")!.value!,
-        fataledatum: this.form.get("taakFataledatum")?.value,
-        taakStuurGegevens: {
-          sendMail: this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
-          mail: this.form.get("taakStuurGegevens.mail")?.value,
-        },
-        taakdata: mapFormGroupToTaskData(formGroup, {
-          ignoreKeys: ["group", "user"],
-        }),
-      });
-    }
+  protected onFormSubmit(formGroup: FormGroup) {
+    this.doHumanTaskPlanItemMutation.mutate({
+      planItemInstanceId: this.planItem!.id!,
+      groep: this.form.get("group")!.value!,
+      medewerker: this.form.get("user")!.value!,
+      fataledatum: this.form.get("taakFataledatum")?.value,
+      taakStuurGegevens: {
+        sendMail: this.form.get("taakStuurGegevens.sendMail")?.value ?? false,
+        mail: this.form.get("taakStuurGegevens.mail")?.value,
+      },
+      taakdata: mapFormGroupToTaskData(formGroup, {
+        ignoreKeys: ["group", "user"],
+      }),
+    });
   }
 }

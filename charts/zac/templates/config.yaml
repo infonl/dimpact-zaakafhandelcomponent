@@ -13,13 +13,31 @@ data:
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
   BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
-  {{- if .Values.brpApi.protocollering.originOin }}
-  BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin | quote }}
-  BRP_PROTOCOLLERING: {{ required "Valid .Values.brpApi.protocollering.aanbieder entry required!" .Values.brpApi.protocollering.aanbieder }}
-  BRP_DOELBINDING_ZOEKMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!" .Values.brpApi.protocollering.doelbinding.zoekmet }}
-  BRP_DOELBINDING_RAADPLEEGMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!" .Values.brpApi.protocollering.doelbinding.raadpleegmet }}
-  BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerkingsregister entry required!" .Values.brpApi.protocollering.verwerkingsregister }}
+  BRP_API_KEY_HEADER: {{ .Values.brpApi.apiKey.header | quote }}
+  BRP_DOELBINDING_PER_ZAAKTYPE: {{ .Values.brpApi.protocollering.doelbinding.perZaaktype | quote }}
+  BRP_PROTOCOLLERING_ENABLED: {{ .Values.brpApi.protocollering.enabled | quote }}
+  {{- if .Values.brpApi.protocollering.enabled }}
+  BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin.oin | quote }}
+  BRP_ORIGIN_OIN_HEADER: {{ .Values.brpApi.protocollering.originOin.header | quote }}
+  BRP_DOELBINDING_HEADER: {{ .Values.brpApi.protocollering.doelbinding.header | quote }}
+  {{- if .Values.brpApi.protocollering.doelbinding.header }}
+  BRP_DOELBINDING_ZOEKMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.zoekmet entry required!" .Values.brpApi.protocollering.doelbinding.zoekmet | quote }}
+  BRP_DOELBINDING_RAADPLEEGMET: {{ required "Valid .Values.brpApi.protocollering.doelbinding.raadpleegmet entry required!" .Values.brpApi.protocollering.doelbinding.raadpleegmet | quote }}
   {{- end }}
+  BRP_VERWERKING_HEADER: {{ .Values.brpApi.protocollering.verwerking.header | quote }}
+  {{- if .Values.brpApi.protocollering.verwerking.header }}
+  BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerking.register entry required!" .Values.brpApi.protocollering.verwerking.register | quote }}
+  {{- end }}
+  BRP_GEBRUIKER_HEADER: {{ .Values.brpApi.protocollering.gebruiker.header | quote }}
+  BRP_TOEPASSING_HEADER: {{ .Values.brpApi.protocollering.toepassing.header | quote }}
+  {{- if .Values.brpApi.protocollering.toepassing.header }}
+  BRP_TOEPASSING: {{ required "Valid .Values.brpApi.protocollering.toepassing.value entry required!" .Values.brpApi.protocollering.toepassing.value | quote }}
+  {{- end }}
+  {{- if .Values.brpApi.protocollering.systemUser }}
+  BRP_SYSTEM_USER: {{ .Values.brpApi.protocollering.systemUser | quote }}
+  {{- end }}
+  {{- end }}
+  BRP_LOG_LEVEL: {{ .Values.brpApi.logLevel | default "INFO" | quote }}
   {{- if .Values.catalogusDomein }}
   CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
   {{- end }}
@@ -33,9 +51,6 @@ data:
   KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
   KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
   KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
-  {{- if .Values.additionalAllowedFileTypes }}
-  ADDITIONAL_ALLOWED_FILE_TYPES: {{ .Values.additionalAllowedFileTypes }}
-  {{- end}}
   MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}

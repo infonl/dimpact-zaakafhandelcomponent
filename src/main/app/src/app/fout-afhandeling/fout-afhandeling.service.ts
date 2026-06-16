@@ -62,12 +62,15 @@ export class FoutAfhandelingService {
     const flattenedErrorList = Object.values(error.error).flat();
     console.warn("Received a `JakartaBeanValidationError`", error);
 
-    const details = flattenedErrorList.reduce((acc, violation) => {
-      return `${acc}- ${violation.constraintType}: ${violation.message} (path: ${violation.path}, value: "${violation.value}")\n`;
-    }, "");
+    const details = flattenedErrorList
+      .map((violation) => this.translateService.instant(violation.message))
+      .join("\n");
 
     return details.length
-      ? this.openFoutDetailedDialog("Validatie fout", details)
+      ? this.openFoutDetailedDialog(
+          this.translateService.instant("msg.error.validation.generic"),
+          details,
+        )
       : throwError(() => new Error("No violations found"));
   }
 

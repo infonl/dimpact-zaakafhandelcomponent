@@ -61,7 +61,11 @@ function makeBedrijf(
     vestigingsnummer: "000011112222",
     rsin: "123456789",
     type: "RECHTSPERSOON",
-    adres: "Teststraat 1, 1234AB Amsterdam",
+    adres: {
+      type: "bezoekadres",
+      afgeschermd: false,
+      volledigAdres: "Teststraat 1, 1234AB Amsterdam",
+    },
     telefoonnummer: "0201234567",
     emailadres: "info@testbedrijf.nl",
     ...overrides,
@@ -233,7 +237,7 @@ describe(BedrijfViewComponent.name, () => {
     it("renders adres when no profiel is loaded", () => {
       const element = fixture.debugElement
         .queryAll((de) => de.name === "zac-static-text")
-        .find((de) => de.componentInstance.label === "adres");
+        .find((de) => de.componentInstance.label === "bezoekadres");
       expect(element).toBeTruthy();
     });
 

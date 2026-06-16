@@ -189,6 +189,17 @@
     {
       "customType": "regex",
       "matchStrings": [
+        "- \\*\\*open-forms\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "openformulieren/open-forms",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
         "- \\*\\*open-klant\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
@@ -395,6 +406,27 @@
   ],
   "packageRules": [
     {
+      "groupName": "Angular",
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-eslint\\//",
+        "/^@angular-builders\\//"
+      ],
+      "description": [
+        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework"
+      ]
+    },
+    {
+      "groupName": "Helm CLI",
+      "matchPackageNames": [
+        "helm",
+        "helm/helm"
+      ],
+      "description": [
+        "Group Helm CLI updates (built-in detector and custom regex manager) into a single PR"
+      ]
+    },
+    {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
         "/^wildfly/",
@@ -527,6 +559,20 @@
       ]
     },
     {
+      "groupName": "Open-forms docker image",
+      "matchPackageNames": [
+        "openformulieren/open-forms",
+        "ghcr.io/infonl/open-formulieren"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 3.5.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
       "groupName": "Open-klant docker image",
       "matchPackageNames": [
         "maykinmedia/open-klant",
@@ -578,6 +624,18 @@
       "allowedVersions": "< 8.7.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "rabbitmq"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 4.2.8",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Remove this pin when upgrading Open Notificaties to >= 1.16.0 (RabbitMQ is expected to no longer be required)."
       ]
     },
     {

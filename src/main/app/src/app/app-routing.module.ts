@@ -5,11 +5,16 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { DashboardComponent } from "./dashboard/dashboard.component";
 import { IdentityComponent } from "./identity/identity.component";
 
 const routes: Routes = [
-  { path: "", component: DashboardComponent },
+  {
+    path: "",
+    loadComponent: () =>
+      import("./dashboard/dashboard.component").then(
+        (m) => m.DashboardComponent,
+      ),
+  },
   { path: "gebruiker", component: IdentityComponent },
   {
     path: "taken",

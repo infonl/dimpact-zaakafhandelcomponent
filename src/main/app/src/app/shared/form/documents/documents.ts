@@ -5,11 +5,20 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgIf } from "@angular/common";
 import { booleanAttribute, Component, effect, input } from "@angular/core";
-import { AbstractControl } from "@angular/forms";
-import { MatTableDataSource } from "@angular/material/table";
+import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { MatIconAnchor } from "@angular/material/button";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { TranslatePipe } from "@ngx-translate/core";
 import { takeUntil } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
+import { DocumentIconComponent } from "../../document-icon/document-icon.component";
+import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { BestandsomvangPipe } from "../../pipes/bestandsomvang.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { MultiInputFormField } from "../BaseFormField";
 
@@ -17,7 +26,20 @@ import { MultiInputFormField } from "../BaseFormField";
   selector: "zac-documents",
   templateUrl: "./documents.html",
   styleUrls: ["./documents.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    BestandsomvangPipe,
+    DocumentIconComponent,
+    InformatieObjectIndicatiesComponent,
+    MatCheckboxModule,
+    MatIconAnchor,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    NgIf,
+    ReactiveFormsModule,
+    TranslatePipe,
+  ],
 })
 export class ZacDocuments<
   Form extends Record<string, AbstractControl>,
@@ -64,7 +86,9 @@ export class ZacDocuments<
 
   protected onToggleOption(option: Option) {
     this.selection.toggle(option);
-    this.control()?.setValue(this.selection.selected as unknown as Option);
+    const control = this.control();
+    control?.setValue(this.selection.selected as unknown as Option);
+    control?.markAsDirty();
   }
 
   protected viewLink(option: Option) {

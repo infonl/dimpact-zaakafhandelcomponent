@@ -52,7 +52,10 @@
                 "input": "node_modules/bootstrap/dist/css",
                 "output": "/assets/vendor/bootstrap"
               },
-              "src/favicon.ico"
+              "src/favicon.ico",
+              "src/favicon.svg",
+              "src/apple-touch-icon.png",
+              "src/site.webmanifest"
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
