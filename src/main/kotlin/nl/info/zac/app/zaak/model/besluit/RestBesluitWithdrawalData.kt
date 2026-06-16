@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2023 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.zaak.model
+package nl.info.zac.app.zaak.model.besluit
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -13,7 +13,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestDecisionWithdrawalData(
+data class RestBesluitWithdrawalData(
     @field:NotNull
     var besluitUuid: UUID,
 

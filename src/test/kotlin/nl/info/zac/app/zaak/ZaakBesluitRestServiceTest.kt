@@ -25,14 +25,14 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.decision.DecisionService
-import nl.info.zac.app.zaak.converter.RestDecisionConverter
-import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
-import nl.info.zac.app.zaak.model.createRestDecision
-import nl.info.zac.app.zaak.model.createRestDecisionChangeData
-import nl.info.zac.app.zaak.model.createRestDecisionCreateData
+import nl.info.zac.app.zaak.converter.RestBesluitConverter
+import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
+import nl.info.zac.app.zaak.model.createRestBesluit
+import nl.info.zac.app.zaak.model.createRestBesluitChangeData
+import nl.info.zac.app.zaak.model.createRestBesluitCreateData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.besluit.BesluitService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -48,11 +48,11 @@ import java.util.UUID
 
 class ZaakBesluitRestServiceTest : BehaviorSpec({
     val brcClientService = mockk<BrcClientService>()
-    val decisionService = mockk<DecisionService>()
+    val besluitService = mockk<BesluitService>()
     val eventingService = mockk<EventingService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
-    val restDecisionConverter = mockk<RestDecisionConverter>()
+    val restBesluitConverter = mockk<RestBesluitConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val zaakService = mockk<ZaakService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -60,11 +60,11 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
 
     val zaakBesluitRestService = ZaakBesluitRestService(
         brcClientService = brcClientService,
-        decisionService = decisionService,
+        besluitService = besluitService,
         eventingService = eventingService,
         loggedInUserInstance = loggedInUserInstance,
         policyService = policyService,
-        restDecisionConverter = restDecisionConverter,
+        restBesluitConverter = restBesluitConverter,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
         zaakService = zaakService,
         zrcClientService = zrcClientService,
@@ -81,21 +81,21 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
         val besluit = createBesluit(zaakUri = zaak.url)
-        val restDecision = createRestDecision()
+        val restBesluit = createRestBesluit()
 
         Given("user has zaak lezen permission") {
             every { loggedInUserInstance.get() } returns loggedInUser
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-            every { restDecisionConverter.convertToRestDecision(besluit) } returns restDecision
+            every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
 
             When("besluiten are requested") {
                 val result = zaakBesluitRestService.listBesluitenForZaakUUID(zaakUUID)
 
                 Then("the list of rest besluiten is returned") {
                     result shouldHaveSize 1
-                    result.first() shouldBe restDecision
+                    result.first() shouldBe restBesluit
                 }
             }
         }
@@ -124,22 +124,22 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
         val zaakType = createZaakType(besluittypen = listOf(URI("http://example.com/besluittype/${UUID.randomUUID()}")))
         val loggedInUser = createLoggedInUser()
         val besluit = createBesluit(zaakUri = zaak.url)
-        val restDecision = createRestDecision()
-        val createData = createRestDecisionCreateData(zaakUuid = zaak.uuid)
+        val restBesluit = createRestBesluit()
+        val createData = createRestBesluitCreateData(zaakUuid = zaak.uuid)
 
         Given("user has vastleggenBesluit zaak permission and zaaktype has besluittypen") {
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
-            every { decisionService.createDecision(zaak, createData) } returns besluit
-            every { restDecisionConverter.convertToRestDecision(besluit) } returns restDecision
+            every { besluitService.createBesluit(zaak, createData) } returns besluit
+            every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
             When("besluit is created") {
                 val result = zaakBesluitRestService.createBesluit(createData)
 
                 Then("the created rest besluit is returned and a screen event is sent") {
-                    result shouldBe restDecision
+                    result shouldBe restBesluit
                     verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
                 }
             }
@@ -170,23 +170,23 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             url = URI("http://localhost/besluit/$besluitUUID")
         )
         val loggedInUser = createLoggedInUser()
-        val restDecision = createRestDecision()
-        val changeData = createRestDecisionChangeData(besluitUUID = besluitUUID)
+        val restBesluit = createRestBesluit()
+        val changeData = createRestBesluitChangeData(besluitUUID = besluitUUID)
 
         Given("user has vastleggenBesluit permission") {
             every { brcClientService.readBesluit(besluitUUID) } returns besluit
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
-            every { decisionService.updateDecision(besluit, changeData) } just runs
-            every { restDecisionConverter.convertToRestDecision(besluit) } returns restDecision
+            every { besluitService.updateBesluit(besluit, changeData) } just runs
+            every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
             When("besluit is updated") {
                 val result = zaakBesluitRestService.updateBesluit(changeData)
 
                 Then("the updated rest besluit is returned and a screen event is sent") {
-                    result shouldBe restDecision
+                    result shouldBe restBesluit
                     verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
                 }
             }
@@ -216,34 +216,34 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             url = URI("http://localhost/besluit/$besluitUUID")
         )
         val loggedInUser = createLoggedInUser()
-        val restDecision = createRestDecision()
-        val withdrawalData = RestDecisionWithdrawalData(
+        val restBesluit = createRestBesluit()
+        val withdrawalData = RestBesluitWithdrawalData(
             besluitUuid = besluitUUID,
             reden = "fakeReden",
             vervalreden = "fakeVervalreden"
         )
 
         Given("user has zaak behandelen permission and zaak is open") {
-            every { decisionService.readDecision(withdrawalData) } returns besluit
+            every { besluitService.readBesluit(withdrawalData) } returns besluit
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
-            every { decisionService.withdrawDecision(besluit, withdrawalData.reden) } returns besluit
-            every { restDecisionConverter.convertToRestDecision(besluit) } returns restDecision
+            every { besluitService.withdrawBesluit(besluit, withdrawalData.reden) } returns besluit
+            every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
             When("besluit is withdrawn") {
                 val result = zaakBesluitRestService.intrekkenBesluit(withdrawalData)
 
-                Then("the withdrawn rest decision is returned and a screen event is sent") {
-                    result shouldBe restDecision
+                Then("the withdrawn rest besluit is returned and a screen event is sent") {
+                    result shouldBe restBesluit
                     verify(exactly = 1) { eventingService.send(any<ScreenEvent>()) }
                 }
             }
         }
 
         Given("user has no zaak behandelen permission") {
-            every { decisionService.readDecision(withdrawalData) } returns besluit
+            every { besluitService.readBesluit(withdrawalData) } returns besluit
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
@@ -264,7 +264,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 url = URI("http://localhost/besluit/$besluitUUID")
             )
 
-            every { decisionService.readDecision(withdrawalData) } returns closedZaakBesluit
+            every { besluitService.readBesluit(withdrawalData) } returns closedZaakBesluit
             every { zrcClientService.readZaak(closedZaakBesluit.zaak) } returns closedZaak
 
             When("besluit withdrawal is attempted on a closed zaak") {

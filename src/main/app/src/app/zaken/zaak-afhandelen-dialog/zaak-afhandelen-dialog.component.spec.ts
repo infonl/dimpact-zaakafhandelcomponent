@@ -425,7 +425,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
             besluitVerplicht: true,
           }),
           besluiten: [
-            fromPartial<GeneratedType<"RestDecision">>({
+            fromPartial<GeneratedType<"RestBesluit">>({
               uuid: "mock-besluit-uuid",
               url: "http://example.com/besluit",
             }),
@@ -440,7 +440,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
             besluitVerplicht: false,
           }),
           besluiten: [
-            fromPartial<GeneratedType<"RestDecision">>({
+            fromPartial<GeneratedType<"RestBesluit">>({
               uuid: "mock-besluit-uuid",
               url: "http://example.com/besluit",
             }),

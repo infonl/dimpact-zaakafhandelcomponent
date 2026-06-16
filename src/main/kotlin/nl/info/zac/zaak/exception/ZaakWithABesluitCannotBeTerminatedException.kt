@@ -6,4 +6,4 @@
 
 package nl.info.zac.zaak.exception
 
-class ZaakWithADecisionCannotBeTerminatedException(message: String) : RuntimeException(message)
+class ZaakWithABesluitCannotBeTerminatedException(message: String) : RuntimeException(message)
