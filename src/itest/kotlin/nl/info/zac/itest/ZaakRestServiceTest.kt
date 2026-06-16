@@ -54,6 +54,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -158,6 +160,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
