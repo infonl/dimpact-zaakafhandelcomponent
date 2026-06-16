@@ -13,12 +13,12 @@ As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports t
 
 | Role          | Description                                                                                                                                |
 |:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
-| Raadpleger    | Een raadpleger. Heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.                                  |
-| Behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
-| Coördinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
-| Recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
-| Beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
-| Brp_Zoeken    | Heeft het recht om personen op te zoeken in de BRP (Basisregistratie Personen).                                                            |
+| raadpleger    | Een raadpleger. Heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.                                  |
+| behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
+| coordinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
+| recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
+| beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
+| brp_zoeken    | Heeft het recht om personen op te zoeken in de BRP (Basisregistratie Personen).                                                            |
 
 
 Typically, these roles are assigned to individual users through groups.
@@ -27,18 +27,18 @@ Note that the ZAC authorisation architecture has been set up in such that a user
 next to their 'main' role in order to be able to work in ZAC.
 This means the following in practise:
 
-- A user with the 'Behandelaar' role also needs to have the 'Raadpleger' role
-- A user with the 'Coordinator' role also needs to have the 'Raadpleger' and 'Behandelaar' role
-- A user with the 'Recordmanager' role also needs to have the 'Raadpleger', 'Behandelaar' and 'Coordinator' roles
-- A user with the 'Beheerder' role also needs to have the 'Raadpleger', 'Behandelaar', 'Coordinator' and 'Recordmanager' roles
-- A user with the 'Brp_Zoeken' role also needs to have the 'Raadpleger' role
+- A user with the 'behandelaar' role also needs to have the 'raadpleger' role
+- A user with the 'coordinator' role also needs to have the 'raadpleger' and 'behandelaar' role
+- A user with the 'recordmanager' role also needs to have the 'raadpleger', 'behandelaar' and 'coordinator' roles
+- A user with the 'beheerder' role also needs to have the 'raadpleger', 'behandelaar', 'coordinator' and 'recordmanager' roles
+- A user with the 'brp_zoeken' role also needs to have the 'raadpleger' role
 
 ## ZAC policies per resource and role
 
 The following access control policies are enforced in the ZAC backend for the roles listed above for the
 various resources on which a user can perform actions:
 
-| Rechten                                              | Raadpleger |                                                        Behandelaar                                                        | Coördinator |                           Recordmanager                            | Beheerder | Brp_Zoeken |
+| Rechten                                              | raadpleger |                                                        behandelaar                                                        | coordinator |                           recordmanager                            | beheerder | brp_zoeken |
 |:-----------------------------------------------------|:----------:|:-------------------------------------------------------------------------------------------------------------------------:|:-----------:|:------------------------------------------------------------------:|:---------:|:----------:|
 |                                                      |            |                                                                                                                           |             |                                                                    |           |            |
 | **_Zaak rechten_** <br/>_(zie ook: Overige rechten)_ |            |                                                                                                                           |             |                                                                    |           |            |
