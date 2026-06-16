@@ -217,11 +217,25 @@ class AppContainerTest : BehaviorSpec({
 
         When("The ZAC logout URI is requested") {
             val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_BASE_URI/logout",
+                url = "$ZAC_BASE_URI/sign-out",
                 testUser = USER_WITHOUT_ANY_ROLE
             )
-            Then("the response should be a redirect") {
+            Then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
+            }
+        }
+    }
+
+    Given("An authenticated user with ZAC application roles") {
+        When("the ZAC logout URI is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_BASE_URI/sign-out",
+                testUser = BEHANDELAAR_1
+            )
+            Then("the response should redirect to the ZAC root and not to the Keycloak logout page") {
+                response.code shouldBe HTTP_MOVED_TEMP
+                response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
             }
         }
     }

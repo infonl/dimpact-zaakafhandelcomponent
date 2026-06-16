@@ -198,7 +198,7 @@ class SignaleringServiceTest : BehaviorSpec({
 
         every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
         every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(order) } returns criteriaQuery
 
         every { rootSignalering.get<Any>("targettype") } returns pathTarget
@@ -263,7 +263,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(pathTijdstip) } returns order
         every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
         every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(order) } returns criteriaQuery
         every { rootSignalering.get<Any>("targettype") } returns pathTarget
         every { rootSignalering.get<Any>("target") } returns pathTarget
@@ -354,7 +354,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(pathTijdstip) } returns order
         every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
         every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(order) } returns criteriaQuery
         every { rootSignalering.get<Any>("targettype") } returns pathTarget
         every { rootSignalering.get<Any>("target") } returns pathTarget
@@ -416,7 +416,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(pathTijdstip) } returns order
         every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
         every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(order) } returns criteriaQuery
         every { rootSignalering.get<Any>("targettype") } returns pathTarget
         every { rootSignalering.get<Any>("target") } returns pathTarget
@@ -488,7 +488,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(pathTijdstip) } returns order
         every { criteriaQuery.from(Signalering::class.java) } returns rootSignalering
         every { criteriaQuery.select(rootSignalering) } returns criteriaQuery
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(order) } returns criteriaQuery
         every { rootSignalering.get<Any>("targettype") } returns pathTarget
         every { rootSignalering.get<Any>("target") } returns pathTarget
@@ -534,7 +534,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { criteriaBuilder.equal(pathTarget, signaleringenZoekParameters.subjecttype) } returns predicate
         every { criteriaBuilder.equal(pathTarget, signaleringenZoekParameters.subject) } returns predicate
         every { criteriaBuilder.and(*anyVararg<Predicate>()) } returns predicate
-        every { criteriaQuery.where(any()) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
         every { criteriaQuery.orderBy(any<Order>()) } returns criteriaQuery
         every { criteriaBuilder.desc(pathTarget) } returns order
         every { entityManager.createQuery(any<CriteriaQuery<Signalering>>()).resultList } returns signaleringen
