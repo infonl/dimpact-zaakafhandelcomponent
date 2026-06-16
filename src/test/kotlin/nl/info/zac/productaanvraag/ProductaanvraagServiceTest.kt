@@ -612,6 +612,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    any(), any(), any(), any()
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -992,6 +997,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { klantClientService.findProductaanvraagSpecificContactDetails(formulierBron.kenmerk) } returns null
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    any(), any(), any(), any()
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1178,6 +1189,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         productAanvraagType
                     )
                 } returns listOf(zaaktypeCmmnConfiguration)
+                every {
+                    productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                        any(), any(), any(), any()
+                    )
+                } just runs
 
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
@@ -1649,6 +1665,11 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    any(), any(), any(), any()
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -1718,6 +1739,14 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
+            every {
+                productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
+                    createdZaak,
+                    any(),
+                    specificEmail,
+                    zaaktypeCmmnConfiguration
+                )
+            } just runs
 
             When("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)

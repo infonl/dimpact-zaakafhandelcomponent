@@ -37,13 +37,16 @@ import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
+
 import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
+import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
@@ -99,6 +102,11 @@ import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/
 export class ZoekComponent implements AfterViewInit, OnDestroy {
   private readonly zoekenService = inject(ZoekenService);
   protected readonly utilService = inject(UtilService);
+  private readonly policyService = inject(PolicyService);
+
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
 
   private readonly paginator = viewChild.required(MatPaginator);
   protected readonly zoekenSideNav = input<MatSidenav>();

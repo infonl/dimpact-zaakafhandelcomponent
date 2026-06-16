@@ -32,7 +32,10 @@
           "
         ></zac-persoon-indicaties>
         <button
-          *ngIf="zaak().rechten.toevoegenInitiatorPersoon"
+          *ngIf="
+            allowedToChangeInitiatorBedrijf() ||
+            allowedToChangeAndSearchInitiatorPersoon()
+          "
           mat-icon-button
           [title]="'actie.initiator.wijzigen' | translate"
           [disabled]="isDisabled()"

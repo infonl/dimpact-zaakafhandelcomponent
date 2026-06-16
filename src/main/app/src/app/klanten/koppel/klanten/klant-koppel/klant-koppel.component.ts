@@ -7,9 +7,9 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { MatDrawer } from "@angular/material/sidenav";
 import { TranslateModule } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
-import { KlantGegevens } from "../../model/klanten/klant-gegevens";
-import { KlantKoppelBetrokkeneComponent } from "./klant-koppel-betrokkene.component";
-import { KlantKoppelInitiator } from "./klant-koppel-initiator.component";
+import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
+import { KlantKoppelBetrokkeneComponent } from "../klant-koppel-betrokkene/klant-koppel-betrokkene.component";
+import { KlantKoppelInitiator } from "../klant-koppel-initiator/klant-koppel-initiator.component";
 
 @Component({
   selector: "zac-klant-koppel",

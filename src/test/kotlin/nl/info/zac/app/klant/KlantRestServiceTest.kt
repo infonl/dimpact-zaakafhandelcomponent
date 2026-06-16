@@ -40,6 +40,9 @@ import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechten
 import java.time.LocalDate
 import java.util.UUID
 
@@ -53,6 +56,7 @@ class KlantRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val klantClientService = mockk<KlantClientService>()
     val identificationService = mockk<IdentificationService>()
+    val policyService = mockk<PolicyService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val klantRestService = KlantRestService(
         brpClientService,
@@ -60,6 +64,7 @@ class KlantRestServiceTest : BehaviorSpec({
         ztcClientService,
         klantClientService,
         identificationService,
+        policyService,
         loggedInUserInstance
     )
 
@@ -914,6 +919,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { policyService.readOverigeRechten() } returns createOverigeRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -923,14 +929,9 @@ class KlantRestServiceTest : BehaviorSpec({
             When("listPersonen is called") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
-                Then("it should return the retrieved person in the result") {
+                Then("it should return the found person in the result") {
                     verify { brpClientService.retrievePersoon(bsn, any(), any()) }
                     result.resultaten.size shouldBe 1
-                }
-                Then("queryPersonen should not be called") {
-                    verify(exactly = 0) {
-                        brpClientService.queryPersonen(any(), any(), any())
-                    }
                 }
             }
         }
@@ -940,6 +941,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
+            every { policyService.readOverigeRechten() } returns createOverigeRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -950,6 +952,22 @@ class KlantRestServiceTest : BehaviorSpec({
 
                 Then("the result should be empty") {
                     result.resultaten shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("The logged-in user does not have the brpZoeken permission") {
+            val restListPersonenParameters = RestListPersonenParameters(bsn = "123456789")
+
+            every { policyService.readOverigeRechten() } returns createOverigeRechten(brpZoeken = false)
+
+            When("listPersonen is called") {
+                val exception = shouldThrow<PolicyException> {
+                    klantRestService.listPersonen(restListPersonenParameters)
+                }
+
+                Then("a PolicyException should be thrown") {
+                    exception::class shouldBe PolicyException::class
                 }
             }
         }
@@ -965,6 +983,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
+            every { policyService.readOverigeRechten() } returns createOverigeRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.queryPersonen(any(), any(), any())

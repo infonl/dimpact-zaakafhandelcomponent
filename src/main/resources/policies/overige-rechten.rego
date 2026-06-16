@@ -10,12 +10,14 @@ package net.atos.zac.overig
 import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.raadpleger
+import data.net.atos.zac.rol.brpZoeken
 import input.user
 
 overige_rechten := {
     "starten_zaak": starten_zaak,
     "beheren": beheren,
-    "zoeken": zoeken
+    "zoeken": zoeken,
+    "brp_zoeken": brp_zoeken
 }
 
 default starten_zaak := false
@@ -31,4 +33,9 @@ beheren if {
 default zoeken := false
 zoeken if {
     raadpleger.rol in user.rollen
+}
+
+default brp_zoeken := false
+brp_zoeken if {
+    brpZoeken.rol in user.rollen
 }

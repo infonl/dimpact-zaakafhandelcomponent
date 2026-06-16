@@ -17,6 +17,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
@@ -91,6 +92,7 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
@@ -1023,6 +1025,21 @@ class KlantRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("afgeschermd", false)
                         shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING4_PROFIEL_ADRES)
                     }
+                }
+            }
+        }
+    }
+
+    Context("Searching for personen without brp_zoeken right") {
+        Given("A behandelaar without the brp_zoeken right is logged in") {
+            When("the personen search endpoint is called") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }
