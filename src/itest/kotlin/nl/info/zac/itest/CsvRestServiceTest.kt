@@ -127,7 +127,7 @@ class CsvRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
 
                     val csvReader = csvReader {
-dialect = CsvDialect(delimiter = ';')
+                        dialect = CsvDialect(delimiter = ';')
                         // the value rows in the zaken export CSVs contain values other than are
                         // defined in the header row, so we convert them to empty strings
                         insufficientFieldsRowBehaviour = EMPTY_STRING
