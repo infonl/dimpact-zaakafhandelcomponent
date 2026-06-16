@@ -37,10 +37,8 @@ import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_COMMUNICAT
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_USER
 import net.atos.zac.flowable.cmmn.CMMNService
-import net.atos.zac.util.time.LocalDateUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.or.`object`.ObjectsClientService
-import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -64,10 +62,8 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigura
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
 import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
-import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
-import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
@@ -86,11 +82,6 @@ import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RESTZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
-import nl.info.zac.app.zaak.model.RestDecision
-import nl.info.zac.app.zaak.model.RestDecisionChangeData
-import nl.info.zac.app.zaak.model.RestDecisionCreateData
-import nl.info.zac.app.zaak.model.RestDecisionType
-import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
@@ -109,7 +100,6 @@ import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.toGeoJSONGeometry
 import nl.info.zac.app.zaak.model.toPatchZaak
-import nl.info.zac.app.zaak.model.toRestDecisionTypes
 import nl.info.zac.app.zaak.model.toRestZaakBetrokkenen
 import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
@@ -118,7 +108,6 @@ import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
-import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
@@ -135,7 +124,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
-import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -149,10 +137,8 @@ import java.util.UUID
 @AllOpen
 class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
-    private val brcClientService: BrcClientService,
     private val cmmnService: CMMNService,
     private val configurationService: ConfigurationService,
-    private val decisionService: DecisionService,
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
      * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
@@ -171,12 +157,10 @@ class ZaakRestService @Inject constructor(
     private val policyService: PolicyService,
     private val productaanvraagService: ProductaanvraagService,
     private val productaanvraagDocumentService: ProductaanvraagDocumentService,
-    private val restDecisionConverter: RestDecisionConverter,
     private val restZaakConverter: RestZaakConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val signaleringService: SignaleringService,
-    private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakHistoryService: ZaakHistoryService,
     private val zaakService: ZaakService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -823,83 +807,6 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/afzender/default")
     fun readDefaultAfzenderVoorZaak(@PathParam("uuid") zaakUUID: UUID): RestZaakAfzender? =
         listAfzendersVoorZaak(zaakUUID).firstOrNull { it.defaultMail }
-
-    @GET
-    @Path("besluit/zaakUuid/{zaakUuid}")
-    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUuid: UUID): List<RestDecision> =
-        zrcClientService.readZaak(zaakUuid)
-            .let { brcClientService.listBesluiten(it) }
-            .map { restDecisionConverter.convertToRestDecision(it) }
-
-    @POST
-    @Path("besluit")
-    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData): RestDecision {
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(besluitToevoegenGegevens.zaakUuid)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).vastleggenBesluit)
-        assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
-
-        return decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
-            restDecisionConverter.convertToRestDecision(it).also {
-                // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-                // but open_zaak does not send that one, so emulate it here.
-                eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-            }
-        }
-    }
-
-    @PUT
-    @Path("besluit")
-    fun updateBesluit(@Valid restDecisionChangeData: RestDecisionChangeData) =
-        brcClientService.readBesluit(restDecisionChangeData.besluitUuid).let { besluit ->
-            zrcClientService.readZaak(besluit.zaak).let { zaak ->
-                assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).vastleggenBesluit)
-
-                decisionService.updateDecision(besluit, restDecisionChangeData).let {
-                    restDecisionConverter.convertToRestDecision(besluit).also {
-                        // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
-                        // but open_zaak does not send that one, so emulate it here.
-                        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-                    }
-                }
-            }
-        }
-
-    @PUT
-    @Path("besluit/intrekken")
-    fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
-        decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
-            zrcClientService.readZaak(besluit.zaak).let { zaak ->
-                assertPolicy(
-                    zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).behandelen
-                )
-
-                decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
-                    restDecisionConverter.convertToRestDecision(it).also {
-                        // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
-                        // but open_zaak does not send that one, so emulate it here.
-                        eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
-                    }
-                }
-            }
-        }
-
-    @GET
-    @Path("besluit/{uuid}/historie")
-    fun listBesluitHistorie(@PathParam("uuid") uuid: UUID): List<HistoryLine> =
-        brcClientService.listAuditTrail(uuid).let {
-            zaakHistoryLineConverter.convert(it)
-        }
-
-    @GET
-    @Path("besluittypes/{zaaktypeUUID}")
-    fun listBesluittypes(
-        @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
-    ): List<RestDecisionType> {
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        return ztcClientService.readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
-            .filter { LocalDateUtil.dateNowIsBetween(it) }
-            .toRestDecisionTypes()
-    }
 
     @GET
     @Path("resultaattypes/{zaaktypeUUID}")
