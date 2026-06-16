@@ -279,9 +279,18 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
 
     Context("List besluit history") {
         val besluitUUID = UUID.randomUUID()
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val besluit = createBesluit(zaakUri = zaak.url)
+        val loggedInUser = createLoggedInUser()
         val historyLines = listOf(HistoryLine("fakeLabel", "fakeOld", "fakeNew"))
 
-        Given("a valid besluit UUID") {
+        Given("user has zaak lezen permission") {
+            every { brcClientService.readBesluit(besluitUUID) } returns besluit
+            every { zrcClientService.readZaak(besluit.zaak) } returns zaak
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { brcClientService.listAuditTrail(besluitUUID) } returns emptyList()
             every { zaakHistoryLineConverter.convert(emptyList()) } returns historyLines
 
@@ -290,6 +299,24 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
 
                 Then("the converted history lines are returned") {
                     result shouldBe historyLines
+                }
+            }
+        }
+
+        Given("user has no zaak lezen permission") {
+            every { brcClientService.readBesluit(besluitUUID) } returns besluit
+            every { zrcClientService.readZaak(besluit.zaak) } returns zaak
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechtenAllDeny()
+
+            When("besluit history is requested") {
+                Then("a PolicyException is thrown") {
+                    shouldThrow<PolicyException> {
+                        zaakBesluitRestService.listBesluitHistorie(besluitUUID)
+                    }
                 }
             }
         }
