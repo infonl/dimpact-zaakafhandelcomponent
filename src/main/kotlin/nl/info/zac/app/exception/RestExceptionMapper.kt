@@ -32,7 +32,6 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BRP_CLIENT
-import nl.info.zac.exception.ErrorCode.ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_FORBIDDEN
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_KLANTINTERACTIES_CLIENT
@@ -127,7 +126,7 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             )
             is ZaakWithADecisionCannotBeTerminatedException -> generateResponse(
                 responseStatus = Response.Status.BAD_REQUEST,
-                errorCode = ERROR_CODE_CASE_WITH_DECISION_CANNOT_BE_TERMINATION,
+                errorCode = ErrorCode.ERROR_CODE_ZAAK_WITH_BESLUIT_CANNOT_BE_TERMINATED,
                 exception = exception,
                 logLevel = Level.FINE
             )

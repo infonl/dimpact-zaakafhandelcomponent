@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.decision
+package nl.info.zac.app.besluit
 
 import jakarta.inject.Inject
 import net.atos.zac.util.time.PeriodUtil
@@ -25,27 +25,27 @@ import java.time.Period
 import java.util.UUID
 import java.util.logging.Logger
 
-class DecisionService @Inject constructor(
+class BesluitService @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val ztcClientService: ZtcClientService,
     private val restDecisionConverter: RestDecisionConverter,
 ) {
     companion object {
-        private val LOG = Logger.getLogger(DecisionService::class.java.name)
+        private val LOG = Logger.getLogger(BesluitService::class.java.name)
 
-        private const val CREATE_DECISION_EXPLANATION = "Aanmaken besluit"
-        private const val CHANGE_DECISION_EXPLANATION = "Wijzigen besluit"
+        private const val CREATE_BESLUIT_EXPLANATION = "Aanmaken besluit"
+        private const val CHANGE_BESLUIT_EXPLANATION = "Wijzigen besluit"
     }
 
-    fun readDecision(restDecisionWithdrawalData: RestDecisionWithdrawalData): Besluit =
+    fun readBesluit(restDecisionWithdrawalData: RestDecisionWithdrawalData): Besluit =
         brcClientService.readBesluit(restDecisionWithdrawalData.besluitUuid).apply {
             vervaldatum = restDecisionWithdrawalData.vervaldatum
             vervalreden = VervalredenEnum.fromValue(restDecisionWithdrawalData.vervalreden.lowercase())
         }
 
-    fun createDecision(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData): Besluit {
-        validateDecisionPublicationDates(
+    fun createBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData): Besluit {
+        validateBesluitPublicationDates(
             besluitToevoegenGegevens.besluittypeUuid,
             besluitToevoegenGegevens.publicationDate,
             besluitToevoegenGegevens.lastResponseDate
@@ -54,12 +54,12 @@ class DecisionService @Inject constructor(
         val besluitToCreate = restDecisionConverter.convertToBesluit(zaak, besluitToevoegenGegevens)
 
         return brcClientService.createBesluit(besluitToCreate).also {
-            createDecisionInformationObjects(besluitToevoegenGegevens, it)
+            createBesluitInformationObjects(besluitToevoegenGegevens, it)
         }
     }
 
     @Suppress("NestedBlockDepth")
-    private fun validateDecisionPublicationDates(
+    private fun validateBesluitPublicationDates(
         besluitTypeUUID: UUID,
         publicationDate: LocalDate?,
         responseDate: LocalDate?
@@ -67,23 +67,23 @@ class DecisionService @Inject constructor(
         ztcClientService.readBesluittype(besluitTypeUUID).run {
             if (!publicatieIndicatie) {
                 if (publicationDate != null || responseDate != null) {
-                    throw DecisionPublicationDisabledException(
+                    throw BesluitPublicationDisabledException(
                         "Besluit type with UUID '${url.extractUuid()}' and name " +
                             "'$omschrijving' cannot have publication or response dates"
                     )
                 }
             }
             if (publicationDate == null && responseDate != null) {
-                throw DecisionPublicationDateMissingException()
+                throw BesluitPublicationDateMissingException()
             }
             if (publicationDate != null && responseDate == null) {
-                throw DecisionResponseDateMissingException()
+                throw BesluitResponseDateMissingException()
             }
             responseDate?.let {
                 PeriodUtil.numberOfDaysFromToday(Period.parse(reactietermijn)).toLong().let { responseDays ->
                     publicationDate?.plusDays(responseDays).let { calculatedLatestResponseDate ->
                         if (it.isBefore(calculatedLatestResponseDate)) {
-                            throw DecisionResponseDateInvalidException(
+                            throw BesluitResponseDateInvalidException(
                                 "Response date $responseDate is before " +
                                     "calculated response date $calculatedLatestResponseDate"
                             )
@@ -93,7 +93,7 @@ class DecisionService @Inject constructor(
             }
         }
 
-    private fun createDecisionInformationObjects(
+    private fun createBesluitInformationObjects(
         besluitToevoegenGegevens: RestDecisionCreateData,
         createdBesluit: Besluit
     ) {
@@ -103,17 +103,17 @@ class DecisionService @Inject constructor(
                     this.informatieobject = informatieobject.url
                     this.besluit = createdBesluit.url
                 }.let {
-                    brcClientService.createBesluitInformatieobject(it, CREATE_DECISION_EXPLANATION)
+                    brcClientService.createBesluitInformatieobject(it, CREATE_BESLUIT_EXPLANATION)
                 }
             }
         }
     }
 
-    fun updateDecision(
+    fun updateBesluit(
         besluit: Besluit,
         restDecisionChangeData: RestDecisionChangeData
     ) {
-        validateDecisionPublicationDates(
+        validateBesluitPublicationDates(
             besluit.besluittype.extractUuid(),
             restDecisionChangeData.publicationDate,
             restDecisionChangeData.lastResponseDate
@@ -123,11 +123,11 @@ class DecisionService @Inject constructor(
             brcClientService.updateBesluit(it, restDecisionChangeData.reden)
         }
         restDecisionChangeData.informatieobjecten?.let {
-            updateDecisionInformationObjects(besluit, it)
+            updateBesluitInformationObjects(besluit, it)
         }
     }
 
-    private fun updateDecisionInformationObjects(
+    private fun updateBesluitInformationObjects(
         besluit: Besluit,
         newDocumentUuids: List<UUID>
     ) {
@@ -148,18 +148,18 @@ class DecisionService @Inject constructor(
                     this.besluit = besluit.url
                 }
             }.let {
-                brcClientService.createBesluitInformatieobject(it, CHANGE_DECISION_EXPLANATION)
+                brcClientService.createBesluitInformatieobject(it, CHANGE_BESLUIT_EXPLANATION)
             }
         }
     }
 
-    fun withdrawDecision(besluit: Besluit, reden: String): Besluit =
+    fun withdrawBesluit(besluit: Besluit, reden: String): Besluit =
         brcClientService.updateBesluit(
             besluit,
-            getDecisionWithdrawalExplanation(besluit.vervalreden)?.let { String.format(it, reden) }
+            getBesluitWithdrawalExplanation(besluit.vervalreden)?.let { String.format(it, reden) }
         )
 
-    private fun getDecisionWithdrawalExplanation(withdrawalReason: VervalredenEnum): String? {
+    private fun getBesluitWithdrawalExplanation(withdrawalReason: VervalredenEnum): String? {
         return when (withdrawalReason) {
             VervalredenEnum.INGETROKKEN_OVERHEID -> "Overheid: %s"
             VervalredenEnum.INGETROKKEN_BELANGHEBBENDE -> "Belanghebbende: %s"

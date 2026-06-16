@@ -594,7 +594,7 @@ class ZaakRestService @Inject constructor(
         assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaak.resultaat?.run {
             throw ZaakWithADecisionCannotBeTerminatedException(
-                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
+                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a besluit has already been added to it."
             )
         }
         zaaktypeConfigurationService.readZaaktypeConfiguration(

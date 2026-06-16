@@ -23,7 +23,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.app.decision.DecisionService
+import nl.info.zac.app.besluit.BesluitService
 import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.model.RestDecision
 import nl.info.zac.app.zaak.model.RestDecisionChangeData
@@ -51,7 +51,7 @@ import java.util.UUID
 @AllOpen
 class ZaakBesluitRestService @Inject constructor(
     private val brcClientService: BrcClientService,
-    private val decisionService: DecisionService,
+    private val besluitService: BesluitService,
     private val eventingService: EventingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val policyService: PolicyService,
@@ -68,7 +68,7 @@ class ZaakBesluitRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).vastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
-        return decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
+        return besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
             restDecisionConverter.convertToRestDecision(it).also {
                 // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                 // but open_zaak does not send that one, so emulate it here.
@@ -80,13 +80,13 @@ class ZaakBesluitRestService @Inject constructor(
     @PUT
     @Path("besluit/intrekken")
     fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
-        decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
+        besluitService.readBesluit(restDecisionWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(
                     zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).behandelen
                 )
 
-                decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
+                besluitService.withdrawBesluit(besluit, restDecisionWithdrawalData.reden).let {
                     restDecisionConverter.convertToRestDecision(it).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
                         // but open_zaak does not send that one, so emulate it here.
@@ -137,7 +137,7 @@ class ZaakBesluitRestService @Inject constructor(
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).vastleggenBesluit)
 
-                decisionService.updateDecision(besluit, restDecisionChangeData).let {
+                besluitService.updateBesluit(besluit, restDecisionChangeData).let {
                     restDecisionConverter.convertToRestDecision(besluit).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel,
                         // but Open Zaak unfortunately does not send such a notification, so we emulate it here.
