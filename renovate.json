@@ -406,6 +406,17 @@
   ],
   "packageRules": [
     {
+      "groupName": "Angular",
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-eslint\\//",
+        "/^@angular-builders\\//"
+      ],
+      "description": [
+        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework"
+      ]
+    },
+    {
       "groupName": "Helm CLI",
       "matchPackageNames": [
         "helm",
