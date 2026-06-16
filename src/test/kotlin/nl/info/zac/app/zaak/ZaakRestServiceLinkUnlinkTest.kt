@@ -389,9 +389,9 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
                     patchZaakUUIDSlot.captured shouldBe zaak.uuid
                 }
 
-                Then("the patched zaak is a NillableGerelateerdeZakenZaakPatch with an empty gerelateerdeZaken list") {
+                Then("the patched zaak is a NillableGerelateerdeZakenZaakPatch with gerelateerdeZaken set to null") {
                     patchZaakSlot.captured.shouldBeInstanceOf<NillableGerelateerdeZakenZaakPatch>()
-                    patchZaakSlot.captured.gerelateerdeZaken shouldHaveSize 0
+                    patchZaakSlot.captured.gerelateerdeZaken shouldBe null
                 }
             }
         }

@@ -689,7 +689,7 @@ class ZaakRestService @Inject constructor(
             RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
-            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, otherZaak = zaakToLinkTo, restZaakLinkData.reden)
+            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
             RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
@@ -1184,7 +1184,7 @@ class ZaakRestService @Inject constructor(
         andereZaakURI: URI
     ): List<GerelateerdeZaak>? {
         gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
-        return gerelateerdeZaken
+        return gerelateerdeZaken?.takeUnless { it.isEmpty() }
     }
 
     private fun ontkoppelRelevanteZaken(
@@ -1240,7 +1240,7 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
-        return relevanteZaken
+        return relevanteZaken?.takeUnless { it.isEmpty() }
     }
 
     private fun sortAndRemoveDuplicateAfzenders(
