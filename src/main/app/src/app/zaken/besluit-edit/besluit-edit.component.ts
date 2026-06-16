@@ -121,6 +121,10 @@ export class BesluitEditComponent implements OnInit {
   }));
 
   constructor() {
+    this.form.controls.vervaldatum.addValidators(
+      this.vervaldatumNotBeforeIngangsdatum,
+    );
+
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => this.setVervaldatumMinDate(value));
@@ -213,6 +217,21 @@ export class BesluitEditComponent implements OnInit {
       besluittypeUUID,
     });
   }
+
+  private readonly vervaldatumNotBeforeIngangsdatum: ValidatorFn = (
+    control,
+  ) => {
+    const ingangsdatum = this.form.controls.ingangsdatum.value;
+    const vervaldatum = control.value;
+
+    if (!moment.isMoment(ingangsdatum) || !moment.isMoment(vervaldatum)) {
+      return null;
+    }
+
+    return vervaldatum.isBefore(ingangsdatum, "day")
+      ? { matDatepickerMin: { min: ingangsdatum, actual: vervaldatum } }
+      : null;
+  };
 
   private setVervaldatumMinDate(value: Moment | null) {
     if (this.vervaldatumMinValidator) {
