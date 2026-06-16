@@ -818,7 +818,6 @@
           [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
-          (doIntrekking)="doIntrekking($event)"
         ></zac-besluit-view>
 
         <zac-zaak-taken

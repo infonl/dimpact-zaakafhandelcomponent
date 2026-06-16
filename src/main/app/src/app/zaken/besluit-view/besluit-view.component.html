@@ -90,11 +90,15 @@
             label="besluitToelichting"
             [value]="besluit.toelichting"
           />
-          <mfb-form-field
+          <zac-documents
             class="flex-fill-row"
-            *ngIf="besluitInformatieobjecten[besluit.uuid]"
-            [field]="besluitInformatieobjecten[besluit.uuid]"
-          ></mfb-form-field>
+            *ngIf="documentenForms[besluit.uuid]"
+            [form]="documentenForms[besluit.uuid]"
+            key="documenten"
+            label="documenten"
+            [options]="besluit.informatieobjecten ?? []"
+            [readonly]="true"
+          ></zac-documents>
         </div>
       </mat-tab>
 

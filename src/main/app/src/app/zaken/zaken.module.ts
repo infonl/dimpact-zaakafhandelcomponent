@@ -18,6 +18,7 @@ import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
+import { ZacDocuments } from "../shared/form/documents/documents";
 import { SharedModule } from "../shared/shared.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
@@ -42,6 +43,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
   imports: [
     NotitiesComponent,
     SharedModule,
+    ZacDocuments,
     ZaakDocumentenComponent,
     ZakenRoutingModule,
     KlantenModule,

@@ -1199,24 +1199,6 @@ export class ZaakViewComponent
     this.loadHistorie();
   }
 
-  protected doIntrekking($event: {
-    uuid: string;
-    vervaldatum: string;
-    vervalreden: FormControl<string>;
-    toelichting: string;
-  }) {
-    this.zakenService
-      .intrekkenBesluit({
-        besluitUuid: $event.uuid,
-        vervaldatum: $event.vervaldatum,
-        vervalreden: $event.vervalreden.value,
-        reden: $event.toelichting,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.besluit.ingetrokken");
-      });
-  }
-
   protected async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
       gegevens?: string | null;
@@ -1368,16 +1350,16 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen,
     );
   }
 
