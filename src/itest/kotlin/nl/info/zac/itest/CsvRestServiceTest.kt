@@ -4,8 +4,9 @@
  */
 package nl.info.zac.itest
 
-import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour.EMPTY_STRING
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.jsoizo.kotlincsv.CsvDialect
+import com.jsoizo.kotlincsv.csvReader
+import com.jsoizo.kotlincsv.reader.InsufficientFieldsRowBehaviour.EMPTY_STRING
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -126,8 +127,8 @@ class CsvRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
 
                     val csvReader = csvReader {
-                        delimiter = ';'
-                        // the value rows in the zaken export CSVs contains values other than are
+                        CsvDialect(delimiter = ';')
+                        // the value rows in the zaken export CSVs contain values other than are
                         // defined in the header row, so we convert them to empty strings
                         insufficientFieldsRowBehaviour = EMPTY_STRING
                     }
