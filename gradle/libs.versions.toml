@@ -9,7 +9,7 @@ opentelemetry = "1.63.0"
 opentelemetry-instrumentation = "2.28.1"
 node-gradle = "7.1.0"
 detekt = "1.23.8"
-spotless = "8.6.0"
+spotless = "8.7.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
@@ -63,7 +63,7 @@ wildfly-security-elytron-http-oidc = "2.7.0.Final"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "6.1.11"
+kotest = "6.2.0"
 mockk = "1.14.11"
 
 testcontainers = "2.0.5"

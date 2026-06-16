@@ -5,6 +5,7 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -31,7 +32,18 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
-        val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val (zaak, zaaktype) = flowableHelper.zaakService.readZaakAndZaakTypeByZaakID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
+        val zaakRechten = flowableHelper.policyService.readZaakRechten(
+            zaak,
+            zaaktype,
+            loggedInUser
+        )
+        assertPolicy(
+            zaakRechten.toekennen,
+            LOG,
+            "User '${loggedInUser.id}' is not authorised to assign zaak '${zaak.identificatie}'"
+        )
 
         val groupId = groepId.resolveValueAsString(execution)
         val userId = behandelaarGebruikersnaam?.resolveValueAsString(execution)

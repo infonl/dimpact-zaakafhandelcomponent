@@ -9,6 +9,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.exception.InvalidExtensionPeriodException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -35,7 +36,18 @@ class ExtendZaakDelegate : AbstractDelegate() {
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
-        val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val (zaak, zaaktype) = flowableHelper.zaakService.readZaakAndZaakTypeByZaakID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
+        val zaakRechten = flowableHelper.policyService.readZaakRechten(
+            zaak,
+            zaaktype,
+            loggedInUser
+        )
+        assertPolicy(
+            zaakRechten.verlengen,
+            LOG,
+            "User ${loggedInUser.id} not allowed to extend zaak ${zaak.identificatie}"
+        )
 
         LOG.fine(
             "Extending zaak '${zaak.identificatie}' from activity '${execution.currentActivityName}' " +
@@ -43,7 +55,6 @@ class ExtendZaakDelegate : AbstractDelegate() {
         )
 
         val numberOfDays = aantalDagen.resolveValueAsInt(execution)
-        val zaaktype = flowableHelper.ztcClientService.readZaaktype(zaak.zaaktype)
         zaaktype.extensionPeriodDays()?.let {
             if (numberOfDays > it) {
                 throw InvalidExtensionPeriodException(
