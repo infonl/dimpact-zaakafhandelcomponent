@@ -58,7 +58,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceAssignTest : BehaviorSpec({

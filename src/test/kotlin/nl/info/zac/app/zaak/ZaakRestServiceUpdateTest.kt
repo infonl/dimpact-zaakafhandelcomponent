@@ -72,7 +72,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
 import org.flowable.task.api.Task
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceUpdateTest : BehaviorSpec({

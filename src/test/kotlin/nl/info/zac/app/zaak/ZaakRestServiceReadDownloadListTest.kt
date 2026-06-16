@@ -67,7 +67,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceReadDownloadListTest : BehaviorSpec({

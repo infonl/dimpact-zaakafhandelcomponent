@@ -80,7 +80,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceCreateTest : BehaviorSpec({

@@ -70,7 +70,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
 import java.net.URI
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceDeleteTerminateCloseTest : BehaviorSpec({
