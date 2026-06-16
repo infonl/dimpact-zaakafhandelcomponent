@@ -25,7 +25,6 @@ import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.besluit.BesluitService
 import nl.info.zac.app.zaak.converter.RestBesluitConverter
 import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
 import nl.info.zac.app.zaak.model.createRestBesluit
@@ -33,6 +32,7 @@ import nl.info.zac.app.zaak.model.createRestBesluitChangeData
 import nl.info.zac.app.zaak.model.createRestBesluitCreateData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.besluit.BesluitService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
