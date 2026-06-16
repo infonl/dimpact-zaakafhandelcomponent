@@ -219,7 +219,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Error handling for convertForCreate") {
+    Given("Error handling for convertForCreate") {
         When("convertForCreate is called with null input") {
             Then("it should throw IllegalArgumentException") {
                 val exception = shouldThrow<IllegalArgumentException> {
@@ -230,7 +230,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Error handling for convertForUpdate") {
+    Given("Error handling for convertForUpdate") {
         When("convertForUpdate is called with null input") {
             Then("it should throw IllegalArgumentException") {
                 val exception = shouldThrow<IllegalArgumentException> {
@@ -241,7 +241,7 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Whitespace handling for template names") {
+    Given("Whitespace handling for template names") {
         When("convertForCreate is called with template name containing whitespace") {
             val restMailTemplate = createRestMailTemplate().apply { mailTemplateNaam = "  Test Template  " }
 

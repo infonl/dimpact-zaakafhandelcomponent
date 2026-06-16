@@ -15,7 +15,6 @@ import { DocumentVerzendenPostTaskForm } from "./model/document-verzenden-post-t
 import { ExternAdviesMailTaskForm } from "./model/extern-advies-mail-task-form";
 import { ExternAdviesVastleggenTaskForm } from "./model/extern-advies-vastleggen-task-form";
 import { GoedkeurenTaskForm } from "./model/goedkeuren-task-form";
-import { TaakFormulierBuilder } from "./taak-formulier-builder";
 
 @Injectable({
   providedIn: "root",
@@ -90,43 +89,6 @@ export class TaakFormulierenService {
         throw new Error(
           `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
         );
-    }
-  }
-
-  public getFormulierBuilder(
-    formulierDefinitie?: GeneratedType<"FormulierDefinitie"> | null,
-  ): TaakFormulierBuilder {
-    switch (formulierDefinitie) {
-      case "DEFAULT_TAAKFORMULIER":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "AANVULLENDE_INFORMATIE":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "ADVIES":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "EXTERN_ADVIES_VASTLEGGEN":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "EXTERN_ADVIES_MAIL":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "GOEDKEUREN":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      case "DOCUMENT_VERZENDEN_POST":
-        throw new Error(
-          `${formulierDefinitie} is DEPRECATED, use Angular form`,
-        );
-      default:
-        throw new Error(`Onbekende formulierDefinitie: ${formulierDefinitie}`);
     }
   }
 }

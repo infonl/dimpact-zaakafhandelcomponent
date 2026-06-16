@@ -14,14 +14,14 @@ It was extended and made specific for the needs of ZAC.
 - [Docker Desktop](https://docs.docker.com/desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
-- On Windows: to run .sh scripts use [git bash](https://gitforwindows.org/)
 - On Linux: run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
+- On WSL2: make sure you clone the repository to the WSL filesystem itself
 
 #### Steps to Add host.docker.internal Entry to /etc/hosts File
 When working with Docker, adding host.docker.internal to your /etc/hosts file allows Docker containers to access services running on the host machine. Follow these steps to add this entry:
 
 1. Open the /etc/hosts File:
-   - You need administrative privileges to edit the /etc/hosts file.
+   - You need administrative privileges to edit the /etc/hosts file. For WSL2, you need to edit the windows hosts file at `C:\Windows\System32\drivers\etc\hosts`
    - Open the file in a text editor of your choice. For example, using vim, you would use the following command:
     ```sh
         sudo vim /etc/hosts
