@@ -6,9 +6,10 @@
 import { NgModule } from "@angular/core";
 
 import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
+import { InformatieObjectVerzendenComponent } from "../informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { KlantenModule } from "../klanten/klanten.module";
-import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.component";
+import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
 import { MailCreateComponent } from "../mail/mail-create/mail-create.component";
 import { OntvangstbevestigingComponent } from "../mail/ontvangstbevestiging/ontvangstbevestiging.component";
 import { NotitiesComponent } from "../notities/notities.component";
@@ -45,6 +46,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
+    InformatieObjectVerzendenComponent,
     HumanTaskDoComponent,
     PlanItemsModule,
     MailCreateComponent,

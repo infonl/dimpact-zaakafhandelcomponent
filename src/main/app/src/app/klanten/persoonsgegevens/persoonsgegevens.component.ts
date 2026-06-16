@@ -21,6 +21,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { PolicyService } from "../../policy/policy.service";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { PersoonIndicatiesComponent } from "../../shared/indicaties/persoon-indicaties/persoon-indicaties.component";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -51,6 +52,7 @@ import { KlantenService } from "../klanten.service";
 })
 export class PersoonsgegevensComponent {
   private readonly klantenService = inject(KlantenService);
+  private readonly policyService = inject(PolicyService);
 
   protected zaak = input.required<GeneratedType<"RestZaak">>();
 
@@ -69,9 +71,32 @@ export class PersoonsgegevensComponent {
     enabled: !!this.temporaryPersonId(),
   }));
 
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
+  );
+
   protected readonly isDisabled = signal(false);
 
   protected readonly indicatiesLayout = IndicatiesLayout;
+
+  protected readonly koppelingen = computed(
+    () => this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen,
+  );
+
+  protected allowedToChangeInitiatorBedrijf() {
+    return Boolean(
+      this.zaak().rechten.toevoegenInitiatorBedrijf &&
+        this.koppelingen()?.kvkKoppelen,
+    );
+  }
+
+  protected allowedToChangeAndSearchInitiatorPersoon() {
+    return Boolean(
+      this.zaak().rechten.toevoegenInitiatorPersoon &&
+        this.koppelingen()?.brpKoppelen &&
+        this.overigeRechtenQuery.data()?.brpZoeken,
+    );
+  }
 
   constructor() {
     effect(() => {

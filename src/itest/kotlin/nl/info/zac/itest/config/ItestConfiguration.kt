@@ -111,7 +111,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 44
+    const val ROLTYPE_COUNT = 46
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -396,6 +396,17 @@ object ItestConfiguration {
         "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     )
 
+    val ZAAKTYPE_BPMN_TEST_5_UUID: UUID = UUID.fromString("7941c3b9-e4a2-4444-b2cb-c211f035cecd")
+    const val ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE = "bpmn-test-zaaktype-5"
+    const val ZAAKTYPE_BPMN_TEST_5_DESCRIPTION = "BPMN test zaaktype 5"
+    const val ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE = "bpmn-test-5-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
+        "7af7b0a9-2dfe-4ac6-9a33-4c0acf49c75a"
+    )
+    val ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEROND_UUID: UUID = UUID.fromString(
+        "88e40d49-0e9d-4e1a-855f-ecc3c8ca66a8"
+    )
+
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
     const val BPMN_TEST_PROCESS_RESOURCE_PATH = "bpmn/$BPMN_TEST_PROCESS_DEFINITION_KEY.bpmn"
     const val BPMN_TEST_FORM_RESOURCE_PATH = "bpmn/testForm.json"
@@ -425,6 +436,10 @@ object ItestConfiguration {
     const val BPMN_SUSPEND_RESUME_SUSPEND_TASK_NAME = "Suspend parameters"
     const val BPMN_SUSPEND_RESUME_RESUME_TASK_NAME = "Resume parameters"
     const val BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME = "Extend parameters"
+
+    const val BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY = "permissionCheckProcess"
+    const val BPMN_PERMISSION_CHECK_PROCESS_RESOURCE_PATH = "bpmn/permission-check/permissionCheckProcess.bpmn"
+    const val BPMN_PERMISSION_CHECK_PROCESS_CHOOSE_FORM_RESOURCE_PATH = "bpmn/permission-check/chooseTestProcess.json"
 
     val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
         UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")

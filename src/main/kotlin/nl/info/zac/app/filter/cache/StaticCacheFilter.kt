@@ -17,9 +17,9 @@ import kotlin.time.Duration.Companion.days
 /**
  * Overrides Undertow's default `no-cache, no-store` headers on static assets.
  *
- * Undertow writes response headers when [getOutputStream] or [getWriter] is first called — at that
- * point the response is not yet committed, so headers can still be set. A [ResponseWrapper]
- * intercepts both calls to inject the correct Cache-Control value and suppress the legacy
+ * Undertow writes response headers when [ResponseWrapper.getOutputStream] or [ResponseWrapper.getWriter] is first called.
+ * At that point the response is not yet committed, so headers can still be set.
+ * A [ResponseWrapper] intercepts both calls to inject the correct Cache-Control value and suppress the legacy
  * `Pragma` and `Expires` headers Undertow also sets.
  *
  * Path matching uses `requestURI.removePrefix(contextPath)` rather than `servletPath`, because
@@ -46,7 +46,7 @@ class StaticCacheFilter : Filter {
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val httpRequest = request as? HttpServletRequest
         val cacheControl = httpRequest?.let { resolveCacheControl(it) }
-        if (cacheControl != null && httpRequest != null && response is HttpServletResponse) {
+        if (cacheControl != null && response is HttpServletResponse) {
             chain.doFilter(RequestWrapper(httpRequest), ResponseWrapper(response, cacheControl))
         } else {
             chain.doFilter(request, response)

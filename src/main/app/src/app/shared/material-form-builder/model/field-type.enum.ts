@@ -5,9 +5,7 @@
 
 export enum FieldType {
   INPUT = "INPUT",
-  HEADING = "HEADING",
   HIDDEN = "HIDDEN",
-  HTML_EDITOR = "HTML_EDITOR",
   PARAGRAPH = "PARAGRAPH",
   TEXTAREA = "TEXTAREA",
   DATE = "DATE",

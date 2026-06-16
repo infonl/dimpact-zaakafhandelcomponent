@@ -71,11 +71,12 @@ describe(ToolbarComponent.name, () => {
       }),
     );
 
-    jest
-      .spyOn(policyService, "readOverigeRechten")
-      .mockReturnValue(
-        of({ startenZaak: true, beheren: false, zoeken: false }),
-      );
+    testQueryClient.setQueryData(policyService.readOverigeRechten().queryKey, {
+      startenZaak: true,
+      beheren: false,
+      zoeken: false,
+      brpZoeken: false,
+    });
     jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
       of(
         fromPartial<GeneratedType<"RestWerklijstRechten">>({
@@ -121,11 +122,10 @@ describe(ToolbarComponent.name, () => {
     });
 
     it("is not rendered when overigeRechten.startenZaak is false", async () => {
-      jest
-        .spyOn(policyService, "readOverigeRechten")
-        .mockReturnValue(
-          of({ startenZaak: false, beheren: false, zoeken: false }),
-        );
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: false, brpZoeken: false },
+      );
       createComponent();
 
       const buttons = await loader.getAllHarnesses(
@@ -199,11 +199,10 @@ describe(ToolbarComponent.name, () => {
 
   describe("Search field", () => {
     it("is rendered when overigeRechten.zoeken is true", async () => {
-      jest
-        .spyOn(policyService, "readOverigeRechten")
-        .mockReturnValue(
-          of({ startenZaak: false, beheren: false, zoeken: true }),
-        );
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+      );
       createComponent();
 
       const formFields = await loader.getAllHarnesses(
@@ -222,11 +221,10 @@ describe(ToolbarComponent.name, () => {
     });
 
     it("shows the clear button when hasSearched is true", async () => {
-      jest
-        .spyOn(policyService, "readOverigeRechten")
-        .mockReturnValue(
-          of({ startenZaak: false, beheren: false, zoeken: true }),
-        );
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+      );
       createComponent();
       TestBed.inject(ZoekenService).hasSearched.set(true);
       fixture.detectChanges();
@@ -240,11 +238,10 @@ describe(ToolbarComponent.name, () => {
     });
 
     it("shows the search icon when hasSearched is false", async () => {
-      jest
-        .spyOn(policyService, "readOverigeRechten")
-        .mockReturnValue(
-          of({ startenZaak: false, beheren: false, zoeken: true }),
-        );
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+      );
       createComponent();
 
       const icons = await loader.getAllHarnesses(
@@ -258,11 +255,10 @@ describe(ToolbarComponent.name, () => {
 
   describe("Admin button", () => {
     it("is rendered when overigeRechten.beheren is true", async () => {
-      jest
-        .spyOn(policyService, "readOverigeRechten")
-        .mockReturnValue(
-          of({ startenZaak: false, beheren: true, zoeken: false }),
-        );
+      testQueryClient.setQueryData(
+        policyService.readOverigeRechten().queryKey,
+        { startenZaak: false, beheren: true, zoeken: false, brpZoeken: false },
+      );
       createComponent();
 
       const buttons = await loader.getAllHarnesses(

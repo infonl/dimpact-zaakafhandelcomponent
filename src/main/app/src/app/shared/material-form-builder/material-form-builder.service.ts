@@ -7,9 +7,7 @@ import { Injectable, Type } from "@angular/core";
 import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
-import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
-import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
 import { InputComponent } from "./form-components/input/input.component";
 import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { MessageComponent } from "./form-components/message/message.component";
@@ -49,12 +47,8 @@ export class MaterialFormBuilderService {
         return InputComponent;
       case FieldType.TEXTAREA:
         return TextareaComponent;
-      case FieldType.HEADING:
-        return HeadingComponent;
       case FieldType.HIDDEN:
         return HiddenComponent;
-      case FieldType.HTML_EDITOR:
-        return HtmlEditorComponent;
       case FieldType.SELECT:
         return SelectComponent;
       case FieldType.MEDEWERKER_GROEP:

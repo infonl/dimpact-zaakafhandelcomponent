@@ -168,6 +168,8 @@ private class HistoricProcessInstanceImpl(
     private val referenceType: String = "fakeReferenceType",
     private val propagatedStageInstanceId: String = "fakePropagatedStageInstanceId",
     private val processVariables: Map<String, Any> = emptyMap(),
+    private val state: String = "fakeState",
+    private val endUserId: String = "fakeEndUserId"
 ) : HistoricProcessInstance {
     override fun getId() = id
     override fun getBusinessKey() = businessKey
@@ -195,4 +197,6 @@ private class HistoricProcessInstanceImpl(
     override fun getReferenceType() = referenceType
     override fun getPropagatedStageInstanceId() = propagatedStageInstanceId
     override fun getProcessVariables() = processVariables
+    override fun getState() = state
+    override fun getEndUserId() = endUserId
 }

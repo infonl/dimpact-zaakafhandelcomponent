@@ -6,7 +6,6 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
-  HttpErrorResponse,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -21,7 +20,7 @@ import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of, throwError } from "rxjs";
+import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
@@ -345,26 +344,6 @@ describe("HumanTaskDoComponent", () => {
       expect(openFoutDialogSpy).toHaveBeenCalledWith(
         "Onbekende formulierDefinitie for Angular form: FAKE",
       );
-    });
-
-    it("should hand off to the error handler when loading the groups fails", async () => {
-      jest
-        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockResolvedValue([]);
-      const httpErrorResponse = new HttpErrorResponse({
-        status: 500,
-        statusText: "Internal Server Error",
-      });
-      jest
-        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
-        .mockReturnValue(throwError(() => httpErrorResponse));
-      const foutAfhandelenSpy = jest
-        .spyOn(foutAfhandelingService, "foutAfhandelen")
-        .mockReturnValue(of(undefined) as never);
-
-      await component.ngOnInit();
-
-      expect(foutAfhandelenSpy).toHaveBeenCalledWith(httpErrorResponse);
     });
   });
 });
