@@ -79,15 +79,22 @@ export class PersoonsgegevensComponent {
 
   protected readonly indicatiesLayout = IndicatiesLayout;
 
-  protected allowInitiatorWijzigen() {
-    const koppelingen =
-      this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen;
+  protected readonly koppelingen = computed(
+    () => this.zaak().zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen,
+  );
+
+  protected allowedToChangeInitiatorBedrijf() {
     return Boolean(
-      (this.zaak().rechten.toevoegenInitiatorPersoon &&
-        koppelingen?.brpKoppelen &&
-        this.overigeRechtenQuery.data()?.brpZoeken) ||
-        (this.zaak().rechten.toevoegenInitiatorBedrijf &&
-          koppelingen?.kvkKoppelen),
+      this.zaak().rechten.toevoegenInitiatorBedrijf &&
+        this.koppelingen()?.kvkKoppelen,
+    );
+  }
+
+  protected allowedToChangeAndSearchInitiatorPersoon() {
+    return Boolean(
+      this.zaak().rechten.toevoegenInitiatorPersoon &&
+        this.koppelingen()?.brpKoppelen &&
+        this.overigeRechtenQuery.data()?.brpZoeken,
     );
   }
 

@@ -212,7 +212,7 @@ describe(PersoonsgegevensComponent.name, () => {
     });
   });
 
-  describe("allowInitiatorWijzigen", () => {
+  describe("allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon", () => {
     let policyService: PolicyService;
     let fixture: ComponentFixture<PersoonsgegevensComponent>;
 
@@ -252,11 +252,13 @@ describe(PersoonsgegevensComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should return true when toevoegenInitiatorPersoon and brpZoeken are true", () => {
-      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(true);
+    it("should return true for allowedToChangeAndSearchInitiatorPersoon when toevoegenInitiatorPersoon and brpZoeken are true", () => {
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(true);
     });
 
-    it("should return true when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
+    it("should return true for allowedToChangeInitiatorBedrijf when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
@@ -280,10 +282,12 @@ describe(PersoonsgegevensComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(true);
+      expect(
+        fixture.componentInstance["allowedToChangeInitiatorBedrijf"](),
+      ).toBe(true);
     });
 
-    it("should return false when toevoegenInitiatorPersoon is false", () => {
+    it("should return false for allowedToChangeAndSearchInitiatorPersoon when toevoegenInitiatorPersoon is false", () => {
       fixture.componentRef.setInput("zaak", {
         ...zaakWithWijzigenRechten,
         rechten: {
@@ -293,21 +297,28 @@ describe(PersoonsgegevensComponent.name, () => {
       });
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(false);
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(false);
     });
 
-    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
+    it("should return false for both when brpZoeken is false and kvkKoppelen is false", () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
         fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
       );
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["allowInitiatorWijzigen"]()).toBe(false);
+      expect(
+        fixture.componentInstance["allowedToChangeInitiatorBedrijf"](),
+      ).toBe(false);
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(false);
     });
 
     describe("wijzigen button", () => {
-      it("should show the button when allowInitiatorWijzigen returns true", () => {
+      it("should show the button when allowedToChangeAndSearchInitiatorPersoon returns true", () => {
         expect(
           fixture.nativeElement.querySelector(
             '[title="actie.initiator.wijzigen"]',
@@ -315,7 +326,7 @@ describe(PersoonsgegevensComponent.name, () => {
         ).toBeTruthy();
       });
 
-      it("should hide the button when allowInitiatorWijzigen returns false", () => {
+      it("should hide the button when both allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon return false", () => {
         testQueryClient.setQueryData(
           policyService.readOverigeRechten().queryKey,
           fromPartial<GeneratedType<"RestOverigeRechten">>({
