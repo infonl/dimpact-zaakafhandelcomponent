@@ -6,7 +6,10 @@
 
 ## Step 0 — Ask before anything else
 
-> "What type of integration test do you want to add? **CMMN** or **BPMN**?"
+Ask both questions before doing anything else:
+
+1. > "What type of integration test do you want to add? **CMMN** or **BPMN**?"
+2. > "Which source file should the integration test be based on? (provide the filename or full path)"
 
 Then read the matching configuration section at the bottom of this file before writing a single line of Kotlin.
 
@@ -17,7 +20,7 @@ Then read the matching configuration section at the bottom of this file before w
 | # | Step |
 |---|---|
 | 1 | Understand the feature — read the REST endpoint(s) under test, identify input/output, happy path, edge cases |
-| 2 | Decide file location — BPMN: `src/itest/kotlin/nl/info/zac/itest/bpmn/`; CMMN and general: `src/itest/kotlin/nl/info/zac/itest/` |
+| 2 | Decide file location — BPMN: `src/itest/kotlin/nl/info/zac/itest/bpmn/`; CMMN and general: `src/itest/kotlin/nl/info/zac/itest/` — name the test class `<SourceClassName>Test` (e.g. `ZaakSuspendRestService` → `ZaakSuspendRestServiceTest`) |
 | 3 | Write the test — see framework patterns below |
 | 4 | Tell the user the run command (generated from the class name) and ask them to run it |
 
