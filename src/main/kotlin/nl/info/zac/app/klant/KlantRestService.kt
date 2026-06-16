@@ -208,7 +208,7 @@ class KlantRestService @Inject constructor(
             }
             ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid, loggedInUserInstance.get().id)
                 .toRestPersonen()
-                .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
+                .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                 .toRestResultaat()
 
     @PUT
