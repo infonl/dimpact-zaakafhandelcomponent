@@ -45,7 +45,7 @@ fun createBetrokkeneIdentificatie(
 )
 
 fun createRestBesluit(
-    url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
+    url: URI = URI("https://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
 ) = RestBesluit(
     url = url,
