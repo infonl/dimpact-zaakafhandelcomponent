@@ -43,9 +43,9 @@ import { ZakenService } from "../zaken.service";
   standalone: false,
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];
+  @Input({ required: true }) besluiten!: GeneratedType<"RestBesluit">[];
   @Input({ required: true }) readonly!: boolean;
-  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
+  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
   @Output() doIntrekking = new EventEmitter();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<
@@ -125,11 +125,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return this.besluiten.find((value) => value.uuid === uuid);
   }
 
-  isReadonly(besluit: GeneratedType<"RestDecision">) {
+  isReadonly(besluit: GeneratedType<"RestBesluit">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: GeneratedType<"RestDecision">) {
+  intrekken(besluit: GeneratedType<"RestBesluit">) {
     const dialogData = new DialogData({
       formFields: [
         this.maakIdField(besluit),
@@ -152,11 +152,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     return of(null);
   }
 
-  private maakIdField(besluit: GeneratedType<"RestDecision">) {
+  private maakIdField(besluit: GeneratedType<"RestBesluit">) {
     return new HiddenFormFieldBuilder(besluit.uuid).id("uuid").build();
   }
 
-  private maakVervaldatumField(besluit: GeneratedType<"RestDecision">) {
+  private maakVervaldatumField(besluit: GeneratedType<"RestBesluit">) {
     return new DateFormFieldBuilder(besluit.vervaldatum)
       .id("vervaldatum")
       .label("vervaldatum")
@@ -165,7 +165,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakVervalredenField(besluit: GeneratedType<"RestDecision">) {
+  private maakVervalredenField(besluit: GeneratedType<"RestBesluit">) {
     const vervalRedenen = this.utilService.getEnumAsSelectListExceptFor(
       "besluit.vervalreden",
       VervalReden,
@@ -196,7 +196,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       .build();
   }
 
-  private maakMessageField(besluit: GeneratedType<"RestDecision">) {
+  private maakMessageField(besluit: GeneratedType<"RestBesluit">) {
     const documentenVerstuurd = besluit.informatieobjecten?.some(
       ({ verzenddatum }) => verzenddatum != null,
     );

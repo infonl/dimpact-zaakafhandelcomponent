@@ -43,7 +43,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
     .saveText("actie.wijzigen")
     .cancelText("actie.annuleren")
     .build();
-  @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
+  @Input({ required: true }) besluit!: GeneratedType<"RestBesluit">;
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() besluitGewijzigd = new EventEmitter<boolean>();
@@ -187,7 +187,7 @@ export class BesluitEditComponent implements OnDestroy, OnInit {
       this.besluitGewijzigd.emit(false);
       return;
     }
-    const gegevens: GeneratedType<"RestDecisionChangeData"> = {
+    const gegevens: GeneratedType<"RestBesluitChangeData"> = {
       besluitUuid: this.besluit.uuid,
       toelichting: formGroup.controls["toelichting"].value,
       ingangsdatum: formGroup.controls["ingangsdatum"].value,
