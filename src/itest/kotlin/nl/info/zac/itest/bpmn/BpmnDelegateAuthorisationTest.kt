@@ -20,7 +20,7 @@ import java.util.UUID
 /**
  * Tests that BPMN process delegates return HTTP 403 Forbidden when called without the required permissions.
  */
-class BpmnPermissionCheckTest : BehaviorSpec({
+class BpmnDelegateAuthorisationTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
