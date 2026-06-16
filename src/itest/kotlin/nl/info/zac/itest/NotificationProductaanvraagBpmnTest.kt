@@ -101,7 +101,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                 }
             }
 
-            When("the get betrokkene endpoint is called for the BPMN zaak created from the productaanvraag") {
+            And("the get betrokkene endpoint is called for the BPMN zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagUuid/betrokkene",
                     testUser = RAADPLEGER_1

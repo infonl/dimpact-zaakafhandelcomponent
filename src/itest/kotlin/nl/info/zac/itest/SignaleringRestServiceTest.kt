@@ -304,7 +304,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
-            When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
+            And("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
                 // it may take a while before the notification is processed and the signalering is created
                 lateinit var responseBody: String
                 eventually(10.seconds) {

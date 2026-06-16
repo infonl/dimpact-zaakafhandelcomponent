@@ -68,7 +68,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 detachResponse.code shouldBe HTTP_NO_CONTENT
             }
 
-            When("the list detached documents endpoint is called by a coordinator") {
+            And("the list detached documents endpoint is called by a coordinator") {
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/ontkoppeldedocumenten",
                     requestBodyAsString = """
@@ -100,7 +100,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                When(
+                And(
                     "the delete detached document endpoint is called by a recordmanager with the id of the detached document"
                 ) {
                     val deleteResponse = itestHttpClient.performDeleteRequest(
@@ -113,7 +113,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         deleteResponse.code shouldBe HTTP_NO_CONTENT
                     }
 
-                    When("the list detached documents endpoint is called again by a coordinator") {
+                    And("the list detached documents endpoint is called again by a coordinator") {
                         val listAfterDeleteResponse = itestHttpClient.performPutRequest(
                             url = "$ZAC_API_URI/ontkoppeldedocumenten",
                             requestBodyAsString = """
@@ -139,7 +139,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         }
                     }
 
-                    When(
+                    And(
                         "the get enkelvoudig informatie object endpoint is called for the deleted document"
                     ) {
                         val getResponse = itestHttpClient.performGetRequest(

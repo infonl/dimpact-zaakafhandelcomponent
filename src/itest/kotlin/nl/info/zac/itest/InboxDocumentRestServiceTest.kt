@@ -126,7 +126,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 JSONObject(listResponse.bodyAsString).getInt("totaal") shouldBe 0
             }
 
-            When("the get enkelvoudig informatie object endpoint is called for the deleted document") {
+            And("the get enkelvoudig informatie object endpoint is called for the deleted document") {
                 val getResponse = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
                     testUser = COORDINATOR_1
