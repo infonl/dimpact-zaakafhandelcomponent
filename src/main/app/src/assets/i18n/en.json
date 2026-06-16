@@ -1092,8 +1092,6 @@
   "brp-protocollering": "BRP Audit Logging",
   "zaakafhandelparameters": "Case handling parameters",
   " 13 ": ">>--> Zaak formulieren <--<<",
-  "melding-klein-evenement.evenement": "Event information",
-  "melding-klein-evenement.aanvrager.gegevens": "Requester details",
   "naamEvenement": "Event name",
   "omschrijvingEvenement": "Event description",
   "datumEvenement": "Event date",
