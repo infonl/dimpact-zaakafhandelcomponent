@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -26,7 +27,9 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.NillableGerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -258,6 +261,50 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("Two open zaken with zaak link data using a 'gerelateerd' relatie and a reason") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val teKoppelenZaak = createZaak()
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.GERELATEERD,
+                reden = "fakeReden"
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+            } returns createZaakRechten()
+            every {
+                zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
+            } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the zaken are linked with relatie type GERELATEERD") {
+                zaakRestService.linkZaak(restZaakLinkData)
+
+                Then("patchZaak is called once with the source zaak UUID") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe zaak.uuid
+                }
+
+                Then("the patched zaak has one gerelateerdeZaken item pointing to the target zaak") {
+                    patchZaakSlot.captured.gerelateerdeZaken shouldHaveSize 1
+                    patchZaakSlot.captured.gerelateerdeZaken[0].url shouldBe teKoppelenZaak.url
+                }
+            }
+        }
     }
 
     Context("Unlinking a zaak") {
@@ -298,6 +345,53 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
                     with(patchZaakSlot.captured) {
                         relevanteAndereZaken shouldBe null
                     }
+                }
+            }
+        }
+
+        Given("A zaak with a gerelateerde zaak linked to it") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = gekoppeldeZaak.url })
+            }
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten()
+            every {
+                zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
+            } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the gerelateerde zaak is unlinked") {
+                zaakRestService.unlinkZaak(restZaakUnlinkData)
+
+                Then("patchZaak is called once with the source zaak UUID") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe zaak.uuid
+                }
+
+                Then("the patched zaak is a NillableGerelateerdeZakenZaakPatch with gerelateerdeZaken set to null") {
+                    patchZaakSlot.captured.shouldBeInstanceOf<NillableGerelateerdeZakenZaakPatch>()
+                    patchZaakSlot.captured.gerelateerdeZaken shouldBe null
                 }
             }
         }

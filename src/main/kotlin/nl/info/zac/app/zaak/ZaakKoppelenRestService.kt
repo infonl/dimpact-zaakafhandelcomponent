@@ -164,6 +164,8 @@ class ZaakKoppelenRestService @Inject constructor(
                 !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
                     // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
                     !targetZaak.isIndicatie(HOOFDZAAK)
+            RelatieType.GERELATEERD ->
+                true
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
             )
@@ -185,6 +187,8 @@ class ZaakKoppelenRestService @Inject constructor(
                 ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
                     it.toString().contains(this.zaaktypeUuid)
                 }
+            RelatieType.GERELATEERD ->
+                true
             else -> throw UnsupportedOperationException(
                 "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
             )
