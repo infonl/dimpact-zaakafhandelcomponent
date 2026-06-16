@@ -20,6 +20,7 @@ import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.decision.DecisionService
@@ -39,7 +40,6 @@ import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.zaak.ZaakService
-import nl.info.client.zgw.zrc.ZrcClientService
 import java.net.URI
 import java.util.UUID
 
