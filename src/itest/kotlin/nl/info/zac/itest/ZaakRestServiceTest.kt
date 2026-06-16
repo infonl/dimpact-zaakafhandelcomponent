@@ -48,6 +48,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BS
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
@@ -73,6 +74,7 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
@@ -1067,6 +1069,67 @@ class ZaakRestServiceTest : BehaviorSpec({
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Context("Listing afzenders for a zaak") {
+        Given(
+            """
+            A CMMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
+            """
+        ) {
+            When("the list afzenders voor zaak endpoint is called by an authorized behandelaar") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
+                    testUser = BEHANDELAAR_1
+                )
+                Then("the response should be a 200 HTTP response with the list of afzenders") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            When("the list afzenders voor zaak endpoint is called by a user not authorized for the zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+    }
+
+    Context("Downloading a BPMN process diagram") {
+        Given(
+            """
+            A BPMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
+            """
+        ) {
+            val (_, bpmnZaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
+                testUser = BEHANDELAAR_1
+            )
+
+            When("the download process diagram endpoint is called by an authorized behandelaar") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
+                    testUser = BEHANDELAAR_1
+                )
+                Then("the response should be a 200 HTTP response with the process diagram") {
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            When("the download process diagram endpoint is called by a user not authorized for the zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }
