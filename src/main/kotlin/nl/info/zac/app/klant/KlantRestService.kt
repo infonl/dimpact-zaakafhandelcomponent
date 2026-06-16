@@ -201,8 +201,8 @@ class KlantRestService @Inject constructor(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> {
-        val brpRechten = policyService.readOverigeRechten()
-        assertPolicy(brpRechten.brpZoeken)
+        val overigeRechten = policyService.readOverigeRechten()
+        assertPolicy(overigeRechten.brpZoeken)
         return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
