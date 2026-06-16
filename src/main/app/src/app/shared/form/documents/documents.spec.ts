@@ -178,5 +178,14 @@ describe(ZacDocuments.name, () => {
       const value = component.form().controls.documents.value;
       expect(value).toHaveLength(1);
     });
+
+    it("should mark the form control as dirty when a checkbox is toggled", async () => {
+      expect(component.form().controls.documents.dirty).toBe(false);
+
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      await checkbox.check();
+
+      expect(component.form().controls.documents.dirty).toBe(true);
+    });
   });
 });
