@@ -43,7 +43,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                 loggedInUser
             ).behandelen,
             LOG,
-            "User ${loggedInUser.id} not allowed to handle zaak ${zaak.identificatie}"
+            "User '${loggedInUser.id}' is not authorised to handle zaak '${zaak.identificatie}'"
         )
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)

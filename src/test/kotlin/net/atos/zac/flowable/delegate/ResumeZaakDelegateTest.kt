@@ -166,12 +166,9 @@ class ResumeZaakDelegateTest : BehaviorSpec({
         every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.policyService } returns policyService
         every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
-
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-
         every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
-
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(hervatten = true)
 

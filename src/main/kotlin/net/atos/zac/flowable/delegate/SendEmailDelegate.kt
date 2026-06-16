@@ -47,7 +47,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 loggedInUser
             ).versturenEmail,
             LOG,
-            "User ${loggedInUser.id} not allowed to send email for zaak ${zaak.identificatie}"
+            "User '${loggedInUser.id}' not authorised to send email for zaak '${zaak.identificatie}'"
         )
 
         val templateName = template.resolveValueAsString(execution)

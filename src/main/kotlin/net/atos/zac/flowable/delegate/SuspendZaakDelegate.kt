@@ -35,12 +35,12 @@ class SuspendZaakDelegate : AbstractDelegate() {
         assertPolicy(
             flowableHelper.policyService.readZaakRechten(zaak, loggedInUser).opschorten,
             LOG,
-            "User ${loggedInUser.id} not allowed to suspend zaak ${zaak.identificatie}"
+            "User '${loggedInUser.id}' not authorised to suspend zaak '${zaak.identificatie}'"
         )
         assertPolicy(
             zaak.opschorting?.reden.isNullOrEmpty(),
             LOG,
-            "Zaak ${zaak.identificatie} already has a suspension reason; refusing to suspend again"
+            "Zaak '${zaak.identificatie}' already has a suspension reason; not allowed to suspend again"
         )
 
         LOG.fine(

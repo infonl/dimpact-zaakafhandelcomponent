@@ -41,7 +41,7 @@ class ResumeZaakDelegate : AbstractDelegate() {
         assertPolicy(
             zaak.isOpgeschort(),
             LOG,
-            "Zaak ${zaak.identificatie} is not suspended and cannot be resumed"
+            "Zaak '${zaak.identificatie}' is not suspended and cannot be resumed"
         )
         val resumeReason = hervattenReden.resolveValueAsString(execution)
         val resumeDate = hervattenDatum?.resolveValueAsZonedDateTime(execution)

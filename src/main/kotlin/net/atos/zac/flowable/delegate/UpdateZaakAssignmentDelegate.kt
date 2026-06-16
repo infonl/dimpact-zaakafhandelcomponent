@@ -42,7 +42,7 @@ class UpdateZaakAssignmentDelegate : AbstractDelegate() {
         assertPolicy(
             zaakRechten.toekennen,
             LOG,
-            "User ${loggedInUser.id} not allowed to assign zaak ${zaak.identificatie}"
+            "User '${loggedInUser.id}' is not authorised to assign zaak '${zaak.identificatie}'"
         )
 
         val groupId = groepId.resolveValueAsString(execution)

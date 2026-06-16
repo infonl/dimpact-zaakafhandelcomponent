@@ -62,7 +62,7 @@ class SignDocumentDelegate : AbstractDelegate() {
             assertPolicy(
                 flowableHelper.policyService.readDocumentRechten(enkelvoudigInformatieobject, zaak).ondertekenen,
                 LOG,
-                "Not allowed to sign document ${enkelvoudigInformatieobject.identificatie} for zaak ${zaak.identificatie}"
+                "Not authorised to sign document '${enkelvoudigInformatieobject.identificatie}' for zaak '${zaak.identificatie}'"
             )
 
             if (enkelvoudigInformatieobject.ondertekening?.datum != null) {
