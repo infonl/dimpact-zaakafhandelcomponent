@@ -86,7 +86,9 @@ export class ZacDocuments<
 
   protected onToggleOption(option: Option) {
     this.selection.toggle(option);
-    this.control()?.setValue(this.selection.selected as unknown as Option);
+    const control = this.control();
+    control?.setValue(this.selection.selected as unknown as Option);
+    control?.markAsDirty();
   }
 
   protected viewLink(option: Option) {
