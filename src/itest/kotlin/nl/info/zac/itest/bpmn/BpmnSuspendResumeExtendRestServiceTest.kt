@@ -104,7 +104,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the resume form is submitted with a resume date set to now") {
+            And("the resume form is submitted with a resume date set to now") {
                 val resumeDate = ZonedDateTime.now()
                 val resumeTaskPatchResponse = zacClient.submitFormData(
                     bpmnZaakUuid = zaakUuid,
@@ -139,7 +139,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                When("the extend form is submitted with 5 extend days") {
+                And("the extend form is submitted with 5 extend days") {
                     val extendTaskPatchResponse = zacClient.submitFormData(
                         bpmnZaakUuid = zaakUuid,
                         taakData = """{ "extendDays": 5, "extendTasks": false }""",
