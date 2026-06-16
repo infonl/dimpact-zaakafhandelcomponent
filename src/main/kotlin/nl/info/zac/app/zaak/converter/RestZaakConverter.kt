@@ -183,6 +183,9 @@ class RestZaakConverter @Inject constructor(
         zaak.relevanteAndereZaken
             ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
             ?.forEach(gerelateerdeZaken::add)
+        zaak.gerelateerdeZaken
+            ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
+            ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
 }
