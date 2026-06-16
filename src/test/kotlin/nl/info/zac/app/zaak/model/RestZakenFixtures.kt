@@ -16,6 +16,9 @@ import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
+import nl.info.zac.app.zaak.model.besluit.RestBesluit
+import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
+import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.search.model.ZaakIndicatie
 import java.net.URI
 import java.time.LocalDate
@@ -41,16 +44,16 @@ fun createBetrokkeneIdentificatie(
     vestigingsnummer = vestigingsnummer
 )
 
-fun createRestDecision(
-    url: URI = URI("http://localhost:8080/${UUID.randomUUID()}"),
+fun createRestBesluit(
+    url: URI = URI("https://localhost:8080/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID()
-) = RestDecision(
+) = RestBesluit(
     url = url,
     uuid = uuid
 )
 
 @Suppress("LongParameterList")
-fun createRestDecisionCreateData(
+fun createRestBesluitCreateData(
     zaakUuid: UUID = UUID.randomUUID(),
     besluittypeUuid: UUID = UUID.randomUUID(),
     toelichting: String = "fakeToelichting",
@@ -60,7 +63,7 @@ fun createRestDecisionCreateData(
     lastResponseDate: LocalDate? = null,
     informatieobjecten: List<UUID> = listOf(UUID.randomUUID())
 ) =
-    RestDecisionCreateData(
+    RestBesluitCreateData(
         besluittypeUuid = besluittypeUuid,
         informatieobjecten = informatieobjecten,
         ingangsdatum = ingangsdatum,
@@ -72,7 +75,7 @@ fun createRestDecisionCreateData(
     )
 
 @Suppress("LongParameterList")
-fun createRestDecisionChangeData(
+fun createRestBesluitChangeData(
     besluitUUID: UUID = UUID.randomUUID(),
     description: String = "besluitFakeDescription",
     effectiveDate: LocalDate = LocalDate.of(2023, 9, 14),
@@ -81,7 +84,7 @@ fun createRestDecisionChangeData(
     lastResponseDate: LocalDate = LocalDate.of(2023, 11, 1),
     informationObjects: List<UUID> = listOf(UUID.randomUUID()),
     reason: String = "fakeReason"
-) = RestDecisionChangeData(
+) = RestBesluitChangeData(
     besluitUuid = besluitUUID,
     toelichting = description,
     ingangsdatum = effectiveDate,
@@ -161,7 +164,7 @@ fun createRestZaak(
     zaaktype = restZaakType,
     status = createRestZaakStatus(),
     resultaat = createRestZaakResultaat(),
-    besluiten = listOf(createRestDecision()),
+    besluiten = listOf(createRestBesluit()),
     bronorganisatie = "Sample Bronorganisatie",
     verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
     registratiedatum = LocalDate.of(2023, 9, 14),

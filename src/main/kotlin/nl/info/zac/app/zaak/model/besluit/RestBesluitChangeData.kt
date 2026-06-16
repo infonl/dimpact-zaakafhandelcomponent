@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.zaak.model
+package nl.info.zac.app.zaak.model.besluit
 
 import jakarta.validation.constraints.NotNull
 import nl.info.client.zgw.brc.model.generated.Besluit
@@ -14,7 +14,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestDecisionChangeData(
+data class RestBesluitChangeData(
     @field:NotNull
     var besluitUuid: UUID,
 
@@ -33,7 +33,7 @@ data class RestDecisionChangeData(
     var reden: String? = null
 )
 
-fun Besluit.updateDecisionWithDecisionChangeData(besluitWijzigenGegevens: RestDecisionChangeData) =
+fun Besluit.updateBesluitWithBesluitChangeData(besluitWijzigenGegevens: RestBesluitChangeData) =
     this.apply {
         toelichting = besluitWijzigenGegevens.toelichting
         ingangsdatum = besluitWijzigenGegevens.ingangsdatum

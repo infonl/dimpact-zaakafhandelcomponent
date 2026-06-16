@@ -23,15 +23,15 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
-import nl.info.zac.app.decision.DecisionService
-import nl.info.zac.app.zaak.converter.RestDecisionConverter
-import nl.info.zac.app.zaak.model.RestDecision
-import nl.info.zac.app.zaak.model.RestDecisionChangeData
-import nl.info.zac.app.zaak.model.RestDecisionCreateData
-import nl.info.zac.app.zaak.model.RestDecisionType
-import nl.info.zac.app.zaak.model.RestDecisionWithdrawalData
-import nl.info.zac.app.zaak.model.toRestDecisionTypes
+import nl.info.zac.app.zaak.converter.RestBesluitConverter
+import nl.info.zac.app.zaak.model.besluit.RestBesluit
+import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
+import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
+import nl.info.zac.app.zaak.model.besluit.RestBesluitType
+import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
+import nl.info.zac.app.zaak.model.besluit.toRestBesluitTypes
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.besluit.BesluitService
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -51,11 +51,11 @@ import java.util.UUID
 @AllOpen
 class ZaakBesluitRestService @Inject constructor(
     private val brcClientService: BrcClientService,
-    private val decisionService: DecisionService,
+    private val besluitService: BesluitService,
     private val eventingService: EventingService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val policyService: PolicyService,
-    private val restDecisionConverter: RestDecisionConverter,
+    private val restBesluitConverter: RestBesluitConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
     private val zaakService: ZaakService,
     private val zrcClientService: ZrcClientService,
@@ -63,13 +63,13 @@ class ZaakBesluitRestService @Inject constructor(
 ) {
     @POST
     @Path("besluit")
-    fun createBesluit(@Valid besluitToevoegenGegevens: RestDecisionCreateData): RestDecision {
+    fun createBesluit(@Valid besluitToevoegenGegevens: RestBesluitCreateData): RestBesluit {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(besluitToevoegenGegevens.zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).vastleggenBesluit)
         assertPolicy(CollectionUtils.isNotEmpty(zaakType.besluittypen))
 
-        return decisionService.createDecision(zaak, besluitToevoegenGegevens).let {
-            restDecisionConverter.convertToRestDecision(it).also {
+        return besluitService.createBesluit(zaak, besluitToevoegenGegevens).let {
+            restBesluitConverter.convertToRestBesluit(it).also {
                 // This event should result from a ZAAKBESLUIT CREATED notification on the ZAKEN channel
                 // but open_zaak does not send that one, so emulate it here.
                 eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -79,15 +79,15 @@ class ZaakBesluitRestService @Inject constructor(
 
     @PUT
     @Path("besluit/intrekken")
-    fun intrekkenBesluit(@Valid restDecisionWithdrawalData: RestDecisionWithdrawalData) =
-        decisionService.readDecision(restDecisionWithdrawalData).let { besluit ->
+    fun intrekkenBesluit(@Valid restBesluitWithdrawalData: RestBesluitWithdrawalData) =
+        besluitService.readBesluit(restBesluitWithdrawalData).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(
                     zaak.isOpen() && policyService.readZaakRechten(zaak, loggedInUserInstance.get()).behandelen
                 )
 
-                decisionService.withdrawDecision(besluit, restDecisionWithdrawalData.reden).let {
-                    restDecisionConverter.convertToRestDecision(it).also {
+                besluitService.withdrawBesluit(besluit, restBesluitWithdrawalData.reden).let {
+                    restBesluitConverter.convertToRestBesluit(it).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel
                         // but open_zaak does not send that one, so emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))
@@ -98,13 +98,13 @@ class ZaakBesluitRestService @Inject constructor(
 
     @GET
     @Path("besluit/zaakUuid/{zaakUuid}")
-    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUUID: UUID): List<RestDecision> {
+    fun listBesluitenForZaakUUID(@PathParam("zaakUuid") zaakUUID: UUID): List<RestBesluit> {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.lezen)
         return brcClientService.listBesluiten(zaak)
-            .map { restDecisionConverter.convertToRestDecision(it) }
+            .map { restBesluitConverter.convertToRestBesluit(it) }
     }
 
     @GET
@@ -123,22 +123,22 @@ class ZaakBesluitRestService @Inject constructor(
     @Path("besluittypes/{zaaktypeUUID}")
     fun listBesluittypes(
         @PathParam("zaaktypeUUID") zaaktypeUUID: UUID
-    ): List<RestDecisionType> {
+    ): List<RestBesluitType> {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         return ztcClientService.readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
             .filter { LocalDateUtil.dateNowIsBetween(it) }
-            .toRestDecisionTypes()
+            .toRestBesluitTypes()
     }
 
     @PUT
     @Path("besluit")
-    fun updateBesluit(@Valid restDecisionChangeData: RestDecisionChangeData) =
-        brcClientService.readBesluit(restDecisionChangeData.besluitUuid).let { besluit ->
+    fun updateBesluit(@Valid restBesluitChangeData: RestBesluitChangeData) =
+        brcClientService.readBesluit(restBesluitChangeData.besluitUuid).let { besluit ->
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).vastleggenBesluit)
 
-                decisionService.updateDecision(besluit, restDecisionChangeData).let {
-                    restDecisionConverter.convertToRestDecision(besluit).also {
+                besluitService.updateBesluit(besluit, restBesluitChangeData).let {
+                    restBesluitConverter.convertToRestBesluit(besluit).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel,
                         // but Open Zaak unfortunately does not send such a notification, so we emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))

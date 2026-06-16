@@ -23,7 +23,7 @@ describe(BesluitIndicatiesComponent.name, () => {
     component.ngOnChanges({
       besluit: new SimpleChange(
         undefined,
-        { isIngetrokken: false } as unknown as GeneratedType<"RestDecision">,
+        { isIngetrokken: false } as unknown as GeneratedType<"RestBesluit">,
         true,
       ),
     });
@@ -38,7 +38,7 @@ describe(BesluitIndicatiesComponent.name, () => {
         {
           isIngetrokken: true,
           vervalreden: "INGETROKKEN_OVERIG",
-        } as unknown as GeneratedType<"RestDecision">,
+        } as unknown as GeneratedType<"RestBesluit">,
         true,
       ),
     });
@@ -58,7 +58,7 @@ describe(BesluitIndicatiesComponent.name, () => {
         {
           isIngetrokken: true,
           vervalreden: "INGETROKKEN_OVERIG",
-        } as unknown as GeneratedType<"RestDecision">,
+        } as unknown as GeneratedType<"RestBesluit">,
         true,
       ),
     });

@@ -20,7 +20,7 @@ class IdentityRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val identityRestService = IdentityRestService(identityService, loggedInUserInstance)
 
-    beforeEach { checkUnnecessaryStub() }
+    afterEach { checkUnnecessaryStub() }
 
     Context("Listing all active groups") {
         Given("The identity service returns an active group") {

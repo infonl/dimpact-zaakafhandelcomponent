@@ -14,25 +14,25 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
-import nl.info.zac.app.zaak.model.RestDecision
-import nl.info.zac.app.zaak.model.RestDecisionCreateData
-import nl.info.zac.app.zaak.model.toRestDecisionType
+import nl.info.zac.app.zaak.model.besluit.RestBesluit
+import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
+import nl.info.zac.app.zaak.model.besluit.toRestBesluitType
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
 
 @NoArgConstructor
-class RestDecisionConverter @Inject constructor(
+class RestBesluitConverter @Inject constructor(
     private val brcClientService: BrcClientService,
     private val drcClientService: DrcClientService,
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService
 ) {
-    fun convertToRestDecision(besluit: Besluit) =
-        RestDecision(
+    fun convertToRestBesluit(besluit: Besluit) =
+        RestBesluit(
             uuid = besluit.url.extractUuid(),
-            besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestDecisionType(),
+            besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
             datum = besluit.datum,
             identificatie = besluit.identificatie,
             url = besluit.url,
@@ -47,11 +47,11 @@ class RestDecisionConverter @Inject constructor(
                     besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
                 ),
             informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
-                listDecisionInformationObjects(besluit)
+                listBesluitInformationObjects(besluit)
             )
         )
 
-    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestDecisionCreateData) =
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitCreateData) =
         ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->
             Besluit().apply {
                 this.zaak = zaak.url
@@ -69,7 +69,7 @@ class RestDecisionConverter @Inject constructor(
             }
         }
 
-    private fun listDecisionInformationObjects(besluit: Besluit): List<EnkelvoudigInformatieObject> =
+    private fun listBesluitInformationObjects(besluit: Besluit): List<EnkelvoudigInformatieObject> =
         brcClientService.listBesluitInformatieobjecten(besluit.url)
             .map { drcClientService.readEnkelvoudigInformatieobject(it.informatieobject) }
 }

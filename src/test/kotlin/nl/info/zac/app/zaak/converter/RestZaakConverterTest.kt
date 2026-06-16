@@ -42,7 +42,7 @@ import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.createRESTGerelateerdeZaak
-import nl.info.zac.app.zaak.model.createRestDecision
+import nl.info.zac.app.zaak.model.createRestBesluit
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
@@ -75,7 +75,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restGroupConverter = mockk<RestGroupConverter>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restUserConverter = mockk<RestUserConverter>()
-    val restDecisionConverter = mockk<RestDecisionConverter>()
+    val restBesluitConverter = mockk<RestBesluitConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
@@ -90,7 +90,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restGroupConverter = restGroupConverter,
         restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         restUserConverter = restUserConverter,
-        restDecisionConverter = restDecisionConverter,
+        restBesluitConverter = restBesluitConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService,
@@ -108,7 +108,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
@@ -137,7 +137,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
@@ -184,7 +184,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
@@ -204,7 +204,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
@@ -249,7 +249,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
@@ -269,7 +269,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null

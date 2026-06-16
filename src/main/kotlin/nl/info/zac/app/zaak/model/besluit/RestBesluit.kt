@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.app.zaak.model
+package nl.info.zac.app.zaak.model.besluit
 
 import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
@@ -15,7 +15,7 @@ import java.util.UUID
 
 @AllOpen
 @NoArgConstructor
-data class RestDecision(
+data class RestBesluit(
     var url: URI,
 
     var uuid: UUID,
@@ -24,7 +24,7 @@ data class RestDecision(
 
     var datum: LocalDate? = null,
 
-    var besluittype: RestDecisionType? = null,
+    var besluittype: RestBesluitType? = null,
 
     var ingangsdatum: LocalDate? = null,
 
