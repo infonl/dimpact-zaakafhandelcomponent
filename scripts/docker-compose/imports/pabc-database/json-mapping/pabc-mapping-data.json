@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/Platform-Autorisatie-Beheer-Component/PABC-API/refs/tags/v1.1.0/PABC.MigrationService/dataset.schema.json",
   "applications": [
     {
       "id": "5e2f8c81-3372-4bfa-9039-b0d498737799",
