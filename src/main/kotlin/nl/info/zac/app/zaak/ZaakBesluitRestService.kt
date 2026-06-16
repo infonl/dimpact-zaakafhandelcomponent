@@ -103,8 +103,7 @@ class ZaakBesluitRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.lezen)
-        return zrcClientService.readZaak(zaakUUID)
-            .let { brcClientService.listBesluiten(it) }
+        return brcClientService.listBesluiten(zaak)
             .map { restDecisionConverter.convertToRestDecision(it) }
     }
 

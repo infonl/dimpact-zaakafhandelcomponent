@@ -264,5 +264,39 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        When("the besluit history is requested after create, update, and withdrawal") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/besluit/$besluitUuid/historie",
+                testUser = BEHANDELAAR_1
+            )
+
+            Then(
+                "the besluit history is returned with history items for the create, update, and withdrawal operations"
+            ) {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                with(JSONArray(responseBody)) {
+                    // 1 create line + 3 update lines (toelichting, ingangsdatum, vervaldatum)
+                    // + 1 withdrawal line (vervaldatum set to null)
+                    shouldHaveSize(5)
+                    // history is sorted newest first; creation entry is last
+                    getJSONObject(0).run {
+                        getString("actie") shouldBe "GEWIJZIGD"
+                        getString("attribuutLabel") shouldBe "vervaldatum"
+                        getString("door") shouldBe BEHANDELAAR_1.displayName
+                        has("datumTijd") shouldBe true
+                    }
+                    getJSONObject(length() - 1).run {
+                        getString("actie") shouldBe "GEKOPPELD"
+                        getString("attribuutLabel") shouldBe "Besluit"
+                        getString("door") shouldBe BEHANDELAAR_1.displayName
+                        getString("nieuweWaarde") shouldNotBe null
+                        has("datumTijd") shouldBe true
+                    }
+                }
+            }
+        }
     }
 })
