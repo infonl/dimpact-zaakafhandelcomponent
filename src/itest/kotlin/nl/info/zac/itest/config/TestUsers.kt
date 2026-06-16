@@ -37,7 +37,7 @@ val BEHANDELAAR_1 = TestUser(
 )
 
 /**
- * A behandelaar in domein test 2.
+ * A behandelaar in domein test 2. Does not have the brp_zoeken role
  */
 val BEHANDELAAR_2 = TestUser(
     username = "behandelaar2newiam",
