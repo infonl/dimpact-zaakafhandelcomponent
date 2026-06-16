@@ -1,0 +1,158 @@
+{
+  "_id": "6a27de762b12c9bac95048ff",
+  "title": "Choose Test Process",
+  "name": "chooseTestProcess",
+  "path": "choosetestprocess",
+  "type": "form",
+  "display": "form",
+  "tags": [],
+  "access": [
+    {
+      "type": "create_own",
+      "roles": []
+    },
+    {
+      "type": "create_all",
+      "roles": []
+    },
+    {
+      "type": "read_own",
+      "roles": []
+    },
+    {
+      "type": "read_all",
+      "roles": [
+        "6a1e84f08fb08dfbbb39668f",
+        "6a1e84f08fb08dfbbb396693",
+        "6a1e84f08fb08dfbbb396697"
+      ]
+    },
+    {
+      "type": "update_own",
+      "roles": []
+    },
+    {
+      "type": "update_all",
+      "roles": []
+    },
+    {
+      "type": "delete_own",
+      "roles": []
+    },
+    {
+      "type": "delete_all",
+      "roles": []
+    },
+    {
+      "type": "team_read",
+      "roles": []
+    },
+    {
+      "type": "team_write",
+      "roles": []
+    },
+    {
+      "type": "team_admin",
+      "roles": []
+    }
+  ],
+  "submissionAccess": [
+    {
+      "type": "create_own",
+      "roles": []
+    },
+    {
+      "type": "create_all",
+      "roles": []
+    },
+    {
+      "type": "read_own",
+      "roles": []
+    },
+    {
+      "type": "read_all",
+      "roles": []
+    },
+    {
+      "type": "update_own",
+      "roles": []
+    },
+    {
+      "type": "update_all",
+      "roles": []
+    },
+    {
+      "type": "delete_own",
+      "roles": []
+    },
+    {
+      "type": "delete_all",
+      "roles": []
+    },
+    {
+      "type": "team_read",
+      "roles": []
+    },
+    {
+      "type": "team_write",
+      "roles": []
+    },
+    {
+      "type": "team_admin",
+      "roles": []
+    }
+  ],
+  "owner": "696502e33b500ad321a99229",
+  "components": [
+    {
+      "label": "Test Process",
+      "widget": "html5",
+      "tableView": true,
+      "data": {
+        "values": [
+          {
+            "label": "Send email after closing zaak",
+            "value": "sendEmailAfterClosingZaak"
+          },
+          {
+            "label": "Assign zaak",
+            "value": "assignZaak"
+          },
+          {
+            "label": "Resume zaak which is not suspended",
+            "value": "resumeZaakWhichIsNotSuspended"
+          }
+        ]
+      },
+      "validate": {
+        "required": true,
+        "onlyAvailableItems": true
+      },
+      "validateWhenHidden": false,
+      "key": "testProcess",
+      "type": "select",
+      "input": true
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "pdfComponents": [],
+  "settings": {},
+  "properties": {},
+  "project": "6a1e84f08fb08dfbbb396688",
+  "controller": "",
+  "revisions": "",
+  "submissionRevisions": "",
+  "_vid": 0,
+  "esign": {},
+  "created": "2026-06-09T09:35:50.493Z",
+  "modified": "2026-06-10T08:37:58.748Z",
+  "machineName": "rjtfzmkvhafjsqu:chooseTestProcess",
+  "plan": "trial"
+}

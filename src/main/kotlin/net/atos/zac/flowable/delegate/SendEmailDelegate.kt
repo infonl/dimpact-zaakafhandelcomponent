@@ -8,6 +8,7 @@ import net.atos.zac.flowable.FlowableHelper
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -39,6 +40,15 @@ class SendEmailDelegate : AbstractDelegate() {
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
+        assertPolicy(
+            flowableHelper.policyService.readZaakRechten(
+                zaak,
+                loggedInUser
+            ).versturenEmail,
+            LOG,
+            "User '${loggedInUser.id}' not authorised to send email for zaak '${zaak.identificatie}'"
+        )
 
         val templateName = template.resolveValueAsString(execution)
         val fromAddress = from.resolveValueAsString(execution)

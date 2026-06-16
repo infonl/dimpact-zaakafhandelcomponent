@@ -601,7 +601,7 @@ class ZacClient(
             responseBody
         }
 
-    fun submitFormData(bpmnZaakUuid: UUID, taakData: String, testUser: TestUser): String {
+    fun submitFormDataRaw(bpmnZaakUuid: UUID, taakData: String, testUser: TestUser): ResponseContent {
         val takenCreateResponse = itestHttpClient.performGetRequest(
             url = "${ZAC_API_URI}/taken/zaak/$bpmnZaakUuid",
             testUser = testUser
@@ -619,11 +619,14 @@ class ZacClient(
             url = "${ZAC_API_URI}/taken/complete",
             requestBodyAsString = patchedTakenData,
             testUser = testUser
-        ).run {
+        )
+    }
+
+    fun submitFormData(bpmnZaakUuid: UUID, taakData: String, testUser: TestUser): String =
+        submitFormDataRaw(bpmnZaakUuid, taakData, testUser).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
             code shouldBe HttpURLConnection.HTTP_OK
             responseBody
         }
-    }
 }
