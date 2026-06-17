@@ -138,7 +138,7 @@ dependencies {
     implementation(libs.flyway.postgresql)
     implementation(libs.apache.solr) {
         // Exclude the Solrj modules that we do not use.
-        // Note that starting from Solrj 10, these modules are not included by default any more,
+        // Note that starting from Solrj 10, these modules are not included by default,
         // so we do not need to exclude them any more.
         exclude(group = "org.apache.solr", module = "solr-solrj-zookeeper")
         exclude(group = "org.apache.solr", module = "solr-solrj-streaming")
