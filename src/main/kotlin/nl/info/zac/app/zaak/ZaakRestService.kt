@@ -44,7 +44,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
-import nl.info.client.zgw.zrc.model.NillableGerelateerdeZakenZaakPatch
+import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
@@ -1087,7 +1087,7 @@ class ZaakRestService @Inject constructor(
     ) {
         zrcClientService.patchZaak(
             zaakUUID = zaak.uuid,
-            zaak = NillableGerelateerdeZakenZaakPatch(
+            zaak = GerelateerdeZakenZaakPatch(
                 gerelateerdeZaken = addGerelateerdeZaak(zaak.gerelateerdeZaken, otherZaak.url)
             ),
             explanation = explanation
@@ -1158,7 +1158,7 @@ class ZaakRestService @Inject constructor(
         explanation: String
     ) = zrcClientService.patchZaak(
         zaakUUID = zaak.uuid,
-        zaak = NillableGerelateerdeZakenZaakPatch(
+        zaak = GerelateerdeZakenZaakPatch(
             gerelateerdeZaken = removeGerelateerdeZaak(zaak.gerelateerdeZaken, andereZaak.url)
         ),
         explanation = explanation
@@ -1177,9 +1177,9 @@ class ZaakRestService @Inject constructor(
     private fun removeGerelateerdeZaak(
         gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
         andereZaakURI: URI
-    ): List<GerelateerdeZaak>? {
+    ): List<GerelateerdeZaak> {
         gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
-        return gerelateerdeZaken?.takeUnless { it.isEmpty() }
+        return gerelateerdeZaken ?: emptyList()
     }
 
     private fun ontkoppelRelevanteZaken(

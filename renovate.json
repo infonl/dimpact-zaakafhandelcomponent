@@ -412,8 +412,10 @@
         "/^@angular-eslint\\//",
         "/^@angular-builders\\//"
       ],
+      "allowedVersions": "< 21.0.0",
       "description": [
-        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework"
+        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "Pinned to v20.x until the staged Angular 19 -> 20 migration completes"
       ]
     },
     {
