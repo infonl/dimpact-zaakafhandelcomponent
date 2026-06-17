@@ -29,7 +29,7 @@ const makeForm = (
 
 @Component({
   template: `<zac-checkbox [form]="form" key="active" [label]="label" />`,
-  standalone: false,
+  imports: [ZacCheckbox],
 })
 class HostComponent {
   form = makeForm();
@@ -43,9 +43,8 @@ describe(ZacCheckbox.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HostComponent],
       imports: [
-        ZacCheckbox,
+        HostComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),

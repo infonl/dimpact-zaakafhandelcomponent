@@ -406,6 +406,19 @@
   ],
   "packageRules": [
     {
+      "groupName": "Angular",
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-eslint\\//",
+        "/^@angular-builders\\//"
+      ],
+      "allowedVersions": "< 21.0.0",
+      "description": [
+        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "Pinned to v20.x until the staged Angular 19 -> 20 migration completes"
+      ]
+    },
+    {
       "groupName": "Helm CLI",
       "matchPackageNames": [
         "helm",
@@ -613,6 +626,18 @@
       "allowedVersions": "< 8.7.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "rabbitmq"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 4.2.8",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Remove this pin when upgrading Open Notificaties to >= 1.16.0 (RabbitMQ is expected to no longer be required)."
       ]
     },
     {

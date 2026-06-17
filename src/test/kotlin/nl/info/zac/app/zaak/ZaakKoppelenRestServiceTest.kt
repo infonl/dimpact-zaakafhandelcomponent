@@ -100,6 +100,40 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec() {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every { loggedInUserInstance.get() } returns loggedInUser
 
+            When("findLinkableZaken with GERELATEERD is called") {
+                val result = zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zoekZaakIdentifier,
+                    relationType = RelatieType.GERELATEERD,
+                    page = page,
+                    rows = rows
+                )
+
+                Then("a single linkable zaak should be returned") {
+                    result.resultCount shouldBe 1
+                }
+
+                And("link is allowed") {
+                    with(result.results.first()) {
+                        id shouldBe zaakZoekObject.getObjectId()
+                        type shouldBe zaakZoekObject.getType()
+                        identificatie shouldBe zoekZaakIdentifier
+                        omschrijving shouldBe OMSCHRIJVING
+                        zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
+                        statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                        isKoppelbaar shouldBe true
+                    }
+                }
+
+                And("required services should've been invoked") {
+                    checkIfRequiredServicesAreInvoked(
+                        sourceZaak = sourceZaak,
+                        targetZaak = zaakZoekObject,
+                        loggedInUser = loggedInUser
+                    )
+                }
+            }
+
             When("findLinkableZaken with HOOFDZAAK is called") {
                 every {
                     ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen

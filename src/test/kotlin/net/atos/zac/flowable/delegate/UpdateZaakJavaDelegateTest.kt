@@ -7,6 +7,7 @@ package net.atos.zac.flowable.delegate
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
@@ -14,6 +15,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.client.zgw.shared.model.createValidationZgwError
 import net.atos.zac.flowable.FlowableHelper
@@ -22,8 +24,14 @@ import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatusSub
 import nl.info.client.zgw.shared.ZgwApiService
-import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
+import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createZaakRechtenAllDeny
+import nl.info.zac.zaak.ZaakService
 import org.flowable.common.engine.impl.el.FixedValue
 import org.flowable.engine.delegate.DelegateExecution
 import org.flowable.engine.impl.el.JuelExpression
@@ -33,11 +41,15 @@ import java.util.UUID
 class UpdateZaakJavaDelegateTest : BehaviorSpec({
     val delegateExecution = mockk<DelegateExecution>()
     val parentDelegateExecution = mockk<DelegateExecution>()
-    val zrcClientService = mockk<ZrcClientService>()
     val zgwApiService = mockk<ZgwApiService>()
     mockkObject(FlowableHelper)
     val flowableHelper = mockk<FlowableHelper>()
+    val zaakService = mockk<ZaakService>()
+    val policyService = mockk<PolicyService>()
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val loggedInUser = createLoggedInUser()
     val zaak = createZaak()
+    val zaaktype = createZaakType(uri = zaak.zaaktype)
     val zaakStatusName = "fakeStatus"
     val zaakStatus = createZaakStatusSub()
 
@@ -52,11 +64,17 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
 
         every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
+        every { flowableHelper.zaakService } returns zaakService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+        } returns createZaakRechtenAllDeny(behandelen = true)
         every { juelExpression.getValue(delegateExecution) } returns zaakStatusName
         every {
             zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
@@ -86,11 +104,17 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
 
         every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
+        every { flowableHelper.zaakService } returns zaakService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+        } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns zaakStatusName
         every {
             zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
@@ -124,11 +148,17 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
 
         every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
+        every { flowableHelper.zaakService } returns zaakService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+        } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
         every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } just Runs
@@ -161,11 +191,17 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
 
         every { FlowableHelper.getInstance() } returns flowableHelper
-        every { flowableHelper.zrcClientService } returns zrcClientService
         every { flowableHelper.zgwApiService } returns zgwApiService
+        every { flowableHelper.zaakService } returns zaakService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
         every { delegateExecution.parent } returns parentDelegateExecution
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
-        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+        } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
         every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } throws
@@ -178,6 +214,41 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
 
             Then("a FlowableZgwValidationErrorException is thrown") {
                 exception.message shouldBe "Failed to close zaak with UUID: '${zaak.uuid}'"
+            }
+        }
+    }
+
+    Given("Policy denies handling zaak in a BPMN service task") {
+        val updateZaakJavaDelegate = UpdateZaakJavaDelegate().apply {
+            statustypeOmschrijving = mockk()
+        }
+
+        every { FlowableHelper.getInstance() } returns flowableHelper
+        every { flowableHelper.zaakService } returns zaakService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
+        every { delegateExecution.parent } returns parentDelegateExecution
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
+        every { zaakService.readZaakAndZaakTypeByZaakID(zaak.identificatie) } returns Pair(zaak, zaaktype)
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
+        } returns createZaakRechtenAllDeny()
+
+        When("the delegate is called") {
+            val policyException = shouldThrow<PolicyException> {
+                updateZaakJavaDelegate.execute(delegateExecution)
+            }
+
+            Then("a PolicyException is thrown") {
+                policyException shouldNotBe null
+            }
+
+            And("no ZGW API calls are made") {
+                verify(exactly = 0) {
+                    zgwApiService.createStatusForZaak(any(), any(), any())
+                    zgwApiService.closeZaak(any(), any(), any())
+                }
             }
         }
     }

@@ -1,0 +1,75 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.app.zaak.converter
+
+import jakarta.inject.Inject
+import nl.info.client.zgw.brc.BrcClientService
+import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.generated.VervalredenEnum
+import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.zaak.model.besluit.RestBesluit
+import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
+import nl.info.zac.app.zaak.model.besluit.toRestBesluitType
+import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.util.NoArgConstructor
+import java.time.LocalDate
+
+@NoArgConstructor
+class RestBesluitConverter @Inject constructor(
+    private val brcClientService: BrcClientService,
+    private val drcClientService: DrcClientService,
+    private val restInformatieobjectConverter: RestInformatieobjectConverter,
+    private val ztcClientService: ZtcClientService,
+    private val configurationService: ConfigurationService
+) {
+    fun convertToRestBesluit(besluit: Besluit) =
+        RestBesluit(
+            uuid = besluit.url.extractUuid(),
+            besluittype = ztcClientService.readBesluittype(besluit.besluittype).toRestBesluitType(),
+            datum = besluit.datum,
+            identificatie = besluit.identificatie,
+            url = besluit.url,
+            toelichting = besluit.toelichting,
+            ingangsdatum = besluit.ingangsdatum,
+            vervaldatum = besluit.vervaldatum,
+            vervalreden = besluit.vervalreden,
+            publicationDate = besluit.publicatiedatum,
+            lastResponseDate = besluit.uiterlijkeReactiedatum,
+            isIngetrokken = besluit.vervaldatum != null && (
+                besluit.vervalreden == VervalredenEnum.INGETROKKEN_BELANGHEBBENDE ||
+                    besluit.vervalreden == VervalredenEnum.INGETROKKEN_OVERHEID
+                ),
+            informatieobjecten = restInformatieobjectConverter.convertInformatieobjectenToREST(
+                listBesluitInformationObjects(besluit)
+            )
+        )
+
+    fun convertToBesluit(zaak: Zaak, besluitToevoegenGegevens: RestBesluitCreateData) =
+        ztcClientService.readBesluittype(besluitToevoegenGegevens.besluittypeUuid).let { besluitType ->
+            Besluit().apply {
+                this.zaak = zaak.url
+                besluittype = besluitType.url
+                datum = LocalDate.now()
+                ingangsdatum = besluitToevoegenGegevens.ingangsdatum
+                vervaldatum = besluitToevoegenGegevens.vervaldatum
+                besluitToevoegenGegevens.vervaldatum?.apply {
+                    vervalreden = VervalredenEnum.TIJDELIJK
+                }
+                publicatiedatum = besluitToevoegenGegevens.publicationDate
+                uiterlijkeReactiedatum = besluitToevoegenGegevens.lastResponseDate
+                verantwoordelijkeOrganisatie = configurationService.readVerantwoordelijkeOrganisatie()
+                toelichting = besluitToevoegenGegevens.toelichting
+            }
+        }
+
+    private fun listBesluitInformationObjects(besluit: Besluit): List<EnkelvoudigInformatieObject> =
+        brcClientService.listBesluitInformatieobjecten(besluit.url)
+            .map { drcClientService.readEnkelvoudigInformatieobject(it.informatieobject) }
+}

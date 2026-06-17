@@ -3,19 +3,31 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentRef } from "@angular/core";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import {
+  ComponentRef,
+  provideExperimentalZonelessChangeDetection,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, FormGroup } from "@angular/forms";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import moment from "moment";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden.component";
@@ -24,52 +36,80 @@ describe(InformatieObjectVerzendenComponent.name, () => {
   let component: InformatieObjectVerzendenComponent;
   let componentRef: ComponentRef<InformatieObjectVerzendenComponent>;
   let fixture: ComponentFixture<InformatieObjectVerzendenComponent>;
+  let loader: HarnessLoader;
+  let httpTestingController: HttpTestingController;
   let informatieObjectenService: InformatieObjectenService;
-  let translateService: TranslateService;
+  let foutAfhandelingService: FoutAfhandelingService;
+  let utilService: UtilService;
 
   const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn().mockReturnValue(Promise.resolve()),
+    close: jest.fn().mockReturnValue(Promise.resolve("close")),
   });
 
-  const makeZaak = (
-    fields: Partial<GeneratedType<"RestZaak">> = {},
-  ): GeneratedType<"RestZaak"> =>
+  const mockDocuments = [
+    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+      uuid: "document-uuid-1",
+      titel: "Document 1",
+      bestandsnaam: "document-1.pdf",
+    }),
+    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+      uuid: "document-uuid-2",
+      titel: "Document 2",
+      bestandsnaam: "document-2.pdf",
+    }),
+  ];
+
+  const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
     fromPartial<GeneratedType<"RestZaak">>({
       uuid: "zaak-uuid-001",
-      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-        uuid: "zaaktype-uuid-001",
-      }),
       ...fields,
     });
+
+  const fillInValidForm = () => {
+    component["form"].patchValue({
+      documenten: [mockDocuments[0]],
+      verzenddatum: moment("2026-06-12"),
+      toelichting: null,
+    });
+    component["form"].markAsDirty();
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
         InformatieObjectVerzendenComponent,
-        MaterialModule,
-        MaterialFormBuilderModule,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
       providers: [
+        provideExperimentalZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideRouter([]),
+        provideMomentDateAdapter(),
+        provideQueryClient(testQueryClient),
+        InformatieObjectenService,
+        UtilService,
       ],
     }).compileComponents();
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    translateService = TestBed.inject(TranslateService);
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    utilService = TestBed.inject(UtilService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
-      .spyOn(informatieObjectenService, "listInformatieobjectenVoorVerzenden")
-      .mockReturnValue(of([]));
-
-    jest
-      .spyOn(translateService, "instant")
-      .mockImplementation((key: string | string[]) =>
-        typeof key === "string" ? key : key[0],
+      .spyOn(
+        informatieObjectenService,
+        "listInformatieobjectenVoorVerzendenQuery",
+      )
+      .mockImplementation((zaakUuid) =>
+        fromPartial({
+          queryKey: ["teVerzenden", zaakUuid],
+          queryFn: () => Promise.resolve(mockDocuments),
+        }),
       );
+    jest.spyOn(utilService, "openSnackbar");
+    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
     fixture = TestBed.createComponent(InformatieObjectVerzendenComponent);
     component = fixture.componentInstance;
@@ -78,105 +118,188 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     componentRef.setInput("sideNav", mockSideNav);
     componentRef.setInput("zaak", makeZaak());
 
+    loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    testQueryClient.clear();
+    httpTestingController.verify();
   });
 
   describe("toolbar", () => {
-    it("should render the toolbar title", () => {
+    it("renders the toolbar title", () => {
       const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");
       expect(toolbar.textContent.trim()).toBe("actie.document.verzenden");
     });
-  });
 
-  describe("ngOnInit", () => {
-    it("should build a fields array with 4 rows", () => {
-      expect(component["fields"].length).toBe(4);
-    });
+    it("closes the sideNav when the close button is clicked", async () => {
+      const closeButton = await loader.getHarness(
+        MatButtonHarness.with({ ancestor: "mat-toolbar" }),
+      );
+      await closeButton.click();
 
-    it("should set formConfig with save and cancel labels", () => {
-      const config = component["formConfig"];
-      expect(config).not.toBeNull();
-      expect(config!.saveButtonText).toBe("actie.verzenden");
-      expect(config!.cancelButtonText).toBe("actie.annuleren");
-    });
-
-    it("should call listInformatieobjectenVoorVerzenden with zaak uuid", () => {
-      expect(
-        informatieObjectenService.listInformatieobjectenVoorVerzenden,
-      ).toHaveBeenCalledWith("zaak-uuid-001");
-    });
-  });
-
-  describe("onFormSubmit", () => {
-    it("should close sideNav when called with null/falsy formGroup", () => {
-      component["onFormSubmit"](null as unknown as FormGroup);
       expect(mockSideNav.close).toHaveBeenCalled();
     });
+  });
 
-    it("should call verzenden with correct data when formGroup is provided", () => {
-      jest
-        .spyOn(informatieObjectenService, "verzenden")
-        .mockReturnValue(of(undefined) as never);
+  describe("document list", () => {
+    it("loads the documents that can be sent for the active zaak", async () => {
+      expect(
+        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
+      ).toHaveBeenCalledWith("zaak-uuid-001");
 
-      const formGroup = new FormGroup({
-        documenten: new FormControl(["doc-uuid-1"]),
-        verzenddatum: new FormControl("2026-01-15"),
-        toelichting: new FormControl("test toelichting"),
-      });
+      await sleep();
+      fixture.detectChanges();
 
-      component["onFormSubmit"](formGroup);
-
-      expect(informatieObjectenService.verzenden).toHaveBeenCalledWith(
-        expect.objectContaining({
-          zaakUuid: "zaak-uuid-001",
-          verzenddatum: "2026-01-15",
-          toelichting: "test toelichting",
-        }),
-      );
+      const table = await loader.getHarness(MatTableHarness);
+      expect(await table.getRows()).toHaveLength(mockDocuments.length);
     });
 
-    it("should emit documentSent after successful verzenden", () => {
-      jest
-        .spyOn(informatieObjectenService, "verzenden")
-        .mockReturnValue(of(undefined) as never);
+    it("loads the documents of the new zaak when the active zaak changes", async () => {
+      componentRef.setInput("zaak", makeZaak({ uuid: "zaak-uuid-002" }));
+      await fixture.whenStable();
 
-      const emitSpy = jest.spyOn(component.documentSent, "emit");
-
-      const formGroup = new FormGroup({
-        documenten: new FormControl(["doc-uuid-1"]),
-        verzenddatum: new FormControl("2026-01-15"),
-        toelichting: new FormControl("test toelichting"),
-      });
-
-      component["onFormSubmit"](formGroup);
-
-      expect(emitSpy).toHaveBeenCalled();
+      expect(
+        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
+      ).toHaveBeenCalledWith("zaak-uuid-002");
     });
   });
 
-  describe("ngOnChanges", () => {
-    it("should call updateDocumenten when zaak changes and previousValue exists", () => {
-      jest
-        .spyOn(informatieObjectenService, "listInformatieobjectenVoorVerzenden")
-        .mockReturnValue(of([]));
+  describe("form validation", () => {
+    it("is invalid when no document is selected", () => {
+      fillInValidForm();
+      component["form"].controls.documenten.setValue([]);
 
-      const updateSpy = jest.spyOn(
-        component["documentSelectFormField"],
-        "updateDocumenten",
-      );
+      expect(component["form"].invalid).toBe(true);
+    });
 
-      const newZaak = makeZaak({ uuid: "zaak-uuid-002" });
-      componentRef.setInput("zaak", newZaak);
-      component.ngOnChanges({
-        zaak: {
-          currentValue: newZaak,
-          previousValue: makeZaak(),
-          firstChange: false,
-          isFirstChange: () => false,
-        },
+    it("is invalid without a verzenddatum", () => {
+      fillInValidForm();
+      component["form"].controls.verzenddatum.setValue(null);
+
+      expect(component["form"].invalid).toBe(true);
+    });
+
+    it("is valid without a toelichting", () => {
+      fillInValidForm();
+
+      expect(component["form"].valid).toBe(true);
+    });
+  });
+
+  describe("submit", () => {
+    it("sends the selected documents for the active zaak", async () => {
+      fillInValidForm();
+      component["form"].controls.toelichting.setValue("test toelichting");
+
+      component["submit"]();
+      await sleep();
+
+      const request = httpTestingController.expectOne({
+        method: "POST",
+        url: "/rest/informatieobjecten/informatieobjecten/verzenden",
+      });
+      expect(request.request.body).toEqual({
+        zaakUuid: "zaak-uuid-001",
+        verzenddatum: moment("2026-06-12").toISOString(),
+        informatieobjecten: ["document-uuid-1"],
+        toelichting: "test toelichting",
       });
 
-      expect(updateSpy).toHaveBeenCalled();
+      request.flush(null);
+    });
+
+    it("emits documentSent and shows a snackbar after a successful send", async () => {
+      const emitSpy = jest.spyOn(component["documentSent"], "emit");
+      fillInValidForm();
+
+      component["submit"]();
+      await sleep();
+
+      httpTestingController
+        .expectOne({
+          method: "POST",
+          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
+        })
+        .flush(null);
+      await sleep(100);
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.document.verzenden.uitgevoerd",
+      );
+      expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it("shows the plural snackbar message when multiple documents are sent", async () => {
+      fillInValidForm();
+      component["form"].controls.documenten.setValue(mockDocuments);
+
+      component["submit"]();
+      await sleep();
+
+      httpTestingController
+        .expectOne({
+          method: "POST",
+          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
+        })
+        .flush(null);
+      await sleep(100);
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.documenten.verzenden.uitgevoerd",
+      );
+    });
+
+    it("shows an error and keeps the panel open when sending fails", async () => {
+      const emitSpy = jest.spyOn(component["documentSent"], "emit");
+      fillInValidForm();
+
+      component["submit"]();
+      await sleep();
+
+      httpTestingController
+        .expectOne({
+          method: "POST",
+          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
+        })
+        .flush(null, { status: 500, statusText: "Internal Server Error" });
+      await sleep(100);
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+      expect(emitSpy).not.toHaveBeenCalled();
+      expect(mockSideNav.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("form buttons", () => {
+    it("disables the submit button when the form is invalid", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.verzenden/ }),
+      );
+
+      expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("enables the submit button when the form is valid", async () => {
+      fillInValidForm();
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.verzenden/ }),
+      );
+
+      expect(await submitButton.isDisabled()).toBe(false);
+    });
+
+    it("closes the sideNav when the cancel button is clicked", async () => {
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.annuleren/ }),
+      );
+      await cancelButton.click();
+
+      expect(mockSideNav.close).toHaveBeenCalled();
     });
   });
 });

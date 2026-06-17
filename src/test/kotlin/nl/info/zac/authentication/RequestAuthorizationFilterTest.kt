@@ -142,10 +142,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/logout'") {
+        Given("An unauthenticated GET request on '/sign-out'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
-            every { httpServletRequest.requestURI } returns "/logout"
+            every { httpServletRequest.requestURI } returns "/sign-out"
 
             When("the method is GET") {
                 every { httpServletRequest.method } returns "GET"

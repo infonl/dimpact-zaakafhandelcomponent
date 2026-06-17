@@ -8,6 +8,7 @@ import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.policy.assertPolicy
 import org.flowable.common.engine.api.delegate.Expression
 import org.flowable.engine.delegate.DelegateExecution
 import java.util.logging.Logger
@@ -33,7 +34,17 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
 
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
-        val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
+        val (zaak, zaaktype) = flowableHelper.zaakService.readZaakAndZaakTypeByZaakID(getZaakIdentificatie(execution))
+        val loggedInUser = flowableHelper.loggedInUserInstance.get()
+        assertPolicy(
+            flowableHelper.policyService.readZaakRechten(
+                zaak,
+                zaaktype,
+                loggedInUser
+            ).behandelen,
+            LOG,
+            "User '${loggedInUser.id}' is not authorised to handle zaak '${zaak.identificatie}'"
+        )
 
         val resultaattypeDescription = resultaattypeOmschrijving?.resolveValueAsString(execution)
         if (resultaattypeDescription != null) {

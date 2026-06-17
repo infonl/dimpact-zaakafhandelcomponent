@@ -63,9 +63,7 @@ import { PipesModule } from "../pipes/pipes.module";
 import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
-import { HeadingComponent } from "./form-components/heading/heading.component";
 import { HiddenComponent } from "./form-components/hidden/hidden.component";
-import { HtmlEditorComponent } from "./form-components/html-editor/html-editor.component";
 import { InputComponent } from "./form-components/input/input.component";
 import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { MessageComponent } from "./form-components/message/message.component";
@@ -82,8 +80,6 @@ import { FormComponent } from "./form/form/form.component";
     FormComponent,
     FormFieldComponent,
     DateComponent,
-    HeadingComponent,
-    HtmlEditorComponent,
     InputComponent,
     SelectComponent,
     MedewerkerGroepComponent,
@@ -101,8 +97,6 @@ import { FormComponent } from "./form/form/form.component";
     FormComponent,
     FormFieldComponent,
     DateComponent,
-    HeadingComponent,
-    HtmlEditorComponent,
     InputComponent,
     SelectComponent,
     MedewerkerGroepComponent,

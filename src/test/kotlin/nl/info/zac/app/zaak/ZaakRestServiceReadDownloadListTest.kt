@@ -20,7 +20,6 @@ import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.or.`object`.ObjectsClientService
-import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoonForReads
@@ -34,10 +33,8 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaakAfzender
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.decision.DecisionService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.converter.RestDecisionConverter
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
@@ -53,7 +50,6 @@ import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
-import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
@@ -71,13 +67,11 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @Suppress("LongParameterList")
 class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
-    val decisionService = mockk<DecisionService>()
     val bpmnService = mockk<BpmnService>()
-    val brcClientService = mockk<BrcClientService>()
     val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val drcClientService = mockk<DrcClientService>()
@@ -93,11 +87,9 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
     val productaanvraagDocumentService = mockk<ProductaanvraagDocumentService>()
-    val restDecisionConverter = mockk<RestDecisionConverter>()
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
-    val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
@@ -111,10 +103,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     val testDispatcher = StandardTestDispatcher()
     val zaakRestService = ZaakRestService(
         bpmnService = bpmnService,
-        brcClientService = brcClientService,
         cmmnService = cmmnService,
         configurationService = configurationService,
-        decisionService = decisionService,
         dispatcher = testDispatcher,
         drcClientService = drcClientService,
         eventingService = eventingService,
@@ -129,12 +119,10 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
         policyService = policyService,
         productaanvraagService = productaanvraagService,
         productaanvraagDocumentService = productaanvraagDocumentService,
-        restDecisionConverter = restDecisionConverter,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         signaleringService = signaleringService,
-        zaakHistoryLineConverter = zaakHistoryLineConverter,
         zaakHistoryService = zaakHistoryService,
         zaakService = zaakService,
         zaakVariabelenService = zaakVariabelenService,
@@ -330,6 +318,12 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
     Context("Downloading a process diagram") {
         Given("An existing BPMN process diagram for a given zaak UUID") {
             val uuid = UUID.randomUUID()
+            val zaak = createZaak(uuid = uuid)
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
             every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("fakeDiagram".toByteArray())
 
             When("the process diagram is requested") {
@@ -428,6 +422,8 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val zaakAfzenders = zaaktypeCmmnConfiguration.getZaakAfzenders().plus(
                 createZaakAfzender(
@@ -439,14 +435,13 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 )
             )
             zaaktypeCmmnConfiguration.setZaakAfzenders(zaakAfzenders)
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                email = "fake-medewerker@example.com"
-            )
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
@@ -505,16 +500,17 @@ class ZaakRestServiceReadDownloadListTest : BehaviorSpec({
                 uuid = zaakUUID,
                 zaaktypeUri = URI("https://example.com/zaaktypes/$zaakTypeUUID")
             )
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser(email = "fake-medewerker@example.com")
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             zaaktypeCmmnConfiguration.setZaakAfzenders(emptyList())
-            every { zrcClientService.readZaak(zaakUUID) } returns zaak
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
             every {
                 zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
             } returns zaaktypeCmmnConfiguration
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
-            every { loggedInUserInstance.get() } returns createLoggedInUser(
-                email = "fake-medewerker@example.com"
-            )
+            every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)

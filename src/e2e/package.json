@@ -15,7 +15,7 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "12.9.0",
+    "@cucumber/cucumber": "13.0.0",
     "pdf-parse": "2.4.5",
     "zod": "4.4.3"
   },
@@ -24,7 +24,7 @@
     "@types/node": "22.19.21",
     "multiple-cucumber-html-reporter": "4.0.0",
     "dotenv": "17.4.2",
-    "playwright-bdd": "8.5.1",
+    "playwright-bdd": "9.1.0",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"
   },

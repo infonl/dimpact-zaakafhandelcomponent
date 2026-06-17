@@ -82,7 +82,7 @@ export class ZaakViewComponent
   menu: MenuItem[] = [];
   actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
   activeSideAction: string | null = null;
-  teWijzigenBesluit!: GeneratedType<"RestDecision">;
+  teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   historie = new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
@@ -146,6 +146,10 @@ export class ZaakViewComponent
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
   );
 
   constructor(
@@ -1180,7 +1184,7 @@ export class ZaakViewComponent
     this.sluitSidenav();
   }
 
-  protected besluitWijzigen($event: GeneratedType<"RestDecision">) {
+  protected besluitWijzigen($event: GeneratedType<"RestBesluit">) {
     this.activeSideAction = "actie.besluit.wijzigen";
     this.teWijzigenBesluit = $event;
     this.actionsSidenav.open();
@@ -1362,7 +1366,9 @@ export class ZaakViewComponent
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
 
-    return Boolean(brpAllowed || kvkAllowed);
+    return Boolean(
+      (brpAllowed && this.overigeRechtenQuery.data()?.brpZoeken) || kvkAllowed,
+    );
   }
 
   protected allowBedrijf() {
@@ -1377,7 +1383,8 @@ export class ZaakViewComponent
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen,
+          ?.brpKoppelen &&
+        this.overigeRechtenQuery.data()?.brpZoeken,
     );
   }
 

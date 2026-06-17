@@ -54,6 +54,8 @@ import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -64,7 +66,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @AllOpen
 @NoArgConstructor
 class KlantRestService @Inject constructor(
@@ -73,6 +75,7 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
     val identificationService: IdentificationService,
+    val policyService: PolicyService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -197,8 +200,10 @@ class KlantRestService @Inject constructor(
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
-    ): RESTResultaat<RestPersoon> =
-        restListPersonenParameters.bsn
+    ): RESTResultaat<RestPersoon> {
+        val overigeRechten = policyService.readOverigeRechten()
+        assertPolicy(overigeRechten.brpZoeken)
+        return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
                 listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid, loggedInUserInstance.get().id))
@@ -206,10 +211,15 @@ class KlantRestService @Inject constructor(
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid, loggedInUserInstance.get().id)
+            ?: brpClientService.queryPersonen(
+                restListPersonenParameters.toPersonenQuery(),
+                zaaktypeUuid,
+                loggedInUserInstance.get().id
+            )
                 .toRestPersonen()
-                .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
+                .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                 .toRestResultaat()
+    }
 
     @PUT
     @Path("bedrijven")

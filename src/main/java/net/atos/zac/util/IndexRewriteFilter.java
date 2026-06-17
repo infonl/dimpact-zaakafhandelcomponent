@@ -41,7 +41,7 @@ public class IndexRewriteFilter implements Filter {
             final String path = httpRequest.getServletPath();
             if (isResourcePath(path) || isResource(path)) {
                 chain.doFilter(request, response);
-            } else if (path.equals("/logout")) {
+            } else if (path.equals("/sign-out")) {
                 logout(httpRequest, (HttpServletResponse) response);
             } else {
                 httpRequest.getRequestDispatcher("/index.html").forward(request, response);
