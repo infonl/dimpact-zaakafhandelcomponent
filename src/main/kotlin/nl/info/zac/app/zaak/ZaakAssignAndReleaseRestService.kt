@@ -110,7 +110,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         zaakService.assignZaak(
             zaak,
             restZaakAssignmentToLoggedInUserData.groupId,
-            loggedInUserInstance.get().id,
+            loggedInUser.id,
             restZaakAssignmentToLoggedInUserData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
