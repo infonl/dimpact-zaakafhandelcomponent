@@ -1,0 +1,47 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon outlined>stop_circle</mat-icon>
+  <span class="flex-grow-1">
+    {{ "actie.besluit.intrekken" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider />
+
+<form [formGroup]="form" (submit)="intrekken()" (cancel)="close()">
+  <mat-dialog-content>
+    <p>{{ "msg.besluit.intrekken" | translate }}</p>
+
+    @if (documentenVerstuurd) {
+      <div class="warning flex-row align-items-center gap-8">
+        <mat-icon color="warn">warning</mat-icon>
+        <span>{{ "msg.besluit.documenten.verstuurd" | translate }}</span>
+      </div>
+    }
+
+    <fieldset class="p-0">
+      <zac-date [form]="form" key="vervaldatum" label="vervaldatum" />
+      <zac-select
+        [form]="form"
+        key="vervalreden"
+        label="besluit.vervalreden"
+        [options]="vervalRedenen"
+        optionDisplayValue="label"
+      />
+      <zac-input [form]="form" key="toelichting" label="toelichting" />
+    </fieldset>
+  </mat-dialog-content>
+
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    submitLabel="actie.besluit.intrekken"
+  />
+</form>

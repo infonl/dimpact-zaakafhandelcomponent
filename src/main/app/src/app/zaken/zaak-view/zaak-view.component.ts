@@ -1203,24 +1203,6 @@ export class ZaakViewComponent
     this.loadHistorie();
   }
 
-  protected doIntrekking($event: {
-    uuid: string;
-    vervaldatum: string;
-    vervalreden: FormControl<string>;
-    toelichting: string;
-  }) {
-    this.zakenService
-      .intrekkenBesluit({
-        besluitUuid: $event.uuid,
-        vervaldatum: $event.vervaldatum,
-        vervalreden: $event.vervalreden.value,
-        reden: $event.toelichting,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.besluit.ingetrokken");
-      });
-  }
-
   protected async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
       gegevens?: string | null;
