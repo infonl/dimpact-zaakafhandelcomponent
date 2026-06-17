@@ -353,10 +353,12 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
             When("besluit update is attempted") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakBesluitRestService.updateBesluit(changeData)
+                }
+
                 Then("a PolicyException is thrown") {
-                    shouldThrow<PolicyException> {
-                        zaakBesluitRestService.updateBesluit(changeData)
-                    }
+                    policyException.message shouldBe null
                 }
             }
         }
