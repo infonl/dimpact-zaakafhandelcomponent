@@ -81,7 +81,7 @@ export class BesluitIntrekkenDialogComponent {
 
   protected readonly form = this.formBuilder.group({
     vervaldatum: this.formBuilder.control<Moment | null>(
-      this.besluit.vervaldatum ? moment(this.besluit.vervaldatum) : null,
+      null,
       Validators.required,
     ),
     vervalreden: this.formBuilder.control<VervalRedenOption | null>(

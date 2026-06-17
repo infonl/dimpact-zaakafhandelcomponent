@@ -78,6 +78,7 @@ const setup = (besluit = makeBesluit()) => {
 
 const fillValidForm = (component: BesluitIntrekkenDialogComponent) => {
   const form = component["form"];
+  form.controls.vervaldatum.setValue(moment("2026-12-31"));
   form.controls.vervalreden.setValue(component["vervalRedenen"][0]);
   form.controls.toelichting.setValue("Reden van intrekken");
 };
@@ -88,16 +89,11 @@ describe(BesluitIntrekkenDialogComponent.name, () => {
     jest.clearAllMocks();
   });
 
-  describe("prefill", () => {
-    it("prefills the vervaldatum with the current besluit value", () => {
+  describe("initial form state", () => {
+    it("starts with an empty vervaldatum", () => {
       const { component } = setup();
 
-      expect(
-        component["form"].controls.vervaldatum.value?.isSame(
-          "2026-12-31",
-          "day",
-        ),
-      ).toBe(true);
+      expect(component["form"].controls.vervaldatum.value).toBeNull();
     });
 
     it("offers all vervalredenen except tijdelijk", () => {
