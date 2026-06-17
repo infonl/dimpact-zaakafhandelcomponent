@@ -18,8 +18,8 @@ Please do not report security vulnerabilities through public GitHub issues, disc
 
 Instead, please use one of the following channels:
 
-- **Preferred**: [GitHub Security Advisories](https://github.com/infonl/dimpact-zaakafhandelcomponent/security/advisories/new) — opens a private, encrypted report directly with the team.
-- **Email**: [the maintainers](mailto:dimpact-team-geneve-d-aaaakaayu7miexe5zhcylrwe7a@infonl.slack.com)
+- **Preferred**: [GitHub Security Advisories](https://github.com/infonl/dimpact-zaakafhandelcomponent/security/advisories/new) — opens a private report directly with the team.
+- **Email**: [the maintainers](mailto:dimpact-team-geneve-d-aaaakaayu7miexe5zhcylrwe7a@infonl.slack.com).
 
 Please include as much of the information listed below as you can to help us better understand and resolve the issue:
 
