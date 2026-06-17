@@ -267,7 +267,7 @@ Use when asserting a subset of a large JSON response rather than individual key/
 | `RAADPLEGER_1` | raadpleger1newiam | Raadpleger domein test 1 |
 | `RECORDMANAGER_1` | recordmanager1newiam | Recordmanager domein test 1 |
 
-### All available test groups (`src/itest/.../config/TestGroups.kt`)
+### Common test groups (`src/itest/.../config/TestGroups.kt`)
 | Val | name | description |
 |---|---|---|
 | `GROUP_BEHANDELAARS_TEST_1` | behandelaars-test-1 | Test group behandelaars domein test 1 |
