@@ -15,7 +15,7 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "12.9.0",
+    "@cucumber/cucumber": "13.0.0",
     "pdf-parse": "2.4.5",
     "zod": "4.4.3"
   },
