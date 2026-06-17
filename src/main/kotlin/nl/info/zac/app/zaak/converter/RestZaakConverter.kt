@@ -58,7 +58,7 @@ class RestZaakConverter @Inject constructor(
     private val restGroupConverter: RestGroupConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val restUserConverter: RestUserConverter,
-    private val restDecisionConverter: RestDecisionConverter,
+    private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
@@ -91,7 +91,7 @@ class RestZaakConverter @Inject constructor(
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
-            .map { restDecisionConverter.convertToRestDecision(it) }
+            .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
@@ -181,6 +181,9 @@ class RestZaakConverter @Inject constructor(
             ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser, RelatieType.DEELZAAK) }
             ?.forEach(gerelateerdeZaken::add)
         zaak.relevanteAndereZaken
+            ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
+            ?.forEach(gerelateerdeZaken::add)
+        zaak.gerelateerdeZaken
             ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken

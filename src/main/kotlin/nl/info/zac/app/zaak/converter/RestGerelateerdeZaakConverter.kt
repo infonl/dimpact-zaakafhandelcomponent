@@ -7,6 +7,7 @@ package nl.info.zac.app.zaak.converter
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -46,6 +47,15 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             zaak = zaak,
             loggedInUser = loggedInUser,
             relatieType = convertToRelatieType(relevanteZaak.aardRelatie)
+        )
+    }
+
+    fun convert(gerelateerdeZaak: GerelateerdeZaak, loggedInUser: LoggedInUser): RestGerelateerdeZaak {
+        val zaak = zrcClientService.readZaak(gerelateerdeZaak.url)
+        return convert(
+            zaak = zaak,
+            loggedInUser = loggedInUser,
+            relatieType = RelatieType.GERELATEERD
         )
     }
 

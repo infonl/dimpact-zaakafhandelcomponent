@@ -17,5 +17,7 @@ data class RestZaakLinkData(
 
     var relatieType: RelatieType,
 
-    var reverseRelatieType: RelatieType? = null
+    var reverseRelatieType: RelatieType? = null,
+
+    var reden: String? = null
 )

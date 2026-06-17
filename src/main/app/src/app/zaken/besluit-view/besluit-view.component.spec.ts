@@ -19,11 +19,11 @@ import { ZakenService } from "../zaken.service";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besluit-intrekken-dialog.component";
 import { BesluitViewComponent } from "./besluit-view.component";
 
-const makeBesluit = (fields: Partial<GeneratedType<"RestDecision">> = {}) =>
-  fromPartial<GeneratedType<"RestDecision">>({
+const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
+  fromPartial<GeneratedType<"RestBesluit">>({
     uuid: "besluit-uuid-1",
     identificatie: "BESLUIT-001",
-    besluittype: fromPartial<GeneratedType<"RestDecisionType">>({
+    besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
       naam: "Besluittype 1",
       publication: { enabled: false },
     }),
@@ -42,7 +42,7 @@ describe(BesluitViewComponent.name, () => {
   let zakenService: ZakenService;
 
   const setup = (
-    besluiten: GeneratedType<"RestDecision">[] = [makeBesluit()],
+    besluiten: GeneratedType<"RestBesluit">[] = [makeBesluit()],
     readonly = false,
   ) => {
     fixture = TestBed.createComponent(BesluitViewComponent);

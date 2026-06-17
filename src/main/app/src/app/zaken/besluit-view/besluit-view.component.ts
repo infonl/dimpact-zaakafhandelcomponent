@@ -63,9 +63,9 @@ import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besl
   ],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];
+  @Input({ required: true }) besluiten!: GeneratedType<"RestBesluit">[];
   @Input({ required: true }) readonly!: boolean;
-  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
+  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<
     string,
@@ -129,11 +129,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     });
   }
 
-  isReadonly(besluit: GeneratedType<"RestDecision">) {
+  isReadonly(besluit: GeneratedType<"RestBesluit">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: GeneratedType<"RestDecision">) {
+  intrekken(besluit: GeneratedType<"RestBesluit">) {
     this.dialog.open(BesluitIntrekkenDialogComponent, { data: besluit });
   }
 }

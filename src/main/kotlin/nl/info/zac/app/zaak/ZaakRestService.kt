@@ -44,9 +44,11 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.NillableGerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
@@ -123,7 +125,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
-import nl.info.zac.zaak.exception.ZaakWithADecisionCannotBeTerminatedException
+import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
@@ -593,8 +595,8 @@ class ZaakRestService @Inject constructor(
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).afbreken)
         assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaak.resultaat?.run {
-            throw ZaakWithADecisionCannotBeTerminatedException(
-                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a decision is already added to it."
+            throw ZaakWithABesluitCannotBeTerminatedException(
+                "The zaak with UUID '${zaak.uuid}' cannot be terminated because a besluit has already been added to it."
             )
         }
         zaaktypeConfigurationService.readZaaktypeConfiguration(
@@ -662,9 +664,15 @@ class ZaakRestService @Inject constructor(
             restZaakLinkData.teKoppelenZaakUuid
         )
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).koppelen)
-        assertPolicy(
-            policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
-        )
+        if (restZaakLinkData.relatieType == RelatieType.GERELATEERD) {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).lezen
+            )
+        } else {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
+            )
+        }
 
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
@@ -672,6 +680,7 @@ class ZaakRestService @Inject constructor(
             RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
             RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
             RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
+            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
             RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
         }
         restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
@@ -721,6 +730,11 @@ class ZaakRestService @Inject constructor(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 aardRelatie = AardRelatieEnum.BIJDRAGE,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.GERELATEERD -> ontkoppelGerelateerdeZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
             )
             RelatieType.OVERIG -> {
@@ -1066,6 +1080,20 @@ class ZaakRestService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
+    private fun koppelGerelateerdeZaken(
+        zaak: Zaak,
+        otherZaak: Zaak,
+        explanation: String?
+    ) {
+        zrcClientService.patchZaak(
+            zaakUUID = zaak.uuid,
+            zaak = NillableGerelateerdeZakenZaakPatch(
+                gerelateerdeZaken = addGerelateerdeZaak(zaak.gerelateerdeZaken, otherZaak.url)
+            ),
+            explanation = explanation
+        )
+    }
+
     private fun koppelInboxProductaanvraag(
         zaak: Zaak,
         inboxProductaanvraag: RestInboxProductaanvraag
@@ -1124,6 +1152,36 @@ class ZaakRestService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
+    private fun ontkoppelGerelateerdeZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        explanation: String
+    ) = zrcClientService.patchZaak(
+        zaakUUID = zaak.uuid,
+        zaak = NillableGerelateerdeZakenZaakPatch(
+            gerelateerdeZaken = removeGerelateerdeZaak(zaak.gerelateerdeZaken, andereZaak.url)
+        ),
+        explanation = explanation
+    )
+
+    private fun addGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak> {
+        val gerelateerdeZaak = GerelateerdeZaak().apply { url = andereZaakURI }
+        return gerelateerdeZaken?.apply {
+            if (none { it.url == andereZaakURI }) add(gerelateerdeZaak)
+        } ?: listOf(gerelateerdeZaak)
+    }
+
+    private fun removeGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak>? {
+        gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
+        return gerelateerdeZaken?.takeUnless { it.isEmpty() }
+    }
+
     private fun ontkoppelRelevanteZaken(
         zaak: Zaak,
         andereZaak: Zaak,
@@ -1177,7 +1235,7 @@ class ZaakRestService @Inject constructor(
         aardRelatie: AardRelatieEnum
     ): List<RelevanteZaak>? {
         relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
-        return relevanteZaken
+        return relevanteZaken?.takeUnless { it.isEmpty() }
     }
 
     private fun sortAndRemoveDuplicateAfzenders(

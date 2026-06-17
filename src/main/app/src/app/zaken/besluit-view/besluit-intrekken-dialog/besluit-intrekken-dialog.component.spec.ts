@@ -28,8 +28,8 @@ import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeli
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog.component";
 
-const makeBesluit = (fields: Partial<GeneratedType<"RestDecision">> = {}) =>
-  fromPartial<GeneratedType<"RestDecision">>({
+const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
+  fromPartial<GeneratedType<"RestBesluit">>({
     uuid: "besluit-uuid-1",
     ingangsdatum: "2026-01-01",
     vervaldatum: "2026-12-31",

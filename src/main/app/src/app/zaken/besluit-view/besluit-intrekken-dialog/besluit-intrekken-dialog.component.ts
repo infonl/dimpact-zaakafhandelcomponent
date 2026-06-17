@@ -60,7 +60,7 @@ export class BesluitIntrekkenDialogComponent {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly formBuilder = inject(FormBuilder);
   protected readonly besluit =
-    inject<GeneratedType<"RestDecision">>(MAT_DIALOG_DATA);
+    inject<GeneratedType<"RestBesluit">>(MAT_DIALOG_DATA);
 
   protected readonly vervalRedenen: VervalRedenOption[] = [
     {
@@ -95,7 +95,7 @@ export class BesluitIntrekkenDialogComponent {
   });
 
   protected readonly mutation = injectMutation(() => ({
-    mutationFn: (data: GeneratedType<"RestDecisionWithdrawalData">) =>
+    mutationFn: (data: GeneratedType<"RestBesluitWithdrawalData">) =>
       lastValueFrom(this.zakenService.intrekkenBesluit(data)),
     onMutate: () => {
       this.dialogRef.disableClose = true;

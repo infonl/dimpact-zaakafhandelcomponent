@@ -25,14 +25,14 @@ const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
   zaaktype: { uuid: "zaaktype-uuid-1" },
 });
 
-const fakeBesluittype = fromPartial<GeneratedType<"RestDecisionType">>({
+const fakeBesluittype = fromPartial<GeneratedType<"RestBesluitType">>({
   id: "besluittype-id-1",
   naam: "Besluittype 1",
   publication: { enabled: false },
 });
 
 const fakeBesluittypeWithPublication = fromPartial<
-  GeneratedType<"RestDecisionType">
+  GeneratedType<"RestBesluitType">
 >({
   id: "besluittype-id-2",
   naam: "Besluittype 2",
