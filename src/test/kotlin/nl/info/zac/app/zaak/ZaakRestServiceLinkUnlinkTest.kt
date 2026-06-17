@@ -7,7 +7,6 @@ package nl.info.zac.app.zaak
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -27,7 +26,6 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.NillableGerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -389,9 +387,10 @@ class ZaakRestServiceLinkUnlinkTest : BehaviorSpec({
                     patchZaakUUIDSlot.captured shouldBe zaak.uuid
                 }
 
-                Then("the patched zaak is a NillableGerelateerdeZakenZaakPatch with gerelateerdeZaken set to null") {
-                    patchZaakSlot.captured.shouldBeInstanceOf<NillableGerelateerdeZakenZaakPatch>()
-                    patchZaakSlot.captured.gerelateerdeZaken shouldBe null
+                Then(
+                    "the patched zaak is a GerelateerdeZakenZaakPatch with gerelateerdeZaken set to an empty list"
+                ) {
+                    patchZaakSlot.captured.gerelateerdeZaken shouldBe emptyList()
                 }
             }
         }
