@@ -80,6 +80,12 @@ class ZaakKoppelenRestService @Inject constructor(
         )
     }
 
+    private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
+        !sourceZaak.isOpen() && targetZaak.archiefNominatie != null
+
+    private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
+        sourceZaak.isOpen() && targetZaak.archiefNominatie == null
+
     private fun buildZoekParameters(
         zaak: Zaak,
         zoekZaakIdentifier: String,
@@ -91,17 +97,6 @@ class ZaakKoppelenRestService @Inject constructor(
         addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zoekZaakIdentifier.trim())
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
-
-    private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
-        RestZaakKoppelenZoekObject(
-            id = getObjectId(),
-            type = ZoekObjectType.ZAAK,
-            identificatie = identificatie,
-            omschrijving = omschrijving,
-            zaaktypeOmschrijving = zaaktypeOmschrijving,
-            statustypeOmschrijving = statustypeOmschrijving,
-            isKoppelbaar = linkable,
-        )
 
     private fun filterSearchResults(
         searchResults: ZoekResultaat<out ZoekObject>,
@@ -124,52 +119,12 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults.count
         )
 
-    private fun isLinkable(
-        sourceZaak: Zaak,
-        targetZaak: ZaakZoekObject,
-        relationType: RelatieType,
-        loggedInUser: LoggedInUser
-    ) =
-        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
-            sourceZaak.hasLinkRights(loggedInUser) &&
-            targetZaak.hasLinkRights() &&
-            sourceZaak.isLinkableTo(targetZaak, relationType) &&
-            targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
-
-    private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        sourceZaak.isOpen() && targetZaak.archiefNominatie == null
-
-    private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        !sourceZaak.isOpen() && targetZaak.archiefNominatie != null
-
     private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
 
     private fun Zaak.hasLinkRights(loggedInUser: LoggedInUser) = policyService.readZaakRechten(
         this,
         loggedInUser
     ).koppelen
-
-    private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
-        when (relationType) {
-            // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK ->
-                // hoofdzaak to hoofdzaak link not allowed
-                !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
-                    // a zaak cannot have two hoofdzaken
-                    !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
-            // "The case you are searching for here will become the subcase"
-            RelatieType.DEELZAAK ->
-                // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
-                // "deelzaken van deelzaken zijn NIET toegestaan"
-                !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
-                    // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
-                    !targetZaak.isIndicatie(HOOFDZAAK)
-            RelatieType.GERELATEERD ->
-                true
-            else -> throw UnsupportedOperationException(
-                "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
-            )
-        }
 
     private fun ZaakZoekObject.hasMatchingZaaktypeWith(sourceZaak: Zaak, relationType: RelatieType): Boolean =
         when (relationType) {
@@ -193,4 +148,49 @@ class ZaakKoppelenRestService @Inject constructor(
                 "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
             )
         }
+
+    private fun isLinkable(
+        sourceZaak: Zaak,
+        targetZaak: ZaakZoekObject,
+        relationType: RelatieType,
+        loggedInUser: LoggedInUser
+    ) =
+        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
+            sourceZaak.hasLinkRights(loggedInUser) &&
+            targetZaak.hasLinkRights() &&
+            sourceZaak.isLinkableTo(targetZaak, relationType) &&
+            targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
+
+    private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
+        when (relationType) {
+            // "The case you are searching for here will become the main case"
+            RelatieType.HOOFDZAAK ->
+                // hoofdzaak to hoofdzaak link not allowed
+                !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
+                    // a zaak cannot have two hoofdzaken
+                    !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
+            // "The case you are searching for here will become the subcase"
+            RelatieType.DEELZAAK ->
+                // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
+                // "deelzaken van deelzaken zijn NIET toegestaan"
+                !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
+                    // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
+                    !targetZaak.isIndicatie(HOOFDZAAK)
+            RelatieType.GERELATEERD ->
+                true
+            else -> throw UnsupportedOperationException(
+                "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
+            )
+        }
+
+    private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
+        RestZaakKoppelenZoekObject(
+            id = getObjectId(),
+            type = ZoekObjectType.ZAAK,
+            identificatie = identificatie,
+            omschrijving = omschrijving,
+            zaaktypeOmschrijving = zaaktypeOmschrijving,
+            statustypeOmschrijving = statustypeOmschrijving,
+            isKoppelbaar = linkable,
+        )
 }

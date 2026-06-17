@@ -59,6 +59,42 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
+    Context("Assigning zaken from a list") {
+        Given("REST zaken verdeel gegevens with a group and a user") {
+            val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+            val group = createGroup()
+            val user = createUser()
+            val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
+                uuids = zaakUUIDs,
+                groepId = group.name,
+                behandelaarGebruikersnaam = user.id,
+                reden = "fakeReason"
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
+            every { identityService.readGroup(group.name) } returns group
+            every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
+
+            When("the assign zaken from a list function is called") {
+                runTest(testDispatcher) {
+                    zaakAssignAndReleaseRestService.assignFromList(restZakenVerdeelGegevens)
+                }
+
+                Then("the zaken are assigned to the group and user") {
+                    verify(exactly = 1) {
+                        zaakService.assignZaken(
+                            zaakUUIDs,
+                            group,
+                            user,
+                            restZakenVerdeelGegevens.reden,
+                            restZakenVerdeelGegevens.screenEventResourceId
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     Context("Assigning a zaak") {
         Given("zaak assignment data is provided") {
             val restZaakAssignmentData = createRESTZaakAssignmentData()
@@ -194,42 +230,6 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 }
 
                 Then("exception is thrown") {}
-            }
-        }
-    }
-
-    Context("Assigning zaken from a list") {
-        Given("REST zaken verdeel gegevens with a group and a user") {
-            val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
-            val group = createGroup()
-            val user = createUser()
-            val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
-                uuids = zaakUUIDs,
-                groepId = group.name,
-                behandelaarGebruikersnaam = user.id,
-                reden = "fakeReason"
-            )
-            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
-            every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
-            every { identityService.readGroup(group.name) } returns group
-            every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
-
-            When("the assign zaken from a list function is called") {
-                runTest(testDispatcher) {
-                    zaakAssignAndReleaseRestService.assignFromList(restZakenVerdeelGegevens)
-                }
-
-                Then("the zaken are assigned to the group and user") {
-                    verify(exactly = 1) {
-                        zaakService.assignZaken(
-                            zaakUUIDs,
-                            group,
-                            user,
-                            restZakenVerdeelGegevens.reden,
-                            restZakenVerdeelGegevens.screenEventResourceId
-                        )
-                    }
-                }
             }
         }
     }

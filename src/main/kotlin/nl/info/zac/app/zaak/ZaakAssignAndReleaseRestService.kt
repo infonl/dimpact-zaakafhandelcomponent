@@ -54,44 +54,6 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
     private val zaakService: ZaakService
 ) {
-    @PATCH
-    @Path("toekennen")
-    fun assignZaak(@Valid restZaakAssignmentData: RestZaakAssignmentData): RestZaak {
-        val loggedInUser = loggedInUserInstance.get()
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.toekennen)
-        zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentData.groupId,
-            restZaakAssignmentData.assigneeUserName,
-            restZaakAssignmentData.reason
-        )
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
-    }
-
-    @PUT
-    @Path("lijst/toekennen/mij")
-    fun assignZaakToLoggedInUserFromList(
-        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RestZaakOverzicht {
-        val loggedInUser = loggedInUserInstance.get()
-        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
-
-        zaakService.assignZaak(
-            zaak = zaak,
-            groupId = restZaakAssignmentToLoggedInUserData.groupId,
-            userName = loggedInUser.id,
-            reason = restZaakAssignmentToLoggedInUserData.reason
-        )
-
-        return restZaakOverzichtConverter.convert(zaak, loggedInUser)
-    }
-
     /**
      * Assign one or multiple zaken in a batch operation.
      * This can be a long-running operation, so it is run asynchronously.
@@ -120,22 +82,20 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         }
     }
 
-    /**
-     * Release one or multiple zaken in a batch operation.
-     * This can be a long-running operation, so it is run asynchronously.
-     */
-    @PUT
-    @Path("lijst/vrijgeven")
-    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
-            zaakService.releaseZaken(
-                zaakUUIDs = restZakenVrijgevenGegevens.uuids,
-                explanation = restZakenVrijgevenGegevens.reden,
-                screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
-            )
-        }
+    @PATCH
+    @Path("toekennen")
+    fun assignZaak(@Valid restZaakAssignmentData: RestZaakAssignmentData): RestZaak {
+        val loggedInUser = loggedInUserInstance.get()
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(zaakRechten.toekennen)
+        zaakService.assignZaak(
+            zaak,
+            restZaakAssignmentData.groupId,
+            restZaakAssignmentData.assigneeUserName,
+            restZaakAssignmentData.reason
+        )
+        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
 
     @PUT
@@ -154,5 +114,45 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
             restZaakAssignmentToLoggedInUserData.reason
         )
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+    }
+
+    @PUT
+    @Path("lijst/toekennen/mij")
+    fun assignZaakToLoggedInUserFromList(
+        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
+    ): RestZaakOverzicht {
+        val loggedInUser = loggedInUserInstance.get()
+        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
+        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+
+        zaakService.assignZaak(
+            zaak = zaak,
+            groupId = restZaakAssignmentToLoggedInUserData.groupId,
+            userName = loggedInUser.id,
+            reason = restZaakAssignmentToLoggedInUserData.reason
+        )
+
+        return restZaakOverzichtConverter.convert(zaak, loggedInUser)
+    }
+
+    /**
+     * Release one or multiple zaken in a batch operation.
+     * This can be a long-running operation, so it is run asynchronously.
+     */
+    @PUT
+    @Path("lijst/vrijgeven")
+    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
+        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        // this can be a long-running operation, so run it asynchronously
+        CoroutineScope(dispatcher).launch {
+            zaakService.releaseZaken(
+                zaakUUIDs = restZakenVrijgevenGegevens.uuids,
+                explanation = restZakenVrijgevenGegevens.reden,
+                screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
+            )
+        }
     }
 }
