@@ -50,7 +50,7 @@ If we need more time than originally indicated we will contact you to agree on a
 
 ## CVE assignment
 
-For confirmed vulnerabilities we will request a CVE identifier via GitHub's CVE Numbering Authority (CNA) programme. The CVE will be published together with the GitHub Security Advisory at the time of public disclosure.
+For confirmed vulnerabilities, we will request a CVE identifier via GitHub's CVE Numbering Authority (CNA) programme. The CVE will be published together with the GitHub Security Advisory at the time of public disclosure.
 
 ## Our commitment to reporters
 
