@@ -16,7 +16,6 @@ import { NotitiesComponent } from "../notities/notities.component";
 import { HumanTaskDoComponent } from "../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
-import { ZacDocuments } from "../shared/form/documents/documents";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 import { SharedModule } from "../shared/shared.module";
@@ -38,12 +37,12 @@ import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
 
 @NgModule({
-  declarations: [BesluitEditComponent, BesluitViewComponent, ZaakViewComponent],
+  declarations: [BesluitEditComponent, ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
     NotitiesComponent,
     SharedModule,
-    ZacDocuments,
+    BesluitViewComponent,
     ZaakDocumentenComponent,
     ZakenRoutingModule,
     KlantenModule,

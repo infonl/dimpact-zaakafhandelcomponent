@@ -95,7 +95,6 @@
             *ngIf="documentenForms[besluit.uuid]"
             [form]="documentenForms[besluit.uuid]"
             key="documenten"
-            label="documenten"
             [options]="besluit.informatieobjecten ?? []"
             [readonly]="true"
           ></zac-documents>

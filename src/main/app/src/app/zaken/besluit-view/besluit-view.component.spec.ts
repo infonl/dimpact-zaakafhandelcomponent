@@ -14,13 +14,6 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
-import { ZacDocuments } from "../../shared/form/documents/documents";
-import { BesluitIndicatiesComponent } from "../../shared/indicaties/besluit-indicaties/besluit-indicaties.component";
-import { MaterialModule } from "../../shared/material/material.module";
-import { EmptyPipe } from "../../shared/pipes/empty.pipe";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besluit-intrekken-dialog.component";
@@ -61,15 +54,8 @@ describe(BesluitViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [BesluitViewComponent],
       imports: [
-        ZacDocuments,
-        StaticTextComponent,
-        BesluitIndicatiesComponent,
-        ReadMoreComponent,
-        MaterialModule,
-        PipesModule,
-        EmptyPipe,
+        BesluitViewComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
