@@ -25,10 +25,12 @@ import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.c
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { VervalReden } from "../../model/vervalReden";
 import { ZakenService } from "../../zaken.service";
 
-type VervalRedenOption = { label: string; value: string };
+type VervalRedenOption = {
+  label: string;
+  value: GeneratedType<"VervalredenEnum">;
+};
 
 @Component({
   selector: "zac-besluit-intrekken-dialog",
@@ -60,12 +62,16 @@ export class BesluitIntrekkenDialogComponent {
   protected readonly besluit =
     inject<GeneratedType<"RestDecision">>(MAT_DIALOG_DATA);
 
-  protected readonly vervalRedenen: VervalRedenOption[] =
-    this.utilService.getEnumAsSelectListExceptFor(
-      "besluit.vervalreden",
-      VervalReden,
-      [VervalReden.TIJDELIJK],
-    );
+  protected readonly vervalRedenen: VervalRedenOption[] = [
+    {
+      label: "besluit.vervalreden.ingetrokken_overheid",
+      value: "INGETROKKEN_OVERHEID",
+    },
+    {
+      label: "besluit.vervalreden.ingetrokken_belanghebbende",
+      value: "INGETROKKEN_BELANGHEBBENDE",
+    },
+  ];
 
   protected readonly documentenVerstuurd = Boolean(
     this.besluit.informatieobjecten?.some(
