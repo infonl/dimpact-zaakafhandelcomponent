@@ -38,7 +38,7 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
 describe(BesluitViewComponent.name, () => {
   let fixture: ComponentFixture<BesluitViewComponent>;
   let component: BesluitViewComponent;
-  let dialog: MatDialog;
+  let dialog: { open: jest.Mock };
   let zakenService: ZakenService;
 
   const setup = (
@@ -53,6 +53,12 @@ describe(BesluitViewComponent.name, () => {
   };
 
   beforeEach(async () => {
+    dialog = {
+      open: jest
+        .fn()
+        .mockReturnValue(fromPartial({ afterClosed: () => of(undefined) })),
+    };
+
     await TestBed.configureTestingModule({
       imports: [
         BesluitViewComponent,
@@ -64,16 +70,12 @@ describe(BesluitViewComponent.name, () => {
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         provideMomentDateAdapter(),
+        { provide: MatDialog, useValue: dialog },
       ],
     }).compileComponents();
 
     zakenService = TestBed.inject(ZakenService);
     jest.spyOn(zakenService, "listBesluitHistorie").mockReturnValue(of([]));
-
-    dialog = TestBed.inject(MatDialog);
-    jest
-      .spyOn(dialog, "open")
-      .mockReturnValue(fromPartial({ afterClosed: () => of(undefined) }));
   });
 
   afterEach(() => {
