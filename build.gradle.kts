@@ -371,8 +371,7 @@ configure<SpotlessExtension> {
         endWithNewline()
     }
     java {
-        val genPath = srcGenerated.toProjectRelativePath()
-        targetExclude("$genPath/**", "build/**")
+        target("src/main/java/**/*.java")
 
         removeUnusedImports()
         importOrderFile("config/importOrder.txt")
@@ -418,7 +417,12 @@ configure<SpotlessExtension> {
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
-        target("src/**/*.json", "scripts/**/*.json")
+        target(
+            "src/**/*.json",
+            "scripts/bruno/**/*.json",
+            "scripts/docker-compose/imports/**/*.json",
+            "scripts/load-test/**/*.json"
+        )
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
@@ -426,9 +430,7 @@ configure<SpotlessExtension> {
             "$appPath/dist/**",
             "$appPath/.angular/**",
             "src/**/package-lock.json",
-            "$appPath/coverage/**",
-            "**/.venv/**",
-            "scripts/docker-compose/volume-data/**"
+            "$appPath/coverage/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
