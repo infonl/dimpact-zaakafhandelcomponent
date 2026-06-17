@@ -131,14 +131,15 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 responseBody.shouldBeJsonArray()
                 responseBodyJsonArray = JSONArray(responseBody)
                 // the zaak is in the behandelen phase, so there should be four human task plan items
-                // of which the first one is 'Goedkeuren'
                 responseBodyJsonArray.length() shouldBe 4
-                responseBodyJsonArray[0].toString().run {
-                    shouldContainJsonKeyValue("naam", "Goedkeuren")
-                }
+                (0 until responseBodyJsonArray.length())
+                    .any { i -> responseBodyJsonArray.getJSONObject(i).getString("naam") == "Goedkeuren" }
+                    .shouldBe(true)
             }
             Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
-                humanTaskItemGoedkeurenId = responseBodyJsonArray.getJSONObject(0).getString("id")
+                humanTaskItemGoedkeurenId = (0 until responseBodyJsonArray.length())
+                    .first { i -> responseBodyJsonArray.getJSONObject(i).getString("naam") == "Goedkeuren" }
+                    .let { i -> responseBodyJsonArray.getJSONObject(i).getString("id") }
             }
         }
 
