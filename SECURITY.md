@@ -43,7 +43,7 @@ We handle all security reports through **coordinated disclosure**:
 | Confirm whether the issue is valid and assess severity | We investigate and assign a CVSS v3 severity rating |
 | Provide a fix timeline and keep you updated on progress | We communicate our plan and any updates during the embargo period |
 | Release a fix and publish a Security Advisory | We release the patch and disclose publicly, including any backports |
-| Credit you in the advisory (if desired) | We credit you at time of publication unless you prefer to remain anonymous |
+| Credit you in the advisory (if desired) | We credit you at the time of publication unless you prefer to remain anonymous |
 
 We will communicate expected timelines once we have assessed the severity of the report.
 If we need more time than originally indicated we will contact you to agree on an extended embargo period.
