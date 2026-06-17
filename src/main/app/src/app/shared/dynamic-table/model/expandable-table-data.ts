@@ -5,7 +5,7 @@
 
 export class ExpandableTableData<T> {
   data: T;
-  expanded: boolean;
+  expanded = false;
 
   constructor(data: T) {
     this.data = data;
