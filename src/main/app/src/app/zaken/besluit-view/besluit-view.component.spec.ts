@@ -118,21 +118,21 @@ describe(BesluitViewComponent.name, () => {
     it("is read-only when the component is read-only", () => {
       setup([makeBesluit()], true);
 
-      expect(component.isReadonly(makeBesluit())).toBe(true);
+      expect(component["isReadonly"](makeBesluit())).toBe(true);
     });
 
     it("is read-only when the besluit is already withdrawn", () => {
       setup();
 
-      expect(component.isReadonly(makeBesluit({ isIngetrokken: true }))).toBe(
-        true,
-      );
+      expect(
+        component["isReadonly"](makeBesluit({ isIngetrokken: true })),
+      ).toBe(true);
     });
 
     it("is editable for an open besluit on an editable component", () => {
       setup();
 
-      expect(component.isReadonly(makeBesluit())).toBe(false);
+      expect(component["isReadonly"](makeBesluit())).toBe(false);
     });
   });
 
@@ -141,7 +141,7 @@ describe(BesluitViewComponent.name, () => {
       setup();
       const besluit = makeBesluit();
 
-      component.intrekken(besluit);
+      component["intrekken"](besluit);
 
       expect(dialog.open).toHaveBeenCalledWith(
         BesluitIntrekkenDialogComponent,

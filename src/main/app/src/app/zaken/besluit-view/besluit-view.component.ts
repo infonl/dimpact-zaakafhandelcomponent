@@ -129,11 +129,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     });
   }
 
-  isReadonly(besluit: GeneratedType<"RestBesluit">) {
+  protected isReadonly(besluit: GeneratedType<"RestBesluit">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: GeneratedType<"RestBesluit">) {
+  protected intrekken(besluit: GeneratedType<"RestBesluit">) {
     this.dialog.open(BesluitIntrekkenDialogComponent, { data: besluit });
   }
 }
