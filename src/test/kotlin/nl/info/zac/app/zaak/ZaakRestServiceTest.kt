@@ -2139,5 +2139,4 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
     }
-
 })
