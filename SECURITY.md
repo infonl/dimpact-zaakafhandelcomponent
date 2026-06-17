@@ -46,7 +46,7 @@ We handle all security reports through **coordinated disclosure**:
 | Credit you in the advisory (if desired) | We credit you at the time of publication unless you prefer to remain anonymous |
 
 We will communicate expected timelines once we have assessed the severity of the report.
-If we need more time than originally indicated we will contact you to agree on an extended embargo period.
+If we need more time than originally indicated, we will contact you to agree on an extended embargo period.
 
 ## CVE assignment
 
