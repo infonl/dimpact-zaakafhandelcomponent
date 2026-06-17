@@ -8,7 +8,7 @@ we realize that this will never give a 100% guarantee.
 ## Supported versions
 
 Security fixes are always applied to the **latest released version**.
-For versions actively supported by [PodiumD](https://www.podiumd.nl/), we will provide backports for **Critical** severity vulnerabilities where this is feasible.
+For versions actively supported by PodiumD, we will provide backports for **Critical** severity vulnerabilities where this is feasible.
 
 ## Reporting a vulnerability
 
