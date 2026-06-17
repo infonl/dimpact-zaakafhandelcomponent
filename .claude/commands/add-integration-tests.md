@@ -448,10 +448,10 @@ eventually(afterThirtySeconds) {
 | `ZK_Status` | Zaak status to set | `"Afgerond"` |
 | `TF_EMAIL_TO` | Email recipient (confirmation flow) | `"test@example.com"` |
 
-## BPMN test persons / BPMN test group
+## BPMN test assignee groups (TestGroup)
 ```kotlin
-// BPMN test group defined in bpmn process files + TestGroups.kt:
-BPMN_TEST_GROUP_1     // name: "test-group-1"
+// Both are TestGroup values defined in TestGroups.kt and referenced in BPMN process files:
+BPMN_TEST_GROUP_1        // name: "test-group-1"
 BPMN_TEST_BEHANDELAAR_1  // name: "test-behandelaar-1"
 ```
 
@@ -469,19 +469,20 @@ BPMN_TEST_BEHANDELAAR_1  // name: "test-behandelaar-1"
 ## Zaaktype constants (from `ItestConfiguration`)
 | Constant | Value | Notes |
 |---|---|---|
-| `ZAAKTYPE_CMMN_TEST_1_UUID` | `8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a` | **Do NOT use for `createZaak` — returns 403** |
+| `ZAAKTYPE_CMMN_TEST_1_UUID` | `8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a` | Only works with `BEHEERDER_1` — returns 403 for `BEHANDELAAR_*` and `RAADPLEGER_*` |
 | `ZAAKTYPE_CMMN_TEST_1_DESCRIPTION` | `"Test zaaktype 1"` | |
 | `ZAAKTYPE_CMMN_TEST_2_UUID` | `fd2bf643-c98a-4b00-b2b3-9ae0c41ed425` | **Default for most tests** |
 | `ZAAKTYPE_CMMN_TEST_2_DESCRIPTION` | `"Test zaaktype 2"` | |
 | `ZAAKTYPE_CMMN_TEST_3_UUID` | `448356ff-dcfb-4504-9501-7fe929077c4f` | Use when test 2 is already in use |
 | `ZAAKTYPE_CMMN_TEST_3_DESCRIPTION` | `"Test zaaktype 3"` | |
 
-Most CMMN tests use `ZAAKTYPE_CMMN_TEST_2_UUID` with `GROUP_BEHANDELAARS_TEST_1`. **Never use `ZAAKTYPE_CMMN_TEST_1_UUID` in `createZaak`** — it is not authorized for test users and will return 403.
+Most CMMN tests use `ZAAKTYPE_CMMN_TEST_2_UUID` with `GROUP_BEHANDELAARS_TEST_1`. Avoid `ZAAKTYPE_CMMN_TEST_1_UUID` when using `BEHANDELAAR_*` or `RAADPLEGER_*` users — it will return 403. It works with `BEHEERDER_1`.
 
 ## Creating a CMMN zaak
-The response body is a flat `RestZaak` JSON object (root-level `"uuid"`) — **not** wrapped in `zaakdata` like BPMN.
+The response body is a flat `RestZaak` JSON object (root-level `"uuid"` and `"identificatie"`) — **not** wrapped in `zaakdata` like BPMN.
 ```kotlin
 lateinit var zaakUuid: String
+lateinit var zaakIdentificatie: String
 zacClient.createZaak(
     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
     groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -493,6 +494,7 @@ zacClient.createZaak(
     code shouldBe HTTP_OK
     JSONObject(bodyAsString).run {
         zaakUuid = getString("uuid")
+        zaakIdentificatie = getString("identificatie")
     }
 }
 ```
@@ -507,7 +509,7 @@ val temporaryPersonId = zacClient.getTemporaryPersonId(TEST_PERSON_HENDRIKA_JANS
 ```kotlin
 val taskHelper = TaskHelper(zacClient)
 val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
-    zaakUuid = zaakUUID,
+    zaakUuid = UUID.fromString(zaakUuid),
     zaakIdentificatie = zaakIdentificatie,
     fatalDate = LocalDate.now().plusDays(14),
     group = GROUP_BEHANDELAARS_TEST_1,
@@ -537,7 +539,7 @@ ACTIE_ZAAK_AFHANDELEN  = "ZAAK_AFHANDELEN"
 ## Checking zaak assignment
 ```kotlin
 itestHttpClient.performGetRequest(
-    url = "$ZAC_API_URI/zaken/zaak/$zaakUUID",
+    url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
     testUser = BEHANDELAAR_1
 ).bodyAsString.run {
     shouldContainJsonKeyValue("isOpen", true)
@@ -558,7 +560,7 @@ TEST_PERSON_ANITA_VAN_BUREN_BSN      = "999992958"
 
 | Pattern | Detail | Found in |
 |---|---|---|
-| `ZAAKTYPE_CMMN_TEST_1_UUID` causes 403 on `createZaak` | Only `_2_` and `_3_` are authorized for test users. Never use `_1_` in `createZaak`. | All CMMN tests |
+| `ZAAKTYPE_CMMN_TEST_1_UUID` causes 403 for non-admin users | Returns 403 when `BEHANDELAAR_*` or `RAADPLEGER_*` calls `createZaak`. Works fine with `BEHEERDER_1`. Prefer `_2_` or `_3_` for standard test flows. | `CsvRestServiceTest`, `ZaakSuspendRestServiceTest` |
 | CMMN zaak UUID is at root of response, not in `zaakdata` | `JSONObject(bodyAsString).getString("uuid")` — the `zaakdata` wrapper is BPMN-only | `ZaakRestServiceExtensionTest` |
 | `redenOpschorting` in `RestZaak` suspend response | After `PATCH .../suspend`, the body contains `"redenOpschorting": "<reason>"` and `"isOpgeschort": true`. Use `shouldContainJsonKeyValue("redenOpschorting", reason)` to verify. | `ZaakSuspendRestServiceTest` |
 | Absent fields after resume | After `PATCH .../resume`, `redenOpschorting` and `vanafDatumTijd` are removed from the response. Assert with `shouldNotContainJsonKey("redenOpschorting")` and `shouldNotContainJsonKey("vanafDatumTijd")`. | `ZaakSuspendRestServiceTest` |
