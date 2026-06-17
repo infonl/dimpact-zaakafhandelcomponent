@@ -522,6 +522,7 @@ ZAC kent op dit moment de volgende applicatierollen:
 * `coordinator`
 * `recordmanager`
 * `beheerder`
+* `brp_zoeken`
 
 De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
 te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
