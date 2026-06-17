@@ -21,9 +21,6 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import net.atos.client.zgw.zrc.model.ZaakListParameters
@@ -81,15 +78,11 @@ import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
 import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
-import nl.info.zac.app.zaak.model.RESTZakenVerdeelGegevens
-import nl.info.zac.app.zaak.model.RESTZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
 import nl.info.zac.app.zaak.model.RestZaak
-import nl.info.zac.app.zaak.model.RestZaakAssignmentData
-import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakBetrokkene
 import nl.info.zac.app.zaak.model.RestZaakBetrokkeneGegevens
 import nl.info.zac.app.zaak.model.RestZaakCreateData
@@ -141,11 +134,6 @@ class ZaakRestService @Inject constructor(
     private val bpmnService: BpmnService,
     private val cmmnService: CMMNService,
     private val configurationService: ConfigurationService,
-    /**
-     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
-     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
-     */
-    private val dispatcher: CoroutineDispatcher,
     private val drcClientService: DrcClientService,
     private val eventingService: EventingService,
     private val healthCheckService: HealthCheckService,
@@ -498,90 +486,6 @@ class ZaakRestService @Inject constructor(
     }
 
     @PATCH
-    @Path("toekennen")
-    fun assignZaak(@Valid restZaakAssignmentData: RestZaakAssignmentData): RestZaak {
-        val loggedInUser = loggedInUserInstance.get()
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.toekennen)
-        zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentData.groupId,
-            restZaakAssignmentData.assigneeUserName,
-            restZaakAssignmentData.reason
-        )
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
-    }
-
-    @PUT
-    @Path("lijst/toekennen/mij")
-    fun assignZaakToLoggedInUserFromList(
-        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RestZaakOverzicht {
-        val loggedInUser = loggedInUserInstance.get()
-        // Checking the user's authorization for the zaak's zaaktype could improve this in the future.
-        assertPolicy(policyService.readWerklijstRechten().zakenTaken)
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
-
-        zaakService.assignZaak(
-            zaak = zaak,
-            groupId = restZaakAssignmentToLoggedInUserData.groupId,
-            userName = loggedInUser.id,
-            reason = restZaakAssignmentToLoggedInUserData.reason
-        )
-
-        return restZaakOverzichtConverter.convert(zaak, loggedInUser)
-    }
-
-    /**
-     * Assign one or multiple zaken in a batch operation.
-     * This can be a long-running operation, so it is run asynchronously.
-     */
-    @PUT
-    @Path("lijst/verdelen")
-    fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
-        // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
-        // Checking the user's authorization for each task's zaaktype could improve this in the future.
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
-            zaakService.assignZaken(
-                zaakUUIDs = restZakenVerdeelGegevens.uuids,
-                explanation = restZakenVerdeelGegevens.reden,
-                group = restZakenVerdeelGegevens.groepId.let {
-                    identityService.readGroup(
-                        restZakenVerdeelGegevens.groepId
-                    )
-                },
-                user = restZakenVerdeelGegevens.behandelaarGebruikersnaam?.let {
-                    identityService.readUser(it)
-                },
-                screenEventResourceId = restZakenVerdeelGegevens.screenEventResourceId
-            )
-        }
-    }
-
-    /**
-     * Release one or multiple zaken in a batch operation.
-     * This can be a long-running operation, so it is run asynchronously.
-     */
-    @PUT
-    @Path("lijst/vrijgeven")
-    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
-        assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
-        // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
-            zaakService.releaseZaken(
-                zaakUUIDs = restZakenVrijgevenGegevens.uuids,
-                explanation = restZakenVrijgevenGegevens.reden,
-                screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
-            )
-        }
-    }
-
-    @PATCH
     @Path("/zaak/{uuid}/afbreken")
     @Suppress("NestedBlockDepth")
     fun terminateZaak(
@@ -741,24 +645,6 @@ class ZaakRestService @Inject constructor(
                 throw BadRequestException("Relatie type 'OVERIG' is not supported.")
             }
         }
-    }
-
-    @PUT
-    @Path("toekennen/mij")
-    fun assignZaakToLoggedInUser(
-        @Valid restZaakAssignmentToLoggedInUserData: RestZaakAssignmentToLoggedInUserData
-    ): RestZaak {
-        val loggedInUser = loggedInUserInstance.get()
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.toekennen)
-        zaakService.assignZaak(
-            zaak,
-            restZaakAssignmentToLoggedInUserData.groupId,
-            loggedInUserInstance.get().id,
-            restZaakAssignmentToLoggedInUserData.reason
-        )
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
     }
 
     @GET
