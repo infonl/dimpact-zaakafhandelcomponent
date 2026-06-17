@@ -1356,17 +1356,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen &&
-      this.overigeRechtenQuery.data()?.brpZoeken,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen &&
+        this.overigeRechtenQuery.data()?.brpZoeken,
     );
   }
 
