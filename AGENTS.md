@@ -44,6 +44,7 @@ cd src/main/app && npm test         # Frontend tests only
 ```
 
 ### Integration Tests (TestContainers - requires Docker)
+Before running the integration tests, make sure that a new ZAC Docker image has been built.
 ```bash
 ./gradlew itest --info              # Run integration tests
 ```
@@ -152,7 +153,7 @@ Replace `<YEAR>` with the current year. So for example, if the current year is 2
  */
  ```
 
-For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh` use `# SPDX...`.
+For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh`, `.yaml`/`.yml` (including OpenSpec `.openspec.yaml`) use `# SPDX...`.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year. 
 For example `2025, 2026 INFO.nl` is wrong.
