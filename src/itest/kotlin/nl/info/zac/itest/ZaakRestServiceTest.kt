@@ -20,6 +20,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
@@ -1228,6 +1229,38 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "zaaktype" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         } ]                                               
                     """
+                }
+            }
+        }
+    }
+
+    Context("Creating a zaak with a group with a long name") {
+        Given(
+            """
+            a Keycloak group with a name of 50 characters exists and an authorised behandelaar is logged in
+            """
+        ) {
+            When("the create zaak endpoint is called with the long-name group as the assigned group") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+                    groupId = GROUP_BEHANDELAARS_LONG_NAME_TEST.name,
+                    groupName = GROUP_BEHANDELAARS_LONG_NAME_TEST.description,
+                    startDate = DATE_TIME_2020_01_01,
+                    testUser = BEHANDELAAR_1
+                )
+                Then("the zaak is created and the response contains the full long group name") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "groep": {
+                            "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
+                            "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
+                          },
+                          "isOpen": true
+                        }
+                    """.trimIndent()
                 }
             }
         }

@@ -18,6 +18,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.COORDINATOR_2
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_2
 import nl.info.zac.itest.config.GROUP_BEHEERDERS_ELK_DOMEIN
@@ -85,6 +86,11 @@ val TEST_GROUPS_ACTIVE =
                 {
                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                    "active": true
+                },
+                {
+                    "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
+                    "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}",
                     "active": true
                 }
             ]

@@ -581,6 +581,16 @@
       "realmRoles": ["beheerder_elk_domein"]
     },
     {
+      "id": "f7e8d9c0-b1a2-3456-7890-abcdef012345",
+      "name": "behandelaars-test-group-with-a-very-long-name-0001",
+      "path": "/behandelaars-test-group-with-a-very-long-name-0001",
+      "description": "Test group behandelaars with a very long group name",
+      "attributes": {
+        "email": ["${ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["behandelaar_domein_test_1"]
+    },
+    {
       "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "name": "inactive-group-test-1",
       "path": "/inactive-group-test-1",
