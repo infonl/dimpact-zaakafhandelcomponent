@@ -312,6 +312,16 @@ fun createRESTZakenVerdeelGegevens(
     screenEventResourceId = screenEventResourceId
 )
 
+fun createRESTZakenVrijgevenGegevens(
+    uuids: List<UUID> = emptyList(),
+    reden: String? = null,
+    screenEventResourceId: String? = null
+) = RESTZakenVrijgevenGegevens(
+    uuids = uuids,
+    reden = reden,
+    screenEventResourceId = screenEventResourceId
+)
+
 fun createRestZaakLinkData(
     zaakUuid: UUID = UUID.randomUUID(),
     teKoppelenZaakUuid: UUID = UUID.randomUUID(),
