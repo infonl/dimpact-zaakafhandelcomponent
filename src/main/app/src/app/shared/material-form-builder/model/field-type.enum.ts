@@ -5,7 +5,6 @@
 
 export enum FieldType {
   INPUT = "INPUT",
-  HIDDEN = "HIDDEN",
   PARAGRAPH = "PARAGRAPH",
   TEXTAREA = "TEXTAREA",
   DATE = "DATE",
@@ -14,5 +13,4 @@ export enum FieldType {
   MEDEWERKER_GROEP = "MEDEWERKER_GROEP",
   DOCUMENTEN_LIJST = "DOCUMENTEN_LIJST",
   READONLY = "READONLY",
-  MESSAGE = "MESSAGE",
 }
