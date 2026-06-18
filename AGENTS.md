@@ -44,6 +44,7 @@ cd src/main/app && npm test         # Frontend tests only
 ```
 
 ### Integration Tests (TestContainers - requires Docker)
+Before running the integration tests, make sure that a new ZAC Docker image has been built.
 ```bash
 ./gradlew itest --info              # Run integration tests
 ```

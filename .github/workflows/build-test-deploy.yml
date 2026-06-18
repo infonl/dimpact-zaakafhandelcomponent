@@ -332,7 +332,9 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: frontend-artefacts
-          path: src/main/app
+           path: |
+            src/main/app/node_modules
+            src/main/app/src/generated/types
 
       - name: Download generated Java clients
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
