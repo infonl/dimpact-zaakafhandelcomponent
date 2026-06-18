@@ -201,17 +201,6 @@ describe(ZoekComponent.name, () => {
     let policyService: PolicyService;
 
     beforeEach(async () => {
-      await TestBed.overrideComponent(ZoekComponent, {
-        set: {
-          template: `
-            <button
-              *ngIf="brpRechtenQuery.data()?.zoeken"
-              id="personen-button">
-            </button>
-          `,
-          imports: [NgIf],
-        },
-      }).compileComponents();
 
       policyService = TestBed.inject(PolicyService);
 
