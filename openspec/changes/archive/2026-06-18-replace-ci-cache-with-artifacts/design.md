@@ -41,11 +41,14 @@ Set `retention-days` low (e.g. 1) since these are throwaway intra-run handoffs; 
 **Path fidelity.**
 Upload/download `path:` values mirror the existing cache `path:` blocks exactly so the same files land in the same locations for downstream steps (notably the JaCoCo re-download of `build` in the itest job, and the multi-path frontend artefact).
 
-Alternatives considered: keep cache but add explicit eviction — rejected, still misuses the cache and risks colliding with dependency caches. Single tarball artifact — rejected, forces consumers to download unneeded data.
+**Tar the frontend artefacts before upload.**
+`actions/upload-artifact@v4` excludes hidden files by default and stores every file mode as `644`. Uploading `node_modules` directly would drop `node_modules/.bin` (a dotfile) and strip the executable bit from the CLI shims that `npm run build`/`test` (via the `npmRun*` Gradle tasks) invoke. So the frontend output is `tar czf frontend-artefacts.tar.gz`-ed in `build` and extracted at the workspace root in `run-unit-tests`; tar preserves both dotfiles and permissions. The other artefacts (`gradle-build`, `generated-java-clients`, `zac-jar`, `docker-image`) contain no executables or required dotfiles, so they are uploaded as-is.
+
+Alternatives considered: keep cache but add explicit eviction — rejected, still misuses the cache and risks colliding with dependency caches. Single tarball for all artefacts — rejected, forces consumers to download unneeded data. Enabling `include-hidden-files` + re-`chmod` after download — rejected, more brittle than tar (must re-derive which files need which mode).
 
 ## Risks / Trade-offs
 
-- **Artifact contains many small files (e.g. `node_modules`)** → upload/download can be slower than cache for huge trees. Mitigation: artifacts are zipped by the action; acceptable for intra-run handoff, and `node_modules` was already cached as-is.
+- **`node_modules` has many small files + a dotfile dir (`.bin`) with executables** → direct upload is slow and silently drops `.bin`/exec bits (upload-artifact excludes hidden files and forces mode 644). Mitigation: tar+gzip the frontend output before upload and extract after download; tar preserves dotfiles and permissions and collapses the tree into one entry.
 - **`download-artifact` default unpacks into the working dir** → must set `path:` to restore to original location. Mitigation: set explicit `path:` matching the upload layout per artifact.
 - **Conditional upload of `docker-image.tar`** (only on `main`/`hotfix/*`) → the matching download in `push-docker-image` is already gated by the same condition, so no missing-artifact failures. Mitigation: keep the existing `if:` guards on both ends.
 

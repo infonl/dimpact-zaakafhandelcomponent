@@ -7,13 +7,13 @@
 
 - [x] 2.1 Replace "Cache Gradle build artefacts" (`actions/cache/save`, path `build`) with `upload-artifact` named `gradle-build`, `retention-days: 1`
 - [x] 2.2 Replace "Cache generated Java clients" (path `src/generated`) with `upload-artifact` named `generated-java-clients`
-- [x] 2.3 Replace "Cache frontend build artefacts" (paths `src/main/app/node_modules`, `src/main/app/src/generated/types`) with `upload-artifact` named `frontend-artefacts`
+- [x] 2.3 Replace "Cache frontend build artefacts": tar `src/main/app/node_modules` + `src/main/app/src/generated/types` into `frontend-artefacts.tar.gz` (tar preserves dotfiles like `node_modules/.bin` and exec bits that `upload-artifact` would drop), then `upload-artifact` named `frontend-artefacts`
 - [x] 2.4 Replace "Cache built ZAC JAR" (path `target/zaakafhandelcomponent.jar`) with `upload-artifact` named `zac-jar`
 
 ## 3. `run-unit-tests` job — download outputs
 
 - [x] 3.1 Replace "Restore Gradle build artefacts" with `download-artifact` name `gradle-build`, `path: build`
-- [x] 3.2 Replace "Restore built frontend artefacts" with `download-artifact` name `frontend-artefacts` restoring to the original frontend paths
+- [x] 3.2 Replace "Restore built frontend artefacts": `download-artifact` name `frontend-artefacts`, then extract `frontend-artefacts.tar.gz` at the workspace root (restores original frontend paths with dotfiles + permissions)
 - [x] 3.3 Replace "Restore generated Java clients" with `download-artifact` name `generated-java-clients`, `path: src/generated`
 
 ## 4. `build-docker-image-and-run-itests` job
