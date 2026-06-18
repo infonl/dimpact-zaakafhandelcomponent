@@ -76,17 +76,18 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
             }
         }
 
-        When("readMailtemplateKoppeling is called with the id") {
-            Then("a RuntimeException is thrown containing the class name and id") {
-                val exception = shouldThrow<NoSuchElementException> {
-                    service.readMailtemplateKoppeling(id)
-                }
-                exception.message!!.let {
-                    it.contains(ZaaktypeCmmnMailtemplateParameters::class.java.simpleName) shouldBe true
-                    it.contains(id.toString()) shouldBe true
-                }
-            }
+When("readMailtemplateKoppeling is called with the id") {
+    val exception = shouldThrow<NoSuchElementException> {
+        service.readMailtemplateKoppeling(id)
+    }
+
+    Then("a NoSuchElementException is thrown containing the class name and id") {
+        exception.message!!.let {
+            it.contains(ZaaktypeCmmnMailtemplateParameters::class.java.simpleName) shouldBe true
+            it.contains(id.toString()) shouldBe true
         }
+    }
+}
     }
 
     Given("storeMailtemplateKoppeling with a new entity (no id)") {
