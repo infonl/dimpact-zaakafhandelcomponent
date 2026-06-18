@@ -193,6 +193,10 @@ export class BesluitEditComponent implements OnInit {
     );
 
     this.setVervaldatumMinDate(this.form.controls.ingangsdatum.value);
+
+    if (besluit.besluittype?.publication.enabled && besluit.vervaldatum) {
+      this.setLastResponseDateMinDate(moment(besluit.vervaldatum));
+    }
   }
 
   protected submit() {

@@ -227,6 +227,41 @@ describe(BesluitEditComponent.name, () => {
     });
   });
 
+  describe("publication dates", () => {
+    const makePublicationBesluit = (
+      fields: Partial<GeneratedType<"RestBesluit">> = {},
+    ) =>
+      makeBesluit({
+        besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
+          id: "besluittype-id-2",
+          naam: "Besluittype 2",
+          publication: { enabled: true, responseTermDays: 6 },
+        }),
+        ...fields,
+      });
+
+    it("auto-fills lastResponseDate from publicationDate + responseTermDays", async () => {
+      await setupComponent(makePublicationBesluit());
+
+      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
+
+      expect(
+        component["form"].controls.lastResponseDate.value?.isSame(
+          moment("2026-03-07"),
+          "day",
+        ),
+      ).toBe(true);
+    });
+
+    it("applies the lastResponseDate minimum on load when publication is required", async () => {
+      await setupComponent(
+        makePublicationBesluit({ vervaldatum: "2026-12-31" }),
+      );
+
+      expect(component["lastResponseDateMinValidator"]).not.toBeNull();
+    });
+  });
+
   describe("submit", () => {
     it("updates the besluit and emits besluitGewijzigd on success", async () => {
       await setupComponent();
@@ -245,6 +280,8 @@ describe(BesluitEditComponent.name, () => {
           besluitUuid: "besluit-uuid-1",
           reden: "Wijziging reden",
           informatieobjecten: ["document-uuid-1"],
+          ingangsdatum: moment("2026-01-01").toISOString(),
+          vervaldatum: moment("2026-12-31").toISOString(),
         }),
       );
       request.flush(null);
@@ -254,6 +291,37 @@ describe(BesluitEditComponent.name, () => {
         "msg.besluit.gewijzigd",
       );
       expect(emitSpy).toHaveBeenCalledWith(true);
+    });
+
+    it("includes the publication dates in the payload when publication is required", async () => {
+      await setupComponent(
+        makeBesluit({
+          besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
+            id: "besluittype-id-2",
+            naam: "Besluittype 2",
+            publication: { enabled: true, responseTermDays: 6 },
+          }),
+          publicationDate: "2026-02-01",
+          lastResponseDate: "2026-02-07",
+        }),
+      );
+      component["form"].controls.reden.setValue("Wijziging reden");
+
+      component["submit"]();
+      await sleep();
+
+      const request = httpTestingController.expectOne({
+        method: "PUT",
+        url: "/rest/zaken/besluit",
+      });
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          publicationDate: moment("2026-02-01").toISOString(),
+          lastResponseDate: moment("2026-02-07").toISOString(),
+        }),
+      );
+      request.flush(null);
+      await sleep(100);
     });
 
     it("shows an error and keeps the panel open when updating fails", async () => {
