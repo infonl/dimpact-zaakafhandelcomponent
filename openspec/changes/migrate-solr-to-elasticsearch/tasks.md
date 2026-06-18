@@ -6,23 +6,24 @@
 
 ## 2. Index mapping and bootstrap
 
-- [ ] 2.1 Define the Elasticsearch index mapping/template covering all `*ZoekObject` fields: Dutch-analysed text, keyword/exact variants, dates, integer/long/double, boolean, `geo_point` location, and a dynamic template for `zaak_betrokkene_*`
-- [ ] 2.2 Map the Solr catch-all behaviour (`text`/`text_exact`/`text_rev`) to `copy_to` targets or `multi_match` source fields
-- [ ] 2.3 Implement idempotent index bootstrap on startup (create index/template if absent, leave intact if present), replacing `SolrDeployerService` and the `SolrSchemaV1..V7` ladder
-- [ ] 2.4 Implement startup wait/retry until Elasticsearch is reachable before completing bootstrap
+- [ ] 2.1 Define three separate index mappings/templates — one per object type (`zaak`, `taak`, `document`) — each covering that type's `*ZoekObject` fields: Dutch-analysed text, keyword/exact variants, dates, integer/long/double, boolean, `geo_point` location (zaak), and a dynamic template for `zaak_betrokkene_*` (zaak)
+- [ ] 2.2 Map the Solr catch-all behaviour (`text`/`text_exact`/`text_rev`) to `copy_to` targets or `multi_match` source fields within each index mapping
+- [ ] 2.3 Decide and centralise the index naming convention and the type→index resolution (and the multi-index search target — explicit list, alias, or `zac-*` wildcard)
+- [ ] 2.4 Implement idempotent bootstrap on startup that creates each of the three indices/templates if absent and leaves intact if present, replacing `SolrDeployerService` and the `SolrSchemaV1..V7` ladder
+- [ ] 2.5 Implement startup wait/retry until Elasticsearch is reachable before completing bootstrap
 
 ## 3. Indexing service
 
-- [ ] 3.1 Re-implement single-object index/update in `IndexingService` against Elasticsearch, keyed by UUID
-- [ ] 3.2 Re-implement batch indexing using the bulk API
-- [ ] 3.3 Re-implement object deletion from the index
-- [ ] 3.4 Re-implement per-type reindex (ZAAK, TAAK, DOCUMENT) in batches
-- [ ] 3.5 Map `/indexeren/commit-pending-changes-to-search-index` to an index `refresh`
+- [ ] 3.1 Re-implement single-object index/update in `IndexingService` against Elasticsearch, routing to the index for the object's type, keyed by UUID
+- [ ] 3.2 Re-implement batch indexing using the bulk API, targeting the correct per-type index per document
+- [ ] 3.3 Re-implement object deletion from the type's index
+- [ ] 3.4 Re-implement per-type reindex (ZAAK, TAAK, DOCUMENT) in batches, each rebuilding only its own index
+- [ ] 3.5 Map `/indexeren/commit-pending-changes-to-search-index` to a `refresh` of the relevant index/indices
 - [ ] 3.6 Port/replace `SolrUtil.kt` query-escaping helpers with Elasticsearch-appropriate equivalents (or remove if handled by the typed client)
 
 ## 4. Search service
 
-- [ ] 4.1 Re-implement `SearchService.zoek()` to build an Elasticsearch `SearchRequest`, preserving the `RestZoekParameters` → `RestZoekResultaat` contract
+- [ ] 4.1 Re-implement `SearchService.zoek()` to build an Elasticsearch `SearchRequest` targeting all three indices (multi-index search), deriving each hit's object type from its origin index, preserving the `RestZoekParameters` → `RestZoekResultaat` contract
 - [ ] 4.2 Implement full-text (`ALLE`) and field-scoped search via `ZoekVeld` mapping with AND default operator
 - [ ] 4.3 Implement faceting over `FilterVeld` using `post_filter` + per-facet filtered aggregations (independent facet filtering), dropping zero-count buckets and supporting the `missing` bucket where required
 - [ ] 4.4 Implement multi-field sorting over `SorteerVeld` with deterministic fallback (created, then id)
@@ -32,7 +33,7 @@
 
 ## 5. Health check
 
-- [ ] 5.1 Replace `SolrReadinessHealthCheck` (`SolrPing`) with an Elasticsearch cluster-health / index-availability readiness check reporting UP/DOWN
+- [ ] 5.1 Replace `SolrReadinessHealthCheck` (`SolrPing`) with an Elasticsearch cluster-health / index-availability readiness check reporting UP only when the cluster and all three indices (zaak, taak, document) are available, DOWN otherwise
 
 ## 6. Deployment and configuration
 
@@ -52,7 +53,7 @@
 
 ## 8. Cutover and cleanup
 
-- [ ] 8.1 Run a full reindex of ZAAK, TAAK and DOCUMENT into Elasticsearch and verify counts/behaviour against Solr
+- [ ] 8.1 Run a full reindex of ZAAK, TAAK and DOCUMENT into their respective indices and verify per-index counts/behaviour against Solr
 - [ ] 8.2 Switch readiness/health and live traffic to Elasticsearch via the engine flag
 - [ ] 8.3 Remove the Solr code: `nl/info/zac/solr/SolrUtil.kt`, `net/atos/zac/solr/SolrDeployerService.java`, `SolrSchemaUpdateHelper.java`, `FieldType.java`, `SolrSchemaV1..V7.java`, and `SolrReadinessHealthCheck.kt`
 - [ ] 8.4 Remove the `org.apache.solr:solr-solrj` dependency and the engine-selection flag once cutover is confirmed

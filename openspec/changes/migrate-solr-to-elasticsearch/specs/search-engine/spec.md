@@ -2,36 +2,41 @@
 
 ### Requirement: Search index bootstrap
 
-The system SHALL provision an Elasticsearch index for zaken, taken and documenten on startup, applying a mapping that covers all indexed fields (Dutch-analysed text, exact/keyword variants, dates, integers/longs, doubles, booleans, geo-point location, multi-valued `betrokkene` fields, and catch-all/copy fields). The system SHALL wait for the search backend to become available before completing bootstrap, and SHALL be idempotent across restarts.
+The system SHALL provision three separate Elasticsearch indices on startup — one per object type (zaak, taak, document) — each applying a mapping that covers that type's indexed fields (Dutch-analysed text, exact/keyword variants, dates, integers/longs, doubles, booleans, geo-point location, multi-valued `betrokkene` fields, and catch-all/copy fields). The system SHALL wait for the search backend to become available before completing bootstrap, and SHALL be idempotent across restarts.
 
-#### Scenario: Index created on first startup
+#### Scenario: Indices created on first startup
 
-- **WHEN** the application starts and the configured Elasticsearch index does not yet exist
-- **THEN** the system creates the index with the full field mapping and reports readiness only after the index is available
+- **WHEN** the application starts and one or more of the configured Elasticsearch indices (zaak, taak, document) do not yet exist
+- **THEN** the system creates each missing index with its field mapping and reports readiness only after all three indices are available
 
-#### Scenario: Index already exists
+#### Scenario: Indices already exist
 
-- **WHEN** the application starts and the index already exists with the expected mapping
-- **THEN** the system completes bootstrap without recreating or clearing the index
+- **WHEN** the application starts and the indices already exist with the expected mappings
+- **THEN** the system completes bootstrap without recreating or clearing any index
 
 #### Scenario: Search backend not yet available
 
 - **WHEN** the search backend is unreachable at startup
 - **THEN** the system retries until the backend becomes available rather than failing permanently
 
+#### Scenario: One index missing on restart
+
+- **WHEN** the application restarts and the zaak and taak indices exist but the document index is missing
+- **THEN** the system creates only the missing document index and leaves the existing indices intact
+
 ### Requirement: Document indexing
 
-The system SHALL index zaak, taak and document objects into Elasticsearch, supporting indexing of a single object, a batch of objects, and removal of an object from the index. The system SHALL support an explicit commit/refresh so that just-indexed changes become searchable on demand.
+The system SHALL index zaak, taak and document objects into Elasticsearch, routing each object to the index for its type, supporting indexing of a single object, a batch of objects, and removal of an object from the index. The system SHALL support an explicit commit/refresh so that just-indexed changes become searchable on demand.
 
 #### Scenario: Index a single object
 
 - **WHEN** a zaak, taak or document is created or updated
-- **THEN** the corresponding document is added or replaced in the index keyed by its UUID
+- **THEN** the corresponding document is added or replaced in the index for its type, keyed by its UUID
 
 #### Scenario: Remove an object from the index
 
 - **WHEN** a zaak, taak or document is deleted
-- **THEN** its document is removed from the index and no longer appears in search results
+- **THEN** its document is removed from its type's index and no longer appears in search results
 
 #### Scenario: Commit pending changes
 
@@ -40,16 +45,16 @@ The system SHALL index zaak, taak and document objects into Elasticsearch, suppo
 
 ### Requirement: Reindexing by object type
 
-The system SHALL support a full reindex per object type (ZAAK, TAAK, DOCUMENT) so that all objects of a type can be rebuilt in the index, for use after a mapping change or on cutover.
+The system SHALL support a full reindex per object type (ZAAK, TAAK, DOCUMENT) so that all objects of a type can be rebuilt in that type's index, for use after a mapping change or on cutover, without affecting the other types' indices.
 
 #### Scenario: Reindex a type
 
 - **WHEN** an operator triggers reindexing for a given object type
-- **THEN** the system reindexes all objects of that type in batches and the index reflects the current source data
+- **THEN** the system reindexes all objects of that type in batches into that type's index, leaving the other indices untouched, and the index reflects the current source data
 
 ### Requirement: Full-text and field-scoped search
 
-The system SHALL execute search queries over the `/zoeken` REST contract, supporting full-text search across a catch-all field and field-scoped search via the existing `ZoekVeld` fields, using AND as the default operator between terms. The request and response shape (`RestZoekParameters` in, `RestZoekResultaat` of items + facets + pagination out) SHALL be preserved.
+The system SHALL execute search queries over the `/zoeken` REST contract by querying the zaak, taak and document indices together (multi-index search) so a single request returns mixed-type results ranked together, supporting full-text search across a catch-all field and field-scoped search via the existing `ZoekVeld` fields, using AND as the default operator between terms. Each result's object type SHALL be derived from its origin index. The request and response shape (`RestZoekParameters` in, `RestZoekResultaat` of items + facets + pagination out) SHALL be preserved.
 
 #### Scenario: Full-text search across all fields
 
@@ -91,11 +96,11 @@ The system SHALL support multi-field sorting over the `SorteerVeld` fields with 
 
 ### Requirement: Search backend readiness health check
 
-The system SHALL expose a readiness health check that reports the search backend as UP only when the Elasticsearch cluster/index is reachable and healthy, and DOWN otherwise.
+The system SHALL expose a readiness health check that reports the search backend as UP only when the Elasticsearch cluster is reachable and all three indices (zaak, taak, document) are available and healthy, and DOWN otherwise.
 
 #### Scenario: Backend healthy
 
-- **WHEN** the readiness probe runs and Elasticsearch is reachable and the index is available
+- **WHEN** the readiness probe runs and Elasticsearch is reachable and all three indices are available
 - **THEN** the health check reports UP
 
 #### Scenario: Backend unavailable
