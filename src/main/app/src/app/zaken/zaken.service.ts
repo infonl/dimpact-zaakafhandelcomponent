@@ -220,8 +220,8 @@ export class ZakenService {
     return this.zacQueryClient.PUT("/rest/zaken/besluit");
   }
 
-  intrekkenBesluit(body: PutBody<"/rest/zaken/besluit/intrekken">) {
-    return this.zacHttpClient.PUT("/rest/zaken/besluit/intrekken", body);
+  intrekkenBesluit() {
+    return this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken");
   }
 
   listBesluittypes(zaaktypeUUID: string) {
