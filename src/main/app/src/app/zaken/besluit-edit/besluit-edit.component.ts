@@ -39,8 +39,8 @@ import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
-import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-besluit-edit",
@@ -62,7 +62,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
   ],
 })
 export class BesluitEditComponent implements OnInit {
-  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly zakenService = inject(ZakenService);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -121,9 +121,10 @@ export class BesluitEditComponent implements OnInit {
 
   private vervaldatumMinValidator: ValidatorFn | null = null;
   private lastResponseDateMinValidator: ValidatorFn | null = null;
+  private documentsInitialised = false;
 
   protected readonly updateBesluitMutation = injectMutation(() => ({
-    ...this.zacQueryClient.PUT("/rest/zaken/besluit"),
+    ...this.zakenService.updateBesluit(),
     onSuccess: () => {
       this.utilService.openSnackbar("msg.besluit.gewijzigd");
       this.besluitGewijzigd.emit(true);
@@ -138,13 +139,15 @@ export class BesluitEditComponent implements OnInit {
 
     effect(() => {
       const documenten = this.documentenQuery.data();
-      if (!documenten) return;
+      if (!documenten || this.documentsInitialised) return;
+      this.documentsInitialised = true;
 
       const checkedUuids = new Set(
         this.besluit().informatieobjecten?.map(({ uuid }) => uuid),
       );
       this.form.controls.documenten.setValue(
         documenten.filter(({ uuid }) => checkedUuids.has(uuid)),
+        { emitEvent: false },
       );
     });
 
@@ -209,7 +212,8 @@ export class BesluitEditComponent implements OnInit {
       toelichting,
       ingangsdatum: ingangsdatum?.toISOString(),
       vervaldatum: vervaldatum?.toISOString(),
-      informatieobjecten: documenten?.map(({ uuid }) => uuid!) ?? [],
+      informatieobjecten:
+        documenten?.map(({ uuid }) => uuid!).filter(Boolean) ?? [],
       ...(besluit.besluittype?.publication.enabled
         ? {
             publicationDate: publicationDate?.toISOString(),

@@ -82,6 +82,11 @@ describe(BesluitEditComponent.name, () => {
     componentRef.setInput("zaak", fromPartial({ uuid: "zaak-uuid-1" }));
     componentRef.setInput("besluit", besluit);
 
+    testQueryClient.setQueryData(
+      ["besluit-documenten", "zaak-uuid-1", besluit.besluittype?.id],
+      mockDocuments,
+    );
+
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
     await fixture.whenStable();
