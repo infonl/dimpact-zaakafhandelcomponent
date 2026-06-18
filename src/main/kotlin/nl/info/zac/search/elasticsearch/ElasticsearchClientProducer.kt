@@ -19,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Disposes
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -71,8 +72,10 @@ class ElasticsearchClientProducer @Inject constructor(
                 .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
     }
 
+    // Produced as @Singleton (a pseudo-scope) rather than @ApplicationScoped because the Elasticsearch client
+    // is a final class and CDI cannot create a client proxy for a normal-scoped final type (WELD-001410).
     @Produces
-    @ApplicationScoped
+    @Singleton
     fun produceElasticsearchClient(): ElasticsearchClient {
         LOG.info("Creating Elasticsearch client for URL '$elasticsearchUrl'")
         val restClientBuilder = RestClient.builder(HttpHost.create(elasticsearchUrl))
