@@ -124,7 +124,7 @@ The categories we use for selecting an element:
 You can use the Playwright Codegen tool to generate e2e tests. This is a great way to get started with e2e tests. You 
 can find more information about this tool [here](https://playwright.dev/docs/codegen).
 
-you can run the following command to generate a test with taking the INFO.nl test environment as a base:
+You can run the following command to generate a test with taking the INFO.nl test environment as a base:
 
 ```shell
 npx playwright codegen https://zaakafhandelcomponent-zac-dev.dimpact.lifely.nl
