@@ -8,6 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.enterprise.inject.Instance
+import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createNotitieRechten
 import nl.info.zac.policy.output.createOverigeRechten
@@ -15,7 +17,8 @@ import nl.info.zac.policy.output.createWerklijstRechten
 
 class PolicyRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
-    val policyRestService = PolicyRestService(policyService)
+    val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val policyRestService = PolicyRestService(policyService, loggedInUserInstance)
 
     Given("Existing werklijst rechten") {
         val werklijstRechten = createWerklijstRechten()

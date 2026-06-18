@@ -10,10 +10,12 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.opa.model.RuleQuery
 import nl.info.client.opa.model.RuleResponse
+import nl.info.zac.policy.input.BrpInput
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakInput
 import nl.info.zac.policy.input.UserInput
 import nl.info.zac.policy.input.ZaakInput
+import nl.info.zac.policy.output.BrpRechten
 import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.policy.output.NotitieRechten
 import nl.info.zac.policy.output.OverigeRechten
@@ -49,4 +51,8 @@ interface OpaEvaluationClient {
     @POST
     @Path("werklijst/werklijst_rechten")
     fun readWerklijstRechten(query: RuleQuery<UserInput>): RuleResponse<WerklijstRechten>
+
+    @POST
+    @Path("brp/brp_rechten")
+    fun readBrpRechten(query: RuleQuery<BrpInput>): RuleResponse<BrpRechten>
 }

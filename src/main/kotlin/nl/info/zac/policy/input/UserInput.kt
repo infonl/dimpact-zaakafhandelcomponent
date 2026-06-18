@@ -9,7 +9,7 @@ import nl.info.zac.authentication.LoggedInUser
 
 open class UserInput(
     loggedInUser: LoggedInUser,
-    zaaktype: String? = null
+    zaaktype: String? = null,
 ) {
     @field:JsonbProperty("user")
     val user = UserData(
@@ -24,6 +24,7 @@ open class UserInput(
         // this can only ever be a single zaaktype, because zaaktype-specific policy
         // checks are always evaluated in the context of a single specific zaaktype
         // we should refactor this variable to 'zaaktype'
-        zaaktypen = zaaktype?.let { setOf(it) }
+        zaaktypen = zaaktype?.let { setOf(it) },
+        brpGemeenteCodes = loggedInUser.brpGemeentes.map { it.key }.toSet(),
     )
 }

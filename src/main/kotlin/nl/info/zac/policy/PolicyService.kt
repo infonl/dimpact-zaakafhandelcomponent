@@ -27,6 +27,7 @@ import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockSe
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.input.BrpInput
 import nl.info.zac.policy.input.DocumentData
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakData
@@ -229,6 +230,16 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get()
+                )
+            )
+        ).result
+
+    fun readBrpRechten(gemeenteCode: String?) =
+        evaluationClient.readBrpRechten(
+            RuleQuery(
+                BrpInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    gemeenteCode = gemeenteCode,
                 )
             )
         ).result

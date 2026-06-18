@@ -75,7 +75,6 @@ describe(ToolbarComponent.name, () => {
       startenZaak: true,
       beheren: false,
       zoeken: false,
-      brpZoeken: false,
     });
     jest.spyOn(policyService, "readWerklijstRechten").mockReturnValue(
       of(
@@ -124,7 +123,7 @@ describe(ToolbarComponent.name, () => {
     it("is not rendered when overigeRechten.startenZaak is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: false, brpZoeken: false },
+        { startenZaak: false, beheren: false, zoeken: false },
       );
       createComponent();
 
@@ -201,7 +200,7 @@ describe(ToolbarComponent.name, () => {
     it("is rendered when overigeRechten.zoeken is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+        { startenZaak: false, beheren: false, zoeken: true },
       );
       createComponent();
 
@@ -223,7 +222,7 @@ describe(ToolbarComponent.name, () => {
     it("shows the clear button when hasSearched is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+        { startenZaak: false, beheren: false, zoeken: true },
       );
       createComponent();
       TestBed.inject(ZoekenService).hasSearched.set(true);
@@ -240,7 +239,7 @@ describe(ToolbarComponent.name, () => {
     it("shows the search icon when hasSearched is false", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: false, zoeken: true, brpZoeken: false },
+        { startenZaak: false, beheren: false, zoeken: true },
       );
       createComponent();
 
@@ -257,7 +256,7 @@ describe(ToolbarComponent.name, () => {
     it("is rendered when overigeRechten.beheren is true", async () => {
       testQueryClient.setQueryData(
         policyService.readOverigeRechten().queryKey,
-        { startenZaak: false, beheren: true, zoeken: false, brpZoeken: false },
+        { startenZaak: false, beheren: true, zoeken: false },
       );
       createComponent();
 

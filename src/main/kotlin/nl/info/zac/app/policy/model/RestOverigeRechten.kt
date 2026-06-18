@@ -9,13 +9,11 @@ import nl.info.zac.policy.output.OverigeRechten
 data class RestOverigeRechten(
     val startenZaak: Boolean,
     val beheren: Boolean,
-    val zoeken: Boolean,
-    val brpZoeken: Boolean
+    val zoeken: Boolean
 )
 
 fun OverigeRechten.toRestOverigeRechten() = RestOverigeRechten(
     startenZaak = this.startenZaak,
     beheren = this.beheren,
-    zoeken = this.zoeken,
-    brpZoeken = this.brpZoeken
+    zoeken = this.zoeken
 )

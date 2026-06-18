@@ -13,10 +13,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { PolicyService } from "src/app/policy/policy.service";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "src/app/shared/material/material.module";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -58,6 +61,7 @@ describe(PersoonZoekComponent.name, () => {
             notifyItemSelected: jest.fn(),
           },
         },
+        provideTanStackQuery(testQueryClient),
       ],
     }).compileComponents();
 
@@ -88,6 +92,8 @@ describe(PersoonZoekComponent.name, () => {
     jest
       .spyOn(configuratieService, "readGemeenteCode")
       .mockReturnValue(of("1234"));
+
+    TestBed.inject(PolicyService);
 
     fixture = TestBed.createComponent(PersoonZoekComponent);
     component = fixture.componentInstance;

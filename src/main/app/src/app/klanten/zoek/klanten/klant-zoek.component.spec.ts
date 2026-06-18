@@ -93,8 +93,10 @@ describe(KlantZoekComponent.name, () => {
     policyService = TestBed.inject(PolicyService);
 
     testQueryClient.setQueryData(
-      policyService.readOverigeRechten().queryKey,
-      fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+      policyService.readBrpRechten().queryKey,
+      fromPartial<GeneratedType<"RestBrpRechten">>({
+        zoeken: true,
+      }),
     );
 
     fixture = TestBed.createComponent(KlantZoekComponent);
@@ -199,9 +201,9 @@ describe(KlantZoekComponent.name, () => {
     describe("when brpZoeken is false", () => {
       beforeEach(() => {
         testQueryClient.setQueryData(
-          policyService.readOverigeRechten().queryKey,
-          fromPartial<GeneratedType<"RestOverigeRechten">>({
-            brpZoeken: false,
+          policyService.readBrpRechten().queryKey,
+          fromPartial<GeneratedType<"RestBrpRechten">>({
+            zoeken: false,
           }),
         );
         fixture = TestBed.createComponent(KlantZoekComponent);

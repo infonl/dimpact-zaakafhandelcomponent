@@ -42,7 +42,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
-import nl.info.zac.policy.output.createOverigeRechten
+import nl.info.zac.policy.output.createBrpRechten
 import java.time.LocalDate
 import java.util.UUID
 
@@ -919,7 +919,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -941,7 +941,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -959,7 +959,26 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("The logged-in user does not have the brpZoeken permission") {
             val restListPersonenParameters = RestListPersonenParameters(bsn = "123456789")
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten(brpZoeken = false)
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten(zoeken = false)
+
+            When("listPersonen is called") {
+                val exception = shouldThrow<PolicyException> {
+                    klantRestService.listPersonen(restListPersonenParameters)
+                }
+
+                Then("a PolicyException should be thrown") {
+                    exception::class shouldBe PolicyException::class
+                }
+            }
+        }
+
+        Given("The logged-in user does not have the brpZoeken permission for the specified gemeenteVanInschrijving") {
+            val restListPersonenParameters =
+                RestListPersonenParameters(bsn = "123456789", gemeenteVanInschrijving = "12345")
+
+            every {
+                policyService.readBrpRechten(gemeenteCode = restListPersonenParameters.gemeenteVanInschrijving)
+            } returns createBrpRechten(zoeken = false)
 
             When("listPersonen is called") {
                 val exception = shouldThrow<PolicyException> {
@@ -983,7 +1002,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.queryPersonen(any(), any(), any())

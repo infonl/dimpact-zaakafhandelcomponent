@@ -14,8 +14,11 @@ import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
+import nl.info.client.pabc.APPLICATION_NAME_ZAC
+import nl.info.client.pabc.ENTITY_TYPE_GEMEENTE
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.wildfly.security.http.oidc.OidcPrincipal
@@ -25,6 +28,7 @@ import java.util.logging.Logger
 private data class ApplicationRoleMappings(
     val rolesPerZaaktype: Map<String, Set<String>>,
     val overallRoles: Set<String>,
+    val brpGemeentes: Map<String, String>,
 )
 
 @ApplicationScoped
@@ -94,7 +98,11 @@ constructor(
             val applicationRoleMappings = if (functionalRoles.isNotEmpty()) {
                 buildApplicationRoleMappingsFromPabc(functionalRoles)
             } else {
-                ApplicationRoleMappings(rolesPerZaaktype = emptyMap(), overallRoles = emptySet())
+                ApplicationRoleMappings(
+                    rolesPerZaaktype = emptyMap(),
+                    overallRoles = emptySet(),
+                    brpGemeentes = emptyMap()
+                )
             }
             val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
 
@@ -110,6 +118,7 @@ constructor(
                     .toSet(),
                 applicationRolesPerZaaktype = applicationRolesPerZaaktype,
                 overallRoles = applicationRoleMappings.overallRoles,
+                brpGemeentes = applicationRoleMappings.brpGemeentes,
             )
         }
 
@@ -144,9 +153,21 @@ constructor(
                 .filter { it.isNotEmpty() }
                 .toSet()
 
+        val brpGemeentes = applicationRolesResponse.results
+            .filter {
+                it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE, ignoreCase = true) &&
+                    !it.entityType?.id.isNullOrBlank() &&
+                    it.applicationRoles.any {
+                        it.application.equals(APPLICATION_NAME_ZAC, ignoreCase = true) &&
+                            it.name.equals(ROLE_NAME_BRP_ZOEKEN, ignoreCase = true)
+                    }
+            }
+            .associate { it.entityType.id to it.entityType.name }
+
         return ApplicationRoleMappings(
             rolesPerZaaktype = rolesPerZaaktype,
-            overallRoles = overallRoles
+            overallRoles = overallRoles,
+            brpGemeentes = brpGemeentes,
         )
     }
 }
