@@ -18,7 +18,11 @@
     <zac-date [form]="form" key="ingangsdatum" />
     <zac-date [form]="form" key="vervaldatum" />
     <zac-textarea [form]="form" key="toelichting" label="besluitToelichting" />
-    <zac-documents [form]="form" key="documenten" [options]="documenten()" />
+    <zac-documents
+      [form]="form"
+      key="documenten"
+      [options]="documentenQuery.data() ?? []"
+    />
   </fieldset>
 
   @if (showPublicationSection()) {

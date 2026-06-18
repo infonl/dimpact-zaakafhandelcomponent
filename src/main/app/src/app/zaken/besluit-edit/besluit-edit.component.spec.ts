@@ -85,6 +85,9 @@ describe(BesluitEditComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
     fixture.detectChanges();
     await fixture.whenStable();
+    await sleep();
+    fixture.detectChanges();
+    await fixture.whenStable();
   };
 
   beforeEach(async () => {

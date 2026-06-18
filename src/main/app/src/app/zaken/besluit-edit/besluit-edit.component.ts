@@ -7,10 +7,10 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   output,
-  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -27,9 +27,12 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { lastValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -37,8 +40,8 @@ import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
 
 @Component({
   selector: "zac-besluit-edit",
@@ -61,7 +64,7 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class BesluitEditComponent implements OnInit {
-  private readonly zakenService = inject(ZakenService);
+  private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
@@ -78,9 +81,20 @@ export class BesluitEditComponent implements OnInit {
     () => this.besluit().besluittype?.publication.enabled ?? false,
   );
 
-  protected readonly documenten = signal<
-    GeneratedType<"RestEnkelvoudigInformatieobject">[]
-  >([]);
+  protected readonly documentenQuery = injectQuery(() => {
+    const besluittypeId = this.besluit().besluittype?.id;
+    return {
+      queryKey: ["besluit-documenten", this.zaak().uuid, besluittypeId],
+      queryFn: () =>
+        firstValueFrom(
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+            zaakUUID: this.zaak().uuid,
+            besluittypeUUID: besluittypeId!,
+          }),
+        ),
+      enabled: Boolean(besluittypeId),
+    };
+  });
 
   protected readonly form = this.formBuilder.group({
     besluittype: this.formBuilder.control<string | null>({
@@ -111,8 +125,7 @@ export class BesluitEditComponent implements OnInit {
   private lastResponseDateMinValidator: ValidatorFn | null = null;
 
   protected readonly updateBesluitMutation = injectMutation(() => ({
-    mutationFn: (data: GeneratedType<"RestBesluitChangeData">) =>
-      lastValueFrom(this.zakenService.updateBesluit(data)),
+    ...this.zacQueryClient.PUT("/rest/zaken/besluit"),
     onSuccess: () => {
       this.utilService.openSnackbar("msg.besluit.gewijzigd");
       this.besluitGewijzigd.emit(true);
@@ -124,6 +137,18 @@ export class BesluitEditComponent implements OnInit {
     this.form.controls.vervaldatum.addValidators(
       this.vervaldatumNotBeforeIngangsdatum,
     );
+
+    effect(() => {
+      const documenten = this.documentenQuery.data();
+      if (!documenten) return;
+
+      const checkedUuids = new Set(
+        this.besluit().informatieobjecten?.map(({ uuid }) => uuid),
+      );
+      this.form.controls.documenten.setValue(
+        documenten.filter(({ uuid }) => checkedUuids.has(uuid)),
+      );
+    });
 
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
@@ -167,20 +192,6 @@ export class BesluitEditComponent implements OnInit {
     );
 
     this.setVervaldatumMinDate(this.form.controls.ingangsdatum.value);
-
-    const besluittypeId = besluit.besluittype?.id;
-    if (!besluittypeId) return;
-
-    this.listInformatieObjecten(besluittypeId).subscribe((documenten) => {
-      this.documenten.set(documenten);
-
-      const checkedUuids = new Set(
-        besluit.informatieobjecten?.map(({ uuid }) => uuid),
-      );
-      this.form.controls.documenten.setValue(
-        documenten.filter(({ uuid }) => checkedUuids.has(uuid)),
-      );
-    });
   }
 
   protected submit() {
@@ -208,13 +219,6 @@ export class BesluitEditComponent implements OnInit {
           }
         : {}),
       reden,
-    });
-  }
-
-  private listInformatieObjecten(besluittypeUUID: string) {
-    return this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-      zaakUUID: this.zaak().uuid,
-      besluittypeUUID,
     });
   }
 
