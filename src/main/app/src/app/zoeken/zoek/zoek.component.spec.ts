@@ -200,7 +200,6 @@ describe(ZoekComponent.name, () => {
     let policyService: PolicyService;
 
     beforeEach(async () => {
-
       policyService = TestBed.inject(PolicyService);
 
       testQueryClient.setQueryData(
