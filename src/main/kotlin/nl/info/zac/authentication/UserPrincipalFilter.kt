@@ -28,7 +28,7 @@ import java.util.logging.Logger
 private data class ApplicationRoleMappings(
     val rolesPerZaaktype: Map<String, Set<String>>,
     val overallRoles: Set<String>,
-    val brpGemeentes: Map<String, String>,
+    val brpGemeenten: Map<String, String>,
 )
 
 @ApplicationScoped
@@ -101,7 +101,7 @@ constructor(
                 ApplicationRoleMappings(
                     rolesPerZaaktype = emptyMap(),
                     overallRoles = emptySet(),
-                    brpGemeentes = emptyMap()
+                    brpGemeenten = emptyMap()
                 )
             }
             val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
@@ -118,7 +118,7 @@ constructor(
                     .toSet(),
                 applicationRolesPerZaaktype = applicationRolesPerZaaktype,
                 overallRoles = applicationRoleMappings.overallRoles,
-                brpGemeentes = applicationRoleMappings.brpGemeentes,
+                brpGemeenten = applicationRoleMappings.brpGemeenten,
             )
         }
 
@@ -153,7 +153,7 @@ constructor(
                 .filter { it.isNotEmpty() }
                 .toSet()
 
-        val brpGemeentes = applicationRolesResponse.results
+        val brpGemeenten = applicationRolesResponse.results
             .filter {
                 it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE, ignoreCase = true) &&
                     !it.entityType?.id.isNullOrBlank() &&
@@ -167,7 +167,7 @@ constructor(
         return ApplicationRoleMappings(
             rolesPerZaaktype = rolesPerZaaktype,
             overallRoles = overallRoles,
-            brpGemeentes = brpGemeentes,
+            brpGemeenten = brpGemeenten,
         )
     }
 }

@@ -116,8 +116,8 @@ export class KlantenService {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
-  listBrpGemeentes() {
-    return this.zacQueryClient.GET("/rest/klanten/personen/gemeentes");
+  listBrpGemeenten() {
+    return this.zacQueryClient.GET("/rest/klanten/personen/gemeenten");
   }
 
   /* istanbul ignore next */

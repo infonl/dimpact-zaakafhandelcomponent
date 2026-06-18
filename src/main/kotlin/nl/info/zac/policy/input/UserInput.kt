@@ -26,6 +26,6 @@ open class UserInput(
         // checks are always evaluated in the context of a single specific zaaktype
         // we should refactor this variable to 'zaaktype'
         zaaktypen = zaaktype?.let { setOf(it) },
-        brpGemeenteCodes = loggedInUser.brpGemeentes.map { it.key }.toSet(),
+        brpGemeenteCodes = loggedInUser.brpGemeenten.map { it.key }.toSet(),
     )
 }

@@ -12,5 +12,5 @@ data class RestBrpRechten(
 )
 
 fun LoggedInUser.toRestBrpRechten() = RestBrpRechten(
-    zoeken = this.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) || this.brpGemeentes.any(),
+    zoeken = this.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) || this.brpGemeenten.any(),
 )

@@ -7,6 +7,7 @@ import { NgIf } from "@angular/common";
 import {
   Component,
   computed,
+  effect,
   EventEmitter,
   input,
   Input,
@@ -120,11 +121,11 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     ]),
   });
 
-  private readonly brpGemeentesQuery = injectQuery(() =>
-    this.klantenService.listBrpGemeentes(),
+  private readonly brpGemeentenQuery = injectQuery(() =>
+    this.klantenService.listBrpGemeenten(),
   );
-  protected readonly brpGemeentes = computed(
-    () => this.brpGemeentesQuery.data() || [],
+  protected readonly brpGemeenten = computed(
+    () => this.brpGemeentenQuery.data() || [],
   );
 
   constructor(
@@ -150,6 +151,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         };
         this.updateControls(this.getValidQueries(parameters, false));
       });
+
+    effect(() => {
+      const gemeenten = this.brpGemeenten();
+      if (gemeenten.length === 1) {
+        this.formGroup.controls.gemeenteVanInschrijving.setValue(gemeenten[0]);
+      }
+    });
   }
 
   ngOnInit() {
