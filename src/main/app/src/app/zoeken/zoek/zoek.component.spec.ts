@@ -205,7 +205,7 @@ describe(ZoekComponent.name, () => {
         set: {
           template: `
             <button
-              *ngIf="brpRechtenQuery.data()?.brpZoeken"
+              *ngIf="brpRechtenQuery.data()?.zoeken"
               id="personen-button">
             </button>
           `,
