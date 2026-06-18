@@ -53,7 +53,11 @@
   },
   "overrides": {
     "chokidar": "5.0.0",
-    "tar": "^7.5.8"
+    "tar": "^7.5.8",
+    "dompurify": "^3.4.11",
+    "http-proxy-middleware": "^3.0.7",
+    "serialize-javascript": "^7.0.6",
+    "webpack-dev-server": "^5.2.5"
   },
   "devDependencies": {
     "@angular-builders/jest": "19.0.1",
