@@ -286,7 +286,7 @@ jobs:
           retention-days: 1
 
       - name: Compress frontend build artefacts
-        run: tar czf frontend-artefacts.tar.gz -C src/main/app node_modules src/generated/types
+        run: tar czf frontend-artefacts.tar.gz -C src/main/app/node_modules src/main/app/src/generated/types
 
       - name: Upload frontend build artefacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
