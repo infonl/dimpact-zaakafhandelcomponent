@@ -74,7 +74,8 @@ class RESTPlanItemConverter @Inject constructor(
                         formulierDefinitie = FormulierDefinitie.valueOf(fd)
                     }
                     it.getReferentieTabellen().forEach { rt ->
-                        tabellen[rt.veld] = rt.tabel!!.values.map(ReferenceTableValue::name)
+                        val tabel = rt.tabel ?: return@forEach
+                        tabellen[rt.veld] = tabel.values.map(ReferenceTableValue::name)
                     }
                     groepId = it.groepID
                     it.doorlooptijd?.let { days ->

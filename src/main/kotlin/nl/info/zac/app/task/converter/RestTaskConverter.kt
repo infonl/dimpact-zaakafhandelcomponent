@@ -127,8 +127,9 @@ class RestTaskConverter @Inject constructor(
     ) {
         restTask.formulierDefinitieId = zaaktypeCmmnHumantaskParameters.getFormulierDefinitieID()
         zaaktypeCmmnHumantaskParameters.getReferentieTabellen().forEach { humanTaskReferentieTabel ->
-            restTask.tabellen[humanTaskReferentieTabel.veld!!] = humanTaskReferentieTabel.tabel!!.values
-                .map { it.name }
+            val veld = humanTaskReferentieTabel.veld ?: return@forEach
+            val tabel = humanTaskReferentieTabel.tabel ?: return@forEach
+            restTask.tabellen[veld] = tabel.values.map { it.name }
         }
     }
 }
