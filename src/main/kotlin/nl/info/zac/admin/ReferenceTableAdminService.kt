@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import nl.info.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
@@ -18,14 +20,14 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @ApplicationScoped
-@Transactional(Transactional.TxType.SUPPORTS)
+@Transactional(SUPPORTS)
 @NoArgConstructor
 @AllOpen
 class ReferenceTableAdminService @Inject constructor(
     private val entityManager: EntityManager,
     private val referenceTableService: ReferenceTableService
 ) {
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional(REQUIRED)
     fun createReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         referenceTableService.findReferenceTable(referenceTable.code)?.run {
             throw InputValidationFailedException(ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS)
@@ -33,7 +35,7 @@ class ReferenceTableAdminService @Inject constructor(
         return entityManager.merge(referenceTable)
     }
 
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional(REQUIRED)
     fun updateReferenceTable(referenceTable: ReferenceTable): ReferenceTable {
         // check if there is already a different reference table, i.e. one with a different id, but with the same code
         referenceTableService.findReferenceTable(referenceTable.code)?.run {
@@ -44,7 +46,7 @@ class ReferenceTableAdminService @Inject constructor(
         return entityManager.merge(referenceTable)
     }
 
-    @Transactional(Transactional.TxType.REQUIRED)
+    @Transactional(REQUIRED)
     @Suppress("NestedBlockDepth")
     fun deleteReferenceTable(id: Long) {
         val referenceTable = referenceTableService.readReferenceTable(id).also {

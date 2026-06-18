@@ -8,13 +8,15 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType.REQUIRED
+import jakarta.transaction.Transactional.TxType.SUPPORTS
 import net.atos.zac.util.ValidationUtil.validateObject
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @ApplicationScoped
-@Transactional
+@Transactional(SUPPORTS)
 @AllOpen
 @NoArgConstructor
 class MailTemplateKoppelingenService @Inject constructor(
@@ -23,10 +25,12 @@ class MailTemplateKoppelingenService @Inject constructor(
     fun find(id: Long): ZaaktypeCmmnMailtemplateParameters? =
         entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id)
 
+    @Transactional(REQUIRED)
     fun delete(id: Long) {
         find(id)?.let { entityManager.remove(it) }
     }
 
+    @Transactional(REQUIRED)
     fun storeMailtemplateKoppeling(
         zaaktypeCmmnMailtemplateParameters: ZaaktypeCmmnMailtemplateParameters
     ): ZaaktypeCmmnMailtemplateParameters {

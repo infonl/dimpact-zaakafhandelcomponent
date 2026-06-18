@@ -326,7 +326,8 @@ class DetachedDocumentRepository
 Use proper Transaction annotations in Kotlin service classes.
 Follow these rules:
 - Use `@Transactional(SUPPORTS)` at class level when a service class contains functions that update data in the database.
-- Use `@Transactional(REQUIRED)` at function level for functions that update data in the database.
+- Use `@Transactional(REQUIRED)` at function level for functions that update data in the database (create, update, delete)
+- Read functions do not need a `@Transactional` annotation.
 - Do not use any transactional annotations at function level for functions that only read from the database. 
 For these functions, the transactional annotation at class level is used.
 
