@@ -15,6 +15,7 @@ import nl.info.zac.itest.client.encodeUrlPathSegment
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_INACTIVE_GROUP_1
+import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.COORDINATOR_2
@@ -145,6 +146,11 @@ class IdentityServiceTest : BehaviorSpec({
                                     "active": true
                                 },
                                 {
+                                    "active": true,
+                                    "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
+                                    "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
+                                },
+                                {
                                     "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
                                     "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
                                     "active": true
@@ -228,6 +234,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${BEHANDELAAR_INACTIVE_GROUP_1.username}",
                                     "naam": "${BEHANDELAAR_INACTIVE_GROUP_1.displayName}"
+                                },
+                                {
+                                    "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
+                                    "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
                                 }
                             ]
                     """.trimIndent()
