@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.admin.model.HumanTaskReferentieTabel
+import nl.info.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_WITH_SAME_CODE_ALREADY_EXISTS

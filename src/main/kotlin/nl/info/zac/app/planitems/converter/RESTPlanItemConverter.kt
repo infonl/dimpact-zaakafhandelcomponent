@@ -5,10 +5,10 @@
 package nl.info.zac.app.planitems.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.FormulierDefinitie
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.app.planitems.model.PlanItemType
@@ -74,7 +74,7 @@ class RESTPlanItemConverter @Inject constructor(
                         formulierDefinitie = FormulierDefinitie.valueOf(fd)
                     }
                     it.getReferentieTabellen().forEach { rt ->
-                        tabellen[rt.veld] = rt.tabel.values.map(ReferenceTableValue::name)
+                        tabellen[rt.veld] = rt.tabel!!.values.map(ReferenceTableValue::name)
                     }
                     groepId = it.groepID
                     it.doorlooptijd?.let { days ->

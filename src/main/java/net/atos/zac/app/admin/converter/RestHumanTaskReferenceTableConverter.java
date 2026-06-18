@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 
-import net.atos.zac.admin.model.FormulierVeldDefinitie;
-import net.atos.zac.admin.model.HumanTaskReferentieTabel;
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable;
 import nl.info.zac.admin.ReferenceTableService;
+import nl.info.zac.admin.model.FormulierVeldDefinitie;
+import nl.info.zac.admin.model.HumanTaskReferentieTabel;
 import nl.info.zac.admin.model.ReferenceTable;
 import nl.info.zac.admin.model.ReferenceTableKt;
 

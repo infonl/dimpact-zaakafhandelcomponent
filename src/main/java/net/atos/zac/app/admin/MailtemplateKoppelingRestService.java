@@ -21,9 +21,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.admin.MailTemplateKoppelingenService;
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
+import nl.info.zac.admin.MailTemplateKoppelingenService;
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter;
 import nl.info.zac.policy.PolicyService;
@@ -32,7 +32,7 @@ import nl.info.zac.policy.PolicyService;
 @Path("beheer/mailtemplatekoppeling")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class MailtemplateKoppelingRESTService {
+public class MailtemplateKoppelingRestService {
     private MailTemplateKoppelingenService mailTemplateKoppelingenService;
     private RestZaakafhandelParametersConverter restZaakafhandelParametersConverter;
     private PolicyService policyService;
@@ -40,11 +40,11 @@ public class MailtemplateKoppelingRESTService {
     /**
      * No-arg constructor for CDI.
      */
-    public MailtemplateKoppelingRESTService() {
+    public MailtemplateKoppelingRestService() {
     }
 
     @Inject
-    public MailtemplateKoppelingRESTService(
+    public MailtemplateKoppelingRestService(
             final MailTemplateKoppelingenService mailTemplateKoppelingenService,
             final RestZaakafhandelParametersConverter restZaakafhandelParametersConverter,
             final PolicyService policyService

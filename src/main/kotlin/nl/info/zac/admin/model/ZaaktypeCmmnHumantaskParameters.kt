@@ -19,7 +19,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.app.planitems.converter.toFormulierDefinitie
 import nl.info.zac.database.flyway.FlywayIntegrator.Companion.SCHEMA
 import nl.info.zac.util.AllOpen
@@ -89,7 +88,7 @@ class ZaaktypeCmmnHumantaskParameters :
     }
 
     private fun addReferentieTabel(referentieTabel: HumanTaskReferentieTabel): Boolean {
-        referentieTabel.setHumantask(this)
+        referentieTabel.humantask = this
         return referentieTabellen.add(referentieTabel)
     }
 
