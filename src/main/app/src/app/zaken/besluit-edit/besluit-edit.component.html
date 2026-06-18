@@ -12,7 +12,12 @@
 </mat-toolbar>
 <mat-divider />
 
-<form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="sideNav().close()"
+  class="mt-2"
+>
   <fieldset>
     <zac-input [form]="form" key="besluittype" label="besluit" />
     <zac-date [form]="form" key="ingangsdatum" />
@@ -26,21 +31,17 @@
   </fieldset>
 
   @if (showPublicationSection()) {
-    <section>
-      <mat-divider />
-      <fieldset>
-        <p class="mb-2">
-          {{ "besluit.publicatie.indicatie.koptitel" | translate }}
-        </p>
-        <zac-date [form]="form" key="publicationDate" label="publicatiedatum" />
-        <zac-date
-          [form]="form"
-          key="lastResponseDate"
-          label="uiterlijkereactiedatum"
-        />
-      </fieldset>
-      <mat-divider />
-    </section>
+    <fieldset>
+      <p class="mb-2">
+        {{ "besluit.publicatie.indicatie.koptitel" | translate }}
+      </p>
+      <zac-date [form]="form" key="publicationDate" label="publicatiedatum" />
+      <zac-date
+        [form]="form"
+        key="lastResponseDate"
+        label="uiterlijkereactiedatum"
+      />
+    </fieldset>
   }
 
   <fieldset>
@@ -48,26 +49,10 @@
   </fieldset>
 
   <fieldset>
-    <mat-action-row>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="form.invalid || updateBesluitMutation.isPending()"
-      >
-        @if (updateBesluitMutation.isPending()) {
-          <mat-icon><mat-spinner diameter="18"></mat-spinner></mat-icon>
-        }
-        {{ "actie.wijzigen" | translate }}
-      </button>
-      <button
-        mat-raised-button
-        type="button"
-        [disabled]="updateBesluitMutation.isPending()"
-        (click)="sideNav().close()"
-      >
-        {{ "actie.annuleren" | translate }}
-      </button>
-    </mat-action-row>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="updateBesluitMutation"
+      submitLabel="actie.wijzigen"
+    />
   </fieldset>
 </form>

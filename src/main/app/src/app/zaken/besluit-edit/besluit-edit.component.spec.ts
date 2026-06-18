@@ -195,11 +195,15 @@ describe(BesluitEditComponent.name, () => {
     });
   });
 
+  const countDateFields = () =>
+    fixture.nativeElement.querySelectorAll("zac-date").length;
+
   describe("publication section", () => {
     it("is hidden when the besluittype does not require publication", async () => {
       await setupComponent();
 
-      expect(fixture.nativeElement.querySelector("form > section")).toBeNull();
+      // Only ingangsdatum and vervaldatum are rendered.
+      expect(countDateFields()).toBe(2);
     });
 
     it("is shown when the besluittype requires publication", async () => {
@@ -213,9 +217,8 @@ describe(BesluitEditComponent.name, () => {
         }),
       );
 
-      expect(
-        fixture.nativeElement.querySelector("form > section"),
-      ).not.toBeNull();
+      // ingangsdatum, vervaldatum + publicationDate, lastResponseDate.
+      expect(countDateFields()).toBe(4);
     });
   });
 
