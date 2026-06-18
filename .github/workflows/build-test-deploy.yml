@@ -285,13 +285,14 @@ jobs:
             src/generated
           retention-days: 1
 
+      - name: Compress frontend build artefacts
+        run: tar czf frontend-artefacts.tar.gz -C src/main/app node_modules src/generated/types
+
       - name: Upload frontend build artefacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: frontend-artefacts
-          path: |
-            src/main/app/node_modules
-            src/main/app/src/generated/types
+          path: frontend-artefacts.tar.gz
           retention-days: 1
 
       - name: Upload built ZAC JAR
@@ -328,13 +329,13 @@ jobs:
           name: gradle-build
           path: build
 
-      - name: Download built frontend artefacts
+      - name: Download frontend build artefacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: frontend-artefacts
-           path: |
-            src/main/app/node_modules
-            src/main/app/src/generated/types
+
+      - name: Extract frontend build artefacts
+        run: tar xzf frontend-artefacts.tar.gz
 
       - name: Download generated Java clients
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
