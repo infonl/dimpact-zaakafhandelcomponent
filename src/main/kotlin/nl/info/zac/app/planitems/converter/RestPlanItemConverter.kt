@@ -19,7 +19,7 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.util.UUID
 
-class RESTPlanItemConverter @Inject constructor(
+class RestPlanItemConverter @Inject constructor(
     val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService
 ) {
     fun convertPlanItems(planItems: List<PlanItemInstance>, zaak: Zaak): List<RESTPlanItem> =

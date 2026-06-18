@@ -32,7 +32,7 @@ import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
+import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
@@ -64,7 +64,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val planItemConverter = mockk<RESTPlanItemConverter>()
+    val planItemConverter = mockk<RestPlanItemConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()

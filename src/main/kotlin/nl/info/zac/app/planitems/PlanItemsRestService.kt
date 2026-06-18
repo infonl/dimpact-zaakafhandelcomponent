@@ -28,7 +28,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
+import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
@@ -71,7 +71,7 @@ class PlanItemsRestService @Inject constructor(
     private val cmmnService: CMMNService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val planItemConverter: RESTPlanItemConverter,
+    private val planItemConverter: RestPlanItemConverter,
     private val zgwApiService: ZgwApiService,
     private val indexingService: IndexingService,
     private val mailService: MailService,
