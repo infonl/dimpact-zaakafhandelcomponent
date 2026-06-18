@@ -30,7 +30,6 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.jetty.http.HttpStatus
 import java.util.logging.Logger
 
 @Singleton
@@ -91,7 +90,7 @@ class DetachedDocumentRestService @Inject constructor(
         try {
             enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(documentUUID)
         } catch (zgwErrorException: ZgwErrorException) {
-            if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
+            if (zgwErrorException.zgwError.status != jakarta.ws.rs.core.Response.Status.NOT_FOUND.statusCode) {
                 throw zgwErrorException
             }
             LOG.info("Document met UUID '$documentUUID' wel gevonden in de database, maar niet in OpenZaak")

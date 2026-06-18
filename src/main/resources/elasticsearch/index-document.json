@@ -1,0 +1,79 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "dutch_stop": {
+          "type": "stop",
+          "stopwords": "_dutch_"
+        },
+        "dutch_stemmer": {
+          "type": "stemmer",
+          "language": "dutch"
+        }
+      },
+      "analyzer": {
+        "dutch_custom": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "dutch_stop", "dutch_stemmer"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "type": { "type": "keyword" },
+      "created": { "type": "date" },
+      "startdatum": { "type": "date" },
+
+      "text": { "type": "text", "analyzer": "dutch_custom" },
+      "text_exact": { "type": "text", "analyzer": "whitespace" },
+      "text_rev": { "type": "text", "analyzer": "standard" },
+
+      "zaaktypeUuid": { "type": "keyword" },
+      "zaaktypeIdentificatie": { "type": "keyword" },
+      "zaaktypeOmschrijving": { "type": "keyword" },
+
+      "informatieobject_identificatie": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "informatieobject_titel": {
+        "type": "text",
+        "analyzer": "dutch_custom",
+        "copy_to": ["text", "informatieobject_titel_sort"]
+      },
+      "informatieobject_titel_sort": { "type": "keyword" },
+      "informatieobject_beschrijving": { "type": "text", "analyzer": "dutch_custom", "copy_to": ["text"] },
+      "informatieobject_zaaktypeUuid": { "type": "keyword", "copy_to": ["zaaktypeUuid"] },
+      "informatieobject_zaaktypeIdentificatie": { "type": "keyword", "copy_to": ["zaaktypeIdentificatie"] },
+      "informatieobject_zaaktypeOmschrijving": { "type": "keyword", "copy_to": ["zaaktypeOmschrijving"] },
+      "informatieobject_zaakId": { "type": "keyword", "copy_to": ["text_exact"] },
+      "informatieobject_zaakUuid": { "type": "keyword", "copy_to": ["text_exact"] },
+      "informatieobject_zaakAfgehandeld": { "type": "boolean" },
+      "informatieobject_zaakRelatie": { "type": "keyword" },
+      "informatieobject_creatiedatum": { "type": "date", "copy_to": ["created", "startdatum"] },
+      "informatieobject_registratiedatum": { "type": "date", "copy_to": ["created", "startdatum"] },
+      "informatieobject_ontvangstdatum": { "type": "date" },
+      "informatieobject_verzenddatum": { "type": "date" },
+      "informatieobject_ondertekeningDatum": { "type": "date" },
+      "informatieobject_ondertekeningSoort": { "type": "keyword" },
+      "informatieobject_vertrouwelijkheidaanduiding": { "type": "keyword" },
+      "informatieobject_auteur": {
+        "type": "text",
+        "analyzer": "dutch_custom",
+        "copy_to": ["text", "informatieobject_auteur_sort"]
+      },
+      "informatieobject_auteur_sort": { "type": "keyword" },
+      "informatieobject_status": { "type": "keyword", "copy_to": ["text"] },
+      "informatieobject_formaat": { "type": "keyword", "copy_to": ["text"] },
+      "informatieobject_versie": { "type": "integer" },
+      "informatieobject_bestandsnaam": { "type": "keyword", "copy_to": ["text"] },
+      "informatieobject_bestandsomvang": { "type": "long" },
+      "informatieobject_documentType": { "type": "keyword", "copy_to": ["text"] },
+      "informatieobject_inhoudUrl": { "type": "keyword" },
+      "informatieobject_vergrendeldDoorNaam": { "type": "keyword" },
+      "informatieobject_vergrendeldDoorGebruikersnaam": { "type": "keyword" },
+      "informatieobject_indicaties": { "type": "keyword" },
+      "informatieobject_indicaties_sort": { "type": "long" }
+    }
+  }
+}

@@ -266,18 +266,23 @@ services:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  solr:
-    image: solr:9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
     ports:
-      - "8983:8983"
+      - "9200:9200"
+    environment:
+      # single-node development cluster with security disabled (local/dev/itest only)
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     volumes:
-      - ./scripts/docker-compose/volume-data/solr-data:/var/solr
-    # run as root to change the permissions of the solr folder
-    user: root
-    # Change permissions of the solr folder, create the 'zac' core and start solr
-    command: bash -c "
-      chown -R 8983:8983 /var/solr
-      && runuser -u solr -- solr-precreate zac"
+      - ./scripts/docker-compose/volume-data/elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   # Open Policy Agent (OPA)
   opa:
@@ -845,7 +850,7 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-fakeMailjetApiKey}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
-      - SOLR_URL=http://solr:8983
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
       # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
       # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
       - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
@@ -881,6 +886,8 @@ services:
       zac-database:
         condition: service_healthy
       openzaak.local:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     profiles: ["zac"]
 

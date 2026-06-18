@@ -4,77 +4,77 @@
  */
 package nl.info.zac.search.model.zoekobject
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.util.NoArgConstructor
-import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 
 @NoArgConstructor // required for Java bean inspection
 data class TaakZoekObject(
-    @Field
+    @JsonProperty("id")
     private var id: String,
 
-    @Field
+    @JsonProperty("type")
     private var type: String,
 
-    @Field("taak_naam")
+    @JsonProperty("taak_naam")
     var naam: String? = null,
 
-    @Field("taak_toelichting")
+    @JsonProperty("taak_toelichting")
     var toelichting: String? = null,
 
-    @Field("taak_status")
+    @JsonProperty("taak_status")
     private var status: String? = null,
 
-    @Field("taak_zaaktypeUuid")
+    @JsonProperty("taak_zaaktypeUuid")
     var zaaktypeUuid: String? = null,
 
-    @Field("taak_zaaktypeIdentificatie")
+    @JsonProperty("taak_zaaktypeIdentificatie")
     var zaaktypeIdentificatie: String? = null,
 
-    @Field("taak_zaaktypeOmschrijving")
+    @JsonProperty("taak_zaaktypeOmschrijving")
     var zaaktypeOmschrijving: String? = null,
 
-    @Field("taak_zaakUuid")
+    @JsonProperty("taak_zaakUuid")
     var zaakUUID: String? = null,
 
-    @Field("taak_zaakId")
+    @JsonProperty("taak_zaakId")
     var zaakIdentificatie: String? = null,
 
-    @Field("taak_creatiedatum")
+    @JsonProperty("taak_creatiedatum")
     var creatiedatum: Date? = null,
 
-    @Field("taak_toekenningsdatum")
+    @JsonProperty("taak_toekenningsdatum")
     var toekenningsdatum: Date? = null,
 
-    @Field("taak_fataledatum")
+    @JsonProperty("taak_fataledatum")
     var fataledatum: Date? = null,
 
-    @Field("taak_groepId")
+    @JsonProperty("taak_groepId")
     var groepID: String? = null,
 
-    @Field("taak_groepNaam")
+    @JsonProperty("taak_groepNaam")
     var groepNaam: String? = null,
 
-    @Field("taak_behandelaarNaam")
+    @JsonProperty("taak_behandelaarNaam")
     var behandelaarNaam: String? = null,
 
-    @Field(BEHANDELAAR_ID_FIELD)
+    @JsonProperty(BEHANDELAAR_ID_FIELD)
     var behandelaarGebruikersnaam: String? = null,
 
-    @Field("taak_data")
+    @JsonProperty("taak_data")
     var taakData: List<String> = listOf(),
 
-    @Field("taak_informatie")
+    @JsonProperty("taak_informatie")
     var taakInformatie: List<String> = listOf(),
 
-    @Field(ZaakZoekObject.TOELICHTING_FIELD)
+    @JsonProperty(ZaakZoekObject.TOELICHTING_FIELD)
     var zaakToelichting: String? = null,
 
-    @Field(ZaakZoekObject.OMSCHRIJVING_FIELD)
+    @JsonProperty(ZaakZoekObject.OMSCHRIJVING_FIELD)
     var zaakOmschrijving: String? = null,
 
-    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    @JsonProperty(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
     var isToegekend: Boolean = false
 ) : ZoekObject {
     companion object {

@@ -4,6 +4,9 @@
  */
 package nl.info.zac.search
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.elasticsearch.core.BulkRequest
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -18,15 +21,13 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.elasticsearch.ElasticsearchClientProducer
+import nl.info.zac.search.elasticsearch.SearchIndex
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
 import nl.info.zac.util.AllOpen
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.impl.Http2SolrClient
-import org.apache.solr.common.params.CursorMarkParams
-import org.eclipse.microprofile.config.ConfigProvider
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -39,38 +40,29 @@ class IndexingService @Inject constructor(
     private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
-    private val flowableTaskService: FlowableTaskService
+    private val flowableTaskService: FlowableTaskService,
+    private val elasticsearchClient: ElasticsearchClient
 ) {
     companion object {
-        const val SOLR_CORE = "zac"
-        const val SOLR_INDEXING_ERROR_MESSAGE = "Error occurred during Solr indexing"
+        const val INDEXING_ERROR_MESSAGE = "Error occurred during Elasticsearch indexing"
 
-        private const val SOLR_MAX_RESULTS = 100
         private const val TAKEN_MAX_RESULTS = 50
 
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
-
-        private lateinit var solrClient: SolrClient
-    }
-
-    init {
-        solrClient = Http2SolrClient.Builder(
-            "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
-        ).build()
+        private val objectMapper: ObjectMapper = ElasticsearchClientProducer.createObjectMapper()
     }
 
     /**
-     * Adds objectId to the Solr index and optionally performs a (hard) Solr commit so
-     * that the Solr index is updated immediately.
-     * Beware that hard Solr commits are relatively expensive operations.
+     * Adds objectId to the Elasticsearch index for its type and optionally refreshes the index so that the
+     * change becomes searchable immediately. Beware that an index refresh is a relatively expensive operation.
      *
      * @param objectId      the object id to be indexed
      * @param objectType    the object type
-     * @param performCommit whether to perform a hard Solr commit
+     * @param performCommit whether to refresh the index immediately
      */
     fun indexeerDirect(objectId: String, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(
+        addToIndex(
             getConverter(objectType).let { converter ->
                 listOf(
                     continueOnExceptions(objectType) { converter.convert(objectId) }
@@ -80,16 +72,15 @@ class IndexingService @Inject constructor(
         )
 
     /**
-     * Add a list of objectIds to the Solr index and optionally performs a (hard) Solr commit so
-     * that the Solr index is updated immediately.
-     * Beware that hard Solr commits are relatively expensive operations.
+     * Adds a list of objectIds to the Elasticsearch index for their type and optionally refreshes the index
+     * so that the changes become searchable immediately.
      *
      * @param objectIds     the list of object ids to be indexed
      * @param objectType    the object type
-     * @param performCommit whether to perform a hard Solr commit
+     * @param performCommit whether to refresh the index immediately
      */
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(
+        addToIndex(
             getConverter(objectType).let { converter ->
                 objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
             },
@@ -105,7 +96,7 @@ class IndexingService @Inject constructor(
         try {
             systemUser.set(true)
             LOG.info("[$objectType] Reindexing started")
-            removeEntitiesFromSolrIndex(objectType)
+            removeEntitiesFromIndex(objectType)
             when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
@@ -137,16 +128,16 @@ class IndexingService @Inject constructor(
 
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
 
-    fun removeZaak(zaakUUID: UUID) = removeFromSolrIndex(zaakUUID.toString())
+    fun removeZaak(zaakUUID: UUID) = removeFromIndex(ZoekObjectType.ZAAK, zaakUUID.toString())
 
-    fun removeInformatieobject(informatieobjectUUID: UUID) = removeFromSolrIndex(informatieobjectUUID.toString())
+    fun removeInformatieobject(informatieobjectUUID: UUID) =
+        removeFromIndex(ZoekObjectType.DOCUMENT, informatieobjectUUID.toString())
 
-    fun removeTaak(taskID: String) = removeFromSolrIndex(taskID)
+    fun removeTaak(taskID: String) = removeFromIndex(ZoekObjectType.TAAK, taskID)
 
     fun commit() {
         runTranslatingToIndexingException {
-            // this overload waits until the solr searcher is done, which is what we want
-            solrClient.commit(null, true, true)
+            elasticsearchClient.indices().refresh { it.index(SearchIndex.ALL_INDEX_NAMES) }
         }
     }
 
@@ -155,60 +146,56 @@ class IndexingService @Inject constructor(
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
 
-    private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
+    private fun addToIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
         val beansToBeAdded = zoekObjecten.filterNotNull()
         if (beansToBeAdded.isEmpty()) {
             return
         }
         runTranslatingToIndexingException {
-            solrClient.addBeans(beansToBeAdded)
+            val bulkRequest = BulkRequest.Builder()
+            beansToBeAdded.forEach { zoekObject ->
+                val indexName = SearchIndex.indexNameForType(zoekObject.getType())
+                val document = toDocument(zoekObject)
+                bulkRequest.operations { operation ->
+                    operation.index { indexOperation ->
+                        indexOperation.index(indexName).id(zoekObject.getObjectId()).document(document)
+                    }
+                }
+            }
+            elasticsearchClient.bulk(bulkRequest.build())
             if (performCommit) {
                 commit()
             }
         }
     }
 
-    private fun removeFromSolrIndex(idsToBeDeleted: List<String>) {
-        if (idsToBeDeleted.isEmpty()) {
-            return
+    /**
+     * Serializes a [ZoekObject] to a document map, flattening the dynamic `zaak_betrokkene_<rol>` fields of a
+     * [ZaakZoekObject] to top-level fields (so the index dynamic template can map them).
+     */
+    private fun toDocument(zoekObject: ZoekObject): Map<String, Any?> {
+        @Suppress("UNCHECKED_CAST")
+        val document = objectMapper.convertValue(zoekObject, MutableMap::class.java) as MutableMap<String, Any?>
+        if (zoekObject is ZaakZoekObject) {
+            zoekObject.betrokkenen?.forEach { (field, values) -> document[field] = values }
         }
+        return document
+    }
+
+    private fun removeFromIndex(objectType: ZoekObjectType, id: String) {
         runTranslatingToIndexingException {
-            solrClient.deleteById(idsToBeDeleted)
+            elasticsearchClient.delete { it.index(SearchIndex.indexNameForType(objectType)).id(id) }
         }
     }
 
-    private fun removeFromSolrIndex(id: String) {
-        runTranslatingToIndexingException {
-            solrClient.deleteById(id)
-        }
-    }
-
-    private fun removeEntitiesFromSolrIndex(objectType: ZoekObjectType) {
-        val query = SolrQuery("*:*").apply {
-            setFields("id")
-            addFilterQuery("type:$objectType")
-            addSort("id", SolrQuery.ORDER.asc)
-            rows = SOLR_MAX_RESULTS
-        }
-        var cursorMark = CursorMarkParams.CURSOR_MARK_START
-        while (true) {
-            query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark)
-            val response = continueOnExceptions(objectType) { solrClient.query(query) }
-            if (response == null) {
-                LOG.warning(
-                    "[$objectType] Cannot fetch next page. " +
-                        "Aborting removal of entities after cursor mark $cursorMark"
-                )
-                return
+    private fun removeEntitiesFromIndex(objectType: ZoekObjectType) {
+        continueOnExceptions(objectType) {
+            elasticsearchClient.deleteByQuery { request ->
+                request
+                    .index(SearchIndex.indexNameForType(objectType))
+                    .query { query -> query.matchAll { it } }
+                    .refresh(true)
             }
-
-            continueOnExceptions(objectType) {
-                removeFromSolrIndex(response.results.mapNotNull { it["id"].toString() })
-            }
-            if (cursorMark == response.nextCursorMark) {
-                break
-            }
-            cursorMark = response.nextCursorMark
         }
     }
 
@@ -327,7 +314,7 @@ class IndexingService @Inject constructor(
         try {
             return fn()
         } catch (exception: Exception) {
-            throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, exception)
+            throw IndexingException(INDEXING_ERROR_MESSAGE, exception)
         }
     }
 

@@ -1,0 +1,102 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "dutch_stop": {
+          "type": "stop",
+          "stopwords": "_dutch_"
+        },
+        "dutch_stemmer": {
+          "type": "stemmer",
+          "language": "dutch"
+        }
+      },
+      "analyzer": {
+        "dutch_custom": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "dutch_stop", "dutch_stemmer"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "betrokkene_fields": {
+          "match": "zaak_betrokkene_*",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": "zaak_betrokkenen"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "id": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "type": { "type": "keyword" },
+      "created": { "type": "date" },
+      "startdatum": { "type": "date" },
+
+      "text": { "type": "text", "analyzer": "dutch_custom" },
+      "text_exact": { "type": "text", "analyzer": "whitespace" },
+      "text_rev": { "type": "text", "analyzer": "standard" },
+
+      "zaaktypeUuid": { "type": "keyword" },
+      "zaaktypeIdentificatie": { "type": "keyword" },
+      "zaaktypeOmschrijving": { "type": "keyword" },
+      "behandelaarNaam": { "type": "keyword" },
+      "groepNaam": { "type": "keyword" },
+      "isToegekend": { "type": "boolean" },
+
+      "zaak_identificatie": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "zaak_omschrijving": {
+        "type": "text",
+        "analyzer": "dutch_custom",
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } },
+        "copy_to": ["text"]
+      },
+      "zaak_toelichting": {
+        "type": "text",
+        "analyzer": "dutch_custom",
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } },
+        "copy_to": ["text"]
+      },
+      "zaak_registratiedatum": { "type": "date" },
+      "zaak_archiefNominatie": { "type": "keyword" },
+      "zaak_archiefActiedatum": { "type": "date" },
+      "zaak_startdatum": { "type": "date" },
+      "zaak_einddatumGepland": { "type": "date" },
+      "zaak_einddatum": { "type": "date" },
+      "zaak_uiterlijkeEinddatumAfdoening": { "type": "date" },
+      "zaak_publicatiedatum": { "type": "date" },
+      "zaak_communicatiekanaal": { "type": "keyword", "copy_to": ["text"] },
+      "zaak_vertrouwelijkheidaanduiding": { "type": "keyword" },
+      "zaak_afgehandeld": { "type": "boolean" },
+      "zaak_groepId": { "type": "keyword" },
+      "zaak_groepNaam": { "type": "keyword", "copy_to": ["text", "text_exact", "groepNaam"] },
+      "zaak_behandelaarNaam": { "type": "keyword", "copy_to": ["text", "text_exact", "behandelaarNaam"] },
+      "zaak_behandelaarGebruikersnaam": { "type": "keyword", "copy_to": ["text"] },
+      "zaak_initiatorIdentificatie": { "type": "keyword", "copy_to": ["text", "text_exact", "zaak_betrokkenen"] },
+      "zaak_initiatorType": { "type": "keyword" },
+      "zaak_locatie": { "type": "geo_point" },
+      "zaak_duurVerlenging": { "type": "keyword" },
+      "zaak_redenVerlenging": { "type": "text", "analyzer": "dutch_custom", "copy_to": ["text"] },
+      "zaak_redenOpschorting": { "type": "text", "analyzer": "dutch_custom", "copy_to": ["text"] },
+      "zaak_zaaktypeUuid": { "type": "keyword", "copy_to": ["zaaktypeUuid"] },
+      "zaak_zaaktypeIdentificatie": { "type": "keyword", "copy_to": ["text", "zaaktypeIdentificatie"] },
+      "zaak_zaaktypeOmschrijving": { "type": "keyword", "copy_to": ["text", "zaaktypeOmschrijving"] },
+      "zaak_resultaattypeOmschrijving": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "zaak_resultaatToelichting": { "type": "text", "analyzer": "dutch_custom", "copy_to": ["text"] },
+      "zaak_statusEindstatus": { "type": "boolean" },
+      "zaak_statustypeOmschrijving": { "type": "keyword", "copy_to": ["text", "text_exact"] },
+      "zaak_statusDatumGezet": { "type": "date" },
+      "zaak_statusToelichting": { "type": "text", "analyzer": "dutch_custom", "copy_to": ["text"] },
+      "zaak_aantalOpenstaandeTaken": { "type": "integer" },
+      "zaak_indicaties": { "type": "keyword" },
+      "zaak_indicaties_sort": { "type": "long" },
+      "zaak_bagObjecten": { "type": "keyword" },
+      "zaak_betrokkenen": { "type": "keyword" }
+    }
+  }
+}

@@ -138,7 +138,7 @@ mkdir -p $volumeDataFolder/openzaak-database-data
 mkdir -p $volumeDataFolder/opennotificaties-database-data
 mkdir -p $volumeDataFolder/openformulieren-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
-mkdir -p $volumeDataFolder/solr-data
+mkdir -p $volumeDataFolder/elasticsearch-data
 mkdir -p $volumeDataFolder/zac-database-data
 mkdir -p $volumeDataFolder/zac-keycloak-database-data
 

@@ -31,18 +31,6 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.initContainer.enabled }}
       initContainers:
-      {{- if .Values.solr.createZacCore }}
-      - name: init-solr-zac-core
-        image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
-        imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
-        resources:
-          {{- toYaml .Values.initContainer.resources | nindent 10 }}
-        {{- if .Values.solr.url }}
-        command: ["sh","-c","curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k '{{ .Values.solr.url }}/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
-        {{- else }}
-        command: ["sh","-c","curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=LIST&wt=json' | grep -q 'zac' || curl -sf -k 'http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common/solr/admin/collections?action=CREATE&name=zac&numShards=2&replicationFactor=2&wt=xml'"]
-        {{- end }}
-      {{- end }}
       {{- if and .Values.opa.enabled (not .Values.opa.sidecar) }}
       - name: check-opa-ready
         image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
@@ -102,6 +90,27 @@ spec:
                 name: {{ include "zaakafhandelcomponent.fullname" . }}
             - secretRef:
                 name: {{ include "zaakafhandelcomponent.fullname" . }}
+          {{- if .Values.elasticsearch.existingSecret }}
+          env:
+            - name: ELASTICSEARCH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.elasticsearch.existingSecret }}
+                  key: username
+                  optional: true
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.elasticsearch.existingSecret }}
+                  key: password
+                  optional: true
+            - name: ELASTICSEARCH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.elasticsearch.existingSecret }}
+                  key: apiKey
+                  optional: true
+          {{- end }}
           {{- if .Values.remoteDebug }}
           command:
             - java

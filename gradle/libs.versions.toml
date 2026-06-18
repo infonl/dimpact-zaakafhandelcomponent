@@ -31,7 +31,7 @@ google-guava = "33.6.0-jre"
 itextpdf = "9.6.0"
 itextpdf-html2pdf = "6.3.2"
 flyway = "12.8.1"
-apache-solr = "9.10.1"
+elasticsearch = "8.17.4"
 webdav-servlet = "1.2.298"
 htmlcleaner = "2.29"
 infinispan = "16.2.1"
@@ -97,7 +97,7 @@ itextpdf-io = { group = "com.itextpdf", name = "io", version.ref = "itextpdf" }
 itextpdf-html2pdf = { group = "com.itextpdf", name = "html2pdf", version.ref = "itextpdf-html2pdf" }
 flyway-core = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
 flyway-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
-apache-solr = { group = "org.apache.solr", name = "solr-solrj", version.ref = "apache-solr" }
+elasticsearch-java = { group = "co.elastic.clients", name = "elasticsearch-java", version.ref = "elasticsearch" }
 webdav-servlet = { group = "nl.info.webdav", name = "webdav-servlet", version.ref = "webdav-servlet" }
 htmlcleaner = { group = "net.sourceforge.htmlcleaner", name = "htmlcleaner", version.ref = "htmlcleaner" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

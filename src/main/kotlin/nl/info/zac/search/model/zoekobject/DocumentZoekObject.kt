@@ -4,10 +4,10 @@
  */
 package nl.info.zac.search.model.zoekobject
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.util.NoArgConstructor
-import org.apache.solr.client.solrj.beans.Field
 import java.util.Date
 import java.util.EnumSet
 import java.util.Locale
@@ -15,97 +15,97 @@ import kotlin.collections.remove
 
 @NoArgConstructor // required for Java bean inspection
 data class DocumentZoekObject(
-    @Field("id")
+    @JsonProperty("id")
     private var id: String,
 
-    @Field
+    @JsonProperty("type")
     private var type: String,
 
-    @Field("informatieobject_identificatie")
+    @JsonProperty("informatieobject_identificatie")
     var identificatie: String? = null,
 
-    @Field("informatieobject_titel")
+    @JsonProperty("informatieobject_titel")
     var titel: String? = null,
 
-    @Field("informatieobject_beschrijving")
+    @JsonProperty("informatieobject_beschrijving")
     var beschrijving: String? = null,
 
-    @Field("informatieobject_zaaktypeUuid")
+    @JsonProperty("informatieobject_zaaktypeUuid")
     var zaaktypeUuid: String? = null,
 
-    @Field("informatieobject_zaaktypeIdentificatie")
+    @JsonProperty("informatieobject_zaaktypeIdentificatie")
     var zaaktypeIdentificatie: String? = null,
 
-    @Field("informatieobject_zaaktypeOmschrijving")
+    @JsonProperty("informatieobject_zaaktypeOmschrijving")
     var zaaktypeOmschrijving: String? = null,
 
-    @Field("informatieobject_zaakId")
+    @JsonProperty("informatieobject_zaakId")
     var zaakIdentificatie: String? = null,
 
-    @Field("informatieobject_zaakUuid")
+    @JsonProperty("informatieobject_zaakUuid")
     var zaakUuid: String? = null,
 
-    @Field("informatieobject_zaakAfgehandeld")
+    @JsonProperty("informatieobject_zaakAfgehandeld")
     var isZaakAfgehandeld: Boolean = false,
 
-    @Field("informatieobject_zaakRelatie")
+    @JsonProperty("informatieobject_zaakRelatie")
     var zaakRelatie: String? = null,
 
-    @Field("informatieobject_creatiedatum")
+    @JsonProperty("informatieobject_creatiedatum")
     var creatiedatum: Date? = null,
 
-    @Field("informatieobject_registratiedatum")
+    @JsonProperty("informatieobject_registratiedatum")
     var registratiedatum: Date? = null,
 
-    @Field("informatieobject_ontvangstdatum")
+    @JsonProperty("informatieobject_ontvangstdatum")
     var ontvangstdatum: Date? = null,
 
-    @Field("informatieobject_verzenddatum")
+    @JsonProperty("informatieobject_verzenddatum")
     var verzenddatum: Date? = null,
 
-    @Field("informatieobject_ondertekeningDatum")
+    @JsonProperty("informatieobject_ondertekeningDatum")
     var ondertekeningDatum: Date? = null,
 
-    @Field("informatieobject_ondertekeningSoort")
+    @JsonProperty("informatieobject_ondertekeningSoort")
     var ondertekeningSoort: String? = null,
 
-    @Field("informatieobject_vertrouwelijkheidaanduiding")
+    @JsonProperty("informatieobject_vertrouwelijkheidaanduiding")
     var vertrouwelijkheidaanduiding: String? = null,
 
-    @Field("informatieobject_auteur")
+    @JsonProperty("informatieobject_auteur")
     var auteur: String? = null,
 
-    @Field("informatieobject_status")
+    @JsonProperty("informatieobject_status")
     private var status: String? = null,
 
-    @Field("informatieobject_formaat")
+    @JsonProperty("informatieobject_formaat")
     var formaat: String? = null,
 
-    @Field("informatieobject_versie")
+    @JsonProperty("informatieobject_versie")
     var versie: Long = 0,
 
-    @Field("informatieobject_bestandsnaam")
+    @JsonProperty("informatieobject_bestandsnaam")
     var bestandsnaam: String? = null,
 
-    @Field("informatieobject_bestandsomvang")
+    @JsonProperty("informatieobject_bestandsomvang")
     var bestandsomvang: Long = 0,
 
-    @Field("informatieobject_documentType")
+    @JsonProperty("informatieobject_documentType")
     var documentType: String? = null,
 
-    @Field("informatieobject_inhoudUrl")
+    @JsonProperty("informatieobject_inhoudUrl")
     var inhoudUrl: String? = null,
 
-    @Field("informatieobject_vergrendeldDoorNaam")
+    @JsonProperty("informatieobject_vergrendeldDoorNaam")
     var vergrendeldDoorNaam: String? = null,
 
-    @Field("informatieobject_vergrendeldDoorGebruikersnaam")
+    @JsonProperty("informatieobject_vergrendeldDoorGebruikersnaam")
     var vergrendeldDoorGebruikersnaam: String? = null,
 
-    @Field("informatieobject_indicaties")
+    @JsonProperty("informatieobject_indicaties")
     private var indicaties: MutableList<String>? = null,
 
-    @Field("informatieobject_indicaties_sort")
+    @JsonProperty("informatieobject_indicaties_sort")
     private var indicatiesVolgorde: Long = 0
 ) : ZoekObject {
     override fun getObjectId() = id

@@ -326,7 +326,7 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
-   # -- Resource limits and requests for the init-solr-zac-core init container
+   # -- Resource limits and requests for the init containers (e.g. the OPA readiness check)
   resources:
     requests:
       cpu: 50m
@@ -372,200 +372,18 @@ opa:
   tolerations: []
   topologySpreadConstraints: []
 
-# If an external solr instance is used, configure the URL here
-solr:
-   # -- The location of an existing solr instance (unmanaged by this chart) to be used by zac
+# Elasticsearch connection configuration.
+# ZAC expects an external or managed Elasticsearch cluster (or one provided in-cluster, e.g. via the ECK operator).
+# The application creates and maintains its per-type indices (zac-zaak, zac-taak, zac-document) itself on startup,
+# so no provisioning init container is required.
+elasticsearch:
+   # -- URL of the Elasticsearch cluster to be used by ZAC (e.g. https://elasticsearch:9200)
   url: ""
-   # -- enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr)
-  createZacCore: true
+   # -- name of an existing secret holding credentials for Elasticsearch. When set, the keys 'username'+'password'
+   # (basic auth) and/or 'apiKey' are injected as ELASTICSEARCH_USERNAME/ELASTICSEARCH_PASSWORD/ELASTICSEARCH_API_KEY.
+   # Leave empty for an unsecured cluster.
+  existingSecret: ""
 
-# It is recommended to use solr-operator to help provision a solr-cloud cluster,
-# you will have to configure the zac core seperately then.
-# See the zaakafhandelcomponent wiki on more information about this.
-#
-
-# requires the installation of the solr-operator crds: kubectl create -f https://solr.apache.org/operator/downloads/crds/v0.8.1/all-with-dependencies.yaml
-solr-operator:
-   # -- annotations for solr-operator
-  annotations: {}
-   # -- affinity for solr-operator
-  affinity: {}
-   # -- set enabled to actually use the solr-operator helm chart
-  enabled: false
-   # -- set fullname for solr-operator
-  fullnameOverride: solr-operator
-   # solr-operator image parameters
-  image:
-     # -- solr-operator imagePullPolicy
-    pullPolicy: IfNotPresent
-     # -- solr-operator repository
-    repository: apache/solr-operator
-     # -- solr-operator tag
-    tag: v0.9.1@sha256:4db34508137f185d3cad03c7cf7c2b5d6533fb590822effcde9125cff5a90aa2
-  metrics:
-     # -- enable to have solr-operator metric endpoints
-    enabled: true
-   # -- nodeSelector for solr-operator
-  nodeSelector: {}
-   # settings for solrcloud
-  solr:
-     # -- affinity for solr in solrcloud
-    affinity: {}
-     # -- annotations for solr in solrcloud
-    annotations: {}
-     # solr busybox image parameters
-    busyBoxImage:
-       # -- solr busybox image imagePullPolicy
-      pullPolicy: IfNotPresent
-       # -- solr busybox image reposity
-      repository: library/busybox
-       # -- solr busybox image tag
-      tag: 1.38.0-glibc@sha256:3ba030337caebbfc2232b22b1e435eb213b28e5844a34942c74555bf904a265a
-     # -- enable configuration of a solrcloud
-    enabled: true
-     # solr image parameters
-    image:
-       # -- solr imagePullPolicy
-      pullPolicy: IfNotPresent
-       # -- solr image repository
-      repository: library/solr
-       # -- solr image tag
-      tag: 9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4
-     # -- solr memory settings
-    javaMem: -Xms512m -Xmx768m
-     # jobs settings
-    jobs:
-       # -- affinity for jobs
-      affinity: {}
-       # -- annotations for jobs
-      annotations: {}
-       # -- nodeSelector for jobs
-      nodeSelector: {}
-       # -- tolerations for jobs
-      tolerations: []
-     # -- solr loglevel
-    logLevel: INFO
-     # -- override for solrcloud name
-     # name:
-     # -- nodeSelector for solr in solrcloud
-    nodeSelector: {}
-     # -- replicas for solr in solrcloud, should be an odd number
-    replicas: 3
-     # solr storage parameters
-    storage:
-       # -- solr storage reclaimPolicy
-      reclaimPolicy: Delete
-       # -- solr storage storageClassName
-      storageClassName: managed-csi
-       # -- solr storage size
-      size: 1Gi
-     # -- resource limits and requests for solr in solrcloud
-    resources: {}
-     # -- tolerations for solr in solrcloud
-    tolerations: []
-     # -- topologySpreadConstraints for solr in solrcloud
-    topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            technology: solr-cloud
-        matchLabelKeys:
-          - controller-revision-hash
-     # -- startupProbe override for solr in solrcloud. The Solr Operator defaults to /solr/admin/info/system.
-     # Override only if custom startup timing is needed.
-    startupProbe: {}
-     # -- livenessProbe override for solr in solrcloud. Overrides the Solr Operator default which checks
-     # /solr/admin/info/system and does not reflect ZooKeeper connectivity. Using /solr/admin/info/health
-     # ensures the pod is restarted when ZooKeeper connectivity is lost for an extended period.
-     # failureThreshold of 6 (6 x 20s = 120s) provides tolerance for brief ZooKeeper restarts.
-    livenessProbe:
-      httpGet:
-        path: /solr/admin/info/health
-        port: 8983
-      failureThreshold: 6
-      periodSeconds: 20
-      timeoutSeconds: 1
-     # -- readinessProbe override for solr in solrcloud. The Solr Operator already defaults to
-     # /solr/admin/info/health for readiness. Override only if custom thresholds are needed.
-    readinessProbe: {}
-   # -- tolerations for solr-operator
-  tolerations: []
-   # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
-  watchNamespaces: "default"
-   # zookeeper-operator settings
-  zookeeper-operator:
-     # -- affinity for zookeeper-operator
-    affinity: {}
-     # -- annotations for zookeeper-operator
-    annotations: {}
-     # -- set fullname for zookeeper-operator
-    fullnameOverride: zookeeper-operator
-     # zookeeper-operator hooks parameters
-    hooks:
-       # zookeeper-operator hooks image parameters
-      image:
-         # -- zookeeper-operator hooks imagePullPolicy
-        pullPolicy: IfNotPresent
-         # -- zookeeper-operator hooks repository
-        repository: lachlanevenson/k8s-kubectl
-         # -- zookeeper-operator hooks tag
-        tag: v1.25.4@sha256:af5cea3f2e40138df90660c0c073d8b1506fb76c8602a9f48aceb5f4fb052ddc
-     # zookeeper-operator image parameters
-    image:
-       # -- zookeeper-operator imagePullPolicy
-      pullPolicy: IfNotPresent
-       # -- zookeeper-operator image repository
-      repository: pravega/zookeeper-operator
-       # -- zookeeper-operator image tag
-      tag: 0.2.15@sha256:b2bc4042fdd8fea6613b04f2f602ba4aff1201e79ba35cd0e2df9f3327111b0e
-     # -- nodeSelector for solr-operator
-    nodeSelector: {}
-     # -- tolerations for solr-operator
-    tolerations: []
-     # -- a comma-seperated list of namespaces to watch, watches all namespaces if empty
-    watchNamespace: "default"
-     # zookeeper parameters
-    zookeeper:
-       # -- affinity for zookeeper
-      affinity: {}
-       # -- annotations for zookeeper
-      annotations: {}
-       # zookeeper image parameters
-      image:
-         # -- zookeeper imagePullPolicy
-        pullPolicy: IfNotPresent
-         # -- zookeeper image repository
-        repository: pravega/zookeeper
-         # -- zookeeper image tag
-        tag: 0.2.15@sha256:c498ebfb76a66f038075e2fa6148528d74d31ca1664f3257fdf82ee779eec9c8
-       # -- nodeSelector for zookeeper
-      nodeSelector: {}
-       # -- replicas for zookeeper, should be an odd number
-      replicas: 3
-       # zookeeper storage parameters
-      storage:
-         # -- zookeeper storage reclaimPolicy
-        reclaimPolicy: Delete
-         # -- zookeeper storageClassName
-        storageClassName: managed-csi
-         # -- zookeeper storage size
-        size: 1Gi
-       # -- resource limits and requests for zookeeper
-      resources: {}
-       # -- tolerations for zookeeper
-      tolerations: []
-       # -- topologySpreadConstraints for zookeeper
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              technology: zookeeper
-          matchLabelKeys:
-            - controller-revision-hash
 # office_converter configuration. Prefilled resources values are the minimum recommended
 office_converter:
   enabled: true

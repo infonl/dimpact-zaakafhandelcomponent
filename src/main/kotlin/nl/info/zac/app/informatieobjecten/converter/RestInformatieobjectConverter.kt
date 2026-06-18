@@ -37,7 +37,6 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.util.toBase64String
-import org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
 import java.util.UUID
 import java.util.logging.Logger
@@ -304,7 +303,7 @@ class RestInformatieobjectConverter @Inject constructor(
                     zaak = zaak
                 )
             } catch (zgwErrorException: ZgwErrorException) {
-                if (zgwErrorException.zgwError.status != HttpStatus.NOT_FOUND_404) {
+                if (zgwErrorException.zgwError.status != jakarta.ws.rs.core.Response.Status.NOT_FOUND.statusCode) {
                     throw zgwErrorException
                 }
                 LOG.severe { "Document niet gevonden: $enkelvoudigInformatieobjectUUID" }

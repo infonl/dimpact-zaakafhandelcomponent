@@ -47,14 +47,6 @@ We truncate at 57 chars in order to provide space for the suffix
 {{- end }}
 
 {{/*
-Create a default fully qualified name for solrcloud.
-We truncate at 25 chars in order to provide space for the suffixes set by the solr-operator and zookeeper
-*/}}
-{{- define "zaakafhandelcomponent.solrcloud.fullname" -}}
-{{ include "zaakafhandelcomponent.fullname" . | trunc 25 | trimSuffix "-" }}-solr
-{{- end }}
-
-{{/*
 Create a default fully qualified name for opa.
 We truncate at 57 chars in order to provide space for the "-nginx" suffix
 */}}

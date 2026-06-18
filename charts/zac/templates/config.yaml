@@ -87,11 +87,7 @@ data:
   SMARTDOCUMENTS_WIZARD_AUTH_ENABLED: {{ .Values.smartDocuments.wizardAuthEnabled | default "true" | quote }}
   {{- end }}
   {{- end }}
-  {{- if .Values.solr.url }}
-  SOLR_URL: {{ .Values.solr.url }}
-  {{- else }}
-  SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common
-  {{- end }}
+  ELASTICSEARCH_URL: {{ required "Valid .Values.elasticsearch.url entry required!" .Values.elasticsearch.url }}
   TZ: Europe/Amsterdam
   VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
