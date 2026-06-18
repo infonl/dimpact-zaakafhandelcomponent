@@ -45,7 +45,7 @@ This script will run through the following steps:
  - Verify that the config and context files are available.
  - Creates the reporting output location (./build/reports/zap).
  - Execute the ZAP full scan in the docker container.
- - Html report will be created in the output location.
+  - Create the HTML report in the output location.
 
 When a validation fails, the script should give you enough information to be able to fix it.
 
