@@ -5,4 +5,4 @@
 
 package nl.info.zac.app.klant.model.personen
 
-data class RestBrpGemeente(val Code: String, val Naam: String)
+data class RestBrpGemeente(val code: String, val naam: String)

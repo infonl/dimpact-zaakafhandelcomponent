@@ -202,7 +202,7 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("personen/gemeentes")
     fun listBrpGemeentes(): List<RestBrpGemeente> = loggedInUserInstance.get().brpGemeentes.map {
-        RestBrpGemeente(Code = it.key, Naam = it.value)
+        RestBrpGemeente(code = it.key, naam = it.value)
     }
 
     @PUT
