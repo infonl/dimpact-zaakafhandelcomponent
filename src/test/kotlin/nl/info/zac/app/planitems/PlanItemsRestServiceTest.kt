@@ -16,8 +16,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -29,10 +27,12 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.createHumanTaskParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
+import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
@@ -64,7 +64,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val zrcClientService = mockk<ZrcClientService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
-    val planItemConverter = mockk<RESTPlanItemConverter>()
+    val planItemConverter = mockk<RestPlanItemConverter>()
     val zgwApiService = mockk<ZgwApiService>()
     val indexingService = mockk<IndexingService>()
     val mailService = mockk<MailService>()

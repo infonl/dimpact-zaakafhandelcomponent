@@ -11,13 +11,13 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.ws.rs.NotFoundException
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.brp.model.createPersoon
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummer
 import nl.info.client.brp.model.createRaadpleegMetBurgerservicenummerResponse
 import nl.info.client.brp.model.generated.PersonenQuery
 import nl.info.client.brp.util.BrpProtocolleringContext
 import nl.info.client.brp.util.createBrpConfiguration
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.util.Optional
