@@ -55,12 +55,12 @@ class ZaaktypeCmmnConfigurationService @Inject constructor(
     fun readZaaktypeCmmnConfiguration(zaaktypeUUID: UUID): ZaaktypeCmmnConfiguration =
         uuidToConfigCache.get(zaaktypeUUID) {
             zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(it)
-        }!!
+        }
 
     fun listZaaktypeCmmnConfiguration(): List<ZaaktypeCmmnConfiguration> =
         listCache.get(Caching.ZAC_ZAAKTYPECMMNCONFIGURATION) {
             zaaktypeCmmnConfigurationBeheerService.listZaaktypeCmmnConfiguration()
-        }!!
+        }
 
     fun cacheRemoveZaaktypeCmmnConfiguration(zaaktypeUUID: UUID) {
         uuidToConfigCache.invalidate(zaaktypeUUID)
