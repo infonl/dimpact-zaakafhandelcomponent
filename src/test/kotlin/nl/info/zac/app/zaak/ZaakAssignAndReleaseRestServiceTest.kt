@@ -23,6 +23,7 @@ import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
 import nl.info.zac.app.zaak.model.createRESTZakenVerdeelGegevens
+import nl.info.zac.app.zaak.model.createRESTZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.authentication.LoggedInUser
@@ -33,6 +34,7 @@ import nl.info.zac.identity.model.createUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createWerklijstRechten
+import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.zaak.ZaakService
 import java.util.UUID
@@ -230,6 +232,53 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 }
 
                 Then("exception is thrown") {}
+            }
+        }
+    }
+
+    Context("Releasing zaken from a list") {
+        Given("REST zaken vrijgeven gegevens and a user with the 'zaken taken verdelen' permission") {
+            val zaakUUIDs = listOf(UUID.randomUUID(), UUID.randomUUID())
+            val restZakenVrijgevenGegevens = createRESTZakenVrijgevenGegevens(
+                uuids = zaakUUIDs,
+                reden = "fakeReason",
+                screenEventResourceId = "fakeScreenEventResourceId"
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { zaakService.releaseZaken(any(), any(), any()) } just runs
+
+            When("the release zaken from a list function is called") {
+                runTest(testDispatcher) {
+                    zaakAssignAndReleaseRestService.releaseZakenFromList(restZakenVrijgevenGegevens)
+                }
+
+                Then("the zaken are released") {
+                    verify(exactly = 1) {
+                        zaakService.releaseZaken(
+                            zaakUUIDs,
+                            restZakenVrijgevenGegevens.reden,
+                            restZakenVrijgevenGegevens.screenEventResourceId
+                        )
+                    }
+                }
+            }
+        }
+
+        Given("REST zaken vrijgeven gegevens and a user without the 'zaken taken verdelen' permission") {
+            val restZakenVrijgevenGegevens = createRESTZakenVrijgevenGegevens(
+                uuids = listOf(UUID.randomUUID())
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
+
+            When("the release zaken from a list function is called") {
+                Then("a policy exception is thrown and no zaken are released") {
+                    shouldThrow<PolicyException> {
+                        zaakAssignAndReleaseRestService.releaseZakenFromList(restZakenVrijgevenGegevens)
+                    }
+                    verify(exactly = 0) {
+                        zaakService.releaseZaken(any(), any(), any())
+                    }
+                }
             }
         }
     }

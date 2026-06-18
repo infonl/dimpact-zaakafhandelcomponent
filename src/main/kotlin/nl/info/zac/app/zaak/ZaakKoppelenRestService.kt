@@ -7,16 +7,26 @@ package nl.info.zac.app.zaak
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.PATCH
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
+import net.atos.zac.event.EventingService
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
+import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
+import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
+import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
+import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHoofdzaak
@@ -25,8 +35,12 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.RestZaakLinkData
+import nl.info.zac.app.zaak.model.RestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
+import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
@@ -40,25 +54,30 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.ZaakService
 import java.lang.UnsupportedOperationException
+import java.net.URI
 import java.util.UUID
 
-@Path("zaken/gekoppelde-zaken")
+@Path("zaken")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
 @NoArgConstructor
 @AllOpen
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ZaakKoppelenRestService @Inject constructor(
+    private val eventingService: EventingService,
+    private val indexingService: IndexingService,
     private val policyService: PolicyService,
     private val searchService: SearchService,
+    private val zaakService: ZaakService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     @GET
-    @Path("{zaakUuid}/zoek-koppelbare-zaken")
+    @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
     @Suppress("UnusedParameter")
     fun findLinkableZaken(
         @PathParam("zaakUuid") zaakUuid: UUID,
@@ -78,6 +97,93 @@ class ZaakKoppelenRestService @Inject constructor(
             relationType = relationType,
             loggedInUser = loggedInUser
         )
+    }
+
+    @PATCH
+    @Path("/zaak/koppel")
+    fun linkZaak(restZaakLinkData: RestZaakLinkData) {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid)
+        val (zaakToLinkTo, zaakToLinkToZaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(
+            restZaakLinkData.teKoppelenZaakUuid
+        )
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).koppelen)
+        if (restZaakLinkData.relatieType == RelatieType.GERELATEERD) {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).lezen
+            )
+        } else {
+            assertPolicy(
+                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
+            )
+        }
+
+        when (restZaakLinkData.relatieType) {
+            RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
+            RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
+            RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
+            RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
+            RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
+            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
+            RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+        }
+        restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
+            when (reverseRelatieType) {
+                RelatieType.VERVOLG -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.VERVOLG)
+                RelatieType.ONDERWERP -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.ONDERWERP)
+                RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.BIJDRAGE)
+                else -> error("Reverse relatie type $reverseRelatieType is not supported")
+            }
+        }
+    }
+
+    @PATCH
+    @Path("/zaak/ontkoppel")
+    fun unlinkZaak(restZaakUnlinkData: RestZaakUnlinkData) {
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakUnlinkData.zaakUuid)
+        val (linkedZaak, linkedZaakType) = zaakService.readZaakAndZaakTypeByZaakID(
+            restZaakUnlinkData.gekoppeldeZaakIdentificatie
+        )
+        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).wijzigen)
+        assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).wijzigen)
+
+        when (restZaakUnlinkData.relatieType) {
+            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(
+                hoofdZaak = linkedZaak,
+                deelZaak = zaak,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(
+                hoofdZaak = zaak,
+                deelZaak = linkedZaak,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.VERVOLG -> ontkoppelRelevanteZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.VERVOLG,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.ONDERWERP -> ontkoppelRelevanteZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.ONDERWERP,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.BIJDRAGE -> ontkoppelRelevanteZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                aardRelatie = AardRelatieEnum.BIJDRAGE,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.GERELATEERD -> ontkoppelGerelateerdeZaken(
+                zaak = zaak,
+                andereZaak = linkedZaak,
+                explanation = restZaakUnlinkData.reden
+            )
+            RelatieType.OVERIG -> {
+                throw BadRequestException("Relatie type 'OVERIG' is not supported.")
+            }
+        }
     }
 
     private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
@@ -193,4 +299,128 @@ class ZaakKoppelenRestService @Inject constructor(
             statustypeOmschrijving = statustypeOmschrijving,
             isKoppelbaar = linkable,
         )
+
+    private fun addGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak> {
+        val gerelateerdeZaak = GerelateerdeZaak().apply { url = andereZaakURI }
+        return gerelateerdeZaken?.apply {
+            if (none { it.url == andereZaakURI }) add(gerelateerdeZaak)
+        } ?: listOf(gerelateerdeZaak)
+    }
+
+    private fun addRelevanteZaak(
+        relevanteZaken: MutableList<RelevanteZaak>?,
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
+    ): List<RelevanteZaak> {
+        val relevanteZaak = RelevanteZaak().apply {
+            this.url = andereZaakURI
+            this.aardRelatie = aardRelatie
+        }
+        return relevanteZaken?.apply {
+            if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
+        } ?: listOf(relevanteZaak)
+    }
+
+    private fun koppelGerelateerdeZaken(
+        zaak: Zaak,
+        otherZaak: Zaak,
+        explanation: String?
+    ) {
+        zrcClientService.patchZaak(
+            zaakUUID = zaak.uuid,
+            zaak = GerelateerdeZakenZaakPatch(
+                gerelateerdeZaken = addGerelateerdeZaak(zaak.gerelateerdeZaken, otherZaak.url)
+            ),
+            explanation = explanation
+        )
+    }
+
+    private fun koppelHoofdEnDeelzaak(hoofdZaak: Zaak, deelZaak: Zaak) {
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = hoofdZaak.url)
+        )
+        // Open Zaak only sends a notification for the deelzaak.
+        // So we manually send a ScreenEvent for the hoofdzaak.
+        indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
+        eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
+    }
+
+    private fun koppelRelevanteZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        aardRelatie: AardRelatieEnum
+    ) {
+        zrcClientService.patchZaak(
+            zaak.uuid,
+            Zaak().apply {
+                relevanteAndereZaken = addRelevanteZaak(
+                    zaak.relevanteAndereZaken,
+                    andereZaak.url,
+                    aardRelatie
+                )
+            }
+        )
+    }
+
+    private fun ontkoppelGerelateerdeZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        explanation: String
+    ) = zrcClientService.patchZaak(
+        zaakUUID = zaak.uuid,
+        zaak = GerelateerdeZakenZaakPatch(
+            gerelateerdeZaken = removeGerelateerdeZaak(zaak.gerelateerdeZaken, andereZaak.url)
+        ),
+        explanation = explanation
+    )
+
+    private fun ontkoppelHoofdEnDeelzaak(
+        hoofdZaak: Zaak,
+        deelZaak: Zaak,
+        explanation: String
+    ) {
+        zrcClientService.patchZaak(
+            zaakUUID = deelZaak.uuid,
+            zaak = NillableHoofdzaakZaakPatch(hoofdzaak = null),
+            explanation = explanation
+        )
+        // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
+        // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
+        indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
+        eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
+    }
+
+    private fun ontkoppelRelevanteZaken(
+        zaak: Zaak,
+        andereZaak: Zaak,
+        aardRelatie: AardRelatieEnum,
+        explanation: String
+    ) = zrcClientService.patchZaak(
+        zaakUUID = zaak.uuid,
+        zaak = NillableRelevanteZakenZaakPatch(
+            relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
+        ),
+        explanation = explanation
+    )
+
+    private fun removeGerelateerdeZaak(
+        gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
+        andereZaakURI: URI
+    ): List<GerelateerdeZaak> {
+        gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
+        return gerelateerdeZaken ?: emptyList()
+    }
+
+    private fun removeRelevanteZaak(
+        relevanteZaken: MutableList<RelevanteZaak>?,
+        andereZaakURI: URI,
+        aardRelatie: AardRelatieEnum
+    ): List<RelevanteZaak>? {
+        relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
+        return relevanteZaken?.takeUnless { it.isEmpty() }
+    }
 }
