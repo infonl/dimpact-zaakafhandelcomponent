@@ -13,6 +13,9 @@ data class UserData(
     @field:JsonbProperty("rollen")
     val rollen: Set<String>,
 
+    @field:JsonbProperty("overallRoles")
+    val overallRoles: Set<String>,
+
     /**
      * The single zaaktype description for which the logged-in user is authorised
      * for the set of specified application roles.

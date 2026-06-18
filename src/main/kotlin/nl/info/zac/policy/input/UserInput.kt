@@ -14,6 +14,7 @@ open class UserInput(
     @field:JsonbProperty("user")
     val user = UserData(
         id = loggedInUser.id,
+        overallRoles = loggedInUser.overallRoles,
         rollen = if (zaaktype != null) {
             loggedInUser.applicationRolesPerZaaktype[zaaktype].orEmpty().plus(loggedInUser.overallRoles)
         } else {

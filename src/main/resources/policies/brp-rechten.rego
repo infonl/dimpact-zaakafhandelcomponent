@@ -23,5 +23,5 @@ brp_zoeken if {
 }
 
 brp_zoeken if {
-    brpZoeken.rol in user.rollen
+    brpZoeken.rol in user.overallRoles
 }
