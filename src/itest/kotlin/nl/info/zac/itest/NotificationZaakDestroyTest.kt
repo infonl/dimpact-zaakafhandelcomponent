@@ -41,7 +41,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
     Given(
         """
             A zaak in ZAC which has been started using the ZAC CMMN model 
-            and which has been indexed in the Solr search index,
+            and which has been indexed in the Elasticsearch search index,
             and a logged-in behandelaar
         """.trimIndent()
     ) {
@@ -104,7 +104,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             JSONArray(responseBody).length() shouldBe 1
             aanvullendeInformatieTaskID = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
-        // reindex so that the new zaak gets added to the Solr index
+        // reindex so that the new zaak gets added to the Elasticsearch index
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
             headers = mapOf(
@@ -161,7 +161,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             Then(
                 """
                     the response should be 'no content', the Flowable CMMN zaak data should be deleted,
-                    the task should be deleted and the zaak should be removed from the Solr index
+                    the task should be deleted and the zaak should be removed from the Elasticsearch index
                 """.trimIndent()
             ) {
                 val responseBody = response.bodyAsString
@@ -201,7 +201,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
                         {"message":"No historic task with id '$aanvullendeInformatieTaskID' found"}
                     """.trimIndent()
                 }
-                // wait for the zaak to be removed from the Solr index
+                // wait for the zaak to be removed from the Elasticsearch index
                 eventually(10.seconds) {
                     val searchResponseBody = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/zoeken/list",

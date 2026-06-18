@@ -37,7 +37,6 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.createDocumentRechtenAllDeny
-import org.eclipse.jetty.http.HttpStatus
 import java.net.URI
 import java.time.LocalDate
 import java.util.Base64
@@ -219,7 +218,9 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
-        } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
+        } throws ZgwErrorException(
+            ZgwError(null, null, null, jakarta.ws.rs.core.Response.Status.NOT_FOUND.statusCode, null, null)
+        )
 
         When("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
@@ -239,7 +240,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                 URI("https://example.com/fakeType"),
                 "fakeCode",
                 "fakeTitle",
-                HttpStatus.INTERNAL_SERVER_ERROR_500,
+                jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR.statusCode,
                 "fakeDetail",
                 URI("https://example.com/fakeInstance")
             )

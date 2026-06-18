@@ -286,9 +286,9 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 "--env-file ${envFile.absolutePath}"
             )
             .withLogConsumer(
-                "solr",
+                "elasticsearch",
                 Slf4jLogConsumer((logger as DelegatingKLogger<Logger>).underlyingLogger).withPrefix(
-                    "SOLR"
+                    "ELASTICSEARCH"
                 )
             )
             .withLogConsumer(

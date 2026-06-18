@@ -181,7 +181,7 @@ class ZaakHelper(
 
     /**
      * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a zaak,
-     * so that ZAC will index the newly created zaak in Solr.
+     * so that ZAC will index the newly created zaak in Elasticsearch.
      */
     private fun sendZaakCreateNotification(zaakUuid: UUID) {
         itestHttpClient.performJSONPostRequest(

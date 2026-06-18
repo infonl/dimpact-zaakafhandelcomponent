@@ -75,7 +75,7 @@ class CsvRestServiceTest : BehaviorSpec({
     )
 
     Context("Export to CSV") {
-        Given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
+        Given("Two open zaken that are indexed in Elasticsearch and a logged-in beheerder") {
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,

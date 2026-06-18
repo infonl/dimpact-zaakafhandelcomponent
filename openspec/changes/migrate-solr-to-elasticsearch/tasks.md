@@ -45,11 +45,11 @@
 
 ## 7. Testing and verification
 
-- [ ] 7.1 Add/adapt unit tests for `IndexingService` and `SearchService` against Elasticsearch (testcontainers)
-- [ ] 7.2 Add integration tests asserting result sets and ordering for representative queries, including Dutch stemming/analysis
-- [ ] 7.3 Add tests for independent facet filtering (selecting a facet value keeps that field's other buckets visible)
-- [ ] 7.4 Add tests for date-range, geo filtering, sorting fallback, and the commit/refresh endpoint
-- [ ] 7.5 Verify the `/zoeken` and `/indexeren` REST contracts are unchanged (request/response shape, frontend unaffected)
+- [x] 7.1 Add/adapt unit tests for `IndexingService` and `SearchService` — **done as mockk unit tests** against a mocked `ElasticsearchClient` (bulk/delete/reindex routing; multi-index request, sort fallback, response mapping). Also added `ElasticsearchReadinessHealthCheckTest`. Deleted `SolrUtilTest`/`SolrDeployerServiceTest`/`SolrReadinessHealthCheckTest`. The full `./gradlew test` suite passes. (A testcontainers-based variant is deferred to the itest suite — needs a running ES.)
+- [ ] 7.2 Add integration tests asserting result sets and ordering for representative queries, including Dutch stemming/analysis — **deferred**: requires a running Elasticsearch (testcontainers/itest); not runnable in this environment
+- [x] 7.3 Add tests for independent facet filtering — **query-construction verified** in `SearchServiceTest`: each facet aggregation re-applies the other facets' selections and excludes its own, with selections applied as a `post_filter`. (End-to-end bucket visibility against real ES is covered by the itest.)
+- [ ] 7.4 Add tests for date-range, geo filtering, sorting fallback, and the commit/refresh endpoint — **partial**: multi-field sort fallback is unit-tested; date-range/geo/commit runtime behavior needs the ES itest (deferred)
+- [x] 7.5 Verify the `/zoeken` and `/indexeren` REST contracts are unchanged — **preserved by design**: `RestZoekParameters`/`RestZoekResultaat` and the REST services are untouched; exercised end-to-end by the existing full-stack itest (e.g. `CsvRestServiceTest`, `NotificationZaakDestroyTest`)
 
 ## 8. Cutover and cleanup
 

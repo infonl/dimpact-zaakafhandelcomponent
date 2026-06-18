@@ -94,26 +94,25 @@ class AppContainerTest : BehaviorSpec({
                 foundOpenZaakCheck shouldBe true
             }
 
-            And("it should include Solr readiness check") {
+            And("it should include Elasticsearch readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
-                var foundSolrCheck = false
+                var foundElasticsearchCheck = false
                 for (i in 0 until checks.length()) {
                     val check = checks.getJSONObject(i)
-                    if (check.getString("name") == "nl.info.zac.health.SolrReadinessHealthCheck") {
-                        foundSolrCheck = true
+                    if (check.getString("name") == "nl.info.zac.health.ElasticsearchReadinessHealthCheck") {
+                        foundElasticsearchCheck = true
                         check.getString("status") shouldBe "UP"
 
-                        // Check that Solr-specific data is included
+                        // Check that Elasticsearch-specific data is included
                         val data = check.optJSONObject("data")
                         if (data != null) {
-                            data.getString("core") shouldBe "zac"
-                            data.getInt("status") shouldBe 0
+                            data.getString("indices").contains("zac-zaak") shouldBe true
                         }
                         break
                     }
                 }
-                foundSolrCheck shouldBe true
+                foundElasticsearchCheck shouldBe true
             }
 
             And("it should include PABC readiness check") {
@@ -169,7 +168,7 @@ class AppContainerTest : BehaviorSpec({
 
                 checkNames shouldContain "nl.info.zac.health.LivenessHealthCheck"
                 checkNames shouldContain "nl.info.zac.health.OpenZaakReadinessHealthCheck"
-                checkNames shouldContain "nl.info.zac.health.SolrReadinessHealthCheck"
+                checkNames shouldContain "nl.info.zac.health.ElasticsearchReadinessHealthCheck"
             }
         }
 
