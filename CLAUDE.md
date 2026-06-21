@@ -331,11 +331,10 @@ When("calling the service") {
 ## Test conventions
 
 ### Kotest (Backend Tests)
-Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `beforeEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
+Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
-    beforeEach { checkUnnecessaryStub() }
-
+    afterEach { checkUnnecessaryStub() }
     Context("A function in the service under test") {
         Given("some state") {
             When("action occurs") {
