@@ -14,7 +14,7 @@ import nl.info.zac.identity.model.createUser
 
 class RestUserConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
-    val converter = RestUserConverter(identityService)
+    val restUserConverter = RestUserConverter(identityService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -26,7 +26,7 @@ class RestUserConverterTest : BehaviorSpec({
             every { identityService.readUser("fakeUserId") } returns user
 
             When("convertUserId is called") {
-                val result = converter.convertUserId("fakeUserId")
+                val result = restUserConverter.convertUserId("fakeUserId")
 
                 Then("it returns a RestUser with the correct id and full name") {
                     result.id shouldBe "fakeUserId"
@@ -44,7 +44,7 @@ class RestUserConverterTest : BehaviorSpec({
             every { identityService.readUser("fakeUserId2") } returns user2
 
             When("convertUserIds is called with the list") {
-                val result = with(converter) {
+                val result = with(restUserConverter) {
                     listOf("fakeUserId1", "fakeUserId2").convertUserIds()
                 }
 

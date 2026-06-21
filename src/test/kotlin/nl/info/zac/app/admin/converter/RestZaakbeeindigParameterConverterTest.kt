@@ -17,7 +17,7 @@ import java.util.UUID
 
 class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
-    val converter = RestZaakbeeindigParameterConverter(ztcClientService)
+    val restZaakbeeindigParameterConverter = RestZaakbeeindigParameterConverter(ztcClientService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -39,7 +39,7 @@ class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
             every { ztcClientService.readResultaattype(resultaattypeUUID) } returns resultaattype
 
             When("convertZaakbeeindigParameters is called") {
-                val result = converter.convertZaakbeeindigParameters(setOf(completionParams))
+                val result = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(setOf(completionParams))
 
                 Then("it returns one RestZaakbeeindigParameter") {
                     result.size shouldBe 1
@@ -62,7 +62,7 @@ class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
 
         Given("an empty set of ZaaktypeCompletionParameters") {
             When("convertZaakbeeindigParameters is called") {
-                val result = converter.convertZaakbeeindigParameters(emptySet())
+                val result = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(emptySet())
 
                 Then("it returns an empty list") {
                     result shouldBe emptyList()

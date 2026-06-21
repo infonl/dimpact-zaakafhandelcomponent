@@ -15,7 +15,7 @@ import java.util.UUID
 
 class RestOpenstaandeTakenConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
-    val converter = RestOpenstaandeTakenConverter(flowableTaskService)
+    val restOpenstaandeTakenConverter = RestOpenstaandeTakenConverter(flowableTaskService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -29,7 +29,7 @@ class RestOpenstaandeTakenConverterTest : BehaviorSpec({
             every { flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(task1, task2)
 
             When("convert is called") {
-                val result = converter.convert(zaakUUID)
+                val result = restOpenstaandeTakenConverter.convert(zaakUUID)
 
                 Then("it returns the correct count and task names") {
                     result.aantalOpenstaandeTaken shouldBe 2
@@ -43,7 +43,7 @@ class RestOpenstaandeTakenConverterTest : BehaviorSpec({
             every { flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns emptyList()
 
             When("convert is called") {
-                val result = converter.convert(zaakUUID)
+                val result = restOpenstaandeTakenConverter.convert(zaakUUID)
 
                 Then("it returns zero count and empty task names") {
                     result.aantalOpenstaandeTaken shouldBe 0

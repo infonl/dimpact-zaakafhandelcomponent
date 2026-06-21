@@ -11,7 +11,6 @@ import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
 import net.atos.zac.app.bag.model.RESTNummeraanduiding
 import nl.info.client.bag.model.createNummeraanduiding
 import nl.info.client.bag.model.generated.Indicatie
-import nl.info.client.bag.model.generated.Nummeraanduiding
 import nl.info.client.bag.model.generated.StatusNaamgeving
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.client.zgw.model.createZaak

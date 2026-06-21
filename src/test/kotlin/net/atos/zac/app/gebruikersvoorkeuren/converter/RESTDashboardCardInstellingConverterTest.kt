@@ -6,10 +6,10 @@ package net.atos.zac.app.gebruikersvoorkeuren.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
 import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import net.atos.zac.signalering.model.SignaleringType
-import net.atos.zac.app.gebruikersvoorkeuren.model.RESTDashboardCardInstelling
 
 class RESTDashboardCardInstellingConverterTest : BehaviorSpec({
     Context("convert(DashboardCardInstelling)") {

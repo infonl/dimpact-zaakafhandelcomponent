@@ -22,7 +22,7 @@ import nl.info.zac.signalering.model.createSignaleringType
 
 class RestSignaleringInstellingenConverterTest : BehaviorSpec({
     val signaleringService = mockk<SignaleringService>()
-    val converter = RestSignaleringInstellingenConverter(signaleringService)
+    val restSignaleringInstellingenConverter = RestSignaleringInstellingenConverter(signaleringService)
 
     afterEach {
         checkUnnecessaryStub()
@@ -39,7 +39,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             )
 
             When("convert(SignaleringInstellingen) is called") {
-                val result = converter.convert(instellingen)
+                val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 Then("dashboard is populated because type supports dashboard and owner is USER") {
                     result.dashboard shouldNotBe null
@@ -63,7 +63,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             )
 
             When("convert(SignaleringInstellingen) is called") {
-                val result = converter.convert(instellingen)
+                val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 Then("dashboard is null because owner is GROUP") {
                     result.dashboard shouldBe null
@@ -85,7 +85,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             )
 
             When("convert(SignaleringInstellingen) is called") {
-                val result = converter.convert(instellingen)
+                val result = restSignaleringInstellingenConverter.convert(instellingen)
 
                 Then("dashboard is null because type does not support dashboard") {
                     result.dashboard shouldBe null
@@ -101,7 +101,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             val instellingen2 = createSignaleringInstellingen(id = 2L, type = type)
 
             When("convert(Collection) is called") {
-                val result = converter.convert(listOf(instellingen1, instellingen2))
+                val result = restSignaleringInstellingenConverter.convert(listOf(instellingen1, instellingen2))
 
                 Then("all items are converted") {
                     result.size shouldBe 2
@@ -128,7 +128,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             every { signaleringService.readInstellingenGroup(type, group.name) } returns domainInstellingen
 
             When("convert(RestSignaleringInstellingen, Group) is called") {
-                val result = converter.convert(restInstellingen, group)
+                val result = restSignaleringInstellingenConverter.convert(restInstellingen, group)
 
                 Then("isMail is updated from REST model if type supports mail") {
                     result.isMail shouldBe true
@@ -159,7 +159,7 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             every { signaleringService.readInstellingenUser(type, user.id) } returns domainInstellingen
 
             When("convert(RestSignaleringInstellingen, User) is called") {
-                val result = converter.convert(restInstellingen, user)
+                val result = restSignaleringInstellingenConverter.convert(restInstellingen, user)
 
                 Then("isDashboard is updated from REST model if type supports dashboard") {
                     result.isDashboard shouldBe true
