@@ -112,7 +112,7 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
@@ -143,7 +143,11 @@ jobs:
 
       - name: Get cache date
         id: cache_date
-        run: echo "date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        # Rotate the NVD database cache weekly (ISO year-week) instead of daily.
+        # A daily key would write a new ~1GB cache entry every run, exhausting the
+        # 10GB repository cache budget and evicting the OWASP database, which forces
+        # slow full NVD re-downloads. Weekly rotation keeps the cache warm.
+        run: echo "date=$(date -u +'%Y-week%V')" >> $GITHUB_OUTPUT
 
       - name: Cache OWASP dependency-check data
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -156,6 +160,16 @@ jobs:
 
       - name: Update OWASP dependency database
         run: |
+          # Warn loudly if the NVD API key is missing/empty: without it the OWASP
+          # plugin falls back to a 16s inter-request delay (vs 2s with a key),
+          # turning a ~6 min full NVD download into a ~34-45 min one that exceeds
+          # the job timeout.
+          if [ -z "${NVD_API_KEY}" ]; then
+            echo "::warning::NVD_API_KEY is not set - NVD downloads will use the slow 16s rate limit and may time out."
+          else
+            echo "✅ NVD_API_KEY is present - using the faster NVD rate limit."
+          fi
+
           echo "🔄 Updating OWASP Dependency Check database..."
           ./gradlew dependencyCheckUpdate --no-configuration-cache || true
 

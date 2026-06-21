@@ -973,6 +973,10 @@ dependencyCheck {
         // With an API key NVD allows 50 req/30s so 2s delay is safe;
         // without a key the free-tier limit requires 16s between calls.
         delay = if (nvdApiKey != null) 2000 else 16000
+        // Consider cached NVD data valid for 24h so daily CI runs reuse the
+        // restored cache instead of re-validating against the NVD API every run
+        // (the plugin default is 4h).
+        validForHours = 24
     }
 }
 
