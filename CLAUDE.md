@@ -198,11 +198,11 @@ val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 
 ### Prefer concise lambda syntax in Kotlin
 When you have a lambda function that can be simplified to a single expression, use the concise syntax. For example:
-```kotlin// Before
-val sum = numbers.map { number -> number * 2 }.sum()
-// After
-val sum = numbers.map { it * 2 }.sum()
-```
+
+    // Before
+    val sum = numbers.map { number -> number * 2 }.sum()
+    // After
+    val sum = numbers.map { it * 2 }.sum()
 This makes the code more concise and easier to read.
 
 ### Use method references in Kotlin
