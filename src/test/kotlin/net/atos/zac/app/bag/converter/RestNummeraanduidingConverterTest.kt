@@ -1,5 +1,7 @@
-/* SPDX-FileCopyrightText: 2026 INFO.nl
- * SPDX-License-Identifier: EUPL-1.2+ */
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
 package net.atos.zac.app.bag.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
