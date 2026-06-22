@@ -216,7 +216,12 @@ class KlantRestService @Inject constructor(
         return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid, loggedInUserInstance.get().id))
+                listOfNotNull(
+                    brpClientService.retrievePersoon(
+                        bsn, zaaktypeUuid, loggedInUserInstance.get().id,
+                        restListPersonenParameters.gemeenteVanInschrijving
+                    )
+                )
                     .map { it.toRestPersoon() }
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()

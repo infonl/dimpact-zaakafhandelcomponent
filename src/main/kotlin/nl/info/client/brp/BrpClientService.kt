@@ -92,9 +92,10 @@ class BrpClientService @Inject constructor(
     fun retrievePersoon(
         burgerservicenummer: String,
         zaaktypeUuid: UUID? = null,
-        userName: String
+        userName: String,
+        gemeenteVanInschrijving: String? = null
     ): Persoon? =
-        createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer).let { personenQuery ->
+        createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer, gemeenteVanInschrijving).let { personenQuery ->
             brpProtocolleringContext.clearHeaders()
             if (brpConfiguration.isBrpProtocolleringEnabled()) {
                 populateProtocolleringHeaders(
@@ -104,7 +105,11 @@ class BrpClientService @Inject constructor(
                     extractDoelbinding = { it.zaaktypeBrpParameters?.raadpleegWaarde }
                 )
             }
-            (queryPersonen(personenQuery) as RaadpleegMetBurgerservicenummerResponse).personen?.firstOrNull()
+            (
+                queryPersonen(
+                    personenQuery
+                ) as RaadpleegMetBurgerservicenummerResponse
+                ).personen.firstOrNull()
         }
 
     private fun queryPersonen(personenQuery: PersonenQuery): PersonenQueryResponse {
@@ -215,10 +220,11 @@ class BrpClientService @Inject constructor(
         fields = if (personenQuery is RaadpleegMetBurgerservicenummer) FIELDS_PERSOON else FIELDS_PERSOON_BEPERKT
     }
 
-    private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String) =
+    private fun createRaadpleegMetBurgerservicenummerQuery(burgerservicenummer: String, gemeenteVanInschrijving: String?) =
         RaadpleegMetBurgerservicenummer().apply {
             type = RAADPLEEG_MET_BURGERSERVICENUMMER
             fields = FIELDS_PERSOON
+            this.gemeenteVanInschrijving = gemeenteVanInschrijving
         }.addBurgerservicenummerItem(burgerservicenummer)
 
     private fun resolveDoelbinding(
