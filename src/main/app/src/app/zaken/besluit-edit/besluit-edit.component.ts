@@ -37,6 +37,7 @@ import { InformatieObjectenService } from "../../informatie-objecten/informatie-
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -121,6 +122,7 @@ export class BesluitEditComponent implements OnInit {
 
   private vervaldatumMinValidator: ValidatorFn | null = null;
   private lastResponseDateMinValidator: ValidatorFn | null = null;
+  private lastResponseDateMinDate: Moment | null = null;
   private documentsInitialised = false;
 
   protected readonly updateBesluitMutation = injectMutation(() => ({
@@ -135,6 +137,9 @@ export class BesluitEditComponent implements OnInit {
   constructor() {
     this.form.controls.vervaldatum.addValidators(
       this.vervaldatumNotBeforeIngangsdatum,
+    );
+    this.form.controls.lastResponseDate.addValidators(
+      this.lastResponseDateNotBeforeMin,
     );
 
     effect(() => {
@@ -239,7 +244,23 @@ export class BesluitEditComponent implements OnInit {
     }
 
     return vervaldatum.isBefore(ingangsdatum, "day")
-      ? { matDatepickerMin: { min: ingangsdatum, actual: vervaldatum } }
+      ? FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum",
+        )
+      : null;
+  };
+
+  private readonly lastResponseDateNotBeforeMin: ValidatorFn = (control) => {
+    const value = control.value;
+
+    if (!this.lastResponseDateMinDate || !moment.isMoment(value)) {
+      return null;
+    }
+
+    return value.isBefore(this.lastResponseDateMinDate, "day")
+      ? FormHelper.CustomErrorMessage(
+          "msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum",
+        )
       : null;
   };
 
@@ -264,6 +285,8 @@ export class BesluitEditComponent implements OnInit {
   }
 
   private setLastResponseDateMinDate(value: Moment) {
+    this.lastResponseDateMinDate = moment(value).startOf("day");
+
     if (this.lastResponseDateMinValidator) {
       this.form.controls.lastResponseDate.removeValidators(
         this.lastResponseDateMinValidator,

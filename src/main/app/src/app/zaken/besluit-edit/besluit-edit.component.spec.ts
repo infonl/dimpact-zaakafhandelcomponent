@@ -193,6 +193,17 @@ describe(BesluitEditComponent.name, () => {
       expect(component["form"].controls.vervaldatum.invalid).toBe(true);
     });
 
+    it("shows a readable message when the vervaldatum is before the ingangsdatum", async () => {
+      await setupComponent();
+      component["form"].controls.ingangsdatum.setValue(moment("2026-06-10"));
+
+      component["form"].controls.vervaldatum.setValue(moment("2026-06-05"));
+
+      expect(
+        component["form"].controls.vervaldatum.errors?.custom?.message,
+      ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
+    });
+
     it("is invalid without a reden", async () => {
       await setupComponent();
 
@@ -259,6 +270,19 @@ describe(BesluitEditComponent.name, () => {
       );
 
       expect(component["lastResponseDateMinValidator"]).not.toBeNull();
+    });
+
+    it("shows a readable message when the lastResponseDate is before its minimum", async () => {
+      await setupComponent(makePublicationBesluit());
+      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
+
+      component["form"].controls.lastResponseDate.setValue(
+        moment("2026-03-01"),
+      );
+
+      expect(
+        component["form"].controls.lastResponseDate.errors?.custom?.message,
+      ).toBe("msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum");
     });
   });
 

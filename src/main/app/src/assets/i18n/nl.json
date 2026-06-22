@@ -799,6 +799,8 @@
   "msg.error.date.invalid.datum.streef-na-fatale": "Streefdatum na  fatale datum",
   "msg.error.date.invalid.datum.fatale-voor-start": "Fatale datum voor startdatum",
   "msg.error.date.invalid.datum.fatale-voor-streef": "Fatale datum voor streefdatum",
+  "msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum": "De vervaldatum mag niet voor de ingangsdatum liggen",
+  "msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum": "De uiterlijke reactiedatum mag niet voor de publicatiedatum liggen",
   "msg.error.group.invalid.id": "De identificatie van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.group.invalid.name": "De naam van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.field.generic": "Dit veld bevat een fout",
