@@ -210,42 +210,41 @@ class SmartDocumentsTemplatesService @Inject constructor(
         }
 
         return entityManager.criteriaBuilder.let { builder ->
-            builder.createTupleQuery().let { criteriaQuery ->
+            builder.createQuery(UUID::class.java).let { criteriaQuery ->
                 criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
-                    root.get<UUID>(SmartDocumentsTemplate::informatieObjectTypeUUID.name).let { namePath ->
-                        criteriaQuery.multiselect(namePath).where(
-                            builder.and(
-                                builder.equal(
-                                    root.get<ZaaktypeConfiguration>(
-                                        SmartDocumentsTemplate::zaaktypeConfiguration.name
-                                    )
-                                        .get<Long>("id"),
-                                    getZaaktypeConfigurationId(zaaktypeUUID)
-                                ),
-                                builder.equal(
-                                    root.get<SmartDocumentsTemplateGroup>(
-                                        SmartDocumentsTemplate::templateGroup.name
-                                    )
-                                        .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                    templateGroupId
-                                ),
-                                builder.equal(
-                                    root.get<SmartDocumentsTemplate>(
-                                        SmartDocumentsTemplate::smartDocumentsId.name
-                                    ),
-                                    templateId
+                    criteriaQuery.select(
+                        root.get(SmartDocumentsTemplate::informatieObjectTypeUUID.name)
+                    ).where(
+                        builder.and(
+                            builder.equal(
+                                root.get<ZaaktypeConfiguration>(
+                                    SmartDocumentsTemplate::zaaktypeConfiguration.name
                                 )
+                                    .get<Long>("id"),
+                                getZaaktypeConfigurationId(zaaktypeUUID)
+                            ),
+                            builder.equal(
+                                root.get<SmartDocumentsTemplateGroup>(
+                                    SmartDocumentsTemplate::templateGroup.name
+                                )
+                                    .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                templateGroupId
+                            ),
+                            builder.equal(
+                                root.get<SmartDocumentsTemplate>(
+                                    SmartDocumentsTemplate::smartDocumentsId.name
+                                ),
+                                templateId
                             )
-                        ).let { multiselectQuery ->
-                            entityManager.createQuery(multiselectQuery)
-                                .setMaxResults(1)
-                                .resultList.firstOrNull()
-                                ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
-                            "No information object type mapped for template group id " +
-                                "$templateGroupId and template id $templateId"
                         )
-                    }
+                    ).let { selectQuery ->
+                        entityManager.createQuery(selectQuery)
+                            .setMaxResults(1)
+                            .resultList.firstOrNull()
+                    } ?: throw SmartDocumentsConfigurationException(
+                        "No information object type mapped for template group id " +
+                            "$templateGroupId and template id $templateId"
+                    )
                 }
             }
         }
@@ -262,23 +261,22 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Fetching template group name for id $templateGroupId" }
 
         return entityManager.criteriaBuilder.let { builder ->
-            builder.createTupleQuery().let { criteriaQuery ->
+            builder.createQuery(String::class.java).let { criteriaQuery ->
                 criteriaQuery.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    root.get<String>(SmartDocumentsTemplateGroup::name.name).let { namePath ->
-                        criteriaQuery.multiselect(namePath).where(
-                            builder.equal(
-                                root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
-                                templateGroupId
-                            )
-                        ).let { multiselectQuery ->
-                            entityManager.createQuery(multiselectQuery)
-                                .setMaxResults(1)
-                                .resultList.firstOrNull()
-                                ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
-                            "Template group with id $templateGroupId is not configured"
+                    criteriaQuery.select(
+                        root.get(SmartDocumentsTemplateGroup::name.name)
+                    ).where(
+                        builder.equal(
+                            root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
+                            templateGroupId
                         )
-                    }
+                    ).let { selectQuery ->
+                        entityManager.createQuery(selectQuery)
+                            .setMaxResults(1)
+                            .resultList.firstOrNull()
+                    } ?: throw SmartDocumentsConfigurationException(
+                        "Template group with id $templateGroupId is not configured"
+                    )
                 }
             }
         }
@@ -295,23 +293,22 @@ class SmartDocumentsTemplatesService @Inject constructor(
         LOG.fine { "Fetching template group name for id $templateId" }
 
         return entityManager.criteriaBuilder.let { builder ->
-            builder.createTupleQuery().let { criteriaQuery ->
+            builder.createQuery(String::class.java).let { criteriaQuery ->
                 criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
-                    root.get<String>(SmartDocumentsTemplate::name.name).let { namePath ->
-                        criteriaQuery.multiselect(namePath).where(
-                            builder.equal(
-                                root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                                templateId
-                            )
-                        ).let { multiselectQuery ->
-                            entityManager.createQuery(multiselectQuery)
-                                .setMaxResults(1)
-                                .resultList.firstOrNull()
-                                ?.get(namePath)
-                        }.takeIf { it != null } ?: throw SmartDocumentsConfigurationException(
-                            "Template with id $templateId is not configured"
+                    criteriaQuery.select(
+                        root.get(SmartDocumentsTemplate::name.name)
+                    ).where(
+                        builder.equal(
+                            root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                            templateId
                         )
-                    }
+                    ).let { selectQuery ->
+                        entityManager.createQuery(selectQuery)
+                            .setMaxResults(1)
+                            .resultList.firstOrNull()
+                    } ?: throw SmartDocumentsConfigurationException(
+                        "Template with id $templateId is not configured"
+                    )
                 }
             }
         }

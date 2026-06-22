@@ -54,25 +54,23 @@ buildscript {
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
-val branchName by extra {
-    if (project.hasProperty("branchName")) {
-        project.property("branchName").toString()
-    } else {
-        "localdev"
-    }
+val branchName = if (project.hasProperty("branchName")) {
+    project.property("branchName").toString()
+} else {
+    "localdev"
 }
+extra.set("branchName", branchName)
 
-val commitHash by extra {
-    if (project.hasProperty("commitHash")) {
-        project.property("commitHash").toString()
-    } else {
-        "localdev"
-    }
+val commitHash = if (project.hasProperty("commitHash")) {
+    project.property("commitHash").toString()
+} else {
+    "localdev"
 }
+extra.set("commitHash", commitHash)
 
 // create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
 // see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-val jacocoAgentJarForItest: Configuration by configurations.creating {
+val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJarForItest") {
     isTransitive = false
 }
 
@@ -81,26 +79,24 @@ val jacocoAgentJarForItest: Configuration by configurations.creating {
 // and update our base Docker image and JDK versions in our GitHubs workflows accordingly
 val javaVersion = 21
 
-val versionNumber by extra {
-    if (project.hasProperty("versionNumber")) {
-        project.property("versionNumber").toString()
-    } else {
-        "dev"
-    }
+val versionNumber = if (project.hasProperty("versionNumber")) {
+    project.property("versionNumber").toString()
+} else {
+    "dev"
 }
+extra.set("versionNumber", versionNumber)
 
 // create custom configuration for extra dependencies that are required in the generated WAR
-val warLib: Configuration by configurations.creating {
+val warLib: Configuration = configurations.create("warLib") {
     extendsFrom(configurations["compileOnly"])
 }
 
-val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) {
-        project.property("zacDockerImage").toString()
-    } else {
-        "ghcr.io/infonl/zaakafhandelcomponent:dev"
-    }
+val zacDockerImage = if (project.hasProperty("zacDockerImage")) {
+    project.property("zacDockerImage").toString()
+} else {
+    "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
+extra.set("zacDockerImage", zacDockerImage)
 
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
@@ -211,7 +207,7 @@ dependencies {
 testing {
     suites {
         // configure the default unit test suite to use JUnit Jupiter
-        val test by getting(JvmTestSuite::class) {
+        getByName<JvmTestSuite>("test") {
             useJUnitJupiter()
         }
 
