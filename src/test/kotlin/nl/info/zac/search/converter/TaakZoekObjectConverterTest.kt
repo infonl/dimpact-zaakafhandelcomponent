@@ -94,7 +94,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
+            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.TOEGEKEND
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
 
