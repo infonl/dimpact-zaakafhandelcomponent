@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.planitems.model
 
-import net.atos.zac.admin.model.FormulierDefinitie
+import nl.info.zac.admin.model.FormulierDefinitie
 
 enum class DefaultHumanTaskFormulierKoppeling(
     val planItemDefinitionId: String,

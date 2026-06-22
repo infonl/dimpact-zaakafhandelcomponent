@@ -44,21 +44,17 @@ class ZaakSuspendRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zaakVariabelenService: ZaakVariabelenService
 ) {
-    @PATCH
-    @Path("zaak/{uuid}/suspend")
-    fun suspendZaak(
-        @PathParam("uuid") zaakUUID: UUID,
-        suspendData: RestZaakSuspendData
-    ): RestZaak {
+    @GET
+    @Path("zaak/{uuid}/opschorting")
+    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        val suspendedZaak = suspensionZaakHelper.suspendZaak(
-            zaak = zaak,
-            numberOfDays = suspendData.numberOfDays,
-            suspensionReason = suspendData.reason
-        )
-        return restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
+        assertPolicy(zaakRechten.lezen)
+        return RESTZaakOpschorting().apply {
+            vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
+            duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
+        }
     }
 
     @PATCH
@@ -74,16 +70,20 @@ class ZaakSuspendRestService @Inject constructor(
         return restZaakConverter.toRestZaak(resumedZaak, zaakType, zaakRechten, loggedInUser)
     }
 
-    @GET
-    @Path("zaak/{uuid}/opschorting")
-    fun readOpschortingZaak(@PathParam("uuid") zaakUUID: UUID): RESTZaakOpschorting {
+    @PATCH
+    @Path("zaak/{uuid}/suspend")
+    fun suspendZaak(
+        @PathParam("uuid") zaakUUID: UUID,
+        suspendData: RestZaakSuspendData
+    ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        assertPolicy(zaakRechten.lezen)
-        return RESTZaakOpschorting().apply {
-            vanafDatumTijd = zaakVariabelenService.findDatumtijdOpgeschort(zaakUUID)
-            duurDagen = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUUID) ?: 0
-        }
+        val suspendedZaak = suspensionZaakHelper.suspendZaak(
+            zaak = zaak,
+            numberOfDays = suspendData.numberOfDays,
+            suspensionReason = suspendData.reason
+        )
+        return restZaakConverter.toRestZaak(suspendedZaak, zaakType, zaakRechten, loggedInUser)
     }
 }
