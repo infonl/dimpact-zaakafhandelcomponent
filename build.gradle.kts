@@ -913,6 +913,15 @@ dependencyCheck {
     // Configure output formats - generates HTML, JSON, and SARIF reports
     formats = listOf("HTML", "JSON", "SARIF")
 
+    // The CI workflow runs `dependencyCheckUpdate` as a dedicated, cached step
+    // before scanning, so the analysis tasks must not trigger their own NVD
+    // download. Without this, `dependencyCheckAnalyze` re-downloads from the
+    // (heavily rate-limited) NVD API, wasting its time budget and writing the
+    // data directory while it is being cached. Note: when running the scan
+    // locally, run `./gradlew dependencyCheckUpdate` once first to populate the
+    // database.
+    autoUpdate = false
+
     // Set severity threshold - only report HIGH and CRITICAL vulnerabilities
     failBuildOnCVSS = 7.0f
 
