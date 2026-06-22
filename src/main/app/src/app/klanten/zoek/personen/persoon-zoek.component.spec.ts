@@ -154,5 +154,35 @@ describe(PersoonZoekComponent.name, () => {
 
       expect(await geboortedatum.isDisabled()).toBe(false);
     });
+
+    it("should extract gemeenteVanInschrijving code when it is an object", () => {
+      const spy = jest.spyOn(klantenService, "listPersonen");
+      component.formGroup.controls.gemeenteVanInschrijving.setValue({
+        code: "0344",
+      });
+
+      component.zoekPersonen();
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gemeenteVanInschrijving: "0344",
+        }),
+        "test-zaaktype-uuid",
+      );
+    });
+
+    it("should pass gemeenteVanInschrijving as string when it is a string", () => {
+      const spy = jest.spyOn(klantenService, "listPersonen");
+      component.formGroup.controls.gemeenteVanInschrijving.setValue("1234");
+
+      component.zoekPersonen();
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gemeenteVanInschrijving: "1234",
+        }),
+        "test-zaaktype-uuid",
+      );
+    });
   });
 });

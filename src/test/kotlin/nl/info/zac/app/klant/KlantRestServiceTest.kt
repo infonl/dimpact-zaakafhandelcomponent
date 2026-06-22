@@ -32,10 +32,12 @@ import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.model.createSBIActiviteit
 import nl.info.client.kvk.model.createVestiging
 import nl.info.client.kvk.model.createVestigingsAdres
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
+import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
@@ -1026,6 +1028,75 @@ class KlantRestServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         brpClientService.retrievePersoon(any(), any(), any())
                     }
+                }
+            }
+        }
+    }
+
+    Context("Personen parameters") {
+        Given("A user with the BRP zoeken overall role") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.overallRoles } returns setOf(ROLE_NAME_BRP_ZOEKEN)
+
+            When("personenParameters is called") {
+                val result = klantRestService.personenParameters()
+
+                Then("it should return valid queries with mustSpecifyGemeente set to false") {
+                    result.size shouldBe 5
+                    result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.NON
+                }
+            }
+        }
+
+        Given("A user without the BRP zoeken overall role") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.overallRoles } returns emptySet()
+
+            When("personenParameters is called") {
+                val result = klantRestService.personenParameters()
+
+                Then("it should return valid queries with mustSpecifyGemeente set to true") {
+                    result.size shouldBe 5
+                    result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.REQ
+                }
+            }
+        }
+    }
+
+    Context("Listing BRP gemeenten") {
+        Given("A user with BRP gemeenten") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.brpGemeenten } returns mapOf(
+                "0344" to "fakeGemeenteNaam1",
+                "0599" to "fakeGemeenteNaam2"
+            )
+
+            When("listBrpGemeenten is called") {
+                val result = klantRestService.listBrpGemeenten()
+
+                Then("it should return the BRP gemeenten as RestBrpGemeente list") {
+                    result.size shouldBe 2
+                    result[0].code shouldBe "0344"
+                    result[0].naam shouldBe "fakeGemeenteNaam1"
+                    result[1].code shouldBe "0599"
+                    result[1].naam shouldBe "fakeGemeenteNaam2"
+                }
+            }
+        }
+
+        Given("A user without BRP gemeenten") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.brpGemeenten } returns emptyMap()
+
+            When("listBrpGemeenten is called") {
+                val result = klantRestService.listBrpGemeenten()
+
+                Then("it should return an empty list") {
+                    result shouldBe emptyList()
                 }
             }
         }

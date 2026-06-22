@@ -18,8 +18,11 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
+import nl.info.client.pabc.APPLICATION_NAME_ZAC
+import nl.info.client.pabc.ENTITY_TYPE_GEMEENTE
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.pabc.model.createApplicationRolesResponseModel
 import nl.info.client.pabc.model.generated.GetApplicationRolesResponse
 import nl.info.zac.identity.model.getFullName
@@ -329,6 +332,58 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     with(loggedInUserSlot.captured) {
                         overallRoles shouldContainAll overallRoleNames
                         overallRoles.none { it in entityTypeRoleNames } shouldBe true
+                    }
+                }
+            }
+        }
+
+        Given(
+            """
+            User details in the OIDC token and PABC authorisation mappings contain
+            a GEMEENTE entity type with BRP zoeken application role
+            """
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            val gemeenteCode = "0344"
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
+                    }
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            every { httpSession.getAttribute("logged-in-user") } returns null
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = gemeenteCode,
+                        entityTypeType = ENTITY_TYPE_GEMEENTE,
+                        roleNames = listOf(ROLE_NAME_BRP_ZOEKEN),
+                        applicationName = APPLICATION_NAME_ZAC
+                    )
+                )
+            }
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("the logged-in user should have the BRP gemeente in brpGemeenten") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    with(loggedInUserSlot.captured) {
+                        brpGemeenten.size shouldBe 1
+                        brpGemeenten[gemeenteCode] shouldBe gemeenteCode
                     }
                 }
             }
