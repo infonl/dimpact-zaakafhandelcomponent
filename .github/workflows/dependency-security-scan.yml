@@ -167,7 +167,16 @@ jobs:
           fi
 
           echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
+          # Cap the NVD download well below the job-level timeout. actions/cache
+          # only persists data in a post-job step, which is SKIPPED when the job
+          # is cancelled by its timeout. If the download instead runs until job
+          # cancellation, the (partial) database is never saved and every later
+          # run starts cold and times out again - a self-perpetuating failure.
+          # Using `timeout` lets this step exit cleanly so the scan and the cache
+          # save still run, persisting whatever was downloaded; the next run then
+          # resumes from it and the database converges over a few runs.
+          timeout 45m ./gradlew dependencyCheckUpdate --no-configuration-cache || \
+            echo "::warning::NVD update did not finish within 45m; saving partial database and continuing."
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
@@ -182,7 +191,11 @@ jobs:
         run: |
           # Run OWASP dependency check (now available)
           echo "🛡️ Running OWASP Dependency Check..."
-          ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
+          # Guard with a timeout: if the dedicated update step above only produced
+          # a partial database, dependencyCheckAnalyze can trigger its own NVD
+          # auto-update and run long. Capping it keeps the job within its budget
+          # and still reaches the SARIF upload and cache-save steps.
+          timeout 10m ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
 
           # Show SARIF file info if generated
           if [ -f "build/reports/dependency-check-report.sarif" ]; then
