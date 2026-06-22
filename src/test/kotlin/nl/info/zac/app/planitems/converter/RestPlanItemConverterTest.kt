@@ -100,7 +100,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a HUMAN_TASK plan item with formulier definition and reference table") {
+        Given("a HUMAN_TASK plan item with formulier definition") {
             val planItemInstance = mockk<PlanItemInstance>()
             val planItemDefinitionId = "fakePlanItemDefinitionId"
             val humanTaskParameters = createHumanTaskParameters(
