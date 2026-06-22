@@ -133,7 +133,7 @@ class RestTaskConverterTest : BehaviorSpec({
             every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
             every { TaakVariabelenService.readTaskDocuments(taskInfo) } returns emptyList()
-            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.TOEGEKEND
+            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
             every { TaskUtil.isCmmnTask(taskInfo) } returns false
 
             every { taskInfo.id } returns "fakeBpmnTaskId"
