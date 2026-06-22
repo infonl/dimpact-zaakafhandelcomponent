@@ -163,6 +163,68 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         }
     }
 
+    Given("An existing mapping") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaakafhanderParametersId = 1L
+        val templateGroupId = "template group id"
+        val templateId = "template id"
+        val informationObjectTypeUUID = UUID.randomUUID()
+
+        val criteriaBuilder = mockk<CriteriaBuilder>()
+        val criteriaQuery = mockk<CriteriaQuery<UUID>>()
+        val root = mockk<Root<SmartDocumentsTemplate>>()
+        val namePath = mockk<Path<UUID>>()
+        val zaaktypeConfigurationPath = mockk<Path<ZaaktypeConfiguration>>()
+        val longPath = mockk<Path<Long>>()
+        val stringPath = mockk<Path<String>>()
+        val templateGroupPath = mockk<Path<SmartDocumentsTemplateGroup>>()
+        val templatePath = mockk<Path<SmartDocumentsTemplate>>()
+        val predicate = mockk<Predicate>()
+        val zaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val typedQuery = mockk<TypedQuery<UUID>>()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+
+        every { criteriaBuilder.createQuery(UUID::class.java) } returns criteriaQuery
+        every { criteriaBuilder.and(any<Predicate>(), any<Predicate>(), any<Predicate>()) } returns predicate
+        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns predicate
+        every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
+        every { criteriaBuilder.equal(templatePath, templateId) } returns predicate
+
+        every { criteriaQuery.select(namePath) } returns criteriaQuery
+        every { criteriaQuery.where(any<Predicate>()) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplate::class.java) } returns root
+
+        every { root.get<UUID>("informatieObjectTypeUUID") } returns namePath
+        every { root.get<ZaaktypeConfiguration>("zaaktypeConfiguration") } returns zaaktypeConfigurationPath
+        every { root.get<SmartDocumentsTemplateGroup>("templateGroup") } returns templateGroupPath
+        every { root.get<SmartDocumentsTemplate>("smartDocumentsId") } returns templatePath
+
+        every { zaaktypeConfigurationPath.get<Long>("id") } returns longPath
+        every { templateGroupPath.get<String>("smartDocumentsId") } returns stringPath
+
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+        } returns zaaktypeConfiguration
+        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+
+        every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
+        every { typedQuery.resultList } returns listOf(informationObjectTypeUUID)
+
+        When("information object UUID is requested") {
+            val result = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
+                zaaktypeUUID,
+                templateGroupId,
+                templateId
+            )
+
+            Then("the information object type UUID is returned") {
+                result shouldBe informationObjectTypeUUID
+            }
+        }
+    }
+
     Given("A missing template group") {
         val templateGroupId = "123abc"
 

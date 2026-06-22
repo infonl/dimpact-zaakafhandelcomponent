@@ -227,11 +227,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                 root.get<SmartDocumentsTemplateGroup>(
                                     SmartDocumentsTemplate::templateGroup.name
                                 )
-                                    .get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
+                                    .get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
                                 templateGroupId
                             ),
                             builder.equal(
-                                root.get<SmartDocumentsTemplate>(
+                                root.get<String>(
                                     SmartDocumentsTemplate::smartDocumentsId.name
                                 ),
                                 templateId
