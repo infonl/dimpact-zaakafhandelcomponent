@@ -11,7 +11,6 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.model.HumanTaskReferentieTabel
-import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.app.admin.model.RestReferenceTable
 

@@ -11,14 +11,10 @@ import io.mockk.every
 import io.mockk.mockk
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import nl.info.client.bag.model.createAdresIOHal
-import nl.info.client.bag.model.createOpenbareRuimte
-import nl.info.client.bag.model.createOpenbareRuimteIOHal
-import nl.info.client.bag.model.generated.AdresIOHal
-import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
 import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis
-import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
 import java.net.URI
 
 class RestOpenbareRuimteConverterTest : BehaviorSpec({

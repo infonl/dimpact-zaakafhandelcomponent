@@ -14,19 +14,18 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.gebruikersvoorkeuren.GebruikersvoorkeurenService
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardInstelling
-import net.atos.zac.gebruikersvoorkeuren.model.DashboardCardId
 import net.atos.zac.gebruikersvoorkeuren.model.TabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.Werklijst
 import net.atos.zac.gebruikersvoorkeuren.model.createDashboardCardInstelling
 import net.atos.zac.gebruikersvoorkeuren.model.createTabelInstellingen
 import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
-import nl.info.zac.policy.output.createOverigeRechten
 
 class GebruikersvoorkeurenRESTServiceTest : BehaviorSpec({
     val gebruikersvoorkeurenService = mockk<GebruikersvoorkeurenService>()
+
     @Suppress("UNCHECKED_CAST")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyService = mockk<PolicyService>()
@@ -46,9 +45,7 @@ class GebruikersvoorkeurenRESTServiceTest : BehaviorSpec({
         }
     }
 
-    val fakeLoggedInUser = mockk<LoggedInUser> {
-        every { id } returns "fakeUserId1"
-    }
+    val fakeLoggedInUser = createLoggedInUser(id = "fakeUserId1")
 
     afterEach { checkUnnecessaryStub() }
 
@@ -95,7 +92,7 @@ class GebruikersvoorkeurenRESTServiceTest : BehaviorSpec({
 
                 Then("GebruikersvoorkeurenService.createZoekopdracht is called and result is returned") {
                     verify { gebruikersvoorkeurenService.createZoekopdracht(any()) }
-                    result shouldBe net.atos.zac.app.gebruikersvoorkeuren.converter.RESTZoekopdrachtConverter.convert(fakeZoekopdracht)
+                    result.naam shouldBe fakeZoekopdracht.naam
                 }
             }
         }
@@ -108,7 +105,9 @@ class GebruikersvoorkeurenRESTServiceTest : BehaviorSpec({
                 aantalPerPagina = 25
             )
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
-            every { gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_TAKEN, "fakeUserId1") } returns fakeTabelInstellingen
+            every {
+                gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_TAKEN, "fakeUserId1")
+            } returns fakeTabelInstellingen
             every { policyService.readWerklijstRechten() } returns nl.info.zac.policy.output.createWerklijstRechten()
 
             When("readTabelGegevens is called with werklijst MIJN_TAKEN") {

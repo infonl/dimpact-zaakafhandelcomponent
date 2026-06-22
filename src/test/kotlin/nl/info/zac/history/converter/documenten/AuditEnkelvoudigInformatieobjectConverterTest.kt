@@ -10,8 +10,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
@@ -23,6 +23,22 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
+    fun createFullEnkelvoudigInformatieObject(
+        title: String = "fakeTitel",
+        informatieObjectType: URI = URI("https://example.com/informatieobjecttype/fakeDefault"),
+        beginRegistratie: java.time.OffsetDateTime = java.time.OffsetDateTime.now()
+    ) = createEnkelvoudigInformatieObject(
+        title = title,
+        informatieObjectType = informatieObjectType,
+        beginRegistratie = beginRegistratie
+    ).also {
+        it.identificatie = "fakeIdentificatie1"
+        it.bestandsnaam = "fakeBestandsnaam.pdf"
+        it.taal = "nld"
+        it.auteur = "fakeAuteur"
+        it.bronorganisatie = "fakeBronorganisatie"
+    }
+
     fun createWijziging(
         oud: EnkelvoudigInformatieObject? = null,
         nieuw: EnkelvoudigInformatieObject? = null
@@ -33,7 +49,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     Context("Converting a wijziging with two identical objects") {
         Given("Old and new EnkelvoudigInformatieObject with identical field values") {
-            val fakeObject = createEnkelvoudigInformatieObject(title = "fakeTitel")
+            val fakeObject = createFullEnkelvoudigInformatieObject()
             val wijziging = createWijziging(oud = fakeObject, nieuw = fakeObject)
 
             When("convert is called") {
@@ -48,11 +64,11 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     Context("Converting a wijziging where titel changed") {
         Given("Old object with titel 'fakeOudTitel' and new object with titel 'fakeNieuwTitel'") {
-            val oudObject = createEnkelvoudigInformatieObject(title = "fakeOudTitel")
-            val nieuwObject = createEnkelvoudigInformatieObject(
-                title = "fakeNieuwTitel",
-                beginRegistratie = oudObject.beginRegistratie
-            )
+            val sharedRegistratie = java.time.OffsetDateTime.now()
+            val oudObject =
+                createFullEnkelvoudigInformatieObject(title = "fakeOudTitel", beginRegistratie = sharedRegistratie)
+            val nieuwObject =
+                createFullEnkelvoudigInformatieObject(title = "fakeNieuwTitel", beginRegistratie = sharedRegistratie)
             val wijziging = createWijziging(oud = oudObject, nieuw = nieuwObject)
 
             When("convert is called") {
@@ -71,11 +87,17 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
             val fakeNieuwUri = URI("https://example.com/informatieobjecttype/fakeNieuw")
             val fakeOudType = mockk<InformatieObjectType> { every { omschrijving } returns "fakeOudOmschrijving" }
             val fakeNieuwType = mockk<InformatieObjectType> { every { omschrijving } returns "fakeNieuwOmschrijving" }
-            val oudObject = createEnkelvoudigInformatieObject(informatieObjectType = fakeOudUri)
-            val nieuwObject = createEnkelvoudigInformatieObject(
-                informatieObjectType = fakeNieuwUri,
-                beginRegistratie = oudObject.beginRegistratie
-            )
+            val sharedRegistratie = java.time.OffsetDateTime.now()
+            val oudObject =
+                createFullEnkelvoudigInformatieObject(
+                    informatieObjectType = fakeOudUri,
+                    beginRegistratie = sharedRegistratie
+                )
+            val nieuwObject =
+                createFullEnkelvoudigInformatieObject(
+                    informatieObjectType = fakeNieuwUri,
+                    beginRegistratie = sharedRegistratie
+                )
             val wijziging = createWijziging(oud = oudObject, nieuw = nieuwObject)
 
             every { ztcClientService.readInformatieobjecttype(fakeOudUri) } returns fakeOudType
@@ -93,7 +115,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     Context("Converting a wijziging where oud is null") {
         Given("A wijziging with oud = null and a non-null nieuw") {
-            val wijziging = createWijziging(oud = null, nieuw = createEnkelvoudigInformatieObject())
+            val wijziging = createWijziging(oud = null, nieuw = createFullEnkelvoudigInformatieObject())
 
             When("convert is called") {
                 val result = converter.convert(wijziging)
@@ -108,7 +130,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     Context("Converting a wijziging where nieuw is null") {
         Given("A wijziging with a non-null oud and nieuw = null") {
-            val wijziging = createWijziging(oud = createEnkelvoudigInformatieObject(), nieuw = null)
+            val wijziging = createWijziging(oud = createFullEnkelvoudigInformatieObject(), nieuw = null)
 
             When("convert is called") {
                 val result = converter.convert(wijziging)

@@ -42,6 +42,7 @@ class FlowableHelperTest : BehaviorSpec({
     val fakeDrcClientService = mockk<DrcClientService>()
     val fakeKlantClientService = mockk<KlantClientService>()
     val fakePolicyService = mockk<PolicyService>()
+
     @Suppress("UNCHECKED_CAST")
     val fakeLoggedInUserInstance = mockk<Instance<LoggedInUser>>()
 

@@ -19,10 +19,11 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mailtemplates.model.MailGegevens
-import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.zaak.ZaakService
 import java.util.UUID
@@ -34,6 +35,7 @@ class MailRestServiceTest : BehaviorSpec({
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
     val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
+
     @Suppress("UNCHECKED_CAST")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val mailRestService = MailRestService(
@@ -54,7 +56,7 @@ class MailRestServiceTest : BehaviorSpec({
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
             val fakeMailGegevens = mockk<MailGegevens>()
-            val fakeLoggedInUser = mockk<LoggedInUser>()
+            val fakeLoggedInUser = createLoggedInUser()
 
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { zrcClientService.readZaak(fakeZaakUuid) } returns fakeZaak
@@ -80,12 +82,14 @@ class MailRestServiceTest : BehaviorSpec({
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
             val fakeMailGegevens = mockk<MailGegevens>()
-            val fakeLoggedInUser = mockk<LoggedInUser>()
+            val fakeLoggedInUser = createLoggedInUser()
 
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { zrcClientService.readZaak(fakeZaakUuid) } returns fakeZaak
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(fakeZaakUuid) } returns false
-            every { policyService.readZaakRechten(fakeZaak, fakeLoggedInUser) } returns createZaakRechten(versturenOntvangstbevestiging = true)
+            every {
+                policyService.readZaakRechten(fakeZaak, fakeLoggedInUser)
+            } returns createZaakRechten(versturenOntvangstbevestiging = true)
             every { restMailGegevensConverter.convert(fakeRestMailGegevens) } returns fakeMailGegevens
             every { mailService.sendMail(fakeMailGegevens, any()) } returns null
             every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(fakeZaak) } just runs
@@ -106,12 +110,14 @@ class MailRestServiceTest : BehaviorSpec({
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
-            val fakeLoggedInUser = mockk<LoggedInUser>()
+            val fakeLoggedInUser = createLoggedInUser()
 
             every { loggedInUserInstance.get() } returns fakeLoggedInUser
             every { zrcClientService.readZaak(fakeZaakUuid) } returns fakeZaak
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(fakeZaakUuid) } returns false
-            every { policyService.readZaakRechten(fakeZaak, fakeLoggedInUser) } returns createZaakRechten(versturenOntvangstbevestiging = false)
+            every {
+                policyService.readZaakRechten(fakeZaak, fakeLoggedInUser)
+            } returns createZaakRechten(versturenOntvangstbevestiging = false)
 
             When("sendAcknowledgmentReceiptMail is called") {
                 shouldThrow<PolicyException> {

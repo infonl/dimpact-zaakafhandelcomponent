@@ -15,13 +15,14 @@ import io.mockk.runs
 import io.mockk.verify
 import net.atos.zac.app.admin.converter.RESTMailtemplateKoppelingConverter
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling
+import net.atos.zac.app.admin.model.createRestMailTemplate
 import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechten
 
 class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
@@ -93,7 +94,9 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
             )
-            val restKoppeling = RESTMailtemplateKoppeling()
+            val restKoppeling = RESTMailtemplateKoppeling().apply {
+                mailtemplate = createRestMailTemplate()
+            }
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.storeMailtemplateKoppeling(any()) } returns fakeKoppeling
 
