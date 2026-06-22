@@ -45,16 +45,53 @@ class ElasticsearchIndexBootstrapService @Inject constructor(
 
     @Suppress("UNUSED_PARAMETER")
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) event: Any) {
-        waitForElasticsearchAvailability()
-        SearchIndex.entries.forEach { searchIndex ->
-            if (createIndexIfAbsent(searchIndex)) {
-                startReindexing(searchIndex)
+        managedExecutor.submit {
+            try {
+                waitForElasticsearchAvailability()
+                SearchIndex.entries.forEach { searchIndex ->
+                    createIndexIfAbsentWithRetry(searchIndex)
+                }
+            } catch (exception: InterruptedException) {
+                Thread.currentThread().interrupt()
+                LOG.log(Level.WARNING, "Elasticsearch index bootstrap interrupted", exception)
+            }
+        }
+    }
+
+    /**
+     * Retries [createIndexIfAbsent] until it succeeds, sleeping [WAIT_FOR_ELASTICSEARCH_SECONDS] between attempts.
+     * Returns after the index is confirmed to exist (created or pre-existing).
+     */
+    private fun createIndexIfAbsentWithRetry(searchIndex: SearchIndex) {
+        while (true) {
+            try {
+                if (createIndexIfAbsent(searchIndex)) {
+                    startReindexing(searchIndex)
+                }
+                return
+            } catch (@Suppress("TooGenericExceptionCaught") exception: Exception) {
+                LOG.log(
+                    Level.WARNING,
+                    "Failed to ensure index '${searchIndex.indexName}' exists: ${exception.message}. " +
+                        "Retrying in ${WAIT_FOR_ELASTICSEARCH_SECONDS}s.",
+                    exception
+                )
+            }
+            try {
+                Thread.sleep(Duration.ofSeconds(WAIT_FOR_ELASTICSEARCH_SECONDS).toMillis())
+            } catch (exception: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return
             }
         }
     }
 
     /**
      * @return `true` when the index was newly created, `false` when it already existed.
+     *
+     * If the [ElasticsearchClient.indices] create call times out on the client side while Elasticsearch
+     * was still processing it, a post-timeout [ElasticsearchClient.indices] exists check is performed
+     * to confirm whether the index was actually created.
      */
     private fun createIndexIfAbsent(searchIndex: SearchIndex): Boolean {
         if (elasticsearchClient.indices().exists { it.index(searchIndex.indexName) }.value()) {
@@ -62,13 +99,23 @@ class ElasticsearchIndexBootstrapService @Inject constructor(
             return false
         }
         LOG.info("Creating Elasticsearch index '${searchIndex.indexName}'")
-        javaClass.getResourceAsStream(searchIndex.mappingResource).use { mappingStream ->
-            requireNotNull(mappingStream) { "Index mapping resource '${searchIndex.mappingResource}' not found" }
-            elasticsearchClient.indices().create { builder ->
-                builder.index(searchIndex.indexName).withJson(mappingStream)
+        val mappingStream = javaClass.getResourceAsStream(searchIndex.mappingResource)
+            ?: error("Index mapping resource '${searchIndex.mappingResource}' not found")
+        return try {
+            mappingStream.use {
+                elasticsearchClient.indices().create { builder ->
+                    builder.index(searchIndex.indexName).withJson(mappingStream)
+                }
+            }
+            true
+        } catch (@Suppress("TooGenericExceptionCaught") exception: Exception) {
+            if (elasticsearchClient.indices().exists { it.index(searchIndex.indexName) }.value()) {
+                LOG.info("Index '${searchIndex.indexName}' was created despite client error: ${exception.message}")
+                true
+            } else {
+                throw exception
             }
         }
-        return true
     }
 
     private fun waitForElasticsearchAvailability() {
