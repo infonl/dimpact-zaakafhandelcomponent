@@ -49,7 +49,6 @@ import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
@@ -87,7 +86,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
-    private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
     private val policyService: PolicyService,
@@ -540,14 +538,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
             zaak.hoofdzaak?.let {
                 addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it, RelatieType.HOOFDZAAK))
-            }
-            zaak.relevanteAndereZaken?.forEach {
-                addAll(
-                    listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
-                        it.url,
-                        restGerelateerdeZaakConverter.convertToRelatieType(it.aardRelatie)
-                    )
-                )
             }
         }
 

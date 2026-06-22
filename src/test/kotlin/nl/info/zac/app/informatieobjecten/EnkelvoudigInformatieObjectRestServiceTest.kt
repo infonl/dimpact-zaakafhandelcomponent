@@ -53,7 +53,6 @@ import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieo
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
-import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -89,7 +88,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val policyService = mockk<PolicyService>()
-    val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
@@ -109,7 +107,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         restInformatieobjectConverter = restInformatieobjectConverter,
         restInformatieobjecttypeConverter = restInformatieobjecttypeConverter,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
-        restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         loggedInUserInstance = loggedInUserInstance,
         webdavHelper = webdavHelper,
         policyService = policyService,
