@@ -143,11 +143,7 @@ jobs:
 
       - name: Get cache date
         id: cache_date
-        # Rotate the NVD database cache weekly (ISO year-week) instead of daily.
-        # A daily key would write a new ~1GB cache entry every run, exhausting the
-        # 10GB repository cache budget and evicting the OWASP database, which forces
-        # slow full NVD re-downloads. Weekly rotation keeps the cache warm.
-        run: echo "date=$(date -u +'%Y-week%V')" >> $GITHUB_OUTPUT
+        run: echo "date=$(date -u +'%G-week%V')" >> $GITHUB_OUTPUT
 
       - name: Cache OWASP dependency-check data
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
