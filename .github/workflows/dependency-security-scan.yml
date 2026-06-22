@@ -9,6 +9,11 @@ on:
     # Run daily at 6 AM UTC to catch newly discovered vulnerabilities
     - cron: "0 6 * * *"
   workflow_dispatch:
+    inputs:
+      seed_database:
+        description: "One-off seeding run: allow a long timeout so a cold NVD database download can complete and populate the cache. Leave off for normal runs."
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -112,7 +117,11 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # Normal runs are capped at 60 min. A one-off seeding run (workflow_dispatch
+    # with seed_database=true) gets a much larger budget so a cold full NVD
+    # download can complete and populate the cache, staying under the 360 min
+    # hosted-runner hard limit.
+    timeout-minutes: ${{ (inputs.seed_database == true) && 330 || 60 }}
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
@@ -175,8 +184,30 @@ jobs:
           # Using `timeout` lets this step exit cleanly so the scan and the cache
           # save still run, persisting whatever was downloaded; the next run then
           # resumes from it and the database converges over a few runs.
-          timeout 45m ./gradlew dependencyCheckUpdate --no-configuration-cache || \
-            echo "::warning::NVD update did not finish within 45m; saving partial database and continuing."
+          #
+          # `--no-daemon` (plus `timeout -k` to force-kill) is essential: with a
+          # Gradle daemon, `timeout` only kills the client while the daemon keeps
+          # writing ~/.gradle/dependency-check-data in the background. The cache
+          # post-step then fails with `tar: file changed as we read it` (exit 1)
+          # so the database is never saved and every run starts cold. Running
+          # without a daemon makes the timeout terminate the actual build, leaving
+          # the data directory static when actions/cache archives it.
+          #
+          # A one-off seeding run (seed_database=true) uses a much larger budget so
+          # a cold full download can complete and seed the cache; normal runs stay
+          # at 45m and only need to apply incremental NVD updates.
+          if [ "${{ inputs.seed_database }}" = "true" ]; then
+            UPDATE_TIMEOUT=300m
+          else
+            UPDATE_TIMEOUT=45m
+          fi
+          echo "Using NVD update timeout: ${UPDATE_TIMEOUT}"
+          timeout -k 30s "${UPDATE_TIMEOUT}" ./gradlew dependencyCheckUpdate --no-configuration-cache --no-daemon || \
+            echo "::warning::NVD update did not finish within ${UPDATE_TIMEOUT}; saving partial database and continuing."
+
+          # Belt-and-suspenders: ensure no Gradle daemon (e.g. one warmed up by
+          # setup-gradle) is still writing the data directory before it is cached.
+          ./gradlew --stop || true
 
           # Show cache info
           if [ -d ~/.gradle/dependency-check-data ]; then
@@ -194,8 +225,14 @@ jobs:
           # Guard with a timeout: if the dedicated update step above only produced
           # a partial database, dependencyCheckAnalyze can trigger its own NVD
           # auto-update and run long. Capping it keeps the job within its budget
-          # and still reaches the SARIF upload and cache-save steps.
-          timeout 10m ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
+          # and still reaches the SARIF upload and cache-save steps. `--no-daemon`
+          # ensures the timeout kills the actual build so no daemon keeps writing
+          # the data directory while the cache is archived.
+          timeout -k 30s 10m ./gradlew dependencyCheckAnalyze --no-configuration-cache --no-daemon --info 2>&1 | tee owasp-scan.log || true
+
+          # Ensure no Gradle daemon lingers writing the data directory before the
+          # cache post-step archives it.
+          ./gradlew --stop || true
 
           # Show SARIF file info if generated
           if [ -f "build/reports/dependency-check-report.sarif" ]; then
