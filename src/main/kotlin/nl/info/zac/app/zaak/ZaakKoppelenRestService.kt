@@ -7,7 +7,6 @@ package nl.info.zac.app.zaak
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import jakarta.ws.rs.BadRequestException
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
@@ -23,10 +22,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
-import nl.info.client.zgw.zrc.model.NillableRelevanteZakenZaakPatch
-import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
-import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHoofdzaak
@@ -55,7 +51,6 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
-import java.lang.UnsupportedOperationException
 import java.net.URI
 import java.util.UUID
 
@@ -120,19 +115,7 @@ class ZaakKoppelenRestService @Inject constructor(
         when (restZaakLinkData.relatieType) {
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
             RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
-            RelatieType.VERVOLG -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.VERVOLG)
-            RelatieType.ONDERWERP -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.ONDERWERP)
-            RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaak, zaakToLinkTo, AardRelatieEnum.BIJDRAGE)
             RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
-            RelatieType.OVERIG -> throw BadRequestException("Relatie type 'OVERIG' is not supported.")
-        }
-        restZaakLinkData.reverseRelatieType?.let { reverseRelatieType ->
-            when (reverseRelatieType) {
-                RelatieType.VERVOLG -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.VERVOLG)
-                RelatieType.ONDERWERP -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.ONDERWERP)
-                RelatieType.BIJDRAGE -> koppelRelevanteZaken(zaakToLinkTo, zaak, AardRelatieEnum.BIJDRAGE)
-                else -> error("Reverse relatie type $reverseRelatieType is not supported")
-            }
         }
     }
 
@@ -157,32 +140,11 @@ class ZaakKoppelenRestService @Inject constructor(
                 deelZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
             )
-            RelatieType.VERVOLG -> ontkoppelRelevanteZaken(
-                zaak = zaak,
-                andereZaak = linkedZaak,
-                aardRelatie = AardRelatieEnum.VERVOLG,
-                explanation = restZaakUnlinkData.reden
-            )
-            RelatieType.ONDERWERP -> ontkoppelRelevanteZaken(
-                zaak = zaak,
-                andereZaak = linkedZaak,
-                aardRelatie = AardRelatieEnum.ONDERWERP,
-                explanation = restZaakUnlinkData.reden
-            )
-            RelatieType.BIJDRAGE -> ontkoppelRelevanteZaken(
-                zaak = zaak,
-                andereZaak = linkedZaak,
-                aardRelatie = AardRelatieEnum.BIJDRAGE,
-                explanation = restZaakUnlinkData.reden
-            )
             RelatieType.GERELATEERD -> ontkoppelGerelateerdeZaken(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
             )
-            RelatieType.OVERIG -> {
-                throw BadRequestException("Relatie type 'OVERIG' is not supported.")
-            }
         }
     }
 
@@ -250,9 +212,6 @@ class ZaakKoppelenRestService @Inject constructor(
                 }
             RelatieType.GERELATEERD ->
                 true
-            else -> throw UnsupportedOperationException(
-                "Unsupported link type: $relationType for ${sourceZaak.identificatie} -> ${this.identificatie}"
-            )
         }
 
     private fun isLinkable(
@@ -284,9 +243,6 @@ class ZaakKoppelenRestService @Inject constructor(
                     !targetZaak.isIndicatie(HOOFDZAAK)
             RelatieType.GERELATEERD ->
                 true
-            else -> throw UnsupportedOperationException(
-                "Unsupported link type: $relationType for ${this.identificatie} -> ${targetZaak.identificatie}"
-            )
         }
 
     private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
@@ -308,20 +264,6 @@ class ZaakKoppelenRestService @Inject constructor(
         return gerelateerdeZaken?.apply {
             if (none { it.url == andereZaakURI }) add(gerelateerdeZaak)
         } ?: listOf(gerelateerdeZaak)
-    }
-
-    private fun addRelevanteZaak(
-        relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaakURI: URI,
-        aardRelatie: AardRelatieEnum
-    ): List<RelevanteZaak> {
-        val relevanteZaak = RelevanteZaak().apply {
-            this.url = andereZaakURI
-            this.aardRelatie = aardRelatie
-        }
-        return relevanteZaken?.apply {
-            if (none { it.aardRelatie == aardRelatie && it.url == andereZaakURI }) add(relevanteZaak)
-        } ?: listOf(relevanteZaak)
     }
 
     private fun koppelGerelateerdeZaken(
@@ -347,23 +289,6 @@ class ZaakKoppelenRestService @Inject constructor(
         // So we manually send a ScreenEvent for the hoofdzaak.
         indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
-    }
-
-    private fun koppelRelevanteZaken(
-        zaak: Zaak,
-        andereZaak: Zaak,
-        aardRelatie: AardRelatieEnum
-    ) {
-        zrcClientService.patchZaak(
-            zaak.uuid,
-            Zaak().apply {
-                relevanteAndereZaken = addRelevanteZaak(
-                    zaak.relevanteAndereZaken,
-                    andereZaak.url,
-                    aardRelatie
-                )
-            }
-        )
     }
 
     private fun ontkoppelGerelateerdeZaken(
@@ -394,33 +319,11 @@ class ZaakKoppelenRestService @Inject constructor(
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
-    private fun ontkoppelRelevanteZaken(
-        zaak: Zaak,
-        andereZaak: Zaak,
-        aardRelatie: AardRelatieEnum,
-        explanation: String
-    ) = zrcClientService.patchZaak(
-        zaakUUID = zaak.uuid,
-        zaak = NillableRelevanteZakenZaakPatch(
-            relevanteAndereZaken = removeRelevanteZaak(zaak.relevanteAndereZaken, andereZaak.url, aardRelatie)
-        ),
-        explanation = explanation
-    )
-
     private fun removeGerelateerdeZaak(
         gerelateerdeZaken: MutableList<GerelateerdeZaak>?,
         andereZaakURI: URI
     ): List<GerelateerdeZaak> {
         gerelateerdeZaken?.removeIf { it.url == andereZaakURI }
         return gerelateerdeZaken ?: emptyList()
-    }
-
-    private fun removeRelevanteZaak(
-        relevanteZaken: MutableList<RelevanteZaak>?,
-        andereZaakURI: URI,
-        aardRelatie: AardRelatieEnum
-    ): List<RelevanteZaak>? {
-        relevanteZaken?.removeIf { it.aardRelatie == aardRelatie && it.url == andereZaakURI }
-        return relevanteZaken?.takeUnless { it.isEmpty() }
     }
 }
