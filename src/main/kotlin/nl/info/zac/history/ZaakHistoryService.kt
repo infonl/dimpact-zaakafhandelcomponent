@@ -69,8 +69,8 @@ class ZaakHistoryService @Inject constructor(
         val new = (auditTrailLine.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
         return when (auditTrailLine.actie) {
             ACTION_PARTIAL_UPDATE if old != null &&
-                    new != null
-                -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                new != null
+            -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
                 auditTrailLine,
                 convertActie(auditTrailLine.resource, auditTrailLine.actie),
                 old,
@@ -78,7 +78,7 @@ class ZaakHistoryService @Inject constructor(
             )
 
             ACTION_CREATE, ACTION_UPDATE, ACTION_DESTROY
-                -> listOfNotNull(convertLine(auditTrailLine, old, new))
+            -> listOfNotNull(convertLine(auditTrailLine, old, new))
 
             else -> emptyList()
         }
