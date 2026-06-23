@@ -183,12 +183,18 @@ signaleringen:
   restartPolicy: Never
   imagePullSecrets: []
   resources: {}
-  podSecurityContext: {}
-  nodeSelector: {}
-  affinity: {}
-  securityContext:
+  podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
+  nodeSelector: {}
+  affinity: {}
+   # -- container security context for the curl-based signaleren CronJob containers
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
   tolerations: []
 
 # OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
@@ -331,6 +337,13 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
+   # -- Security context for the curl-based init containers (read-only root filesystem is safe here)
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
    # -- Resource limits and requests for the init-solr-zac-core init container
   resources:
     requests:
@@ -353,7 +366,7 @@ opa:
     repository: openpolicyagent/opa
     tag: "1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc"
     pullPolicy: IfNotPresent
-   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
+   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
     enabled: false
   replicas: 1
@@ -370,8 +383,16 @@ opa:
       memory: 20Mi
   podAnnotations: {}
   imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+   # -- container security context applied to the OPA container in both sidecar and standalone modes
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
   nodeSelector: {}
   affinity: {}
   tolerations: []

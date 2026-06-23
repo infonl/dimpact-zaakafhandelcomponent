@@ -22,18 +22,14 @@ spec:
           {{- end }}
           serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
           securityContext:
-            {{- toYaml .Values.signaleringen.securityContext | nindent 12 }}
+            {{- toYaml .Values.signaleringen.podSecurityContext | nindent 12 }}
           restartPolicy: {{ .Values.signaleringen.restartPolicy }}
           containers:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren
               image: "{{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}"
               imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                capabilities:
-                  drop:
-                    - ALL
+                {{- toYaml .Values.signaleringen.securityContext | nindent 16 }}
               resources: 
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               env:
