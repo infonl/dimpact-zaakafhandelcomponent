@@ -303,7 +303,7 @@ jobs:
             target/zaakafhandelcomponent.jar
           retention-days: 1
 
-  run-unit-tests:
+  run-backend-unit-tests:
     needs: [build, paths-filter]
     if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     runs-on: ubuntu-24.04
@@ -329,21 +329,13 @@ jobs:
           name: gradle-build
           path: build
 
-      - name: Download frontend build artefacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: frontend-artefacts
-
-      - name: Extract frontend build artefacts
-        run: tar xzf frontend-artefacts.tar.gz
-
       - name: Download generated Java clients
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generated-java-clients
           path: src/generated
 
-      - name: Run unit tests and generate test coverage reports
+      - name: Run backend unit tests and generate test coverage report
         run: |
           ./gradlew \
           -x processResources \
@@ -352,18 +344,17 @@ jobs:
           -x generateJsonSchema2Pojo \
           -x generateOpenApiSpec \
           -x npmInstall \
-          test npmRunTestCoverage jacocoTestReport --info
+          test jacocoTestReport --info
 
-      - name: Publish unit test results
+      - name: Publish backend unit test results
         uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         if: ${{ !cancelled() }}
         with:
-          check_name: unit-test-results
+          check_name: backend-unit-test-results
           files: |
             build/test-results/test/**/*.xml
-            src/main/app/reports/*.xml
 
-      - name: Upload unit test results to CodeCov
+      - name: Upload backend unit test results to CodeCov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         if: ${{ !cancelled() }}
         with:
@@ -376,6 +367,60 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: backendunittests
           directory: ./build/reports/jacoco/test
+
+  run-frontend-unit-tests:
+    needs: [build, paths-filter]
+    if: ${{ (github.event_name != 'merge_group' && needs.paths-filter.outputs.changes-requiring-build == 'true') || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
+      READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup JDK
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+
+      - name: Download frontend build artefacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: frontend-artefacts
+
+      - name: Extract frontend build artefacts
+        run: tar xzf frontend-artefacts.tar.gz
+
+      - name: Run frontend unit tests and generate test coverage report
+        run: |
+          ./gradlew \
+          -x processResources \
+          -x classes \
+          -x generateJavaClients \
+          -x generateJsonSchema2Pojo \
+          -x generateOpenApiSpec \
+          -x npmInstall \
+          npmRunTestCoverage --info
+
+      - name: Publish frontend unit test results
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        if: ${{ !cancelled() }}
+        with:
+          check_name: frontend-unit-test-results
+          files: |
+            src/main/app/reports/*.xml
+
+      - name: Upload frontend unit test results to CodeCov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: "test_results"
 
       - name: Upload frontend unit test coverage report to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -491,7 +536,7 @@ jobs:
           retention-days: 1
 
   push-docker-image:
-    needs: [build, run-unit-tests, build-docker-image-and-run-itests, determine-version]
+    needs: [build, run-backend-unit-tests, run-frontend-unit-tests, build-docker-image-and-run-itests, determine-version]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Avoid infinite build loop on renovate updates
