@@ -100,9 +100,9 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
 
-                Then("InputValidationFailedException is thrown") {
-                    exception.message!!.contains("OnbekendType")
-                }
+Then("InputValidationFailedException is thrown") {
+    exception.message!!.contains("OnbekendType") shouldBe true
+}
             }
         }
     }

@@ -100,8 +100,8 @@
 ## 12. Add unit tests for FlowableHelper
 
 - [x] 12.1 Create `FlowableHelperTest.kt` in `src/test/kotlin/net/atos/zac/flowable/`
-- [x] 12.2 Instantiate `FlowableHelper` with 16 mocked dependencies
-- [x] 12.3 Add test: verify all 16 properties hold the expected mock references
+- [x] 12.2 Instantiate `FlowableHelper` with 17 mocked dependencies
+- [x] 12.3 Add test: verify all 17 properties hold the expected mock references
 
 ## 13. Add unit tests for RESTCaseDefinitionConverter
 
