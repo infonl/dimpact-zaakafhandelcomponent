@@ -128,9 +128,9 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
                     service.readLock(fakeUuid)
                 }
 
-                Then("EnkelvoudigInformatieObjectLockNotFoundException is thrown") {
-                    exception.message!!.contains(fakeUuid.toString())
-                }
+Then("EnkelvoudigInformatieObjectLockNotFoundException is thrown") {
+    exception.message!!.contains(fakeUuid.toString()) shouldBe true
+}
             }
         }
     }
