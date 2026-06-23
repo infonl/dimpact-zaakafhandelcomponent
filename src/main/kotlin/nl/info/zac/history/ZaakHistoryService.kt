@@ -49,7 +49,7 @@ class ZaakHistoryService @Inject constructor(
 ) {
     /**
      * Retrieves the zaak history ('audit trail') using the ZGW ZRC API.
-     * Note that the contents of the audit trail lines are not defined by the ZGW ZRC API.
+     * Note that the ZGW ZRC API does not define the contents of the audit trail lines.
      * While our code to interpret these audit trail lines tries to be lenient,
      * the code is currently dependent on the specific implementation of the audit trail ZGW ZRC API endpoints
      * by [OpenZaak](https://open-zaak.readthedocs.io/).
@@ -67,21 +67,18 @@ class ZaakHistoryService @Inject constructor(
     private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
         val new = (auditTrailLine.wijzigingen.nieuw as? Map<*, *>)?.asMapWithKeyOfString()
-        return when {
-            auditTrailLine.actie == ACTION_PARTIAL_UPDATE &&
-                old != null &&
-                new != null
-            -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+        return when (auditTrailLine.actie) {
+            ACTION_PARTIAL_UPDATE if old != null &&
+                    new != null
+                -> zaakHistoryPartialUpdateConverter.convertPartialUpdate(
                 auditTrailLine,
                 convertActie(auditTrailLine.resource, auditTrailLine.actie),
                 old,
                 new
             )
 
-            auditTrailLine.actie == ACTION_CREATE ||
-                auditTrailLine.actie == ACTION_UPDATE ||
-                auditTrailLine.actie == ACTION_DESTROY
-            -> listOfNotNull(convertLine(auditTrailLine, old, new))
+            ACTION_CREATE, ACTION_UPDATE, ACTION_DESTROY
+                -> listOfNotNull(convertLine(auditTrailLine, old, new))
 
             else -> emptyList()
         }
