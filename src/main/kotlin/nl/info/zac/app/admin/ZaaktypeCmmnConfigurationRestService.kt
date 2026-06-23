@@ -15,10 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_ID
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService.INADMISSIBLE_TERMINATION_REASON
-import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.app.admin.converter.RESTReplyToConverter
 import net.atos.zac.app.admin.converter.RESTZaakbeeindigRedenConverter
@@ -34,7 +30,11 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_REASON
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN

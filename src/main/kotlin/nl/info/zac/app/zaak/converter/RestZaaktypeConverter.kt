@@ -5,13 +5,13 @@
 package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.extensionPeriodDays
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype

@@ -121,3 +121,9 @@ val BEHANDELAAR_INACTIVE_GROUP_1 = TestUser(
     displayName = "Test Behandelaar 1 - inactive group",
     email = "behandelaar-inactive-group-test-1@example.com"
 )
+val BEHANDELAAR_LONG_NAME_TEST = TestUser(
+    username = "behandelaar-long-name-test-user-1",
+    password = "behandelaar-long-name-test-user-1",
+    displayName = "Test Behandelaar Long Name User 1",
+    email = "behandelaar-long-name-test@example.com"
+)

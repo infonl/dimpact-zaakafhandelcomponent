@@ -5,8 +5,8 @@
 
 import { GeneratedType } from "../../utils/generated-types";
 
-export class TabelGegevens {
+export type TabelGegevens = {
   aantalPerPagina: number;
   pageSizeOptions: number[];
   werklijstRechten: GeneratedType<"RestWerklijstRechten">;
-}
+};

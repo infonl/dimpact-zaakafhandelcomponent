@@ -581,6 +581,16 @@
       "realmRoles": ["beheerder_elk_domein"]
     },
     {
+      "id": "f7e8d9c0-b1a2-3456-7890-abcdef012345",
+      "name": "behandelaars-test-group-with-a-very-long-name-0001",
+      "path": "/behandelaars-test-group-with-a-very-long-name-0001",
+      "description": "Test group behandelaars with a very long group name",
+      "attributes": {
+        "email": ["${ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS}"]
+      },
+      "realmRoles": ["behandelaar_domein_test_1"]
+    },
+    {
       "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "name": "inactive-group-test-1",
       "path": "/inactive-group-test-1",
@@ -2889,6 +2899,32 @@
       "realmRoles": ["default-roles-zac"],
       "notBefore": 0,
       "groups": ["/inactive-group-test-1"]
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
+      "username": "behandelaar-long-name-test-user-1",
+      "firstName": "Test",
+      "lastName": "Behandelaar Long Name User 1",
+      "email": "behandelaar-long-name-test@example.com",
+      "emailVerified": true,
+      "createdTimestamp": 1744010801635,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "e5f6a7b8-c9d0-1234-ef01-23456789abcd",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1744010820325,
+          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-zac"],
+      "notBefore": 0,
+      "groups": ["/behandelaars-test-group-with-a-very-long-name-0001"]
     }
   ]
 }

@@ -15,22 +15,22 @@
           [layout]="indicatiesLayout.EXTENDED"
           [besluit]="besluit"
         ></zac-besluit-indicaties>
-        <button
-          *ngIf="!isReadonly(besluit)"
-          mat-icon-button
-          title="{{ 'actie.besluit.wijzigen' | translate }}"
-          (click)="$event.stopPropagation(); besluitWijzigen.emit(besluit)"
-        >
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button
-          *ngIf="!isReadonly(besluit)"
-          mat-icon-button
-          title="{{ 'actie.besluit.intrekken' | translate }}"
-          (click)="$event.stopPropagation(); intrekken(besluit)"
-        >
-          <mat-icon outlined>stop_circle</mat-icon>
-        </button>
+        <div *ngIf="!isReadonly(besluit)" class="flex-row">
+          <button
+            mat-icon-button
+            title="{{ 'actie.besluit.wijzigen' | translate }}"
+            (click)="$event.stopPropagation(); besluitWijzigen.emit(besluit)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            title="{{ 'actie.besluit.intrekken' | translate }}"
+            (click)="$event.stopPropagation(); intrekken(besluit)"
+          >
+            <mat-icon outlined>stop_circle</mat-icon>
+          </button>
+        </div>
       </mat-panel-description>
     </mat-expansion-panel-header>
 
@@ -90,11 +90,14 @@
             label="besluitToelichting"
             [value]="besluit.toelichting"
           />
-          <mfb-form-field
-            class="flex-fill-row"
-            *ngIf="besluitInformatieobjecten[besluit.uuid]"
-            [field]="besluitInformatieobjecten[besluit.uuid]"
-          ></mfb-form-field>
+          <zac-documents
+            class="flex-fill-row mt-2 px-1"
+            *ngIf="documentenForms[besluit.uuid]"
+            [form]="documentenForms[besluit.uuid]"
+            key="documenten"
+            [options]="besluit.informatieobjecten ?? []"
+            [readonly]="true"
+          ></zac-documents>
         </div>
       </mat-tab>
 

@@ -6,9 +6,7 @@ package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.generated.AardRelatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
-import nl.info.client.zgw.zrc.model.generated.RelevanteZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.policy.model.toRestZaakRechten
@@ -41,15 +39,6 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         )
     }
 
-    fun convert(relevanteZaak: RelevanteZaak, loggedInUser: LoggedInUser): RestGerelateerdeZaak {
-        val zaak = zrcClientService.readZaak(relevanteZaak.url)
-        return convert(
-            zaak = zaak,
-            loggedInUser = loggedInUser,
-            relatieType = convertToRelatieType(relevanteZaak.aardRelatie)
-        )
-    }
-
     fun convert(gerelateerdeZaak: GerelateerdeZaak, loggedInUser: LoggedInUser): RestGerelateerdeZaak {
         val zaak = zrcClientService.readZaak(gerelateerdeZaak.url)
         return convert(
@@ -57,12 +46,5 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             loggedInUser = loggedInUser,
             relatieType = RelatieType.GERELATEERD
         )
-    }
-
-    fun convertToRelatieType(aardRelatie: AardRelatieEnum) = when (aardRelatie) {
-        AardRelatieEnum.VERVOLG -> RelatieType.VERVOLG
-        AardRelatieEnum.BIJDRAGE -> RelatieType.BIJDRAGE
-        AardRelatieEnum.ONDERWERP -> RelatieType.ONDERWERP
-        AardRelatieEnum.OVERIG -> RelatieType.OVERIG
     }
 }

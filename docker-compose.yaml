@@ -69,6 +69,7 @@ services:
       - ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS:-test-group-recordmanagers-test-1@example.com}
       - ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS:-test-group-recordmanagers-test-2@example.com}
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
+      - ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS:-test-group-behandelaars-long-name-test@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
@@ -170,7 +171,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:a863b95eaf9d868354e336b1a38cce4f8d73cb029ef45cb6dfcc935a0c1524c1
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
     ports:
       - "8001:8000"
     volumes:
@@ -299,7 +300,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202606151541@sha256:2e3e135f9d76f869037b09096b6e8a9850425eaecd0fdb60abd0b932e42ac0b5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202606230850@sha256:024308250beab8a6327d8f4ce91e630b4bcbd650015a4e86df6db437dc8bb4d7
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -421,7 +422,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.7@sha256:032b3acb51ed02c4b801473d54bb63e9e9f13738d215126d9843c30283794f4b
+    image: grafana/tempo:3.0.2@sha256:cda87c212d8c584dc0b89e337e7ed648a5100feb657e5d528480ee4fa03dbbe3
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -704,7 +705,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:a863b95eaf9d868354e336b1a38cce4f8d73cb029ef45cb6dfcc935a0c1524c1
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
     ports:
       - "8005:8080"
     volumes:
@@ -951,7 +952,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
+    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1074,7 +1075,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
+    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1102,7 +1103,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
+    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1131,7 +1132,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.4.9@sha256:55dc5644595d43a5412d60436aac846ce0d71b799be85c53ff815c31416f3e39
+    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
     # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
     # results in a non-working Open Formulieren instance.
     # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
@@ -1154,7 +1155,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.1@sha256:a863b95eaf9d868354e336b1a38cce4f8d73cb029ef45cb6dfcc935a0c1524c1
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
     ports:
       - "8007:8080"
     volumes:

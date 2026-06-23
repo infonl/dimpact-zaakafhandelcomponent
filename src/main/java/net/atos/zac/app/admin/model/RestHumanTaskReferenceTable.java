@@ -5,7 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
-import net.atos.zac.admin.model.FormulierVeldDefinitie;
+import nl.info.zac.admin.model.FormulierVeldDefinitie;
 import nl.info.zac.app.admin.model.RestReferenceTable;
 
 public class RestHumanTaskReferenceTable {

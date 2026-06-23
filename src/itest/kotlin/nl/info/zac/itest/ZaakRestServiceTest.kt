@@ -18,8 +18,10 @@ import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
@@ -1228,6 +1230,45 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "zaaktype" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         } ]                                               
                     """
+                }
+            }
+        }
+    }
+
+    Context("Creating a zaak with a group and behandelaar whose names are longer than 24 characters") {
+        Given(
+            """
+            a Keycloak group with a name of 50 characters and a behandelaar user with a username of 33 characters
+            both exist in Keycloak, and an authorised behandelaar is logged in
+            """
+        ) {
+            When("the create zaak endpoint is called with the long-name group and the long-name user as behandelaar") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+                    groupId = GROUP_BEHANDELAARS_LONG_NAME_TEST.name,
+                    groupName = GROUP_BEHANDELAARS_LONG_NAME_TEST.description,
+                    startDate = DATE_TIME_2020_01_01,
+                    testUser = BEHANDELAAR_1,
+                    behandelaarId = BEHANDELAAR_LONG_NAME_TEST.username,
+                    behandelaarName = BEHANDELAAR_LONG_NAME_TEST.displayName
+                )
+                Then("the zaak is created and the response contains the full long group name and behandelaar name") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "groep": {
+                            "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
+                            "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
+                          },
+                          "behandelaar": {
+                            "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
+                            "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
+                          },
+                          "isOpen": true
+                        }
+                    """.trimIndent()
                 }
             }
         }

@@ -37,11 +37,12 @@ import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
 
 @NgModule({
-  declarations: [BesluitEditComponent, BesluitViewComponent, ZaakViewComponent],
+  declarations: [BesluitEditComponent, ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
     NotitiesComponent,
     SharedModule,
+    BesluitViewComponent,
     ZaakDocumentenComponent,
     ZakenRoutingModule,
     KlantenModule,

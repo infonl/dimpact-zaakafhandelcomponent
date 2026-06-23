@@ -16,7 +16,7 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees group "test-group-b" and user "testuser2" in the zaak data
-    Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM "
+    Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM"
     Then "Bob" sees group "coordinators_test_1" and user "coordinator1newiam" in the zaak data
 
   Scenario: Bob opens the initial task form
