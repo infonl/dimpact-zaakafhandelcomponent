@@ -1071,7 +1071,7 @@ Nadat de actie is afgerond is het document voorzien van een ‘is verzonden’ i
 ### Werking van zaakrelaties
 
 In sommige werkprocessen of -situaties komt het voor dat zaken een relatie met elkaar hebben. Het is in de ZAC mogelijk om twee zaken aan elkaar te koppelen. Of een bepaalde relatie gelegd mag worden is afhankelijk van of dit in de zaaktypen is ingesteld. Als dit niet is ingesteld dan biedt de ZAC ook niet de mogelijkheid om deze koppeling te maken.
-ZAC kent Hoofd- en deelzaak relaties tussen twee zaken en gerelateerde zaken.
+ZAC kent hoofd- en deelzaakrelaties tussen twee zaken en gerelateerde zaken.
 
 Toelichting op de afhankelijkheid van zaaktype inrichting:
 
