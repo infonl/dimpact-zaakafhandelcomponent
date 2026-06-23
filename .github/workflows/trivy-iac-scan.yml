@@ -1,0 +1,61 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Trivy IaC misconfiguration scan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "charts/**"
+      - ".github/workflows/trivy-iac-scan.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "charts/**"
+      - ".github/workflows/trivy-iac-scan.yml"
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main') }}
+
+jobs:
+  trivy-config:
+    name: Trivy IaC misconfiguration scan
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Run Trivy IaC/misconfiguration scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          # scan the repository for misconfigurations in the Dockerfile,
+          # Helm charts and Kubernetes manifests
+          scan-type: 'config'
+          scan-ref: '.'
+          # pin the Trivy scanner version independently of the action wrapper so that
+          # the scanner itself stays current
+          version: v0.71.2 # trivy version updated by renovate
+          format: 'sarif'
+          output: 'trivy-config-results.sarif'
+          # limit the severities even when using Sarif
+          # or else all misconfigurations will be reported
+          limit-severities-for-sarif: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy IaC Scan Results to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: 'trivy-config-results.sarif'
+          category: 'trivy-iac'
