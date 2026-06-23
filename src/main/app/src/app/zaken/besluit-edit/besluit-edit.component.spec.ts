@@ -204,13 +204,12 @@ describe(BesluitEditComponent.name, () => {
       ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
     });
 
-    it("marks the prefilled vervaldatum invalid and touched when the ingangsdatum is moved after it", async () => {
+    it("marks the prefilled vervaldatum touched and shows the readable message when the ingangsdatum is moved past it", async () => {
       await setupComponent();
       expect(component["form"].controls.vervaldatum.touched).toBe(false);
 
       component["form"].controls.ingangsdatum.setValue(moment("2027-06-10"));
 
-      expect(component["form"].controls.vervaldatum.invalid).toBe(true);
       expect(component["form"].controls.vervaldatum.touched).toBe(true);
       expect(
         component["form"].controls.vervaldatum.errors?.custom?.message,
@@ -221,6 +220,40 @@ describe(BesluitEditComponent.name, () => {
       await setupComponent();
 
       expect(component["form"].controls.reden.invalid).toBe(true);
+    });
+
+    it("accepts a toelichting of up to 1000 characters", async () => {
+      await setupComponent();
+
+      component["form"].controls.toelichting.setValue("a".repeat(1000));
+
+      expect(component["form"].controls.toelichting.valid).toBe(true);
+    });
+
+    it("is invalid when the toelichting exceeds 1000 characters", async () => {
+      await setupComponent();
+
+      component["form"].controls.toelichting.setValue("a".repeat(1001));
+
+      expect(
+        component["form"].controls.toelichting.errors?.maxlength,
+      ).toBeTruthy();
+    });
+
+    it("accepts a reden of up to 80 characters", async () => {
+      await setupComponent();
+
+      component["form"].controls.reden.setValue("a".repeat(80));
+
+      expect(component["form"].controls.reden.valid).toBe(true);
+    });
+
+    it("is invalid when the reden exceeds 80 characters", async () => {
+      await setupComponent();
+
+      component["form"].controls.reden.setValue("a".repeat(81));
+
+      expect(component["form"].controls.reden.errors?.maxlength).toBeTruthy();
     });
   });
 
