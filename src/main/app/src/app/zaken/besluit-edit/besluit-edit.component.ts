@@ -163,7 +163,10 @@ export class BesluitEditComponent implements OnInit {
     this.form.controls.publicationDate.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
-        if (!value) return;
+        if (!value) {
+          this.resetLastResponseDate();
+          return;
+        }
 
         const responseTermDays =
           this.besluit().besluittype?.publication.responseTermDays ?? 0;
@@ -299,8 +302,19 @@ export class BesluitEditComponent implements OnInit {
     this.form.controls.lastResponseDate.addValidators(
       this.lastResponseDateMinValidator,
     );
-    this.form.controls.lastResponseDate.updateValueAndValidity({
-      emitEvent: false,
-    });
+    this.form.controls.lastResponseDate.updateValueAndValidity();
+  }
+
+  private resetLastResponseDate() {
+    this.form.controls.lastResponseDate.setValue(null);
+
+    if (this.lastResponseDateMinValidator) {
+      this.form.controls.lastResponseDate.removeValidators(
+        this.lastResponseDateMinValidator,
+      );
+      this.lastResponseDateMinValidator = null;
+    }
+    this.lastResponseDateMinDate = null;
+    this.form.controls.lastResponseDate.updateValueAndValidity();
   }
 }

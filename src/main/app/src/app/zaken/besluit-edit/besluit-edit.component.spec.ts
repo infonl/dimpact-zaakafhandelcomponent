@@ -284,6 +284,17 @@ describe(BesluitEditComponent.name, () => {
         component["form"].controls.lastResponseDate.errors?.custom?.message,
       ).toBe("msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum");
     });
+
+    it("resets the lastResponseDate and its minimum when the publicationDate is cleared", async () => {
+      await setupComponent(makePublicationBesluit());
+      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
+      expect(component["form"].controls.lastResponseDate.value).not.toBeNull();
+
+      component["form"].controls.publicationDate.setValue(null);
+
+      expect(component["form"].controls.lastResponseDate.value).toBeNull();
+      expect(component["lastResponseDateMinValidator"]).toBeNull();
+    });
   });
 
   describe("submit", () => {
