@@ -24,4 +24,6 @@ module.exports = {
     "summary",
   ],
   collectCoverageFrom: ["src/**/*.{js,ts}", "!src/**/*.spec.{js,ts}"],
+  coverageDirectory: "coverage",
+  maxWorkers: 4,
 };
