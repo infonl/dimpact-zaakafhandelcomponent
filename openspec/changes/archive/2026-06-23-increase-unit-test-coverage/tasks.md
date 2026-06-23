@@ -10,7 +10,7 @@
 
 - [x] 2.1 Create `RestHumanTaskReferenceTableConverterTest.kt` in `src/test/kotlin/net/atos/zac/app/admin/converter/`
 - [x] 2.2 Use reflection to inject `ReferenceTableService` mock into private field
-- [x] 2.3 Add test: `convertDefault` calls `ReferenceTableService.readReferenceTable` and returns correct `RestHumanTaskReferenceTable`
+- [ ] 2.3 Add test: `convertDefault` calls `ReferenceTableService.readReferenceTable` and returns correct `RestHumanTaskReferenceTable`
 - [x] 2.4 Add test: `convert(Collection)` converts multiple `HumanTaskReferentieTabel` entries to REST
 - [x] 2.5 Add test: `convert(List<RestHumanTaskReferenceTable>)` converts back to domain objects, fetching tabel from service
 
