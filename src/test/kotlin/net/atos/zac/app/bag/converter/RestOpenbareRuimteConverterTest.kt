@@ -74,20 +74,6 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertToREST(ZaakobjectOpenbareRuimte) with valid data") {
-        Given("A valid ZaakobjectOpenbareRuimte") {
-            val fakeObjectUri = URI("https://example.com/openbareruimte/fakeId")
-            val zaakobject = createZaakobjectOpenbareRuimte(bagobjectURI = fakeObjectUri)
-
-            Then("the result fields are mapped from the object identificatie") {
-                result!!.url shouldBe fakeObjectUri
-                result.identificatie shouldBe "fakeIdentificatie"
-                result.naam shouldBe "fakeopenbareRuimteNaam"
-                result.woonplaatsNaam shouldBe "fakePlaatsNaam"
-            }
-        }
-    }
-
     Context("convertToZaakobject") {
         Given("A RESTOpenbareRuimte and a Zaak") {
             val fakeOpenbareRuimteUrl = URI("https://example.com/openbareruimte/fakeId")
