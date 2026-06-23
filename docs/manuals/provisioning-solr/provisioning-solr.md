@@ -40,14 +40,14 @@ the generated templates are too large to use kubectl apply
 
 # Configuration
 
-the zac core by default uses the standard solrconfig.xml provided by solr
-this configuration file is managed by zookeeper and must be changed there if this is required. More information about that can be found here:
+The ZAC Solr core by default uses the standard solrconfig.xml provided by Solr.
+This configuration file is managed by ZooKeeper and must be changed there if this is required. More information about that can be found here:
 https://solr.apache.org/guide/6_6/using-zookeeper-to-manage-configuration-files.html
 
-you can view the standard settings here:
+On the INFO.nl test environment, you can view the standard Solr configuration at:
 https://solrcloud-common-zac-dev.dimpact.lifely.nl/solr/#/zac/files?file=solrconfig.xml
 
-by default the UpdateHandler class and its attributes are set here with the following defaults:
+By default, the UpdateHandler class and its attributes are set here with the following defaults:
 
 •	autoCommit maxTime 15000 (15 seconds)
 •	autoSoftCommit maxTime 3000 (3 seconds)

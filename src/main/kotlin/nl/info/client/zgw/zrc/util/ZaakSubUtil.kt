@@ -37,7 +37,6 @@ fun Zaak.toZaakSub(): ZaakSub {
         opschorting = this@toZaakSub.opschorting
         selectielijstklasse = this@toZaakSub.selectielijstklasse
         hoofdzaak = this@toZaakSub.hoofdzaak
-        relevanteAndereZaken = this@toZaakSub.relevanteAndereZaken
         kenmerken = this@toZaakSub.kenmerken
         archiefnominatie = this@toZaakSub.archiefnominatie
         archiefstatus = this@toZaakSub.archiefstatus

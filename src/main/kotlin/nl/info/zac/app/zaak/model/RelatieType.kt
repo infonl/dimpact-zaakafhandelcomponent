@@ -7,9 +7,5 @@ package nl.info.zac.app.zaak.model
 enum class RelatieType {
     HOOFDZAAK,
     DEELZAAK,
-    VERVOLG,
-    ONDERWERP,
-    BIJDRAGE,
-    GERELATEERD,
-    OVERIG
+    GERELATEERD
 }

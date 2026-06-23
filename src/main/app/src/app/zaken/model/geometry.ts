@@ -9,16 +9,9 @@ import { GeometryType } from "./geometryType";
 /**
  * @deprecated - use the `GeneratedType`
  */
-export class Geometry {
-  constructor(type: GeometryType) {
-    this.type = type;
-  }
-
+export type Geometry = {
   type: GeometryType;
-
   point: GeometryCoordinate;
-
   polygon: GeometryCoordinate[][];
-
   geometrycollection: Geometry[];
-}
+};

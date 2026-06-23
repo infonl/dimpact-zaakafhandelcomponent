@@ -21,7 +21,7 @@ import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen-dialog.compon
 const dialogData: Omit<GeneratedType<"RestZaakUnlinkData">, "reden"> = {
   zaakUuid: "zaak-uuid-1",
   gekoppeldeZaakIdentificatie: "ZAAK-002",
-  relatieType: "VERVOLG",
+  relatieType: "GERELATEERD",
 };
 
 const setup = () => {

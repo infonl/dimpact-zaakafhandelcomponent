@@ -17,11 +17,11 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService;
 import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService;
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration;
 import nl.info.zac.mailtemplates.MailTemplateService;
 import nl.info.zac.mailtemplates.model.Mail;
