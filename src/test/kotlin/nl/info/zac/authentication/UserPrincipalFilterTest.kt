@@ -388,5 +388,56 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
             }
         }
+
+        Given(
+            """
+            User details in the OIDC token and PABC authorisation mappings contain
+            a GEMEENTE entity type but without the BRP zoeken application role
+            """
+        ) {
+            val loggedInUserSlot = slot<LoggedInUser>()
+            val gemeenteCode = "0344"
+            val accessToken = AccessToken(
+                JwtClaims.parse(
+                    """
+                    {
+                        "preferred_username": "fakeUserName",
+                        "realm_access": {
+                            "roles": [ "fakeFunctionalRole" ]
+                        }
+                    }
+                    """.trimMargin(),
+                    null
+                )
+            )
+            val oidcSecurityContext = OidcSecurityContext("fakeTokenString", accessToken, null, null)
+            val oidcPrincipal = OidcPrincipal("fakeUserId", oidcSecurityContext)
+            every { httpSession.getAttribute("logged-in-user") } returns null
+            every { httpServletRequest.userPrincipal } returns oidcPrincipal
+            every { httpServletRequest.getSession(true) } returns httpSession
+            every { httpSession.setAttribute(any(), any()) } just runs
+            every { filterChain.doFilter(any(), any()) } just runs
+            every { pabcClientService.getApplicationRoles(any()) } returns GetApplicationRolesResponse().apply {
+                results = listOf(
+                    createApplicationRolesResponseModel(
+                        entityTypeId = gemeenteCode,
+                        entityTypeType = ENTITY_TYPE_GEMEENTE,
+                        roleNames = listOf("some_other_role"),
+                        applicationName = APPLICATION_NAME_ZAC
+                    )
+                )
+            }
+
+            When("doFilter is called") {
+                userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
+
+                Then("the logged-in user should have an empty brpGemeenten map") {
+                    verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
+                    with(loggedInUserSlot.captured) {
+                        brpGemeenten shouldBe emptyMap()
+                    }
+                }
+            }
+        }
     }
 })
