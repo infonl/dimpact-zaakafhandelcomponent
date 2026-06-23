@@ -55,7 +55,7 @@ This is implemented using the following concepts which are managed in the PABC:
         * ZAC application roles applicable to this zaaktype
     * ZAC application roles that are not zaaktype-specific
 
-In the PABC the concept of `zaaktype` is abstracted as a generic `entity type` concept, allowing for the possibility to use the PABC for authorisations on other entity types in the future.
+In the PABC the concept of `zaaktype` is abstracted as a generic `entity type` concept, allowing for the possibility to use the PABC for authorisations on other entity types. The second entity type relevant for ZAC at this time is `gemeente`. This makes it possible to autorize employees to search the BRP only for persons with a certain `gemeente van inschrijving`. More entity types might be added in the future.
 
 Internally in the PABC these `entity types` are grouped using `domains`. In the IAM architecture domains are a PABC-internal concept only. 
 ZAC, nor Keycloak, have any knowledge of these domains.
@@ -128,7 +128,7 @@ The following table summarises the main IAM concepts used in the ZAC IAM archite
 | Group              | Keycloak    | A group of users. Groups are used to manage functional role assignments to users.                                                                                                                              |
 | Functional role    | Keycloak    | A role that represents a certain function or responsibility within the context of one or more domains. Users are assigned functional roles via groups. Technically functional roles are Keycloak Domain Roles. |
 | Domain             | PABC        | A grouping of entity types (e.g. zaaktypes) in the PABC. Domains are a PABC-internal concept only. They do not necessarily represent organisational domains within a council.                                  |
-| Entity type        | PABC        | A data type on which you can assign authorisation. Currently only the 'zaaktype' entity type is supported in ZAC. Authorisation mappings are defined per entity type.                                          |
+| Entity type        | PABC        | A data type on which you can assign authorisation. Currently only the 'zaaktype' and 'gemeente' entity types are supported in ZAC. Authorisation mappings are defined per entity type.                                          |
 | Authorisation mapping | PABC        | A mapping from a functional role to a set of entity types and application-specific application roles.                                                                                                          |
 | Application         | PABC       | An application for which authorisation mappings can be defined. In this case: ZAC.                                                                                                                             |
 
