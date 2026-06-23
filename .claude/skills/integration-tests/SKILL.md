@@ -43,6 +43,32 @@ Then read the matching configuration section at the bottom of this file before w
 
 No PR step. The test is done when it compiles and the user has run it.
 
+## Test isolation — the shared live system
+
+All integration tests run against the **same** ZAC container in sequence. There is no cleanup between tests. Data created by an earlier test is still present when a later test runs. Implications:
+
+- **Use unique identifiers.** When a test creates a zaak, its identification will be in the search index for all subsequent tests. Use `zaakHelper.createZaak(zaakDescription = "itestZaakDescription-${System.currentTimeMillis()}", ...)` or a unique constant to avoid collisions.
+- **Do not assume a clean state.** Never assert `totaal == 0` on the first search; some earlier test may have created matching data.
+- **`eventually()` is mandatory for any side effect.** Indexing, notifications, and BPMN engine steps are asynchronous.
+- The `ZacItestProjectConfig` (project-level listener) runs all zaaktype configuration **once** before any test spec. You do not need to set up zaaktypes inside your test.
+
+## Block hierarchy — `Context`, `Given`, `When`, `Then`, `And`
+
+Use `Context` to group thematically related `Given` blocks within one file:
+```kotlin
+Context("Managing zaak suspension") {
+    Given("a zaak exists") {
+        When("the zaak is suspended") {
+            Then("the zaak should be suspended") { ... }
+            And("the zaak reason should be set") { ... }
+        }
+        And("the zaak is then resumed") {
+            Then("the zaak should no longer be suspended") { ... }
+        }
+    }
+}
+```
+
 ## One `Given` vs multiple `Given` blocks
 
 | Situation | Structure |
@@ -52,6 +78,23 @@ No PR step. The test is done when it compiles and the user has run it.
 
 **Nested `And` inside `When` = the previous step already happened.** Use this to chain sequential actions.
 **Sibling `When` blocks inside the same `Given` = parallel scenarios sharing the same precondition but not each other's state.**
+
+## Class-body initialization (one-time setup per spec)
+
+Variables initialized at the **class body level** (outside any `Given`) run once when the spec is constructed — before any `Given` block. Use this for setup that every test in the file needs:
+```kotlin
+class MyTest : BehaviorSpec({
+    val itestHttpClient = ItestHttpClient()
+    val zacClient = ZacClient(itestHttpClient)
+    val logger = KotlinLogging.logger {}
+
+    // runs once, result available in all Given/When blocks below
+    val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(TEST_PERSON_HENDRIKA_JANSE_BSN, BEHANDELAAR_1)
+    lateinit var zaakUuid: UUID
+
+    Given(...) { ... }
+})
+```
 
 ## Step 5 — Summarize and offer to continue
 
@@ -153,20 +196,54 @@ itestHttpClient.performPutRequest(url = "...", requestBodyAsString = """{ ... }"
 // PATCH (JSON body)
 itestHttpClient.performPatchRequest(url = "...", requestBodyAsString = """{ ... }""", testUser = BEHANDELAAR_1)
 
-// DELETE
+// DELETE (no body)
 itestHttpClient.performDeleteRequest(url = "...", testUser = BEHANDELAAR_1)
+
+// DELETE (with JSON body)
+itestHttpClient.performDeleteRequest(url = "...", requestBodyAsString = """{ ... }""", testUser = BEHANDELAAR_1)
+
+// HEAD — returns Int (status code only, no body)
+itestHttpClient.performHeadRequest(url = "...")
+
+// WebSocket — for testing screen events
+itestHttpClient.connectNewWebSocket(url = ZAC_WEBSOCKET_BASE_URI + "/...", webSocketListener = ..., testUser = BEHANDELAAR_1)
+
+// ZGW API — direct calls to Open Zaak with JWT auth (no testUser, uses service-to-service JWT)
+itestHttpClient.performZgwApiGetRequest(url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/...")
+itestHttpClient.performZgwApiPostRequest(url = "...", requestBodyAsString = """{ ... }""")
 ```
-All methods return `ResponseContent` with `.code` (Int) and `.bodyAsString` (String).
+All standard methods return `ResponseContent` with `.code` (Int) and `.bodyAsString` (String).
+`testUser` is optional on all methods — omit it for unauthenticated or header-authenticated calls.
 
 ### Assertions
 ```kotlin
-response.code shouldBe HTTP_OK                              // status code
+response.code shouldBe HTTP_OK                              // status code 200
+response.code shouldBe HTTP_NO_CONTENT                      // status code 204 (task start, notifications, delete)
 response.bodyAsString.shouldContainJsonKeyValue("key", 42)  // exact JSON value
 response.bodyAsString.shouldContainJsonKey("key")           // key present
 response.bodyAsString.shouldNotContainJsonKey("key")        // key absent
+response.bodyAsString.shouldBeJsonArray()                   // assert response is a JSON array
+response.bodyAsString.shouldBeJsonObject()                  // assert response is a JSON object
 JSONObject(response.bodyAsString).getString("id")           // parse manually
 JSONArray(response.bodyAsString).length() shouldBe 3
+
+// String matchers (import from io.kotest.matchers.string):
+response.bodyAsString shouldContain "someSubstring"
+response.bodyAsString shouldStartWith "multipart/mixed"
 ```
+Import HTTP constants from `java.net.HttpURLConnection`: `HTTP_OK`, `HTTP_NO_CONTENT`, `HTTP_FORBIDDEN` (403), `HTTP_BAD_REQUEST` (400), `HTTP_NOT_FOUND` (404).
+
+### sleepForOpenZaakUniqueConstraint — mandatory between consecutive status changes
+
+OpenZaak enforces a unique constraint on `(zaak, datum_status_gezet)` — two status changes within the same second return a 400. **Always call this between consecutive `doUserEventListenerPlanItem` calls or between any two calls that change zaak status.**
+
+```kotlin
+import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
+
+sleepForOpenZaakUniqueConstraint(1)   // sleeps 1 second
+```
+
+Do NOT use `eventually` to work around this — the constraint is time-based, not eventual. A 1-second sleep is the correct fix.
 
 ### Async polling — use `eventually()` whenever a side-effect may be delayed
 ```kotlin
@@ -190,8 +267,17 @@ logger.info { "Response: ${response.bodyAsString}" }
 
 ### ZacClient helpers (use these instead of raw HTTP when they fit)
 ```kotlin
+// Create a zaak — optional params: behandelaarId, behandelaarName, description, toelichting,
+//   communicatiekanaal (default: COMMUNICATIEKANAAL_TEST_1), vertrouwelijkheidaanduiding (default: OPENBAAR)
+// When assigning a behandelaar: id = user.username, name = user.displayName (not user.username for name!)
+zacClient.createZaak(
+    zaakTypeUUID = ..., groupId = ..., groupName = ..., startDate = ..., testUser = ...,
+    behandelaarId = BEHANDELAAR_1.username, behandelaarName = BEHANDELAAR_1.displayName
+)
 zacClient.createZaak(zaakTypeUUID = ..., groupId = ..., groupName = ..., startDate = ..., testUser = ...)
-zacClient.retrieveZaak(zaakUUID, testUser)
+
+zacClient.retrieveZaak(zaakUUID, testUser)   // by UUID
+zacClient.retrieveZaak(id = "ZAAK-2001-0000000001", testUser)   // by identification string
 zacClient.submitFormData(bpmnZaakUuid = ..., taakData = """{ ... }""", testUser = ...)   // returns String (body)
 zacClient.submitFormDataRaw(bpmnZaakUuid = ..., taakData = """{ ... }""", testUser = ...) // returns ResponseContent (code + body)
 zacClient.searchForTasks(zaakIdentificatie = ..., taskName = ..., testUser = ...)
@@ -201,21 +287,34 @@ zacClient.createEnkelvoudigInformatieobjectForZaak(
     vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR, testUser = ...
 )  // returns ResponseContent; parse UUID with JSONObject(bodyAsString).getString("uuid")
 zacClient.getHumanTaskPlanItemsForZaak(zaakUUID, testUser)  // GET /planitems/zaak/{uuid}/humanTaskPlanItems
-zacClient.startHumanTaskPlanItem(planItemId = ..., fatalDate = ..., group = ..., testUser = ...)
+// ⚠ Note the exact parameter names — planItemInstanceId, groupId, groupName (not planItemId/group)
+zacClient.startHumanTaskPlanItem(
+    planItemInstanceId = ..., fatalDate = ..., groupId = ..., groupName = ..., testUser = ...
+)  // returns ResponseContent with HTTP_NO_CONTENT (204) on success
 ```
 
 ### Higher-level helper classes (prefer over raw ZacClient when they fit)
-These wrap ZacClient and add search-index polling so the test doesn't need its own `eventually` for indexing.
 ```kotlin
-// ZaakHelper — creates zaak and waits until it is findable in the search index
+// ZaakHelper — creates zaak; pass indexZaak = true to wait until findable in the search index
 val zaakHelper = ZaakHelper(zacClient)
-val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(zaaktypeUuid = ..., testUser = ...)
+val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
+    zaaktypeUuid = ..., testUser = ..., indexZaak = true  // indexZaak = false by default!
+)
+// Also adds betrokkenen (roles) to a zaak:
+zaakHelper.addNatuurlijkPersoonBetrokkeneToZaak(
+    zaakUuid = ..., roltypeUUID = ROLTYPE_UUID_BELANGHEBBENDE, bsn = TEST_PERSON_HENDRIKA_JANSE_BSN, testUser = ...
+)
+zaakHelper.addNietNatuurlijkPersoonBetrokkeneToZaak(
+    zaakUuid = ..., roltypeUUID = ..., kvkNummer = ..., vestigingsnummer = null, testUser = ...
+)
 
-// DocumentHelper — uploads a document and waits until it is indexed
+// DocumentHelper — uploads a document; pass indexDocument = true to wait until indexed
 val documentHelper = DocumentHelper(zacClient)
-val (documentUuid, _) = documentHelper.uploadDocumentToZaak(
+val (documentUuid, documentIdentification) = documentHelper.uploadDocumentToZaak(
     zaakUuid = ..., documentTitle = ..., authorName = ...,
-    mediaType = ..., fileName = ..., testUser = ...
+    mediaType = PDF_MIME_TYPE, fileName = TEST_PDF_FILE_NAME,
+    indexDocument = true,  // indexDocument = false by default!
+    testUser = ...
 )
 
 // TaskHelper — starts a human task and optionally waits for it to be indexed
@@ -226,6 +325,27 @@ val taskId = taskHelper.startAanvullendeInformatieTaskForZaak(
 )
 ```
 Use raw `ZacClient` calls when you do not need indexing (e.g. BPMN form submission).
+
+### WebSocket testing — screen event assertions
+```kotlin
+import nl.info.zac.itest.util.WebSocketTestListener
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_WEBSOCKET_BASE_URI
+import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_ZAKEN_VERDELEN
+
+// Connect before triggering the action:
+val webSocketListener = WebSocketTestListener(textToBeSentOnOpen = null)
+itestHttpClient.connectNewWebSocket(
+    url = "$ZAC_WEBSOCKET_BASE_URI/updates/zaken",
+    webSocketListener = webSocketListener,
+    testUser = BEHANDELAAR_1
+)
+
+// Trigger the action, then poll for the expected message:
+eventually(10.seconds) {
+    webSocketListener.messagesReceived.any { it.contains(SCREEN_EVENT_TYPE_ZAKEN_VERDELEN) } shouldBe true
+}
+```
+Available `SCREEN_EVENT_TYPE_*` constants: `TAKEN_VERDELEN`, `TAKEN_VRIJGEVEN`, `ZAKEN_VERDELEN`, `ZAKEN_VRIJGEVEN`, `ZAAK_ROLLEN`.
 
 ### Class body declaration order
 **CMMN / general:** `itestHttpClient` → `zacClient` → `logger` → optional helpers
@@ -260,15 +380,22 @@ JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields ""
 Use when asserting a subset of a large JSON response rather than individual key/value pairs.
 
 ### All available test users (`src/itest/.../config/TestUsers.kt`)
-| Val | Username | Role |
+`TestUser` has: `.username` (Keycloak login), `.displayName` (shown in UI/responses), `.email`.
+
+| Val | Username | Role / Notes |
 |---|---|---|
 | `BEHANDELAAR_1` | behandelaar1newiam | Behandelaar domein test 1 |
-| `BEHANDELAAR_2` | behandelaar2newiam | Behandelaar domein test 2 |
+| `BEHANDELAAR_2` | behandelaar2newiam | Behandelaar domein test 2 — **no brp_zoeken role** |
 | `COORDINATOR_1` | coordinator1newiam | Coordinator domein test 1 |
 | `COORDINATOR_2` | coordinator2newiam | Coordinator domein test 2 |
-| `BEHEERDER_1` | beheerder1newiam | Beheerder all domeinen |
+| `BEHEERDER_1` | beheerder1newiam | Beheerder all domeinen — use for admin/config calls |
 | `RAADPLEGER_1` | raadpleger1newiam | Raadpleger domein test 1 |
+| `RAADPLEGER_2` | raadpleger2newiam | Raadpleger domein test 2 |
 | `RECORDMANAGER_1` | recordmanager1newiam | Recordmanager domein test 1 |
+| `RECORDMANAGER_2` | recordmanager2newiam | Recordmanager domein test 2 |
+| `RAADPLEGER_EN_BEHANDELAAR_1` | raadplegerenbehandelaar1newiam | Raadpleger in domein 1 + behandelaar in domein 2 |
+| `USER_WITHOUT_ANY_ROLE` | userwithoutanyrole | No role — for testing 403 scenarios |
+| `BEHANDELAAR_INACTIVE_GROUP_1` | behandelaar1inactivegroup | Behandelaar in an inactive group |
 
 ### All available test groups (`src/itest/.../config/TestGroups.kt`)
 | Val | name | description |
@@ -277,7 +404,85 @@ Use when asserting a subset of a large JSON response rather than individual key/
 | `GROUP_BEHANDELAARS_TEST_2` | behandelaars-test-2 | Test group behandelaars domein test 2 |
 | `GROUP_COORDINATORS_TEST_1` | coordinators-test-1 | Test group coordinators domein test 1 |
 | `GROUP_COORDINATORS_TEST_2` | coordinators-test-2 | Test group coordinators domein test 2 |
+| `GROUP_RAADPLEGERS_TEST_1` | raadplegers-test-1 | Test group raadplegers domein test 1 |
+| `GROUP_RAADPLEGERS_TEST_2` | raadplegers-test-2 | Test group raadplegers domein test 2 |
+| `GROUP_RECORDMANAGERS_TEST_1` | recordmanagers-test-1 | Test group recordmanagers domein test 1 |
+| `GROUP_RECORDMANAGERS_TEST_2` | recordmanagers-test-2 | Test group recordmanagers domein test 2 |
 | `GROUP_BEHEERDERS_ELK_DOMEIN` | beheerders-elk-domein | Test group beheerders elk domein |
+| `GROUP_INACTIVE_TEST_1` | inactive-group-test-1 | Test group inactive |
+
+### Commonly needed ItestConfiguration constants
+
+**Dates** — use `LocalDate` (`DATE_*`) or `ZonedDateTime` (`DATE_TIME_*`):
+```kotlin
+DATE_2000_01_01       // LocalDate (also available: DATE_2020_01_01, DATE_2024_01_01, DATE_2025_01_01, DATE_2025_07_01)
+DATE_TIME_2000_01_01  // ZonedDateTime — pass to createZaak(startDate = ...)
+DATE_TIME_2024_01_01  // ZonedDateTime — default used by ZaakHelper.createZaak
+```
+
+**Test files** — actual resources in `src/itest/resources/`:
+```kotlin
+TEST_PDF_FILE_NAME    = "fäkeTestDocument.pdf"
+TEST_TXT_FILE_NAME    = "tëstTextDocument.txt"
+TEST_WORD_FILE_NAME   = "fakeWordDocument.docx"
+PDF_MIME_TYPE         = "application/pdf"
+TEXT_MIME_TYPE        = "text/plain"
+```
+
+**Document constants:**
+```kotlin
+DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR        = "OPENBAAR"
+DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK   = "ZAAKVERTROUWELIJK"
+DOCUMENT_STATUS_IN_BEWERKING  = "in_bewerking"
+DOCUMENT_STATUS_DEFINITIEF    = "definitief"
+INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID   = "b1933137-94d6-49bc-9e12-afe712512276"
+INFORMATIE_OBJECT_TYPE_FACTUUR_UUID   = "eca3ae33-c9f1-4136-a48a-47dc3f4aaaf5"
+```
+
+**Betrokkene type / identification constants** (used in betrokkene JSON payloads):
+```kotlin
+BETROKKENE_TYPE_NATUURLIJK_PERSOON         = "NATUURLIJK_PERSOON"
+BETROKKENE_IDENTIFICATION_TYPE_BSN         = "BSN"
+BETROKKENE_IDENTIFICATION_TYPE_VESTIGING   = "VN"
+BETROKKENE_IDENTIFICATION_TYPE_KVK         = "RSIN"
+BETROKKENE_ROL_TOEVOEGEN_REDEN             = "Toegekend door de medewerker tijdens het behandelen van de zaak"
+```
+
+**Roltype UUIDs** (for adding betrokkenen to a zaak with `ZAAKTYPE_CMMN_TEST_2_UUID`):
+```kotlin
+ROLTYPE_UUID_BELANGHEBBENDE  = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
+ROLTYPE_UUID_MEDEAANVRAGER   = "b14cf056-0480-4060-a376-1dd522a50431"
+ROLTYPE_NAME_BELANGHEBBENDE  = "Belanghebbende"
+ROLTYPE_NAME_MEDEAANVRAGER   = "Medeaanvrager"
+// Per-zaaktype betrokkene roltype UUIDs for ZAAKTYPE_CMMN_TEST_2_UUID:
+ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE  = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
+ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER   = "e49a634b-731c-4460-93f4-e919686811aa"
+ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE     = "4b473a85-5516-441f-8d7d-57512c6b6833"
+ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON  = "ca31355e-abbf-4675-8700-9d167b194db1"
+ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+```
+
+**Resultaattype:**
+```kotlin
+RESULTAAT_TYPE_GEWEIGERD_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
+```
+
+**Zaak beëindig reasons** (used when closing a zaak):
+```kotlin
+ZAAK_BEEINDIG_VERZOEK_IS_DOOR_INITIATOR_INGETROKKEN_ID   = "-1"
+ZAAK_BEEINDIG_ZAAK_IS_EEN_DUPLICAAT_ID                   = "-2"
+ZAAK_BEEINDIG_VERZOEK_IS_BIJ_VERKEERDE_ORGANISATIE_ID    = "-3"
+```
+
+**Uris / external services:**
+```kotlin
+ZAC_API_URI              = "http://localhost:8080/rest"
+ZAC_WEBSOCKET_BASE_URI   = "ws://localhost:8080/websocket"
+GREENMAIL_API_URI        = "http://localhost:18083/api"    // for email assertions
+OPEN_ZAAK_BASE_URI       = "http://openzaak.local:8000"   // internal Docker network
+OPEN_ZAAK_EXTERNAL_URI   = "http://localhost:8001"        // from test host
+BRP_WIREMOCK_API         = "http://localhost:18084/__admin" // BRP stub admin
+```
 
 ---
 
@@ -482,7 +687,7 @@ BPMN_TEST_BEHANDELAAR_1  // name: "test-behandelaar-1"
 Most CMMN tests use `ZAAKTYPE_CMMN_TEST_2_UUID` with `GROUP_BEHANDELAARS_TEST_1`. Avoid `ZAAKTYPE_CMMN_TEST_1_UUID` when using `BEHANDELAAR_*` or `RAADPLEGER_*` users — it will return 403. It works with `BEHEERDER_1`.
 
 ## Creating a CMMN zaak
-The response body is a flat `RestZaak` JSON object (root-level `"uuid"` and `"identificatie"`) — **not** wrapped in `zaakdata` like BPMN.
+The CMMN response has `"uuid"` and `"identificatie"` at the root **and** also inside a nested `"zaakdata"` map (as `"zaakUUID"`). Both approaches work — prefer root-level access:
 ```kotlin
 lateinit var zaakUuid: String
 lateinit var zaakIdentificatie: String
@@ -501,6 +706,72 @@ zacClient.createZaak(
     }
 }
 ```
+
+## CMMN zaak lifecycle — intake, complete, re-open
+
+```kotlin
+// Get user event listener plan items (for intake / afhandelen actions)
+val planItems = itestHttpClient.performGetRequest(
+    url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+    testUser = RECORDMANAGER_1
+)
+val planItemId = JSONArray(planItems.bodyAsString).getJSONObject(0).getString("id").toInt()
+
+sleepForOpenZaakUniqueConstraint(1)  // required before each status change
+
+// Finish intake phase (INTAKE_AFRONDEN) — marks zaak as admissible
+itestHttpClient.performJSONPostRequest(
+    url = "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+    requestBodyAsString = """
+        {
+            "zaakUuid": "$zaakUUID",
+            "planItemInstanceId": "$planItemId",
+            "actie": "$ACTIE_INTAKE_AFRONDEN",
+            "zaakOntvankelijk": true
+        }
+    """.trimIndent(),
+    testUser = RECORDMANAGER_1
+).run { code shouldBe HTTP_NO_CONTENT }
+
+sleepForOpenZaakUniqueConstraint(1)  // always between consecutive status changes
+
+// Close zaak (ZAAK_AFHANDELEN) — first get a resultaattype UUID
+val resultaatTypeUuid = JSONArray(
+    itestHttpClient.performGetRequest(
+        url = "$ZAC_API_URI/zaken/resultaattypes/$ZAAKTYPE_CMMN_TEST_2_UUID",
+        testUser = RECORDMANAGER_1
+    ).bodyAsString
+).getJSONObject(0).getString("id").let(UUID::fromString)
+
+itestHttpClient.performJSONPostRequest(
+    url = "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
+    requestBodyAsString = """
+        {
+            "zaakUuid": "$zaakUUID",
+            "planItemInstanceId": "$afhandelenId",
+            "actie": "$ACTIE_ZAAK_AFHANDELEN",
+            "resultaattypeUuid": "$resultaatTypeUuid",
+            "resultaatToelichting": "fakeReason"
+        }
+    """.trimIndent(),
+    testUser = RECORDMANAGER_1
+).run { code shouldBe HTTP_NO_CONTENT }
+
+// Re-open a closed zaak
+itestHttpClient.performPatchRequest(
+    url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/heropenen",
+    requestBodyAsString = """{ "reden": "fakeReason" }""",
+    testUser = RECORDMANAGER_1
+).run { code shouldBe HTTP_NO_CONTENT }
+
+// Close a re-opened zaak (use /afsluiten, not doUserEventListenerPlanItem)
+itestHttpClient.performPatchRequest(
+    url = "$ZAC_API_URI/zaken/zaak/$zaakUUID/afsluiten",
+    requestBodyAsString = """{ "reden": "fakeReason", "resultaattypeUuid": "$resultaatTypeUuid" }""",
+    testUser = RECORDMANAGER_1
+).run { code shouldBe HTTP_NO_CONTENT }
+```
+Note: `RECORDMANAGER_1` is the user with rights to complete and close zaken.
 
 ## Adding an initiator (BSN) — same pattern as BPMN
 ```kotlin
