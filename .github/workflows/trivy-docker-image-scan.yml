@@ -49,6 +49,8 @@ jobs:
         with:
           image-ref: ${{ steps.image.outputs.ref }}
           version: v0.71.2 # trivy version updated by renovate
+          skip-setup-trivy: 'true'
+          cache: 'false'
           format: 'table'
           severity: 'CRITICAL,HIGH'
           # never fail the workflow on findings; this step only adds human-readable
