@@ -5,8 +5,8 @@
 
 > **Colofon** <br>
 > Datum :21-05-2026 <br>
-> Versie :   1.7 <br>
-> Verandering : ZAC v4.10 Handleiding <br>
+> Versie :   1.7.1 <br>
+> Verandering : ZAC v5.2 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -37,6 +37,7 @@ Versiegeschiedenis:
 | 1.6.8 | ZAC v3.11 Handleiding |
 | 1.6.9 | ZAC v3.12 Handleiding |
 | 1.7 | ZAC v4.10 Handleiding |
+| 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken |
 
 <div style="page-break-after: always"></div>
 
