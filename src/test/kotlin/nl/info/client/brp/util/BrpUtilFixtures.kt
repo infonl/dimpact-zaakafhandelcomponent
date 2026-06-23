@@ -13,7 +13,7 @@ import java.util.Optional
 import java.util.UUID
 
 @Suppress("LongParameterList")
-fun createJsonParser(json: String): JsonParser? = Json.createParser(StringReader(json)).also { it.next() }
+fun createJsonParser(json: String): JsonParser = Json.createParser(StringReader(json)).also { it.next() }
 
 @Suppress("LongParameterList")
 fun createBrpConfiguration(

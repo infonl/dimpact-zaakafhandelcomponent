@@ -6,6 +6,7 @@ package nl.info.client.brp.util
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
@@ -100,9 +101,9 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
 
-Then("InputValidationFailedException is thrown") {
-    exception.message!!.contains("OnbekendType") shouldBe true
-}
+                Then("InputValidationFailedException is thrown") {
+                    exception.message!!.contains("OnbekendType") shouldBe true
+                }
             }
         }
     }
