@@ -30,6 +30,7 @@ spec:
               imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
               securityContext:
                 allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
                 capabilities:
                   drop:
                     - ALL
