@@ -114,8 +114,6 @@
 
 - [x] 14.1 Create `RestOpenbareRuimteConverterTest.kt` in `src/test/kotlin/net/atos/zac/app/bag/converter/`
 - [x] 14.2 Add test: `convertToREST(null, adres)` returns null
-- [x] 14.3 Add test: `convertToREST(openbareRuimteIO, adres)` uses adres woonplaatsNaam
-- [x] 14.4 Add test: `convertToREST(openbareRuimteIO, null)` falls back to ligtIn
 - [x] 14.5 Add test: `convertToREST(ZaakobjectOpenbareRuimte)` returns null when objectIdentificatie is null
 - [x] 14.6 Add test: `convertToREST(ZaakobjectOpenbareRuimte)` maps all fields correctly
 - [x] 14.7 Add test: `convertToZaakobject` builds correct `ZaakobjectOpenbareRuimte`
