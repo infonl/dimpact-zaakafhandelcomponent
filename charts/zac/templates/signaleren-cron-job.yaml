@@ -28,6 +28,11 @@ spec:
             - name: {{ include "zaakafhandelcomponent.fullname" . }}-signaleren
               image: "{{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}"
               imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
               resources: 
                 {{- toYaml .Values.signaleringen.resources | nindent 16 }}
               env:

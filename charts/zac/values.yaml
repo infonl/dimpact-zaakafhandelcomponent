@@ -186,7 +186,9 @@ signaleringen:
   podSecurityContext: {}
   nodeSelector: {}
   affinity: {}
-  securityContext: {}
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
   tolerations: []
 
 # OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
@@ -234,15 +236,18 @@ serviceAccount:
 podAnnotations: {}
 
 # -- pod specific security context
-podSecurityContext: {}
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
 # fsGroup: 2000
 
 # -- generic security context
-securityContext: {}
-   # capabilities:
-   #   drop:
-   #   - ALL
-   # readOnlyRootFilesystem: true
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  # readOnlyRootFilesystem: true  # requires writable volume mounts for WildFly; not enabled
 # runAsNonRoot: true
 # runAsUser: 1000
 
@@ -601,8 +606,14 @@ office_converter:
     annotations: {}
   podAnnotations: {}
   imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   nodeSelector: {}
   affinity: {}
   tolerations: []

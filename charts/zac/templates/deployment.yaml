@@ -35,6 +35,11 @@ spec:
       - name: init-solr-zac-core
         image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
         imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         resources:
           {{- toYaml .Values.initContainer.resources | nindent 10 }}
         {{- if .Values.solr.url }}
@@ -47,6 +52,11 @@ spec:
       - name: check-opa-ready
         image: {{ .Values.global.curlImage.repository }}:{{ .Values.global.curlImage.tag }}
         imagePullPolicy: {{ .Values.global.curlImage.pullPolicy }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         {{- if .Values.opa.url }}
         command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
         {{- else }}
@@ -114,6 +124,11 @@ spec:
         - name: "{{ .Values.opa.name }}"
           image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
           imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: http-opa
               containerPort: 8181
