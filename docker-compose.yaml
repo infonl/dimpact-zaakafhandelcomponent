@@ -300,7 +300,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202606151541@sha256:2e3e135f9d76f869037b09096b6e8a9850425eaecd0fdb60abd0b932e42ac0b5
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202606230850@sha256:024308250beab8a6327d8f4ce91e630b4bcbd650015a4e86df6db437dc8bb4d7
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
