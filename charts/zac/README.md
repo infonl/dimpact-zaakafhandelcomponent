@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.264](https://img.shields.io/badge/Version-1.0.264-informational?style=flat-square) ![AppVersion: 5.1](https://img.shields.io/badge/AppVersion-5.1-informational?style=flat-square)
+![Version: 1.0.265](https://img.shields.io/badge/Version-1.0.265-informational?style=flat-square) ![AppVersion: 5.1](https://img.shields.io/badge/AppVersion-5.1-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -214,11 +214,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
 | office_converter.podAnnotations | object | `{}` |  |
-| office_converter.podSecurityContext | object | `{}` |  |
+| office_converter.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | office_converter.replicas | int | `1` |  |
 | office_converter.resources.requests.cpu | string | `"100m"` |  |
 | office_converter.resources.requests.memory | string | `"512Mi"` |  |
-| office_converter.securityContext | object | `{}` |  |
+| office_converter.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| office_converter.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | office_converter.service.annotations | object | `{}` |  |
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
@@ -270,12 +271,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | pabcApi.apiKey | string | `""` |  |
 | pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
-| podSecurityContext | object | `{}` | pod specific security context |
+| podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{}` | generic security context |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -292,7 +293,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.podSecurityContext | object | `{}` |  |
 | signaleringen.resources | object | `{}` |  |
 | signaleringen.restartPolicy | string | `"Never"` |  |
-| signaleringen.securityContext | object | `{}` |  |
+| signaleringen.securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |
