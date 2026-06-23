@@ -73,10 +73,9 @@ class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
                 val exception = shouldThrow<InputValidationFailedException> {
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
-
-                Then("InputValidationFailedException is thrown") {
-                    exception.message!!.contains("OnbekendVerblijfplaatsType")
-                }
+Then("InputValidationFailedException is thrown") {
+    exception.message!!.contains("OnbekendVerblijfplaatsType") shouldBe true
+}
             }
         }
     }
