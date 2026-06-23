@@ -20,13 +20,13 @@ import org.flowable.engine.delegate.TransactionDependentExecutionListener
 import org.flowable.task.service.impl.persistence.entity.TaskEntity
 
 class UserTaskCompletionListenerTest : BehaviorSpec({
-    mockkObject(FlowableHelper)
+    mockkObject(FlowableHelper.FlowableHelperProvider)
 
     val fakeFlowableHelper = mockk<FlowableHelper>()
     val fakeIndexingService = mockk<IndexingService>()
 
     afterContainer {
-        unmockkObject(FlowableHelper)
+        unmockkObject(FlowableHelper.FlowableHelperProvider)
     }
 
     val listener = UserTaskCompletionListener()
