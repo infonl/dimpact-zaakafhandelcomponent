@@ -116,6 +116,9 @@ class ZaakKoppelenRestService @Inject constructor(
             RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
             RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
             RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
+            else -> throw IllegalArgumentException(
+                "RelatieType ${restZaakLinkData.relatieType} cannot be used for linking zaken"
+            )
         }
     }
 
@@ -144,6 +147,9 @@ class ZaakKoppelenRestService @Inject constructor(
                 zaak = zaak,
                 andereZaak = linkedZaak,
                 explanation = restZaakUnlinkData.reden
+            )
+            else -> throw IllegalArgumentException(
+                "RelatieType ${restZaakUnlinkData.relatieType} cannot be used for unlinking zaken"
             )
         }
     }
@@ -212,6 +218,9 @@ class ZaakKoppelenRestService @Inject constructor(
                 }
             RelatieType.GERELATEERD ->
                 true
+            else -> throw IllegalArgumentException(
+                "RelatieType $relationType cannot be used for matching zaaktype"
+            )
         }
 
     private fun isLinkable(
@@ -243,6 +252,9 @@ class ZaakKoppelenRestService @Inject constructor(
                     !targetZaak.isIndicatie(HOOFDZAAK)
             RelatieType.GERELATEERD ->
                 true
+            else -> throw IllegalArgumentException(
+                "RelatieType $relationType cannot be used for linking zaken"
+            )
         }
 
     private fun ZaakZoekObject.toRestZaakKoppelenZoekObject(linkable: Boolean) =
