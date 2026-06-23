@@ -7,7 +7,12 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
@@ -188,10 +193,9 @@ describe(PersoonZoekComponent.name, () => {
 
   describe("brpGemeenten effect", () => {
     it("should auto-set gemeenteVanInschrijving when exactly one gemeente is returned", fakeAsync(() => {
-      testQueryClient.setQueryData(
-        klantenService.listBrpGemeenten().queryKey,
-        [{ code: "0344", naam: "Utrecht" }],
-      );
+      testQueryClient.setQueryData(klantenService.listBrpGemeenten().queryKey, [
+        { code: "0344", naam: "Utrecht" },
+      ]);
 
       tick();
       fixture.detectChanges();
