@@ -1076,7 +1076,7 @@ ZAC kent hoofd- en deelzaakrelaties tussen twee zaken en gerelateerde zaken.
 Toelichting op de afhankelijkheid van zaaktype inrichting:
 
 - Om een hoofd-deelzaakrelatie te leggen moet in het zaaktype van de hoofdzaak zijn ingesteld dat deze relatie gelegd mag worden en een zaak mag niet zowel hoofd als deelzaak zijn.
-- Om een gerelateerde zaken koppeling te leggen is geen configuratie nodig in een zaaktype, alle zaken kunnen gekoppeld worden
+- Om een gerelateerde-zaak-koppeling te leggen is geen configuratie nodig in een zaaktype; alle zaken kunnen gekoppeld worden.
 
 Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van de hoofdzaak leidt tot stand te laten komen. Hierbij geldt dat de hoofdzaak pas mag worden afgehandeld als de deelzaak is afgehandeld. Deze relatie mag dan ook alleen tussen openstaande zaken gelegd worden. Verder heeft een deelzaak in de ZAC dezelfde functionaliteit als een reguliere zaak beschikbaar.
 
