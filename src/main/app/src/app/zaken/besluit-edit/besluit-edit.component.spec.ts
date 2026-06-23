@@ -204,6 +204,19 @@ describe(BesluitEditComponent.name, () => {
       ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
     });
 
+    it("marks the prefilled vervaldatum invalid and touched when the ingangsdatum is moved after it", async () => {
+      await setupComponent();
+      expect(component["form"].controls.vervaldatum.touched).toBe(false);
+
+      component["form"].controls.ingangsdatum.setValue(moment("2027-06-10"));
+
+      expect(component["form"].controls.vervaldatum.invalid).toBe(true);
+      expect(component["form"].controls.vervaldatum.touched).toBe(true);
+      expect(
+        component["form"].controls.vervaldatum.errors?.custom?.message,
+      ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
+    });
+
     it("is invalid without a reden", async () => {
       await setupComponent();
 

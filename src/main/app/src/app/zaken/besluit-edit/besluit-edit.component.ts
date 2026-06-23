@@ -158,7 +158,10 @@ export class BesluitEditComponent implements OnInit {
 
     this.form.controls.ingangsdatum.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe((value) => this.setVervaldatumMinDate(value));
+      .subscribe((value) => {
+        this.setVervaldatumMinDate(value);
+        this.form.controls.vervaldatum.markAsTouched();
+      });
 
     this.form.controls.publicationDate.valueChanges
       .pipe(takeUntilDestroyed())
