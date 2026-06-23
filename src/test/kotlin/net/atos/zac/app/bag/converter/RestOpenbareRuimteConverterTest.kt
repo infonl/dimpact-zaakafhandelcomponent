@@ -19,7 +19,7 @@ import java.net.URI
 
 class RestOpenbareRuimteConverterTest : BehaviorSpec({
 
-    Context("convertToREST(OpenbareRuimteIOHalBasis, AdresIOHal) with null input") {
+    Context("convertToREST") {
         Given("A null openbareRuimteIO") {
             When("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(
@@ -32,9 +32,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("convertToREST(OpenbareRuimteIOHalBasis) with null input") {
         Given("A null OpenbareRuimteIOHalBasis") {
             When("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHalBasis?)
@@ -44,9 +42,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("convertToREST(OpenbareRuimteIOHal) with null input") {
         Given("A null OpenbareRuimteIOHal") {
             When("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHal?)
@@ -56,9 +52,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("convertToREST(ZaakobjectOpenbareRuimte) with null objectIdentificatie") {
         Given("A ZaakobjectOpenbareRuimte with null objectIdentificatie") {
             val zaakobject = mockk<ZaakobjectOpenbareRuimte> {
                 every { objectIdentificatie } returns null
@@ -72,9 +66,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("convertToZaakobject") {
         Given("A RESTOpenbareRuimte and a Zaak") {
             val fakeOpenbareRuimteUrl = URI("https://example.com/openbareruimte/fakeId")
             val zaak = createZaak()
