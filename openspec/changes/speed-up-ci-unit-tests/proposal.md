@@ -15,7 +15,7 @@ The `run-unit-tests` job in `.github/workflows/build-test-deploy.yml` now takes 
 - `ci-parallel-unit-tests`: the CI pipeline runs backend and frontend unit tests as separate concurrent jobs, and runs the backend suite with multi-fork parallelism, so total unit-test wall-clock time is bounded by the slower suite rather than their sum.
 
 ### Modified Capabilities
-<!-- No existing spec's requirements change. ci-cross-job-artifacts still holds: the new jobs consume the same run-scoped artifacts via download-artifact. -->
+- `ci-cross-job-artifacts`: the consuming-job scenarios are updated to reference the two new unit-test jobs (`run-backend-unit-tests`, `run-frontend-unit-tests`) in place of the former single `run-unit-tests` job; the artifact-sharing mechanism itself is unchanged.
 
 ## Impact
 

@@ -27,7 +27,7 @@
 
 ## 5. Validate
 
-- [ ] 5.1 Open a PR and confirm `run-backend-unit-tests` and `run-frontend-unit-tests` start and run concurrently
+- [x] 5.1 Open a PR and confirm `run-backend-unit-tests` and `run-frontend-unit-tests` start and run concurrently
 - [ ] 5.2 Confirm backend and frontend test results and both Codecov coverage flags appear as before
 - [ ] 5.3 Confirm the total unit-test wall-clock time is meaningfully lower than the previous single job; tune `maxParallelForks` if needed
 - [ ] 5.4 Confirm `push-docker-image` and downstream jobs still gate correctly on `main`

@@ -45,7 +45,7 @@ import nl.info.zac.util.NoArgConstructor
 @Produces(MediaType.APPLICATION_JSON)
 @Suppress("TooManyFunctions")
 @NoArgConstructor
-@AllOpen // required because we use Jakarta Validation using @Valid annotation in some functions
+@AllOpen
 class ReferenceTableRestService @Inject constructor(
     private val referenceTableService: ReferenceTableService,
     private val referenceTableAdminService: ReferenceTableAdminService,
