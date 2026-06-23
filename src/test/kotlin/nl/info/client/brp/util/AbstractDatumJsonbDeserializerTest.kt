@@ -73,10 +73,9 @@ class AbstractDatumJsonbDeserializerTest : BehaviorSpec({
                 val exception = shouldThrow<InputValidationFailedException> {
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
-
-                Then("InputValidationFailedException is thrown") {
-                    exception.message!!.contains("OnbekendDatumType")
-                }
+Then("InputValidationFailedException is thrown") {
+    exception.message!!.contains("OnbekendDatumType") shouldBe true
+}
             }
         }
     }
