@@ -135,7 +135,7 @@
 ## 17. Add unit tests for UserTaskCompletionListener
 
 - [x] 17.1 Create `UserTaskCompletionListenerTest.kt` in `src/test/kotlin/net/atos/zac/flowable/bpmn/`
-- [x] 17.2 Mock `FlowableHelper.getInstance()` via `mockkStatic(FlowableHelper.FlowableHelperProvider::class)`
+- [x] 17.2 Mock `FlowableHelper.getInstance()` via `mockkObject(FlowableHelper.FlowableHelperProvider)`
 - [x] 17.3 Add test: `onEvent` with `TASK_COMPLETED` → `IndexingService.removeTaak` called with task ID
 - [x] 17.4 Add test: `onEvent` with non-matching event type → `IndexingService.removeTaak` not called
 - [x] 17.5 Add test: `isFailOnException` returns true
