@@ -11,6 +11,7 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
@@ -24,6 +25,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYP
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_VOORSCHOTEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1
@@ -66,10 +69,13 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_3
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_BSN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FULLNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
@@ -1115,7 +1121,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     val gemeenten = (0 until jsonArray.length()).map {
                         jsonArray.getJSONObject(it).getString("code")
                     }.toSet()
-                    gemeenten shouldBe setOf("1916", "0626")
+                    gemeenten shouldBe setOf(TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG, TEST_GEMEENTE_CODE_VOORSCHOTEN)
                 }
             }
         }
@@ -1143,8 +1149,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/personen",
                     requestBodyAsString = """
                         {
-                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "gemeenteVanInschrijving": "1916"
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
                         }
                     """.trimIndent(),
                     testUser = RECORDMANAGER_1
@@ -1153,7 +1159,31 @@ class KlantRestServiceTest : BehaviorSpec({
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    responseBody shouldContain TEST_PERSON_HENDRIKA_JANSE_BSN
+                    responseBody shouldContain TEST_PERSON_DIRK_JANSSEN_BSN
+                }
+            }
+        }
+
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching within authorized gemeente") {
+            When(
+                "the personen search endpoint is called with an authorized gemeenteVanInschrijving" +
+                    " but the person for that BSN does not have a matching gemeenteVanInschrijving"
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 200 OK with no results") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getJSONArray("resultaten") shouldHaveSize(0)
                 }
             }
         }
@@ -1164,8 +1194,8 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/personen",
                     requestBodyAsString = """
                         {
-                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "gemeenteVanInschrijving": "1916"
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
                         }
                     """.trimIndent(),
                     testUser = BEHANDELAAR_2
@@ -1183,7 +1213,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                         {
                             "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
-                            "gemeenteVanInschrijving": "9999"
+                            "gemeenteVanInschrijving": "$TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE"
                         }
                     """.trimIndent(),
                     testUser = RECORDMANAGER_1
