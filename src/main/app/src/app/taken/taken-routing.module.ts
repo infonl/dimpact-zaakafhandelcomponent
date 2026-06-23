@@ -7,7 +7,6 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TaakResolver } from "./taak.resolver";
 
 const routes: Routes = [
@@ -38,7 +37,10 @@ const routes: Routes = [
   },
   {
     path: ":id",
-    component: TaakViewComponent,
+    loadComponent: () =>
+      import("./taak-view/taak-view.component").then(
+        (m) => m.TaakViewComponent,
+      ),
     resolve: { taak: TaakResolver },
   },
 ];

@@ -31,13 +31,7 @@ import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { ZakenService } from "../../zaken/zaken.service";
 import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
@@ -110,17 +104,11 @@ describe(TaakViewComponent.name, () => {
     };
 
     TestBed.configureTestingModule({
-      declarations: [TaakViewComponent],
       imports: [
-        ZaakVerkortComponent,
-        SideNavComponent,
-        StaticTextComponent,
+        TaakViewComponent,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
@@ -362,6 +350,21 @@ describe(TaakViewComponent.name, () => {
           "activeSideAction"
         ],
       ).toBe("actie.document.maken");
+      expect(openSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe(TaakViewComponent.prototype.editTaak.name, () => {
+    it("should open the actions sidenav with 'actie.taak.wijzigen'", () => {
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.editTaak();
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "activeSideAction"
+        ],
+      ).toBe("actie.taak.wijzigen");
       expect(openSpy).toHaveBeenCalled();
     });
   });
