@@ -32,7 +32,7 @@ ZAC uses an OPA server which runs as a separate runtime.
 ## Common Ground
 
 ZAC complies with the principles of the Dutch [Common Ground architecture for reusable open source software](https://commonground.nl/).
-Although Common Ground was setup with Dutch municipalities in mind, it is in fact a general architecture for open source software.
+Although Common Ground was set up with Dutch municipalities in mind, it is in fact a general architecture for open source software.
 A few important Common Ground principles that therefore apply to ZAC include:
 
 | Principle                                    | Implication for ZAC                                                                                                                                                                                                                                                                                                                                                                                         |
