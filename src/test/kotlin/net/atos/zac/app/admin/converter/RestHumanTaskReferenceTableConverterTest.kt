@@ -26,6 +26,23 @@ class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
+    Context("convertDefault(FormulierVeldDefinitie)") {
+        Given("A veld definitie with a default tabel") {
+            val veldDefinitie = nl.info.zac.admin.model.FormulierVeldDefinitie.ADVIES
+            val fakeReferenceTable = createReferenceTable(id = 99L)
+            every { referenceTableService.readReferenceTable(veldDefinitie.defaultTabel.name) } returns fakeReferenceTable
+
+            When("convertDefault is called") {
+                val result = converter.convertDefault(veldDefinitie)
+
+                Then("the returned REST entry has veld set and tabel resolved via the service") {
+                    result.veld shouldBe veldDefinitie.name
+                    result.tabel.id shouldBe 99L
+                }
+            }
+        }
+    }
+
     Context("convert(Collection<HumanTaskReferentieTabel>)") {
         Given("A collection of two HumanTaskReferentieTabel entries") {
             val fakeReferenceTable1 = createReferenceTable(code = "FAKE_TABLE_1")
