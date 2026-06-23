@@ -101,7 +101,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
-| initContainer.resources | object | `{"requests":{"cpu":"50m","memory":"256Mi"}}` | Resource limits and requests for the init-solr-zac-core init container |
+| initContainer.resources.requests.cpu | string | `"50m"` |  |
+| initContainer.resources.requests.memory | string | `"256Mi"` |  |
+| initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -235,11 +237,13 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
 | opa.podAnnotations | object | `{}` |  |
-| opa.podSecurityContext | object | `{}` |  |
+| opa.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | opa.replicas | int | `1` |  |
 | opa.resources.requests.cpu | string | `"10m"` |  |
 | opa.resources.requests.memory | string | `"20Mi"` |  |
-| opa.securityContext | object | `{}` |  |
+| opa.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| opa.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| opa.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
@@ -290,10 +294,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
-| signaleringen.podSecurityContext | object | `{}` |  |
+| signaleringen.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | signaleringen.resources | object | `{}` |  |
 | signaleringen.restartPolicy | string | `"Never"` |  |
-| signaleringen.securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
+| signaleringen.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | container security context for the curl-based signaleren CronJob containers |
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |
