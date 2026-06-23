@@ -32,6 +32,21 @@ fun createZaaktypeBrpParameters(
     this.verwerkingregisterWaarde = verwerkingregisterWaarde
 }
 
+fun createZaaktypeCmmnHumantaskParameters(
+    planItemDefinitionId: String = "AANVULLENDE_INFORMATIE",
+    id: Long = 1L,
+    actief: Boolean = true,
+    groepId: String = "fakeGroepId",
+    doorlooptijd: Int = 5
+) = ZaaktypeCmmnHumantaskParameters().apply {
+    this.planItemDefinitionID = planItemDefinitionId
+    this.id = id
+    this.actief = actief
+    this.groepID = groepId
+    this.doorlooptijd = doorlooptijd
+    this.setReferentieTabellen(mutableListOf())
+}
+
 @Suppress("LongParameterList")
 fun createHumanTaskParameters(
     id: Long = 1234L,
