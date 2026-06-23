@@ -14,7 +14,9 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
@@ -29,7 +31,9 @@ import { TakenService } from "../taken.service";
     MatButtonModule,
     MatDividerModule,
     TranslateModule,
-    MaterialFormBuilderModule,
+    ZacSelect,
+    ZacTextarea,
+    ZacFormActions,
   ],
 })
 export class TaakEditComponent {
