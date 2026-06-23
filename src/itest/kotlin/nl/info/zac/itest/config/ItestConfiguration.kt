@@ -156,7 +156,7 @@ object ItestConfiguration {
     /**
      * Third test person that exists in the BRP with a gemeentecode that exists in PABC
      */
-    const val TEST_PERSON_DIRK_JANSSEN_BSN = "999992958"
+    const val TEST_PERSON_DIRK_JANSSEN_BSN = "999991206"
     const val TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE = TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
 
     /**
