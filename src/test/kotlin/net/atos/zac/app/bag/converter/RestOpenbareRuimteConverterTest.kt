@@ -79,12 +79,12 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
             val fakeObjectUri = URI("https://example.com/openbareruimte/fakeId")
             val zaakobject = createZaakobjectOpenbareRuimte(bagobjectURI = fakeObjectUri)
 
-Then("the result fields are mapped from the object identificatie") {
-    result!!.url shouldBe fakeObjectUri
-    result.identificatie shouldBe "fakeIdentificatie"
-    result.naam shouldBe "fakeopenbareRuimteNaam"
-    result.woonplaatsNaam shouldBe "fakePlaatsNaam"
-}
+            Then("the result fields are mapped from the object identificatie") {
+                result!!.url shouldBe fakeObjectUri
+                result.identificatie shouldBe "fakeIdentificatie"
+                result.naam shouldBe "fakeopenbareRuimteNaam"
+                result.woonplaatsNaam shouldBe "fakePlaatsNaam"
+            }
         }
     }
 
