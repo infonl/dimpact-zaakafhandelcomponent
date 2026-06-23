@@ -8,25 +8,21 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
-import jakarta.json.Json
 import nl.info.client.brp.model.generated.Adres
 import nl.info.client.brp.model.generated.Locatie
 import nl.info.client.brp.model.generated.VerblijfplaatsBuitenland
 import nl.info.client.brp.model.generated.VerblijfplaatsOnbekend
 import nl.info.zac.exception.InputValidationFailedException
-import java.io.StringReader
 
 class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
     val deserializer = AbstractVerblijfplaatsJsonbDeserializer()
 
-    fun createParser(json: String) = Json.createParser(StringReader(json)).also { it.next() }
-
-    Context("Deserialization of supported AbstractVerblijfplaats types") {
+    Context("deserialize") {
         Given("JSON with type VerblijfplaatsBuitenland") {
             val json = """{"type":"VerblijfplaatsBuitenland"}"""
 
             When("deserialize is called") {
-                val result = deserializer.deserialize(createParser(json), mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a VerblijfplaatsBuitenland is returned") {
                     result.shouldBeInstanceOf<VerblijfplaatsBuitenland>()
@@ -38,7 +34,7 @@ class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"Adres"}"""
 
             When("deserialize is called") {
-                val result = deserializer.deserialize(createParser(json), mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("an Adres is returned") {
                     result.shouldBeInstanceOf<Adres>()
@@ -50,7 +46,7 @@ class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"VerblijfplaatsOnbekend"}"""
 
             When("deserialize is called") {
-                val result = deserializer.deserialize(createParser(json), mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a VerblijfplaatsOnbekend is returned") {
                     result.shouldBeInstanceOf<VerblijfplaatsOnbekend>()
@@ -62,22 +58,20 @@ class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"Locatie"}"""
 
             When("deserialize is called") {
-                val result = deserializer.deserialize(createParser(json), mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a Locatie is returned") {
                     result.shouldBeInstanceOf<Locatie>()
                 }
             }
         }
-    }
 
-    Context("Deserialization of unknown type") {
         Given("JSON with an unknown verblijfplaats type") {
             val json = """{"type":"OnbekendVerblijfplaatsType"}"""
 
             When("deserialize is called") {
                 val exception = shouldThrow<InputValidationFailedException> {
-                    deserializer.deserialize(createParser(json), mockk(), mockk())
+                    deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
 
                 Then("InputValidationFailedException is thrown") {

@@ -8,7 +8,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
-import jakarta.json.Json
 import nl.info.client.brp.model.generated.RaadpleegMetBurgerservicenummerResponse
 import nl.info.client.brp.model.generated.ZoekMetGeslachtsnaamEnGeboortedatumResponse
 import nl.info.client.brp.model.generated.ZoekMetNaamEnGemeenteVanInschrijvingResponse
@@ -16,20 +15,16 @@ import nl.info.client.brp.model.generated.ZoekMetNummeraanduidingIdentificatieRe
 import nl.info.client.brp.model.generated.ZoekMetPostcodeEnHuisnummerResponse
 import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse
 import nl.info.zac.exception.InputValidationFailedException
-import java.io.StringReader
 
 class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
     val deserializer = PersonenQueryResponseJsonbDeserializer()
 
-    fun createParser(json: String) = Json.createParser(StringReader(json)).also { it.next() }
-
-    Context("Deserialization of supported PersonenQueryResponse types") {
+    Context("deserialize") {
         Given("JSON with type RaadpleegMetBurgerservicenummer") {
             val json = """{"type":"RaadpleegMetBurgerservicenummer","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a RaadpleegMetBurgerservicenummerResponse is returned") {
                     result.shouldBeInstanceOf<RaadpleegMetBurgerservicenummerResponse>()
@@ -41,8 +36,7 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"ZoekMetGeslachtsnaamEnGeboortedatum","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a ZoekMetGeslachtsnaamEnGeboortedatumResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetGeslachtsnaamEnGeboortedatumResponse>()
@@ -54,8 +48,7 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"ZoekMetNaamEnGemeenteVanInschrijving","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a ZoekMetNaamEnGemeenteVanInschrijvingResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetNaamEnGemeenteVanInschrijvingResponse>()
@@ -67,8 +60,7 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"ZoekMetNummeraanduidingIdentificatie","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a ZoekMetNummeraanduidingIdentificatieResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetNummeraanduidingIdentificatieResponse>()
@@ -80,8 +72,7 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"ZoekMetPostcodeEnHuisnummer","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a ZoekMetPostcodeEnHuisnummerResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetPostcodeEnHuisnummerResponse>()
@@ -93,23 +84,20 @@ class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
             val json = """{"type":"ZoekMetStraatHuisnummerEnGemeenteVanInschrijving","personen":[]}"""
 
             When("deserialize is called") {
-                val parser = createParser(json)
-                val result = deserializer.deserialize(parser, mockk(), mockk())
+                val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
                 Then("a ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse>()
                 }
             }
         }
-    }
 
-    Context("Deserialization of unknown type") {
         Given("JSON with an unknown type") {
             val json = """{"type":"OnbekendType"}"""
 
             When("deserialize is called") {
                 val exception = shouldThrow<InputValidationFailedException> {
-                    deserializer.deserialize(createParser(json), mockk(), mockk())
+                    deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
 
                 Then("InputValidationFailedException is thrown") {

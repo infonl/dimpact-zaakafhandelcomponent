@@ -9,9 +9,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.app.admin.model.RESTPlanItemDefinition
 import net.atos.zac.app.admin.model.RestHumanTaskReferenceTable
-import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
+import net.atos.zac.app.admin.model.createRESTPlanItemDefinition
+import nl.info.zac.admin.model.createZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.model.PlanItemType
 
 class RESTHumanTaskParametersConverterTest : BehaviorSpec({
@@ -20,39 +20,23 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    fun createPlanItemDefinition(
-        id: String = "AANVULLENDE_INFORMATIE",
-        naam: String = "fakePlanItemNaam"
-    ) = RESTPlanItemDefinition(id, naam, PlanItemType.HUMAN_TASK)
-
-    fun createHumantaskParameters(
-        planItemDefinitionId: String = "AANVULLENDE_INFORMATIE",
-        id: Long = 1L,
-        actief: Boolean = true,
-        groepId: String = "fakeGroepId",
-        doorlooptijd: Int = 5
-    ) = ZaaktypeCmmnHumantaskParameters().apply {
-        this.planItemDefinitionID = planItemDefinitionId
-        this.id = id
-        this.actief = actief
-        this.groepID = groepId
-        this.doorlooptijd = doorlooptijd
-    }
-
-    Context("convertHumanTaskParametersCollection with matching parameters") {
+    Context("convertHumanTaskParametersCollection") {
         Given("A plan item definition that matches an existing ZaaktypeCmmnHumantaskParameters") {
-            val fakeDefinition = createPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
-            val fakeParams = createHumantaskParameters(planItemDefinitionId = "AANVULLENDE_INFORMATIE", id = 42L)
+            val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
+            val fakeHumantaskParameters = createZaaktypeCmmnHumantaskParameters(
+                planItemDefinitionId = "AANVULLENDE_INFORMATIE",
+                id = 42L
+            )
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
 
             every {
-                restHumanTaskReferenceTableConverter.convert(fakeParams.getReferentieTabellen())
+                restHumanTaskReferenceTableConverter.convert(fakeHumantaskParameters.getReferentieTabellen())
             } returns fakeReferentieTabellen
 
             When("convertHumanTaskParametersCollection is called") {
                 val result = converter.convertHumanTaskParametersCollection(
-                    listOf(fakeParams),
-                    listOf(fakeDefinition)
+                    listOf(fakeHumantaskParameters),
+                    listOf(fakePlanItemDefinition)
                 )
 
                 Then("the result contains one RESTHumanTaskParameters with populated fields") {
@@ -61,26 +45,24 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
                     result[0].actief shouldBe true
                     result[0].defaultGroepId shouldBe "fakeGroepId"
                     result[0].doorlooptijd shouldBe 5
-                    result[0].planItemDefinition shouldBe fakeDefinition
+                    result[0].planItemDefinition shouldBe fakePlanItemDefinition
                 }
             }
         }
-    }
 
-    Context("convertHumanTaskParametersCollection with no matching parameters") {
         Given("A plan item definition with no matching ZaaktypeCmmnHumantaskParameters") {
-            val fakeDefinition = createPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
+            val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
 
             When("convertHumanTaskParametersCollection is called with empty parameters collection") {
                 val result = converter.convertHumanTaskParametersCollection(
                     emptyList(),
-                    listOf(fakeDefinition)
+                    listOf(fakePlanItemDefinition)
                 )
 
                 Then("the result contains one RESTHumanTaskParameters with default values") {
                     result.size shouldBe 1
                     result[0].actief shouldBe false
-                    result[0].planItemDefinition shouldBe fakeDefinition
+                    result[0].planItemDefinition shouldBe fakePlanItemDefinition
                     result[0].id shouldBe null
                     result[0].formulierDefinitieId shouldBe "AANVULLENDE_INFORMATIE"
                 }
@@ -88,14 +70,14 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertRESTHumanTaskParameters with single entry") {
+    Context("convertRESTHumanTaskParameters") {
         Given("A list with one RESTHumanTaskParameters") {
-            val fakeDefinition = createPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
+            val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
             val restParams = net.atos.zac.app.admin.model.RESTHumanTaskParameters().apply {
                 id = 10L
                 actief = true
-                planItemDefinition = fakeDefinition
+                planItemDefinition = fakePlanItemDefinition
                 defaultGroepId = "fakeGroepId"
                 formulierDefinitieId = "AANVULLENDE_INFORMATIE"
                 doorlooptijd = 3
@@ -119,17 +101,18 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("convertRESTHumanTaskParameters with multiple entries") {
         Given("A list with two RESTHumanTaskParameters") {
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
             val restParams1 = net.atos.zac.app.admin.model.RESTHumanTaskParameters().apply {
-                planItemDefinition = createPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
+                planItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
                 referentieTabellen = fakeReferentieTabellen.toMutableList()
             }
             val restParams2 = net.atos.zac.app.admin.model.RESTHumanTaskParameters().apply {
-                planItemDefinition = createPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
+                planItemDefinition = createRESTPlanItemDefinition(
+                    id = "AANVULLENDE_INFORMATIE",
+                    type = PlanItemType.HUMAN_TASK
+                )
                 referentieTabellen = fakeReferentieTabellen.toMutableList()
             }
 

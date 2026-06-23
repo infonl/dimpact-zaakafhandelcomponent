@@ -11,8 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
+import nl.info.client.zgw.shared.model.audit.documenten.createEnkelvoudigInformatieobjectWijziging
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import java.net.URI
@@ -23,34 +22,18 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    fun createFullEnkelvoudigInformatieObject(
-        title: String = "fakeTitel",
-        informatieObjectType: URI = URI("https://example.com/informatieobjecttype/fakeDefault"),
-        beginRegistratie: java.time.OffsetDateTime = java.time.OffsetDateTime.now()
-    ) = createEnkelvoudigInformatieObject(
-        title = title,
-        informatieObjectType = informatieObjectType,
-        beginRegistratie = beginRegistratie
-    ).also {
-        it.identificatie = "fakeIdentificatie1"
-        it.bestandsnaam = "fakeBestandsnaam.pdf"
-        it.taal = "nld"
-        it.auteur = "fakeAuteur"
-        it.bronorganisatie = "fakeBronorganisatie"
-    }
-
-    fun createWijziging(
-        oud: EnkelvoudigInformatieObject? = null,
-        nieuw: EnkelvoudigInformatieObject? = null
-    ) = EnkelvoudigInformatieobjectWijziging().apply {
-        this.oud = oud
-        this.nieuw = nieuw
-    }
-
-    Context("Converting a wijziging with two identical objects") {
+    Context("convert") {
         Given("Old and new EnkelvoudigInformatieObject with identical field values") {
-            val fakeObject = createFullEnkelvoudigInformatieObject()
-            val wijziging = createWijziging(oud = fakeObject, nieuw = fakeObject)
+            val fakeObject = createEnkelvoudigInformatieObject(
+                title = "fakeTitel",
+                informatieObjectType = URI("https://example.com/informatieobjecttype/fakeDefault"),
+                identificatie = "fakeIdentificatie1",
+                bestandsnaam = "fakeBestandsnaam.pdf",
+                taal = "nld",
+                auteur = "fakeAuteur",
+                bronorganisatie = "fakeBronorganisatie"
+            )
+            val wijziging = createEnkelvoudigInformatieobjectWijziging(oud = fakeObject, nieuw = fakeObject)
 
             When("convert is called") {
                 val result = converter.convert(wijziging)
@@ -60,16 +43,28 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("Converting a wijziging where titel changed") {
         Given("Old object with titel 'fakeOudTitel' and new object with titel 'fakeNieuwTitel'") {
-            val sharedRegistratie = java.time.OffsetDateTime.now()
-            val oudObject =
-                createFullEnkelvoudigInformatieObject(title = "fakeOudTitel", beginRegistratie = sharedRegistratie)
-            val nieuwObject =
-                createFullEnkelvoudigInformatieObject(title = "fakeNieuwTitel", beginRegistratie = sharedRegistratie)
-            val wijziging = createWijziging(oud = oudObject, nieuw = nieuwObject)
+            val fakeSharedInformatieObjectType = URI("https://example.com/informatieobjecttype/fakeDefault")
+            val oudObject = createEnkelvoudigInformatieObject(
+                title = "fakeOudTitel",
+                informatieObjectType = fakeSharedInformatieObjectType,
+                identificatie = "fakeIdentificatie1",
+                bestandsnaam = "fakeBestandsnaam.pdf",
+                taal = "nld",
+                auteur = "fakeAuteur",
+                bronorganisatie = "fakeBronorganisatie"
+            )
+            val nieuwObject = createEnkelvoudigInformatieObject(
+                title = "fakeNieuwTitel",
+                informatieObjectType = fakeSharedInformatieObjectType,
+                identificatie = "fakeIdentificatie1",
+                bestandsnaam = "fakeBestandsnaam.pdf",
+                taal = "nld",
+                auteur = "fakeAuteur",
+                bronorganisatie = "fakeBronorganisatie"
+            )
+            val wijziging = createEnkelvoudigInformatieobjectWijziging(oud = oudObject, nieuw = nieuwObject)
 
             When("convert is called") {
                 val result = converter.convert(wijziging)
@@ -79,26 +74,31 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("Converting a wijziging where informatieobjecttype URI changed") {
         Given("Old and new objects with different informatieobjecttype URIs") {
             val fakeOudUri = URI("https://example.com/informatieobjecttype/fakeOud")
             val fakeNieuwUri = URI("https://example.com/informatieobjecttype/fakeNieuw")
             val fakeOudType = mockk<InformatieObjectType> { every { omschrijving } returns "fakeOudOmschrijving" }
             val fakeNieuwType = mockk<InformatieObjectType> { every { omschrijving } returns "fakeNieuwOmschrijving" }
-            val sharedRegistratie = java.time.OffsetDateTime.now()
-            val oudObject =
-                createFullEnkelvoudigInformatieObject(
-                    informatieObjectType = fakeOudUri,
-                    beginRegistratie = sharedRegistratie
-                )
-            val nieuwObject =
-                createFullEnkelvoudigInformatieObject(
-                    informatieObjectType = fakeNieuwUri,
-                    beginRegistratie = sharedRegistratie
-                )
-            val wijziging = createWijziging(oud = oudObject, nieuw = nieuwObject)
+            val oudObject = createEnkelvoudigInformatieObject(
+                title = "fakeTitel",
+                informatieObjectType = fakeOudUri,
+                identificatie = "fakeIdentificatie1",
+                bestandsnaam = "fakeBestandsnaam.pdf",
+                taal = "nld",
+                auteur = "fakeAuteur",
+                bronorganisatie = "fakeBronorganisatie"
+            )
+            val nieuwObject = createEnkelvoudigInformatieObject(
+                title = "fakeTitel",
+                informatieObjectType = fakeNieuwUri,
+                identificatie = "fakeIdentificatie1",
+                bestandsnaam = "fakeBestandsnaam.pdf",
+                taal = "nld",
+                auteur = "fakeAuteur",
+                bronorganisatie = "fakeBronorganisatie"
+            )
+            val wijziging = createEnkelvoudigInformatieobjectWijziging(oud = oudObject, nieuw = nieuwObject)
 
             every { ztcClientService.readInformatieobjecttype(fakeOudUri) } returns fakeOudType
             every { ztcClientService.readInformatieobjecttype(fakeNieuwUri) } returns fakeNieuwType
@@ -111,11 +111,12 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("Converting a wijziging where oud is null") {
         Given("A wijziging with oud = null and a non-null nieuw") {
-            val wijziging = createWijziging(oud = null, nieuw = createFullEnkelvoudigInformatieObject())
+            val wijziging = createEnkelvoudigInformatieobjectWijziging(
+                oud = null,
+                nieuw = createEnkelvoudigInformatieObject()
+            )
 
             When("convert is called") {
                 val result = converter.convert(wijziging)
@@ -126,11 +127,12 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 }
             }
         }
-    }
 
-    Context("Converting a wijziging where nieuw is null") {
         Given("A wijziging with a non-null oud and nieuw = null") {
-            val wijziging = createWijziging(oud = createFullEnkelvoudigInformatieObject(), nieuw = null)
+            val wijziging = createEnkelvoudigInformatieobjectWijziging(
+                oud = createEnkelvoudigInformatieObject(),
+                nieuw = null
+            )
 
             When("convert is called") {
                 val result = converter.convert(wijziging)
