@@ -6,4 +6,4 @@
 ## 2. Verify
 
 - [x] 2.1 Run `./gradlew compileKotlin` to confirm no compilation errors
-- [ ] 2.2 Start ZAC and confirm `HV000271` warning no longer appears in logs
+- [x] 2.2 Start ZAC and confirm `HV000271` warning no longer appears in logs
