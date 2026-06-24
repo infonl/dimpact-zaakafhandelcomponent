@@ -271,7 +271,6 @@ Then(
     await expect(
       this.page.getByRole("cell", { name: userName, exact: true }).nth(1),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await this.page.waitForTimeout(FORTY_SECONDS_IN_MS);
   },
 );
 
@@ -365,7 +364,6 @@ Then(
     await expect(
       this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
     ).toHaveValue(userName, { timeout: FORTY_SECONDS_IN_MS });
-    await this.page.waitForTimeout(10000);
     await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );
