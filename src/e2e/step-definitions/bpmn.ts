@@ -37,10 +37,10 @@ async function waitForFormioContent(page: Page, target: Locator) {
 const UUID_V4_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
 
-const beheerdersGroupId = "beheerders_elk_domein";
-const beheerdersGroupName = "Beheerders elk domein - new IAM";
-const beheerderUserId = "beheerder1newiam";
-const beheerderUser = "Beheerder 1 New IAM";
+const e2eTestGroupAId = "test-group-a";
+const e2eTestGroupAName = "Test groep A";
+const testUser1Id = "e2etestuser1";
+const testUser1Name = "E2etest User1";
 
 const COMMUNICATION_CHANNEL_KEY = "E-mail";
 const COMMUNICATION_CHANNEL_VALUE = "46";
@@ -173,7 +173,7 @@ Then(
     await waitForFormioReady(this.page);
     const form = formioForm(this.page);
     await expect(form.getByLabel("Group").nth(0)).toContainText(
-      beheerdersGroupName,
+      e2eTestGroupAName,
       {
         timeout: FORTY_SECONDS_IN_MS,
       },
@@ -191,7 +191,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const form = formioForm(this.page);
-    await form.getByLabel("Group").nth(0).selectOption(beheerdersGroupName);
+    await form.getByLabel("Group").nth(0).selectOption(e2eTestGroupAName);
     // User options populate from the Group selection via a backend call;
     // wait for it to return before assuming the specific option exists.
     const userSelect = form.getByLabel("User");
@@ -200,7 +200,7 @@ When(
         timeout: FORTY_SECONDS_IN_MS,
       })
       .toBeGreaterThan(1);
-    await userSelect.selectOption(beheerderUser);
+    await userSelect.selectOption(testUser1Name);
     const documentsSearchbox = form.getByRole("searchbox", {
       name: "Select one or more documents",
     });
@@ -263,12 +263,15 @@ Then(
     await expect(
       this.page.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await expect(this.page.getByRole("cell", { name: groupName })).toBeVisible({
+    await expect(
+      this.page.getByRole("cell", { name: groupName }).nth(1),
+    ).toBeVisible({
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(
-      this.page.getByRole("cell", { name: userName, exact: true }),
+      this.page.getByRole("cell", { name: userName, exact: true }).nth(1),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await this.page.waitForTimeout(FORTY_SECONDS_IN_MS);
   },
 );
 
@@ -279,11 +282,11 @@ Then(
     const form = formioForm(this.page);
     const groupTextbox = form.getByRole("textbox", { name: "Group" });
     await waitForFormioContent(this.page, groupTextbox);
-    await expect(groupTextbox).toHaveValue(beheerdersGroupId, {
+    await expect(groupTextbox).toHaveValue(e2eTestGroupAId, {
       timeout: FORTY_SECONDS_IN_MS,
     });
     await expect(form.getByRole("textbox", { name: "User" })).toHaveValue(
-      beheerderUserId,
+      testUser1Id,
       { timeout: FORTY_SECONDS_IN_MS },
     );
     await expect(form.getByRole("option", { name: UUID_V4_REGEX })).toBeVisible(
@@ -362,6 +365,7 @@ Then(
     await expect(
       this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
     ).toHaveValue(userName, { timeout: FORTY_SECONDS_IN_MS });
+    await this.page.waitForTimeout(10000);
     await this.page.getByRole("button").filter({ hasText: "close" }).click();
   },
 );
