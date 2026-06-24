@@ -11,6 +11,7 @@ import {
   effect,
   input,
   signal,
+  WritableSignal,
 } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -20,7 +21,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
-import { takeUntil } from "rxjs";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { DagenPipe } from "../../pipes/dagen.pipe";
 import { SingleInputFormField } from "../BaseFormField";
@@ -68,7 +68,7 @@ export class ZacDate<
   constructor() {
     super();
 
-    effect(() => {
+    effect((onCleanup) => {
       const control = this.control();
       if (!control) {
         this.min.set(null);
@@ -77,16 +77,29 @@ export class ZacDate<
       }
 
       this.updateDateBounds(control);
-      control.statusChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(() => this.updateDateBounds(control));
+      const subscription = control.statusChanges.subscribe(() =>
+        this.updateDateBounds(control),
+      );
+      onCleanup(() => subscription.unsubscribe());
     });
   }
 
   private updateDateBounds(control: AbstractControl) {
-    const min = FormHelper.getValidatorValue("min", control);
-    const max = FormHelper.getValidatorValue("max", control);
-    this.min.set(min ? moment(min) : null);
-    this.max.set(max ? moment(max) : null);
+    this.setBoundIfChanged(
+      this.min,
+      FormHelper.getValidatorValue("min", control),
+    );
+    this.setBoundIfChanged(
+      this.max,
+      FormHelper.getValidatorValue("max", control),
+    );
+  }
+
+  private setBoundIfChanged(
+    bound: WritableSignal<Moment | null>,
+    value: number | null,
+  ) {
+    if (value === (bound()?.valueOf() ?? null)) return;
+    bound.set(value ? moment(value) : null);
   }
 }
