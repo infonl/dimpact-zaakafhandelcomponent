@@ -19,22 +19,15 @@ The Jest configuration SHALL set `coverageDirectory` to `"coverage"` so that CI 
 - **THEN** the coverage report is written to `src/main/app/coverage/`
 
 ### Requirement: `test:ci` npm script is a valid Jest invocation
-The `test:ci` script in `package.json` SHALL be a valid Jest CLI invocation that runs with coverage and force-exits after completion.
+The `test:ci` script in `package.json` SHALL be a valid Jest CLI invocation that runs with coverage and force-exits after completion. It does not pin `maxWorkers`; Jest uses its default worker count.
 
 #### Scenario: `test:ci` runs all tests with coverage
 - **WHEN** a developer runs `npm run test:ci`
 - **THEN** Jest runs all test suites with coverage enabled and exits when done
 
 #### Scenario: `test:ci` accepts additional Jest CLI arguments
-- **WHEN** a developer runs `npm run test:ci -- --shard=1/3`
-- **THEN** Jest runs shard 1 of 3 with coverage enabled
-
-### Requirement: `test:shard` npm script exists for running a subset of tests
-The `package.json` SHALL expose a `test:shard` script so developers can run a specific shard locally.
-
-#### Scenario: Developer runs a specific shard locally
-- **WHEN** a developer runs `npm run test:shard -- --shard=1/3`
-- **THEN** Jest runs only the test files assigned to shard 1 of 3
+- **WHEN** a developer runs `npm run test:ci -- <extra jest args>`
+- **THEN** the extra arguments are passed through to the Jest CLI
 
 ### Requirement: Jest transform cache is persisted between CI runs
 The CI `run-unit-tests` job SHALL cache `src/main/app/.jest-cache/` using `actions/cache` so that Angular template compilation is skipped for unchanged files on subsequent runs.
