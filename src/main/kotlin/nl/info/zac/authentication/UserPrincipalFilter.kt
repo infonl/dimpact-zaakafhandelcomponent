@@ -134,7 +134,7 @@ constructor(
         val rolesPerZaaktype: Map<String, Set<String>> =
             applicationRolesResponse.results
                 .filter {
-                    it.entityType?.type.equals(ENTITY_TYPE_ZAAKTYPE, ignoreCase = true) &&
+                    it.entityType?.type.equals(ENTITY_TYPE_ZAAKTYPE) &&
                         !it.entityType?.id.isNullOrBlank()
                 }.associate { result ->
                     val roles = result.applicationRoles
@@ -155,11 +155,11 @@ constructor(
 
         val brpGemeenten = applicationRolesResponse.results
             .filter {
-                it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE, ignoreCase = true) &&
-                    !it.entityType?.id.isNullOrBlank() &&
+                it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE) &&
+                    !it.entityType.id.isNullOrBlank() &&
                     it.applicationRoles.any {
-                        it.application.equals(APPLICATION_NAME_ZAC, ignoreCase = true) &&
-                            it.name.equals(ROLE_NAME_BRP_ZOEKEN, ignoreCase = true)
+                        it.application.equals(APPLICATION_NAME_ZAC) &&
+                            it.name.equals(ROLE_NAME_BRP_ZOEKEN)
                     }
             }
             .associate { it.entityType.id to it.entityType.name }
