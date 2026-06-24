@@ -191,8 +191,12 @@ jobs:
             exit 1
           fi
           cat nvd-build-metadata.txt
-          status=$(grep '^status=' nvd-build-metadata.txt | cut -d= -f2)
-          updated_at=$(grep '^updated_at=' nvd-build-metadata.txt | cut -d= -f2)
+          # The default GitHub Actions bash shell runs with `-eo pipefail`, so a
+          # `grep` that finds no match exits 1 and would abort this step before the
+          # explicit error handling below. Tolerate a missing key with `|| true`
+          # and validate the values ourselves so we fail with the intended message.
+          status=$(grep '^status=' nvd-build-metadata.txt | cut -d= -f2 || true)
+          updated_at=$(grep '^updated_at=' nvd-build-metadata.txt | cut -d= -f2 || true)
           if [ "${status}" != "complete" ]; then
             echo "::error::NVD database is not complete (status=${status:-unknown}). The 'Publish NVD Database Cache' workflow has not yet built a full database."
             exit 1
@@ -201,7 +205,14 @@ jobs:
             echo "::error::NVD database has no update timestamp; refusing to scan."
             exit 1
           fi
-          age_days=$(( ( $(date -u +%s) - $(date -u -d "${updated_at}" +%s) ) / 86400 ))
+          # Parse the timestamp explicitly so a malformed value fails with our
+          # error message instead of aborting the step inside the arithmetic below.
+          updated_at_epoch=$(date -u -d "${updated_at}" +%s 2>/dev/null || true)
+          if [ -z "${updated_at_epoch}" ]; then
+            echo "::error::NVD database update timestamp '${updated_at}' is not a valid date; refusing to scan."
+            exit 1
+          fi
+          age_days=$(( ( $(date -u +%s) - updated_at_epoch ) / 86400 ))
           echo "NVD database last updated: ${updated_at} (${age_days} day(s) ago)"
           if [ "${age_days}" -gt "${NVD_DATABASE_MAX_AGE_DAYS}" ]; then
             echo "::error::NVD database is ${age_days} days old (max ${NVD_DATABASE_MAX_AGE_DAYS}). The 'Publish NVD Database Cache' workflow is likely failing - scan results would be based on stale data."
