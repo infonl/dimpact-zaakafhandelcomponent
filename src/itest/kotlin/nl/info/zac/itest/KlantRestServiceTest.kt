@@ -1106,7 +1106,7 @@ class KlantRestServiceTest : BehaviorSpec({
     }
 
     Context("Listing BRP gemeenten") {
-        Given("A user with gemeente-scoped brp_zoeken") {
+        Given("A user with gemeente-scoped brp_zoeken authorisation") {
             When("the listAuthorisedBrpGemeenten endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/gemeenten",
