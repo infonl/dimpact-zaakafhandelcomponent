@@ -17,6 +17,5 @@ class RestReferenceTableUpdate(
 
     var code: String? = null,
 
-    @field:Valid
-    var waarden: List<RestReferenceTableValue> = emptyList()
+    var waarden: List<@Valid RestReferenceTableValue> = emptyList()
 )

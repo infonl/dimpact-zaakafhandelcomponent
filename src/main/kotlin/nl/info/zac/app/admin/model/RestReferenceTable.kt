@@ -28,8 +28,7 @@ class RestReferenceTable(
 
     var aantalWaarden: Int = 0,
 
-    @field:Valid
-    var waarden: List<RestReferenceTableValue> = emptyList()
+    var waarden: List<@Valid RestReferenceTableValue> = emptyList()
 )
 
 fun RestReferenceTable.toReferenceTable(): ReferenceTable {
