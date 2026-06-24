@@ -106,6 +106,9 @@ spec:
                 name: {{ include "zaakafhandelcomponent.fullname" . }}
             - secretRef:
                 name: {{ include "zaakafhandelcomponent.fullname" . }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           {{- if .Values.remoteDebug }}
           command:
             - java
@@ -143,6 +146,9 @@ spec:
             initialDelaySeconds: 5
       {{- end }}
       {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
