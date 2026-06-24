@@ -79,8 +79,11 @@ jobs:
           mkdir -p ~/.gradle/dependency-check-data
           if docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
             container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+            cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+            trap cleanup EXIT
             docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
-            docker rm "${container_id}"
+            cleanup
+            trap - EXIT
             echo "had_previous=true" >> "$GITHUB_OUTPUT"
             echo "✅ Restored database from the previous image."
           else
