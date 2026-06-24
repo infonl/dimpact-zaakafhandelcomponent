@@ -116,7 +116,7 @@ export class KlantenService {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
-  listBrpGemeenten() {
+  listAuthorisedBrpGemeenten() {
     return this.zacQueryClient.GET("/rest/klanten/personen/gemeenten");
   }
 

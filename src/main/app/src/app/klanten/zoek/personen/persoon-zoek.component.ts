@@ -122,7 +122,7 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   });
 
   private readonly brpGemeentenQuery = injectQuery(() =>
-    this.klantenService.listBrpGemeenten(),
+    this.klantenService.listAuthorisedBrpGemeenten(),
   );
   protected readonly brpGemeenten = computed(
     () => this.brpGemeentenQuery.data() || [],

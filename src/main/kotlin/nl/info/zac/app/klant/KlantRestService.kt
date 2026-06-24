@@ -201,7 +201,7 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("personen/gemeenten")
-    fun listBrpGemeenten(): List<RestBrpGemeente> = loggedInUserInstance.get().brpGemeenten.map {
+    fun listAuthorisedBrpGemeenten(): List<RestBrpGemeente> = loggedInUserInstance.get().brpGemeenten.map {
         RestBrpGemeente(code = it.key, naam = it.value)
     }
 

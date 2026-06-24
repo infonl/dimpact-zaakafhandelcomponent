@@ -193,9 +193,10 @@ describe(PersoonZoekComponent.name, () => {
 
   describe("brpGemeenten effect", () => {
     it("should auto-set gemeenteVanInschrijving when exactly one gemeente is returned", fakeAsync(() => {
-      testQueryClient.setQueryData(klantenService.listBrpGemeenten().queryKey, [
-        { code: "0344", naam: "Utrecht" },
-      ]);
+      testQueryClient.setQueryData(
+        klantenService.listAuthorisedBrpGemeenten().queryKey,
+        [{ code: "0344", naam: "Utrecht" }],
+      );
 
       tick();
       fixture.detectChanges();

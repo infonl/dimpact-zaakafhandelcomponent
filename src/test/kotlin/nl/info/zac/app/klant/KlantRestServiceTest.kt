@@ -1074,8 +1074,8 @@ class KlantRestServiceTest : BehaviorSpec({
                 "0599" to "fakeGemeenteNaam2"
             )
 
-            When("listBrpGemeenten is called") {
-                val result = klantRestService.listBrpGemeenten()
+            When("listAuthorisedBrpGemeenten is called") {
+                val result = klantRestService.listAuthorisedBrpGemeenten()
 
                 Then("it should return the BRP gemeenten as RestBrpGemeente list") {
                     result.size shouldBe 2
@@ -1092,8 +1092,8 @@ class KlantRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { loggedInUser.brpGemeenten } returns emptyMap()
 
-            When("listBrpGemeenten is called") {
-                val result = klantRestService.listBrpGemeenten()
+            When("listAuthorisedBrpGemeenten is called") {
+                val result = klantRestService.listAuthorisedBrpGemeenten()
 
                 Then("it should return an empty list") {
                     result shouldBe emptyList()

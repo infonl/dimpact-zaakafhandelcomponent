@@ -1107,7 +1107,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
     Context("Listing BRP gemeenten") {
         Given("A user with gemeente-scoped brp_zoeken") {
-            When("the listBrpGemeenten endpoint is called") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/gemeenten",
                     testUser = RECORDMANAGER_1
@@ -1127,7 +1127,7 @@ class KlantRestServiceTest : BehaviorSpec({
         }
 
         Given("A user with overall brp_zoeken but no gemeente-scoped access") {
-            When("the listBrpGemeenten endpoint is called") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/gemeenten",
                     testUser = RAADPLEGER_1
