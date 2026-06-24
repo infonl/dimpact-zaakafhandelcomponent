@@ -167,9 +167,12 @@ jobs:
             exit 1
           fi
           container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+          cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
           docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
           docker cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
-          docker rm "${container_id}"
+          cleanup
+          trap - EXIT
           database_file=$(ls -1 ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -1 || true)
           if [ -z "${database_file}" ]; then
             echo "::error::The pulled image did not contain an NVD database."
