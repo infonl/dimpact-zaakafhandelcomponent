@@ -1,0 +1,171 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Publish NVD Database Cache
+
+# Builds the OWASP Dependency-Check NVD database once, centrally, and publishes
+# it as a GHCR image (ghcr.io/infonl/nvd-database-cache). The Dependency
+# Security Scan workflow then consumes that image instead of downloading from
+# the rate-limited NVD API on every run.
+#
+# Each run seeds from the previously published image and only fetches the NVD
+# delta, so the slow cold download happens at most once. Because the image lives
+# in GHCR (not the 10GB Actions cache), it is never evicted.
+
+on:
+  schedule:
+    # A few hours before the Dependency Security Scan (06:00 UTC) so the scan
+    # always finds a fresh image.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      seed_database:
+        description: "Force a full cold NVD download. Use for the very first run, before any image exists."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  JAVA_VERSION: "21.0.11"
+  NVD_DATABASE_CACHE_IMAGE: ghcr.io/infonl/nvd-database-cache
+
+jobs:
+  publish:
+    name: Build and publish NVD database cache image
+    runs-on: ubuntu-24.04
+    # The step-level timeout on the NVD update is the real cap on the download.
+    # This job ceiling is deliberately high (under the 360 min hosted-runner hard
+    # limit) so the very first cold download - or a run catching up after a long
+    # gap - can finish. Normal daily runs seed from the previous image and only
+    # fetch the NVD delta, finishing in minutes well below this ceiling.
+    timeout-minutes: 330
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup JDK
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restore previous database from the published image
+        id: restore
+        # Seed the local data directory from the previously published image so
+        # the NVD update below only fetches the incremental delta instead of a
+        # full cold download. On the very first run the image does not exist yet,
+        # so we fall back to a cold download.
+        run: |
+          mkdir -p ~/.gradle/dependency-check-data
+          if docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
+            container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+            docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
+            docker rm "${container_id}"
+            echo "had_previous=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Restored database from the previous image."
+          else
+            echo "had_previous=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No previous NVD database image found - a full cold download is required (expected on the first run)."
+          fi
+
+      - name: Update NVD database
+        id: update
+        run: |
+          if [ -z "${NVD_API_KEY}" ]; then
+            echo "::warning::NVD_API_KEY is not set - NVD downloads use the slow rate limit and may time out."
+          fi
+          # A full cold download is needed on the first run (no previous image) or
+          # when explicitly requested; otherwise the incremental update from the
+          # restored database is fast.
+          if [ "${{ inputs.seed_database }}" = "true" ] || [ "${{ steps.restore.outputs.had_previous }}" != "true" ]; then
+            UPDATE_TIMEOUT=300m
+          else
+            UPDATE_TIMEOUT=45m
+          fi
+          echo "Using NVD update timeout: ${UPDATE_TIMEOUT}"
+          # --no-daemon + `timeout -k` so the timeout terminates the actual build
+          # (a lingering daemon would keep writing the data directory). Capture
+          # whether the update genuinely succeeded so we never republish a stale
+          # database as if it were fresh.
+          if timeout -k 30s "${UPDATE_TIMEOUT}" ./gradlew dependencyCheckUpdate --no-configuration-cache --no-daemon; then
+            echo "update_ok=true" >> "$GITHUB_OUTPUT"
+            echo "✅ NVD update completed."
+          else
+            echo "update_ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::NVD update did not complete within ${UPDATE_TIMEOUT}."
+          fi
+          ./gradlew --stop || true
+
+      - name: Assemble image and decide whether to publish
+        id: prepare
+        # Guarantee freshness is never silently lost:
+        # - a successful update is published as 'complete' with today's date;
+        # - if the update failed but a good image already exists, we refuse to
+        #   overwrite it with stale data and fail the job (the existing image
+        #   keeps ageing until the scan's freshness check rejects it);
+        # - on the very first bootstrap we publish the partial database (so the
+        #   next run can continue) but still fail the job so it is visible.
+        run: |
+          database_file=$(ls -1 ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -1 || true)
+          if [ -z "${database_file}" ]; then
+            echo "::error::No NVD database was produced; refusing to publish an empty image."
+            exit 1
+          fi
+          echo "NVD database size: $(du -m "${database_file}" | cut -f1) MB"
+
+          if [ "${{ steps.update.outputs.update_ok }}" = "true" ]; then
+            status=complete
+          elif [ "${{ steps.restore.outputs.had_previous }}" = "true" ]; then
+            echo "::error::NVD update failed and a complete image already exists - keeping the existing image instead of overwriting it with a stale database. Re-run to retry."
+            exit 1
+          else
+            status=partial
+          fi
+
+          rm -rf nvd-image-context
+          mkdir -p nvd-image-context
+          cp -r ~/.gradle/dependency-check-data nvd-image-context/data
+          printf 'updated_at=%s\nstatus=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${status}" \
+            > nvd-image-context/build-metadata.txt
+          echo "Image freshness metadata:"
+          cat nvd-image-context/build-metadata.txt
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push NVD database cache image
+        run: |
+          docker build \
+            -f scripts/docker/nvd-database-cache/Dockerfile \
+            -t "${NVD_DATABASE_CACHE_IMAGE}:latest" \
+            nvd-image-context
+          docker push "${NVD_DATABASE_CACHE_IMAGE}:latest"
+          echo "✅ Published ${NVD_DATABASE_CACHE_IMAGE}:latest"
+
+      - name: Fail if the published database is not yet complete
+        # A 'partial' bootstrap image was published so the next run can continue
+        # incrementally, but the job must still fail so the incomplete state is
+        # visible and the scan keeps rejecting it.
+        if: steps.prepare.outputs.status != 'complete'
+        run: |
+          echo "::error::Published a partial NVD database. Re-run this workflow (seed_database=true) until it reports 'complete'."
+          exit 1
+
