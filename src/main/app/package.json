@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.3",
   "engines": {
-    "node": "22.23.0",
+    "node": "22.23.1",
     "npm": "10.9.8"
   },
   "scripts": {
@@ -15,7 +15,8 @@
     "test:cache-busting": "node scripts/test-cache-busting.js",
     "test": "ng test",
     "test:watch": "ng test --watch --verbose --silent=false",
-    "test:ci": "npx jest -t",
+    "test:ci": "npx jest --coverage --config jest.config.js --forceExit",
+    "test:shard": "npx jest --coverage --config jest.config.js --forceExit",
     "test:report": "ng test --coverage",
     "lint": "ng lint",
     "lint:unused": "npx ngx-unused . -p tsconfig.json",
@@ -72,7 +73,7 @@
     "@angular/compiler-cli": "19.2.25",
     "@angular/language-service": "19.2.25",
     "@types/jest": "29.5.14",
-    "@types/node": "22.19.21",
+    "@types/node": "22.20.0",
     "@typescript-eslint/eslint-plugin": "8.61.1",
     "@typescript-eslint/parser": "8.61.1",
     "eslint": "9.39.4",

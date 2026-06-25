@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.264](https://img.shields.io/badge/Version-1.0.264-informational?style=flat-square) ![AppVersion: 5.1](https://img.shields.io/badge/AppVersion-5.1-informational?style=flat-square)
+![Version: 1.0.267](https://img.shields.io/badge/Version-1.0.267-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -88,7 +88,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.20.0@sha256:b3f1fb2a51d923260350d21b8654bbc607164a987e2f7c84a0ac199a67df812a"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -101,7 +101,9 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
 | initContainer.enabled | bool | `true` |  |
-| initContainer.resources | object | `{"requests":{"cpu":"50m","memory":"256Mi"}}` | Resource limits and requests for the init-solr-zac-core init container |
+| initContainer.resources.requests.cpu | string | `"50m"` |  |
+| initContainer.resources.requests.memory | string | `"256Mi"` |  |
+| initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
 | javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
@@ -214,11 +216,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.name | string | `"office-converter"` |  |
 | office_converter.nodeSelector | object | `{}` |  |
 | office_converter.podAnnotations | object | `{}` |  |
-| office_converter.podSecurityContext | object | `{}` |  |
+| office_converter.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | office_converter.replicas | int | `1` |  |
 | office_converter.resources.requests.cpu | string | `"100m"` |  |
 | office_converter.resources.requests.memory | string | `"512Mi"` |  |
-| office_converter.securityContext | object | `{}` |  |
+| office_converter.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| office_converter.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | office_converter.service.annotations | object | `{}` |  |
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
@@ -234,11 +237,13 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
 | opa.podAnnotations | object | `{}` |  |
-| opa.podSecurityContext | object | `{}` |  |
+| opa.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | opa.replicas | int | `1` |  |
 | opa.resources.requests.cpu | string | `"10m"` |  |
 | opa.resources.requests.memory | string | `"20Mi"` |  |
-| opa.securityContext | object | `{}` |  |
+| opa.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| opa.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| opa.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | opa.service.annotations | object | `{}` |  |
 | opa.service.port | int | `8181` |  |
 | opa.service.type | string | `"ClusterIP"` |  |
@@ -270,12 +275,12 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | pabcApi.apiKey | string | `""` |  |
 | pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
-| podSecurityContext | object | `{}` | pod specific security context |
+| podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | pod specific security context |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{}` | generic security context |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
@@ -289,10 +294,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | signaleringen.failedJobsHistoryLimit | int | `3` |  |
 | signaleringen.imagePullSecrets | list | `[]` |  |
 | signaleringen.nodeSelector | object | `{}` |  |
-| signaleringen.podSecurityContext | object | `{}` |  |
+| signaleringen.podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | signaleringen.resources | object | `{}` |  |
 | signaleringen.restartPolicy | string | `"Never"` |  |
-| signaleringen.securityContext | object | `{}` |  |
+| signaleringen.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | container security context for the curl-based signaleren CronJob containers |
 | signaleringen.sendZaakSignaleringenSchedule | string | `"0 2 * * *"` | Schedule of the signaleringen send zaken job in CRON job format |
 | signaleringen.successfulJobsHistoryLimit | int | `1` | k8s settings for the signaleren jobs |
 | signaleringen.tolerations | list | `[]` |  |

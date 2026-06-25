@@ -13,6 +13,7 @@
 
 # jest output
 /reports
+/.jest-cache
 
 # Only exists if Bazel was run
 /bazel-out

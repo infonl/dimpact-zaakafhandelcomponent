@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54326:5432"
     healthcheck:
@@ -181,7 +181,7 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.4@sha256:c00011808d8c33f83e4eedb0a50f04a4c8e86b08d7727e7d809a75a59298846b
+    image: redis:8.6.4@sha256:27e3d84b97978b567ee4544a1d66ce5fa18fd8b53d710c849e7bdaef30249c03
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -308,7 +308,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54325:5432"
     healthcheck:
@@ -449,7 +449,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.0.2@sha256:5dad0df181cb644a14e13617b913b261a54f7d4fd4510721dba420929f35bea2
+    image: grafana/grafana:13.1.0@sha256:121a7a9ece6dc10b969f1f96eed64b4f07dfac0d0b8abc070f7cb83bbde86f63
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -716,7 +716,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54329:5432"
     environment:
@@ -770,7 +770,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54320:5432"
     healthcheck:
@@ -886,7 +886,7 @@ services:
     profiles: ["zac"]
 
   objecttypes-api-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54324:5432"
     healthcheck:
@@ -935,7 +935,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-database:
-    image: postgres:17.10@sha256:2203e6282d9e7de7c24d7da234e2a744fb325df366a3fd8ed940e8abbee39527
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54330:5432"
     healthcheck:

@@ -5,8 +5,8 @@
 
 > **Colofon** <br>
 > Datum :21-05-2026 <br>
-> Versie :   1.7 <br>
-> Verandering : ZAC v4.10 Handleiding <br>
+> Versie :   1.7.1 <br>
+> Verandering : ZAC v5.2 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -37,6 +37,7 @@ Versiegeschiedenis:
 | 1.6.8 | ZAC v3.11 Handleiding |
 | 1.6.9 | ZAC v3.12 Handleiding |
 | 1.7 | ZAC v4.10 Handleiding |
+| 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken |
 
 <div style="page-break-after: always"></div>
 
@@ -1070,13 +1071,16 @@ Nadat de actie is afgerond is het document voorzien van een ‘is verzonden’ i
 ### Werking van zaakrelaties
 
 In sommige werkprocessen of -situaties komt het voor dat zaken een relatie met elkaar hebben. Het is in de ZAC mogelijk om twee zaken aan elkaar te koppelen. Of een bepaalde relatie gelegd mag worden is afhankelijk van of dit in de zaaktypen is ingesteld. Als dit niet is ingesteld dan biedt de ZAC ook niet de mogelijkheid om deze koppeling te maken.
-ZAC kent Hoofd- en deelzaak relaties tussen twee zaken.
+ZAC kent hoofd- en deelzaakrelaties tussen twee zaken en gerelateerde zaken.
 
 Toelichting op de afhankelijkheid van zaaktype inrichting:
 
 - Om een hoofd-deelzaakrelatie te leggen moet in het zaaktype van de hoofdzaak zijn ingesteld dat deze relatie gelegd mag worden en een zaak mag niet zowel hoofd als deelzaak zijn.
+- Om een gerelateerde-zaak-koppeling te leggen is geen configuratie nodig in een zaaktype; alle zaken kunnen gekoppeld worden.
 
 Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van de hoofdzaak leidt tot stand te laten komen. Hierbij geldt dat de hoofdzaak pas mag worden afgehandeld als de deelzaak is afgehandeld. Deze relatie mag dan ook alleen tussen openstaande zaken gelegd worden. Verder heeft een deelzaak in de ZAC dezelfde functionaliteit als een reguliere zaak beschikbaar.
+
+Een gerelateerde zaak koppeling heeft verder geen consequenties en is alleen een symbolische koppeling.
 
 ### Zaak koppelen om een zaakrelatie te leggen
 
@@ -1084,10 +1088,11 @@ Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van d
 
 1 In een zaak kies je de optie onder koppelen *Zaak koppelen*
 
-2 In de zaak opent een formulier, waarin je de keuze kunt maken tussen de 2 verschillende koppelingen:
+2 In de zaak opent een formulier, waarin je de keuze kunt maken tussen de 3 verschillende koppelingen:
 
 - Hoofdzaak koppelen aan deelzaak
 - Deelzaak koppelen aan hoofdzaak
+- Deze zaak relateren aan een andere zaak
 
 3 In het zoekveld kan je een deel van of de volledige naam van de zaak invoeren
 
@@ -1098,7 +1103,8 @@ Een deelzaak wordt gebruikt om een deel van het proces dat tot de uitkomst van d
 
 ### Inzien gekoppelde zaken
 
-Als een zaak een gekoppelde zaak heeft, is deze bij een geopende zaak te benaderen via het tabblad ‘Gerelateerde zaken’. Deze tab is alleen aanwezig als er een gekoppelde zaak is. Daarnaast heeft bij en hoofd-deelzaak relatie een gekoppelde zaak de indicatie ‘Is hoofdzaak’ of ‘Is deelzaak’ op de zaakgegevenspagina. Om naar de gekoppelde zaak te gaan kan op het oog icoon geklikt worden.
+Als een zaak een gekoppelde zaak heeft, is deze bij een geopende zaak te benaderen via het tabblad ‘Gerelateerde zaken’. Deze tab is alleen aanwezig als er een gekoppelde zaak is. Daarnaast heeft bij en hoofd-deelzaak relatie een gekoppelde zaak de indicatie ‘Is hoofdzaak’ of ‘Is deelzaak’ op de zaakgegevenspagina, de andere relatie heeft de indicatie ‘Gerelateerd’. 
+Om naar de gekoppelde zaak te gaan kan op het oog icoon geklikt worden.
 
 Het is ook mogelijk om vanuit een zaak de documenten van de gekoppelde zaak te bekijken. Deze kunnen in het zaakdocumentenoverzichten worden weergegeven door het ‘Toon documenten van gerelateerde zaken’ schuifje aan te zetten.
 ![koppeling](./images/koppeling-inzien.png)
