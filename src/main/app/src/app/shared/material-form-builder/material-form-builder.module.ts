@@ -64,7 +64,6 @@ import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { InputComponent } from "./form-components/input/input.component";
-import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
 import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
 import { SelectComponent } from "./form-components/select/select.component";
@@ -80,7 +79,6 @@ import { FormComponent } from "./form/form/form.component";
     DateComponent,
     InputComponent,
     SelectComponent,
-    MedewerkerGroepComponent,
     TextareaComponent,
     FormFieldDirective,
     ReadonlyComponent,
@@ -95,7 +93,6 @@ import { FormComponent } from "./form/form/form.component";
     DateComponent,
     InputComponent,
     SelectComponent,
-    MedewerkerGroepComponent,
     TextareaComponent,
     DocumentenLijstComponent,
     ParagraphComponent,
