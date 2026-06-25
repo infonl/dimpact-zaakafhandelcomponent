@@ -33,6 +33,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -46,6 +47,8 @@ import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundExce
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestOndertekening
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
@@ -53,6 +56,7 @@ import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieo
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -467,6 +471,67 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given(
+        """
+            REST informatieobject zoek parameters with an enkelvoudig informatieobject
+            not containing informatie object uuids, and the zaak has a gerelateerde zaak
+            """
+    ) {
+        val zaakUuid = UUID.randomUUID()
+        val gerelateerdeZaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val gerelateerdeZaak = createZaak()
+        val restInformatieobjectZoekParameters = RestInformatieobjectZoekParameters(
+            zaakUUID = zaakUuid,
+            gekoppeldeZaakDocumenten = true,
+            informatieobjectUUIDs = null
+        )
+        val zaak = createZaak().apply {
+            gerelateerdeZaken = mutableListOf(GerelateerdeZaak().url(gerelateerdeZaakUri))
+        }
+        val restEnkelvoudigInformatieobjectVoorZaak = createRestEnkelvoudigInformatieobject()
+        val restGekoppeldeZaakEnkelvoudigInformatieObject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
+        val gerelateerdeZaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
+        every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
+        } returns restEnkelvoudigInformatieobjectVoorZaak
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } returns gerelateerdeZaak
+        every { zrcClientService.listZaakinformatieobjecten(gerelateerdeZaak) } returns gerelateerdeZaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(
+                gerelateerdeZaakInformatieobjecten[0],
+                RelatieType.GERELATEERD,
+                gerelateerdeZaak
+            )
+        } returns restGekoppeldeZaakEnkelvoudigInformatieObject
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("the list of enkelvoudig informatieobject is requested") {
+            val returnedRestEnkelvoudigInformatieobjecten =
+                enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
+                    restInformatieobjectZoekParameters
+                )
+
+            Then("the returned enkelvoudige informatie objecten include the gerelateerde zaak documents") {
+                with(returnedRestEnkelvoudigInformatieobjecten) {
+                    size shouldBe 2
+                    this[0] shouldBe restEnkelvoudigInformatieobjectVoorZaak
+                    this[1] shouldBe restGekoppeldeZaakEnkelvoudigInformatieObject
+                }
+            }
+        }
+    }
+
     Given("An enkelvoudig informatieobject") {
         val informatieobjectUUID = UUID.randomUUID()
         val zaak = createZaak()
