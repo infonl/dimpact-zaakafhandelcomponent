@@ -62,10 +62,14 @@ class IdentityService @Inject constructor(
      * This function requires that the PABC integration feature flag is enabled.
      */
     fun listActiveGroupsForBehandelaarRoleAndZaaktypes(zaaktypeDescriptions: List<String>): List<Group> =
-        zaaktypeDescriptions
-            .map { listActiveGroupsForBehandelaarRoleAndZaaktype(it).toSet() }
-            .reduce { authorisedGroups, groupsForZaaktype -> authorisedGroups intersect groupsForZaaktype }
-            .sortedBy { it.description }
+        if (zaaktypeDescriptions.isEmpty()) {
+            emptyList()
+        } else {
+            zaaktypeDescriptions
+                .map { listActiveGroupsForBehandelaarRoleAndZaaktype(it).toSet() }
+                .reduce { authorisedGroups, groupsForZaaktype -> authorisedGroups intersect groupsForZaaktype }
+                .sortedBy { it.description }
+        }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)

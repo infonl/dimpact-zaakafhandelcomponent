@@ -424,6 +424,18 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
 
+        Given("An empty zaaktype descriptions list") {
+            When("groups for an empty list are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    zaaktypeDescriptions = emptyList()
+                )
+
+                Then("an empty list is returned without calling PABC") {
+                    groups shouldBe emptyList()
+                }
+            }
+        }
+
         Given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing no common group") {
             val zaaktypeDescription1 = "fakeZaaktypeDescription1"
             val zaaktypeDescription2 = "fakeZaaktypeDescription2"
