@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,7 +8,6 @@ import { DateComponent } from "./form-components/date/date.component";
 import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { InputComponent } from "./form-components/input/input.component";
-import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
 import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
 import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
 import { SelectComponent } from "./form-components/select/select.component";
@@ -47,8 +46,6 @@ export class MaterialFormBuilderService {
         return TextareaComponent;
       case FieldType.SELECT:
         return SelectComponent;
-      case FieldType.MEDEWERKER_GROEP:
-        return MedewerkerGroepComponent;
       case FieldType.DOCUMENTEN_LIJST:
         return DocumentenLijstComponent;
       default:
