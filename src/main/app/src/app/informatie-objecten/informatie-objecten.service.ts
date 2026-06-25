@@ -4,11 +4,12 @@
  */
 
 import { Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { map, Observable } from "rxjs";
+import { lastValueFrom, map, Observable } from "rxjs";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -141,6 +142,25 @@ export class InformatieObjectenService {
       "/rest/informatieobjecten/informatieobjectenList",
       body,
     );
+  }
+
+  /**
+   * The list endpoint is a `PUT` (search-with-body), so it cannot use {@link ZacQueryClient.GET};
+   * we wrap the existing call in `queryOptions` instead.
+   */
+  listEnkelvoudigInformatieobjectenQuery(
+    body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
+  ) {
+    return queryOptions({
+      queryKey: [
+        "/rest/informatieobjecten/informatieobjectenList",
+        body.zaakUUID,
+        body.gekoppeldeZaakDocumenten,
+      ],
+      queryFn: () =>
+        lastValueFrom(this.listEnkelvoudigInformatieobjecten(body)),
+      staleTime: StaleTimes.Short,
+    });
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {

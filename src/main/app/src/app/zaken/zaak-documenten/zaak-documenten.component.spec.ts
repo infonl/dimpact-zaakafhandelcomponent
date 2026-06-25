@@ -13,8 +13,10 @@ import { MatSlideToggleHarness } from "@angular/material/slide-toggle/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { NEVER, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -23,10 +25,18 @@ import { FileFormat } from "../../informatie-objecten/model/file-format";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 
+const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
+
 const fakeZaak = fromPartial<GeneratedType<"RestZaak">>({
   uuid: "zaak-uuid-1",
   identificatie: "ZAAK-2024-001",
   gerelateerdeZaken: [],
+});
+
+const fakeZaakMetRelaties = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "zaak-uuid-1",
+  identificatie: "ZAAK-2024-001",
+  gerelateerdeZaken: [fromPartial({})],
 });
 
 const fakeDocument = fromPartial<
@@ -49,6 +59,19 @@ describe(ZaakDocumentenComponent.name, () => {
   let utilService: UtilService;
   let dialog: MatDialog;
 
+  const createComponent = async (
+    zaak: GeneratedType<"RestZaak"> = fakeZaak,
+  ) => {
+    fixture = TestBed.createComponent(ZaakDocumentenComponent);
+    loader = TestbedHarnessEnvironment.loader(fixture);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput("zaak", zaak);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    dialog = fixture.debugElement.injector.get(MatDialog);
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -56,7 +79,11 @@ describe(ZaakDocumentenComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        provideQueryClient(testQueryClient),
+      ],
     }).compileComponents();
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
@@ -70,26 +97,16 @@ describe(ZaakDocumentenComponent.name, () => {
       .spyOn(websocketService, "addListener")
       .mockReturnValue(fromPartial<WebsocketListener>({}));
     jest.spyOn(websocketService, "removeListeners").mockImplementation();
-
-    fixture = TestBed.createComponent(ZaakDocumentenComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    component = fixture.componentInstance;
-    component.zaak = fakeZaak;
-    fixture.detectChanges();
-
-    dialog = fixture.debugElement.injector.get(MatDialog);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   describe("initialisation", () => {
-    it("registers websocket listeners on init", () => {
+    it("registers websocket listeners on init", async () => {
+      await createComponent();
       expect(websocketService.addListener).toHaveBeenCalledTimes(2);
     });
 
-    it("loads documents on init", () => {
+    it("loads documents on init", async () => {
+      await createComponent();
       expect(
         informatieObjectenService.listEnkelvoudigInformatieobjecten,
       ).toHaveBeenCalledWith(
@@ -98,128 +115,168 @@ describe(ZaakDocumentenComponent.name, () => {
     });
   });
 
-  describe("ngOnDestroy", () => {
-    it("removes all websocket listeners", () => {
-      component.ngOnDestroy();
+  describe("teardown", () => {
+    it("removes all websocket listeners when the component is destroyed", async () => {
+      await createComponent();
+      fixture.destroy();
       expect(websocketService.removeListeners).toHaveBeenCalled();
     });
   });
 
-  describe("ngOnChanges", () => {
-    it("calls init with reload=true when zaak input changes (non-first change)", () => {
+  describe("zaak input changes", () => {
+    it("re-registers websocket listeners when the zaak changes", async () => {
+      await createComponent();
+      jest.clearAllMocks();
+
       const newZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: "zaak-uuid-2",
         gerelateerdeZaken: [],
       });
-      component.zaak = newZaak;
-      const initSpy = jest.spyOn(component, "init");
-      component.ngOnChanges({
-        zaak: {
-          currentValue: newZaak,
-          previousValue: fakeZaak,
-          firstChange: false,
-          isFirstChange: () => false,
-        },
-      });
-      expect(initSpy).toHaveBeenCalledWith(newZaak, true);
+      fixture.componentRef.setInput("zaak", newZaak);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(websocketService.removeListeners).toHaveBeenCalled();
+      expect(websocketService.addListener).toHaveBeenCalledTimes(2);
     });
 
-    it("does NOT call init again on first change", () => {
-      const initSpy = jest.spyOn(component, "init");
-      component.ngOnChanges({
-        zaak: {
-          currentValue: fakeZaak,
-          previousValue: undefined,
-          firstChange: true,
-          isFirstChange: () => true,
-        },
+    it("reloads documents for the new zaak", async () => {
+      await createComponent();
+      jest.clearAllMocks();
+
+      const newZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "zaak-uuid-2",
+        gerelateerdeZaken: [],
       });
-      expect(initSpy).not.toHaveBeenCalled();
+      fixture.componentRef.setInput("zaak", newZaak);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(
+        informatieObjectenService.listEnkelvoudigInformatieobjecten,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ zaakUUID: "zaak-uuid-2" }),
+      );
     });
   });
 
   describe("heeftGerelateerdeZaken", () => {
-    it("is false when zaak has no related cases", () => {
-      expect(component.heeftGerelateerdeZaken).toBe(false);
+    it("is false when zaak has no related cases", async () => {
+      await createComponent();
+      expect(component["heeftGerelateerdeZaken"]()).toBe(false);
     });
 
-    it("is true when zaak has related cases", () => {
-      const zaakMetRelaties = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: "zaak-uuid-1",
-        identificatie: "ZAAK-2024-001",
-        gerelateerdeZaken: [fromPartial({})],
-      });
-      component.zaak = zaakMetRelaties;
-      component.init(zaakMetRelaties, false);
-      expect(component.heeftGerelateerdeZaken).toBe(true);
+    it("is true when zaak has related cases", async () => {
+      await createComponent(fakeZaakMetRelaties);
+      expect(component["heeftGerelateerdeZaken"]()).toBe(true);
     });
   });
 
   describe("slide toggle (gekoppelde zaak documenten)", () => {
     it("is hidden when heeftGerelateerdeZaken is false", async () => {
-      fixture.detectChanges();
+      await createComponent();
       const toggles = await loader.getAllHarnesses(MatSlideToggleHarness);
       expect(toggles.length).toBe(0);
     });
 
     it("is shown when heeftGerelateerdeZaken is true", async () => {
-      component.heeftGerelateerdeZaken = true;
-      fixture.detectChanges();
+      await createComponent(fakeZaakMetRelaties);
       const toggle = await loader.getHarness(MatSlideToggleHarness);
       expect(toggle).toBeTruthy();
     });
 
     it("is checked by default", async () => {
-      component.heeftGerelateerdeZaken = true;
-      fixture.detectChanges();
+      await createComponent(fakeZaakMetRelaties);
       const toggle = await loader.getHarness(MatSlideToggleHarness);
       expect(await toggle.isChecked()).toBe(true);
+    });
+
+    it("is disabled while documents are loading", async () => {
+      jest
+        .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
+        .mockReturnValue(NEVER);
+      fixture = TestBed.createComponent(ZaakDocumentenComponent);
+      loader = TestbedHarnessEnvironment.loader(fixture);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("zaak", fakeZaakMetRelaties);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const toggle = await loader.getHarness(MatSlideToggleHarness);
+      expect(await toggle.isDisabled()).toBe(true);
+    });
+
+    it("is enabled once loading has finished", async () => {
+      // Seed the cache so the query mounts with fresh data and is not fetching.
+      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", true], []);
+      await createComponent(fakeZaakMetRelaties);
+      const toggle = await loader.getHarness(MatSlideToggleHarness);
+      expect(await toggle.isDisabled()).toBe(false);
     });
   });
 
   describe("loading state", () => {
-    it("shows loading message when isLoadingResults is true", () => {
-      component.isLoadingResults = true;
-      fixture.detectChanges();
-      const text = fixture.nativeElement.textContent;
-      expect(text).toContain("msg.loading");
-    });
-
-    it("shows no-data message when isLoadingResults is false and table is empty", () => {
-      component.isLoadingResults = false;
-      fixture.detectChanges();
+    it("shows the no-data message once loading has finished and the table is empty", async () => {
+      // Seed the cache so the query mounts with fresh (empty) data and is not fetching.
+      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", true], []);
+      await createComponent();
       const text = fixture.nativeElement.textContent;
       expect(text).toContain("msg.geen.gegevens.gevonden");
     });
   });
 
-  describe("toggleGekoppeldeZaakDocumenten()", () => {
-    it("adds zaakIdentificatie and relatieType columns when toggle is true", () => {
-      component.toonGekoppeldeZaakDocumenten.setValue(true);
-      component.toggleGekoppeldeZaakDocumenten();
-      expect(component.documentColumns).toContain("zaakIdentificatie");
-      expect(component.documentColumns).toContain("relatieType");
+  describe("gekoppelde zaak documenten columns", () => {
+    it("includes zaakIdentificatie and relatieType columns when the toggle is enabled", async () => {
+      await createComponent();
+      component["gekoppeld"].set(true);
+      fixture.detectChanges();
+      expect(component["documentColumns"]()).toContain("zaakIdentificatie");
+      expect(component["documentColumns"]()).toContain("relatieType");
     });
 
-    it("removes zaakIdentificatie and relatieType columns when toggle is false", () => {
-      component.toonGekoppeldeZaakDocumenten.setValue(false);
-      component.toggleGekoppeldeZaakDocumenten();
-      expect(component.documentColumns).not.toContain("zaakIdentificatie");
-      expect(component.documentColumns).not.toContain("relatieType");
+    it("excludes zaakIdentificatie and relatieType columns when the toggle is disabled", async () => {
+      await createComponent();
+      component["gekoppeld"].set(false);
+      fixture.detectChanges();
+      expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
+      expect(component["documentColumns"]()).not.toContain("relatieType");
     });
 
-    it("reloads documents after toggling", () => {
+    it("reloads documents with the new filter when the toggle changes", async () => {
+      await createComponent();
       jest.clearAllMocks();
-      component.toonGekoppeldeZaakDocumenten.setValue(true);
-      component.toggleGekoppeldeZaakDocumenten();
+
+      component["gekoppeld"].set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(
         informatieObjectenService.listEnkelvoudigInformatieobjecten,
-      ).toHaveBeenCalled();
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
+      );
+    });
+  });
+
+  describe("updateDocumentList()", () => {
+    it("invalidates the documents query so it refetches", async () => {
+      await createComponent();
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      component.updateDocumentList();
+
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+        }),
+      );
     });
   });
 
   describe("emitDocumentMove()", () => {
-    it("emits documentMoveToCase event with the given document", () => {
+    it("emits documentMoveToCase event with the given document", async () => {
+      await createComponent();
       const emitted: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
       component.documentMoveToCase.subscribe((v) => emitted.push(v));
       component.emitDocumentMove(fakeDocument);
@@ -228,14 +285,16 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("updateSelected()", () => {
-    it("adds document to selection when not yet selected", () => {
+    it("adds document to selection when not yet selected", async () => {
+      await createComponent();
       component.updateSelected(fakeDocument);
       expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
         true,
       );
     });
 
-    it("removes document from selection when already selected", () => {
+    it("removes document from selection when already selected", async () => {
+      await createComponent();
       component.downloadAlsZipSelection.select(fakeDocument);
       component.updateSelected(fakeDocument);
       expect(component.downloadAlsZipSelection.isSelected(fakeDocument)).toBe(
@@ -245,7 +304,8 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("updateAll()", () => {
-    it("selects all documents when checkbox is checked", () => {
+    it("selects all documents when checkbox is checked", async () => {
+      await createComponent();
       component.enkelvoudigInformatieObjecten.data = [fakeDocument];
       component.updateAll({
         checked: true,
@@ -255,7 +315,8 @@ describe(ZaakDocumentenComponent.name, () => {
       );
     });
 
-    it("deselects all documents when checkbox is unchecked", () => {
+    it("deselects all documents when checkbox is unchecked", async () => {
+      await createComponent();
       component.enkelvoudigInformatieObjecten.data = [fakeDocument];
       component.downloadAlsZipSelection.select(fakeDocument);
       component.updateAll({
@@ -268,7 +329,8 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("downloadAlsZip()", () => {
-    it("calls getZIPDownload with selected document UUIDs and clears selection", () => {
+    it("calls getZIPDownload with selected document UUIDs and clears selection", async () => {
+      await createComponent();
       jest
         .spyOn(informatieObjectenService, "getZIPDownload")
         .mockReturnValue(of({} as never));
@@ -285,7 +347,8 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("isBewerkenToegestaan()", () => {
-    it("returns true for an office document with wijzigen rights", () => {
+    it("returns true for an office document with wijzigen rights", async () => {
+      await createComponent();
       const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         {
           rechten: { wijzigen: true },
@@ -296,7 +359,8 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(component.isBewerkenToegestaan(doc)).toBe(true);
     });
 
-    it("returns false when wijzigen is false", () => {
+    it("returns false when wijzigen is false", async () => {
+      await createComponent();
       const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         {
           rechten: { wijzigen: false },
@@ -307,7 +371,8 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(component.isBewerkenToegestaan(doc)).toBe(false);
     });
 
-    it("returns false for a non-office format", () => {
+    it("returns false for a non-office format", async () => {
+      await createComponent();
       const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         {
           rechten: { wijzigen: true },
@@ -319,13 +384,15 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("isPreviewBeschikbaar()", () => {
-    it("returns true for a PDF format", () => {
+    it("returns true for a PDF format", async () => {
+      await createComponent();
       expect(
         component.isPreviewBeschikbaar("application/pdf" as FileFormat),
       ).toBe(true);
     });
 
-    it("returns false for a non-previewable format", () => {
+    it("returns false for a non-previewable format", async () => {
+      await createComponent();
       expect(
         component.isPreviewBeschikbaar("application/zip" as FileFormat),
       ).toBe(false);
@@ -333,65 +400,71 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("getZaakUuidVanInformatieObject()", () => {
-    it("returns the document's zaakUUID when present", () => {
+    it("returns the document's zaakUUID when present", async () => {
+      await createComponent();
       const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         {
           uuid: "doc-uuid-1",
         },
       );
       (doc as never as { zaakUUID: string }).zaakUUID = "other-zaak-uuid";
-      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe(
+      expect(component.getZaakUuidVanInformatieObject(doc as never)).toBe(
         "other-zaak-uuid",
       );
     });
 
-    it("falls back to zaak.uuid when zaakUUID is absent", () => {
+    it("falls back to zaak.uuid when zaakUUID is absent", async () => {
+      await createComponent();
       const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
         {
           uuid: "doc-uuid-1",
         },
       );
-      expect(component["getZaakUuidVanInformatieObject"](doc as never)).toBe(
+      expect(component.getZaakUuidVanInformatieObject(doc as never)).toBe(
         "zaak-uuid-1",
       );
     });
   });
 
   describe("getDownloadURL()", () => {
-    it("delegates to informatieObjectenService.getDownloadURL", () => {
+    it("delegates to informatieObjectenService.getDownloadURL", async () => {
+      await createComponent();
       jest
         .spyOn(informatieObjectenService, "getDownloadURL")
-        .mockReturnValue("http://download/doc-uuid-1");
-      const result = component["getDownloadURL"](fakeDocument as never);
+        .mockReturnValue("https://download/doc-uuid-1");
+      const result = component.getDownloadURL(fakeDocument as never);
       expect(informatieObjectenService.getDownloadURL).toHaveBeenCalledWith(
         "doc-uuid-1",
       );
-      expect(result).toBe("http://download/doc-uuid-1");
+      expect(result).toBe("https://download/doc-uuid-1");
     });
   });
 
   describe("getFileIcon()", () => {
-    it("delegates to FileIcon.getIconByBestandsnaam", () => {
-      const result = component["getFileIcon"]("test.pdf");
+    it("delegates to FileIcon.getIconByBestandsnaam", async () => {
+      await createComponent();
+      const result = component.getFileIcon("test.pdf");
       expect(result).toBeDefined();
     });
   });
 
   describe("getFileTooltip()", () => {
-    it("returns translated file type string", () => {
-      const result = component["getFileTooltip"]("pdf");
+    it("returns translated file type string", async () => {
+      await createComponent();
+      const result = component.getFileTooltip("pdf");
       expect(typeof result).toBe("string");
     });
   });
 
   describe("bewerken()", () => {
-    it("calls editEnkelvoudigInformatieObjectInhoud and opens the returned URL", () => {
+    it("calls editEnkelvoudigInformatieObjectInhoud and opens the returned URL", async () => {
+      await createComponent();
       jest
         .spyOn(
           informatieObjectenService,
           "editEnkelvoudigInformatieObjectInhoud",
         )
-        .mockReturnValue(of("http://edit-url") as never);
+        .mockReturnValue(of("https://edit-url") as never);
       const windowOpenSpy = jest.spyOn(window, "open").mockImplementation();
 
       component.bewerken(fakeDocument);
@@ -399,12 +472,13 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(
         informatieObjectenService.editEnkelvoudigInformatieObjectInhoud,
       ).toHaveBeenCalledWith("doc-uuid-1", "zaak-uuid-1");
-      expect(windowOpenSpy).toHaveBeenCalledWith("http://edit-url");
+      expect(windowOpenSpy).toHaveBeenCalledWith("https://edit-url");
     });
   });
 
   describe("documentOntkoppelen()", () => {
-    it("opens a dialog with the document's details", () => {
+    it("opens a dialog with the document's details", async () => {
+      await createComponent();
       jest
         .spyOn(
           informatieObjectenService,
@@ -449,14 +523,16 @@ describe(ZaakDocumentenComponent.name, () => {
       isBesluitDocument: false,
     });
 
-    it("shows the bekijken link when row.rechten.lezen is true", () => {
+    it("shows the bekijken link when row.rechten.lezen is true", async () => {
+      await createComponent();
       component.enkelvoudigInformatieObjecten.data = [docWithLezen];
       fixture.detectChanges();
       const link = fixture.nativeElement.querySelector("a[mat-icon-button]");
       expect(link).not.toBeNull();
     });
 
-    it("shows the bewerken button when isBewerkenToegestaan returns true", () => {
+    it("shows the bewerken button when isBewerkenToegestaan returns true", async () => {
+      await createComponent();
       component.enkelvoudigInformatieObjecten.data = [docMetBewerken];
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll(
@@ -470,7 +546,8 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("document preview expansion", () => {
-    it("sets documentPreviewRow when a different row is selected", () => {
+    it("sets documentPreviewRow when a different row is selected", async () => {
+      await createComponent();
       const previewDoc = fromPartial<
         GeneratedType<"RestEnkelvoudigInformatieobject">
       >({
@@ -483,7 +560,8 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(component.documentPreviewRow).toBe(previewDoc);
     });
 
-    it("clears documentPreviewRow when the same row is selected again", () => {
+    it("clears documentPreviewRow when the same row is selected again", async () => {
+      await createComponent();
       const previewDoc = fromPartial<
         GeneratedType<"RestEnkelvoudigInformatieobject">
       >({
