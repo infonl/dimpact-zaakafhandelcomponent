@@ -6,6 +6,8 @@
 import { NgIf } from "@angular/common";
 import {
   Component,
+  computed,
+  effect,
   EventEmitter,
   input,
   Input,
@@ -28,6 +30,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
@@ -101,11 +104,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     geslachtsnaam: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(50),
     ]),
-    gemeenteVanInschrijving: this.formBuilder.control<string | null>(null, [
-      Validators.min(1),
-      Validators.max(9999),
-      Validators.maxLength(4),
-    ]),
+    gemeenteVanInschrijving: this.formBuilder.control<
+      string | null | { code: string }
+    >(null, [Validators.min(1), Validators.max(9999), Validators.maxLength(4)]),
     straat: this.formBuilder.control<string | null>(null, [
       Validators.maxLength(55),
     ]),
@@ -119,6 +120,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
       Validators.maxLength(5),
     ]),
   });
+
+  private readonly brpGemeentenQuery = injectQuery(() =>
+    this.klantenService.listAuthorisedBrpGemeenten(),
+  );
+  protected readonly brpGemeenten = computed(
+    () => this.brpGemeentenQuery.data() || [],
+  );
 
   constructor(
     private readonly klantenService: KlantenService,
@@ -143,6 +151,13 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         };
         this.updateControls(this.getValidQueries(parameters, false));
       });
+
+    effect(() => {
+      const gemeenten = this.brpGemeenten();
+      if (gemeenten.length === 1) {
+        this.formGroup.controls.gemeenteVanInschrijving.setValue(gemeenten[0]);
+      }
+    });
   }
 
   ngOnInit() {
@@ -173,7 +188,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   }
 
   private getValidQueries(
-    parameters: GeneratedType<"RestListPersonenParameters">,
+    parameters: Partial<
+      Record<keyof GeneratedType<"RestListPersonenParameters">, unknown>
+    >,
     compleet: boolean,
   ) {
     return Object.keys(this.formGroup.controls).reduce((acc, key) => {
@@ -285,7 +302,10 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
         {
           ...value,
           geboortedatum: value.geboortedatum?.toISOString(),
-          gemeenteVanInschrijving: value.gemeenteVanInschrijving?.toString(),
+          gemeenteVanInschrijving:
+            typeof value.gemeenteVanInschrijving === "string"
+              ? value.gemeenteVanInschrijving
+              : value.gemeenteVanInschrijving?.code,
         },
         this.zaaktypeUUID ?? "",
       )

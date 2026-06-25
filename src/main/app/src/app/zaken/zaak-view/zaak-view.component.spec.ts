@@ -999,8 +999,10 @@ describe(ZaakViewComponent.name, () => {
       policyService = TestBed.inject(PolicyService);
 
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: true,
+        }),
       );
 
       mockActivatedRoute.data.next({ zaak: zaakWithPersoonRechten });
@@ -1049,8 +1051,10 @@ describe(ZaakViewComponent.name, () => {
 
     it("should return false when brpZoeken is false", () => {
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
       );
       fixture.detectChanges();
 
@@ -1085,8 +1089,10 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
       fixture.detectChanges();
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: true,
+        }),
       );
       fixture.detectChanges();
     });
@@ -1097,8 +1103,10 @@ describe(ZaakViewComponent.name, () => {
 
     it("should return true when kvkKoppelen and toevoegenInitiatorBedrijf are true regardless of brpZoeken", () => {
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
       );
       mockActivatedRoute.data.next({
         zaak: {
@@ -1122,8 +1130,10 @@ describe(ZaakViewComponent.name, () => {
 
     it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
       );
       fixture.detectChanges();
 

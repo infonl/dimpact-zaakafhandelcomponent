@@ -120,6 +120,8 @@ object ItestConfiguration {
     const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
+    const val TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG = "1916"
+    const val TEST_GEMEENTE_CODE_VOORSCHOTEN = "0626"
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
     /**
@@ -129,6 +131,7 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
     const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
+    const val TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE = "1999"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
@@ -149,6 +152,12 @@ object ItestConfiguration {
      */
     const val TEST_PERSON_ANITA_VAN_BUREN_BSN = "999992958"
     const val TEST_PERSON_ANITA_VAN_BUREN_EMAIL = "anita.van.buren@example.com"
+
+    /**
+     * Third test person that exists in the BRP with a gemeentecode that exists in PABC
+     */
+    const val TEST_PERSON_DIRK_JANSSEN_BSN = "999991206"
+    const val TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE = TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
 
     /**
      * Constants used in the Informatieobjecten tests

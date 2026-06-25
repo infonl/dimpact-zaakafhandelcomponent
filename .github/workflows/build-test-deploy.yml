@@ -344,7 +344,7 @@ jobs:
           path: src/generated
 
       - name: Restore Jest transform cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: src/main/app/.jest-cache
           key: jest-transform-${{ runner.os }}-${{ hashFiles('src/main/app/package-lock.json', 'src/main/app/jest.config.js', 'src/main/app/tsconfig.json', 'src/main/app/tsconfig.spec.json') }}-${{ github.run_id }}

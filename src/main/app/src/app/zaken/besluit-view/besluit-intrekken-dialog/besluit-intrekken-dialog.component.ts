@@ -17,7 +17,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { lastValueFrom } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacDate } from "../../../shared/form/date/date";
@@ -95,8 +94,7 @@ export class BesluitIntrekkenDialogComponent {
   });
 
   protected readonly mutation = injectMutation(() => ({
-    mutationFn: (data: GeneratedType<"RestBesluitWithdrawalData">) =>
-      lastValueFrom(this.zakenService.intrekkenBesluit(data)),
+    ...this.zakenService.intrekkenBesluit(),
     onMutate: () => {
       this.dialogRef.disableClose = true;
     },

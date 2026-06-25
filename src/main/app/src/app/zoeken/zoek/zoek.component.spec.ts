@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -201,23 +200,13 @@ describe(ZoekComponent.name, () => {
     let policyService: PolicyService;
 
     beforeEach(async () => {
-      await TestBed.overrideComponent(ZoekComponent, {
-        set: {
-          template: `
-            <button
-              *ngIf="overigeRechtenQuery.data()?.brpZoeken"
-              id="personen-button">
-            </button>
-          `,
-          imports: [NgIf],
-        },
-      }).compileComponents();
-
       policyService = TestBed.inject(PolicyService);
 
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: true,
+        }),
       );
 
       fixture = TestBed.createComponent(ZoekComponent);
@@ -237,9 +226,9 @@ describe(ZoekComponent.name, () => {
     describe("when brpZoeken is false", () => {
       beforeEach(() => {
         testQueryClient.setQueryData(
-          policyService.readOverigeRechten().queryKey,
-          fromPartial<GeneratedType<"RestOverigeRechten">>({
-            brpZoeken: false,
+          policyService.readBrpRechten().queryKey,
+          fromPartial<GeneratedType<"RestBrpRechten">>({
+            zoeken: false,
           }),
         );
         fixture = TestBed.createComponent(ZoekComponent);

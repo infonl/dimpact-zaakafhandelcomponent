@@ -7,16 +7,24 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { PolicyService } from "src/app/policy/policy.service";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "src/app/shared/material/material.module";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -58,6 +66,7 @@ describe(PersoonZoekComponent.name, () => {
             notifyItemSelected: jest.fn(),
           },
         },
+        provideTanStackQuery(testQueryClient),
       ],
     }).compileComponents();
 
@@ -88,6 +97,8 @@ describe(PersoonZoekComponent.name, () => {
     jest
       .spyOn(configuratieService, "readGemeenteCode")
       .mockReturnValue(of("1234"));
+
+    TestBed.inject(PolicyService);
 
     fixture = TestBed.createComponent(PersoonZoekComponent);
     component = fixture.componentInstance;
@@ -148,5 +159,51 @@ describe(PersoonZoekComponent.name, () => {
 
       expect(await geboortedatum.isDisabled()).toBe(false);
     });
+
+    it("should extract gemeenteVanInschrijving code when it is an object", () => {
+      const spy = jest.spyOn(klantenService, "listPersonen");
+      component.formGroup.controls.gemeenteVanInschrijving.setValue({
+        code: "0344",
+      });
+
+      component.zoekPersonen();
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gemeenteVanInschrijving: "0344",
+        }),
+        "test-zaaktype-uuid",
+      );
+    });
+
+    it("should pass gemeenteVanInschrijving as string when it is a string", () => {
+      const spy = jest.spyOn(klantenService, "listPersonen");
+      component.formGroup.controls.gemeenteVanInschrijving.setValue("1234");
+
+      component.zoekPersonen();
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gemeenteVanInschrijving: "1234",
+        }),
+        "test-zaaktype-uuid",
+      );
+    });
+  });
+
+  describe("brpGemeenten effect", () => {
+    it("should auto-set gemeenteVanInschrijving when exactly one gemeente is returned", fakeAsync(() => {
+      testQueryClient.setQueryData(
+        klantenService.listAuthorisedBrpGemeenten().queryKey,
+        [{ code: "0344", naam: "Utrecht" }],
+      );
+
+      tick();
+      fixture.detectChanges();
+
+      expect(
+        component.formGroup.controls.gemeenteVanInschrijving.value,
+      ).toEqual({ code: "0344", naam: "Utrecht" });
+    }));
   });
 });

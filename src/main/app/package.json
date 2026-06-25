@@ -36,7 +36,7 @@
     "@angular/platform-browser": "19.2.25",
     "@angular/platform-browser-dynamic": "19.2.25",
     "@angular/router": "19.2.25",
-    "@formio/angular": "9.0.2",
+    "@formio/angular": "10.0.1",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
     "@tanstack/angular-query-experimental": "5.101.0",
@@ -53,12 +53,12 @@
     "zone.js": "0.15.1"
   },
   "overrides": {
+    "ngx-bootstrap": "19.0.2",
     "chokidar": "5.0.0",
     "tar": "^7.5.8",
     "@babel/core": "7.29.7",
     "http-proxy-middleware": "4.1.1",
     "serialize-javascript": "7.0.6",
-    "vite": "8.0.16",
     "webpack-dev-server": "5.2.5"
   },
   "devDependencies": {

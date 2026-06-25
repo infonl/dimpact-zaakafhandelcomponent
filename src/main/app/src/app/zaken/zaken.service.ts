@@ -216,12 +216,12 @@ export class ZakenService {
     return this.zacHttpClient.POST("/rest/zaken/besluit", body);
   }
 
-  updateBesluit(body: PutBody<"/rest/zaken/besluit">) {
-    return this.zacHttpClient.PUT("/rest/zaken/besluit", body);
+  updateBesluit() {
+    return this.zacQueryClient.PUT("/rest/zaken/besluit");
   }
 
-  intrekkenBesluit(body: PutBody<"/rest/zaken/besluit/intrekken">) {
-    return this.zacHttpClient.PUT("/rest/zaken/besluit/intrekken", body);
+  intrekkenBesluit() {
+    return this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken");
   }
 
   listBesluittypes(zaaktypeUUID: string) {

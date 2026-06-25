@@ -104,8 +104,8 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected readonly utilService = inject(UtilService);
   private readonly policyService = inject(PolicyService);
 
-  protected readonly overigeRechtenQuery = injectQuery(() =>
-    this.policyService.readOverigeRechten(),
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
   );
 
   private readonly paginator = viewChild.required(MatPaginator);

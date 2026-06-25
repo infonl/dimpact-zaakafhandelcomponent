@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -12,12 +13,23 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTabsModule } from "@angular/material/tabs";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import {
   injectMutation,
   injectQuery,
@@ -33,6 +45,7 @@ import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
+  FormioWrapperComponent,
 } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
 import {
@@ -40,30 +53,67 @@ import {
   mapTaskdataToTaskInformation,
 } from "../../formulieren/taken/taak.utils";
 import { IdentityService } from "../../identity/identity.service";
+import { InformatieObjectAddComponent } from "../../informatie-objecten/informatie-object-add/informatie-object-add.component";
+import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
+import { InformatieObjectLinkComponent } from "../../informatie-objecten/informatie-object-link/informatie-object-link.component";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ZacComposedForm } from "../../shared/form/composed-form/composed-form.component";
 import {
   FormField,
   FormConfig as NewFormConfig,
 } from "../../shared/form/composed-form/form-field.types";
 import { PatchBody, PutBody } from "../../shared/http/http-client";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MedewerkerGroepFieldBuilder } from "../../shared/material-form-builder/form-components/medewerker-groep/medewerker-groep-field-builder";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { ZakenService } from "../../zaken/zaken.service";
+import { TaakEditComponent } from "../taak-edit/taak-edit.component";
 import { TakenService } from "../taken.service";
 import { FormioSetupService } from "./formio/formio-setup-service";
 
 @Component({
   templateUrl: "./taak-view.component.html",
   styleUrls: ["./taak-view.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatSidenavModule,
+    MatSortModule,
+    MatTableModule,
+    MatTabsModule,
+    MatTooltipModule,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+    MimetypeToExtensionPipe,
+    FormioWrapperComponent,
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectLinkComponent,
+    ReadMoreComponent,
+    SideNavComponent,
+    StaticTextComponent,
+    TaakEditComponent,
+    ZaakDocumentenComponent,
+    ZaakVerkortComponent,
+    ZacComposedForm,
+  ],
 })
 export class TaakViewComponent
   extends ActionsViewComponent
@@ -100,7 +150,6 @@ export class TaakViewComponent
     "toelichting",
   ] as const;
 
-  protected editFormFields = new Map<string, unknown>();
   protected fataledatumIcon: TextIcon | null = null;
   protected initialized = false;
 
@@ -205,7 +254,6 @@ export class TaakViewComponent
   private initTaakGegevens(taak: GeneratedType<"RestTask">) {
     this.taak = taak;
     this.loadHistorie();
-    this.setEditableFormFields();
     this.setupMenu();
   }
 
@@ -310,36 +358,6 @@ export class TaakViewComponent
 
   protected isReadonly() {
     return this.taak?.status === "AFGEROND" || !this.taak?.rechten.wijzigen;
-  }
-
-  private setEditableFormFields() {
-    if (!this.taak) return;
-    this.editFormFields.set(
-      "medewerker-groep",
-      new MedewerkerGroepFieldBuilder(this.taak.groep!, this.taak.behandelaar!)
-        .id("medewerker-groep")
-        .groepLabel("groep.-kies-")
-        .groepRequired()
-        .medewerkerLabel("behandelaar.-kies-")
-        .setZaaktypeOmschrijving(this.taak.zaaktypeOmschrijving!)
-        .build(),
-    );
-    this.editFormFields.set(
-      "toelichting",
-      new TextareaFormFieldBuilder(this.taak.toelichting)
-        .id("toelichting")
-        .label("toelichting")
-        .maxlength(1000)
-        .build(),
-    );
-    this.editFormFields.set(
-      "reden",
-      new InputFormFieldBuilder()
-        .id("reden")
-        .label("reden")
-        .maxlength(80)
-        .build(),
-    );
   }
 
   private setupMenu() {

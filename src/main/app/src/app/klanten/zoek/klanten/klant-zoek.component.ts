@@ -34,8 +34,8 @@ export class KlantZoekComponent {
   >();
 
   private readonly policyService = inject(PolicyService);
-  protected readonly overigeRechtenQuery = injectQuery(() =>
-    this.policyService.readOverigeRechten(),
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
   );
 
   protected klantGeselecteerd(

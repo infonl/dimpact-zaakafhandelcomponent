@@ -13,11 +13,17 @@ data class UserData(
     @field:JsonbProperty("rollen")
     val rollen: Set<String>,
 
+    @field:JsonbProperty("overallRoles")
+    val overallRoles: Set<String>,
+
     /**
      * The single zaaktype description for which the logged-in user is authorised
      * for the set of specified application roles.
      * A value of null means that the policy that is being evaluated is not zaaktype-specific.
      */
     @field:JsonbProperty("zaaktypen")
-    val zaaktypen: Set<String>? = null
+    val zaaktypen: Set<String>? = null,
+
+    @field:JsonbProperty("brpGemeenteCodes")
+    val brpGemeenteCodes: Set<String>,
 )

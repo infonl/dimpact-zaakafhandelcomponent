@@ -113,6 +113,15 @@ describe(ZaakDocumentenComponent.name, () => {
         expect.objectContaining({ zaakUUID: "zaak-uuid-1" }),
       );
     });
+
+    it("requests gekoppelde zaak documents on load because the toggle defaults to true", async () => {
+      await createComponent();
+      expect(
+        informatieObjectenService.listEnkelvoudigInformatieobjecten,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      );
+    });
   });
 
   describe("teardown", () => {
