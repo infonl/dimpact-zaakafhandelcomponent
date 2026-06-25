@@ -13,5 +13,5 @@
 ## 3. Integration tests
 
 - [x] 3.1 Add an integration test for the happy path: POST with descriptions that have a common authorised group → HTTP 200 with that group
-- [x] 3.2 Add an integration test for no common authorised group → HTTP 200 empty list
-- [x] 3.3 Add an integration test for empty descriptions list → HTTP 400
+- [x] 3.2 Add an integration test for empty descriptions list → HTTP 400
+- [x] 3.3 Note: no-common-group scenario is not integration-testable — `beheerder_elk_domein` has `isAllEntityTypes: true` in PABC so it is returned for any zaaktype description including unknown ones; covered by unit test instead

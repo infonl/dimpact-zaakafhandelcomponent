@@ -11,7 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
-import jakarta.ws.rs.core.Response
+import jakarta.validation.Validation
 import nl.info.zac.app.identity.model.RestBehandelaarGroupsRequest
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
@@ -67,26 +67,44 @@ class IdentityRestServiceTest : BehaviorSpec({
             } returns listOf(commonGroup)
 
             When("the 'list behandelaar groups for multiple zaaktypes' endpoint is called") {
-                val response = identityRestService.listBehandelaarGroupsForZaaktypes(
+                val result = identityRestService.listBehandelaarGroupsForZaaktypes(
                     RestBehandelaarGroupsRequest(zaaktypeDescriptions = zaaktypeDescriptions)
                 )
 
-                Then("HTTP 200 is returned with the common group") {
-                    response.status shouldBe Response.Status.OK.statusCode
-                    @Suppress("UNCHECKED_CAST")
-                    (response.entity as List<*>).shouldHaveSize(1)
+                Then("the common group is returned") {
+                    result shouldHaveSize 1
+                    result.first().id shouldBe "fakeCommonGroupId"
+                }
+            }
+        }
+    }
+
+    Context("Validating RestBehandelaarGroupsRequest") {
+        val validator = Validation.buildDefaultValidatorFactory().validator
+
+        Given("A request with a non-empty zaaktype descriptions list") {
+            val request = RestBehandelaarGroupsRequest(
+                zaaktypeDescriptions = listOf("fakeZaaktypeDescription")
+            )
+
+            When("the request is validated") {
+                val violations = validator.validate(request)
+
+                Then("there are no constraint violations") {
+                    violations.isEmpty() shouldBe true
                 }
             }
         }
 
-        Given("An empty list of zaaktype descriptions") {
-            When("the 'list behandelaar groups for multiple zaaktypes' endpoint is called") {
-                val response = identityRestService.listBehandelaarGroupsForZaaktypes(
-                    RestBehandelaarGroupsRequest(zaaktypeDescriptions = emptyList())
-                )
+        Given("A request with an empty zaaktype descriptions list") {
+            val request = RestBehandelaarGroupsRequest(zaaktypeDescriptions = emptyList())
 
-                Then("HTTP 400 is returned") {
-                    response.status shouldBe Response.Status.BAD_REQUEST.statusCode
+            When("the request is validated") {
+                val violations = validator.validate(request)
+
+                Then("there is a constraint violation on zaaktypeDescriptions") {
+                    violations shouldHaveSize 1
+                    violations.first().propertyPath.toString() shouldBe "zaaktypeDescriptions"
                 }
             }
         }

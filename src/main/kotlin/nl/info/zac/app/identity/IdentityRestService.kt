@@ -7,6 +7,7 @@ package nl.info.zac.app.identity
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -14,7 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
 import nl.info.zac.app.identity.model.RestBehandelaarGroupsRequest
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestLoggedInUser
@@ -66,17 +66,11 @@ class IdentityRestService @Inject constructor(
     @POST
     @Path("behandelaar-groups")
     fun listBehandelaarGroupsForZaaktypes(
-        restBehandelaarGroupsRequest: RestBehandelaarGroupsRequest
-    ): Response =
-        if (restBehandelaarGroupsRequest.zaaktypeDescriptions.isEmpty()) {
-            Response.status(Response.Status.BAD_REQUEST).build()
-        } else {
-            Response.ok(
-                identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
-                    restBehandelaarGroupsRequest.zaaktypeDescriptions
-                ).toRestGroups()
-            ).build()
-        }
+        @Valid restBehandelaarGroupsRequest: RestBehandelaarGroupsRequest
+    ): List<RestGroup> =
+        identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+            restBehandelaarGroupsRequest.zaaktypeDescriptions
+        ).toRestGroups()
 
     @GET
     @Path("groups/{groupId}/users")

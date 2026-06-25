@@ -339,34 +339,6 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
-            """
-            A selection containing a zaaktype description not configured in PABC,
-            so no group can be authorised for all zaaktypes, and a logged-in beheerder
-        """
-        ) {
-            When(
-                "the 'list behandelaar groups for multiple zaaktypes' endpoint is called with one valid and one unknown zaaktype"
-            ) {
-                val response = itestHttpClient.performJSONPostRequest(
-                    url = "$ZAC_API_URI/identity/behandelaar-groups",
-                    requestBodyAsString = """
-                        {
-                            "zaaktypeDescriptions": [
-                                "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
-                                "Non-existent zaaktype"
-                            ]
-                        }
-                    """.trimIndent(),
-                    testUser = BEHEERDER_1
-                )
-                Then("an empty list is returned") {
-                    response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualJson "[]"
-                }
-            }
-        }
-
         Given("An empty zaaktype descriptions list and a logged-in beheerder") {
             When(
                 "the 'list behandelaar groups for multiple zaaktypes' endpoint is called with an empty list"
