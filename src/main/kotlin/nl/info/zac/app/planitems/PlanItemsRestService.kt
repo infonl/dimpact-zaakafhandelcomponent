@@ -15,8 +15,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
-import net.atos.zac.admin.model.FormulierDefinitie
 import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -26,9 +24,11 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
-import nl.info.zac.app.planitems.converter.RESTPlanItemConverter
+import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
@@ -71,7 +71,7 @@ class PlanItemsRestService @Inject constructor(
     private val cmmnService: CMMNService,
     private val zrcClientService: ZrcClientService,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val planItemConverter: RESTPlanItemConverter,
+    private val planItemConverter: RestPlanItemConverter,
     private val zgwApiService: ZgwApiService,
     private val indexingService: IndexingService,
     private val mailService: MailService,

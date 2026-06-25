@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.3",
   "engines": {
-    "node": "22.22.3",
+    "node": "22.23.1",
     "npm": "10.9.8"
   },
   "scripts": {
@@ -15,7 +15,8 @@
     "test:cache-busting": "node scripts/test-cache-busting.js",
     "test": "ng test",
     "test:watch": "ng test --watch --verbose --silent=false",
-    "test:ci": "npx jest -t",
+    "test:ci": "npx jest --coverage --config jest.config.js --forceExit",
+    "test:shard": "npx jest --coverage --config jest.config.js --forceExit",
     "test:report": "ng test --coverage",
     "lint": "ng lint",
     "lint:unused": "npx ngx-unused . -p tsconfig.json",
@@ -53,7 +54,12 @@
   },
   "overrides": {
     "chokidar": "5.0.0",
-    "tar": "^7.5.8"
+    "tar": "^7.5.8",
+    "@babel/core": "7.29.7",
+    "http-proxy-middleware": "4.1.1",
+    "serialize-javascript": "7.0.6",
+    "vite": "8.0.16",
+    "webpack-dev-server": "5.2.5"
   },
   "devDependencies": {
     "@angular-builders/jest": "19.0.1",
@@ -67,9 +73,9 @@
     "@angular/compiler-cli": "19.2.25",
     "@angular/language-service": "19.2.25",
     "@types/jest": "29.5.14",
-    "@types/node": "22.19.21",
-    "@typescript-eslint/eslint-plugin": "8.61.0",
-    "@typescript-eslint/parser": "8.61.0",
+    "@types/node": "22.20.0",
+    "@typescript-eslint/eslint-plugin": "8.61.1",
+    "@typescript-eslint/parser": "8.61.1",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",

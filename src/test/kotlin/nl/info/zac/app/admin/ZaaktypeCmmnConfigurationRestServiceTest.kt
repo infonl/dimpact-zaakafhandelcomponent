@@ -14,7 +14,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -22,6 +21,7 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter

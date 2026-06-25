@@ -16,10 +16,18 @@ permissions:
   issues: write
   pull-requests: write
   pages: write
+  packages: read
 
 env:
   JAVA_VERSION: "21.0.11"
   SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
+  # Pre-built OWASP Dependency-Check NVD database, published by the
+  # "Publish NVD Database Cache" workflow. Consuming it here avoids downloading
+  # from the rate-limited NVD API on every scan.
+  NVD_DATABASE_CACHE_IMAGE: ghcr.io/infonl/nvd-database-cache
+  # Maximum age (in days) of the published NVD database before the scan fails
+  # rather than silently scanning against stale vulnerability data.
+  NVD_DATABASE_MAX_AGE_DAYS: 3
 
 jobs:
   npm-security-audit:
@@ -33,7 +41,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 2 # Need previous commit to detect changes
 
@@ -112,21 +120,19 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 30
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
       vuln_high: ${{ steps.owasp_scan.outputs.vuln_high }}
       scan_date: ${{ steps.date.outputs.date }}
-    env:
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
 
       - name: Checkout code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup JDK
         uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
@@ -141,37 +147,86 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
-      - name: Get cache date
-        id: cache_date
-        run: echo "date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-
-      - name: Cache OWASP dependency-check data
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
-          path: ~/.gradle/dependency-check-data
-          key: owasp-nvd-db-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}-${{ steps.cache_date.outputs.date }}
-          restore-keys: |
-            owasp-nvd-db-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}-
-            owasp-nvd-db-${{ runner.os }}-
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update OWASP dependency database
+      - name: Pull and extract the pre-built NVD database
         run: |
-          echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache || true
-
-          # Show cache info
-          if [ -d ~/.gradle/dependency-check-data ]; then
-            echo "📊 OWASP database cache status:"
-            du -sh ~/.gradle/dependency-check-data
-            ls -la ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -3 || true
+          # The NVD database is maintained centrally by the "Publish NVD Database
+          # Cache" workflow and shipped as a GHCR image, so this scan never
+          # downloads from the rate-limited NVD API itself. dependencyCheckAnalyze
+          # runs with autoUpdate=false (see build.gradle.kts) against the database
+          # extracted here.
+          mkdir -p ~/.gradle/dependency-check-data
+          if ! docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
+            echo "::error::Could not pull ${NVD_DATABASE_CACHE_IMAGE}:latest. Run the 'Publish NVD Database Cache' workflow (with seed_database=true on first use) to build it."
+            exit 1
           fi
+          container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+          cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
+          docker cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
+          cleanup
+          trap - EXIT
+          database_file=$(ls -1 ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -1 || true)
+          if [ -z "${database_file}" ]; then
+            echo "::error::The pulled image did not contain an NVD database."
+            exit 1
+          fi
+          echo "✅ Extracted NVD database ($(du -m "${database_file}" | cut -f1) MB)."
+
+      - name: Verify the NVD database is fresh and complete
+        # Make staleness impossible to miss: the scan fails (and the failure is
+        # reported to Slack by the notify-slack job) if the published database is
+        # incomplete or older than NVD_DATABASE_MAX_AGE_DAYS, rather than silently
+        # scanning against out-of-date vulnerability data.
+        run: |
+          if [ ! -f nvd-build-metadata.txt ]; then
+            echo "::error::NVD database image has no freshness metadata; refusing to scan against an unknown database."
+            exit 1
+          fi
+          cat nvd-build-metadata.txt
+          # The default GitHub Actions bash shell runs with `-eo pipefail`, so a
+          # `grep` that finds no match exits 1 and would abort this step before the
+          # explicit error handling below. Tolerate a missing key with `|| true`
+          # and validate the values ourselves so we fail with the intended message.
+          status=$(grep '^status=' nvd-build-metadata.txt | cut -d= -f2 || true)
+          updated_at=$(grep '^updated_at=' nvd-build-metadata.txt | cut -d= -f2 || true)
+          if [ "${status}" != "complete" ]; then
+            echo "::error::NVD database is not complete (status=${status:-unknown}). The 'Publish NVD Database Cache' workflow has not yet built a full database."
+            exit 1
+          fi
+          if [ -z "${updated_at}" ]; then
+            echo "::error::NVD database has no update timestamp; refusing to scan."
+            exit 1
+          fi
+          # Parse the timestamp explicitly so a malformed value fails with our
+          # error message instead of aborting the step inside the arithmetic below.
+          updated_at_epoch=$(date -u -d "${updated_at}" +%s 2>/dev/null || true)
+          if [ -z "${updated_at_epoch}" ]; then
+            echo "::error::NVD database update timestamp '${updated_at}' is not a valid date; refusing to scan."
+            exit 1
+          fi
+          age_days=$(( ( $(date -u +%s) - updated_at_epoch ) / 86400 ))
+          echo "NVD database last updated: ${updated_at} (${age_days} day(s) ago)"
+          if [ "${age_days}" -gt "${NVD_DATABASE_MAX_AGE_DAYS}" ]; then
+            echo "::error::NVD database is ${age_days} days old (max ${NVD_DATABASE_MAX_AGE_DAYS}). The 'Publish NVD Database Cache' workflow is likely failing - scan results would be based on stale data."
+            exit 1
+          fi
+          echo "✅ NVD database is complete and fresh."
 
       - name: Check for vulnerable Gradle dependencies
         id: owasp_scan
         continue-on-error: true
         run: |
-          # Run OWASP dependency check (now available)
           echo "🛡️ Running OWASP Dependency Check..."
+          # autoUpdate=false (build.gradle.kts) means analyze uses the extracted
+          # database and never contacts the NVD API.
           ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
 
           # Show SARIF file info if generated

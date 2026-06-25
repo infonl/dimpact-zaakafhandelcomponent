@@ -644,8 +644,6 @@ Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen va
 In Keycloak is het ook mogelijk om 'subgroepen' aan te maken, oftewel groepen binnen groepen.
 Dergelijke subgroepen worden niet ondersteund.
 
-> Let op! Groepen met namen die langer zijn dan 24 lettertekens worden niet ondersteund door ZAC en de ZGW API's. Dit gaat in de toekomst veranderen.
-
 > Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 

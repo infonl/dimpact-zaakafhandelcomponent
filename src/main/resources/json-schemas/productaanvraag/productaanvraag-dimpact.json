@@ -326,13 +326,13 @@
           "title": "Organisatorische eenheid identificatie",
           "description": "Korte identificatie van de organisatorische eenheid",
           "type": "string",
-          "maxLength": 24
+          "maxLength": 255
         },
         "medewerkerIdentificatie": {
           "title": "Medewerker identificatie",
           "description": "Korte unieke aanduiding van de medewerker",
           "type": "string",
-          "maxLength": 24
+          "maxLength": 128
         },
         "rolOmschrijvingGeneriek": {
           "title": "Rol omschrijving generiek",

@@ -4,7 +4,6 @@
  */
 package nl.info.zac.admin.model
 
-import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -31,6 +30,21 @@ fun createZaaktypeBrpParameters(
     this.zoekWaarde = zoekWaarde
     this.raadpleegWaarde = raadpleegWaarde
     this.verwerkingregisterWaarde = verwerkingregisterWaarde
+}
+
+fun createZaaktypeCmmnHumantaskParameters(
+    planItemDefinitionId: String = "AANVULLENDE_INFORMATIE",
+    id: Long = 1L,
+    actief: Boolean = true,
+    groepId: String = "fakeGroepId",
+    doorlooptijd: Int = 5
+) = ZaaktypeCmmnHumantaskParameters().apply {
+    this.planItemDefinitionID = planItemDefinitionId
+    this.id = id
+    this.actief = actief
+    this.groepID = groepId
+    this.doorlooptijd = doorlooptijd
+    this.setReferentieTabellen(mutableListOf())
 }
 
 @Suppress("LongParameterList")

@@ -16,7 +16,7 @@ global:
      # -- curl docker repository used throughout the chart
     repository: curlimages/curl
      # -- curl docker tag to pull
-    tag: 8.20.0@sha256:b3f1fb2a51d923260350d21b8654bbc607164a987e2f7c84a0ac199a67df812a
+    tag: 8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     pullPolicy: IfNotPresent
 
 # -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
@@ -183,10 +183,18 @@ signaleringen:
   restartPolicy: Never
   imagePullSecrets: []
   resources: {}
-  podSecurityContext: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
   nodeSelector: {}
   affinity: {}
-  securityContext: {}
+   # -- container security context for the curl-based signaleren CronJob containers
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
   tolerations: []
 
 # OpenTelemetry configuration. Only read when opentelemetry-collector is enabled
@@ -234,15 +242,18 @@ serviceAccount:
 podAnnotations: {}
 
 # -- pod specific security context
-podSecurityContext: {}
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
 # fsGroup: 2000
 
 # -- generic security context
-securityContext: {}
-   # capabilities:
-   #   drop:
-   #   - ALL
-   # readOnlyRootFilesystem: true
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  # readOnlyRootFilesystem: true  # requires writable volume mounts for WildFly; not enabled
 # runAsNonRoot: true
 # runAsUser: 1000
 
@@ -326,6 +337,13 @@ topologySpreadConstraints:
 # set initContainer parameters
 initContainer:
   enabled: true
+   # -- Security context for the curl-based init containers (read-only root filesystem is safe here)
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
    # -- Resource limits and requests for the init-solr-zac-core init container
   resources:
     requests:
@@ -348,7 +366,7 @@ opa:
     repository: openpolicyagent/opa
     tag: "1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc"
     pullPolicy: IfNotPresent
-   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' which is always applied
+   # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
     enabled: false
   replicas: 1
@@ -365,8 +383,16 @@ opa:
       memory: 20Mi
   podAnnotations: {}
   imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+   # -- container security context applied to the OPA container in both sidecar and standalone modes
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
   nodeSelector: {}
   affinity: {}
   tolerations: []
@@ -601,8 +627,14 @@ office_converter:
     annotations: {}
   podAnnotations: {}
   imagePullSecrets: []
-  podSecurityContext: {}
-  securityContext: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   nodeSelector: {}
   affinity: {}
   tolerations: []
@@ -650,7 +682,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.2@sha256:12687e757fa0cedfd6b4f15302000d62d1872def3f24bcf76c6d52f09f7f9b77
+    tag: 1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
   service:
     type: ClusterIP
     port: 80

@@ -35,6 +35,8 @@ spec:
         - name: {{ .Values.opa.name }}
           image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
           imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.opa.securityContext | nindent 12 }}
           resources: 
             {{- toYaml .Values.opa.resources | nindent 12 }}
           ports:

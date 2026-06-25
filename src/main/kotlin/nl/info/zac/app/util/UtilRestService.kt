@@ -11,8 +11,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.client.zgw.shared.cache.Caching
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.sensitive.SensitiveDataService
