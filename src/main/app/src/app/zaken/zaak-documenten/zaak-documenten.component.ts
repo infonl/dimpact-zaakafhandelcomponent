@@ -118,7 +118,9 @@ const GEKOPPELDE_COLUMNS = [
   ],
 })
 export class ZaakDocumentenComponent implements AfterViewInit {
-  private readonly informatieObjectenService = inject(InformatieObjectenService);
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
   private readonly websocketService = inject(WebsocketService);
   private readonly utilService = inject(UtilService);
   private readonly zakenService = inject(ZakenService);
@@ -171,12 +173,13 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   constructor() {
     // Feed query results into the MatTableDataSource so Material sorting keeps working.
+    // Use `?? []` so the table clears while transitioning to an uncached key (zaak/toggle change)
+    // instead of briefly showing the previous case's documents. An in-place refetch
+    // (websocket invalidation) keeps data() populated for the same key, so this never clears
+    // mid-refetch.
     effect(() => {
-      const documenten = this.documentenQuery.data();
-      if (documenten) {
-        this.enkelvoudigInformatieObjecten.data =
-          documenten as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
-      }
+      this.enkelvoudigInformatieObjecten.data = (this.documentenQuery.data() ??
+        []) as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
     });
 
     effect((onCleanup) => {

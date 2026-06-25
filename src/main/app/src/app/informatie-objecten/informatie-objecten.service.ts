@@ -146,10 +146,15 @@ export class InformatieObjectenService {
 
   /**
    * The list endpoint is a `PUT` (search-with-body), so it cannot use {@link ZacQueryClient.GET};
-   * we wrap the existing call in `queryOptions` instead.
+   * we wrap the existing call in `queryOptions` instead. The input is constrained to the fields
+   * this query supports so the query key provably covers every discriminating field (passing other
+   * filters of the endpoint would otherwise collide on the cache).
    */
   listEnkelvoudigInformatieobjectenQuery(
-    body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
+    body: Pick<
+      GeneratedType<"RestInformatieobjectZoekParameters">,
+      "zaakUUID" | "gekoppeldeZaakDocumenten"
+    >,
   ) {
     return queryOptions({
       queryKey: [
