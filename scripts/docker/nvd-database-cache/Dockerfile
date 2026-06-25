@@ -13,7 +13,7 @@
 #
 # A tiny busybox base (rather than `scratch`) is used so that `docker create`
 # and `docker cp` work reliably and the image can be inspected if needed.
-FROM busybox:1.37.0
+FROM busybox:1.38.0@sha256:fd8d9aa63ba2f0982b5304e1ee8d3b90a210bc1ffb5314d980eb6962f1a9715d
 
 COPY data /dependency-check-data
 COPY build-metadata.txt /nvd-build-metadata.txt
