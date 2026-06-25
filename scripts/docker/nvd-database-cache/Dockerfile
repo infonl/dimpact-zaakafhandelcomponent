@@ -17,3 +17,9 @@ FROM busybox:1.38.0@sha256:fd8d9aa63ba2f0982b5304e1ee8d3b90a210bc1ffb5314d980eb6
 
 COPY data /dependency-check-data
 COPY build-metadata.txt /nvd-build-metadata.txt
+
+# This image is only ever used as a `docker cp` source and is never executed,
+# but a non-root user is set to satisfy image-hardening policy (DS-0002).
+# 65534 is the conventional "nobody" uid/gid; `docker cp` reads the layer via the
+# daemon regardless of this user, so extraction is unaffected.
+USER 65534:65534
