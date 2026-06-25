@@ -1,13 +1,12 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 6 remaining** (2026-06-11)
+**Progress: 5 remaining** (2026-06-23)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
 
 ## Remaining Components
 
 - `app/app.component.ts`
 - `app/plan-items/process-task-do/process-task-do.component.ts`
-- `app/taken/taak-view/taak-view.component.ts`
 - `app/zaken/besluit-edit/besluit-edit.component.ts`
 - `app/zaken/besluit-view/besluit-view.component.ts`
 - `app/zaken/zaak-view/zaak-view.component.ts`
@@ -218,6 +217,7 @@ TBD — run step 0 (claims check) at start of next session.
 | batch-18 (form components) | `ZacFile`, `ZacDocuments`, `ZacHtmlEditor`, `VariabelenKiesMenuComponent` (new, replaces ATOS) | `chore/PZ-11415--FE--Angular-v19-migration--ZacFile-ZacDocuments-ZacHtmlEditor` |
 | batch-18b (composed form) | `ZacForm` → renamed `ZacComposedForm`, moved to `shared/form/composed-form/`, types extracted to `form-field.types.ts` | `chore/PZ-11417--FE--Angular-v19-migration--ZacComposedForm` |
 | PZ-11441 (MFB-migratie §1) | `HumanTaskDoComponent` — removed dead MFB fallback (`formulier`/`formItems`/`formConfig` + unreachable `ngOnInit` catch block) and made standalone | `feature/PZ-11441-human-task-do-angular-forms` (PR #6179) |
+| PZ-11436 (MFB-migratie §8) | `TaakViewComponent` — removed dead MFB code (`editFormFields` map + `setEditableFormFields()` + `MedewerkerGroep/Input/TextareaFormFieldBuilder` imports; written but never read — group/medewerker/reden editing already lives in standalone `TaakEditComponent`), made standalone, slimmed `TakenModule` to a routing shell, converted `:id` route to `loadComponent`. NB: Confluence §8 was stale — the `<mfb-form>` catch-block it described was already gone; the form itself was already migrated to `<zac-composed-form>`/`<zac-formio-wrapper>`. | `feature/PZ-11436-taak-view-angular-forms` |
 
 ---
 
