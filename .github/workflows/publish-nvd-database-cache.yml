@@ -36,13 +36,14 @@ env:
 jobs:
   publish:
     name: Build and publish NVD database cache image
-    runs-on: ubuntu-24.04
+    # INFO runner as NVD download is heavily throttled from github IPs
+    runs-on: [Linux, X64, ubuntu-24.04]
     # The step-level timeout on the NVD update is the real cap on the download.
     # This job ceiling is deliberately high (under the 360 min hosted-runner hard
     # limit) so the very first cold download - or a run catching up after a long
     # gap - can finish. Normal daily runs seed from the previous image and only
     # fetch the NVD delta, finishing in minutes well below this ceiling.
-    timeout-minutes: 330
+    timeout-minutes: 600
     env:
       NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
