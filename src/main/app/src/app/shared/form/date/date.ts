@@ -5,7 +5,14 @@
  */
 
 import { NgIf } from "@angular/common";
-import { booleanAttribute, Component, computed, input } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  effect,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -13,7 +20,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 import { DagenPipe } from "../../pipes/dagen.pipe";
 import { SingleInputFormField } from "../BaseFormField";
@@ -45,22 +52,54 @@ export class ZacDate<
   protected showAmountOfDays = input(false, { transform: booleanAttribute });
 
   /**
-   * To set the minimum date for the datepicker use the `Validator.min` property.
+   * To set the minimum date for the datepicker use the `Validators.min` property.
    *
    * @example `Validators.min(moment().add(1, "day").startOf("day").valueOf())`
    */
-  protected min = computed(() => {
-    const value = FormHelper.getValidatorValue("min", this.control() ?? null);
-    return value ? moment(value) : null;
-  });
+  protected readonly min = signal<Moment | null>(null);
 
   /**
-   * To set the maximum date for the datepicker use the `Validator.max` property.
+   * To set the maximum date for the datepicker use the `Validators.max` property.
    *
    * @example `Validators.max(moment().add(1, "day").endOf("day").valueOf())`
    */
-  protected max = computed(() => {
-    const value = FormHelper.getValidatorValue("max", this.control() ?? null);
-    return value ? moment(value) : null;
-  });
+  protected readonly max = signal<Moment | null>(null);
+
+  constructor() {
+    super();
+
+    effect((onCleanup) => {
+      const control = this.control();
+      if (!control) {
+        this.min.set(null);
+        this.max.set(null);
+        return;
+      }
+
+      this.updateDateBounds(control);
+      const subscription = control.statusChanges.subscribe(() =>
+        this.updateDateBounds(control),
+      );
+      onCleanup(() => subscription.unsubscribe());
+    });
+  }
+
+  private updateDateBounds(control: AbstractControl) {
+    this.setBoundIfChanged(
+      this.min,
+      FormHelper.getValidatorValue("min", control),
+    );
+    this.setBoundIfChanged(
+      this.max,
+      FormHelper.getValidatorValue("max", control),
+    );
+  }
+
+  private setBoundIfChanged(
+    bound: WritableSignal<Moment | null>,
+    value: number | null,
+  ) {
+    if (value === (bound()?.valueOf() ?? null)) return;
+    bound.set(value ? moment(value) : null);
+  }
 }

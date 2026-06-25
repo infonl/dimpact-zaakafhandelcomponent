@@ -37,7 +37,15 @@
             0) <= 1
         "
       >
-        {{ "besluit.publicatie.indicatie.onderschrift" | translate }}
+        {{
+          "besluit.publicatie.indicatie.onderschrift"
+            | translate
+              : {
+                  publicationTermDays:
+                    form.controls.besluit.value?.publication
+                      ?.publicationTermDays,
+                }
+        }}
       </div>
       <div
         class="mb-2"
