@@ -168,6 +168,13 @@ describe(ZaakDocumentenComponent.name, () => {
       const toggle = await loader.getHarness(MatSlideToggleHarness);
       expect(toggle).toBeTruthy();
     });
+
+    it("is checked by default", async () => {
+      component.heeftGerelateerdeZaken = true;
+      fixture.detectChanges();
+      const toggle = await loader.getHarness(MatSlideToggleHarness);
+      expect(await toggle.isChecked()).toBe(true);
+    });
   });
 
   describe("loading state", () => {
