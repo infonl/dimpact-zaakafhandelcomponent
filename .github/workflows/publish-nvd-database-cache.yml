@@ -129,7 +129,12 @@ jobs:
         # - on the very first bootstrap we publish the partial database (so the
         #   next run can continue) but still fail the job so it is visible.
         run: |
-          database_file=$(ls -1 ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -1 || true)
+          # Locate the H2 database with `find` rather than a fixed-depth glob:
+          # because build.gradle.kts overrides data.directory, odc.mv.db sits
+          # directly in that directory (not in a version subdirectory), so a
+          # `*/odc.mv.db` glob would miss it and a completed build would be
+          # wrongly reported as having produced no database.
+          database_file=$(find ~/.gradle/dependency-check-data -name odc.mv.db -type f 2>/dev/null | head -1 || true)
           if [ -z "${database_file}" ]; then
             echo "::error::No NVD database was produced; refusing to publish an empty image."
             exit 1
