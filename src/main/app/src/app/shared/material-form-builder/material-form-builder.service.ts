@@ -4,11 +4,8 @@
  */
 
 import { Injectable, Type } from "@angular/core";
-import { DateComponent } from "./form-components/date/date.component";
-import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { InputComponent } from "./form-components/input/input.component";
-import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
 import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
 import { SelectComponent } from "./form-components/select/select.component";
 import { TextareaComponent } from "./form-components/textarea/textarea.component";
@@ -32,14 +29,8 @@ export class MaterialFormBuilderService {
 
   private static getType(type: FieldType): Type<FormComponent> {
     switch (type) {
-      case FieldType.PARAGRAPH:
-        return ParagraphComponent;
       case FieldType.READONLY:
         return ReadonlyComponent;
-      case FieldType.DIVIDER:
-        return DividerComponent;
-      case FieldType.DATE:
-        return DateComponent;
       case FieldType.INPUT:
         return InputComponent;
       case FieldType.TEXTAREA:
