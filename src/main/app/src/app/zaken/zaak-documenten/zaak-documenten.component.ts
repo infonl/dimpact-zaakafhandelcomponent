@@ -167,7 +167,7 @@ export class ZaakDocumentenComponent
       ),
     );
 
-    this.loadInformatieObjecten();
+    this.toggleGekoppeldeZaakDocumenten();
   }
 
   ngAfterViewInit() {
