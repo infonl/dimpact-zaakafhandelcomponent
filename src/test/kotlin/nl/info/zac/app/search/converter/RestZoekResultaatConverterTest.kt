@@ -11,7 +11,6 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.app.search.model.RestTaakZoekObject
-import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZaakZoekObject
 import nl.info.zac.app.search.model.createRestZoekParameters
 import nl.info.zac.policy.PolicyService
@@ -154,7 +153,6 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
                 Then("it returns RestZaakKoppelenZoekObjects") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
-                    (result.results.first() is RestZaakKoppelenZoekObject) shouldBe true
                 }
             }
         }

@@ -15,9 +15,9 @@ Feature: BPMN
   Scenario: Bob changes the assigned user and group
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    Then "Bob" sees group "test-group-b" and user "testuser2" in the zaak data
-    Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM"
-    Then "Bob" sees group "coordinators_test_1" and user "coordinator1newiam" in the zaak data
+    Then "Bob" sees group "test-group-a" and user "e2etestuser1" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Test groep B" and user "E2etest User2"
+    Then "Bob" sees group "test-group-b" and user "e2etestuser2" in the zaak data
 
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
@@ -45,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the select documents to sign task is started with group "Beheerders elk domein - new IAM" and user "Beheerder 1 New IAM"
+    Then "Bob" sees that the select documents to sign task is started with group "Test groep A" and user "E2etest User1"
 
   Scenario: Bob opens and fills in the sign documents form
     Given "Bob" is logged in to zac

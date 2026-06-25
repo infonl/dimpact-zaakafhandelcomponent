@@ -5,9 +5,15 @@
 
 package nl.info.client.brp.util
 
+import jakarta.json.Json
+import jakarta.json.stream.JsonParser
 import nl.info.zac.configuration.BrpConfiguration
+import java.io.StringReader
 import java.util.Optional
 import java.util.UUID
+
+@Suppress("LongParameterList")
+fun createJsonParser(json: String): JsonParser = Json.createParser(StringReader(json)).also { it.next() }
 
 @Suppress("LongParameterList")
 fun createBrpConfiguration(

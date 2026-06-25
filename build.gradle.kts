@@ -209,6 +209,14 @@ testing {
         // configure the default unit test suite to use JUnit Jupiter
         getByName<JvmTestSuite>("test") {
             useJUnitJupiter()
+
+            targets.all {
+                testTask.configure {
+                    // run the unit tests in multiple JVM forks so they use the available CPU cores
+                    // instead of a single fork. Process-level isolation keeps tests independent.
+                    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                }
+            }
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
