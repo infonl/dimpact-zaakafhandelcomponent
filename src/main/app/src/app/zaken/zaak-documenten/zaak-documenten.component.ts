@@ -100,7 +100,7 @@ export class ZaakDocumentenComponent
 
   heeftGerelateerdeZaken = false;
   selectAll = false;
-  toonGekoppeldeZaakDocumenten = new FormControl(false);
+  toonGekoppeldeZaakDocumenten = new FormControl(true);
   documentColumns = [
     "downloaden",
     "titel",
@@ -167,7 +167,7 @@ export class ZaakDocumentenComponent
       ),
     );
 
-    this.loadInformatieObjecten();
+    this.toggleGekoppeldeZaakDocumenten();
   }
 
   ngAfterViewInit() {
