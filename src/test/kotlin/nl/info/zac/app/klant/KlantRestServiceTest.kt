@@ -32,17 +32,19 @@ import nl.info.client.kvk.model.createResultaatItem
 import nl.info.client.kvk.model.createSBIActiviteit
 import nl.info.client.kvk.model.createVestiging
 import nl.info.client.kvk.model.createVestigingsAdres
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
+import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.createRestListBedrijvenParameters
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
-import nl.info.zac.policy.output.createOverigeRechten
+import nl.info.zac.policy.output.createBrpRechten
 import java.time.LocalDate
 import java.util.UUID
 
@@ -919,7 +921,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoon(bsn = bsn)
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -941,7 +943,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.retrievePersoon(bsn, any(), any())
@@ -959,7 +961,26 @@ class KlantRestServiceTest : BehaviorSpec({
         Given("The logged-in user does not have the brpZoeken permission") {
             val restListPersonenParameters = RestListPersonenParameters(bsn = "123456789")
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten(brpZoeken = false)
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten(zoeken = false)
+
+            When("listPersonen is called") {
+                val exception = shouldThrow<PolicyException> {
+                    klantRestService.listPersonen(restListPersonenParameters)
+                }
+
+                Then("a PolicyException should be thrown") {
+                    exception::class shouldBe PolicyException::class
+                }
+            }
+        }
+
+        Given("The logged-in user does not have the brpZoeken permission for the specified gemeenteVanInschrijving") {
+            val restListPersonenParameters =
+                RestListPersonenParameters(bsn = "123456789", gemeenteVanInschrijving = "12345")
+
+            every {
+                policyService.readBrpRechten(gemeenteCode = restListPersonenParameters.gemeenteVanInschrijving)
+            } returns createBrpRechten(zoeken = false)
 
             When("listPersonen is called") {
                 val exception = shouldThrow<PolicyException> {
@@ -983,7 +1004,7 @@ class KlantRestServiceTest : BehaviorSpec({
             val person = createPersoonBeperkt(bsn = bsn)
             val personenResponse = createZoekMetGeslachtsnaamEnGeboortedatumResponse(listOf(person))
 
-            every { policyService.readOverigeRechten() } returns createOverigeRechten()
+            every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten()
             every { loggedInUserInstance.get().id } returns userName
             every {
                 brpClientService.queryPersonen(any(), any(), any())
@@ -1007,6 +1028,75 @@ class KlantRestServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         brpClientService.retrievePersoon(any(), any(), any())
                     }
+                }
+            }
+        }
+    }
+
+    Context("Personen parameters") {
+        Given("A user with the BRP zoeken overall role") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.overallRoles } returns setOf(ROLE_NAME_BRP_ZOEKEN)
+
+            When("personenParameters is called") {
+                val result = klantRestService.personenParameters()
+
+                Then("it should return valid queries with mustSpecifyGemeente set to false") {
+                    result.size shouldBe 5
+                    result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.NON
+                }
+            }
+        }
+
+        Given("A user without the BRP zoeken overall role") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.overallRoles } returns emptySet()
+
+            When("personenParameters is called") {
+                val result = klantRestService.personenParameters()
+
+                Then("it should return valid queries with mustSpecifyGemeente set to true") {
+                    result.size shouldBe 5
+                    result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.REQ
+                }
+            }
+        }
+    }
+
+    Context("Listing BRP gemeenten") {
+        Given("A user with BRP gemeenten") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.brpGemeenten } returns mapOf(
+                "0344" to "fakeGemeenteNaam1",
+                "0599" to "fakeGemeenteNaam2"
+            )
+
+            When("listAuthorisedBrpGemeenten is called") {
+                val result = klantRestService.listAuthorisedBrpGemeenten()
+
+                Then("it should return the BRP gemeenten as RestBrpGemeente list") {
+                    result.size shouldBe 2
+                    result[0].code shouldBe "0344"
+                    result[0].naam shouldBe "fakeGemeenteNaam1"
+                    result[1].code shouldBe "0599"
+                    result[1].naam shouldBe "fakeGemeenteNaam2"
+                }
+            }
+        }
+
+        Given("A user without BRP gemeenten") {
+            val loggedInUser = mockk<LoggedInUser>()
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { loggedInUser.brpGemeenten } returns emptyMap()
+
+            When("listAuthorisedBrpGemeenten is called") {
+                val result = klantRestService.listAuthorisedBrpGemeenten()
+
+                Then("it should return an empty list") {
+                    result shouldBe emptyList()
                 }
             }
         }

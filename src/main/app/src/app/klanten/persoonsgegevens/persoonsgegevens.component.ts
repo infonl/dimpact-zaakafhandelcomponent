@@ -71,8 +71,8 @@ export class PersoonsgegevensComponent {
     enabled: !!this.temporaryPersonId(),
   }));
 
-  protected readonly overigeRechtenQuery = injectQuery(() =>
-    this.policyService.readOverigeRechten(),
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
   );
 
   protected readonly isDisabled = signal(false);
@@ -94,7 +94,7 @@ export class PersoonsgegevensComponent {
     return Boolean(
       this.zaak().rechten.toevoegenInitiatorPersoon &&
         this.koppelingen()?.brpKoppelen &&
-        this.overigeRechtenQuery.data()?.brpZoeken,
+        this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

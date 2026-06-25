@@ -11,6 +11,7 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
@@ -24,6 +25,8 @@ import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYP
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_VOORSCHOTEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1
@@ -66,10 +69,13 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_2
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_3
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_BSN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FULLNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
@@ -88,6 +94,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
@@ -1093,6 +1100,126 @@ class KlantRestServiceTest : BehaviorSpec({
                       }
                     ]
                     """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Listing BRP gemeenten") {
+        Given("A user with gemeente-scoped brp_zoeken authorisation") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/personen/gemeenten",
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should contain the authorized gemeenten") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    val jsonArray = JSONArray(responseBody)
+                    jsonArray.length() shouldBe 2
+                    val gemeenten = (0 until jsonArray.length()).map {
+                        jsonArray.getJSONObject(it).getString("code")
+                    }.toSet()
+                    gemeenten shouldBe setOf(TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG, TEST_GEMEENTE_CODE_VOORSCHOTEN)
+                }
+            }
+        }
+
+        Given("A user with overall brp_zoeken but no gemeente-scoped access") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/personen/gemeenten",
+                    testUser = RAADPLEGER_1
+                )
+                Then("the response should be an empty list") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson "[]"
+                }
+            }
+        }
+    }
+
+    Context("Searching for personen with binnengemeentelijk authorization") {
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching within authorized gemeente") {
+            When("the personen search endpoint is called with an authorized gemeenteVanInschrijving") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 200 OK with the person data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldContain TEST_PERSON_DIRK_JANSSEN_BSN
+                }
+            }
+        }
+
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching within authorized gemeente") {
+            When(
+                "the personen search endpoint is called with an authorized gemeenteVanInschrijving" +
+                    " but the person for that BSN does not have a matching gemeenteVanInschrijving"
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 200 OK with no results") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getJSONArray("resultaten") shouldHaveSize(0)
+                }
+            }
+        }
+
+        Given("A user without brp_zoeken searching with a gemeenteVanInschrijving") {
+            When("the personen search endpoint is called") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching with unauthorized gemeente") {
+            When("the personen search endpoint is called with a gemeente not in their scope") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }

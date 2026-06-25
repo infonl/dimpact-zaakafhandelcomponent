@@ -116,6 +116,10 @@ export class KlantenService {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
   }
 
+  listAuthorisedBrpGemeenten() {
+    return this.zacQueryClient.GET("/rest/klanten/personen/gemeenten");
+  }
+
   /* istanbul ignore next */
   listPersonen(
     body: PutBody<"/rest/klanten/personen">,

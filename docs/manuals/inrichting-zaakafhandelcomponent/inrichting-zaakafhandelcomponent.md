@@ -532,10 +532,10 @@ te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatieroll
 ###### Domeinen
 
 Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
-Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen).
+Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen of gemeenten).
 
 Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
-van entiteitstypes (zoals zaaktypes) te autoriseren.
+van entiteitstypes (zoals zaaktypes of gemeenten) te autoriseren.
 
   ![PABC domeinen](images/pabc_domeinen.png)
 
@@ -566,13 +566,22 @@ Elk zaaktype heeft de volgende velden:
 - `Entiteitstype naam`: gelijk aan het `Entiteitstype ID` veld. Dit veld wordt niet gebruikt door ZAC, maar is verplicht in de PABC.
 - `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
 
-  ![PABC entiteitstype velden](images/pabc_entiteitstype_velden.png)
+  ![PABC entiteitstype velden voor zaaktype](images/pabc_entiteitstype_velden.png)
+
+
+Elke gemeente heeft de volgende velden:
+- `Entiteitstype`: dit moet `GEMEENTE` zijn (in hoofdletters).
+- `Entiteitstype ID`: de viercijferige code van de gemeente zoals deze in het BRP gehanteerd wordt. 
+- `Entiteitstype naam`: De naam van de gemeente. Dit veld wordt getoond in ZAC in de dropdownlijst van gemeenten waaruit gekozen moet worden als een medewerker alleen binnengemeentelijk mag zoeken in het BRP.
+- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
+
+  ![PABC entiteitstype velden voor gemeente](images/pabc_entiteitstype_velden_gemeente.png)
 
 ##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
 
 ###### Domeinen
 
-Een domein is een verzameling van entiteitstypes (zoals zaaktypes), en vormen het 
+Een domein is een verzameling van entiteitstypes (zoals zaaktypes of gemeenten), en vormen het 
 abstractieniveau waarop geautoriseerd wordt.
 
   ![PABC dashboard domeinen](images/pabc_dashboard_domeinen.png)
@@ -602,7 +611,9 @@ In dit geval kan er gekozen worden voor het type `Alle entiteitstypes`.
   ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
 
 Het derde type autorisatie-koppeling, `Geen enkel entiteitstype`, is bedoeld voor rollen waar entiteitstypes niet voor van toepassing zijn.
-Dit type wordt nog niet ondersteund door ZAC en moet dus niet worden gebruikt.
+Dit type wordt ondersteund door ZAC voor medewerkers die personen mogen zoeken in het BRP, ongeacht de gemeente van inschrijving.
+
+  ![PABC autorisatie-koppelingen BRP geen enkel entiteitstype](images/pabc_autorisatie_koppelingen_brp_geen_enkel_entiteitstype.png)
 
 ### Migratie van de oude naar de nieuwe IAM-architectuur
 

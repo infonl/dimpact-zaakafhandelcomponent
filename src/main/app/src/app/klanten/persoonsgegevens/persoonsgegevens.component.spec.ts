@@ -244,8 +244,10 @@ describe(PersoonsgegevensComponent.name, () => {
     beforeEach(() => {
       policyService = TestBed.inject(PolicyService);
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: true }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: true,
+        }),
       );
       fixture = TestBed.createComponent(PersoonsgegevensComponent);
       fixture.componentRef.setInput("zaak", zaakWithWijzigenRechten);
@@ -260,8 +262,10 @@ describe(PersoonsgegevensComponent.name, () => {
 
     it("should return true for allowedToChangeInitiatorBedrijf when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
       );
       fixture.componentRef.setInput("zaak", {
         ...zaakWithWijzigenRechten,
@@ -304,8 +308,10 @@ describe(PersoonsgegevensComponent.name, () => {
 
     it("should return false for both when brpZoeken is false and kvkKoppelen is false", () => {
       testQueryClient.setQueryData(
-        policyService.readOverigeRechten().queryKey,
-        fromPartial<GeneratedType<"RestOverigeRechten">>({ brpZoeken: false }),
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
       );
       fixture.detectChanges();
 
@@ -328,9 +334,9 @@ describe(PersoonsgegevensComponent.name, () => {
 
       it("should hide the button when both allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon return false", () => {
         testQueryClient.setQueryData(
-          policyService.readOverigeRechten().queryKey,
-          fromPartial<GeneratedType<"RestOverigeRechten">>({
-            brpZoeken: false,
+          policyService.readBrpRechten().queryKey,
+          fromPartial<GeneratedType<"RestBrpRechten">>({
+            zoeken: false,
           }),
         );
         fixture.detectChanges();

@@ -27,6 +27,7 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
@@ -44,10 +45,11 @@ import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment
 import nl.info.zac.app.klant.model.klant.RestContactDetails
 import nl.info.zac.app.klant.model.klant.RestRoltype
 import nl.info.zac.app.klant.model.klant.toRestRoltypes
+import nl.info.zac.app.klant.model.personen.RestBrpGemeente
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersoon
-import nl.info.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
+import nl.info.zac.app.klant.model.personen.getValidPersonenQueries
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
@@ -193,7 +195,15 @@ class KlantRestService @Inject constructor(
 
     @GET
     @Path("personen/parameters")
-    fun personenParameters(): List<RestPersonenParameters> = VALID_PERSONEN_QUERIES
+    fun personenParameters(): List<RestPersonenParameters> = getValidPersonenQueries(
+        loggedInUserInstance.get().let { !it.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) }
+    )
+
+    @GET
+    @Path("personen/gemeenten")
+    fun listAuthorisedBrpGemeenten(): List<RestBrpGemeente> = loggedInUserInstance.get().brpGemeenten.map {
+        RestBrpGemeente(code = it.key, naam = it.value)
+    }
 
     @PUT
     @Path("personen")
@@ -201,12 +211,17 @@ class KlantRestService @Inject constructor(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
     ): RESTResultaat<RestPersoon> {
-        val overigeRechten = policyService.readOverigeRechten()
-        assertPolicy(overigeRechten.brpZoeken)
+        val brpRechten = policyService.readBrpRechten(restListPersonenParameters.gemeenteVanInschrijving)
+        assertPolicy(brpRechten.zoeken)
         return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid, loggedInUserInstance.get().id))
+                listOfNotNull(
+                    brpClientService.retrievePersoon(
+                        bsn, zaaktypeUuid, loggedInUserInstance.get().id,
+                        restListPersonenParameters.gemeenteVanInschrijving
+                    )
+                )
                     .map { it.toRestPersoon() }
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()

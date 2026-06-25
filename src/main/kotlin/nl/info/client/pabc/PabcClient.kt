@@ -25,9 +25,20 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 const val ENTITY_TYPE_ZAAKTYPE = "ZAAKTYPE"
 
 /**
+ * Constant for PABC entity type 'gemeente'.
+ * In a future version of the PABC this will be replaced by an enum in the PABC API.
+ */
+const val ENTITY_TYPE_GEMEENTE = "GEMEENTE"
+
+/**
  * Constant for the PABC application name 'zaakafhandelcomponent'.
  */
 const val APPLICATION_NAME_ZAC = "zaakafhandelcomponent"
+
+/**
+ * Constant for the PABC application role name 'brp_zoeken'.
+ */
+const val ROLE_NAME_BRP_ZOEKEN = "brp_zoeken"
 
 @RegisterRestClient(configKey = "PABC-API-Client")
 @RegisterClientHeaders(PabcClientHeadersFactory::class)

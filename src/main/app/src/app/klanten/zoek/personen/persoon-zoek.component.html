@@ -20,18 +20,36 @@
     </section>
     <section class="row">
       <zac-input class="col-6" [form]="formGroup" key="straat" />
-      <zac-input class="col-6" [form]="formGroup" key="gemeenteVanInschrijving">
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          [disabled]="formGroup.controls.gemeenteVanInschrijving.disabled"
-          title="{{ 'gemeenteMijn' | translate }}"
-          (click)="setGemeenteVanInschrijvingToCurrentGemeente()"
+      <!-- no gemeenten to choose from, type in the code yourself if required -->
+      @if (!brpGemeenten().length) {
+        <zac-input
+          class="col-6"
+          [form]="formGroup"
+          key="gemeenteVanInschrijving"
         >
-          <mat-icon>location_city</mat-icon>
-        </button>
-      </zac-input>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [disabled]="formGroup.controls.gemeenteVanInschrijving.disabled"
+            title="{{ 'gemeenteMijn' | translate }}"
+            (click)="setGemeenteVanInschrijvingToCurrentGemeente()"
+          >
+            <mat-icon>location_city</mat-icon>
+          </button>
+        </zac-input>
+      }
+      <!-- multiple gemeenten, pick one -->
+      @else {
+        <zac-select
+          class="col-6"
+          key="gemeenteVanInschrijving"
+          label="Gemeente"
+          optionDisplayValue="naam"
+          [form]="formGroup"
+          [options]="brpGemeenten()"
+        />
+      }
     </section>
   </fieldset>
   <fieldset>

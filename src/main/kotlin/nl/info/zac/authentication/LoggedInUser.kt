@@ -28,4 +28,6 @@ class LoggedInUser(
      */
     val overallRoles: Set<String> = emptySet(),
 
+    val brpGemeenten: Map<String, String> = emptyMap(),
+
 ) : User(id, firstName, lastName, displayName, email)
