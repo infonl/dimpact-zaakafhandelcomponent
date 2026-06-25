@@ -22,3 +22,14 @@ The system SHALL provide a POST endpoint that accepts a list of zaaktype descrip
 #### Scenario: Large list of zaaktype descriptions
 - **WHEN** a client calls `POST /rest/identity/behandelaar-groups` with a body containing up to 100 zaaktype descriptions
 - **THEN** the system SHALL return HTTP 200 with the correct intersection result
+
+### Requirement: IdentityRestService unit-tested for the multi-zaaktype endpoint
+The `IdentityRestService.listBehandelaarGroupsForZaaktypes` function SHALL be covered by unit tests that verify the HTTP response contract without relying on PABC or Keycloak.
+
+#### Scenario: Non-empty descriptions list with a common authorised group
+- **WHEN** `listBehandelaarGroupsForZaaktypes` is called with a non-empty `RestBehandelaarGroupsRequest`
+- **THEN** it SHALL return HTTP 200 with the groups provided by `IdentityService.listActiveGroupsForBehandelaarRoleAndZaaktypes`
+
+#### Scenario: Empty descriptions list
+- **WHEN** `listBehandelaarGroupsForZaaktypes` is called with a `RestBehandelaarGroupsRequest` containing an empty list
+- **THEN** it SHALL return HTTP 400 without calling `IdentityService`

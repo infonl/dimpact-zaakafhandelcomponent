@@ -9,10 +9,13 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import nl.info.zac.app.identity.model.RestBehandelaarGroupsRequest
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestLoggedInUser
 import nl.info.zac.app.identity.model.RestUser
@@ -51,6 +54,29 @@ class IdentityRestService @Inject constructor(
         identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(
             zaaktypeDescription
         ).toRestGroups()
+
+    /**
+     * Returns the intersection of groups that are authorised for the `behandelaar` application role
+     * across all given zaaktype descriptions.
+     * Returns an empty list when no group is authorised for all provided zaaktypes.
+     * Returns HTTP 400 when the list of zaaktype descriptions is empty.
+     * This endpoint requires that the PABC integration feature flag is enabled and cannot be used when this
+     * feature flag is disabled.
+     */
+    @POST
+    @Path("behandelaar-groups")
+    fun listBehandelaarGroupsForZaaktypes(
+        restBehandelaarGroupsRequest: RestBehandelaarGroupsRequest
+    ): Response =
+        if (restBehandelaarGroupsRequest.zaaktypeDescriptions.isEmpty()) {
+            Response.status(Response.Status.BAD_REQUEST).build()
+        } else {
+            Response.ok(
+                identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    restBehandelaarGroupsRequest.zaaktypeDescriptions
+                ).toRestGroups()
+            ).build()
+        }
 
     @GET
     @Path("groups/{groupId}/users")

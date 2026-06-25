@@ -55,6 +55,18 @@ class IdentityService @Inject constructor(
             zaaktypeDescription = zaaktypeDescription
         ).map { it.toGroup() }.filter { it.active }
 
+    /**
+     * Returns the intersection of active groups that are authorised for the application role 'behandelaar'
+     * across all given zaaktype descriptions, based on the PABC authorisation mappings.
+     * Returns an empty list when no group is authorised for all provided zaaktypes.
+     * This function requires that the PABC integration feature flag is enabled.
+     */
+    fun listActiveGroupsForBehandelaarRoleAndZaaktypes(zaaktypeDescriptions: List<String>): List<Group> =
+        zaaktypeDescriptions
+            .map { listActiveGroupsForBehandelaarRoleAndZaaktype(it).toSet() }
+            .reduce { authorisedGroups, groupsForZaaktype -> authorisedGroups intersect groupsForZaaktype }
+            .sortedBy { it.description }
+
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
         .map { it.toUser() }.firstOrNull()
