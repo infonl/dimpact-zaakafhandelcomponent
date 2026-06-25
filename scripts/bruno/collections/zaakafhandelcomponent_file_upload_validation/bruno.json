@@ -1,6 +1,0 @@
-{
-  "version": "1",
-  "name": "zaakafhandelcomponent_file_upload_validation",
-  "type": "collection",
-  "ignore": ["node_modules", ".git"]
-}
