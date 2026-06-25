@@ -175,6 +175,14 @@ describe(ZaakDocumentenComponent.name, () => {
       const toggle = await loader.getHarness(MatSlideToggleHarness);
       expect(await toggle.isChecked()).toBe(true);
     });
+
+    it("requests gekoppelde zaak documents on load because toggle defaults to true", () => {
+      expect(
+        informatieObjectenService.listEnkelvoudigInformatieobjecten,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      );
+    });
   });
 
   describe("loading state", () => {
