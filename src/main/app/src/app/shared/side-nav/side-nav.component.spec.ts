@@ -86,7 +86,7 @@ describe(SideNavComponent.name, () => {
 
       const anchor = fixture.nativeElement.querySelector("a[mat-list-item]");
       expect(anchor).toBeTruthy();
-      expect(anchor.getAttribute("ng-reflect-router-link")).toBe("/test-url");
+      expect(anchor.getAttribute("href")).toBe("/test-url");
     });
 
     it("should render button menu items", () => {

@@ -220,20 +220,29 @@ describe(ZaakCreateComponent.name, () => {
       loader: HarnessLoader;
       inputs: MatInputHarness[];
       inputIndex: number;
-      name: string;
       query: string;
     }) => {
-      const { loader, inputs, inputIndex, name, query } = options;
+      const { loader, inputs, inputIndex, query } = options;
 
       const input = inputs[inputIndex];
       await input.focus();
       await input.setValue(query);
 
-      const autocomplete = await loader.getHarness(
-        MatAutocompleteHarness.with({
-          selector: `[ng-reflect-name="${name}"]`,
-        }),
+      const autocompletes = await loader.getAllHarnesses(
+        MatAutocompleteHarness,
       );
+      let autocomplete: MatAutocompleteHarness | undefined;
+      for (const candidate of autocompletes) {
+        if (await candidate.isOpen()) {
+          autocomplete = candidate;
+          break;
+        }
+      }
+      if (!autocomplete) {
+        throw new Error(
+          "No open autocomplete panel found for the focused input",
+        );
+      }
       const autocompleteOptions = await autocomplete.getOptions();
 
       return { autocomplete, autocompleteOptions, input };
@@ -249,7 +258,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 0,
-          name: "zaaktype",
           query: "cmmn",
         });
         expect(autocompleteOptions.length).toEqual(2);
@@ -265,7 +273,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 4,
-          name: "groep",
           query: "cmmn",
         }));
         expect(autocompleteOptions.length).toEqual(1);
@@ -279,7 +286,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 5,
-          name: "behandelaar",
           query: "test",
         }));
         expect(autocompleteOptions.length).toEqual(1);
@@ -297,7 +303,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 0,
-          name: "zaaktype",
           query: "bpmn",
         });
         expect(autocompleteOptions.length).toEqual(1);
@@ -313,7 +318,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 4,
-          name: "groep",
           query: "bpmn",
         }));
         expect(autocompleteOptions.length).toEqual(1);
@@ -334,7 +338,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 0,
-          name: "zaaktype",
           query: "test",
         });
         expect(autocompleteOptions.length).toBeGreaterThan(0);
@@ -365,7 +368,6 @@ describe(ZaakCreateComponent.name, () => {
           loader,
           inputs,
           inputIndex: 0,
-          name: "zaaktype",
           query: "cmmn",
         });
         expect(autocompleteOptions.length).toEqual(2);
