@@ -132,21 +132,25 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   readonly documentMoveToCase =
     output<GeneratedType<"RestEnkelvoudigInformatieobject">>();
 
+  // Derived from the zaak so reactive consumers (websocket listeners, query key) only re-run
+  // when the case actually changes, not on every new zaak object reference from the parent.
+  private readonly zaakUuid = computed(() => this.zaak().uuid);
+
   protected readonly heeftGerelateerdeZaken = computed(
     () => (this.zaak().gerelateerdeZaken?.length ?? 0) > 0,
   );
 
   selectAll = false;
-  protected readonly gekoppeld = signal(true);
+  protected readonly toonGekoppeldeZaakDocumenten = signal(true);
 
   protected readonly documentColumns = computed(() =>
-    this.gekoppeld() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
+    this.toonGekoppeldeZaakDocumenten() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
   );
 
   private readonly documentenQuery = injectQuery(() =>
     this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
-      zaakUUID: this.zaak().uuid,
-      gekoppeldeZaakDocumenten: this.gekoppeld(),
+      zaakUUID: this.zaakUuid(),
+      gekoppeldeZaakDocumenten: this.toonGekoppeldeZaakDocumenten(),
     }),
   );
 
@@ -176,18 +180,18 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     });
 
     effect((onCleanup) => {
-      const zaak = this.zaak();
+      const zaakUuid = this.zaakUuid();
       const websocketListeners = [
         this.websocketService.addListener(
           Opcode.UPDATED,
           ObjectType.ZAAK_INFORMATIEOBJECTEN,
-          zaak.uuid,
+          zaakUuid,
           (event) => this.onZaakInformatieobjectenUpdated(event),
         ),
         this.websocketService.addListener(
           Opcode.UPDATED,
           ObjectType.ZAAK_BESLUITEN,
-          zaak.uuid,
+          zaakUuid,
           () => this.reloadDocumenten(),
         ),
       ];
@@ -207,7 +211,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   private reloadDocumenten() {
     return this.queryClient.invalidateQueries({
-      queryKey: [LIST_QUERY_KEY, this.zaak().uuid],
+      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
     });
   }
 

@@ -158,6 +158,23 @@ describe(ZaakDocumentenComponent.name, () => {
         expect.objectContaining({ zaakUUID: "zaak-uuid-2" }),
       );
     });
+
+    it("does NOT re-register listeners when a new zaak reference has the same uuid", async () => {
+      await createComponent();
+      jest.clearAllMocks();
+
+      // Parent pushes a fresh zaak object (e.g. after an Opcode.ANY refresh) with the same uuid.
+      const sameUuidZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "zaak-uuid-1",
+        gerelateerdeZaken: [],
+      });
+      fixture.componentRef.setInput("zaak", sameUuidZaak);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(websocketService.removeListeners).not.toHaveBeenCalled();
+      expect(websocketService.addListener).not.toHaveBeenCalled();
+    });
   });
 
   describe("heeftGerelateerdeZaken", () => {
@@ -229,7 +246,7 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("gekoppelde zaak documenten columns", () => {
     it("includes zaakIdentificatie and relatieType columns when the toggle is enabled", async () => {
       await createComponent();
-      component["gekoppeld"].set(true);
+      component["toonGekoppeldeZaakDocumenten"].set(true);
       fixture.detectChanges();
       expect(component["documentColumns"]()).toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).toContain("relatieType");
@@ -237,7 +254,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("excludes zaakIdentificatie and relatieType columns when the toggle is disabled", async () => {
       await createComponent();
-      component["gekoppeld"].set(false);
+      component["toonGekoppeldeZaakDocumenten"].set(false);
       fixture.detectChanges();
       expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).not.toContain("relatieType");
@@ -247,7 +264,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await createComponent();
       jest.clearAllMocks();
 
-      component["gekoppeld"].set(false);
+      component["toonGekoppeldeZaakDocumenten"].set(false);
       fixture.detectChanges();
       await fixture.whenStable();
 
