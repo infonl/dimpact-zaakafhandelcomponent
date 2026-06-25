@@ -321,8 +321,7 @@ class IdentityServiceTest : BehaviorSpec({
     Context("Listing groups for a zaaktype") {
         Given(
             """
-            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC
-            and PABC feature flag on
+            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC            
             """
         ) {
             val zaaktypeDescription = "fakeZaaktypeDescription"

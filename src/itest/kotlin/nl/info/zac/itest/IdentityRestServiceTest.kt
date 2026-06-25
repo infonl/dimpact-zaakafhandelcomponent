@@ -126,7 +126,7 @@ class IdentityServiceTest : BehaviorSpec({
         """
         ) {
             When(
-                "the PABC feature flag is on and the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
+                "the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url =
@@ -306,7 +306,7 @@ class IdentityServiceTest : BehaviorSpec({
         ) {
             When(
                 """
-                the PABC feature flag is on and the 'list behandelaar groups for multiple zaaktypes'
+                the 'list behandelaar groups for multiple zaaktypes'
                 endpoint is called for zaaktype 1 and zaaktype 2
                 """
             ) {

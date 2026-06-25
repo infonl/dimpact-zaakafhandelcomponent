@@ -46,7 +46,6 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -69,7 +68,6 @@ class ZaakServiceTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val indexingService = mockk<IndexingService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
-    val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -436,15 +434,6 @@ class ZaakServiceTest : BehaviorSpec({
                         opcode shouldBe Opcode.UPDATED
                         objectType shouldBe ScreenEventType.ZAKEN_VERDELEN
                         objectId.resource shouldBe screenEventResourceId
-                    }
-                }
-
-                And(
-                    """the zaaktype CMMN configuration is not requested, because zaaktype - group authorisation using domains
-                    will be implemented differently using the PABC and is not yet supported with the PABC feature flag on"""
-                ) {
-                    verify(exactly = 0) {
-                        zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(any())
                     }
                 }
             }
