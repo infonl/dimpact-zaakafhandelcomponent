@@ -250,10 +250,10 @@ podSecurityContext:
 # -- generic security context
 securityContext:
   allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
   capabilities:
     drop:
       - ALL
-  # readOnlyRootFilesystem: true  # requires writable volume mounts for WildFly; not enabled
 # runAsNonRoot: true
 # runAsUser: 1000
 
@@ -632,6 +632,7 @@ office_converter:
       type: RuntimeDefault
   securityContext:
     allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
     capabilities:
       drop:
         - ALL

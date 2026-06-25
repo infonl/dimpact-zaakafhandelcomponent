@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.267](https://img.shields.io/badge/Version-1.0.267-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
+![Version: 1.0.268](https://img.shields.io/badge/Version-1.0.268-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -222,6 +222,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | office_converter.resources.requests.memory | string | `"512Mi"` |  |
 | office_converter.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | office_converter.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| office_converter.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | office_converter.service.annotations | object | `{}` |  |
 | office_converter.service.port | int | `80` |  |
 | office_converter.service.type | string | `"ClusterIP"` |  |
@@ -280,7 +281,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}}` | generic security context |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
