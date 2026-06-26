@@ -173,7 +173,11 @@ jobs:
           docker cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
           cleanup
           trap - EXIT
-          database_file=$(ls -1 ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -1 || true)
+          # Locate the H2 database with `find` rather than a fixed-depth glob:
+          # because build.gradle.kts overrides data.directory, odc.mv.db sits
+          # directly in that directory (not in a version subdirectory), so a
+          # `*/odc.mv.db` glob would miss it.
+          database_file=$(find ~/.gradle/dependency-check-data -name odc.mv.db -type f 2>/dev/null | head -1 || true)
           if [ -z "${database_file}" ]; then
             echo "::error::The pulled image did not contain an NVD database."
             exit 1

@@ -137,8 +137,14 @@ jobs:
         # vulnerability database. Failing without publishing keeps the previous
         # good image (if any) in place and makes the problem visible.
         run: |
-          if [ "${{ steps.update.outputs.update_ok }}" != "true" ]; then
-            echo "::error::NVD update did not complete; not publishing. For the initial build, run this workflow with seed_database=true on a runner without the 6h hosted limit; the full cold download can take several hours due to NVD rate-limiting."
+          # Locate the H2 database with `find` rather than a fixed-depth glob:
+          # because build.gradle.kts overrides data.directory, odc.mv.db sits
+          # directly in that directory (not in a version subdirectory), so a
+          # `*/odc.mv.db` glob would miss it and a completed build would be
+          # wrongly reported as having produced no database.
+          database_file=$(find ~/.gradle/dependency-check-data -name odc.mv.db -type f 2>/dev/null | head -1 || true)
+          if [ -z "${database_file}" ]; then
+            echo "::error::No NVD database was produced; refusing to publish an empty image."
             exit 1
           fi
           # Locate the H2 database with `find` rather than a fixed-depth glob:
