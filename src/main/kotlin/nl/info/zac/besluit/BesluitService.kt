@@ -112,20 +112,21 @@ class BesluitService @Inject constructor(
     fun updateBesluit(
         besluit: Besluit,
         restBesluitChangeData: RestBesluitChangeData
-    ) {
+    ): Besluit {
         validateBesluitPublicationDates(
             besluit.besluittype.extractUuid(),
             restBesluitChangeData.publicationDate,
             restBesluitChangeData.lastResponseDate
         )
 
-        brcClientService.patchBesluit(
+        return brcClientService.patchBesluit(
             besluitUuid = restBesluitChangeData.besluitUuid,
             besluit = restBesluitChangeData.toBesluitPatch(),
             auditExplanation = restBesluitChangeData.reden
-        )
-        restBesluitChangeData.informatieobjecten?.let {
-            updateBesluitInformationObjects(besluit, it)
+        ).also {
+            restBesluitChangeData.informatieobjecten?.let { informatieobjectUuids ->
+                updateBesluitInformationObjects(besluit, informatieobjectUuids)
+            }
         }
     }
 

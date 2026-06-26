@@ -332,7 +332,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(besluit.zaak) } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
-            every { besluitService.updateBesluit(besluit, changeData) } just runs
+            every { besluitService.updateBesluit(besluit, changeData) } returns besluit
             every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
