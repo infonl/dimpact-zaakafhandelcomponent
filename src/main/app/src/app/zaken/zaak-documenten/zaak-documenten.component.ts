@@ -182,6 +182,15 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         []) as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
     });
 
+    let previousZaak: GeneratedType<"RestZaak"> | undefined;
+    effect(() => {
+      const zaak = this.zaak();
+      if (previousZaak && previousZaak !== zaak) {
+        this.reloadDocumenten();
+      }
+      previousZaak = zaak;
+    });
+
     effect((onCleanup) => {
       const zaakUuid = this.zaakUuid();
       const websocketListeners = [

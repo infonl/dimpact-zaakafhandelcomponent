@@ -184,6 +184,26 @@ describe(ZaakDocumentenComponent.name, () => {
       expect(websocketService.removeListeners).not.toHaveBeenCalled();
       expect(websocketService.addListener).not.toHaveBeenCalled();
     });
+
+    it("refetches the document list when a new zaak object arrives (e.g. a related case is linked)", async () => {
+      await createComponent();
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      // Parent pushes a refreshed zaak (same uuid) that now has an extra related case.
+      const zaakWithNewRelation = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "zaak-uuid-1",
+        gerelateerdeZaken: [fromPartial({})],
+      });
+      fixture.componentRef.setInput("zaak", zaakWithNewRelation);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+        }),
+      );
+    });
   });
 
   describe("heeftGerelateerdeZaken", () => {
