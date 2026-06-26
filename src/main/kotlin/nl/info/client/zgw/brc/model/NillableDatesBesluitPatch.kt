@@ -22,7 +22,7 @@ open class NillableDatesBesluitPatch(
     private val ingangsdatum: LocalDate?,
     @field:JsonbNillable
     private val vervaldatum: LocalDate?,
-    private val vervalreden: VervalredenEnum?,
+    private val vervalreden: VervalredenEnum,
     @field:JsonbNillable
     private val publicatiedatum: LocalDate?,
     @field:JsonbNillable
@@ -34,7 +34,7 @@ open class NillableDatesBesluitPatch(
 
     override fun getVervaldatum(): LocalDate? = vervaldatum
 
-    override fun getVervalreden(): VervalredenEnum? = vervalreden
+    override fun getVervalreden(): VervalredenEnum = vervalreden
 
     override fun getPublicatiedatum(): LocalDate? = publicatiedatum
 

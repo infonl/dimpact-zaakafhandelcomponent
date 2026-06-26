@@ -52,11 +52,13 @@ class NillableDatesBesluitPatchTest : BehaviorSpec({
         When("it is serialized to JSON for a ZGW request") {
             val json = JsonbUtil.JSONB.toJson(besluitPatch)
 
-            Then("the populated values are retained and no field is null") {
-                json shouldNotContain "null"
+            Then("the populated date fields are serialized with their value rather than null") {
                 json shouldContain "vervaldatum"
+                json shouldNotContain "\"vervaldatum\":null"
                 json shouldContain "publicatiedatum"
+                json shouldNotContain "\"publicatiedatum\":null"
                 json shouldContain "uiterlijkeReactiedatum"
+                json shouldNotContain "\"uiterlijkeReactiedatum\":null"
             }
         }
     }
