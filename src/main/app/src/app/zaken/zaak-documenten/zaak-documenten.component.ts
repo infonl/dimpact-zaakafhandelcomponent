@@ -176,7 +176,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     // Use `?? []` so the table clears while transitioning to an uncached key (zaak/toggle change)
     // instead of briefly showing the previous case's documents. An in-place refetch
     // (websocket invalidation) keeps data() populated for the same key, so this never clears
-    // mid-refetch.
+    // mid-refetch
     effect(() => {
       this.enkelvoudigInformatieObjecten.data = (this.documentenQuery.data() ??
         []) as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
