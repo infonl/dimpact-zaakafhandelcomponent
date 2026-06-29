@@ -25,10 +25,10 @@ class PabcReadinessHealthCheck @Inject constructor(
     }
 
     /**
-     * If the PABC feature flag is enabled, attempt to call the PABC get application roles endpoint,
+     * Calls the PABC get application roles endpoint,
      * with a (most likely non-existing) fake functional role name,
      * to ensure that the PABC is available and that the ZAC - PABC integration is properly configured.
-     * If the call succeeds or if the PABC feature flag is disabled, return a HealthCheckResponse with status `up`.
+     * If the call succeeds, return a HealthCheckResponse with status `up`.
      * If the call throws an exception, return a HealthCheckResponse with status `down`,
      * and include the error message from the exception.
      */

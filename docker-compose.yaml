@@ -186,7 +186,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
@@ -218,7 +218,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-celery:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
     platform: linux/amd64
     environment: *objects-env
     command: sh -c "cd /app/src && celery -A objects worker -l info"
@@ -253,7 +253,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-import:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
     # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *objects-env
@@ -283,7 +283,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.17.1-static@sha256:c29f8ee8dbe66608a1c04e9be84b04efc46877625e6b0877e559954565209efc
+    image: openpolicyagent/opa:1.18.0-static@sha256:28ae242f7d30d8e3a755cd66cfebb24869b5aab4a666ba0c7ec1b6d2e6a564a2
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -387,7 +387,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.17.1@sha256:dc009236137bb225a1ef09293bb32f2ee1861cc428870d297bf71412d50221c3
+    image: openpolicyagent/opa:1.18.0@sha256:8cd62511addffce53431454e0fb74559bea3cc5b3ca36dfca83ecbb45c00b783
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies

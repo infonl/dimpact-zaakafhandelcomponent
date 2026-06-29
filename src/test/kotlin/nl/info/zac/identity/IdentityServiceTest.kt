@@ -321,8 +321,7 @@ class IdentityServiceTest : BehaviorSpec({
     Context("Listing groups for a zaaktype") {
         Given(
             """
-            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC
-            and PABC feature flag on
+            Authorised groups for the 'behandelaar' application role and a zaaktype in PABC            
             """
         ) {
             val zaaktypeDescription = "fakeZaaktypeDescription"
@@ -354,6 +353,112 @@ class IdentityServiceTest : BehaviorSpec({
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
                     groups.none { it.name == "fakeInactiveGroupId" } shouldBe true
+                }
+            }
+        }
+    }
+
+    Context("Listing groups for multiple zaaktypes") {
+        Given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing one common group") {
+            val zaaktypeDescription1 = "fakeZaaktypeDescription1"
+            val zaaktypeDescription2 = "fakeZaaktypeDescription2"
+            val commonGroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeCommonGroupId",
+                description = "fakeCommonGroupDescription"
+            )
+            val onlyZaaktype1GroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeOnlyZaaktype1GroupId",
+                description = "fakeOnlyZaaktype1GroupDescription"
+            )
+            val onlyZaaktype2GroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeOnlyZaaktype2GroupId",
+                description = "fakeOnlyZaaktype2GroupDescription"
+            )
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktypeDescription1
+                )
+            } returns listOf(commonGroupRepresentation, onlyZaaktype1GroupRepresentation)
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktypeDescription2
+                )
+            } returns listOf(commonGroupRepresentation, onlyZaaktype2GroupRepresentation)
+
+            When("groups for both zaaktypes are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    zaaktypeDescriptions = listOf(zaaktypeDescription1, zaaktypeDescription2)
+                )
+
+                Then("only the group authorised for both zaaktypes is returned") {
+                    groups.size shouldBe 1
+                    groups.first().name shouldBe "fakeCommonGroupId"
+                }
+            }
+        }
+
+        Given("Authorised groups for the 'behandelaar' role with a single zaaktype description") {
+            val zaaktypeDescription = "fakeZaaktypeDescription"
+            val pabcGroupRepresentation = createPabcGroupRepresentation(
+                name = "fakeGroupId",
+                description = "fakeGroupDescription"
+            )
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktypeDescription
+                )
+            } returns listOf(pabcGroupRepresentation)
+
+            When("groups for the single zaaktype are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    zaaktypeDescriptions = listOf(zaaktypeDescription)
+                )
+
+                Then("the groups for that zaaktype are returned") {
+                    groups.size shouldBe 1
+                    groups.first().name shouldBe "fakeGroupId"
+                }
+            }
+        }
+
+        Given("An empty zaaktype descriptions list") {
+            When("groups for an empty list are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    zaaktypeDescriptions = emptyList()
+                )
+
+                Then("an empty list is returned without calling PABC") {
+                    groups shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing no common group") {
+            val zaaktypeDescription1 = "fakeZaaktypeDescription1"
+            val zaaktypeDescription2 = "fakeZaaktypeDescription2"
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktypeDescription1
+                )
+            } returns listOf(createPabcGroupRepresentation(name = "fakeGroupId1", description = "fakeGroupDescription1"))
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktypeDescription2
+                )
+            } returns listOf(createPabcGroupRepresentation(name = "fakeGroupId2", description = "fakeGroupDescription2"))
+
+            When("groups for both zaaktypes are listed") {
+                val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
+                    zaaktypeDescriptions = listOf(zaaktypeDescription1, zaaktypeDescription2)
+                )
+
+                Then("an empty list is returned") {
+                    groups shouldBe emptyList()
                 }
             }
         }

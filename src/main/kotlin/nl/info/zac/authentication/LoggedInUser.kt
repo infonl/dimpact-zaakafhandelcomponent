@@ -18,7 +18,6 @@ class LoggedInUser(
 
     /**
      * Application roles per zaaktype that the user is authorized for.
-     * When the PABC feature is enabled, this maps zaaktypes to sets of application roles (PABC).
      */
     val applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
 

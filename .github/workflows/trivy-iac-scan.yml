@@ -69,10 +69,9 @@ jobs:
           version: v0.71.2 # trivy version updated by renovate
           format: 'sarif'
           output: 'trivy-config-results.sarif'
-          # limit the severities even when using Sarif
-          # or else all misconfigurations will be reported
-          limit-severities-for-sarif: true
-          severity: 'CRITICAL,HIGH'
+          # report misconfigurations of all severities to the GitHub Security tab
+          limit-severities-for-sarif: false
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
 
       - name: Upload Trivy IaC Scan Results to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
