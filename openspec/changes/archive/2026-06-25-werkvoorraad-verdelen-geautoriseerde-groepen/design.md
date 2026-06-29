@@ -25,9 +25,9 @@ Coordinators distribute (verdelen) cases and tasks from the work queue using `Za
 
 ### Intersection logic in IdentityService
 
-**Decision**: Fetch authorised groups per zaaktype description sequentially and compute the intersection in Kotlin using `Set.intersect`.
+**Decision**: Fetch authorised groups per zaaktype description sequentially and compute the intersection in Kotlin using `Set.intersect` via a `fold` over the zaaktype descriptions list.
 
-**Rationale**: PABC is an internal integration service; N small sequential calls are acceptable for the typical selection size (handful of zaaktypes). No batch API exists on the PABC side. Caching is not added now — PABC already has its own caching; adding a second layer is premature.
+**Rationale**: PABC is an internal integration service; N small sequential calls are acceptable for the typical selection size (handful of zaaktypes). No batch API exists on the PABC side. The `fold` exits early (via `return@fold`) when the running intersection becomes empty, avoiding unnecessary PABC calls. Caching is not added now — PABC already has its own caching; adding a second layer is premature.
 
 ## Risks / Trade-offs
 
