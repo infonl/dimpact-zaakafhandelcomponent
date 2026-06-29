@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, inject, Inject, OnDestroy } from "@angular/core";
+import { Component, effect, inject, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -21,6 +21,7 @@ import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -78,6 +79,24 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     private readonly formBuilder: FormBuilder,
   ) {
     this.form.controls.medewerker.disable();
+
+    effect(() => {
+      const groups = this.groups.data();
+      if (groups === undefined) return;
+
+      const groepControl = this.form.controls.groep;
+      if (groups.length === 0) {
+        groepControl.setErrors(
+          FormHelper.CustomErrorMessage(
+            "msg.error.group.no.authorised.group.for.zaken",
+          ),
+        );
+        // Simulates a user click to show the error instantly when opening dialog
+        groepControl.markAsTouched();
+      } else {
+        groepControl.updateValueAndValidity();
+      }
+    });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntil(this.destroy$))
