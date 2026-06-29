@@ -814,7 +814,7 @@ tasks {
         group = "verification"
         dependsOn("npmInstall")
 
-        npmCommand.set(listOf("run", "test:report"))
+        npmCommand.set(listOf("run", "test:ci"))
         outputs.dir("$appPath/coverage")
     }
 
