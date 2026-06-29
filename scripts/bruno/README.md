@@ -10,7 +10,7 @@ Run:
 ./create-bruno-collection.sh
 ```
 
-This will create the Bruno endpoint stubs (`.bru` files) for the ZAC backend API collection in the `zaakafhandelcomponent_backend_api/rest` folder, and will automatically open the collection in the Bruno application.
+This will (re)generate the Bruno endpoint stubs (`.bru` files) under the most recently generated collection in `scripts/bruno/collections` (typically `zaakafhandelcomponent_backend_api/rest`), and will automatically open the collection in the Bruno application.
 
 Be careful never to commit any secret variables in the environment files, except for the 'ZAC localhost' environment.
 
