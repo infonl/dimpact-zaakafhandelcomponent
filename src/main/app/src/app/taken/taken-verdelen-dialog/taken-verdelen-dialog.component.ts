@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,8 +18,9 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import { injectMutation, injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -70,7 +71,11 @@ export class TakenVerdelenDialogComponent {
     ]),
   });
 
-  protected groups = this.identityService.listGroups();
+  protected readonly groups = injectQuery(() =>
+    this.identityService.listBehandelaarGroupsForZaaktypes(
+      this.data.taken.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
+    ),
+  );
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor() {
@@ -80,6 +85,24 @@ export class TakenVerdelenDialogComponent {
     }
 
     this.form.controls.medewerker.disable();
+
+    effect(() => {
+      const groups = this.groups.data();
+      if (groups === undefined) return;
+
+      const groepControl = this.form.controls.groep;
+      if (groups.length === 0) {
+        groepControl.setErrors(
+          FormHelper.CustomErrorMessage(
+            "msg.error.group.no.authorised.group.for.taken",
+          ),
+        );
+        // Simulates a user click to show the error instantly when opening dialog
+        groepControl.markAsTouched();
+      } else {
+        groepControl.updateValueAndValidity();
+      }
+    });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())
