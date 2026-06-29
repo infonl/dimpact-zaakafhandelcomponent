@@ -36,7 +36,7 @@
 @xl: 1200px;
 
 :root {
-  --mdc-filled-text-field-disabled-container-color: #f5f5f5;
+  --mat-form-field-filled-disabled-container-color: #f5f5f5;
 
   --mat-tab-header-divider-color: rgba(0, 0, 0, 0.12);
   --mat-tab-header-divider-height: 1px;
@@ -44,15 +44,17 @@
   --mat-toolbar-container-background-color: #ffffff;
   --mat-toolbar-container-text-color: @primary-background-color;
 
-  --mdc-dialog-subhead-color: @primary-background-color;
+  --mat-dialog-subhead-color: @primary-background-color;
   --mat-dialog-headline-padding: 0 24px;
   --mat-dialog-actions-padding: 20px 24px;
 
-  --mdc-filled-text-field-container-color-hover: #ececec;
-  --mdc-filled-text-field-container-color-active: #e4e4e4;
+  // App-owned tokens (not Angular Material): background of the date-field overlay
+  // on hover/active, kept in sync with the filled field container color.
+  --zac-filled-text-field-container-color-hover: #ececec;
+  --zac-filled-text-field-container-color-active: #e4e4e4;
 
   .mat-mdc-standard-chip {
-    --mdc-chip-container-shape-radius: 4px 4px 4px 4px;
+    --mat-chip-container-shape-radius: 4px 4px 4px 4px;
   }
 
   .mat-action-row {
