@@ -23,6 +23,7 @@ module.exports = {
     ["jest-junit", { outputDirectory: "reports", outputName: "report.xml" }],
     "summary",
   ],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/scripts/"],
   collectCoverageFrom: ["src/**/*.{js,ts}", "!src/**/*.spec.{js,ts}"],
   coverageProvider: "v8",
   cacheDirectory: "<rootDir>/.jest-cache",
