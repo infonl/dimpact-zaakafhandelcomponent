@@ -30,6 +30,7 @@ import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.PABC_ADMIN
@@ -39,6 +40,7 @@ import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
 val TEST_GROUPS_ACTIVE =
@@ -124,7 +126,7 @@ class IdentityServiceTest : BehaviorSpec({
         """
         ) {
             When(
-                "the PABC feature flag is on and the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
+                "the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url =
@@ -289,6 +291,65 @@ class IdentityServiceTest : BehaviorSpec({
                             }
                         ]
                     """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Getting authorised behandelaar groups for multiple zaaktypes") {
+        Given(
+            """
+            Authorised groups for the application role 'behandelaar' for zaaktype 1 and zaaktype 2,
+            with only 'beheerders-elk-domein' (beheerder_elk_domein functional role) authorised for both,
+            and a logged-in beheerder
+        """
+        ) {
+            When(
+                """
+                the 'list behandelaar groups for multiple zaaktypes'
+                endpoint is called for zaaktype 1 and zaaktype 2
+                """
+            ) {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/identity/behandelaar-groups",
+                    requestBodyAsString = """
+                        {
+                            "zaaktypeDescriptions": [
+                                "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                                "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
+                            ]
+                        }
+                    """.trimIndent(),
+                    testUser = BEHEERDER_1
+                )
+                Then(
+                    "only the group authorised as behandelaar for both zaaktypes (beheerders-elk-domein) is returned"
+                ) {
+                    response.code shouldBe HTTP_OK
+                    response.bodyAsString shouldEqualSpecifiedJson """
+                        [
+                            {
+                                "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
+                                "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
+                                "active": true
+                            }
+                        ]
+                    """.trimIndent()
+                }
+            }
+        }
+
+        Given("An empty zaaktype descriptions list and a logged-in beheerder") {
+            When(
+                "the 'list behandelaar groups for multiple zaaktypes' endpoint is called with an empty list"
+            ) {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/identity/behandelaar-groups",
+                    requestBodyAsString = """{"zaaktypeDescriptions": []}""",
+                    testUser = BEHEERDER_1
+                )
+                Then("HTTP 400 is returned") {
+                    response.code shouldBe HTTP_BAD_REQUEST
                 }
             }
         }
