@@ -58,7 +58,7 @@
     "pk": 1,
     "fields": {
       "uuid": "bea734f3-456b-4049-87b1-58d895daab8b",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -68,7 +68,7 @@
     "pk": 2,
     "fields": {
       "uuid": "d4643987-7f5f-4d41-8083-046eb8fbad61",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -78,7 +78,7 @@
     "pk": 3,
     "fields": {
       "uuid": "59765348-ee72-4d30-b21f-dcc2ba2dffac",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -88,7 +88,7 @@
     "pk": 4,
     "fields": {
       "uuid": "47454f68-1884-438c-8f69-398f437d59c3",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -98,7 +98,7 @@
     "pk": 8,
     "fields": {
       "uuid": "6cb099c1-acb2-4ff1-989e-c752e6d44540",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -108,7 +108,7 @@
     "pk": 9,
     "fields": {
       "uuid": "601b20a6-bd09-41ff-b4ea-25c38ed5c424",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -118,7 +118,7 @@
     "pk": 10,
     "fields": {
       "uuid": "d89bcbcb-51bb-4bc4-9523-2891ed9994d7",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -128,7 +128,7 @@
     "pk": 11,
     "fields": {
       "uuid": "8e155233-f06e-49ea-97fb-3c9eef31dc35",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -138,7 +138,7 @@
     "pk": 12,
     "fields": {
       "uuid": "f710ad49-8c90-4b4d-bf94-83555212dd5c",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -148,7 +148,7 @@
     "pk": 15,
     "fields": {
       "uuid": "4e04fedb-e8a5-47a2-beea-4963eafbf4b9",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -158,7 +158,7 @@
     "pk": 16,
     "fields": {
       "uuid": "1017c4c4-24c1-47b4-8f61-3b45a56f3054",
-      "object_type": 1,
+      "object_type_id": 1,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -168,7 +168,7 @@
     "pk": 27,
     "fields": {
       "uuid": "6ce48e78-dc54-4164-8670-4b139d98f761",
-      "object_type": 2,
+      "object_type_id": 2,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -178,7 +178,7 @@
     "pk": 28,
     "fields": {
       "uuid": "69feca90-6c3d-4628-ace8-19e4b0ae4065",
-      "object_type": 2,
+      "object_type_id": 2,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -188,7 +188,7 @@
     "pk": 29,
     "fields": {
       "uuid": "2ffa8464-00be-473d-be78-c2d4a6283dea",
-      "object_type": 2,
+      "object_type_id": 2,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -198,7 +198,7 @@
     "pk": 30,
     "fields": {
       "uuid": "f86dc47e-9613-4eb3-aca7-f727cba3bea0",
-      "object_type": 2,
+      "object_type_id": 2,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -208,7 +208,7 @@
     "pk": 31,
     "fields": {
       "uuid": "57001413-c035-434e-9d46-090ba24fca8e",
-      "object_type": 2,
+      "object_type_id": 2,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -218,7 +218,7 @@
     "pk": 32,
     "fields": {
       "uuid": "9dbed186-89ca-48d7-8c6c-f9995ceb8e27",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -228,7 +228,7 @@
     "pk": 33,
     "fields": {
       "uuid": "f1f6f670-fda8-4e98-81a6-6528937f10ee",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -238,7 +238,7 @@
     "pk": 34,
     "fields": {
       "uuid": "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -248,7 +248,7 @@
     "pk": 35,
     "fields": {
       "uuid": "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -258,7 +258,7 @@
     "pk": 36,
     "fields": {
       "uuid": "225da1ce-f528-4a2c-b87d-c8c58fd2aca1",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -268,7 +268,7 @@
     "pk": 37,
     "fields": {
       "uuid": "7d23e7ad-4b9e-4cbf-a5fb-75aa4100fa4e",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -278,7 +278,7 @@
     "pk": 38,
     "fields": {
       "uuid": "5658d286-9a84-4cde-b9af-6771bd599a06",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-03-24T12:16:12.567Z",
       "modified_on": "2026-03-24T12:16:12.575Z"
     }
@@ -288,7 +288,7 @@
     "pk": 40,
     "fields": {
       "uuid": "b2f6c1d4-a5e7-4890-bcde-f01234567890",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-04-16T12:00:00.000Z",
       "modified_on": "2026-04-16T12:00:00.000Z"
     }
@@ -298,7 +298,7 @@
     "pk": 41,
     "fields": {
       "uuid": "c3d7e2f5-b6f8-5901-cdef-012345678901",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-04-16T12:00:00.000Z",
       "modified_on": "2026-04-16T12:00:00.000Z"
     }
@@ -308,7 +308,7 @@
     "pk": 42,
     "fields": {
       "uuid": "9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2025-08-29T12:16:12.567Z",
       "modified_on": "2025-08-29T12:16:12.575Z"
     }
@@ -318,7 +318,7 @@
     "pk": 44,
     "fields": {
       "uuid": "ce567a95-8b3b-4a14-8cba-122e450e1c57",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-05-18T12:00:00.000Z",
       "modified_on": "2026-05-18T12:00:00.000Z"
     }
@@ -329,6 +329,7 @@
     "fields": {
       "index": 1,
       "object": 4,
+      "_object_type_id": 1,
       "version": 1,
       "data": {
         "diameter": 10,
@@ -349,6 +350,7 @@
     "fields": {
       "index": 2,
       "object": 4,
+      "_object_type_id": 1,
       "version": 1,
       "data": {
         "diameter": 16,
@@ -369,6 +371,7 @@
     "fields": {
       "index": 3,
       "object": 4,
+      "_object_type_id": 1,
       "version": 1,
       "data": {
         "diameter": 19,
@@ -389,6 +392,7 @@
     "fields": {
       "index": 4,
       "object": 4,
+      "_object_type_id": 1,
       "version": 1,
       "data": {
         "diameter": 56,
@@ -409,6 +413,7 @@
     "fields": {
       "index": 5,
       "object": 4,
+      "_object_type_id": 1,
       "version": 1,
       "data": {
         "diameter": 26,
@@ -429,6 +434,7 @@
     "fields": {
       "index": 1,
       "object": 1,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "type": "Standaard",
@@ -486,6 +492,7 @@
     "fields": {
       "index": 1,
       "object": 2,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "boombeeld": "Boombeeld regulier (HB)",
@@ -514,6 +521,7 @@
     "fields": {
       "index": 1,
       "object": 3,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "kiemjaar": 85674463,
@@ -563,6 +571,7 @@
     "fields": {
       "index": 1,
       "object": 8,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "kiemjaar": -79718450,
@@ -608,6 +617,7 @@
     "fields": {
       "index": 1,
       "object": 9,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "type": "Familiegraf",
@@ -659,6 +669,7 @@
     "fields": {
       "index": 1,
       "object": 10,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "type": "Laagspanningskabel",
@@ -715,6 +726,7 @@
     "fields": {
       "index": 1,
       "object": 11,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "type": "Staafmathek",
@@ -768,6 +780,7 @@
     "fields": {
       "index": 1,
       "object": 12,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "kiemjaar": -6323347,
@@ -813,6 +826,7 @@
     "fields": {
       "index": 1,
       "object": 15,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "boombeeld": "Boombeeld regulier (HB)",
@@ -841,6 +855,7 @@
     "fields": {
       "index": 1,
       "object": 16,
+      "_object_type_id": 1,
       "version": 2,
       "data": {
         "kiemjaar": 85674463,
@@ -890,6 +905,7 @@
     "fields": {
       "index": 1,
       "object": 27,
+      "_object_type_id": 2,
       "version": 1,
       "data": {
         "id_nummer": 7
@@ -909,6 +925,7 @@
     "fields": {
       "index": 1,
       "object": 28,
+      "_object_type_id": 2,
       "version": 1,
       "data": {
         "id_nummer": 4
@@ -928,6 +945,7 @@
     "fields": {
       "index": 1,
       "object": 29,
+      "_object_type_id": 2,
       "version": 1,
       "data": {
         "id_nummer": 8
@@ -947,6 +965,7 @@
     "fields": {
       "index": 1,
       "object": 30,
+      "_object_type_id": 2,
       "version": 1,
       "data": {
         "id_nummer": 4
@@ -966,6 +985,7 @@
     "fields": {
       "index": 1,
       "object": 31,
+      "_object_type_id": 2,
       "version": 1,
       "data": {
         "id_nummer": 3
@@ -985,6 +1005,7 @@
     "fields": {
       "index": 1,
       "object": 32,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1009,7 +1030,10 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [52.08968250760225, 5.114358701512936]
+            "coordinates": [
+              52.08968250760225,
+              5.114358701512936
+            ]
           }
         },
         "betrokkenen": [
@@ -1066,6 +1090,7 @@
     "fields": {
       "index": 1,
       "object": 33,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1106,6 +1131,7 @@
     "fields": {
       "index": 1,
       "object": 34,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1160,6 +1186,7 @@
     "fields": {
       "index": 1,
       "object": 35,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1205,6 +1232,7 @@
     "fields": {
       "index": 1,
       "object": 36,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1251,6 +1279,7 @@
     "fields": {
       "index": 1,
       "object": 37,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1275,7 +1304,10 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [52.08968250760225, 5.114358701512936]
+            "coordinates": [
+              52.08968250760225,
+              5.114358701512936
+            ]
           }
         },
         "betrokkenen": [
@@ -1323,6 +1355,7 @@
     "fields": {
       "index": 1,
       "object": 38,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1370,6 +1403,7 @@
     "fields": {
       "index": 1,
       "object": 40,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1395,6 +1429,7 @@
     "fields": {
       "index": 1,
       "object": 41,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1420,6 +1455,7 @@
     "fields": {
       "index": 1,
       "object": 42,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1456,6 +1492,7 @@
     "fields": {
       "index": 1,
       "object": 44,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1559,7 +1596,7 @@
     "pk": 1,
     "fields": {
       "token_auth": 1,
-      "object_type": 2,
+      "object_type_id": 2,
       "mode": "read_and_write"
     }
   },
@@ -1568,7 +1605,7 @@
     "pk": 2,
     "fields": {
       "token_auth": 1,
-      "object_type": 1,
+      "object_type_id": 1,
       "mode": "read_and_write"
     }
   },
@@ -1577,7 +1614,7 @@
     "pk": 3,
     "fields": {
       "token_auth": 1,
-      "object_type": 4,
+      "object_type_id": 4,
       "mode": "read_and_write"
     }
   },
@@ -1586,7 +1623,7 @@
     "pk": 4,
     "fields": {
       "token_auth": 2,
-      "object_type": 4,
+      "object_type_id": 4,
       "mode": "read_and_write"
     }
   },
@@ -1595,7 +1632,7 @@
     "pk": 5,
     "fields": {
       "token_auth": 3,
-      "object_type": 4,
+      "object_type_id": 4,
       "mode": "read_and_write"
     }
   },
@@ -1604,7 +1641,7 @@
     "pk": 6,
     "fields": {
       "token_auth": 2,
-      "object_type": 5,
+      "object_type_id": 5,
       "mode": "read_and_write"
     }
   },
@@ -1613,7 +1650,7 @@
     "pk": 7,
     "fields": {
       "token_auth": 2,
-      "object_type": 6,
+      "object_type_id": 6,
       "mode": "read_and_write"
     }
   },
@@ -1622,7 +1659,7 @@
     "pk": 8,
     "fields": {
       "token_auth": 2,
-      "object_type": 1,
+      "object_type_id": 1,
       "mode": "read_and_write"
     }
   },
@@ -1677,7 +1714,7 @@
     "pk": 45,
     "fields": {
       "uuid": "b1c2d3e4-f5a6-7890-bcde-f12345678901",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-05-22T09:00:00.000Z",
       "modified_on": "2026-05-22T09:00:00.000Z"
     }
@@ -1688,6 +1725,7 @@
     "fields": {
       "index": 1,
       "object": 45,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
@@ -1741,7 +1779,7 @@
     "pk": 45,
     "fields": {
       "uuid": "b1c2d3e4-f5a6-7890-bcde-f12345678901",
-      "object_type": 4,
+      "object_type_id": 4,
       "created_on": "2026-05-22T09:00:00.000Z",
       "modified_on": "2026-05-22T09:00:00.000Z"
     }
@@ -1752,6 +1790,7 @@
     "fields": {
       "index": 1,
       "object": 45,
+      "_object_type_id": 4,
       "version": 1,
       "data": {
         "bron": {
