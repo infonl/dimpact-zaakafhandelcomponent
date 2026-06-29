@@ -61,15 +61,20 @@ class IdentityService @Inject constructor(
      * Returns an empty list when no group is authorised for all provided zaaktypes.
      * This function requires that the PABC integration feature flag is enabled.
      */
-    fun listActiveGroupsForBehandelaarRoleAndZaaktypes(zaaktypeDescriptions: List<String>): List<Group> =
-        if (zaaktypeDescriptions.isEmpty()) {
-            emptyList()
-        } else {
-            zaaktypeDescriptions
-                .map { listActiveGroupsForBehandelaarRoleAndZaaktype(it).toSet() }
-                .reduce { authorisedGroups, groupsForZaaktype -> authorisedGroups intersect groupsForZaaktype }
-                .sortedBy { it.description }
+    fun listActiveGroupsForBehandelaarRoleAndZaaktypes(zaaktypeDescriptions: List<String>): List<Group> {
+        if (zaaktypeDescriptions.isEmpty()) return emptyList()
+        val groupsForFirstZaaktype = listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescriptions.first())
+        // only intersect on group names because the group name is the only unique identifier of a group
+        val commonGroupNames = zaaktypeDescriptions.drop(1).fold(groupsForFirstZaaktype.map { it.name }.toSet()) {
+                commonNames, zaaktypeDescription ->
+            if (commonNames.isEmpty()) return@fold commonNames
+            commonNames intersect listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription).map { it.name }.toSet()
         }
+        return groupsForFirstZaaktype
+            .filter { it.name in commonGroupNames }
+            .distinctBy { it.name }
+            .sortedBy { it.description }
+    }
 
     fun readUser(userId: String): User = keycloakZacRealmResource.users()
         .searchByUsername(userId, true)
