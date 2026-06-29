@@ -78,7 +78,6 @@ services:
 
   openzaak-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54322:5432"
@@ -101,7 +100,6 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
     image: openzaak/open-zaak:1.27.2@sha256:7f4826298b1bb28aca3f1f6d18fbad52238267eafc5253c68fb067f3afe8908e
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -150,7 +148,6 @@ services:
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
     image: openzaak/open-zaak:1.27.2@sha256:7f4826298b1bb28aca3f1f6d18fbad52238267eafc5253c68fb067f3afe8908e
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -187,7 +184,6 @@ services:
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
     image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -237,7 +233,6 @@ services:
 
   objecten-api-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54323:5432"
@@ -254,7 +249,6 @@ services:
 
   objecten-api-import:
     image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -326,7 +320,6 @@ services:
 
   openklant.local:
     image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -496,7 +489,6 @@ services:
 
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54327:5432"
@@ -517,7 +509,6 @@ services:
 
   opennotificaties:
     image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -561,7 +552,6 @@ services:
 
   opennotificaties-init:
     image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -580,7 +570,6 @@ services:
 
   opennotificaties-celery:
     image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -597,7 +586,6 @@ services:
 
   openarchiefbeheer-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
@@ -617,14 +605,9 @@ services:
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
-      # We should be able to switch off 2FA with:
-      # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
-      # - DISABLE_2FA=true
-      # However, the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
@@ -664,7 +647,6 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -679,7 +661,6 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -695,7 +676,6 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -733,7 +713,6 @@ services:
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.0@sha256:c40905205d997936538bbe1efdf0c582ec98a8414df9ceb05b0c1b0d1121a39a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -746,7 +725,6 @@ services:
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.0@sha256:108225d8ba671ace5be159d24ecfdfe06b073494227943a123955418c5b124a0
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -953,12 +931,11 @@ services:
 
   openformulieren-init:
     image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
-    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
-    # results in a non-working Open Formulieren instance.
-    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
-    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
     platform: linux/amd64
     environment: &openformulieren-env
       - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
@@ -1076,12 +1053,11 @@ services:
 
   openformulieren-web:
     image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
-    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
-    # results in a non-working Open Formulieren instance.
-    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
-    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
     platform: linux/amd64
     environment: *openformulieren-env
     ports:
@@ -1104,12 +1080,11 @@ services:
 
   openformulieren-celery:
     image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
-    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
-    # results in a non-working Open Formulieren instance.
-    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
-    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
     platform: linux/amd64
     environment: *openformulieren-env
     command: /celery_worker.sh
@@ -1133,12 +1108,11 @@ services:
 
   openformulieren-celery-beat:
     image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
-    # for now we set the platform to AMD because using the current Open Formulieren INFO.nl custom-built ARM Docker Image
-    # results in a non-working Open Formulieren instance.
-    # using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see this error in the browser
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
-    # You will see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
     platform: linux/amd64
     environment: *openformulieren-env
     command: /celery_beat.sh
