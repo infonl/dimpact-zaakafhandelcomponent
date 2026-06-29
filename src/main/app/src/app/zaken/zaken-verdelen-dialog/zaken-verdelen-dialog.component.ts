@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, Inject, OnDestroy } from "@angular/core";
+import { Component, inject, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -17,6 +17,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
@@ -60,7 +61,14 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     ]),
   });
 
-  protected groups = this.identityService.listGroups();
+  private readonly identityService = inject(IdentityService);
+
+  protected readonly groups = injectQuery(() =>
+    this.identityService.listBehandelaarGroupsForZaaktypes(
+      this.data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
+    ),
+  );
+
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor(
@@ -68,7 +76,6 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA) public readonly data: ZaakZoekObject[],
     private readonly zakenService: ZakenService,
     private readonly formBuilder: FormBuilder,
-    private readonly identityService: IdentityService,
   ) {
     this.form.controls.medewerker.disable();
 
