@@ -21,7 +21,7 @@ See: [Bruno website](https://www.usebruno.com/).
 
 Then:
 1. Open the Bruno application.
-2. Click on "Open collection" and select the ZAC Bruno collection subfolder in the `/scripts/bruno/collections` folder.
+2. Click on "Open collection" and select `scripts/bruno/collections/zaakafhandelcomponent_backend_api` (or the most recently generated collection).
 3. Select the environment you wish to connect to. If you want to connect to the INFO TEST environment, you will need to set the `keycloakClientSecret` variable first.
 You can find the value for this variable in Keycloak on the INFO TEST environment.
 4. Select the collection and open the `Auth` tab.
