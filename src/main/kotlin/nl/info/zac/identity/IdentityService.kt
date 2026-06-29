@@ -47,7 +47,6 @@ class IdentityService @Inject constructor(
     /**
      * Returns the list of active groups that are authorised for the application role 'behandelaar' and
      * the given zaaktype based on the PABC authorisation mappings, using the groups' functional roles in Keycloak.
-     * This function requires that the PABC integration feature flag is enabled.
      */
     fun listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription: String): List<Group> =
         pabcClientService.getGroupsByApplicationRoleAndZaaktype(
@@ -59,7 +58,6 @@ class IdentityService @Inject constructor(
      * Returns the intersection of active groups that are authorised for the application role 'behandelaar'
      * across all given zaaktype descriptions, based on the PABC authorisation mappings.
      * Returns an empty list when no group is authorised for all provided zaaktypes.
-     * This function requires that the PABC integration feature flag is enabled.
      */
     fun listActiveGroupsForBehandelaarRoleAndZaaktypes(zaaktypeDescriptions: List<String>): List<Group> {
         if (zaaktypeDescriptions.isEmpty()) return emptyList()
