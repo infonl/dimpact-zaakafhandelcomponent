@@ -4,11 +4,11 @@
  *
  */
 
-import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
 import "@angular/compiler";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
 
 setupZoneTestEnv();
-import { QueryClient } from "@tanstack/angular-query-experimental";
 
 const cryptoPolyfill = {
   randomUUID: () => {
