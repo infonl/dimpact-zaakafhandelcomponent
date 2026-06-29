@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Fetch behandelaar groups for multiple zaaktypes
-The system SHALL provide a POST endpoint that accepts a list of zaaktype descriptions and returns the intersection of active groups authorised for the `behandelaar` application role across all of them. This endpoint requires the PABC integration feature flag to be enabled.
+The system SHALL provide a POST endpoint that accepts a list of zaaktype descriptions and returns the intersection of active groups authorised for the `behandelaar` application role across all of them.
 
 #### Scenario: Single zaaktype description
 - **WHEN** a client calls `POST /rest/identity/behandelaar-groups` with body `{ "zaaktypeDescriptions": ["Melding openbare ruimte"] }`
