@@ -13,7 +13,7 @@ import {
 } from "@angular/common/http/testing";
 import {
   ComponentRef,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -123,7 +123,7 @@ describe(InformatieObjectAddComponent.name, () => {
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

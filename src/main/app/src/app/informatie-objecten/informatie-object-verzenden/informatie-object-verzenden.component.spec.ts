@@ -12,7 +12,7 @@ import {
 } from "@angular/common/http/testing";
 import {
   ComponentRef,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
@@ -82,7 +82,7 @@ describe(InformatieObjectVerzendenComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideMomentDateAdapter(),

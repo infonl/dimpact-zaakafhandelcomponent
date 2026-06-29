@@ -12,7 +12,7 @@ import {
 } from "@angular/common/http/testing";
 import {
   ComponentRef,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -123,7 +123,7 @@ describe(OntvangstbevestigingComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
