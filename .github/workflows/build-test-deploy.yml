@@ -44,7 +44,7 @@ permissions:
 # Only allow a single concurrent run per branch. Cancel any runs that are in progress when not on the main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   validate-input:

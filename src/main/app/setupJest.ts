@@ -4,7 +4,10 @@
  *
  */
 
+import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
 import "@angular/compiler";
+
+setupZoneTestEnv();
 import { QueryClient } from "@tanstack/angular-query-experimental";
 
 const cryptoPolyfill = {
