@@ -25,7 +25,8 @@ module.exports = {
   ],
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/scripts/"],
   collectCoverageFrom: ["src/**/*.{js,ts}", "!src/**/*.spec.{js,ts}"],
-  coverageProvider: "v8",
+  // cache transformed files
+  cache: true,
   cacheDirectory: "<rootDir>/.jest-cache",
   coverageDirectory: "coverage",
 };
