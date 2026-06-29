@@ -16,7 +16,7 @@ import {
   Output,
   PLATFORM_ID,
 } from "@angular/core";
-import { Subscription, fromEvent } from "rxjs";
+import { fromEvent, Subscription } from "rxjs";
 import { HasEventTargetAddRemove } from "rxjs/internal/observable/fromEvent";
 import { filter } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
