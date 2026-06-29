@@ -43,8 +43,6 @@ class IdentityRestService @Inject constructor(
 
     /**
      * Returns the list of groups that are authorised for the `behandelaar` application role for the given zaaktype.
-     * This endpoint requires that the PABC integration feature flag is enabled and cannot be used when this
-     * feature flag is disabled.
      */
     @GET
     @Path("zaaktype/{zaaktypeDescription}/behandelaar-groups")
@@ -59,9 +57,6 @@ class IdentityRestService @Inject constructor(
      * Returns the intersection of groups that are authorised for the `behandelaar` application role
      * across all given zaaktype descriptions.
      * Returns an empty list when no group is authorised for all provided zaaktypes.
-     * Returns HTTP 400 when the list of zaaktype descriptions is empty.
-     * This endpoint requires that the PABC integration feature flag is enabled and cannot be used when this
-     * feature flag is disabled.
      */
     @POST
     @Path("behandelaar-groups")
