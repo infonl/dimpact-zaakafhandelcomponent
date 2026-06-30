@@ -4,11 +4,12 @@
  */
 package nl.info.client.zgw.util
 
+import io.opentelemetry.api.baggage.Baggage
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedMap
-import nl.info.zac.app.util.filter.MdcLoggingFilter.Companion.MDC_CORRELATION_ID
+import nl.info.zac.app.util.filter.OtelLoggingFilter.Companion.REQUEST_CORRELATION_ID
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -39,7 +40,7 @@ class ZgwClientHeadersFactory @Inject constructor(
         try {
             addAuthorizationHeader(outgoingHeaders, loggedInUser)
             addXAuditToelichtingHeader(outgoingHeaders, loggedInUser)
-            addCorrelationIdHeader(outgoingHeaders)
+            addXNlxRequestIdHeader(outgoingHeaders)
             return outgoingHeaders
         } finally {
             clearAuditExplanation(loggedInUser)
@@ -62,13 +63,13 @@ class ZgwClientHeadersFactory @Inject constructor(
     private fun addXAuditToelichtingHeader(
         outgoingHeaders: MultivaluedMap<String, String>,
         loggedInUser: LoggedInUser
-    ) = auditExplanations[loggedInUser.id]?.let {
-        outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, it)
+    ) = auditExplanations[loggedInUser.id]?.run {
+        outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, this)
     }
 
-    private fun addCorrelationIdHeader(
+    private fun addXNlxRequestIdHeader(
         outgoingHeaders: MultivaluedMap<String, String>
-    ) = (org.jboss.logging.MDC.get(MDC_CORRELATION_ID) as? String)?.let {
-        outgoingHeaders.add(X_NLX_REQUEST_ID, it)
+    ) = Baggage.current().getEntryValue(REQUEST_CORRELATION_ID)?.run {
+            outgoingHeaders.add(X_NLX_REQUEST_ID, this)
     }
 }
