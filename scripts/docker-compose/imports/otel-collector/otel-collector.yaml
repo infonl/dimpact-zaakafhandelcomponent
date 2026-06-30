@@ -1,17 +1,46 @@
+extensions:
+  zpages:
+    endpoint: localhost:55679
+  health_check:
+    endpoint: localhost:13133
+    tls:
+      insecure: true
+  path: "/health/status"
+  response_body:
+    healthy: "OK"
+    unhealthy: "NOT OK"
+
 receivers:
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
+        tls:
+          insecure: true
+      http:
+        endpoint: 0.0.0.0:4318
+        tls:
+          insecure: true
 
 exporters:
   otlp:
     endpoint: tempo:4317
     tls:
       insecure: true
+  debug:
+    verbosity: detailed
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]
-      exporters: [otlp]
+      receivers: [ otlp ]
+      exporters: [ otlp ]
+    logs:
+      receivers: [ otlp ]
+      exporters: [ debug, loki ]
+
+  extensions: [zpages, health_check]

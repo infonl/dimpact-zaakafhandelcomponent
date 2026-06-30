@@ -404,13 +404,30 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
     ports:
-      - "1888:1888" # pprof extension
       - "13133:13133" # health_check extension
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP http receiver
       - "55679:55679" # zpages extension
     depends_on:
       - tempo
+      - loki
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:13133/health/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles: [ "metrics" ]
+
+  # Loki log aggregation
+  loki:
+    image: grafana/loki:3.0.0
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./scripts/docker-compose/imports/loki/loki-config.yaml:/etc/loki/local-config.yaml:Z
+      - ./scripts/docker-compose/volume-data/loki-data:/loki
+    ports:
+      - "3100:3100"
     profiles: [ "metrics" ]
 
   # Observability traces data store
@@ -636,6 +653,7 @@ services:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
       timeout: 10s
+      retries: 10
     ports:
       - "8004:8000"
     depends_on:
@@ -825,9 +843,9 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD:-fakeMailjetApiSecretKey}
       - SIGNALERINGEN_DELETE_OLDER_THAN_DAYS=${SIGNALERINGEN_DELETE_OLDER_THAN_DAYS:-14}
       - SOLR_URL=http://solr:8983
-      # Turn off the MicroProfile Open Telemetry subsystem by default because it is not always necessary.
-      # Typically, when using the Docker Compose profile 'metrics' you want to set this to 'false'.
-      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-true}
+      # Enable the MicroProfile Open Telemetry subsystem to export traces and logs.
+      # Set to 'true' to disable telemetry if needed.
+      - OTEL_SDK_DISABLED=${OTEL_SDK_DISABLED:-false}
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - VERANTWOORDELIJKE_ORGANISATIE_RSIN=${VERANTWOORDELIJKE_ORGANISATIE_RSIN:-316245124}
       - ZAC_INTERNAL_ENDPOINTS_API_KEY=${ZAC_INTERNAL_ENDPOINTS_API_KEY:-fakeZacInternalEndpointsApiKey}

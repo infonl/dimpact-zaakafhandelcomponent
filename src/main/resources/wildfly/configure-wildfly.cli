@@ -42,10 +42,10 @@ data-source add \
     # NOTE: This needs to be set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
     # This value corresponds to 120MB using the Base 2 format.
     "dev.resteasy.entity.file.threshold" = "125829120B", \
-    # We only export traces to the Open Telemetry Collector and not logs or metrics.
+    # We export traces to the Open Telemetry Collector and logs to console for testing.
     "otel.traces.exporter" = "otlp", \
     "otel.metrics.exporter" = "none", \
-    "otel.logs.exporter" = "none", \
+    "otel.logs.exporter" = "logging", \
     "otel.service.name" = "zac" \
 })
 

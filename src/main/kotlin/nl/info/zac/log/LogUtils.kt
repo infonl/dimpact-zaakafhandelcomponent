@@ -5,7 +5,8 @@
 
 package nl.info.zac.log
 
-import org.jboss.logging.MDC
+import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.context.Context
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -15,15 +16,15 @@ import java.util.logging.Logger
 fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = logger.log(level, message, throwable)
 
 /**
- * Execute a block of code with MDC (Mapped Diagnostic Context) that is automatically cleaned up.
+ * Execute a block of code with logging context that is automatically cleaned up.
  *
- * This function adds the provided context key-value pairs to the MDC before executing the block,
+ * This function adds the provided context key-value pairs to OpenTelemetry Baggage before executing the block,
  * and removes them afterwards. This ensures that the context appears in structured JSON logs
- * without risk of memory leaks.
+ * without risk of memory leaks. The context automatically propagates across thread boundaries and service calls.
  *
  * Example:
  * ```kotlin
- * withMDC(
+ * withLoggingContext(
  *     "zaakUuid" to zaak.uuid.toString(),
  *     "operation" to "process_zaak"
  * ) {
@@ -32,35 +33,17 @@ fun log(logger: Logger, level: Level, message: String, throwable: Throwable) = l
  * }
  * ```
  *
- * @param context Key-value pairs to add to the MDC. Null values are ignored.
- * @param block The code block to execute with the MDC context.
+ * @param context Key-value pairs to add to the logging context. Null values are ignored.
+ * @param block The code block to execute with the logging context.
  * @return The result of executing the block.
  */
-inline fun <T> withMDC(vararg context: Pair<String, String?>, block: () -> T): T {
-    // Store previous values so we can restore them after executing the block.
-    val previousValues = mutableMapOf<String, String?>()
-
-    // Add context to MDC
+inline fun <T> withLoggingContext(vararg context: Pair<String, String?>, block: () -> T): T {
+    var baggage = Baggage.current()
     context.forEach { (key, value) ->
         if (value != null) {
-            // Capture the previous value (if any) before overwriting.
-            if (!previousValues.containsKey(key)) {
-                previousValues[key] = MDC.get(key) as String?
-            }
-            MDC.put(key, value)
+            baggage = baggage.toBuilder().put(key, value).build()
         }
     }
-
-    try {
-        return block()
-    } finally {
-        // Restore previous MDC values (or remove keys that did not exist before).
-        previousValues.forEach { (key, previousValue) ->
-            if (previousValue == null) {
-                MDC.remove(key)
-            } else {
-                MDC.put(key, previousValue)
-            }
-        }
-    }
+    val ctx = Context.current().with(baggage)
+    return ctx.makeCurrent().use { block() }
 }

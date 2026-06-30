@@ -10,13 +10,14 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.context.Context
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedHashMap
-import nl.info.zac.app.util.filter.MdcLoggingFilter.Companion.MDC_CORRELATION_ID
+import nl.info.zac.app.util.filter.OtelLoggingFilter.Companion.REQUEST_CORRELATION_ID
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
-import org.jboss.logging.MDC
 
 class ZgwClientHeadersFactoryTest : BehaviorSpec({
     val zgwClientId = "fakeZgwClientId"
@@ -30,7 +31,6 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
 
     afterEach {
         checkUnnecessaryStub()
-        MDC.remove(MDC_CORRELATION_ID)
     }
 
     Context("Updating headers for ZGW client") {
@@ -39,7 +39,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
             val incomingHeaders = MultivaluedHashMap<String, String>()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("update is called without an audit explanation set and no MDC correlation ID") {
+            When("update is called without an audit explanation set and no correlation ID in Baggage") {
                 val outgoingHeaders = MultivaluedHashMap<String, String>()
                 zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
 
@@ -58,14 +58,18 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                 }
             }
 
-            When("update is called with a correlation ID in MDC") {
+            When("update is called with a correlation ID in Baggage") {
                 val correlationId = "test-correlation-id-123"
-                MDC.put(MDC_CORRELATION_ID, correlationId)
-                val outgoingHeaders = MultivaluedHashMap<String, String>()
-                zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
+                val baggage = Baggage.builder().put(REQUEST_CORRELATION_ID, correlationId).build()
+                val ctx = Context.current().with(baggage)
 
-                Then("it should add the X-NLX-Request-Id header with the correlation ID") {
-                    outgoingHeaders.getFirst("X-NLX-Request-Id") shouldBe correlationId
+                ctx.makeCurrent().use {
+                    val outgoingHeaders = MultivaluedHashMap<String, String>()
+                    zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
+
+                    Then("it should add the X-NLX-Request-Id header with the correlation ID") {
+                        outgoingHeaders.getFirst("X-NLX-Request-Id") shouldBe correlationId
+                    }
                 }
             }
 
