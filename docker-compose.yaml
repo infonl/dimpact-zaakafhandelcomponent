@@ -930,7 +930,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1012,19 +1012,14 @@ services:
         from openforms.forms.models import Form
         FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
         if not Form.objects.filter(slug=FORM_SLUG).exists():
-            import subprocess, sys, os, glob, zipfile
+            import os, glob, zipfile
+            from openforms.forms.utils import import_form
             json_files = glob.glob('/forms/*.json')
             with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
                 for f in json_files:
                     zf.write(f, os.path.basename(f))
-            result = subprocess.run(
-                [sys.executable, '/app/src/manage.py', 'import', '--import-file', '/tmp/forms.zip'],
-                capture_output=True, text=True
-            )
-            print(result.stdout)
-            if result.returncode != 0:
-                print(result.stderr)
-                sys.exit(result.returncode)
+            with open('/tmp/forms.zip', 'rb') as zip_file:
+                import_form(zip_file)
             print('Productaanvraag-Dimpact form imported successfully')
         form = Form.objects.get(slug=FORM_SLUG)
         if not form.active:
@@ -1052,7 +1047,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1079,7 +1074,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1107,7 +1102,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.4.10@sha256:45755696db647b0c9fecc5d2c78403dbbac0f3c962292e89dee34b405abd1d7c
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
