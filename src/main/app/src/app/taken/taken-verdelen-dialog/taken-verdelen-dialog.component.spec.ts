@@ -206,7 +206,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
       const { component } = await setup(makeDialogData([makeTaak("1")]), []);
       expect(component["form"].controls.groep.errors).toEqual(
         FormHelper.CustomErrorMessage(
-          "msg.error.group.no.authorised.group.for.zaken",
+          "msg.error.group.no.authorised.group.for.taken",
         ),
       );
     });

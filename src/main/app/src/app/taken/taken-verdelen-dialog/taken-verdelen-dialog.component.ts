@@ -82,7 +82,7 @@ export class TakenVerdelenDialogComponent {
 
   private readonly noAuthorisedGroupValidator = () =>
     FormHelper.CustomErrorMessage(
-      "msg.error.group.no.authorised.group.for.zaken",
+      "msg.error.group.no.authorised.group.for.taken",
     );
 
   protected users: GeneratedType<"RestUser">[] = [];
