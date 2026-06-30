@@ -71,7 +71,7 @@
       "matchStrings": [
         "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # trivy version updated by renovate"
       ],
-      "datasourceTemplate": "github-releases",
+      "datasourceTemplate": "github-tags",
       "depNameTemplate": "aquasecurity/trivy",
       "versioningTemplate": "semver"
     },
@@ -419,11 +419,12 @@
   "packageRules": [
     {
       "matchUpdateTypes": [
-        "patch"
+        "patch",
+        "lockFileMaintenance"
       ],
       "automerge": true,
       "description": [
-        "Automerge all patch-level updates. The renovate-approve GitHub app provides the required approving review"
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
       ]
     },
     {
