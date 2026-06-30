@@ -5,14 +5,14 @@
 
 // BAG display field overrides disabled MDC colors to match enabled appearance.
 zac-input.bag-display-field {
-  --mdc-filled-text-field-disabled-label-text-color: var(
-    --mdc-filled-text-field-label-text-color
+  --mat-form-field-filled-disabled-label-text-color: var(
+    --mat-form-field-filled-label-text-color
   );
-  --mdc-filled-text-field-disabled-container-color: var(
-    --mdc-filled-text-field-container-color
+  --mat-form-field-filled-disabled-container-color: var(
+    --mat-form-field-filled-container-color
   );
-  --mdc-filled-text-field-disabled-active-indicator-color: var(
-    --mdc-filled-text-field-active-indicator-color
+  --mat-form-field-filled-disabled-active-indicator-color: var(
+    --mat-form-field-filled-active-indicator-color
   );
 
   ::ng-deep .mdc-text-field--filled.mdc-text-field--disabled {
@@ -41,7 +41,7 @@ zac-input.bag-display-field {
 
       .mdc-line-ripple::before {
         border-bottom-color: var(
-          --mdc-filled-text-field-hover-active-indicator-color
+          --mat-form-field-filled-hover-active-indicator-color
         );
       }
     }
