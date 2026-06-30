@@ -18,7 +18,10 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation, injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -78,7 +81,9 @@ export class TakenVerdelenDialogComponent {
   );
 
   private readonly noAuthorisedGroupValidator = () =>
-    FormHelper.CustomErrorMessage("msg.error.group.no.authorised.group.for.zaken");
+    FormHelper.CustomErrorMessage(
+      "msg.error.group.no.authorised.group.for.zaken",
+    );
 
   protected users: GeneratedType<"RestUser">[] = [];
 

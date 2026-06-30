@@ -4,7 +4,10 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,

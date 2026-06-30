@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, effect, inject, Inject } from "@angular/core";
+import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -18,7 +18,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation, injectQuery } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+} from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { FormHelper } from "../../shared/form/helpers";
@@ -46,7 +49,9 @@ import { ZakenService } from "../zaken.service";
   ],
 })
 export class ZakenVerdelenDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<ZakenVerdelenDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<ZakenVerdelenDialogComponent>,
+  );
   private readonly zakenService = inject(ZakenService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
@@ -77,7 +82,9 @@ export class ZakenVerdelenDialogComponent {
   );
 
   private readonly noAuthorisedGroupValidator = () =>
-    FormHelper.CustomErrorMessage("msg.error.group.no.authorised.group.for.zaken");
+    FormHelper.CustomErrorMessage(
+      "msg.error.group.no.authorised.group.for.zaken",
+    );
 
   protected users: GeneratedType<"RestUser">[] = [];
 
