@@ -12,7 +12,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { provideZoneChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -56,7 +56,7 @@ const setup = (
       TranslateModule.forRoot(),
     ],
     providers: [
-      provideExperimentalZonelessChangeDetection(),
+      provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideTanStackQuery(testQueryClient),
