@@ -176,6 +176,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "besluitUuid":"$besluitUuid",
+                        "reden":"fakeBesluitUpdateReason",
                         "resultaattypeUuid":"$resultaatType2Uuid",
                         "toelichting":"$updateReason",
                         "ingangsdatum":"$startDate",
@@ -294,6 +295,52 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                         getString("door") shouldBe BEHANDELAAR_1.displayName
                         getString("nieuweWaarde") shouldNotBe null
                         has("datumTijd") shouldBe true
+                    }
+                }
+            }
+        }
+
+        When("the besluit is updated with the optional vervaldatum cleared") {
+            val ingangsdatum = LocalDate.now()
+            val publicationDate = LocalDate.now().plusMonths(5)
+            val responseDate = LocalDate.now().plusMonths(6)
+            itestHttpClient.performPutRequest(
+                "$ZAC_API_URI/zaken/besluit",
+                requestBodyAsString = """
+                    {
+                        "besluitUuid":"$besluitUuid",
+                        "reden":"fakeBesluitUpdateReason",
+                        "toelichting":"fakeBesluitUpdateToelichting",
+                        "ingangsdatum":"$ingangsdatum",
+                        "publicationDate":"$publicationDate",
+                        "lastResponseDate":"$responseDate"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            ).let { response ->
+                logger.info { "Response: ${response.bodyAsString}" }
+                response.code shouldBe HTTP_OK
+            }
+
+            Then("the cleared vervaldatum is persisted in Open Zaak when the besluit is retrieved") {
+                itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
+                    testUser = BEHANDELAAR_1
+                ).let { response ->
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    val besluiten = JSONArray(responseBody)
+                    besluiten.shouldHaveSize(1)
+                    besluiten.getJSONObject(0).run {
+                        // the vervaldatum has been cleared, so it is no longer present in the response
+                        optString("vervaldatum", "") shouldBe ""
+                        // isIngetrokken is derived from the vervaldatum, so clearing it un-marks the withdrawal
+                        getBoolean("isIngetrokken") shouldBe false
+                        // the other optional dates were supplied and remain set
+                        getString("ingangsdatum") shouldBe ingangsdatum.toString()
+                        getString("publicationDate") shouldBe publicationDate.toString()
+                        getString("lastResponseDate") shouldBe responseDate.toString()
                     }
                 }
             }
