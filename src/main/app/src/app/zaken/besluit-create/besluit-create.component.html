@@ -23,7 +23,7 @@
     <zac-date [form]="form" key="vervaldatum" />
     <zac-textarea [form]="form" key="toelichting" />
   </fieldset>
-  <section *ngIf="form.controls.besluit.value?.publication?.enabled">
+  @if (form.controls.besluit.value?.publication?.enabled) {
     <mat-divider />
     <fieldset>
       <div class="mb-2">
@@ -66,7 +66,7 @@
       </div>
       <zac-date [form]="form" key="uiterlijkereactiedatum" />
     </fieldset>
-  </section>
+  }
   <fieldset>
     <zac-documents [form]="form" key="documenten" [options]="documents" />
   </fieldset>
