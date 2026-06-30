@@ -5,12 +5,14 @@
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatProgressSpinnerHarness } from "@angular/material/progress-spinner/testing";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -18,12 +20,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
-import { ZakenService } from "../zaken.service";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog.component";
 
 const makeZaakZoekObject = (fields: Partial<ZaakZoekObject> = {}) =>
@@ -62,7 +63,7 @@ const setup = (
     ],
   });
   const identityService = TestBed.inject(IdentityService);
-  const zakenService = TestBed.inject(ZakenService);
+  const httpTestingController = TestBed.inject(HttpTestingController);
   testQueryClient.setQueryData(
     identityService.listBehandelaarGroupsForZaaktypes(
       data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
@@ -76,7 +77,7 @@ const setup = (
   return {
     fixture,
     component: fixture.componentInstance,
-    zakenService,
+    httpTestingController,
     dialogRefMock,
   };
 };
@@ -122,24 +123,24 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("disables verdelen button when loading", async () => {
-    const { fixture, component } = setup([makeZaakZoekObject()]);
-    component["loading"].set(true);
+    const { component, httpTestingController } = setup([makeZaakZoekObject()]);
     component["form"].controls.groep.setValue(mockGroups[0]);
-    fixture.detectChanges();
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    const button = await loader.getHarness(
-      MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
-    );
-    expect(await button.isDisabled()).toBe(true);
+    component["verdeel"]();
+    await sleep();
+    expect(component["isDisabled"]()).toBe(true);
+    httpTestingController.expectOne("/rest/zaken/lijst/verdelen").flush({});
   });
 
   it("shows spinner when loading", async () => {
-    const { fixture, component } = setup([makeZaakZoekObject()]);
-    const loader = TestbedHarnessEnvironment.loader(fixture);
-    component["loading"].set(true);
+    const { fixture, component, httpTestingController } = setup([
+      makeZaakZoekObject(),
+    ]);
+    component["form"].controls.groep.setValue(mockGroups[0]);
+    component["verdeel"]();
+    await sleep();
     fixture.detectChanges();
-    const spinners = await loader.getAllHarnesses(MatProgressSpinnerHarness);
-    expect(spinners.length).toBeGreaterThan(0);
+    expect(fixture.nativeElement.querySelector("mat-spinner")).not.toBeNull();
+    httpTestingController.expectOne("/rest/zaken/lijst/verdelen").flush({});
   });
 
   it("closes dialog with false when cancel is clicked", () => {
@@ -148,18 +149,20 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
 
-  it("calls verdelenVanuitLijst with correct args and closes dialog on verdeel", () => {
-    const { component, zakenService, dialogRefMock } = setup([
+  it("sends PUT request with correct args and closes dialog on success", async () => {
+    const { component, dialogRefMock, httpTestingController } = setup([
       makeZaakZoekObject({ id: "uuid-1" }),
     ]);
-    jest
-      .spyOn(zakenService, "verdelenVanuitLijst")
-      .mockReturnValue(of(undefined) as never);
     component["form"].controls.groep.setValue(mockGroups[0]);
     component["verdeel"]();
-    expect(zakenService.verdelenVanuitLijst).toHaveBeenCalledWith(
+    await sleep();
+    const req = httpTestingController.expectOne("/rest/zaken/lijst/verdelen");
+    expect(req.request.method).toBe("PUT");
+    expect(req.request.body).toEqual(
       expect.objectContaining({ uuids: ["uuid-1"], groepId: "groep-1" }),
     );
+    req.flush({});
+    await sleep();
     expect(dialogRefMock.close).toHaveBeenCalledWith(component["form"].value);
   });
 
