@@ -30,7 +30,8 @@ data class RestBesluitChangeData(
 
     var informatieobjecten: List<UUID>? = null,
 
-    var reden: String? = null
+    @field:NotNull
+    var reden: String
 )
 
 fun RestBesluitChangeData.toBesluitPatch() = NillableDatesBesluitPatch(
