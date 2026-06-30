@@ -66,7 +66,7 @@ jobs:
           scan-ref: '.'
           # pin the Trivy scanner version independently of the action wrapper so that
           # the scanner itself stays current
-          version: v0.71.2 # trivy version updated by renovate
+          version: v0.72.0 # trivy version updated by renovate
           format: 'sarif'
           output: 'trivy-config-results.sarif'
           # report misconfigurations of all severities to the GitHub Security tab
