@@ -10,7 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
@@ -54,7 +54,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideQueryClient(testQueryClient),
         {
           provide: MatDialogRef,
