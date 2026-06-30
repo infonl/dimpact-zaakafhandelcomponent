@@ -5,7 +5,7 @@
 package nl.info.zac.app.zaak.model.besluit
 
 import jakarta.validation.constraints.NotNull
-import nl.info.client.zgw.brc.model.generated.Besluit
+import nl.info.client.zgw.brc.model.NillableDatesBesluitPatch
 import nl.info.client.zgw.brc.model.generated.VervalredenEnum
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -30,17 +30,16 @@ data class RestBesluitChangeData(
 
     var informatieobjecten: List<UUID>? = null,
 
-    var reden: String? = null
+    @field:NotNull
+    var reden: String
 )
 
-fun Besluit.updateBesluitWithBesluitChangeData(besluitWijzigenGegevens: RestBesluitChangeData) =
-    this.apply {
-        toelichting = besluitWijzigenGegevens.toelichting
-        ingangsdatum = besluitWijzigenGegevens.ingangsdatum
-        vervaldatum = besluitWijzigenGegevens.vervaldatum
-        vervaldatum?.apply {
-            vervalreden = VervalredenEnum.TIJDELIJK
-        }
-        publicatiedatum = besluitWijzigenGegevens.publicationDate
-        uiterlijkeReactiedatum = besluitWijzigenGegevens.lastResponseDate
-    }
+fun RestBesluitChangeData.toBesluitPatch() = NillableDatesBesluitPatch(
+    toelichting = toelichting,
+    ingangsdatum = ingangsdatum,
+    vervaldatum = vervaldatum,
+    // The ZGW vervalreden is not nullable; clearing the vervaldatum resets it to the blank value.
+    vervalreden = vervaldatum?.let { VervalredenEnum.TIJDELIJK } ?: VervalredenEnum.EMPTY,
+    publicatiedatum = publicationDate,
+    uiterlijkeReactiedatum = lastResponseDate
+)
