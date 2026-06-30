@@ -23,11 +23,15 @@ import kotlinx.coroutines.withContext
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.exception.BrpPersonNotFoundException
+import nl.info.client.brp.exception.BrpTemporaryPersonIdNotCachedException
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.zrc.model.generated.NatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
@@ -63,6 +67,7 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import org.hibernate.validator.constraints.Length
 import java.util.UUID
+import java.util.logging.Logger
 
 @Path("klanten")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -77,11 +82,14 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
     val identificationService: IdentificationService,
+    val zrcClientService: ZrcClientService,
     val policyService: PolicyService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
         const val ZAAKTYPE_UUID_HEADER = "X-ZAAKTYPE-UUID"
+        const val ZAAK_UUID_HEADER = "X-ZAAK-UUID"
+        private val LOG = Logger.getLogger(KlantRestService::class.java.name)
     }
 
     @GET
@@ -89,9 +97,21 @@ class KlantRestService @Inject constructor(
     fun readPersoon(
         @PathParam("temporaryPersonId") requestedTemporaryPersonId: UUID,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null,
+        @HeaderParam(ZAAK_UUID_HEADER) zaakUuid: UUID? = null,
     ) = runBlocking {
         val username = loggedInUserInstance.get().id
-        val bsn = identificationService.replaceKeyWithBsn(requestedTemporaryPersonId)
+        val bsn = identificationService.findBsnByKey(requestedTemporaryPersonId)
+            ?: run {
+                LOG.warning(
+                    "Cache miss voor temporaryPersonId '$requestedTemporaryPersonId': BSN niet gevonden in cache. " +
+                        "Dit kan voorkomen na een herstart of na het verlopen van de cache-entry (12 uur)."
+                )
+                zaakUuid?.let { findInitiatorBsnFromZrc(it) }
+                    ?.also { recoveredBsn -> identificationService.replaceBsnWithKey(recoveredBsn) }
+                    ?: throw BrpTemporaryPersonIdNotCachedException(
+                        "Geen BSN gevonden voor temporaryPersonId '$requestedTemporaryPersonId'"
+                    )
+            }
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
@@ -112,6 +132,16 @@ class KlantRestService @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun findInitiatorBsnFromZrc(zaakUuid: UUID): String? {
+        val zaak = zrcClientService.readZaak(zaakUuid)
+        return zrcClientService.listRollen(zaak)
+            .firstOrNull { rol ->
+                rol.betrokkeneType == BetrokkeneTypeEnum.NATUURLIJK_PERSOON &&
+                    rol.omschrijvingGeneriek == "initiator"
+            }
+            ?.let { rol -> (rol.betrokkeneIdentificatie as? NatuurlijkPersoonIdentificatie)?.inpBsn }
     }
 
     /**

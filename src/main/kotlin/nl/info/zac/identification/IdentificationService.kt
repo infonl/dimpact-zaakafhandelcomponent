@@ -53,7 +53,9 @@ class IdentificationService @Inject constructor(
 
     fun replaceBsnWithKey(bsn: String): UUID = sensitiveDataService.put(bsn)
 
-    fun replaceKeyWithBsn(key: UUID): String = sensitiveDataService.get(key)
+    fun findBsnByKey(key: UUID): String? = sensitiveDataService.get(key)
+
+    fun replaceKeyWithBsn(key: UUID): String = findBsnByKey(key)
         ?: throw BrpTemporaryPersonIdNotCachedException("Geen persoon gevonden voor id '$key'")
 
     private fun getInitiatorIdentificationType(

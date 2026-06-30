@@ -50,6 +50,7 @@ export class BetrokkeneLinkComponent {
     return this.klantenService.readPersoon(
       betrokkene.temporaryPersonId,
       this.zaaktypeUuid(),
+      this.zaakUuid(),
     );
   });
 
@@ -75,6 +76,8 @@ export class BetrokkeneLinkComponent {
     input.required<GeneratedType<"RestZaakBetrokkene">>();
 
   protected readonly zaaktypeUuid = input.required<string>();
+
+  protected readonly zaakUuid = input<string>();
 
   protected readonly bedrijfRouteLink = computed(() => {
     const betrokkene = this.betrokkene();

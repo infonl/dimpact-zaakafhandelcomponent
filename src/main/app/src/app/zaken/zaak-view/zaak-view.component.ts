@@ -1214,6 +1214,7 @@ export class ZaakViewComponent
           this.klantenService.readPersoon(
             betrokkene.temporaryPersonId!,
             this.zaak.zaaktype.uuid,
+            this.zaak.uuid,
           ),
         );
         betrokkene["gegevens"] = persoon.naam;

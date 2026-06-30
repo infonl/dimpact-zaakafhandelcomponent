@@ -67,6 +67,7 @@ export class PersoonsgegevensComponent {
     ...this.klantenService.readPersoon(
       this.temporaryPersonId(),
       this.zaak().zaaktype.uuid,
+      this.zaak().uuid,
     ),
     enabled: !!this.temporaryPersonId(),
   }));
