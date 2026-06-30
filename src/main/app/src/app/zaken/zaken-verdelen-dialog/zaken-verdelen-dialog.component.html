@@ -52,12 +52,12 @@
     (click)="verdeel()"
     id="zakenVerdelen_button"
   >
-    <mat-icon *ngIf="loading">
+    <mat-icon *ngIf="loading()">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
     {{ "actie.verdelen" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-raised-button (click)="close()">
+  <button [disabled]="loading()" autofocus mat-raised-button (click)="close()">
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

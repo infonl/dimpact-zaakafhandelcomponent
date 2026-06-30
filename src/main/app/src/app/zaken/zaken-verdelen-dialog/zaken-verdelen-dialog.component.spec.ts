@@ -4,7 +4,9 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -13,9 +15,12 @@ import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
@@ -25,6 +30,7 @@ const makeZaakZoekObject = (fields: Partial<ZaakZoekObject> = {}) =>
   fromPartial<ZaakZoekObject>({
     id: "uuid-1",
     identificatie: "ZAAK-001",
+    zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
     ...fields,
   });
 
@@ -32,8 +38,13 @@ const mockGroups: GeneratedType<"RestGroup">[] = [
   { id: "groep-1", naam: "Groep Een" },
 ];
 
-const setup = (data: ZaakZoekObject[]) => {
+const setup = (
+  data: ZaakZoekObject[],
+  groups: GeneratedType<"RestGroup">[] = mockGroups,
+) => {
+  testQueryClient.clear();
   const dialogRefMock = { close: jest.fn(), disableClose: false };
+  TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [
       ZakenVerdelenDialogComponent,
@@ -41,7 +52,10 @@ const setup = (data: ZaakZoekObject[]) => {
       TranslateModule.forRoot(),
     ],
     providers: [
-      provideHttpClient(),
+      provideExperimentalZonelessChangeDetection(),
+      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClientTesting(),
+      provideTanStackQuery(testQueryClient),
       provideRouter([]),
       { provide: MAT_DIALOG_DATA, useValue: data },
       { provide: MatDialogRef, useValue: dialogRefMock },
@@ -49,7 +63,12 @@ const setup = (data: ZaakZoekObject[]) => {
   });
   const identityService = TestBed.inject(IdentityService);
   const zakenService = TestBed.inject(ZakenService);
-  jest.spyOn(identityService, "listGroups").mockReturnValue(of(mockGroups));
+  testQueryClient.setQueryData(
+    identityService.listBehandelaarGroupsForZaaktypes(
+      data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
+    ).queryKey,
+    groups,
+  );
   jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
@@ -104,7 +123,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
 
   it("disables verdelen button when loading", async () => {
     const { fixture, component } = setup([makeZaakZoekObject()]);
-    component["loading"] = true;
+    component["loading"].set(true);
     component["form"].controls.groep.setValue(mockGroups[0]);
     fixture.detectChanges();
     const loader = TestbedHarnessEnvironment.loader(fixture);
@@ -117,7 +136,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   it("shows spinner when loading", async () => {
     const { fixture, component } = setup([makeZaakZoekObject()]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
-    component["loading"] = true;
+    component["loading"].set(true);
     fixture.detectChanges();
     const spinners = await loader.getAllHarnesses(MatProgressSpinnerHarness);
     expect(spinners.length).toBeGreaterThan(0);
@@ -142,5 +161,21 @@ describe(ZakenVerdelenDialogComponent.name, () => {
       expect.objectContaining({ uuids: ["uuid-1"], groepId: "groep-1" }),
     );
     expect(dialogRefMock.close).toHaveBeenCalledWith(component["form"].value);
+  });
+
+  describe("when no authorised groups are found", () => {
+    it("sets error on groep control", () => {
+      const { component } = setup([makeZaakZoekObject()], []);
+      expect(component["form"].controls.groep.errors).toEqual(
+        FormHelper.CustomErrorMessage(
+          "msg.error.group.no.authorised.group.for.zaken",
+        ),
+      );
+    });
+
+    it("marks groep control as touched so the error is shown immediately", () => {
+      const { component } = setup([makeZaakZoekObject()], []);
+      expect(component["form"].controls.groep.touched).toBe(true);
+    });
   });
 });

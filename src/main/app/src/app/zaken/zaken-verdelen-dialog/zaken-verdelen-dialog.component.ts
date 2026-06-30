@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, effect, inject, Inject, OnDestroy } from "@angular/core";
+import { Component, effect, inject, Inject, OnDestroy, signal } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -48,7 +48,7 @@ import { ZakenService } from "../zaken.service";
 export class ZakenVerdelenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -70,6 +70,9 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     ),
   );
 
+  private readonly noAuthorisedGroupValidator = () =>
+    FormHelper.CustomErrorMessage("msg.error.group.no.authorised.group.for.zaken");
+
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor(
@@ -86,16 +89,12 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
 
       const groepControl = this.form.controls.groep;
       if (groups.length === 0) {
-        groepControl.setErrors(
-          FormHelper.CustomErrorMessage(
-            "msg.error.group.no.authorised.group.for.zaken",
-          ),
-        );
-        // Simulates a user click to show the error instantly when opening dialog
+        groepControl.setValidators(this.noAuthorisedGroupValidator);
         groepControl.markAsTouched();
       } else {
-        groepControl.updateValueAndValidity();
+        groepControl.setValidators(Validators.required);
       }
+      groepControl.updateValueAndValidity();
     });
 
     this.form.controls.groep.valueChanges
@@ -117,12 +116,12 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
   }
 
   protected isDisabled() {
-    return this.form.invalid || this.loading || !this.data.length;
+    return this.form.invalid || this.loading() || !this.data.length;
   }
 
   protected verdeel() {
     this.dialogRef.disableClose = true;
-    this.loading = true;
+    this.loading.set(true);
     this.zakenService
       .verdelenVanuitLijst({
         uuids: this.data.map(({ id }) => id),
