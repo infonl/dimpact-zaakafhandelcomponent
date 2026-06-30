@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
@@ -230,9 +231,16 @@ class BesluitServiceTest : BehaviorSpec({
             publicationDate = LocalDate.now(),
             lastResponseDate = LocalDate.now().plusDays(3)
         )
+        val besluitPatchSlot = slot<Besluit>()
 
         every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
-        every { brcClientService.updateBesluit(any<Besluit>(), restBesluitWijzigenGegevens.reden) } returns besluit
+        every {
+            brcClientService.patchBesluit(
+                restBesluitWijzigenGegevens.besluitUuid,
+                capture(besluitPatchSlot),
+                restBesluitWijzigenGegevens.reden
+            )
+        } returns besluit
         every { brcClientService.listBesluitInformatieobjecten(besluit.url) } returns listOf(besluitInformatieObject)
         every { brcClientService.deleteBesluitinformatieobject(any<UUID>()) } returns besluitInformatieObject
         every {
@@ -246,9 +254,8 @@ class BesluitServiceTest : BehaviorSpec({
             besluitType.publicatieIndicatie(true)
             besluitService.updateBesluit(besluit, restBesluitWijzigenGegevens)
 
-            Then("update is executed correctly") {
-                besluit shouldBe besluit
-                with(besluit) {
+            Then("the besluit is patched with the supplied publication and response dates") {
+                with(besluitPatchSlot.captured) {
                     publicatiedatum shouldBe restBesluitWijzigenGegevens.publicationDate
                     uiterlijkeReactiedatum shouldBe restBesluitWijzigenGegevens.lastResponseDate
                 }
@@ -259,9 +266,16 @@ class BesluitServiceTest : BehaviorSpec({
     Given("Zaak, besluit and creation data without publication and response dates") {
         besluitType.publicatieIndicatie(true)
         val restBesluitWijzigenGegevens = createRestBesluitChangeData()
+        val besluitPatchSlot = slot<Besluit>()
 
         every { ztcClientService.readBesluittype(besluit.besluittype.extractUuid()) } returns besluitType
-        every { brcClientService.updateBesluit(any<Besluit>(), restBesluitWijzigenGegevens.reden) } returns besluit
+        every {
+            brcClientService.patchBesluit(
+                restBesluitWijzigenGegevens.besluitUuid,
+                capture(besluitPatchSlot),
+                restBesluitWijzigenGegevens.reden
+            )
+        } returns besluit
         every { brcClientService.listBesluitInformatieobjecten(besluit.url) } returns listOf(besluitInformatieObject)
         every { brcClientService.deleteBesluitinformatieobject(any<UUID>()) } returns besluitInformatieObject
         every {
@@ -274,9 +288,8 @@ class BesluitServiceTest : BehaviorSpec({
         When("update is requested") {
             besluitService.updateBesluit(besluit, restBesluitWijzigenGegevens)
 
-            Then("update is executed correctly") {
-                besluit shouldBe besluit
-                with(besluit) {
+            Then("the besluit is patched with the supplied publication and response dates") {
+                with(besluitPatchSlot.captured) {
                     publicatiedatum shouldBe restBesluitWijzigenGegevens.publicationDate
                     uiterlijkeReactiedatum shouldBe restBesluitWijzigenGegevens.lastResponseDate
                 }

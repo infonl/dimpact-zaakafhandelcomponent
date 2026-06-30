@@ -18,7 +18,7 @@ import nl.info.zac.app.zaak.converter.RestBesluitConverter
 import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitWithdrawalData
-import nl.info.zac.app.zaak.model.besluit.updateBesluitWithBesluitChangeData
+import nl.info.zac.app.zaak.model.besluit.toBesluitPatch
 import org.apache.commons.collections4.CollectionUtils
 import java.time.LocalDate
 import java.time.Period
@@ -112,18 +112,21 @@ class BesluitService @Inject constructor(
     fun updateBesluit(
         besluit: Besluit,
         restBesluitChangeData: RestBesluitChangeData
-    ) {
+    ): Besluit {
         validateBesluitPublicationDates(
             besluit.besluittype.extractUuid(),
             restBesluitChangeData.publicationDate,
             restBesluitChangeData.lastResponseDate
         )
 
-        besluit.updateBesluitWithBesluitChangeData(restBesluitChangeData).also {
-            brcClientService.updateBesluit(it, restBesluitChangeData.reden)
-        }
-        restBesluitChangeData.informatieobjecten?.let {
-            updateBesluitInformationObjects(besluit, it)
+        return brcClientService.patchBesluit(
+            besluitUuid = restBesluitChangeData.besluitUuid,
+            besluit = restBesluitChangeData.toBesluitPatch(),
+            auditExplanation = restBesluitChangeData.reden
+        ).also {
+            restBesluitChangeData.informatieobjecten?.let { informatieobjectUuids ->
+                updateBesluitInformationObjects(besluit, informatieobjectUuids)
+            }
         }
     }
 
