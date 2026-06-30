@@ -22,6 +22,9 @@ import nl.info.zac.util.stringProperty
 import java.net.URI
 import java.util.UUID
 
+private const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
+private val GERELATEERDE_ZAAK_URL_REGEX = Regex("url=([^,}\\s]+)")
+
 private const val ACTION_CREATE = "create"
 private const val ACTION_DESTROY = "destroy"
 private const val ACTION_UPDATE = "update"
@@ -54,15 +57,42 @@ class ZaakHistoryService @Inject constructor(
      * the code is currently dependent on the specific implementation of the audit trail ZGW ZRC API endpoints
      * by [OpenZaak](https://open-zaak.readthedocs.io/).
      */
-    fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> {
-        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail
+    fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> =
+        zrcClientService.listAuditTrail(zaakUUID)
             .flatMap(::convertZaakHistoryLine)
+            .let(::convertGerelateerdeZakenHistory)
             // we filter out certain audit trail lines because they add no value
             // and are confusing for the end-user
             .filter { it.attribuutLabel != RESOURCE_EXTENSION && it.attribuutLabel != RESOURCE_SUSPENSION }
             .sortedByDescending { it.datumTijd }
-    }
+
+    private fun convertGerelateerdeZakenHistory(historyLines: List<HistoryLine>): List<HistoryLine> =
+        historyLines.map { line ->
+            if (line.attribuutLabel != RESOURCE_GERELATEERDE_ZAKEN) {
+                line
+            } else {
+                HistoryLine(
+                    attribuutLabel = line.attribuutLabel,
+                    oudeWaarde = convertGerelateerdeZakenValue(line.oudeWaarde),
+                    nieuweWaarde = convertGerelateerdeZakenValue(line.nieuweWaarde)
+                ).apply {
+                    datumTijd = line.datumTijd
+                    door = line.door
+                    applicatie = line.applicatie
+                    toelichting = line.toelichting
+                    actie = line.actie
+                }
+            }
+        }
+
+    private fun convertGerelateerdeZakenValue(value: String?): String? =
+        value?.let { GERELATEERDE_ZAAK_URL_REGEX.findAll(it).toList() }
+            ?.takeIf { it.isNotEmpty() }
+            ?.joinToString(", ") { match ->
+                URI.create(match.groupValues[1].trim())
+                    .let(zrcClientService::readZaak)
+                    .identificatie
+            }
 
     private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
