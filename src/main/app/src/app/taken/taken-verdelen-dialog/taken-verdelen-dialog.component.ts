@@ -76,6 +76,10 @@ export class TakenVerdelenDialogComponent {
       this.data.taken.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
     ),
   );
+
+  private readonly noAuthorisedGroupValidator = () =>
+    FormHelper.CustomErrorMessage("msg.error.group.no.authorised.group.for.zaken");
+
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor() {
@@ -92,16 +96,12 @@ export class TakenVerdelenDialogComponent {
 
       const groepControl = this.form.controls.groep;
       if (groups.length === 0) {
-        groepControl.setErrors(
-          FormHelper.CustomErrorMessage(
-            "msg.error.group.no.authorised.group.for.taken",
-          ),
-        );
-        // Simulates a user click to show the error instantly when opening dialog
+        groepControl.setValidators(this.noAuthorisedGroupValidator);
         groepControl.markAsTouched();
       } else {
-        groepControl.updateValueAndValidity();
+        groepControl.setValidators(Validators.required);
       }
+      groepControl.updateValueAndValidity();
     });
 
     this.form.controls.groep.valueChanges

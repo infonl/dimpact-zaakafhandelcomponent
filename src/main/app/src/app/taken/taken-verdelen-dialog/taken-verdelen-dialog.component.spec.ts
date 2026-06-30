@@ -24,6 +24,7 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
@@ -42,6 +43,7 @@ const makeTaak = (id: string): TaakZoekObject =>
   ({
     id,
     zaakUuid: `zaak-${id}`,
+    zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
   }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
 
 const makeDialogData = (
@@ -49,11 +51,15 @@ const makeDialogData = (
   screenEventResourceId = "screen-event-1",
 ) => ({ taken, screenEventResourceId });
 
-async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
+async function setup(
+  data = makeDialogData([makeTaak("1"), makeTaak("2")]),
+  groups: GeneratedType<"RestGroup">[] = [mockGroup],
+) {
   const dialogRef = {
     close: jest.fn(),
   } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
 
+  TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [
       TakenVerdelenDialogComponent,
@@ -71,10 +77,15 @@ async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
   }).compileComponents();
 
   const identityService = TestBed.inject(IdentityService);
-  jest.spyOn(identityService, "listGroups").mockReturnValue(of([mockGroup]));
   jest
     .spyOn(identityService, "listUsersInGroup")
     .mockReturnValue(of([mockUser]));
+  testQueryClient.setQueryData(
+    identityService.listBehandelaarGroupsForZaaktypes(
+      data.taken.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
+    ).queryKey,
+    groups,
+  );
 
   const fixture = TestBed.createComponent(TakenVerdelenDialogComponent);
   const component = fixture.componentInstance;
@@ -187,6 +198,22 @@ describe(TakenVerdelenDialogComponent.name, () => {
 
     it("should disable form when taken list is empty", () => {
       expect(component["form"].disabled).toBe(true);
+    });
+  });
+
+  describe("when no authorised groups are found", () => {
+    it("sets error on groep control", async () => {
+      const { component } = await setup(makeDialogData([makeTaak("1")]), []);
+      expect(component["form"].controls.groep.errors).toEqual(
+        FormHelper.CustomErrorMessage(
+          "msg.error.group.no.authorised.group.for.zaken",
+        ),
+      );
+    });
+
+    it("marks groep control as touched so the error is shown immediately", async () => {
+      const { component } = await setup(makeDialogData([makeTaak("1")]), []);
+      expect(component["form"].controls.groep.touched).toBe(true);
     });
   });
 });
