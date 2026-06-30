@@ -95,6 +95,11 @@ function getToelichtingMapping(
   taak: GeneratedType<"RestTask">,
 ): ToelichtingMapping {
   switch (taak.formulierDefinitieId) {
+    case "DEFAULT_TAAKFORMULIER":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "afhandeling",
+      };
     case "GOEDKEUREN":
       return {
         ...DEFAULT_TOELICHTING_MAPPING,
@@ -111,9 +116,15 @@ function getToelichtingMapping(
         uitkomst: "advies",
       };
     case "EXTERN_ADVIES_VASTLEGGEN":
+    case "EXTERN_ADVIES_MAIL":
       return {
         ...DEFAULT_TOELICHTING_MAPPING,
         uitkomst: "externAdvies",
+      };
+    case "DOCUMENT_VERZENDEN_POST":
+      return {
+        ...DEFAULT_TOELICHTING_MAPPING,
+        uitkomst: "verzonden",
       };
     default:
       throw new Error(`Onbekend formulier: ${taak.formulierDefinitieId}`);

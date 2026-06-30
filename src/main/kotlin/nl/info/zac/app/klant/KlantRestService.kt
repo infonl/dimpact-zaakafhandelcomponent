@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.brp.BrpClientService
@@ -26,16 +27,17 @@ import nl.info.client.klant.KlantClientService
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.kvk.KvkClientService
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.klant.exception.RechtspersoonNotFoundException
 import nl.info.zac.app.klant.exception.VestigingNotFoundException
 import nl.info.zac.app.klant.model.bedrijven.RestBedrijf
+import nl.info.zac.app.klant.model.bedrijven.RestBedrijfsprofiel
 import nl.info.zac.app.klant.model.bedrijven.RestListBedrijvenParameters
-import nl.info.zac.app.klant.model.bedrijven.RestVestigingsprofiel
 import nl.info.zac.app.klant.model.bedrijven.toKvkZoekenParameters
 import nl.info.zac.app.klant.model.bedrijven.toRestBedrijf
+import nl.info.zac.app.klant.model.bedrijven.toRestBedrijfsprofiel
 import nl.info.zac.app.klant.model.bedrijven.toRestResultaat
-import nl.info.zac.app.klant.model.bedrijven.toRestVestigingsProfiel
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails
 import nl.info.zac.app.klant.model.contactmoment.RestContactmoment
 import nl.info.zac.app.klant.model.contactmoment.RestListContactmomentenParameters
@@ -43,16 +45,19 @@ import nl.info.zac.app.klant.model.contactmoment.toRestContactMoment
 import nl.info.zac.app.klant.model.klant.RestContactDetails
 import nl.info.zac.app.klant.model.klant.RestRoltype
 import nl.info.zac.app.klant.model.klant.toRestRoltypes
+import nl.info.zac.app.klant.model.personen.RestBrpGemeente
 import nl.info.zac.app.klant.model.personen.RestListPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersonenParameters
 import nl.info.zac.app.klant.model.personen.RestPersoon
-import nl.info.zac.app.klant.model.personen.VALID_PERSONEN_QUERIES
+import nl.info.zac.app.klant.model.personen.getValidPersonenQueries
 import nl.info.zac.app.klant.model.personen.toPersonenQuery
 import nl.info.zac.app.klant.model.personen.toRestPersonen
 import nl.info.zac.app.klant.model.personen.toRestPersoon
 import nl.info.zac.app.klant.model.personen.toRestResultaat
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identification.IdentificationService
+import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -63,7 +68,7 @@ import java.util.UUID
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @AllOpen
 @NoArgConstructor
 class KlantRestService @Inject constructor(
@@ -72,6 +77,7 @@ class KlantRestService @Inject constructor(
     val ztcClientService: ZtcClientService,
     val klantClientService: KlantClientService,
     val identificationService: IdentificationService,
+    val policyService: PolicyService,
     val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -89,55 +95,76 @@ class KlantRestService @Inject constructor(
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantPersoonDigitalAddresses =
-                async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
-            val brpPersoon = async {
-                brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
-            }
-            klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                brpPersoon.await()?.toRestPersoon()?.apply {
-                    telefoonnummer = contactDetails.telephoneNumber
-                    emailadres = contactDetails.emailAddress
-                    temporaryPersonId = requestedTemporaryPersonId
-                } ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+            supervisorScope {
+                val klantPersoonDigitalAddresses =
+                    async { klantClientService.findDigitalAddressesForNaturalPerson(bsn) }
+                val brpPersoon = async {
+                    brpClientService.retrievePersoon(bsn, zaaktypeUuid, username)
+                }
+                val restPersoon = brpPersoon.await()?.toRestPersoon()
+                    ?: throw BrpPersonNotFoundException("Geen persoon gevonden voor BSN '$bsn'")
+                klantPersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    restPersoon.apply {
+                        telefoonnummer = contactDetails.telephoneNumber
+                        emailadres = contactDetails.emailAddress
+                        temporaryPersonId = requestedTemporaryPersonId
+                    }
+                }
             }
         }
     }
 
+    /**
+     * Read a vestiging by vestigingnummer.
+     *
+     * This endpoint is provided for legacy reasons.
+     * Prefer using [readVestigingByVestigingsnummerAndKvkNummer] if possible.
+     */
     @GET
     @Path("vestiging/{vestigingsnummer}")
     fun readVestigingByVestigingsnummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
-    ) = getVestiging(vestigingsnummer, null)
+    ): RestBedrijf = readVestiging(vestigingsnummer, null)
 
     @GET
     @Path("vestiging/{vestigingsnummer}/{kvkNummer}")
     fun readVestigingByVestigingsnummerAndKvkNummer(
         @PathParam("vestigingsnummer") vestigingsnummer: String,
         @PathParam("kvkNummer") kvkNummer: String
-    ) = getVestiging(vestigingsnummer, kvkNummer)
+    ): RestBedrijf = readVestiging(vestigingsnummer, kvkNummer)
 
     @GET
     @Path("vestigingsprofiel/{vestigingsnummer}")
-    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestVestigingsprofiel =
+    fun readVestigingsprofiel(@PathParam("vestigingsnummer") vestigingsnummer: String): RestBedrijfsprofiel =
         kvkClientService.findVestigingsprofiel(vestigingsnummer)
-            ?.toRestVestigingsProfiel()
+            ?.toRestBedrijfsprofiel()
             ?: throw VestigingNotFoundException(
                 "Geen vestigingsprofiel gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
             )
 
+    @GET
+    @Path("basisprofiel/{kvkNummer}")
+    fun readBasisprofiel(
+        @PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String
+    ): RestBedrijfsprofiel =
+        kvkClientService.findBasisprofiel(kvkNummer)
+            ?.toRestBedrijfsprofiel()
+            ?: throw RechtspersoonNotFoundException(
+                "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
+            )
+
     /**
      * Read a rechtspersoon by RSIN.
+     * No contact details for the rechtspersoon are retrieved for this endpoint.
      *
      * This endpoint is provided for legacy reasons.
-     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] where possible.
+     * Prefer using the KVK number for retrieving rechtspersonen using [readRechtspersoonByKvkNummer] if possible.
      */
     @GET
     @Path("rechtspersoon/rsin/{rsin}")
     fun readRechtspersoonByRsin(@PathParam("rsin") @Length(min = 9, max = 9) rsin: String): RestBedrijf =
         kvkClientService.findRechtspersoonByRsin(rsin)
             ?.toRestBedrijf()
-            ?.copy(kvkNummer = null)
             ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor RSIN '$rsin'")
 
     /**
@@ -146,32 +173,68 @@ class KlantRestService @Inject constructor(
     @GET
     @Path("rechtspersoon/kvknummer/{kvkNummer}")
     fun readRechtspersoonByKvkNummer(@PathParam("kvkNummer") @Length(min = 8, max = 8) kvkNummer: String): RestBedrijf =
-        kvkClientService.findRechtspersoonByKvkNummer(kvkNummer)
-            ?.toRestBedrijf()
-            ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+        runBlocking {
+            // run the two client calls concurrently in a coroutine scope,
+            // so we do not need to wait for the first call to complete
+            withContext(Dispatchers.IO) {
+                supervisorScope {
+                    val klantRechtspersoonDigitalAddresses =
+                        async { klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer) }
+                    val rechtspersoon = async { kvkClientService.findRechtspersoonByKvkNummer(kvkNummer) }
+                    val restBedrijf = rechtspersoon.await()?.toRestBedrijf()
+                        ?: throw RechtspersoonNotFoundException("Geen rechtspersoon gevonden voor KVK nummer '$kvkNummer'")
+                    klantRechtspersoonDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                        restBedrijf.apply {
+                            emailadres = contactDetails.emailAddress
+                            telefoonnummer = contactDetails.telephoneNumber
+                        }
+                    }
+                }
+            }
+        }
 
     @GET
     @Path("personen/parameters")
-    fun personenParameters(): List<RestPersonenParameters> = VALID_PERSONEN_QUERIES
+    fun personenParameters(): List<RestPersonenParameters> = getValidPersonenQueries(
+        loggedInUserInstance.get().let { !it.overallRoles.contains(ROLE_NAME_BRP_ZOEKEN) }
+    )
+
+    @GET
+    @Path("personen/gemeenten")
+    fun listAuthorisedBrpGemeenten(): List<RestBrpGemeente> = loggedInUserInstance.get().brpGemeenten.map {
+        RestBrpGemeente(code = it.key, naam = it.value)
+    }
 
     @PUT
     @Path("personen")
     fun listPersonen(
         restListPersonenParameters: RestListPersonenParameters,
         @HeaderParam(ZAAKTYPE_UUID_HEADER) zaaktypeUuid: UUID? = null
-    ): RESTResultaat<RestPersoon> =
-        restListPersonenParameters.bsn
+    ): RESTResultaat<RestPersoon> {
+        val brpRechten = policyService.readBrpRechten(restListPersonenParameters.gemeenteVanInschrijving)
+        assertPolicy(brpRechten.zoeken)
+        return restListPersonenParameters.bsn
             ?.takeIf { it.isNotBlank() }
             ?.let { bsn ->
-                listOfNotNull(brpClientService.retrievePersoon(bsn, zaaktypeUuid))
+                listOfNotNull(
+                    brpClientService.retrievePersoon(
+                        bsn, zaaktypeUuid, loggedInUserInstance.get().id,
+                        restListPersonenParameters.gemeenteVanInschrijving
+                    )
+                )
                     .map { it.toRestPersoon() }
                     .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                     .toRestResultaat()
             }
-            ?: brpClientService.queryPersonen(restListPersonenParameters.toPersonenQuery(), zaaktypeUuid)
+            ?: brpClientService.queryPersonen(
+                restListPersonenParameters.toPersonenQuery(),
+                zaaktypeUuid,
+                loggedInUserInstance.get().id
+            )
                 .toRestPersonen()
-                .map { it.apply { temporaryPersonId = bsn?.let(identificationService::replaceBsnWithKey) } }
+                .map { it.apply { temporaryPersonId = identificationService.replaceBsnWithKey(bsn) } }
                 .toRestResultaat()
+    }
 
     @PUT
     @Path("bedrijven")
@@ -221,26 +284,29 @@ class KlantRestService @Inject constructor(
         return RESTResultaat(klantcontactListPage, klantcontactListPage.size.toLong())
     }
 
-    private fun getVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
+    private fun readVestiging(vestigingsnummer: String, kvkNummer: String? = null) = runBlocking {
         // run the two client calls concurrently in a coroutine scope,
         // so we do not need to wait for the first call to complete
         withContext(Dispatchers.IO) {
-            val klantVestigingDigitalAddresses =
-                async {
-                    // we do not support retrieving contact details for a vestiging if no KVK number was provided
-                    kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
-                        ?: emptyList()
+            supervisorScope {
+                val klantVestigingDigitalAddresses =
+                    async {
+                        // we do not support retrieving contact details for a vestiging if no KVK number was provided
+                        kvkNummer?.let { klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, it) }
+                            ?: emptyList()
+                    }
+                val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
+                val restBedrijf = vestiging.await()?.toRestBedrijf()?.apply { if (kvkNummer == null) this.kvkNummer = null }
+                    ?: throw VestigingNotFoundException(
+                        "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
+                            (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
+                    )
+                klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
+                    restBedrijf.apply {
+                        emailadres = contactDetails.emailAddress
+                        telefoonnummer = contactDetails.telephoneNumber
+                    }
                 }
-            val vestiging = async { kvkClientService.findVestiging(vestigingsnummer, kvkNummer) }
-            klantVestigingDigitalAddresses.await().toContactDetails().let { contactDetails ->
-                vestiging.await()?.toRestBedrijf()?.apply {
-                    if (kvkNummer == null) this.kvkNummer = null
-                    emailadres = contactDetails.emailAddress
-                    telefoonnummer = contactDetails.telephoneNumber
-                } ?: throw VestigingNotFoundException(
-                    "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'" +
-                        (kvkNummer?.let { " en KVK nummer '$it'" } ?: "")
-                )
             }
         }
     }

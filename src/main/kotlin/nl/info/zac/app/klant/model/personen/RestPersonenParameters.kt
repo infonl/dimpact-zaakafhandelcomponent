@@ -27,14 +27,14 @@ data class RestPersonenParameters(
 /**
  * Needs to correspond to the implementation [toPersonenQuery] function.
  */
-val VALID_PERSONEN_QUERIES = listOf(
+fun getValidPersonenQueries(mustSpecifyGemeente: Boolean) = listOf(
     RestPersonenParameters(
         bsn = Cardinaliteit.REQ,
         geslachtsnaam = Cardinaliteit.NON,
         voornamen = Cardinaliteit.NON,
         voorvoegsel = Cardinaliteit.NON,
         geboortedatum = Cardinaliteit.NON,
-        gemeenteVanInschrijving = Cardinaliteit.NON,
+        gemeenteVanInschrijving = if (mustSpecifyGemeente) Cardinaliteit.REQ else Cardinaliteit.NON,
         postcode = Cardinaliteit.NON,
         huisnummer = Cardinaliteit.NON,
         straat = Cardinaliteit.NON
@@ -45,7 +45,7 @@ val VALID_PERSONEN_QUERIES = listOf(
         voornamen = Cardinaliteit.OPT,
         voorvoegsel = Cardinaliteit.OPT,
         geboortedatum = Cardinaliteit.REQ,
-        gemeenteVanInschrijving = Cardinaliteit.NON,
+        gemeenteVanInschrijving = if (mustSpecifyGemeente) Cardinaliteit.REQ else Cardinaliteit.NON,
         postcode = Cardinaliteit.NON,
         huisnummer = Cardinaliteit.NON,
         straat = Cardinaliteit.NON
@@ -67,7 +67,7 @@ val VALID_PERSONEN_QUERIES = listOf(
         voornamen = Cardinaliteit.NON,
         voorvoegsel = Cardinaliteit.NON,
         geboortedatum = Cardinaliteit.NON,
-        gemeenteVanInschrijving = Cardinaliteit.NON,
+        gemeenteVanInschrijving = if (mustSpecifyGemeente) Cardinaliteit.REQ else Cardinaliteit.NON,
         postcode = Cardinaliteit.REQ,
         huisnummer = Cardinaliteit.REQ,
         straat = Cardinaliteit.NON

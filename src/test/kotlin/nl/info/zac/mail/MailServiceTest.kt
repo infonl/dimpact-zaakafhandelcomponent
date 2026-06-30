@@ -32,6 +32,7 @@ import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateHelper
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.createMailGegevens
 import org.flowable.task.api.Task
 import java.net.URI
@@ -43,6 +44,7 @@ class MailServiceTest : BehaviorSpec({
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZgwApiService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val loggedInUserName = "fakeLoggedInUserName"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val mailService = MailService(
@@ -54,7 +56,7 @@ class MailServiceTest : BehaviorSpec({
         loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -73,17 +75,35 @@ class MailServiceTest : BehaviorSpec({
             // omschrijving has to be exactly "e-mail"
             omschrijving = "e-mail"
         )
-        val user = createLoggedInUser()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedString1",
+                zaak,
+                loggedInUserName
+            )
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedBody2",
+                zaak,
+                loggedInUserName
+            )
+        } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables(
+                "fakeResolvedBody3",
+                emptyMap()
+            )
+        } returns "fakeResolvedBody3"
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
-        every { loggedInUserInstance.get() } returns user
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
                 zaak, any(), resolvedSubject, resolvedSubject, "geen"
@@ -136,10 +156,30 @@ class MailServiceTest : BehaviorSpec({
         val bronnen = Bronnen.Builder().add(zaak).build()
         val resolvedSubject = "resolvedSubject"
 
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak) } returns resolvedSubject
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedString1",
+                zaak,
+                loggedInUserName
+            )
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every { mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak) } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedBody2",
+                zaak,
+                loggedInUserName
+            )
+        } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables(
+                "fakeResolvedBody3",
+                emptyMap()
+            )
+        } returns "fakeResolvedBody3"
         mockkObject(MailService.Companion)
         every { MailService.mailSession.properties } returns Properties()
         mockkStatic(Transport::class)
@@ -150,6 +190,51 @@ class MailServiceTest : BehaviorSpec({
 
             Then("no body is returned") {
                 body shouldBe null
+            }
+        }
+    }
+
+    Given("a zaak with no zaakdata and an e-mail template body containing a zaakdata variable") {
+        val zaak = createZaak()
+        val bodyWithZaakdataVariable = "${MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX}name}"
+        val mailGegevens = createMailGegevens(
+            body = bodyWithZaakdataVariable,
+            createDocumentFromMail = false
+        )
+        val bronnen = Bronnen.Builder().add(zaak).build()
+
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { mailTemplateHelper.readZaakdata(zaak) } returns emptyMap()
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns mailGegevens.subject
+        every {
+            mailTemplateHelper.resolveZaakVariables(mailGegevens.subject, zaak, loggedInUserName)
+        } returns mailGegevens.subject
+        every {
+            mailTemplateHelper.resolveZaakdataVariables(mailGegevens.subject, emptyMap())
+        } returns mailGegevens.subject
+        every { mailTemplateHelper.resolveGemeenteVariable(bodyWithZaakdataVariable) } returns bodyWithZaakdataVariable
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                bodyWithZaakdataVariable,
+                zaak,
+                loggedInUserName
+            )
+        } returns bodyWithZaakdataVariable
+        every { mailTemplateHelper.resolveZaakdataVariables(bodyWithZaakdataVariable, emptyMap()) } returns "Onbekend"
+
+        mockkObject(MailService.Companion)
+        every { MailService.mailSession.properties } returns Properties()
+        mockkStatic(Transport::class)
+        every { Transport.send(any<Message>()) } just runs
+
+        When("the send mail function is invoked") {
+            val body = mailService.sendMail(mailGegevens, bronnen)
+
+            Then("the zaakdata variable in the body is replaced with 'Onbekend'") {
+                body shouldBe "Onbekend"
+                verify(exactly = 1) {
+                    mailTemplateHelper.resolveZaakdataVariables(bodyWithZaakdataVariable, emptyMap())
+                }
             }
         }
     }
@@ -167,8 +252,10 @@ class MailServiceTest : BehaviorSpec({
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
         every { mailTemplateHelper.resolveTaskVariables("fakeResolvedString1", task) } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
         every { mailTemplateHelper.resolveTaskVariables("fakeResolvedBody2", task) } returns resolvedBody
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedBody, emptyMap()) } returns resolvedBody
 
         mockkObject(MailService.Companion)
         every { MailService.mailSession.properties } returns Properties()

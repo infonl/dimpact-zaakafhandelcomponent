@@ -1,0 +1,86 @@
+/*
+ * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.zac.authentication
+
+import jakarta.enterprise.inject.Instance
+import jakarta.enterprise.inject.Produces
+import jakarta.inject.Inject
+import jakarta.servlet.http.HttpSession
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
+import java.io.Serial
+import java.io.Serializable
+
+class LoggedInUserProvider @Inject constructor(
+    @ActiveSession
+    val httpSession: Instance<HttpSession>
+) : Serializable {
+    companion object {
+        @Serial
+        private const val serialVersionUID = 654714651976511004L
+
+        /**
+         * Constant which indicates in which [HttpSession] attribute the current authenticated [LoggedInUser] can be found.
+         */
+        const val LOGGED_IN_USER_SESSION_ATTRIBUTE = "logged-in-user"
+
+        /**
+         * Internal-only 'system user' which is used for internal ZAC API request not originating from an actual user.
+         * Requests to these internal API calls are typically initiated from external systems or cron jobs.
+         */
+        val FUNCTIONEEL_GEBRUIKER = LoggedInUser(
+            "FG",
+            "",
+            "Functionele gebruiker",
+            "Functionele gebruiker",
+            null,
+            emptySet(),
+            emptySet()
+        )
+
+        val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
+    }
+
+    /**
+     * Produces an authenticated [LoggedInUser] for use in CDI Beans.
+     *
+     * If [systemUser] is enabled (set to true) or there is no http session (async context) the
+     * [FUNCTIONEEL_GEBRUIKER] user is returned.
+     *
+     * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
+     * session, where it is set via the [UserPrincipalFilter]
+     *
+     * @return the currently logged-in user or null if session is available and [FUNCTIONEEL_GEBRUIKER] in case this is
+     * async context or [systemUser] is explicitly requested
+     */
+    @Produces
+    fun getLoggedInUser() =
+        if (systemUser.get() ?: false) {
+            FUNCTIONEEL_GEBRUIKER // explicitly requested
+        } else {
+            httpSession.get()?.let {
+                getLoggedInUser(it)
+            } ?: FUNCTIONEEL_GEBRUIKER // async context
+        }
+}
+
+/**
+ * If there is a logged-in user in the given [httpSession], return it.
+ * Returns `null` if the session does not contain a logged-in user attribute or if the session has been
+ * invalidated (e.g. the user logged out while a request was still in-flight).
+ */
+fun getLoggedInUser(httpSession: HttpSession) =
+    try {
+        httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE)?.let { it as LoggedInUser }
+    } catch (_: IllegalStateException) {
+        // Session was invalidated (user logged out) while the request was still in-flight; treat as no session.
+        null
+    }
+
+fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
+    httpSession.setAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE, loggedInUser)
+
+fun setFunctioneelGebruiker(httpSession: HttpSession) =
+    setLoggedInUser(httpSession, FUNCTIONEEL_GEBRUIKER)

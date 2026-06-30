@@ -41,7 +41,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         enkelvoudigInformatieObjectLockService = enkelvoudigInformatieObjectLockService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

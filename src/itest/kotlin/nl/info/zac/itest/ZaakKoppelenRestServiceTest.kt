@@ -10,12 +10,12 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -35,19 +35,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
         val (_, zaakUuid) = zaakHelper.createZaak(
             zaakDescription = zaakDescription,
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-            group = BEHANDELAARS_DOMAIN_TEST_1,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
             startDate = DATE_TIME_2000_01_01,
             indexZaak = true,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createZaak(
             zaakDescription = toBeLinkedZaakDescription,
-            zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
-            group = BEHANDELAARS_DOMAIN_TEST_1,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
             startDate = DATE_TIME_2000_01_01,
             indexZaak = true,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
 
         When(
@@ -62,7 +62,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "&relationType=DEELZAAK" +
                     "&rows=$ROWS_DEFAULT" +
                     "&page=$PAGE_DEFAULT",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("it returns the 'to be linked' zaak as linkable zaak") {
@@ -79,7 +79,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                         "omschrijving" : "$toBeLinkedZaakDescription",
                         "statustypeOmschrijving" : "Intake",
                         "type" : "ZAAK",
-                        "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       } ],
                       "totaal" : 1,
                       "filters" : { }
@@ -98,7 +98,84 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                         "relatieType": "HOOFDZAAK"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
+            )
+
+            Then("successfully links the zaken") {
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+        }
+    }
+
+    Given("Another two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
+        val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
+        val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaakDescription = zaakDescription,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true,
+            testUser = BEHANDELAAR_1
+        )
+        val (teKoppelenZaakIdentification, teKoppelenZaakUuid) = zaakHelper.createZaak(
+            zaakDescription = toBeLinkedZaakDescription,
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+            group = GROUP_BEHANDELAARS_TEST_1,
+            startDate = DATE_TIME_2000_01_01,
+            indexZaak = true,
+            testUser = BEHANDELAAR_1
+        )
+
+        When(
+            """
+            searching for a GERELATEERD linkable zaken on the first created zaak for the
+            'to be linked' zaak identifier
+            """.trimIndent()
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken" +
+                    "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
+                    "&relationType=GERELATEERD" +
+                    "&rows=$ROWS_DEFAULT" +
+                    "&page=$PAGE_DEFAULT",
+                testUser = BEHANDELAAR_1
+            )
+
+            Then("it returns the 'to be linked' zaak as linkable zaak") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringOrder """
+                    {
+                      "foutmelding" : "",
+                      "resultaten" : [ {
+                        "id" : "$teKoppelenZaakUuid",
+                        "identificatie" : "$teKoppelenZaakIdentification",
+                        "isKoppelbaar" : true,
+                        "omschrijving" : "$toBeLinkedZaakDescription",
+                        "statustypeOmschrijving" : "Intake",
+                        "type" : "ZAAK",
+                        "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
+                      } ],
+                      "totaal" : 1,
+                      "filters" : { }
+                    }
+                """.trimIndent()
+            }
+        }
+
+        When("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
+            val response = itestHttpClient.performPatchRequest(
+                url = "$ZAC_API_URI/zaken/zaak/koppel",
+                requestBodyAsString = """
+                    {
+                        "zaakUuid": "$teKoppelenZaakUuid",
+                        "teKoppelenZaakUuid": "$zaakUuid",
+                        "relatieType": "GERELATEERD"
+                    }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1,
             )
 
             Then("successfully links the zaken") {

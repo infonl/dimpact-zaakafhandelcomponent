@@ -1,0 +1,30 @@
+/*
+ * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ *
+ */
+
+@import "../../../../variables";
+
+mat-card {
+  margin: 5px 0;
+}
+
+.form-disabled-feedback {
+  margin: 10px 0;
+}
+
+.group {
+  cursor: pointer;
+
+  &.mat-tree-node {
+    border-top: 1px solid #d8d8d8;
+  }
+  &.mat-tree-node:last-child {
+    border-bottom: 1px solid #d8d8d8;
+  }
+
+  &:hover {
+    background: var(--mat-expansion-header-hover-state-layer-color);
+  }
+}

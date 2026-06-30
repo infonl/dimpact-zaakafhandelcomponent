@@ -1,4 +1,34 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.table-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  table {
+    table-layout: fixed;
+  }
+
+  .dashboard-empty-cell {
+    vertical-align: middle;
+    text-align: center;
+
+    mat-progress-spinner {
+      display: inline-block;
+      margin: 16px 0;
+    }
+  }
+}
+
+mat-paginator {
+  margin-top: auto;
+}

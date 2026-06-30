@@ -142,6 +142,22 @@ describe(ZacDate.name, () => {
 
       expect(component["max"]()).toBeNull();
     });
+
+    it("should update min when Validators.min changes after render", () => {
+      const form = createTestForm();
+      componentRef.setInput("form", form);
+      componentRef.setInput("key", "date");
+      fixture.detectChanges();
+
+      expect(component["min"]()).toBeNull();
+
+      const minMs = moment().add(5, "days").startOf("day").valueOf();
+      form.controls.date.addValidators(Validators.min(minMs));
+      form.controls.date.updateValueAndValidity();
+      fixture.detectChanges();
+
+      expect(component["min"]()?.valueOf()).toBe(minMs);
+    });
   });
 
   describe("Clear button", () => {

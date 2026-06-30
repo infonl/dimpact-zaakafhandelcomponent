@@ -6,10 +6,12 @@
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSortModule } from "@angular/material/sort";
 import { MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
@@ -42,8 +44,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-001",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
+        Contactpersoon: [`P-${mockPersoon.bsn}`],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -51,7 +53,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-002",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -59,7 +61,7 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-003",
       status: "OPEN",
       betrokkenen: {
-        Bewindvoerder: [mockPersoon.bsn, "999992958"],
+        Bewindvoerder: [`P-${mockPersoon.bsn}`, "P-999992958"],
       },
     } as unknown as ZaakZoekObject,
     {
@@ -67,8 +69,8 @@ describe(KlantZakenTabelComponent.name, () => {
       identificatie: "ZAAK-004",
       status: "OPEN",
       betrokkenen: {
-        Melder: [mockPersoon.bsn],
-        Contactpersoon: [mockPersoon.bsn],
+        Melder: [`P-${mockPersoon.bsn}`],
+        Contactpersoon: [`P-${mockPersoon.bsn}`],
         Behandelaar: ["behandelaar-user"],
       },
     } as unknown as ZaakZoekObject,
@@ -76,8 +78,8 @@ describe(KlantZakenTabelComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KlantZakenTabelComponent],
       imports: [
+        KlantZakenTabelComponent,
         NoopAnimationsModule,
         MatTableModule,
         MatSortModule,
@@ -89,6 +91,8 @@ describe(KlantZakenTabelComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideNativeDateAdapter(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
       ],
     }).compileComponents();
@@ -116,6 +120,9 @@ describe(KlantZakenTabelComponent.name, () => {
 
     fixture = TestBed.createComponent(KlantZakenTabelComponent);
     component = fixture.componentInstance;
+    jest
+      .spyOn(component["changeDetectorRef"], "detectChanges")
+      .mockImplementation(() => {});
     fixture.componentRef.setInput("klant", mockPersoon);
 
     fixture.detectChanges();
@@ -146,7 +153,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Melder: ["999993896"],
+          Melder: ["P-999993896"],
           Contactpersoon: ["other-bsn"],
         },
       } as unknown as ZaakZoekObject;
@@ -166,7 +173,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["12345678"],
+          Belanghebbende: ["K-12345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -185,7 +192,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["12345678"],
+          Belanghebbende: ["K-12345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -205,7 +212,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678"],
+          Belanghebbende: ["V-12345678-000012345678"],
           Adviseur: ["87654321"],
         },
       } as unknown as ZaakZoekObject;
@@ -225,7 +232,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678", "12345678"], // both in same role
+          Belanghebbende: ["V-12345678-000012345678", "K-12345678"], // both in same role
         },
       } as unknown as ZaakZoekObject;
 
@@ -245,8 +252,8 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Belanghebbende: ["000012345678"], // vestigingsnummer
-          Adviseur: ["12345678"], // kvkNummer
+          Belanghebbende: ["V-12345678-000012345678"], // vestigingsnummer
+          Adviseur: ["K-12345678"], // kvkNummer
         },
       } as unknown as ZaakZoekObject;
 
@@ -266,7 +273,7 @@ describe(KlantZakenTabelComponent.name, () => {
 
       const mockZaak = {
         betrokkenen: {
-          Adviseur: ["12345678"], // only kvkNummer in betrokkenen
+          Adviseur: ["K-12345678"], // only kvkNummer in betrokkenen
         },
       } as unknown as ZaakZoekObject;
 
@@ -279,9 +286,9 @@ describe(KlantZakenTabelComponent.name, () => {
     it("should return multiple roles when betrokkene has multiple roles", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.bsn],
-          Melder: [mockPersoon.bsn],
-          Contactpersoon: [mockPersoon.bsn],
+          Initiator: [`P-${mockPersoon.bsn}`],
+          Melder: [`P-${mockPersoon.bsn}`],
+          Contactpersoon: [`P-${mockPersoon.bsn}`],
           Behandelaar: ["other-id"],
         },
       } as unknown as ZaakZoekObject;
@@ -317,7 +324,7 @@ describe(KlantZakenTabelComponent.name, () => {
     it("should not duplicate roles when same ID appears multiple times", fakeAsync(() => {
       const mockZaak = {
         betrokkenen: {
-          Initiator: [mockPersoon.bsn, "other-id"],
+          Initiator: [`P-${mockPersoon.bsn}`, "other-id"],
         },
       } as unknown as ZaakZoekObject;
 

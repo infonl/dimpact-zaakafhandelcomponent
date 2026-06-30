@@ -9,6 +9,7 @@
     ":pinDependencies",
     ":maintainLockFilesWeekly",
     ":automergeDigest",
+    ":semanticCommits",
     "docker:pinDigests",
     "docker:enableMajor"
   ],
@@ -61,6 +62,18 @@
       "datasourceTemplate": "java-version",
       "depNameTemplate": "java-jre",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # trivy version updated by renovate"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "aquasecurity/trivy",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -181,6 +194,17 @@
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/brp-api/personen-mock",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d{12})$",
+      "managerFilePatterns": [
+        "/^DEPENDENCIES\\.md$/"
+      ]
+    },
+    {
+      "customType": "regex",
+      "matchStrings": [
+        "- \\*\\*open-forms\\*\\*: (?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "openformulieren/open-forms",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -394,6 +418,39 @@
   ],
   "packageRules": [
     {
+      "matchUpdateTypes": [
+        "patch",
+        "lockFileMaintenance"
+      ],
+      "automerge": true,
+      "description": [
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
+      ]
+    },
+    {
+      "groupName": "Angular",
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-eslint\\//",
+        "/^@angular-builders\\//"
+      ],
+      "allowedVersions": "< 21.0.0",
+      "description": [
+        "Group all Angular ecosystem packages (framework, CLI, components, eslint, builders) so the CLI/build packages never upgrade ahead of the framework",
+        "Pinned to v20.x until the staged Angular 19 -> 20 migration completes"
+      ]
+    },
+    {
+      "groupName": "Helm CLI",
+      "matchPackageNames": [
+        "helm",
+        "helm/helm"
+      ],
+      "description": [
+        "Group Helm CLI updates (built-in detector and custom regex manager) into a single PR"
+      ]
+    },
+    {
       "groupName": "WildFly and plugins",
       "matchPackageNames": [
         "/^wildfly/",
@@ -407,13 +464,29 @@
       "groupName": "Platform Autorisatie Beheer Component (PABC)",
       "matchPackageNames": [
         "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations",
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
+        "ghcr.io/platform-autorisatie-beheer-component/pabc-api",
+        "ghcr.io/infonl/pabc-migrations",
+        "ghcr.io/infonl/pabc-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "semver",
+      "description": [
+        "Group upstream and infonl mirror PABC migrations and API updates into a single PR"
+      ]
+    },
+    {
+      "groupName": "PostGIS docker image",
+      "matchPackageNames": [
+        "postgis/postgis",
+        "ghcr.io/infonl/postgis"
       ],
       "matchDatasources": [
         "docker"
       ],
       "description": [
-        "Group PABC migrations and API updates into a single PR"
+        "Group PostGIS upstream and infonl mirror updates into a single PR"
       ]
     },
     {
@@ -476,67 +549,91 @@
       "matchDatasources": [
         "maven"
       ],
-      "allowedVersions": "< 26.1",
+      "allowedVersions": "< 26.6",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
+      "groupName": "Objects-api docker image",
       "matchPackageNames": [
-        "maykinmedia/objects-api"
+        "maykinmedia/objects-api",
+        "ghcr.io/infonl/objects-api"
       ],
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.4.0",
+      "allowedVersions": "< 3.7.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
+      "groupName": "Objecttypes-api docker image",
       "matchPackageNames": [
-        "maykinmedia/objecttypes-api"
+        "maykinmedia/objecttypes-api",
+        "ghcr.io/infonl/objecttypes-api"
       ],
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.4.0",
+      "allowedVersions": "< 3.5.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
+      "groupName": "Open-forms docker image",
       "matchPackageNames": [
-        "maykinmedia/open-klant"
+        "openformulieren/open-forms",
+        "ghcr.io/infonl/open-formulieren"
       ],
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 2.15.0",
+      "allowedVersions": "< 3.6.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
+      "groupName": "Open-klant docker image",
       "matchPackageNames": [
-        "openzaak/open-zaak"
+        "maykinmedia/open-klant",
+        "ghcr.io/infonl/open-klant"
       ],
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.27.0",
+      "allowedVersions": "< 2.16.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
+      "groupName": "Open-zaak docker image",
       "matchPackageNames": [
-        "openzaak/open-notificaties"
+        "openzaak/open-zaak",
+        "ghcr.io/infonl/open-zaak"
       ],
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 1.14.0",
+      "allowedVersions": "< 1.28.0",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release"
+      ]
+    },
+    {
+      "groupName": "Open-notificaties docker image",
+      "matchPackageNames": [
+        "openzaak/open-notificaties",
+        "ghcr.io/infonl/open-notificaties"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 1.16.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
@@ -548,14 +645,28 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 8.1.0",
+      "allowedVersions": "< 8.7.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]
     },
     {
       "matchPackageNames": [
-        "maykinmedia/open-archiefbeheer"
+        "rabbitmq"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 4.2.8",
+      "description": [
+        "Pinned by the next Dimpact PodiumD release. Note that RabbitMQ 4.3.x breaks Open Notificaties. Remove this pin when upgrading Open Notificaties to >= 1.16.0 (RabbitMQ is expected to no longer be required)."
+      ]
+    },
+    {
+      "groupName": "Open-archiefbeheer docker image",
+      "matchPackageNames": [
+        "maykinmedia/open-archiefbeheer",
+        "ghcr.io/infonl/open-archiefbeheer"
       ],
       "matchDatasources": [
         "docker"
@@ -563,14 +674,6 @@
       "allowedVersions": "< 1.2.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "opentelemetry-collector"
-      ],
-      "matchDatasources": [
-        "helm"
       ]
     },
     {
@@ -622,15 +725,6 @@
     },
     {
       "matchPackageNames": [
-        "com.diffplug.spotless"
-      ],
-      "allowedVersions": "< 7",
-      "description": [
-        "Pinned - version 7 causes Connection refused and node/npm discovery issues"
-      ]
-    },
-    {
-      "matchPackageNames": [
         "eclipse-temurin"
       ],
       "matchDatasources": [
@@ -638,24 +732,6 @@
       ],
       "versioning": "loose",
       "allowedVersions": "/jre-ubi10-minimal$/"
-    },
-    {
-      "matchPackageNames": [
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-api"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "versioning": "semver"
-    },
-    {
-      "matchPackageNames": [
-        "ghcr.io/platform-autorisatie-beheer-component/pabc-migrations"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "versioning": "semver"
     },
     {
       "matchPackageNames": [

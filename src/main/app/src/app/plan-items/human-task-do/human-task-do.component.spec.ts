@@ -9,9 +9,12 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { AbstractControl, FormBuilder } from "@angular/forms";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -19,13 +22,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { HumanTaskDoComponent } from "./human-task-do.component";
 
@@ -36,15 +37,18 @@ describe("HumanTaskDoComponent", () => {
 
   let identityService: IdentityService;
   let taakFormulierenService: TaakFormulierenService;
+  let foutAfhandelingService: FoutAfhandelingService;
+  let httpTestingController: HttpTestingController;
+
+  // `form` is built up dynamically, so its controls are not statically typed
+  function getFormControl(key: string) {
+    return component["form"].get(key) as AbstractControl<unknown> | null;
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HumanTaskDoComponent],
       imports: [
-        ReactiveFormsModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
-        PipesModule,
+        HumanTaskDoComponent,
         TranslateModule.forRoot(),
         NoopAnimationsModule,
       ],
@@ -60,6 +64,8 @@ describe("HumanTaskDoComponent", () => {
     }).compileComponents();
 
     taakFormulierenService = TestBed.inject(TaakFormulierenService);
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     identityService = TestBed.inject(IdentityService);
     jest
@@ -83,6 +89,7 @@ describe("HumanTaskDoComponent", () => {
     component.zaak = fromPartial<GeneratedType<"RestZaak">>({
       zaaktype: {
         uuid: "test-zaaktype-uuid",
+        omschrijving: "test-zaaktype-omschrijving",
       },
     });
 
@@ -101,6 +108,14 @@ describe("HumanTaskDoComponent", () => {
 
       const fields = await loader.getAllHarnesses(MatFormFieldHarness);
       expect(fields).toHaveLength(2); // `Group` and `User` inputs
+    });
+
+    it("should call listBehandelaarGroupsForZaaktype with the zaaktype omschrijving", async () => {
+      await component.ngOnInit();
+
+      expect(
+        identityService.listBehandelaarGroupsForZaaktype,
+      ).toHaveBeenCalledWith("test-zaaktype-omschrijving");
     });
 
     it("should pre-select the group and load users when planItem.groepId matches a group", async () => {
@@ -159,6 +174,43 @@ describe("HumanTaskDoComponent", () => {
 
       expect(listUsersInGroupSpy).not.toHaveBeenCalled();
     });
+
+    it("should enable the user control and load its options when a group is selected", async () => {
+      const mockUsers = [
+        fromPartial<GeneratedType<"RestUser">>({ id: "u1", naam: "User One" }),
+      ];
+      jest
+        .spyOn(identityService, "listUsersInGroup")
+        .mockReturnValue(of(mockUsers));
+
+      await component.ngOnInit();
+
+      getFormControl("group")?.setValue(
+        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
+      );
+
+      expect(identityService.listUsersInGroup).toHaveBeenCalledWith("1");
+      expect(component["form"].get("user")?.enabled).toBe(true);
+      const userField = component["formFields"].find(
+        (formField) =>
+          formField.type === "auto-complete" && formField.key === "user",
+      ) as { options?: unknown[] } | undefined;
+      expect(userField?.options).toEqual(mockUsers);
+    });
+
+    it("should reset and disable the user control when the group is cleared", async () => {
+      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+
+      await component.ngOnInit();
+
+      getFormControl("group")?.setValue(
+        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
+      );
+      getFormControl("group")?.setValue(null);
+
+      expect(component["form"].get("user")?.disabled).toBe(true);
+      expect(component["form"].get("user")?.value).toBeNull();
+    });
   });
 
   describe("angular form with fields", () => {
@@ -176,30 +228,122 @@ describe("HumanTaskDoComponent", () => {
     });
   });
 
-  describe("custom form builder", () => {
-    beforeEach(() => {
+  describe("plan item that is not a human task", () => {
+    it("should not build a form", async () => {
+      const getAngularRequestFormBuilderSpy = jest.spyOn(
+        taakFormulierenService,
+        "getAngularRequestFormBuilder",
+      );
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        type: "PROCESS_TASK",
+      });
+
+      await component.ngOnInit();
+
+      expect(getAngularRequestFormBuilderSpy).not.toHaveBeenCalled();
+      expect(component["formFields"]).toHaveLength(0);
+    });
+  });
+
+  describe("submitting the form", () => {
+    beforeEach(async () => {
       jest
         .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
-        .mockImplementation(() => {
-          throw new Error("Not implemented");
-        });
-      jest.spyOn(taakFormulierenService, "getFormulierBuilder").mockReturnValue(
-        fromPartial({
-          startForm: () =>
-            fromPartial({
-              build: () =>
-                fromPartial({
-                  form: [],
-                }),
-            }),
-        }),
+        .mockResolvedValue([{ type: "input", key: "question" }]);
+      jest
+        .spyOn(foutAfhandelingService, "foutAfhandelen")
+        .mockReturnValue(undefined as never);
+      jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
+      component.planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+        id: "test-plan-item-id",
+        type: "HUMAN_TASK",
+        formulierDefinitie: "ADVIES",
+      });
+
+      await component.ngOnInit();
+      getFormControl("question")?.setValue("test answer");
+      getFormControl("group")?.setValue(
+        fromPartial<GeneratedType<"RestGroup">>({ id: "1", naam: "groep1" }),
       );
     });
 
-    it("should fallback to the old custom form builder", async () => {
-      const spy = jest.spyOn(taakFormulierenService, "getFormulierBuilder");
+    it("should send the filled in task fields to the backend", async () => {
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doHumanTaskPlanItem",
+      );
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          planItemInstanceId: "test-plan-item-id",
+          groep: expect.objectContaining({ id: "1", naam: "groep1" }),
+          taakdata: expect.objectContaining({ question: "test answer" }),
+        }),
+      );
+      request.flush({});
+    });
+
+    it("should emit done when saving succeeds", async () => {
+      const doneSpy = jest.spyOn(component.done, "emit");
+
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      httpTestingController
+        .expectOne("/rest/planitems/doHumanTaskPlanItem")
+        .flush({});
+      await sleep();
+
+      expect(doneSpy).toHaveBeenCalled();
+    });
+
+    it("should show an error message and not emit done when saving fails", async () => {
+      const doneSpy = jest.spyOn(component.done, "emit");
+
+      component["onFormSubmit"](component["form"]);
+      await sleep();
+
+      httpTestingController
+        .expectOne("/rest/planitems/doHumanTaskPlanItem")
+        .flush("something went wrong", {
+          status: 500,
+          statusText: "Internal Server Error",
+        });
+      await sleep();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+      expect(doneSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("cancelling the form", () => {
+    it("should emit done", () => {
+      const doneSpy = jest.spyOn(component.done, "emit");
+
+      component["onFormCancel"]();
+
+      expect(doneSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("form loading errors", () => {
+    it("should open an error dialog when building the form fails", async () => {
+      jest
+        .spyOn(taakFormulierenService, "getAngularRequestFormBuilder")
+        .mockRejectedValue(
+          new Error("Onbekende formulierDefinitie for Angular form: FAKE"),
+        );
+      const openFoutDialogSpy = jest
+        .spyOn(foutAfhandelingService, "openFoutDialog")
+        .mockReturnValue(of(undefined) as never);
+
       await component.ngOnInit();
-      expect(spy).toHaveBeenCalledWith(component.planItem?.formulierDefinitie);
+
+      expect(openFoutDialogSpy).toHaveBeenCalledWith(
+        "Onbekende formulierDefinitie for Angular form: FAKE",
+      );
     });
   });
 });

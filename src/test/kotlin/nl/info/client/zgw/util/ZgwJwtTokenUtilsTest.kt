@@ -15,7 +15,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.model.getFullName
 
 class ZgwJwtTokenUtilsTest : BehaviorSpec({
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -48,9 +48,6 @@ class ZaaktypeCmmnConfiguration : ZaaktypeConfiguration() {
     @Column(name = "afronden_mail", nullable = false)
     var afrondenMail: String? = ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT.name
 
-    @Column(name = "smartdocuments_ingeschakeld")
-    var smartDocumentsIngeschakeld: Boolean = false
-
     // The set is necessary for Hibernate when you have more than one eager collection on an entity.
     @OneToMany(
         mappedBy = "zaaktypeCmmnConfiguration",

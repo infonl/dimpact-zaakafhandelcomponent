@@ -1,0 +1,80 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Trivy IaC misconfiguration scan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "charts/**"
+      - ".github/workflows/trivy-iac-scan.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "charts/**"
+      - ".github/workflows/trivy-iac-scan.yml"
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main') }}
+
+jobs:
+  trivy-config:
+    name: Trivy IaC misconfiguration scan
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.2.2 # helm version updated by renovate
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+          helm repo add solr https://solr.apache.org/charts
+
+      - name: Resolve Helm chart dependencies
+        # the subchart archives and Chart.lock are git-ignored, so without this step
+        # Trivy cannot render charts/zac and silently skips the Helm misconfiguration scan
+        run: helm dependency update charts/zac
+
+      - name: Run Trivy IaC/misconfiguration scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          # render the Helm chart with the CI test values so that templates guarded by
+          # `required` values can be rendered and scanned. Trivy attributes the findings
+          # to the original charts/zac/templates/*.yaml files (not a rendered temp file)
+          TRIVY_HELM_VALUES: 'charts/zac/ci/zac-chart-test-values.yaml'
+        with:
+          # scan the repository for misconfigurations in the Dockerfile,
+          # Helm charts and Kubernetes manifests
+          scan-type: 'config'
+          scan-ref: '.'
+          # pin the Trivy scanner version independently of the action wrapper so that
+          # the scanner itself stays current
+          version: v0.72.0 # trivy version updated by renovate
+          format: 'sarif'
+          output: 'trivy-config-results.sarif'
+          # report misconfigurations of all severities to the GitHub Security tab
+          limit-severities-for-sarif: false
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+
+      - name: Upload Trivy IaC Scan Results to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: 'trivy-config-results.sarif'
+          category: 'trivy-iac'

@@ -59,7 +59,17 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/internal' accept GET and DELETE</display-name>
+        <display-name>Allow POST to '/rest/notificaties' without OIDC authentication (secured by API key in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>notificaties-post</web-resource-name>
+            <description>POST is called by the Open Notificaties service using an API key (OPEN_NOTIFICATIONS_API_SECRET_KEY), not OIDC. Authentication is handled in NotificationReceiver.</description>
+            <url-pattern>/rest/notificaties</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on '/rest/internal' except GET and DELETE</display-name>
         <web-resource-collection>
             <web-resource-name>internal</web-resource-name>
             <description>Internal endpoints, invoked not from the ZAC user interface but from other services. These resources are secured using a custom API key authentication mechanism</description>
@@ -68,6 +78,17 @@
             <http-method-omission>DELETE</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET and DELETE on '/rest/internal/*' without OIDC authentication (secured by API key in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>internal-get-delete</web-resource-name>
+            <description>GET and DELETE are called by other services using a custom API key, not OIDC. Authorization is handled in RequestAuthorizationFilter.</description>
+            <url-pattern>/rest/internal/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
     </security-constraint>
 
     <security-constraint>
@@ -82,6 +103,16 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow GET on '/websocket' without OIDC authentication (secured by HTTP session in application logic)</display-name>
+        <web-resource-collection>
+            <web-resource-name>websocket-get</web-resource-name>
+            <description>GET (WebSocket upgrade) is secured via HTTP session in WebSocketServerEndPoint, not OIDC.</description>
+            <url-pattern>/websocket</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Allow unchecked access on '/webdav/*'</display-name>
         <web-resource-collection>
             <web-resource-name>webdav</web-resource-name>
@@ -91,25 +122,24 @@
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/cmmn-callback/*' except POST</display-name>
+        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/callback/*' except POST</display-name>
         <web-resource-collection>
             <web-resource-name>smartdocuments-document-creation</web-resource-name>
             <description>SmartDocuments create document callback endpoint</description>
-            <url-pattern>/rest/document-creation/smartdocuments/cmmn-callback/*</url-pattern>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
     </security-constraint>
 
     <security-constraint>
-        <display-name>Deny all HTTP methods on '/rest/document-creation/smartdocuments/bpmn-callback/*' except POST</display-name>
+        <display-name>Allow POST on '/rest/document-creation/smartdocuments/callback/*' without OIDC authentication</display-name>
         <web-resource-collection>
-            <web-resource-name>smartdocuments-document-creation</web-resource-name>
-            <description>SmartDocuments create document callback endpoint</description>
-            <url-pattern>/rest/document-creation/smartdocuments/bpmn-callback/*</url-pattern>
-            <http-method-omission>POST</http-method-omission>
+            <web-resource-name>smartdocuments-document-creation-post</web-resource-name>
+            <description>POST is called by the SmartDocuments service, not via OIDC.</description>
+            <url-pattern>/rest/document-creation/smartdocuments/callback/*</url-pattern>
+            <http-method>POST</http-method>
         </web-resource-collection>
-        <auth-constraint/>
     </security-constraint>
 
     <security-constraint>
@@ -124,6 +154,16 @@
     </security-constraint>
 
     <security-constraint>
+        <display-name>Allow GET on '/static/smart-documents-result.html' without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>smartdocuments-wizard-result-page-get</web-resource-name>
+            <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
+            <url-pattern>/static/smart-documents-result.html</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
         <display-name>Deny all HTTP methods on '/assets/*' except GET</display-name>
         <web-resource-collection>
             <web-resource-name>assets</web-resource-name>
@@ -132,6 +172,43 @@
             <http-method-omission>GET</http-method-omission>
         </web-resource-collection>
         <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET on '/assets/*' without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>assets-get</web-resource-name>
+            <description>GET is allowed by RequestAuthorizationFilter without OIDC session requirement.</description>
+            <url-pattern>/assets/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Deny all HTTP methods on favicon and PWA files except GET</display-name>
+        <web-resource-collection>
+            <web-resource-name>pwa-static-files</web-resource-name>
+            <description>Favicon, PWA manifest and apple-touch-icon — must be publicly accessible for browsers and PWA installs</description>
+            <url-pattern>/favicon.ico</url-pattern>
+            <url-pattern>/favicon.svg</url-pattern>
+            <url-pattern>/apple-touch-icon.png</url-pattern>
+            <url-pattern>/site.webmanifest</url-pattern>
+            <http-method-omission>GET</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+
+    <security-constraint>
+        <display-name>Allow GET on favicon and PWA files without OIDC authentication</display-name>
+        <web-resource-collection>
+            <web-resource-name>pwa-static-files-get</web-resource-name>
+            <description>GET is allowed without OIDC session requirement.</description>
+            <url-pattern>/favicon.ico</url-pattern>
+            <url-pattern>/favicon.svg</url-pattern>
+            <url-pattern>/apple-touch-icon.png</url-pattern>
+            <url-pattern>/site.webmanifest</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
     </security-constraint>
 
     <security-constraint>
@@ -154,7 +231,7 @@
         <servlet-class>nl.info.webdav.WebdavServlet</servlet-class>
         <init-param>
             <param-name>ResourceHandlerImplementation</param-name>
-            <param-value>net.atos.zac.webdav.WebdavStore</param-value>
+            <param-value>nl.info.zac.webdav.WebdavStore</param-value>
         </init-param>
         <init-param>
             <param-name>rootpath</param-name>

@@ -15,20 +15,19 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VERDELEN
 import nl.info.zac.itest.config.ItestConfiguration.SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
@@ -57,11 +56,11 @@ class TaskRestServiceTest : BehaviorSpec({
             """
     ) {
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
@@ -74,21 +73,21 @@ class TaskRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
         )
         taskHelper.startAanvullendeInformatieTaskForZaak(
             zaakUuid = zaakUuid.let(UUID::fromString),
             zaakIdentificatie = zaakIdentification,
             fatalDate = LocalDate.now().plusWeeks(1),
-            group = BEHANDELAARS_DOMAIN_TEST_1,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            group = GROUP_BEHANDELAARS_TEST_1,
+            testUser = BEHANDELAAR_1
         )
 
         When("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
             Then(
                 """
@@ -110,8 +109,8 @@ class TaskRestServiceTest : BehaviorSpec({
                             {
                               "formulierDefinitieId" : "$FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE",
                               "groep" : {
-                                "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                                "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                                "id" : "${GROUP_BEHANDELAARS_TEST_1.name}",
+                                "naam" : "${GROUP_BEHANDELAARS_TEST_1.description}"
                               },
                               "naam" : "$HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM",
                               "rechten" : {
@@ -127,8 +126,8 @@ class TaskRestServiceTest : BehaviorSpec({
                               "tabellen" : { },
                               "zaakIdentificatie" : "$zaakIdentification",
                               "zaakUuid" : "$zaakUuid",
-                              "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                              "zaaktypeUUID" : "$ZAAKTYPE_TEST_2_UUID"
+                              "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                              "zaaktypeUUID" : "$ZAAKTYPE_CMMN_TEST_2_UUID"
                             }
                             """.trimIndent()
                         shouldContainJsonKey("creatiedatumTijd")
@@ -155,7 +154,7 @@ class TaskRestServiceTest : BehaviorSpec({
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/taakdata",
                 requestBodyAsString = taskArray.toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the taak has been updated successfully") {
@@ -192,20 +191,20 @@ class TaskRestServiceTest : BehaviorSpec({
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = websocketListener,
-            testUser = COORDINATOR_DOMAIN_TEST_1
+            testUser = COORDINATOR_1
         )
         When("the assign tasks endpoint is called for this task") {
             val assignTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
                         "taken": [ { "taakId": "$task1ID", "zaakUuid": "$zaakUuid" } ],
-                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "behandelaarGebruikersnaam": "${BEHANDELAAR_1.username}",
                         "reden": "fakeTasksAssignReason",
                         "screenEventResourceId": "$uniqueResourceId"
                         }
                 """.trimIndent(),
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
             Then("the task is assigned correctly") {
                 val assignTasksResponseBody = assignTasksResponse.bodyAsString
@@ -248,7 +247,7 @@ class TaskRestServiceTest : BehaviorSpec({
         itestHttpClient.connectNewWebSocket(
             url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
             webSocketListener = websocketListener,
-            testUser = COORDINATOR_DOMAIN_TEST_1
+            testUser = COORDINATOR_1
         )
         When("the release tasks endpoint is called for this task") {
             val releaseTasksResponse = itestHttpClient.performPutRequest(
@@ -260,7 +259,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         "screenEventResourceId": "$uniqueResourceId"
                     }
                 """.trimIndent(),
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
             Then("the task is released correctly") {
                 val assignTasksResponseBody = releaseTasksResponse.bodyAsString

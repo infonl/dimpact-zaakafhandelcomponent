@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -7,10 +7,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { TabelGegevensResolver } from "../shared/dynamic-table/datasource/tabel-gegevens-resolver.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { TaakViewComponent } from "./taak-view/taak-view.component";
 import { TaakResolver } from "./taak.resolver";
-import { TakenMijnComponent } from "./taken-mijn/taken-mijn.component";
-import { TakenWerkvoorraadComponent } from "./taken-werkvoorraad/taken-werkvoorraad.component";
 
 const routes: Routes = [
   {
@@ -20,7 +17,10 @@ const routes: Routes = [
   },
   {
     path: "werkvoorraad",
-    component: TakenWerkvoorraadComponent,
+    loadComponent: () =>
+      import("./taken-werkvoorraad/taken-werkvoorraad.component").then(
+        (m) => m.TakenWerkvoorraadComponent,
+      ),
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: {
       werklijst: "WERKVOORRAAD_TAKEN" satisfies GeneratedType<"Werklijst">,
@@ -28,13 +28,19 @@ const routes: Routes = [
   },
   {
     path: "mijn",
-    component: TakenMijnComponent,
+    loadComponent: () =>
+      import("./taken-mijn/taken-mijn.component").then(
+        (m) => m.TakenMijnComponent,
+      ),
     resolve: { tabelGegevens: TabelGegevensResolver },
     data: { werklijst: "MIJN_TAKEN" satisfies GeneratedType<"Werklijst"> },
   },
   {
     path: ":id",
-    component: TaakViewComponent,
+    loadComponent: () =>
+      import("./taak-view/taak-view.component").then(
+        (m) => m.TaakViewComponent,
+      ),
     resolve: { taak: TaakResolver },
   },
 ];

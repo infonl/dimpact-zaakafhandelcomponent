@@ -58,7 +58,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         flowableTaskService = flowableTaskService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

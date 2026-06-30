@@ -61,9 +61,9 @@ import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
+import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
-import { SmartDocumentsFormComponent } from "./smart-documents-form/smart-documents-form.component";
 
 /**
  * Form-local variant of RestZaakbeeindigParameter where zaakbeeindigReden and resultaattype
@@ -115,12 +115,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     new EventEmitter<ProcessModelMethodSelection>();
 
   @ViewChild("smartDocumentsFormRef")
-  smartDocsFormGroup!: SmartDocumentsFormComponent;
+  smartDocumentsFormComponent!: SmartDocumentsFormComponent;
 
   private readonly destroy$ = new Subject<void>();
 
   protected isSavedZaakafhandelParameters: boolean = false;
-  protected featureFlagPabcIntegration: boolean = false;
 
   parameters: GeneratedType<"RestZaakafhandelParameters"> = {
     humanTaskParameters: [],
@@ -187,7 +186,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         null,
         [Validators.required],
       ),
-    domein: this.formBuilder.control<string | null>(null),
     defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
       null,
       [Validators.required],
@@ -246,13 +244,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
 
-  protected smartDocumentsEnabledForm = new FormGroup({
-    enabledForZaaktype: new FormControl<boolean | undefined>(false),
-  });
-
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
-  protected domeinen = this.referentieTabelService.listDomeinen();
   protected groepen = this.identityService.listGroups();
   protected medewerkers: GeneratedType<"RestLoggedInUser">[] = [];
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
@@ -290,8 +283,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
       this.isSavedZaakafhandelParameters =
         data.parameters.isSavedZaakafhandelParameters;
-      this.featureFlagPabcIntegration =
-        data.parameters.featureFlagPabcIntegration;
 
       this.parameters.intakeMail = this.parameters.intakeMail
         ? this.parameters.intakeMail
@@ -361,8 +352,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.cdr.detectChanges();
-    if (this.smartDocsFormGroup) {
-      this.smartDocsFormGroup.saveSmartDocumentsMapping();
+    if (this.smartDocumentsFormComponent) {
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping();
     }
   }
 
@@ -464,7 +455,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.createUserEventListenerForm();
     this.createMailForm();
     this.createZaakbeeindigForm();
-    this.createSmartDocumentsEnabledForm();
     this.createBetrokkeneKoppelingenForm();
 
     if (this.brpDoelbindingSetupEnabled) {
@@ -688,14 +678,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       ),
       enabled: automaticEmailConfirmation!.enabled ?? false,
     });
-  }
-
-  private createSmartDocumentsEnabledForm() {
-    this.smartDocumentsEnabledForm = this.formBuilder.group({
-      enabledForZaaktype: this.parameters.smartDocuments.enabledForZaaktype,
-    }) as FormGroup<{
-      enabledForZaaktype: FormControl<boolean | null | undefined>;
-    }>;
   }
 
   protected isZaaknietontvankelijkParameter(
@@ -1011,9 +993,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       )?.value;
     }
 
-    this.parameters.smartDocuments.enabledForZaaktype = Boolean(
-      this.smartDocumentsEnabledForm.value.enabledForZaaktype,
-    );
+    this.parameters.smartDocuments.enabledForZaaktype =
+      this.smartDocumentsFormComponent?.enabledForZaaktypeValue ?? false;
 
     this.parameters.betrokkeneKoppelingen = {
       kvkKoppelen: Boolean(
@@ -1064,11 +1045,8 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         },
       });
 
-    if (
-      this.parameters.smartDocuments.enabledGlobally &&
-      this.parameters.smartDocuments.enabledForZaaktype
-    ) {
-      this.smartDocsFormGroup?.saveSmartDocumentsMapping().subscribe();
+    if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
+      this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();
     }
   }
 

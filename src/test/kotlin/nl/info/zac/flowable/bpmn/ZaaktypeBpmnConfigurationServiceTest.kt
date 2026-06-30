@@ -19,7 +19,7 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationService = ZaaktypeBpmnConfigurationService(zaaktypeBpmnConfigurationBeheerService)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

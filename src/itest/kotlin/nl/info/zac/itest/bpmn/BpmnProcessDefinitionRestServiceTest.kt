@@ -8,7 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -25,7 +25,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         When("the process definitions are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response contains the BPMN process definitions that were just created") {
                 val responseBody = response.bodyAsString
@@ -39,8 +39,13 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "version": 1
                   },
                   {
-                    "key": "signDocumentsProcess",
-                    "name": "Sign Documents Process",
+                    "key": "permissionCheckProcess",
+                    "name": "Permission Check Process",
+                    "version": 1
+                  },
+                  {
+                    "key": "sendConfirmationEmailAndSignDocumentsProcess",
+                    "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1
                   },
                   {
@@ -66,7 +71,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         When("the process definitions are retrieved with details") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions?details=true",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response contains the BPMN process definitions that were just created") {
                 val responseBody = response.bodyAsString
@@ -97,20 +102,37 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     }
                   },
                   {
-                    "key": "signDocumentsProcess",
-                    "name": "Sign Documents Process",
+                    "key": "permissionCheckProcess",
+                    "name": "Permission Check Process",
+                    "version": 1,
+                    "details": {
+                      "inUse": true,
+                      "documentation": "Integration Test Process To Check Permissions",
+                      "forms": [
+                        {
+                          "formKey": "chooseTestProcess",
+                          "title": "Choose Test Process",
+                          "uploaded": true
+                        }
+                      ],
+                      "orphanedForms": []
+                    }
+                  },
+                  {
+                    "key": "sendConfirmationEmailAndSignDocumentsProcess",
+                    "name": "Send Confirmation Email And Sign Documents Process",
                     "version": 1,
                     "details": {
                       "inUse": true,
                       "forms": [
                         {
-                          "formKey": "signDocumentForm",
-                          "title": "signDocumentForm",
+                          "formKey": "selectDocumentsForm",
+                          "title": "SelectDocumentsForm",
                           "uploaded": true
                         },
                         {
-                          "formKey": "selectDocumentsForm",
-                          "title": "SelectDocumentsForm",
+                          "formKey": "signDocumentForm",
+                          "title": "signDocumentForm",
                           "uploaded": true
                         }
                       ],
@@ -191,7 +213,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         When("the process definition 'itProcessDefinition' is attempted to be deleted") {
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions/itProcessDefinition",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             Then("the response contains Bad Request") {
                 val responseBody = response.bodyAsString

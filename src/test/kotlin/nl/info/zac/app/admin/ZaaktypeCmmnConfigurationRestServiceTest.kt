@@ -14,7 +14,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.app.admin.converter.RESTCaseDefinitionConverter
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -22,6 +21,7 @@ import nl.info.zac.admin.ReferenceTableService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
@@ -71,61 +71,8 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         identityService = identityService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
-    }
-
-    Context(" Zaakafhandelparameters with an ID (indicating existing zaakafhandelparameters)") {
-        Given("no productaanvraagtype") {
-            val initialDomein = "initialDomein"
-            val updatedDomein = "updatedDomein"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(domein = initialDomein)
-            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(domein = updatedDomein)
-            val zaakafhandelParameters = createZaaktypeCmmnConfiguration(
-                id = 1234L,
-                domein = initialDomein
-            )
-            val updatedZaakafhandelParameters = createZaaktypeCmmnConfiguration(
-                id = 1234L,
-                domein = updatedDomein
-            )
-            every { policyService.readOverigeRechten().beheren } returns true
-            every {
-                zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(restZaakafhandelParameters)
-            } returns zaakafhandelParameters
-            every { zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters) } returns
-                updatedZaakafhandelParameters
-            every {
-                zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
-            } just runs
-            every { zaaktypeCmmnConfigurationService.clearListCache() } returns "cache cleared"
-            every {
-                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(updatedZaakafhandelParameters, true)
-            } returns updatedRestZaakafhandelParameters
-
-            When("the zaakafhandelparameters are updated with a different domein") {
-                val returnedRestZaakafhandelParameters =
-                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
-                        restZaakafhandelParameters
-                    )
-
-                Then(
-                    """
-                the zaakafhandelparameters should be updated and both the zaakafhandelparameters read cache as well as the 
-                zaakafhandelparameters list cache should be updated
-                """
-                ) {
-                    returnedRestZaakafhandelParameters shouldBe updatedRestZaakafhandelParameters
-                    verify(exactly = 1) {
-                        zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
-                        zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(
-                            zaakafhandelParameters.zaaktypeUuid
-                        )
-                        zaaktypeCmmnConfigurationService.clearListCache()
-                    }
-                }
-            }
-        }
     }
 
     Context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {

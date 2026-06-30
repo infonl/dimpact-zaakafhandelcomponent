@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgFor, NgIf } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -12,48 +13,74 @@ import {
   Output,
 } from "@angular/core";
 
-import { Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
-import { TranslateService } from "@ngx-translate/core";
-import moment from "moment";
-import { Observable, of } from "rxjs";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTabsModule } from "@angular/material/tabs";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { TranslateModule } from "@ngx-translate/core";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { UtilService } from "../../core/service/util.service";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { ZacDocuments } from "../../shared/form/documents/documents";
+import { BesluitIndicatiesComponent } from "../../shared/indicaties/besluit-indicaties/besluit-indicaties.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { DateFormFieldBuilder } from "../../shared/material-form-builder/form-components/date/date-form-field-builder";
-import { DocumentenLijstFieldBuilder } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-field-builder";
-import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
-import { HiddenFormFieldBuilder } from "../../shared/material-form-builder/form-components/hidden/hidden-form-field-builder";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { MessageFormFieldBuilder } from "../../shared/material-form-builder/form-components/message/message-form-field-builder";
-import { MessageLevel } from "../../shared/material-form-builder/form-components/message/message-level.enum";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
+import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
+import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { VervalReden } from "../model/vervalReden";
 import { ZakenService } from "../zaken.service";
+import { BesluitIntrekkenDialogComponent } from "./besluit-intrekken-dialog/besluit-intrekken-dialog.component";
 
 @Component({
   selector: "zac-besluit-view",
   templateUrl: "./besluit-view.component.html",
   styleUrls: ["./besluit-view.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgFor,
+    NgIf,
+    MatButtonModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatSortModule,
+    MatTableModule,
+    MatTabsModule,
+    MatTooltipModule,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+    MimetypeToExtensionPipe,
+    StaticTextComponent,
+    ReadMoreComponent,
+    BesluitIndicatiesComponent,
+    ZacDocuments,
+  ],
 })
 export class BesluitViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) besluiten!: GeneratedType<"RestDecision">[];
+  @Input({ required: true }) besluiten!: GeneratedType<"RestBesluit">[];
   @Input({ required: true }) readonly!: boolean;
-  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestDecision">>();
-  @Output() doIntrekking = new EventEmitter();
+  @Output() besluitWijzigen = new EventEmitter<GeneratedType<"RestBesluit">>();
   readonly indicatiesLayout = IndicatiesLayout;
   histories: Record<
     string,
     MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>
   > = {};
 
-  besluitInformatieobjecten: Record<string, DocumentenLijstFormField> = {};
+  protected documentenForms: Record<
+    string,
+    FormGroup<{
+      documenten: FormControl<
+        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+      >;
+    }>
+  > = {};
+
   toolTipIcon = new TextIcon(
     DateConditionals.provideFormControlValue(DateConditionals.always),
     "info",
@@ -66,8 +93,7 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   constructor(
     private zakenService: ZakenService,
     private dialog: MatDialog,
-    private translate: TranslateService,
-    private utilService: UtilService,
+    private formBuilder: FormBuilder,
   ) {}
 
   ngOnInit(): void {
@@ -77,16 +103,6 @@ export class BesluitViewComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    for (const key in this.besluitInformatieobjecten) {
-      const besluit = this.getBesluit(key);
-      if (!besluit?.informatieobjecten) {
-        return;
-      }
-      this.besluitInformatieobjecten[key].updateDocumenten(
-        of(besluit.informatieobjecten!),
-      );
-    }
-
     for (const historieKey in this.histories) {
       this.loadHistorie(historieKey);
     }
@@ -97,19 +113,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
       this.loadHistorie(uuid);
     }
 
-    if (!this.besluitInformatieobjecten[uuid]) {
-      const besluit = this.getBesluit(uuid);
-      if (!besluit?.informatieobjecten) {
-        return;
-      }
-      this.besluitInformatieobjecten[uuid] = new DocumentenLijstFieldBuilder()
-        .id("documenten")
-        .label("documenten")
-        .documenten(of(besluit.informatieobjecten))
-        .removeColumn("status")
-        .readonly(true)
-        .build();
-    }
+    this.documentenForms[uuid] ??= this.formBuilder.group({
+      documenten: this.formBuilder.control<
+        GeneratedType<"RestEnkelvoudigInformatieobject">[] | null
+      >([]),
+    });
   }
 
   private loadHistorie(uuid: string) {
@@ -121,89 +129,11 @@ export class BesluitViewComponent implements OnInit, OnChanges {
     });
   }
 
-  private getBesluit(uuid: string) {
-    return this.besluiten.find((value) => value.uuid === uuid);
-  }
-
-  isReadonly(besluit: GeneratedType<"RestDecision">) {
+  protected isReadonly(besluit: GeneratedType<"RestBesluit">) {
     return this.readonly || besluit.isIngetrokken;
   }
 
-  intrekken(besluit: GeneratedType<"RestDecision">) {
-    const dialogData = new DialogData({
-      formFields: [
-        this.maakIdField(besluit),
-        this.maakVervaldatumField(besluit),
-        this.maakVervalredenField(besluit),
-        this.maakToelichtingField(),
-        this.maakMessageField(besluit),
-      ],
-      callback: (results) => this.saveIntrekking(results),
-      melding: this.translate.instant("msg.besluit.intrekken"),
-      confirmButtonActionKey: "actie.besluit.intrekken",
-      icon: "stop_circle",
-    });
-
-    this.dialog.open(DialogComponent, { data: dialogData });
-  }
-
-  saveIntrekking(results: unknown): Observable<null> {
-    this.doIntrekking.emit(results);
-    return of(null);
-  }
-
-  private maakIdField(besluit: GeneratedType<"RestDecision">) {
-    return new HiddenFormFieldBuilder(besluit.uuid).id("uuid").build();
-  }
-
-  private maakVervaldatumField(besluit: GeneratedType<"RestDecision">) {
-    return new DateFormFieldBuilder(besluit.vervaldatum)
-      .id("vervaldatum")
-      .label("vervaldatum")
-      .minDate(moment(besluit.ingangsdatum, moment.ISO_8601).toDate())
-      .validators(Validators.required)
-      .build();
-  }
-
-  private maakVervalredenField(besluit: GeneratedType<"RestDecision">) {
-    const vervalRedenen = this.utilService.getEnumAsSelectListExceptFor(
-      "besluit.vervalreden",
-      VervalReden,
-      [VervalReden.TIJDELIJK],
-    );
-    const vervalReden = besluit.vervalreden
-      ? {
-          label: this.translate.instant(
-            "besluit.vervalreden." + besluit.vervalreden,
-          ),
-          value: String(besluit.vervalreden),
-        }
-      : null;
-    return new SelectFormFieldBuilder(vervalReden)
-      .id("vervalreden")
-      .label("besluit.vervalreden")
-      .optionLabel("label")
-      .options(vervalRedenen)
-      .validators(Validators.required)
-      .build();
-  }
-
-  private maakToelichtingField() {
-    return new InputFormFieldBuilder()
-      .id("toelichting")
-      .label("toelichting")
-      .validators(Validators.required)
-      .build();
-  }
-
-  private maakMessageField(besluit: GeneratedType<"RestDecision">) {
-    const documentenVerstuurd = besluit.informatieobjecten?.some(
-      ({ verzenddatum }) => verzenddatum != null,
-    );
-    return new MessageFormFieldBuilder(!!documentenVerstuurd)
-      .id("documentenverstuurd")
-      .level(MessageLevel.WARNING)
-      .text("msg.besluit.documenten.verstuurd")
-      .build();
+  protected intrekken(besluit: GeneratedType<"RestBesluit">) {
+    this.dialog.open(BesluitIntrekkenDialogComponent, { data: besluit });
   }
 }

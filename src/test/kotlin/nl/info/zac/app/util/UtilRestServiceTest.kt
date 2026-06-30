@@ -16,8 +16,8 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.sensitive.SensitiveDataService
@@ -34,7 +34,7 @@ class UtilRestServiceTest : BehaviorSpec({
         policyService = policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

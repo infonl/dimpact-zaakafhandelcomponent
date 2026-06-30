@@ -10,7 +10,6 @@ import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.JsonbUtil
@@ -28,6 +27,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration
@@ -331,12 +331,6 @@ class ProductaanvraagService @Inject constructor(
         val baseBpmnVariablesMap = getAanvraaggegevens(productaanvraagObject)
         val zaakDataVariablesMap = zaaktypeBpmnConfiguration.groepID?.let { baseBpmnVariablesMap + mapOf(VAR_ZAAK_GROUP to it) }
             ?: baseBpmnVariablesMap
-        bpmnService.startProcess(
-            zaak = zaak,
-            zaaktype = zaaktype,
-            processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
-            zaakData = zaakDataVariablesMap
-        )
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         productaanvraagDocumentService.pairProductaanvraagWithZaak(
@@ -353,12 +347,17 @@ class ProductaanvraagService @Inject constructor(
             brpEnabled = isBrpEnabled(zaaktypeBpmnConfiguration),
             kvkEnabled = isKvkEnabled(zaaktypeBpmnConfiguration)
         )
-        // note: BPMN zaaktypes do not support automatic email notifications, as is the case for CMMN
         klantClientService.findProductaanvraagSpecificContactDetails(
             productaanvraagDimpact.bron.kenmerk
         )?.let {
             klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(it, zaak.uuid)
         }
+        bpmnService.startProcess(
+            zaak = zaak,
+            zaaktype = zaaktype,
+            processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
+            zaakData = zaakDataVariablesMap
+        )
     }
 
     private fun startZaakWithCmmnProcess(

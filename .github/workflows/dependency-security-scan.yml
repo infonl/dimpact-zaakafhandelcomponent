@@ -16,10 +16,18 @@ permissions:
   issues: write
   pull-requests: write
   pages: write
+  packages: read
 
 env:
-  JAVA_VERSION: "21.0.10"
+  JAVA_VERSION: "21.0.11"
   SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
+  # Pre-built OWASP Dependency-Check NVD database, published by the
+  # "Publish NVD Database Cache" workflow. Consuming it here avoids downloading
+  # from the rate-limited NVD API on every scan.
+  NVD_DATABASE_CACHE_IMAGE: ghcr.io/infonl/nvd-database-cache
+  # Maximum age (in days) of the published NVD database before the scan fails
+  # rather than silently scanning against stale vulnerability data.
+  NVD_DATABASE_MAX_AGE_DAYS: 3
 
 jobs:
   npm-security-audit:
@@ -33,7 +41,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 2 # Need previous commit to detect changes
 
@@ -103,7 +111,7 @@ jobs:
           echo "🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload npm audit SARIF results (main app)
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         if: always() && hashFiles('src/main/app/npm-audit-main.sarif') != ''
         with:
           sarif_file: src/main/app/npm-audit-main.sarif
@@ -112,53 +120,117 @@ jobs:
   gradle-security-audit:
     name: Gradle Security Audit
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 30
     outputs:
       vuln_total: ${{ steps.owasp_scan.outputs.vuln_total }}
       vuln_critical: ${{ steps.owasp_scan.outputs.vuln_critical }}
       vuln_high: ${{ steps.owasp_scan.outputs.vuln_high }}
       scan_date: ${{ steps.date.outputs.date }}
-    env:
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%H-%M')" >> $GITHUB_OUTPUT
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup JDK
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin"
           cache: "gradle"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
-      - name: Update OWASP dependency database
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull and extract the pre-built NVD database
         run: |
-          echo "🔄 Updating OWASP Dependency Check database..."
-          ./gradlew dependencyCheckUpdate --no-configuration-cache -DdependencyCheck.connectionTimeout=2400000 || true
-
-          # Show cache info
-          if [ -d ~/.gradle/dependency-check-data ]; then
-            echo "📊 OWASP database cache status:"
-            du -sh ~/.gradle/dependency-check-data
-            ls -la ~/.gradle/dependency-check-data/*/odc.mv.db 2>/dev/null | head -3 || true
+          # The NVD database is maintained centrally by the "Publish NVD Database
+          # Cache" workflow and shipped as a GHCR image, so this scan never
+          # downloads from the rate-limited NVD API itself. dependencyCheckAnalyze
+          # runs with autoUpdate=false (see build.gradle.kts) against the database
+          # extracted here.
+          mkdir -p ~/.gradle/dependency-check-data
+          if ! docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
+            echo "::error::Could not pull ${NVD_DATABASE_CACHE_IMAGE}:latest. Run the 'Publish NVD Database Cache' workflow (with seed_database=true on first use) to build it."
+            exit 1
           fi
+          container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+          cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
+          docker cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
+          cleanup
+          trap - EXIT
+          # Locate the H2 database with `find` rather than a fixed-depth glob:
+          # because build.gradle.kts overrides data.directory, odc.mv.db sits
+          # directly in that directory (not in a version subdirectory), so a
+          # `*/odc.mv.db` glob would miss it.
+          database_file=$(find ~/.gradle/dependency-check-data -name odc.mv.db -type f 2>/dev/null | head -1 || true)
+          if [ -z "${database_file}" ]; then
+            echo "::error::The pulled image did not contain an NVD database."
+            exit 1
+          fi
+          echo "✅ Extracted NVD database ($(du -m "${database_file}" | cut -f1) MB)."
+
+      - name: Verify the NVD database is fresh and complete
+        # Make staleness impossible to miss: the scan fails (and the failure is
+        # reported to Slack by the notify-slack job) if the published database is
+        # incomplete or older than NVD_DATABASE_MAX_AGE_DAYS, rather than silently
+        # scanning against out-of-date vulnerability data.
+        run: |
+          if [ ! -f nvd-build-metadata.txt ]; then
+            echo "::error::NVD database image has no freshness metadata; refusing to scan against an unknown database."
+            exit 1
+          fi
+          cat nvd-build-metadata.txt
+          # The default GitHub Actions bash shell runs with `-eo pipefail`, so a
+          # `grep` that finds no match exits 1 and would abort this step before the
+          # explicit error handling below. Tolerate a missing key with `|| true`
+          # and validate the values ourselves so we fail with the intended message.
+          status=$(grep '^status=' nvd-build-metadata.txt | cut -d= -f2 || true)
+          updated_at=$(grep '^updated_at=' nvd-build-metadata.txt | cut -d= -f2 || true)
+          if [ "${status}" != "complete" ]; then
+            echo "::error::NVD database is not complete (status=${status:-unknown}). The 'Publish NVD Database Cache' workflow has not yet built a full database."
+            exit 1
+          fi
+          if [ -z "${updated_at}" ]; then
+            echo "::error::NVD database has no update timestamp; refusing to scan."
+            exit 1
+          fi
+          # Parse the timestamp explicitly so a malformed value fails with our
+          # error message instead of aborting the step inside the arithmetic below.
+          updated_at_epoch=$(date -u -d "${updated_at}" +%s 2>/dev/null || true)
+          if [ -z "${updated_at_epoch}" ]; then
+            echo "::error::NVD database update timestamp '${updated_at}' is not a valid date; refusing to scan."
+            exit 1
+          fi
+          age_days=$(( ( $(date -u +%s) - updated_at_epoch ) / 86400 ))
+          echo "NVD database last updated: ${updated_at} (${age_days} day(s) ago)"
+          if [ "${age_days}" -gt "${NVD_DATABASE_MAX_AGE_DAYS}" ]; then
+            echo "::error::NVD database is ${age_days} days old (max ${NVD_DATABASE_MAX_AGE_DAYS}). The 'Publish NVD Database Cache' workflow is likely failing - scan results would be based on stale data."
+            exit 1
+          fi
+          echo "✅ NVD database is complete and fresh."
 
       - name: Check for vulnerable Gradle dependencies
         id: owasp_scan
         continue-on-error: true
         run: |
-          # Run OWASP dependency check (now available)
           echo "🛡️ Running OWASP Dependency Check..."
+          # autoUpdate=false (build.gradle.kts) means analyze uses the extracted
+          # database and never contacts the NVD API.
           ./gradlew dependencyCheckAnalyze --no-configuration-cache --info 2>&1 | tee owasp-scan.log || true
 
           # Show SARIF file info if generated
@@ -177,9 +249,9 @@ jobs:
 
           # Save vulnerability counts for Slack notification
           if [ -f "build/reports/dependency-check-report.json" ]; then
-            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            TOTAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]?] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
             echo "vuln_total=$TOTAL_VULNS" >> $GITHUB_OUTPUT
             echo "vuln_critical=$CRITICAL_VULNS" >> $GITHUB_OUTPUT
             echo "vuln_high=$HIGH_VULNS" >> $GITHUB_OUTPUT
@@ -198,11 +270,11 @@ jobs:
 
           if [ -f "build/reports/dependency-check-report.json" ]; then
             # Extract vulnerability counts from JSON report
-            TOTAL_VULNS=$(jq '[.dependencies[].vulnerabilities] | flatten | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            HIGH_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            MEDIUM_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
-            LOW_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            TOTAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]?] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            CRITICAL_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="CRITICAL")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            HIGH_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="HIGH")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            MEDIUM_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="MEDIUM")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
+            LOW_VULNS=$(jq '[.dependencies[]?.vulnerabilities[]? | select(.severity=="LOW")] | length' build/reports/dependency-check-report.json 2>/dev/null || echo "0")
           fi
 
           # Write summary to GitHub Step Summary
@@ -225,7 +297,7 @@ jobs:
           EOF
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif
@@ -260,7 +332,7 @@ jobs:
           fi
 
       - name: Notify Slack
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook

@@ -1,0 +1,76 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+services:
+  objecten-api.local:
+    image: ghcr.io/infonl/objects-api:3.6.1@sha256:31e55830e630026eb6ce952f3c0e4a0bebd30f8876ae460adfd716a54fadbac3
+    platform: linux/arm64
+
+  objecten-api-database:
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:179b2f72f953e097d712392d87b89e1d6b6cb11a645201a823c2162637e7086c
+    platform: linux/arm64
+
+  objecten-api-import:
+    image: ghcr.io/infonl/objects-api:3.6.1@sha256:31e55830e630026eb6ce952f3c0e4a0bebd30f8876ae460adfd716a54fadbac3
+    platform: linux/arm64
+
+  openarchiefbeheer-database:
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:179b2f72f953e097d712392d87b89e1d6b6cb11a645201a823c2162637e7086c
+    platform: linux/arm64
+
+  openarchiefbeheer-web:
+    image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
+    platform: linux/arm64
+
+  openarchiefbeheer-web-init:
+    image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
+    platform: linux/arm64
+
+  openarchiefbeheer-celery:
+    image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
+    platform: linux/arm64
+
+  openarchiefbeheer-celery-beat:
+    image: ghcr.io/infonl/open-archiefbeheer:1.1.1@sha256:e28956d9266e13935addf14ae772d730a22304377ee0e9f0e66ed754c0d2191d
+    platform: linux/arm64
+
+  openklant.local:
+    image: ghcr.io/infonl/open-klant:2.15.0@sha256:090741b0c2211588e882dad93741e1bb6c13ce9d95ae13d1cd2ab591339b6a36
+    platform: linux/arm64
+
+  opennotificaties-database:
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:179b2f72f953e097d712392d87b89e1d6b6cb11a645201a823c2162637e7086c
+    platform: linux/arm64
+
+  opennotificaties:
+    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    platform: linux/arm64
+
+  opennotificaties-init:
+    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    platform: linux/arm64
+
+  opennotificaties-celery:
+    image: ghcr.io/infonl/open-notificaties:1.15.0@sha256:2fb36e4f444b6719f292d7ef957444751feb8218a3a68b0d65f860814a7b7387
+    platform: linux/arm64
+
+  openzaak-database:
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:179b2f72f953e097d712392d87b89e1d6b6cb11a645201a823c2162637e7086c
+    platform: linux/arm64
+
+  openzaak.local:
+    image: ghcr.io/infonl/open-zaak:1.27.2@sha256:2bc95cff1a339bcb703ac0a6c79ef061596be11f3d0d68f52e03d265bccc289f
+    platform: linux/arm64
+
+  openzaak-celery:
+    image: ghcr.io/infonl/open-zaak:1.27.2@sha256:2bc95cff1a339bcb703ac0a6c79ef061596be11f3d0d68f52e03d265bccc289f
+    platform: linux/arm64
+
+  pabc-migrations:
+    image: ghcr.io/infonl/pabc-migrations:1.1.0@sha256:ae4bae95ba9c7b770ceeabb460b3c2fbaf3ef978a3401061dba9d50b0f08490e
+    platform: linux/arm64
+
+  pabc-api:
+    image: ghcr.io/infonl/pabc-api:1.1.0@sha256:784872b5c7b478b65edf938f64c46b03ca28383a6ac578a8532fe9338685eacb
+    platform: linux/arm64

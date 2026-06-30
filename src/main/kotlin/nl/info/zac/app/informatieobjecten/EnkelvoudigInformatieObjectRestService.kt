@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.UriInfo
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
-import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -50,7 +49,6 @@ import nl.info.zac.app.informatieobjecten.model.RestInformatieobjecttype
 import nl.info.zac.app.informatieobjecten.model.RestZaakInformatieobject
 import nl.info.zac.app.informatieobjecten.model.toRestInformatieobjecttype
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
@@ -63,6 +61,7 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.webdav.WebdavHelper
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
@@ -87,7 +86,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val restInformatieobjectConverter: RestInformatieobjectConverter,
     private val restInformatieobjecttypeConverter: RestInformatieobjecttypeConverter,
     private val zaakHistoryLineConverter: ZaakHistoryLineConverter,
-    private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>,
     private val webdavHelper: WebdavHelper,
     private val policyService: PolicyService,
@@ -541,13 +539,8 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             zaak.hoofdzaak?.let {
                 addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it, RelatieType.HOOFDZAAK))
             }
-            zaak.relevanteAndereZaken?.forEach {
-                addAll(
-                    listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(
-                        it.url,
-                        restGerelateerdeZaakConverter.convertToRelatieType(it.aardRelatie)
-                    )
-                )
+            zaak.gerelateerdeZaken?.forEach {
+                addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it.url, RelatieType.GERELATEERD))
             }
         }
 

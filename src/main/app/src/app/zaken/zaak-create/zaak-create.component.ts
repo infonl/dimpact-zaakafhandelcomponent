@@ -3,12 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgSwitch, NgSwitchCase } from "@angular/common";
 import { Component, inject, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
-import { MatSidenav } from "@angular/material/sidenav";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import {
   injectMutation,
   QueryClient,
@@ -19,10 +24,17 @@ import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandelin
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
+import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
   BSN_LENGTH,
@@ -34,7 +46,26 @@ import { ZakenService } from "../zaken.service";
 @Component({
   selector: "zac-zaak-create",
   templateUrl: "./zaak-create.component.html",
-  standalone: false,
+  styleUrls: ["./zaak-create.component.less"],
+  standalone: true,
+  imports: [
+    NgSwitch,
+    NgSwitchCase,
+    ReactiveFormsModule,
+    MatSidenavModule,
+    MatButtonModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    TranslateModule,
+    KlantKoppelComponent,
+    BagZoekComponent,
+    ZacAutoComplete,
+    ZacDate,
+    ZacInput,
+    ZacSelect,
+    ZacTextarea,
+  ],
 })
 export class ZaakCreateComponent {
   private readonly zakenService = inject(ZakenService);
@@ -183,7 +214,7 @@ export class ZaakCreateComponent {
   }
 
   formSubmit() {
-    const { value } = this.form;
+    const value = this.form.getRawValue();
 
     this.createZaakMutation.mutate({
       zaak: {
@@ -216,7 +247,7 @@ export class ZaakCreateComponent {
     this.form.controls.groep.enable();
 
     this.groups = this.identityService.listBehandelaarGroupsForZaaktype(
-      caseType.uuid,
+      caseType.omschrijving!,
     );
 
     const bpmnDefaultGroepId = this.bpmnCaseTypesConfigurations.find(
@@ -276,7 +307,7 @@ export class ZaakCreateComponent {
         const result = await this.queryClient.ensureQueryData(
           this.klantenService.readBedrijf(
             new BetrokkeneIdentificatie({
-              identificatie: initiatorID,
+              vestigingsnummer: initiatorID,
               identificatieType: "VN",
             }),
           ),

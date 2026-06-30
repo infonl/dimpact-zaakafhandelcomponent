@@ -1,7 +1,15 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 55 remaining** (2026-04-16)
-Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | wc -l` (from `src/main/app/`)
+**Progress: 5 remaining** (2026-06-23)
+Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
+
+## Remaining Components
+
+- `app/app.component.ts`
+- `app/plan-items/process-task-do/process-task-do.component.ts`
+- `app/zaken/besluit-edit/besluit-edit.component.ts`
+- `app/zaken/besluit-view/besluit-view.component.ts`
+- `app/zaken/zaak-view/zaak-view.component.ts`
 
 ---
 
@@ -35,6 +43,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Async + fakeAsync split `beforeEach` (child HTTP calls) | First `beforeEach` is `async` (TestBed + spies); second is `fakeAsync` (create + `tick(0)`); use `delay(0)` on all mock observables |
 | `By.directive` for directive presence | `fixture.debugElement.query(By.directive(MatTooltip))` — raw attribute selectors don't work after Angular processes them |
 | Cherry-pick an unmerged dep before migrating | `git cherry-pick <sha>` onto work branch when a dep PR hasn't merged to `main` yet |
+| `loadComponent` for routed standalones | Replace `component: XyzComponent` with `loadComponent: () => import('./path/xyz.component').then(m => m.XyzComponent)` in routing modules. This is the idiomatic Angular 19 pattern — each routed standalone gets its own lazy chunk. Remove the static import too. Only worth doing if the resulting chunk is **≥ 10 kB** (uncompressed) — below that the extra HTTP round-trip overhead outweighs the saving. Check chunk size with `npm run build` and look for the named chunk in the output. |
 
 ---
 
@@ -43,7 +52,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 | Rule | Detail |
 |---|---|
 | **Skip ATOS form builder** | Do NOT touch anything under `shared/material-form-builder/` or any component that imports from it. |
-| **Skip routing** | Do not touch `*-routing.module.ts`. |
+| **Update routing** | When a component is migrated to standalone, also update its route in `*-routing.module.ts` to use `loadComponent` with a dynamic import. Remove the static import. |
+| **No SharedModule in `imports[]`** | Never add `SharedModule`, `MaterialModule`, or any other barrel/shared module to a standalone component's `imports[]` or to a spec's `TestBed` imports. Import every directive, component, and pipe individually. Barrel modules defeat tree-shaking and lazy loading — the entire point of going standalone. In specs, the standalone component under test already declares its own imports, so the spec only needs `[TheComponent, NoopAnimationsModule, TranslateModule.forRoot()]`. |
 | **No `any`** | No `any`, `as any`, or `eslint-disable no-explicit-any` anywhere. Use explicit types or `unknown`. |
 | **TS errors: touched files only** | Fix errors only in files you modified. Don't cascade. |
 | **Methods: `protected` by default** | All methods are `protected`. Never `public` just because a spec calls it. |
@@ -54,7 +64,8 @@ These gates exist because the user explicitly asked for them and has corrected s
 | **SPDX header (existing files)** | Add `2026 INFO.nl` only if `INFO.nl` is completely absent from the header. If `INFO.nl` already appears (any year), leave unchanged. |
 | **SPDX header (new spec files)** | New `.spec.ts` files get `2026 INFO.nl` only — never copy the component's `Atos`/prior-year header. |
 | **No `NO_ERRORS_SCHEMA`** | Never use `NO_ERRORS_SCHEMA` in specs. Use real imports so the compiler catches missing declarations. Only acceptable as a temporary last resort when the declared type is impossible to import. |
-| **No `querySelectorAll` in specs** | Do not use `querySelectorAll` / `querySelector` to assert on Material components; use harnesses instead. Allowed only for plain HTML elements (`p`, `h3`, custom components) that have no harness. |
+| **Variable naming in specs** | No single-letter or abbreviated names (`el`, `f`, `res`, `btn`). Use full descriptive names (`element`, `fixtureRef`, `result`, `button`). |
+| **DOM query preference order** | **1. Harness** (Material components — always preferred) → **2. `querySelector`/`querySelectorAll`** (plain HTML elements: `p`, `button`, `form`, or custom `zac-*` elements when checking text/presence only) → **3. `By.directive`** (when checking that a directive/component is rendered, and no harness exists) → **Never `By.css`** (`By.css` is the worst option: it matches on DOM attribute strings that Angular may never write to the DOM for `@Input` bindings, giving silent false positives/negatives). For custom components with `@Input` properties, use `By.directive(MyComponent)` + `.componentInstance.myInput` — never `By.css('[myInput="value"]')`. |
 | **No `: void` return types** | Never write `: void` on methods (component `.ts` and spec `.ts`). TypeScript infers `void` — the annotation is redundant. Remove any existing `: void` annotations in files you touch. |
 
 ---
@@ -63,11 +74,11 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 ### Phase A — Start branch (once per PR)
 
-| # | Step | Gate |
-|---|---|---|
-| 0 | **Read claims** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target | — |
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale | **Ask user to confirm first target** |
-| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
+| # | Step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Gate |
+|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+| 0 | **Read** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target                                                                                                                                                                          | — |
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale                                                                                                                                                                                                                                  | **Ask user to confirm first target** |
+| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main`                                                                                                                                                                                                                                                                                                                                                                                                              | — |
 | 3 | **Claim** — `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; ask user to name the batch (`## {name}`); edit `/tmp/zac-claims/migration-claims.md` to add components; `cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim ..." && git push origin HEAD:<claims-branch>`; `git worktree remove /tmp/zac-claims` (where `<claims-branch>` = `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`) | — |
 
 ### Phase B — Per-component loop (repeat until PR)
@@ -89,7 +100,7 @@ These gates exist because the user explicitly asked for them and has corrected s
 | 16 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
 | 17 | **Tick off claim** — worktree pattern: `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; mark `[x]` in `/tmp/zac-claims/migration-claims.md`; commit + push; `git worktree remove /tmp/zac-claims` | — |
 | 18 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## Marcel` in `/tmp/zac-claims/migration-claims.md`, commit + push, remove worktree; then go to step 4 | — |
+| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## {USER_NAME}` in `/tmp/zac-claims/migration-claims.md` (ask the user for their name if not already known), commit + push, remove worktree; then go to step 4 | — |
 | 20 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
@@ -147,7 +158,6 @@ foutAfhandelingService.foutmelding = "Test fout";  // set directly before create
 - Describe-scope order: `fixture` → `loader` → services; inject services **before** `createComponent`
 - `describe(ClassName.name, ...)` — always use class name reference, not string literal
 - **No trivial smoke tests** — never add `it("should create", () => expect(component).toBeTruthy())`. Every test must assert meaningful behaviour.
-- **`isDisabled()` exception** — `MatButtonHarness.isDisabled()` is unreliable for `[disabled]` *bindings* in Angular Material 19 — use `nativeElement.querySelector(...).disabled` only in that case.
 - **Partial test fixtures** — never use bare `as unknown as T` for test object literals. Preferred: a named factory at the top of the spec — `const makeX = (fields: Partial<T> = {}): T => ({ ...defaults, ...fields }) as Partial<T> as unknown as T` — the intermediate `as Partial<T>` validates the object literal's property names; `as unknown as T` forces assignment. When a factory would be used only once, inline is acceptable: `{ ...fields } as Partial<T> as unknown as T`. For invalid-union-value tests (error branches), cast only the offending field: `makeX({ type: "UNKNOWN" as T["type"] })`.
 
 ### PR body template
@@ -174,6 +184,40 @@ Solves PZ-XXXXX
 
 ## Next Target
 TBD — run step 0 (claims check) at start of next session.
+
+### Patterns added in batch-18
+| Pattern | Detail |
+|---|---|
+| Extracting types from component file | When a component file contains exported types used widely across the codebase, extract them to a sibling `<name>.types.ts` file. Component imports from types file; consumers import types directly. |
+| `VariabelenKiesMenuComponent` moved out of ATOS | Old `HtmlEditorVariabelenKiesMenuComponent` (non-standalone, ATOS) replaced by new `VariabelenKiesMenuComponent` (standalone) in `shared/form/html-editor/variabelen-kies-menu/`. Module imports the new one. |
+| Standalone component for non-standalone consumers | Do NOT re-export a standalone component through an NgModule (modules are being phased out). Import it directly in the `imports[]` of the module that *declares* the consuming component (e.g. `HumanTaskDoComponent` in `ZakenModule`, which declares `ZaakViewComponent`). Once the consumer itself goes standalone, move the import into the consumer's own `imports[]`. (Review feedback marcel, PR #6179) |
+| Rename `ZacForm` → `ZacComposedForm` | `ZacForm` was too generic; renamed to `ZacComposedForm` and moved to `shared/form/composed-form/`. Types extracted to `form-field.types.ts`. |
+
+### Patterns added in batch-16
+| Pattern | Detail |
+|---|---|
+| `provideNativeDateAdapter()` in spec providers | Required when any child component uses `DateRangeFilterComponent` (which includes `MatDateRangeInput`) |
+| `RouterModule` in spec imports (not `provideRouter([])`) | `provideRouter([])` bypasses `{ provide: ActivatedRoute, useValue: mock }` and breaks `WerklijstComponent.ngOnInit`; `RouterModule` respects the mock |
+| `setQueryData(key, undefined)` doesn't update TanStack signal | In TanStack Query v5, setting query data to `undefined` is a no-op for the signal; test with `null` instead to assert the null guard |
+| `overrideComponent(Comp, { set: { template: "", imports: [] } })` | For complex standalone components with many child deps: override template to empty and clear imports to simplify test setup |
+
+---
+
+---
+
+## Completed
+
+| Batch | Components | Branch/PR |
+|---|---|---|
+| batch-5 (informatie-objecten) | `InformatieObjectAddComponent`, `InformatieObjectEditComponent`, `InformatieObjectCreateAttendedComponent`, `InformatieObjectLinkComponent`, `InformatieObjectVerzendenComponent`, `InformatieObjectViewComponent` | `temp/standalone-informatie-objecten` |
+| batch-12 | `WerklijstComponent`, `BetrokkeneLinkComponent`, `ZaakOpschortenDialogComponent`, `ZaakVerlengenDialogComponent` | `temp/standalone-migration` |
+| batch-16 | `TakenWerkvoorraadComponent`, `ZakenWerkvoorraadComponent`, `ZoekComponent`, `VertrouwelijkaanduidingToTranslationKeyPipe` | `temp/standalone-migration` |
+| batch-17 (dashboard) | `DashboardCardComponent`, `DashboardComponent`, `InformatieobjectenCardComponent`, `TaakZoekenCardComponent`, `ZaakWaarschuwingenCardComponent`, `ZaakZoekenCardComponent`, `ZakenCardComponent` + `DashboardModule` deleted | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-17b (toolbar) | `BackButtonDirective`, `ToolbarComponent` | `feature/PZ-11382--Zaak-data--styling-and-clipbard-copy` |
+| batch-18 (form components) | `ZacFile`, `ZacDocuments`, `ZacHtmlEditor`, `VariabelenKiesMenuComponent` (new, replaces ATOS) | `chore/PZ-11415--FE--Angular-v19-migration--ZacFile-ZacDocuments-ZacHtmlEditor` |
+| batch-18b (composed form) | `ZacForm` → renamed `ZacComposedForm`, moved to `shared/form/composed-form/`, types extracted to `form-field.types.ts` | `chore/PZ-11417--FE--Angular-v19-migration--ZacComposedForm` |
+| PZ-11441 (MFB-migratie §1) | `HumanTaskDoComponent` — removed dead MFB fallback (`formulier`/`formItems`/`formConfig` + unreachable `ngOnInit` catch block) and made standalone | `feature/PZ-11441-human-task-do-angular-forms` (PR #6179) |
+| PZ-11436 (MFB-migratie §8) | `TaakViewComponent` — removed dead MFB code (`editFormFields` map + `setEditableFormFields()` + `MedewerkerGroep/Input/TextareaFormFieldBuilder` imports; written but never read — group/medewerker/reden editing already lives in standalone `TaakEditComponent`), made standalone, slimmed `TakenModule` to a routing shell, converted `:id` route to `loadComponent`. NB: Confluence §8 was stale — the `<mfb-form>` catch-block it described was already gone; the form itself was already migrated to `<zac-composed-form>`/`<zac-formio-wrapper>`. | `feature/PZ-11436-taak-view-angular-forms` |
 
 ---
 

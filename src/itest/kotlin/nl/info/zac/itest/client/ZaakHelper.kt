@@ -7,7 +7,10 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_KVK
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_01
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
@@ -43,7 +46,7 @@ class ZaakHelper(
     suspend fun createZaak(
         zaakDescription: String = "itestZaakDescription-${System.currentTimeMillis()}",
         zaaktypeUuid: UUID,
-        group: TestGroup = BEHANDELAARS_DOMAIN_TEST_1,
+        group: TestGroup = GROUP_BEHANDELAARS_TEST_1,
         startDate: ZonedDateTime = DATE_TIME_2024_01_01,
         indexZaak: Boolean = false,
         testUser: TestUser,
@@ -73,6 +76,76 @@ class ZaakHelper(
             indexZaak(zaakUuid, zaakIdentification, testUser)
         }
         return Pair(zaakIdentification, zaakUuid)
+    }
+
+    fun addNatuurlijkPersoonBetrokkeneToZaak(
+        zaakUuid: UUID,
+        roltypeUUID: String,
+        bsn: String,
+        testUser: TestUser
+    ) {
+        val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
+            bsn,
+            testUser
+        )
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/zaken/betrokkene",
+            requestBodyAsString = """
+                    {
+                        "zaakUUID": "$zaakUuid",
+                        "roltypeUUID": "$roltypeUUID",
+                        "roltoelichting": "fakeToelichting",
+                        "betrokkeneIdentificatie": {
+                            "bsn": "$bsn",
+                            "temporaryPersonId": "$temporaryPersonId",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_BSN"
+                        }
+                    }
+            """.trimIndent(),
+            testUser = testUser
+        ).run {
+            code shouldBe HTTP_OK
+        }
+    }
+
+    fun addNietNatuurlijkPersoonBetrokkeneToZaak(
+        zaakUuid: UUID,
+        roltypeUUID: String,
+        kvkNummer: String,
+        vestigingsnummer: String? = null,
+        testUser: TestUser
+    ) {
+        var betrokkeneIdentification: String
+        if (vestigingsnummer != null) {
+            betrokkeneIdentification = """
+                        "betrokkeneIdentificatie": {
+                            "kvkNummer": "$kvkNummer",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                            "vestigingsnummer": "$vestigingsnummer"
+                        }
+            """
+        } else {
+            betrokkeneIdentification = """
+                        "betrokkeneIdentificatie": {
+                            "kvkNummer": "$kvkNummer",
+                            "type": "$BETROKKENE_IDENTIFICATION_TYPE_KVK"
+                        }
+            """
+        }
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/zaken/betrokkene",
+            requestBodyAsString = """
+                    {
+                        "zaakUUID": "$zaakUuid",
+                        "roltypeUUID": "$roltypeUUID",
+                        "roltoelichting": "fakeToelichting",
+                        $betrokkeneIdentification
+                    }
+            """.trimIndent(),
+            testUser = testUser
+        ).run {
+            code shouldBe HTTP_OK
+        }
     }
 
     /**

@@ -11,6 +11,6 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 export class KlantGegevens {
   constructor(public klant: GeneratedType<"RestPersoon" | "RestBedrijf">) {}
 
-  betrokkeneRoltype: GeneratedType<"RestRoltype">;
-  betrokkeneToelichting: string;
+  betrokkeneRoltype!: GeneratedType<"RestRoltype">;
+  betrokkeneToelichting!: string;
 }

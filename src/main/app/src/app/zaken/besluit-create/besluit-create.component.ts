@@ -3,13 +3,29 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ValidatorFn, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule } from "@ngx-translate/core";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacSelect } from "../../shared/form/select/select";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -17,7 +33,21 @@ import { ZakenService } from "../zaken.service";
   selector: "zac-besluit-create",
   templateUrl: "./besluit-create.component.html",
   styleUrls: ["./besluit-create.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    TranslateModule,
+    ZacSelect,
+    ZacDate,
+    ZacTextarea,
+    MaterialFormBuilderModule,
+  ],
 })
 export class BesluitCreateComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
@@ -25,11 +55,11 @@ export class BesluitCreateComponent implements OnInit {
   @Output() besluitVastgelegd = new EventEmitter<boolean>();
 
   protected resultaattypes: GeneratedType<"RestResultaattype">[] = [];
-  protected besluittypes: GeneratedType<"RestDecisionType">[] = [];
+  protected besluittypes: GeneratedType<"RestBesluitType">[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected form = this.formBuilder.group({
-    besluit: this.formBuilder.control<GeneratedType<"RestDecisionType"> | null>(
+    besluit: this.formBuilder.control<GeneratedType<"RestBesluitType"> | null>(
       null,
       Validators.required,
     ),

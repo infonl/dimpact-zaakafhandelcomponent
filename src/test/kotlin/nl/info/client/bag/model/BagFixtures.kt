@@ -8,12 +8,15 @@ import nl.info.client.bag.model.generated.AdresIOHal
 import nl.info.client.bag.model.generated.AdresIOHalCollectionEmbedded
 import nl.info.client.bag.model.generated.AdresIOLinks
 import nl.info.client.bag.model.generated.HalLink
+import nl.info.client.bag.model.generated.Indicatie
 import nl.info.client.bag.model.generated.Nummeraanduiding
 import nl.info.client.bag.model.generated.NummeraanduidingIOHal
 import nl.info.client.bag.model.generated.OpenbareRuimte
 import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
 import nl.info.client.bag.model.generated.Pand
 import nl.info.client.bag.model.generated.PandIOHal
+import nl.info.client.bag.model.generated.StatusNaamgeving
+import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.client.bag.model.generated.Woonplaats
 import nl.info.client.bag.model.generated.WoonplaatsIOHal
 import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
@@ -71,10 +74,25 @@ fun createWoonplaatsIOHal(
     this.woonplaats = woonplaats
 }
 
+@Suppress("LongParameterList")
 fun createNummeraanduiding(
-    huisnummer: Int = 123
+    huisnummer: Int = 123,
+    huisnummertoevoeging: String? = null,
+    huisletter: String? = null,
+    geconstateerd: Indicatie = Indicatie.J,
+    identificatie: String = "fakeIdentificatie",
+    postcode: String = "1234AB",
+    status: StatusNaamgeving = StatusNaamgeving.NAAMGEVING_UITGEGEVEN,
+    typeAdresseerbaarObject: TypeAdresseerbaarObject = TypeAdresseerbaarObject.VERBLIJFSOBJECT
 ) = Nummeraanduiding().apply {
     this.huisnummer = huisnummer
+    this.huisnummertoevoeging = huisnummertoevoeging
+    this.huisletter = huisletter
+    this.geconstateerd = geconstateerd
+    this.identificatie = identificatie
+    this.postcode = postcode
+    this.status = status
+    this.typeAdresseerbaarObject = typeAdresseerbaarObject
 }
 
 fun createNummeraanduidingIOHal(

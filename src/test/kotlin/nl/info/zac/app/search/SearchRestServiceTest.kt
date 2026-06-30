@@ -59,7 +59,7 @@ class SearchRestServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

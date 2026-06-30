@@ -14,14 +14,14 @@ import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RECORDMANAGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -36,8 +36,8 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
 
     Given("A zaak exists with a document attached to it") {
         val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHANDELAAR_1
         )
         val documentTitle = "detachedDocumentItestTitle-${System.currentTimeMillis()}"
         val (documentUuid, _) = documentHelper.uploadDocumentToZaak(
@@ -46,7 +46,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             documentTitle = documentTitle,
             authorName = FAKE_AUTHOR_NAME,
             mediaType = PDF_MIME_TYPE,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         )
         val detachReason = "fakeDetachReason"
 
@@ -60,7 +60,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         "reden" to detachReason
                     )
                 ).toString(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             logger.info { "Detach response: ${detachResponse.bodyAsString}" }
 
@@ -68,7 +68,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 detachResponse.code shouldBe HTTP_NO_CONTENT
             }
 
-            When("the list detached documents endpoint is called by a coordinator") {
+            And("the list detached documents endpoint is called by a coordinator") {
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/ontkoppeldedocumenten",
                     requestBodyAsString = """
@@ -79,7 +79,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                             "order": ""
                         }
                     """.trimIndent(),
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 val listResponseBody = listResponse.bodyAsString
                 logger.info { "List detached documents response: $listResponseBody" }
@@ -100,12 +100,12 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                When(
+                And(
                     "the delete detached document endpoint is called by a recordmanager with the id of the detached document"
                 ) {
                     val deleteResponse = itestHttpClient.performDeleteRequest(
                         url = "$ZAC_API_URI/ontkoppeldedocumenten/$detachedDocumentId",
-                        testUser = RECORDMANAGER_DOMAIN_TEST_1
+                        testUser = RECORDMANAGER_1
                     )
                     logger.info { "Delete response: ${deleteResponse.bodyAsString}" }
 
@@ -113,7 +113,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         deleteResponse.code shouldBe HTTP_NO_CONTENT
                     }
 
-                    When("the list detached documents endpoint is called again by a coordinator") {
+                    And("the list detached documents endpoint is called again by a coordinator") {
                         val listAfterDeleteResponse = itestHttpClient.performPutRequest(
                             url = "$ZAC_API_URI/ontkoppeldedocumenten",
                             requestBodyAsString = """
@@ -124,7 +124,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                                     "order": ""
                                 }
                             """.trimIndent(),
-                            testUser = COORDINATOR_DOMAIN_TEST_1
+                            testUser = COORDINATOR_1
                         )
                         val listAfterDeleteBody = listAfterDeleteResponse.bodyAsString
                         logger.info { "List after delete response: $listAfterDeleteBody" }
@@ -139,12 +139,12 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         }
                     }
 
-                    When(
+                    And(
                         "the get enkelvoudig informatie object endpoint is called for the deleted document"
                     ) {
                         val getResponse = itestHttpClient.performGetRequest(
                             url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
-                            testUser = RECORDMANAGER_DOMAIN_TEST_1
+                            testUser = RECORDMANAGER_1
                         )
                         Then(
                             "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"

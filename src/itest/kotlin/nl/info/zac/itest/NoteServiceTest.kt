@@ -9,10 +9,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONObject
@@ -26,11 +26,11 @@ class NoteServiceTest : BehaviorSpec({
     Given("An existing zaak and a logged-in behandelaar") {
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             code shouldBe HTTP_OK
             JSONObject(bodyAsString).run {
@@ -49,10 +49,10 @@ class NoteServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaakUuid",
                         "tekst": "fakeNoteText",
-                        "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}"
+                        "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
@@ -63,8 +63,8 @@ class NoteServiceTest : BehaviorSpec({
                     {
                         "zaakUUID": "$zaakUuid",
                         "tekst": "fakeNoteText",
-                        "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
-                        "voornaamAchternaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                        "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}",
+                        "voornaamAchternaamMedewerker": "${BEHANDELAAR_1.displayName}",
                         "bewerkenToegestaan": true
                     }
                 """.trimIndent()
@@ -78,7 +78,7 @@ class NoteServiceTest : BehaviorSpec({
         When("the 'get notes' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/notities/zaken/$zaakUuid",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             Then(
                 "the just created note should be returned"
@@ -90,8 +90,8 @@ class NoteServiceTest : BehaviorSpec({
                         {
                             "zaakUUID": "$zaakUuid",
                             "tekst": "fakeNoteText",
-                            "gebruikersnaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
-                            "voornaamAchternaamMedewerker": "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                            "gebruikersnaamMedewerker": "${BEHANDELAAR_1.username}",
+                            "voornaamAchternaamMedewerker": "${BEHANDELAAR_1.displayName}",
                             "bewerkenToegestaan": true
                         }
                     ]

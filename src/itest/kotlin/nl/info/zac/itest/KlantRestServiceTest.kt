@@ -11,63 +11,101 @@ import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.authenticate
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BRP_WIREMOCK_API
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_COUNT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
+import nl.info.zac.itest.config.ItestConfiguration.TEST_GEMEENTE_CODE_VOORSCHOTEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_ADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_RECHTSVORM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_BASISPROFIEL_WEBSITE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EERSTE_HANDELSNAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NAAM_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_NUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_PLAATS_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_RSIN_1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_TYPE_RECHTSPERSOON
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_HOOFDACTIVITEIT
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT1
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_NEVENACTIVITEIT2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_TOTAAL_WERKZAME_PERSONEN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING1_VOLTIJD_WERKZAME_PERSONEN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_BEZOEKADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_BEZOEKADRES_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING3_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING3_PROFIEL_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING4_ADRES
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGING4_PROFIEL_ADRES
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_1
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_2
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_3
+import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSNUMMER_4
 import nl.info.zac.itest.config.ItestConfiguration.TEST_KVK_VESTIGINGSTYPE_HOOFDVESTIGING
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_BSN
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BSN
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_FULLNAME
+import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_GENDER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE
+import nl.info.zac.itest.config.ItestConfiguration.TEST_RECHTSPERSOON_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_EMAIL
 import nl.info.zac.itest.config.ItestConfiguration.TEST_VESTIGING_TELEPHONE_NUMBER
 import nl.info.zac.itest.config.ItestConfiguration.VESTIGINGTYPE_NEVENVESTIGING
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 private const val HEADER_ZAAK_ID = "X-ZAAKTYPE-UUID"
 
-@Suppress("LongParameterList", "LargeClass")
+@Suppress("LongParameterList", "LargeClass", "MagicNumber")
 class KlantRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
@@ -75,34 +113,30 @@ class KlantRestServiceTest : BehaviorSpec({
 
     val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
         TEST_PERSON_HENDRIKA_JANSE_BSN,
-        BEHANDELAAR_DOMAIN_TEST_1
+        BEHANDELAAR_1
     )
 
     var zaakUuid: UUID? = null
 
     Context("Create zaak with initiator") {
         Given("A behandelaar is logged in") {
-            authenticate(BEHANDELAAR_DOMAIN_TEST_1)
+            authenticate(BEHANDELAAR_1)
 
             When("zaak is created") {
                 val response = zacClient.createZaak(
-                    zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-                    behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+                    groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                    groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                    behandelaarId = BEHANDELAAR_1.username,
                     startDate = DATE_TIME_2000_01_01,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("response is ok") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    JSONObject(responseBody).run {
-                        getJSONObject("zaakdata").run {
-                            zaakUuid = getString("zaakUUID").run(UUID::fromString)
-                        }
-                    }
+                    zaakUuid = JSONObject(responseBody).getString("uuid").let(UUID::fromString)
                 }
             }
 
@@ -119,7 +153,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "zaakUUID": "$zaakUuid"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the requested initiator should be added") {
                     val responseBody = response.bodyAsString
@@ -153,7 +187,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/roltype",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then("the response should be a 200 HTTP response with the correct amount of roltypen") {
                     response.code shouldBe HTTP_OK
@@ -186,7 +220,6 @@ class KlantRestServiceTest : BehaviorSpec({
                       "emailadres": "$TEST_PERSON_HENDRIKA_JANSE_EMAIL",
                       "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                       "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                      "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                       "identificatieType": "BSN",
                       "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING" ],
                       "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -197,14 +230,14 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers and the person is retrieved") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
                     headers = headers,
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then(
                     "the response should be a 200 HTTP response with personal data from both the BRP and Klanten databases"
@@ -226,7 +259,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -234,7 +267,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -246,7 +279,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("no zaaktype uuid is provided") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/person/$temporaryPersonId",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -278,7 +311,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -296,7 +329,6 @@ class KlantRestServiceTest : BehaviorSpec({
                    "temporaryPersonId": "$temporaryPersonId",
                    "geboortedatum": "$TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE",
                    "geslacht": "$TEST_PERSON_HENDRIKA_JANSE_GENDER",
-                   "identificatie": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
                    "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_BSN",
                    "indicaties": [ "EMIGRATIE", "OPSCHORTING_BIJHOUDING"],
                    "naam": "$TEST_PERSON_HENDRIKA_JANSE_FULLNAME",
@@ -308,7 +340,7 @@ class KlantRestServiceTest : BehaviorSpec({
 
             When("zaaktype uuid is provided in the request headers") {
                 val headers = Headers.Builder()
-                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_TEST_3_UUID")
+                    .add(HEADER_ZAAK_ID, "$ZAAKTYPE_CMMN_TEST_3_UUID")
                     .build()
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
@@ -316,7 +348,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/klanten/personen",
                     headers = headers,
                     requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -340,7 +372,7 @@ class KlantRestServiceTest : BehaviorSpec({
                                 "matches": "BRPACT-AlgemeneTaken"
                               },
                               "X-VERWERKING": {
-                                "matches": "Algemeen@$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "matches": "Algemeen@$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                               },
                               "X-GEBRUIKER": {
                                 "matches": ".+"
@@ -348,7 +380,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -361,7 +393,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/personen",
                     requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then(
@@ -393,7 +425,7 @@ class KlantRestServiceTest : BehaviorSpec({
                             }
                           }
                         """.trimIndent(),
-                        testUser = RAADPLEGER_DOMAIN_TEST_1
+                        testUser = RAADPLEGER_1
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -416,7 +448,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1/$TEST_KVK_NUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -427,10 +459,13 @@ class KlantRestServiceTest : BehaviorSpec({
                     // the response should contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "emailadres": "$TEST_VESTIGING_EMAIL",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -448,7 +483,7 @@ class KlantRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the vestiging is returned with the expected data including contact details") {
@@ -460,9 +495,12 @@ class KlantRestServiceTest : BehaviorSpec({
                     // so the response should not contain an email address and telephone number
                     responseBody shouldEqualJson """
                     {
-                      "adres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie": "$TEST_KVK_VESTIGINGSNUMMER_1",
-                      "identificatieType": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                       "naam": "$TEST_KVK_NAAM_1",
                       "type": "$VESTIGINGTYPE_NEVENVESTIGING",
                       "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_1"
@@ -474,7 +512,7 @@ class KlantRestServiceTest : BehaviorSpec({
             When("a vestigingsprofiel is requested which is present in the KVK test environment") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
                 Then("the vestigingsprofiel is returned with the expected data") {
                     response.code shouldBe HTTP_OK
@@ -487,7 +525,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         with(JSONArray(adressen).get(0).toString()) {
                             shouldContainJsonKeyValue("type", "bezoekadres")
                             shouldContainJsonKeyValue("afgeschermd", false)
-                            shouldContainJsonKeyValue("volledigAdres", "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1")
+                            shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES)
                         }
                         shouldContainJsonKeyValue("commercieleVestiging", true)
                         shouldContainJsonKeyValue("deeltijdWerkzamePersonen", 1)
@@ -517,13 +555,53 @@ class KlantRestServiceTest : BehaviorSpec({
                 }
             }
 
+            When("a basisprofiel is requested which is present in the KVK test environment") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/basisprofiel/$TEST_KVK_NUMMER_1",
+                    testUser = RAADPLEGER_1
+                )
+                Then("the basisprofiel is returned with all fields mapped correctly") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    with(responseBody) {
+                        shouldContainJsonKey("adressen")
+                        val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                        adressen.length() shouldBe 1
+                        with(JSONArray(adressen).get(0).toString()) {
+                            shouldContainJsonKeyValue("type", "bezoekadres")
+                            shouldContainJsonKeyValue("afgeschermd", false)
+                            shouldContainJsonKeyValue("volledigAdres", TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES)
+                        }
+                        shouldContainJsonKeyValue("eersteHandelsnaam", TEST_KVK_EERSTE_HANDELSNAAM_1)
+                        shouldContainJsonKeyValue("kvkNummer", TEST_KVK_NUMMER_1)
+                        shouldContainJsonKeyValue("rsin", TEST_KVK_RSIN_1)
+                        shouldContainJsonKeyValue("rechtsvorm", TEST_KVK_BASISPROFIEL_RECHTSVORM)
+                        shouldContainJsonKeyValue("uitgebreideRechtsvorm", TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM)
+                        shouldContainJsonKeyValue("statutaireNaam", TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM)
+                        shouldContainJsonKeyValue(
+                            "totaalWerkzamePersonen",
+                            TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN
+                        )
+                        shouldContainJsonKey("sbiActiviteiten")
+                        val sbiActiviteiten = JSONObject(responseBody).getJSONArray("sbiActiviteiten")
+                        sbiActiviteiten.length() shouldBe 1
+                        with(JSONArray(sbiActiviteiten).get(0).toString()) {
+                            shouldContain(TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1)
+                        }
+                        shouldContainJsonKeyValue("sbiHoofdActiviteit", TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT)
+                        shouldContainJsonKeyValue("website", TEST_KVK_BASISPROFIEL_WEBSITE)
+                    }
+                }
+            }
+
             When("a search on companies by name is performed") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/bedrijven",
                     requestBodyAsString = JSONObject(
                         mapOf("naam" to TEST_KVK_NAAM_1)
                     ).toString(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -531,12 +609,15 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -554,7 +635,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     requestBodyAsString = JSONObject(
                         mapOf("vestigingsnummer" to TEST_KVK_VESTIGINGSNUMMER_1)
                     ).toString(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the expected companies as defined in the KVK mock are returned") {
@@ -562,12 +643,15 @@ class KlantRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                    { 
+                    {
                         "foutmelding" : "",
                         "resultaten" : [ {
-                            "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                            "identificatie" : "$TEST_KVK_VESTIGINGSNUMMER_1",
-                            "identificatieType" : "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                            "adres" : {
+                              "type": "bezoekadres",
+                              "afgeschermd": false,
+                              "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                            },
+                            "identificatieType" : "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                             "kvkNummer" : "$TEST_KVK_NUMMER_1",
                             "naam" : "$TEST_KVK_NAAM_1",
                             "type" : "$VESTIGINGTYPE_NEVENVESTIGING",
@@ -584,7 +668,7 @@ class KlantRestServiceTest : BehaviorSpec({
     Context("Retrieving contactmomenten for a person") {
         Given("Existing contactmomenten and a logged-in raadpleger") {
             When("the list contactmomenten endpoint is called with the BSN of this test customer") {
-                // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
+                // this endpoint requires no explicit authorisation; however, to pass the basic authorisation filter in ZAC,
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/klanten/contactmomenten",
@@ -594,7 +678,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         "page": 0
                     }
                     """.trimIndent(),
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be a 200 HTTP response with the customer contactmomenten") {
@@ -617,9 +701,15 @@ class KlantRestServiceTest : BehaviorSpec({
                           "kanaal": "telefoon",
                           "registratiedatum": "2010-01-01T12:00:00Z",
                           "tekst": "phone contact"
-                        }
+                        },
+                        {
+                          "initiatiefnemer": "",
+                          "kanaal": "Webformulier",
+                          "registratiedatum": "2026-05-18T09:49:02Z",
+                          "tekst": "Productaanvraag-Dimpact test formulier - met DigiD en communicatievoorkeuren"
+                        }                        
                       ],
-                      "totaal": 2
+                      "totaal": 3
                     }
                     """.trimIndent()
                 }
@@ -638,7 +728,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/rsin/$TEST_KVK_RSIN_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -647,9 +737,13 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
                     {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
                       "identificatieType" : "RSIN",
+                      "kvkNummer": "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
@@ -665,21 +759,26 @@ class KlantRestServiceTest : BehaviorSpec({
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/rechtspersoon/kvknummer/$TEST_KVK_NUMMER_1",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
-                Then("the response should be ok and the test company should be returned without contact data") {
+                Then("the response should be ok and the test company should be returned with contact data") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson """
-                   {
-                      "adres" : "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1",
-                      "identificatie" : "$TEST_KVK_RSIN_1",
+                    {
+                      "adres" : {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_ADRES_1, $TEST_KVK_PLAATS_1"
+                      },
+                      "emailadres": "$TEST_KVK_EMAIL",
                       "identificatieType" : "RSIN",
                       "kvkNummer" : "$TEST_KVK_NUMMER_1",
                       "naam" : "$TEST_KVK_NAAM_1",
                       "rsin" : "$TEST_KVK_RSIN_1",
+                      "telefoonnummer" : "$TEST_RECHTSPERSOON_TELEPHONE_NUMBER",
                       "type" : "$TEST_KVK_TYPE_RECHTSPERSOON"
                     }
                     """.trimIndent()
@@ -695,7 +794,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/klanten/personen/parameters",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -766,14 +865,201 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
+    Context("Retrieving a vestiging with multiple adressen (2 bezoek + 2 correspondentie)") {
+        Given("A vestiging with multiple adressen and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_2/$TEST_KVK_NUMMER_2",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the first bezoekadres with adresType") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING2_ADRES",
+                        "postcode": "1234AB"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_2",
+                      "naam": "$TEST_KVK_NAAM_2",
+                      "type": "HOOFDVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_2"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_2",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("all 4 adressen are returned with correct type labels and formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    val numberOfAdressen = 4
+                    adressen.length() shouldBe numberOfAdressen
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_1)
+                    }
+                    with(JSONArray(adressen).get(1).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_BEZOEKADRES_2)
+                    }
+                    with(JSONArray(adressen).get(2).toString()) {
+                        shouldContainJsonKeyValue("type", "correspondentieadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1)
+                    }
+                    val lastAdresIndex = 3
+                    with(JSONArray(adressen).get(lastAdresIndex).toString()) {
+                        shouldContainJsonKeyValue("type", "correspondentieadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2)
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Retrieving a vestiging with a buitenlands adres") {
+        Given("A vestiging with a foreign address and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_3/$TEST_KVK_NUMMER_3",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the buitenlands bezoekadres with adresType") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING3_ADRES"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_3",
+                      "naam": "$TEST_KVK_NAAM_3",
+                      "type": "NEVENVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_3"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_3",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the profiel bezoekadres includes toevoegingAdres in the formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    adressen.length() shouldBe 1
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING3_PROFIEL_ADRES)
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Retrieving a vestiging with a full binnenlands adres") {
+        Given("A vestiging with all Dutch address fields populated and a logged-in raadpleger") {
+            When("the vestiging is requested by vestigingsnummer and KVK number") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestiging/$TEST_KVK_VESTIGINGSNUMMER_4/$TEST_KVK_NUMMER_4",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the vestiging standard view shows the address with huisnummer and huisletter") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJson """
+                    {
+                      "adres": {
+                        "type": "bezoekadres",
+                        "afgeschermd": false,
+                        "volledigAdres": "$TEST_KVK_VESTIGING4_ADRES",
+                        "postcode": "4321DC"
+                      },
+                      "identificatieType": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
+                      "kvkNummer": "$TEST_KVK_NUMMER_4",
+                      "naam": "$TEST_KVK_NAAM_4",
+                      "type": "HOOFDVESTIGING",
+                      "vestigingsnummer": "$TEST_KVK_VESTIGINGSNUMMER_4"
+                    }
+                    """.trimIndent()
+                }
+            }
+
+            When("the vestigingsprofiel is requested") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/vestigingsprofiel/$TEST_KVK_VESTIGINGSNUMMER_4",
+                    testUser = RAADPLEGER_1
+                )
+
+                Then("the profiel bezoekadres includes huisnummerToevoeging in the formatted volledigAdres") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    val adressen = JSONObject(responseBody).getJSONArray("adressen")
+                    adressen.length() shouldBe 1
+                    with(JSONArray(adressen).get(0).toString()) {
+                        shouldContainJsonKeyValue("type", "bezoekadres")
+                        shouldContainJsonKeyValue("afgeschermd", false)
+                        shouldContainJsonKeyValue("volledigAdres", TEST_KVK_VESTIGING4_PROFIEL_ADRES)
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Searching for personen without brp_zoeken right") {
+        Given("A behandelaar without the brp_zoeken right is logged in") {
+            When("the personen search endpoint is called") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """{ "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN" }""",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+    }
+
     Context("Retrieving betrokkenen for a zaaktype") {
         Given("Existing betrokkenen and a logged-in raadpleger") {
             When("the betrokkenen are retrieved for the zaaktype 'Test zaaktype 2'") {
                 // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
                 // a user with at least one ZAC role must be logged in
                 val response = itestHttpClient.performGetRequest(
-                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_TEST_2_UUID/betrokkene",
-                    testUser = RAADPLEGER_DOMAIN_TEST_1
+                    url = "$ZAC_API_URI/klanten/roltype/$ZAAKTYPE_CMMN_TEST_2_UUID/betrokkene",
+                    testUser = RAADPLEGER_1
                 )
 
                 Then("the response should be ok and the test company should be returned without contact data") {
@@ -785,35 +1071,155 @@ class KlantRestServiceTest : BehaviorSpec({
                       {
                         "naam": "Belanghebbende",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE"
                       },
                       {
                         "naam": "Bewindvoerder",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER"
                       },
                       {
                         "naam": "Contactpersoon",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON"
                       },
                       {
                         "naam": "Gemachtigde",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE"
                       },
                       {
                         "naam": "Medeaanvrager",
                         "omschrijvingGeneriekEnum": "mede_initiator",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER"
                       },
                       {
                         "naam": "Plaatsvervanger",
                         "omschrijvingGeneriekEnum": "belanghebbende",
-                        "uuid": "$ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER"
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER"
                       }
                     ]
                     """.trimIndent()
+                }
+            }
+        }
+    }
+
+    Context("Listing BRP gemeenten") {
+        Given("A user with gemeente-scoped brp_zoeken authorisation") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/personen/gemeenten",
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should contain the authorized gemeenten") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    val jsonArray = JSONArray(responseBody)
+                    jsonArray.length() shouldBe 2
+                    val gemeenten = (0 until jsonArray.length()).map {
+                        jsonArray.getJSONObject(it).getString("code")
+                    }.toSet()
+                    gemeenten shouldBe setOf(TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG, TEST_GEMEENTE_CODE_VOORSCHOTEN)
+                }
+            }
+        }
+
+        Given("A user with overall brp_zoeken but no gemeente-scoped access") {
+            When("the listAuthorisedBrpGemeenten endpoint is called") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/klanten/personen/gemeenten",
+                    testUser = RAADPLEGER_1
+                )
+                Then("the response should be an empty list") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldEqualJson "[]"
+                }
+            }
+        }
+    }
+
+    Context("Searching for personen with binnengemeentelijk authorization") {
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching within authorized gemeente") {
+            When("the personen search endpoint is called with an authorized gemeenteVanInschrijving") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 200 OK with the person data") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    responseBody shouldContain TEST_PERSON_DIRK_JANSSEN_BSN
+                }
+            }
+        }
+
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching within authorized gemeente") {
+            When(
+                "the personen search endpoint is called with an authorized gemeenteVanInschrijving" +
+                    " but the person for that BSN does not have a matching gemeenteVanInschrijving"
+            ) {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 200 OK with no results") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                    JSONObject(responseBody).getJSONArray("resultaten") shouldHaveSize(0)
+                }
+            }
+        }
+
+        Given("A user without brp_zoeken searching with a gemeenteVanInschrijving") {
+            When("the personen search endpoint is called") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_DIRK_JANSSEN_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+
+        Given("A recordmanager with gemeente-scoped brp_zoeken searching with unauthorized gemeente") {
+            When("the personen search endpoint is called with a gemeente not in their scope") {
+                val response = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/klanten/personen",
+                    requestBodyAsString = """
+                        {
+                            "bsn": "$TEST_PERSON_HENDRIKA_JANSE_BSN",
+                            "gemeenteVanInschrijving": "$TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE"
+                        }
+                    """.trimIndent(),
+                    testUser = RECORDMANAGER_1
+                )
+                Then("the response should be 403 Forbidden") {
+                    response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }

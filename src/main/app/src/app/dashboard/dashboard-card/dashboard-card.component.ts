@@ -16,7 +16,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { interval, Observable, Subject, Subscription } from "rxjs";
+import { Observable, Subject, Subscription } from "rxjs";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
@@ -28,7 +28,7 @@ import { DashboardCard } from "../model/dashboard-card";
 @Component({
   template: "",
   styleUrls: ["./dashboard-card.component.less"],
-  standalone: false,
+  standalone: true,
 })
 export abstract class DashboardCardComponent<
     T extends
@@ -37,8 +37,6 @@ export abstract class DashboardCardComponent<
   >
   implements OnInit, AfterViewInit, OnDestroy
 {
-  private readonly RELOAD_INTERVAL: number = 60; // 1 min.
-
   @Input({ required: true }) data!: DashboardCard;
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
@@ -51,25 +49,31 @@ export abstract class DashboardCardComponent<
 
   abstract readonly columns: C;
 
+  // Cards that fetch one page at a time and expose totaal via a template
+  // binding must opt out, otherwise MatTableDataSource overwrites
+  // paginator.length with the current page size (data.length).
+  protected serverSidePagination = false;
+
   protected constructor(
     protected identityService: IdentityService,
     protected websocketService: WebsocketService,
   ) {}
 
   ngOnInit(): void {
-    this.onLoad(this.afterLoad);
+    this.onLoad();
   }
 
   ngAfterViewInit(): void {
-    if (this.reload == null) {
-      if (this.data.signaleringType != null) {
-        this.reload = this.refreshOnSignalering(this.data.signaleringType);
-      } else {
-        this.reload = this.refreshTimed(this.RELOAD_INTERVAL);
-      }
+    if (!this.serverSidePagination) {
+      if (this.paginator) this.dataSource.paginator = this.paginator;
+      if (this.sort) this.dataSource.sort = this.sort;
     }
-    this.reloader = this.reload.subscribe(() => {
-      this.onLoad(this.afterLoad);
+
+    if (this.reload == null && this.data.signaleringType != null) {
+      this.reload = this.refreshOnSignalering(this.data.signaleringType);
+    }
+    this.reloader = this.reload?.subscribe(() => {
+      this.onLoad();
     });
   }
 
@@ -77,16 +81,7 @@ export abstract class DashboardCardComponent<
     this.reloader?.unsubscribe();
   }
 
-  protected abstract onLoad(afterLoad: () => void): void;
-
-  private readonly afterLoad = () => {
-    if (this.paginator) this.dataSource.paginator = this.paginator;
-    if (this.sort) this.dataSource.sort = this.sort;
-  };
-
-  protected refreshTimed(seconds: number) {
-    return interval(seconds * 1000);
-  }
+  protected abstract onLoad(): void;
 
   protected refreshOnSignalering(
     signaleringType: GeneratedType<"RestSignaleringInstellingen">["type"],

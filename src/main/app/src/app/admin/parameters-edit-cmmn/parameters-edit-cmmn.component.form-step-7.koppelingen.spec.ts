@@ -75,7 +75,6 @@ describe("Koppelingen form step", () => {
         parameters: {
           zaakafhandelParameters,
           isSavedZaakafhandelParameters: true,
-          featureFlagPabcIntegration: true,
         },
       }),
     };
@@ -127,7 +126,6 @@ describe("Koppelingen form step", () => {
     jest
       .spyOn(referentieTabelService, "listReferentieTabellen")
       .mockReturnValue(of([]));
-    jest.spyOn(referentieTabelService, "listDomeinen").mockReturnValue(of([]));
     jest
       .spyOn(referentieTabelService, "listAfzenders")
       .mockReturnValue(of(["test@example.com", "other@example.com"]));
@@ -240,11 +238,11 @@ describe("Koppelingen form step", () => {
   });
 
   describe("Smart documents", () => {
-    it("should initialize smartDocumentsEnabledForm with enabledForZaaktype from parameters", () => {
+    it("should initialize enabledForZaaktype from parameters", () => {
       const component = fixture.componentInstance;
-      expect(
-        component["smartDocumentsEnabledForm"].value.enabledForZaaktype,
-      ).toBe(false);
+      expect(component.parameters.smartDocuments.enabledForZaaktype).toBe(
+        false,
+      );
     });
 
     it("should not show smart documents form when enabledGlobally is false", () => {

@@ -27,17 +27,13 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
 import { ToolbarComponent } from "./core/toolbar/toolbar.component";
-import { DashboardModule } from "./dashboard/dashboard.module";
-import { FoutAfhandelingModule } from "./fout-afhandeling/fout-afhandeling.module";
-import { GebruikersvoorkeurenModule } from "./gebruikersvoorkeuren/gebruikersvoorkeuren.module";
-import { IdentityModule } from "./identity/identity.module";
+import { FoutAfhandelingRoutingModule } from "./fout-afhandeling/fout-afhandeling-routing.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
-import { MailModule } from "./mail/mail.module";
 import { PlanItemsModule } from "./plan-items/plan-items.module";
 import { Paths } from "./shared/http/http-client";
 import { SharedModule } from "./shared/shared.module";
 import { ZakenModule } from "./zaken/zaken.module";
-import { ZoekenModule } from "./zoeken/zoeken.module";
+import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
 const queryClient = new QueryClient();
 
@@ -46,22 +42,18 @@ const queryClient = new QueryClient();
 window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 @NgModule({
-  declarations: [AppComponent, ToolbarComponent],
-  exports: [ToolbarComponent],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
   imports: [
+    ToolbarComponent,
     BrowserAnimationsModule,
     CoreModule,
     SharedModule,
-    DashboardModule,
-    FoutAfhandelingModule,
+    FoutAfhandelingRoutingModule,
     ZakenModule,
-    ZoekenModule,
+    ZoekComponent,
     InformatieObjectenModule,
-    MailModule,
     PlanItemsModule,
-    IdentityModule,
-    GebruikersvoorkeurenModule,
     AppRoutingModule,
   ],
   providers: [

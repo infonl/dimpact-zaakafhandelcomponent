@@ -68,15 +68,15 @@ abstract class ZaaktypeConfiguration {
     @Column(name = "gebruikersnaam_behandelaar")
     var defaultBehandelaarId: String? = null
 
+    @Column(name = "smartdocuments_ingeschakeld")
+    var smartDocumentsEnabled: Boolean = false
+
     @field:NotNull
     @Column(name = "creatiedatum", nullable = false)
     var creatiedatum: ZonedDateTime? = null
 
     @Column(name = "productaanvraagtype")
     var productaanvraagtype: String? = null
-
-    @Column(name = "domein")
-    var domein: String? = null
 
     @Column(name = "niet_ontvankelijk_resultaattype_uuid")
     var nietOntvankelijkResultaattype: UUID? = null

@@ -162,7 +162,7 @@ describe(TaakEditComponent.name, () => {
       setInputsAndDetect(makeTask());
       expect(
         identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("zaaktype-uuid-1");
+      ).toHaveBeenCalledWith("Test Zaaktype");
     });
 
     it("patches the group form control with the task groep", () => {
@@ -287,6 +287,28 @@ describe(TaakEditComponent.name, () => {
       fixture.detectChanges();
 
       expect(component["form"].controls.behandelaar.disabled).toBe(true);
+    });
+  });
+
+  describe("groupDisplayValue", () => {
+    it("returns the group naam when the group is active", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Active Group", active: true });
+      expect(component["groupDisplayValue"](group)).toBe("Active Group");
+    });
+
+    it("appends (inactief) when the group is inactive", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Inactive Group", active: false });
+      expect(component["groupDisplayValue"](group)).toBe(
+        "Inactive Group (inactief)",
+      );
+    });
+
+    it("returns the group naam when active is undefined", () => {
+      setInputsAndDetect(makeTask());
+      const group = makeGroup({ naam: "Unknown Group", active: undefined });
+      expect(component["groupDisplayValue"](group)).toBe("Unknown Group");
     });
   });
 

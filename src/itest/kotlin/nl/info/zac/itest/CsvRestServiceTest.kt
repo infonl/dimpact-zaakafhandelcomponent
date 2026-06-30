@@ -4,8 +4,9 @@
  */
 package nl.info.zac.itest
 
-import com.github.doyaaaaaken.kotlincsv.dsl.context.InsufficientFieldsRowBehaviour.EMPTY_STRING
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.jsoizo.kotlincsv.CsvDialect
+import com.jsoizo.kotlincsv.csvReader
+import com.jsoizo.kotlincsv.reader.InsufficientFieldsRowBehaviour.EMPTY_STRING
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -13,9 +14,9 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -77,15 +78,15 @@ class CsvRestServiceTest : BehaviorSpec({
         Given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak1Description",
-                zaaktypeUuid = ZAAKTYPE_TEST_1_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
                 indexZaak = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val (zaak2Identification, zaak2Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak2Description",
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 indexZaak = true,
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
 
             When(
@@ -112,7 +113,7 @@ class CsvRestServiceTest : BehaviorSpec({
                             "sorteerRichting": "asc"
                          }
                     """.trimIndent(),
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                    testUser = BEHEERDER_1
                 )
 
                 Then(
@@ -126,8 +127,8 @@ class CsvRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
 
                     val csvReader = csvReader {
-                        delimiter = ';'
-                        // the value rows in the zaken export CSVs contains values other than are
+                        dialect = CsvDialect(delimiter = ';')
+                        // the value rows in the zaken export CSVs contain values other than are
                         // defined in the header row, so we convert them to empty strings
                         insufficientFieldsRowBehaviour = EMPTY_STRING
                     }

@@ -17,20 +17,20 @@
         position: absolute;
         right: 0;
         top: 0;
-        width: var(--mdc-icon-button-icon-size, 24px);
+        width: var(--mat-icon-button-icon-size, 24px);
         height: 100%;
-        background-color: var(--mdc-filled-text-field-container-color);
+        background-color: var(--mat-form-field-filled-container-color);
       }
 
       &:not(:has(input[disabled])):hover {
         .mat-mdc-form-field-infix::after {
-          background-color: var(--mdc-filled-text-field-container-color-hover);
+          background-color: var(--zac-filled-text-field-container-color-hover);
         }
       }
 
       &.mdc-text-field--focused {
         .mat-mdc-form-field-infix::after {
-          background-color: var(--mdc-filled-text-field-container-color-active);
+          background-color: var(--zac-filled-text-field-container-color-active);
         }
       }
     }

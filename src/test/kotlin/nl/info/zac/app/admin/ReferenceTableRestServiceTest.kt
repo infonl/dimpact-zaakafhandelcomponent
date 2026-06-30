@@ -33,7 +33,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

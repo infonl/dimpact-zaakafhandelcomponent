@@ -23,11 +23,11 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.enkelvoudiginformatieobject.util.isSigned
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.input.BrpInput
 import nl.info.zac.policy.input.DocumentData
 import nl.info.zac.policy.input.DocumentInput
 import nl.info.zac.policy.input.TaakData
@@ -49,6 +49,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.flowable.task.api.TaskInfo
+import java.util.logging.Logger
 
 @ApplicationScoped
 @NoArgConstructor
@@ -59,8 +60,7 @@ class PolicyService @Inject constructor(
     @RestClient private val evaluationClient: OpaEvaluationClient,
     private val ztcClientService: ZtcClientService,
     private val lockService: EnkelvoudigInformatieObjectLockService,
-    private val zrcClientService: ZrcClientService,
-    private val configurationService: ConfigurationService
+    private val zrcClientService: ZrcClientService
 ) {
     /**
      * Read 'overige' permissions.
@@ -75,7 +75,6 @@ class PolicyService @Inject constructor(
                 UserInput(
                     loggedInUser = loggedInUserInstance.get(),
                     zaaktype = zaaktypeDescription,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
                 )
             )
         ).result
@@ -103,8 +102,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 ZaakInput(
                     loggedInUser = loggedInUser,
-                    zaakData = zaakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    zaakData = zaakData
                 )
             )
         ).result
@@ -126,8 +124,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 ZaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    zaakData = zaakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    zaakData = zaakData
                 )
             )
         ).result
@@ -157,8 +154,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    documentData = documentData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    documentData = documentData
                 )
             )
         ).result
@@ -177,8 +173,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 DocumentInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    documentData = documentData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    documentData = documentData
                 )
             )
         ).result
@@ -201,8 +196,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    taakData = taakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    taakData = taakData
                 )
             )
         ).result
@@ -216,8 +210,7 @@ class PolicyService @Inject constructor(
             RuleQuery(
                 TaakInput(
                     loggedInUser = loggedInUserInstance.get(),
-                    taakData = taakData,
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    taakData = taakData
                 )
             )
         ).result
@@ -227,8 +220,7 @@ class PolicyService @Inject constructor(
         evaluationClient.readNotitieRechten(
             RuleQuery(
                 UserInput(
-                    loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    loggedInUser = loggedInUserInstance.get()
                 )
             )
         ).result
@@ -237,22 +229,20 @@ class PolicyService @Inject constructor(
         evaluationClient.readWerklijstRechten(
             RuleQuery(
                 UserInput(
-                    loggedInUser = loggedInUserInstance.get(),
-                    featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
+                    loggedInUser = loggedInUserInstance.get()
                 )
             )
         ).result
 
-    @Deprecated(
-        "In PABC-based authorisation, the concept of being authorised for a zaaktype is meaningless, " +
-            "since a user is always authorised for a zaaktype _for specific application roles_."
-    )
-    fun isAuthorisedForZaaktype(zaakTypeOmschrijving: String) =
-        if (configurationService.featureFlagPabcIntegration()) {
-            true
-        } else {
-            loggedInUserInstance.get().isAuthorisedForZaaktype(zaakTypeOmschrijving)
-        }
+    fun readBrpRechten(gemeenteCode: String?) =
+        evaluationClient.readBrpRechten(
+            RuleQuery(
+                BrpInput(
+                    loggedInUser = loggedInUserInstance.get(),
+                    gemeenteCode = gemeenteCode,
+                )
+            )
+        ).result
 }
 
 /**
@@ -261,6 +251,17 @@ class PolicyService @Inject constructor(
  */
 fun assertPolicy(policy: Boolean) {
     if (!policy) {
+        throw PolicyException()
+    }
+}
+
+/**
+ * Assert that the given policy is true.
+ * If it is not, log the event with the passed logger and message and finally throw a [PolicyException].
+ */
+fun assertPolicy(policy: Boolean, logger: Logger, message: String) {
+    if (!policy) {
+        logger.info(message)
         throw PolicyException()
     }
 }

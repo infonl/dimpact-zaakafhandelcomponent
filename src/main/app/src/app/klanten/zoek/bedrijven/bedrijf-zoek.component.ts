@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgIf, TitleCasePipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -13,12 +14,18 @@ import {
   Output,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
+import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import {
   BSN_LENGTH,
   KVK_LENGTH,
@@ -35,10 +42,22 @@ import { FormCommunicatieService } from "../form-communicatie-service";
   selector: "zac-bedrijf-zoek",
   templateUrl: "./bedrijf-zoek.component.html",
   styleUrls: ["./bedrijf-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    MaterialFormBuilderModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    MatExpansionPanelActionRow,
+    TranslateModule,
+    NgIf,
+    TitleCasePipe,
+  ],
 })
 export class BedrijfZoekComponent implements OnInit, OnDestroy {
-  @Output() bedrijf? = new EventEmitter<GeneratedType<"RestBedrijf">>();
+  @Output() bedrijf = new EventEmitter<GeneratedType<"RestBedrijf">>();
   @Input() sideNav?: MatSidenav;
   @Input() syncEnabled = false;
 
@@ -162,7 +181,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
       })
       .subscribe((bedrijven) => {
         this.bedrijven.data = bedrijven.resultaten ?? [];
-        this.foutmelding = bedrijven.foutmelding;
+        this.foutmelding = bedrijven.foutmelding ?? undefined;
         this.loading = false;
         this.utilService.setLoading(false);
       });
@@ -174,7 +193,7 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
   }
 
   selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {
-    this.bedrijf?.emit(bedrijf);
+    this.bedrijf.emit(bedrijf);
     this.wissen();
 
     if (!this.syncEnabled) return;

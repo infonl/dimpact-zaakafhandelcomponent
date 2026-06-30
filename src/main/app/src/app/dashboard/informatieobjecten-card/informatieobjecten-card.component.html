@@ -25,16 +25,16 @@
         {{ informatieobject.registratiedatumTijd | datum | empty }}
       </td>
     </ng-container>
-    <ng-container matColumnDef="informatieobjectType">
+    <ng-container matColumnDef="informatieobjectTypeOmschrijving">
       <th
         mat-header-cell
         *matHeaderCellDef
-        mat-sort-header="informatieobjectType"
+        mat-sort-header="informatieobjectTypeOmschrijving"
       >
-        {{ "informatieobjectType" | translate }}
+        {{ "informatieobjectTypeOmschrijving" | translate }}
       </th>
       <td mat-cell *matCellDef="let informatieobject">
-        {{ informatieobject.informatieobjectType }}
+        {{ informatieobject.informatieobjectTypeOmschrijving | empty }}
       </td>
     </ng-container>
     <ng-container matColumnDef="auteur">
@@ -62,8 +62,16 @@
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="5">
-        <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+      <td class="mat-cell dashboard-empty-cell" colspan="5">
+        <mat-progress-spinner
+          *ngIf="ioQuery.isLoading()"
+          mode="indeterminate"
+          diameter="32"
+          [attr.aria-label]="'msg.loading' | translate"
+        ></mat-progress-spinner>
+        <p *ngIf="!ioQuery.isLoading()">
+          {{ "msg.geen.gegevens.gevonden" | translate }}
+        </p>
       </td>
     </tr>
   </table>

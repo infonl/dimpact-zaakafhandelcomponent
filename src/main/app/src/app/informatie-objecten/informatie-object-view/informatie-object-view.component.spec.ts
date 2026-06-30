@@ -11,7 +11,7 @@ import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, ReplaySubject } from "rxjs";
@@ -75,11 +75,9 @@ describe(InformatieObjectViewComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
         InformatieObjectViewComponent,
         InformatieObjectEditComponent,
-      ],
-      imports: [
         SideNavComponent,
         StaticTextComponent,
         MaterialModule,
@@ -94,6 +92,7 @@ describe(InformatieObjectViewComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
         {
           provide: ActivatedRoute,
@@ -270,6 +269,118 @@ describe(InformatieObjectViewComponent.name, () => {
       );
 
       expect(button).toBeNull();
+    });
+  });
+
+  describe("actie.unlock", () => {
+    it("should not have a button when the document is not locked", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            gelockedDoor: undefined,
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              ontgrendelen: true,
+            }),
+          }),
+        );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.unlock" }),
+      );
+
+      expect(button).toBeNull();
+    });
+
+    it("should not have a button when the document is locked but the user does not have the right to unlock", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            gelockedDoor: { id: "user-001", naam: "Test User" },
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              ontgrendelen: false,
+            }),
+          }),
+        );
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({ title: "actie.unlock" }),
+      );
+
+      expect(button).toBeNull();
+    });
+
+    it("should call unlockInformatieObject with zaakUuid when clicked and a zaak is present", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            gelockedDoor: { id: "user-001", naam: "Test User" },
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              ontgrendelen: true,
+            }),
+          }),
+        );
+      const unlockSpy = jest
+        .spyOn(informatieObjectenService, "unlockInformatieObject")
+        .mockReturnValue(of({}));
+      mockActivatedRoute.data.next({
+        zaak,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.unlock" }),
+      );
+      await button.click();
+
+      expect(unlockSpy).toHaveBeenCalledWith(
+        enkelvoudigInformatieobject.uuid,
+        zaak.uuid,
+      );
+    });
+
+    it("should call unlockInformatieObject without zaakUuid when clicked and no zaak is present", async () => {
+      jest
+        .spyOn(informatieObjectenService, "readEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          of({
+            ...enkelvoudigInformatieobject,
+            gelockedDoor: { id: "user-001", naam: "Test User" },
+            rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
+              ontgrendelen: true,
+            }),
+          }),
+        );
+      const unlockSpy = jest
+        .spyOn(informatieObjectenService, "unlockInformatieObject")
+        .mockReturnValue(of({}));
+      mockActivatedRoute.data.next({
+        zaak: undefined as unknown as GeneratedType<"RestZaak">,
+        informatieObject: enkelvoudigInformatieobject,
+      });
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({ title: "actie.unlock" }),
+      );
+      await button.click();
+
+      expect(unlockSpy).toHaveBeenCalledWith(
+        enkelvoudigInformatieobject.uuid,
+        undefined,
+      );
     });
   });
 });

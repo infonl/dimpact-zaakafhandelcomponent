@@ -15,7 +15,7 @@ import input.user
 overige_rechten := {
     "starten_zaak": starten_zaak,
     "beheren": beheren,
-    "zoeken": zoeken
+    "zoeken": zoeken,
 }
 
 default starten_zaak := false

@@ -209,3 +209,7 @@ fun createOverigeRechtenAllDeny(
     beheren = beheren,
     zoeken = zoeken
 )
+
+fun createBrpRechten(zoeken: Boolean = true) = BrpRechten(
+    zoeken = zoeken
+)

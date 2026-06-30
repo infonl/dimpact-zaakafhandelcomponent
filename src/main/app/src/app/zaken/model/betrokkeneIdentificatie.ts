@@ -13,7 +13,7 @@ export class BetrokkeneIdentificatie
   public readonly kvkNummer?: string | null = null;
   public readonly vestigingsnummer?: string | null = null;
   /**
-   * @deprecated - use `kvkNummer` or `rsin` instead
+   * @deprecated - use `kvkNummer` instead
    *
    * This should only be used for backwards compatibility and fetching data from the API.
    */
@@ -50,17 +50,6 @@ export class BetrokkeneIdentificatie
             this.kvkNummer = betrokkene.kvkNummer;
           }
           this.vestigingsnummer = betrokkene.vestigingsnummer;
-          break;
-        }
-
-        if (
-          "identificatie" in betrokkene &&
-          betrokkene.identificatie !== null
-        ) {
-          if ("kvkNummer" in betrokkene && betrokkene.kvkNummer !== null) {
-            this.kvkNummer = betrokkene.kvkNummer;
-          }
-          this.vestigingsnummer = betrokkene.identificatie;
           break;
         }
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
@@ -22,23 +22,19 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
-import { of } from "rxjs";
+import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FormioCustomEvent } from "../../formulieren/formio-wrapper/formio-wrapper.component";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZaakVerkortComponent } from "../../zaken/zaak-verkort/zaak-verkort.component";
 import { ZakenService } from "../../zaken/zaken.service";
 import { TakenService } from "../taken.service";
+import { FormioSetupService } from "./formio/formio-setup-service";
 import { TaakViewComponent } from "./taak-view.component";
 
 describe(TaakViewComponent.name, () => {
@@ -50,6 +46,10 @@ describe(TaakViewComponent.name, () => {
   let takenService: TakenService;
   let zakenService: ZakenService;
   let taakFormulierenService: TaakFormulierenService;
+
+  let mockActivatedRoute: {
+    data: ReplaySubject<{ taak: GeneratedType<"RestTask"> }>;
+  };
 
   const taak: GeneratedType<"RestTask"> = {
     id: "test-id",
@@ -99,17 +99,16 @@ describe(TaakViewComponent.name, () => {
   });
 
   beforeEach(() => {
+    mockActivatedRoute = {
+      data: new ReplaySubject<{ taak: GeneratedType<"RestTask"> }>(1),
+    };
+
     TestBed.configureTestingModule({
-      declarations: [TaakViewComponent, ZaakVerkortComponent],
       imports: [
-        SideNavComponent,
-        StaticTextComponent,
+        TaakViewComponent,
         MatSidenav,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
-        PipesModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
         NoopAnimationsModule,
       ],
       providers: [
@@ -119,7 +118,7 @@ describe(TaakViewComponent.name, () => {
         TaakFormulierenService,
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ taak }) },
+          useValue: mockActivatedRoute,
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -128,11 +127,11 @@ describe(TaakViewComponent.name, () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaakViewComponent);
-    fixture.detectChanges();
-
     component = fixture.componentRef;
     component.instance.actionsSidenav =
       TestBed.createComponent(MatSidenav).componentInstance;
+    mockActivatedRoute.data.next({ taak });
+    fixture.detectChanges();
 
     loader = TestbedHarnessEnvironment.loader(fixture);
 
@@ -227,33 +226,6 @@ describe(TaakViewComponent.name, () => {
     });
   });
 
-  describe("custom form builder", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(taakFormulierenService, "getAngularHandleFormBuilder")
-        .mockImplementation(() => {
-          throw new Error("Not implemented");
-        });
-      jest.spyOn(taakFormulierenService, "getFormulierBuilder").mockReturnValue(
-        fromPartial({
-          behandelForm: () =>
-            fromPartial({
-              build: () =>
-                fromPartial({
-                  form: [],
-                }),
-            }),
-        }),
-      );
-    });
-
-    it("should fallback to the old custom form builder", () => {
-      const spy = jest.spyOn(taakFormulierenService, "getFormulierBuilder");
-      component.instance.ngOnInit();
-      expect(spy).toHaveBeenCalledWith(taak.formulierDefinitieId);
-    });
-  });
-
   describe("document action buttons visibility for smartDocuments settings", () => {
     const smartDocumentVariants = [
       {
@@ -296,5 +268,145 @@ describe(TaakViewComponent.name, () => {
         expect(buttons.length).toBe(expectButtons);
       },
     );
+  });
+
+  describe(TaakViewComponent.prototype.onDocumentCreate.name, () => {
+    let formioSetupService: FormioSetupService;
+
+    const event: FormioCustomEvent = {
+      type: "click",
+      component: { key: "AM_SmartDocuments_Create" },
+      data: {
+        AM_SmartDocuments_Group: "group-id",
+        AM_SmartDocuments_Template: "template-id",
+      },
+    };
+
+    beforeEach(() => {
+      formioSetupService = TestBed.inject(FormioSetupService);
+    });
+
+    it("should set smartDocumentsGroupId from extractSmartDocumentsGroupId", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "smartDocumentsGroupId"
+        ],
+      ).toBe("group-id");
+    });
+
+    it("should set smartDocumentsTemplateId from extractSmartDocumentsTemplateId", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "smartDocumentsTemplateId"
+        ],
+      ).toBe("template-id");
+    });
+
+    it("should not open the sidenav when no template is selected", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue(undefined);
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue(undefined);
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+
+    it("should open the sidenav with 'actie.document.maken' when a template is selected", () => {
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsGroupId")
+        .mockReturnValue("group-id");
+      jest
+        .spyOn(formioSetupService, "extractSmartDocumentsTemplateId")
+        .mockReturnValue("template-id");
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.onDocumentCreate(event);
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "activeSideAction"
+        ],
+      ).toBe("actie.document.maken");
+      expect(openSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe(TaakViewComponent.prototype.editTaak.name, () => {
+    it("should open the actions sidenav with 'actie.taak.wijzigen'", () => {
+      const openSpy = jest.spyOn(component.instance.actionsSidenav, "open");
+
+      component.instance.editTaak();
+
+      expect(
+        (component.instance as unknown as Record<string, string>)[
+          "activeSideAction"
+        ],
+      ).toBe("actie.taak.wijzigen");
+      expect(openSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("inactive group indicator", () => {
+    it("should show '(inactief)' label when groep is inactive", () => {
+      mockActivatedRoute.data.next({
+        taak: {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: false },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement)
+          .querySelector("em")
+          ?.textContent?.trim(),
+      ).toBe("(inactief)");
+    });
+
+    it("should not show '(inactief)' label when groep is active", () => {
+      mockActivatedRoute.data.next({
+        taak: {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupNaam", active: true },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector("em"),
+      ).toBeNull();
+    });
+
+    it("should not crash when groep is undefined", () => {
+      mockActivatedRoute.data.next({ taak: { ...taak, groep: undefined } });
+      fixture.detectChanges();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector("em"),
+      ).toBeNull();
+    });
   });
 });

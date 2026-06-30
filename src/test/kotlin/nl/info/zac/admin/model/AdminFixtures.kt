@@ -4,7 +4,6 @@
  */
 package nl.info.zac.admin.model
 
-import net.atos.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
 import java.time.ZonedDateTime
@@ -31,6 +30,21 @@ fun createZaaktypeBrpParameters(
     this.zoekWaarde = zoekWaarde
     this.raadpleegWaarde = raadpleegWaarde
     this.verwerkingregisterWaarde = verwerkingregisterWaarde
+}
+
+fun createZaaktypeCmmnHumantaskParameters(
+    planItemDefinitionId: String = "AANVULLENDE_INFORMATIE",
+    id: Long = 1L,
+    actief: Boolean = true,
+    groepId: String = "fakeGroepId",
+    doorlooptijd: Int = 5
+) = ZaaktypeCmmnHumantaskParameters().apply {
+    this.planItemDefinitionID = planItemDefinitionId
+    this.id = id
+    this.actief = actief
+    this.groepID = groepId
+    this.doorlooptijd = doorlooptijd
+    this.setReferentieTabellen(mutableListOf())
 }
 
 @Suppress("LongParameterList")
@@ -96,7 +110,6 @@ fun createReferenceTableValue(
 fun createZaaktypeCmmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String? = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     einddatumGeplandWaarschuwing: Int? = null,
@@ -113,7 +126,6 @@ fun createZaaktypeCmmnConfiguration(
     ZaaktypeCmmnConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
-        this.domein = domein
         this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.einddatumGeplandWaarschuwing = einddatumGeplandWaarschuwing
@@ -148,7 +160,6 @@ fun createZaaktypeCmmnConfiguration(
 fun createZaaktypeBpmnConfiguration(
     id: Long? = 1234L,
     creationDate: ZonedDateTime = ZonedDateTime.now(),
-    domein: String? = "fakeDomein",
     zaaktypeUUID: UUID = UUID.randomUUID(),
     zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
     productaanvraagtype: String? = null,
@@ -162,7 +173,6 @@ fun createZaaktypeBpmnConfiguration(
     ZaaktypeBpmnConfiguration().apply {
         this.id = id
         this.creatiedatum = creationDate
-        this.domein = domein
         this.zaaktypeUuid = zaaktypeUUID
         this.zaaktypeOmschrijving = zaaktypeOmschrijving
         this.productaanvraagtype = productaanvraagtype

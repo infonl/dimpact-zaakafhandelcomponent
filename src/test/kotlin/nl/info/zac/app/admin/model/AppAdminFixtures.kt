@@ -64,7 +64,6 @@ fun createRestReferenceTableValue(
 @Suppress("LongParameterList")
 fun createRestZaakafhandelParameters(
     id: Long? = 1234L,
-    domein: String = "fakeDomein",
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
     defaultGroupId: String? = "fakeGroupId",
@@ -73,7 +72,6 @@ fun createRestZaakafhandelParameters(
     restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
 ) = RestZaakafhandelParameters(
     id = id,
-    domein = domein,
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,
     smartDocuments = RestSmartDocuments(
@@ -100,7 +98,8 @@ fun createRestZaaktypeBpmnConfiguration(
     groepNaam: String? = "fakeGroupName",
     productaanvraagtype: String? = null,
     zaakNietOntvankelijkResultaattype: RestResultaattype? = null,
-    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList()
+    zaakBeeindigParameters: List<RestZaakbeeindigParameter> = emptyList(),
+    smartDocuments: RestSmartDocuments? = null
 ) = RestZaaktypeBpmnConfiguration(
     id = id,
     zaaktypeUuid = zaaktypeUuid,
@@ -109,7 +108,8 @@ fun createRestZaaktypeBpmnConfiguration(
     groepNaam = groepNaam,
     productaanvraagtype = productaanvraagtype,
     zaakNietOntvankelijkResultaattype = zaakNietOntvankelijkResultaattype,
-    zaakbeeindigParameters = zaakBeeindigParameters
+    zaakbeeindigParameters = zaakBeeindigParameters,
+    smartDocuments = smartDocuments
 )
 
 @Suppress("LongParameterList")

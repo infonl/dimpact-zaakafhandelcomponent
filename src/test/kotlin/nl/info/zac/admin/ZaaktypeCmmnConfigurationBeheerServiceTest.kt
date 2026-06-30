@@ -13,7 +13,9 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.persistence.EntityManager
@@ -26,7 +28,6 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
@@ -37,7 +38,6 @@ import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
-import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Date
@@ -64,10 +64,10 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         ztcClientService = ztcClientService,
         zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        zaaktypeHelperService = ZaaktypeHelperService(ztcClientService),
+        zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -292,21 +292,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 every { resultList } returns emptyList() andThen listOf(originalZaaktypeCmmnConfiguration)
             }
 
-            val template = RestMappedSmartDocumentsTemplateGroup(
-                id = "test",
-                name = "test",
-                groups = null,
-                templates = null
-            )
-
-            every { smartDocumentsTemplatesService.getTemplatesMapping(any<UUID>()) } answers { setOf(template) }
-
-            every {
-                smartDocumentsTemplatesService.storeTemplatesMapping(
-                    any<Set<RestMappedSmartDocumentsTemplateGroup>>(),
-                    any<UUID>()
-                )
-            } returns mockk {}
+            every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just runs
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
@@ -323,8 +309,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                     intakeMail shouldBe originalZaaktypeCmmnConfiguration.intakeMail
                     afrondenMail shouldBe originalZaaktypeCmmnConfiguration.afrondenMail
                     productaanvraagtype shouldBe originalZaaktypeCmmnConfiguration.productaanvraagtype
-                    domein shouldBe originalZaaktypeCmmnConfiguration.domein
-                    smartDocumentsIngeschakeld shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
+                    smartDocumentsEnabled shouldBe originalZaaktypeCmmnConfiguration.smartDocumentsEnabled
                 }
             }
 
@@ -421,6 +406,15 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             And("Then updated with SmartDocuments mappings") {
                 verify {
                     entityManager.merge(any<ZaaktypeCmmnConfiguration>())
+                }
+            }
+
+            And("The smart documents template mappings are copied to the new zaaktype") {
+                verify(exactly = 1) {
+                    smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
+                        originalZaaktypeCmmnConfiguration.zaaktypeUuid,
+                        zaakType.url.extractUuid()
+                    )
                 }
             }
 

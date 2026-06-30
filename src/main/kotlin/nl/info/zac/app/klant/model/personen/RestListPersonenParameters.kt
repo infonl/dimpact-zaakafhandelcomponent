@@ -29,6 +29,7 @@ fun RestListPersonenParameters.toPersonenQuery(): PersonenQuery =
     when {
         this.bsn?.isNotBlank() == true -> RaadpleegMetBurgerservicenummer().apply {
             addBurgerservicenummerItem(this@toPersonenQuery.bsn)
+            gemeenteVanInschrijving = this@toPersonenQuery.gemeenteVanInschrijving
         }
         this.geslachtsnaam?.isNotBlank() == true && this.geboortedatum != null ->
             ZoekMetGeslachtsnaamEnGeboortedatum().apply {
@@ -37,6 +38,7 @@ fun RestListPersonenParameters.toPersonenQuery(): PersonenQuery =
                 voornamen = this@toPersonenQuery.voornamen
                 voorvoegsel = this@toPersonenQuery.voorvoegsel
                 inclusiefOverledenPersonen = true
+                gemeenteVanInschrijving = this@toPersonenQuery.gemeenteVanInschrijving
             }
         this.geslachtsnaam?.isNotBlank() == true &&
             this.voornamen?.isNotBlank() == true &&
@@ -53,6 +55,7 @@ fun RestListPersonenParameters.toPersonenQuery(): PersonenQuery =
                 postcode = this@toPersonenQuery.postcode
                 huisnummer = this@toPersonenQuery.huisnummer
                 inclusiefOverledenPersonen = true
+                gemeenteVanInschrijving = this@toPersonenQuery.gemeenteVanInschrijving
             }
         this.straat?.isNotBlank() == true &&
             this.huisnummer != null &&

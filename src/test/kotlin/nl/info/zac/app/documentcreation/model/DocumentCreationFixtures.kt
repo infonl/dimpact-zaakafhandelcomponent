@@ -14,9 +14,6 @@ fun createRestDocumentCreationAttendedData(
     taskId: String? = null,
     smartDocumentsTemplateGroupId: String = "fakeGroupId",
     smartDocumentsTemplateId: String = "fakeTtemplateId",
-    smartDocumentsTemplateGroupName: String? = null,
-    smartDocumentsTemplateName: String? = null,
-    informatieobjecttypeUuid: UUID? = null,
     title: String = "fakeTitle",
     author: String = "fakeAuthor",
     creationDate: ZonedDateTime = ZonedDateTime.now()
@@ -28,7 +25,4 @@ fun createRestDocumentCreationAttendedData(
     title = title,
     author = author,
     creationDate = creationDate,
-    informatieobjecttypeUuid = informatieobjecttypeUuid,
-    smartDocumentsTemplateName = smartDocumentsTemplateName,
-    smartDocumentsTemplateGroupName = smartDocumentsTemplateGroupName
 )

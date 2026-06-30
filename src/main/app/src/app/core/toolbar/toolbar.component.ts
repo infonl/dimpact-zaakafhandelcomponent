@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { AsyncPipe, NgClass, NgIf } from "@angular/common";
 import {
   Component,
   computed,
@@ -13,17 +14,37 @@ import {
   OnInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl } from "@angular/forms";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatBadge } from "@angular/material/badge";
+import {
+  MatButton,
+  MatIconButton,
+  MatMiniFabButton,
+} from "@angular/material/button";
+import { MatDivider } from "@angular/material/divider";
+import {
+  MatFormField,
+  MatLabel,
+  MatSuffix,
+} from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
+import { MatInput } from "@angular/material/input";
+import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatSidenav } from "@angular/material/sidenav";
-import { Router } from "@angular/router";
+import { MatToolbar } from "@angular/material/toolbar";
+import { MatTooltip } from "@angular/material/tooltip";
+import { Router, RouterLink, RouterLinkActive } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, Subscription } from "rxjs";
 import { IdentityService } from "../../identity/identity.service";
 import { PolicyService } from "../../policy/policy.service";
+import { BackButtonDirective } from "../../shared/navigation/back-button.directive";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { VersionComponent } from "../../shared/version/version.component";
 import { SignaleringenService } from "../../signaleringen.service";
 import { ZakenService } from "../../zaken/zaken.service";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -37,7 +58,33 @@ import { WebsocketService } from "../websocket/websocket.service";
   selector: "zac-toolbar",
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgClass,
+    AsyncPipe,
+    ReactiveFormsModule,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbar,
+    MatMiniFabButton,
+    MatButton,
+    MatIconButton,
+    MatBadge,
+    MatIcon,
+    MatMenu,
+    MatMenuItem,
+    MatMenuTrigger,
+    MatFormField,
+    MatLabel,
+    MatSuffix,
+    MatInput,
+    MatTooltip,
+    MatDivider,
+    TranslateModule,
+    BackButtonDirective,
+    VersionComponent,
+  ],
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   protected readonly queryClient = inject(QueryClient);
@@ -45,18 +92,20 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.zakenService.createZaak().mutationKey;
 
   @Input({ required: true }) zoekenSideNav!: MatSidenav;
-  zoekenFormControl = new FormControl<string>("");
+  protected zoekenFormControl = new FormControl<string>("");
 
-  headerTitle$?: Observable<string>;
-  hasNewSignaleringen = false;
-  overigeRechten?: GeneratedType<"RestOverigeRechten">;
-  werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
+  protected headerTitle$?: Observable<string>;
+  protected hasNewSignaleringen = false;
+  protected werklijstRechten?: GeneratedType<"RestWerklijstRechten">;
 
   private subscription$?: Subscription;
   private signaleringListener?: WebsocketListener;
 
   protected readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+  protected readonly overigeRechtenQuery = injectQuery(() =>
+    this.policyService.readOverigeRechten(),
   );
   protected readonly medewerkerNaamToolbar = computed(() =>
     this.loggedInUserQuery
@@ -68,14 +117,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   );
 
   constructor(
-    public utilService: UtilService,
-    public navigation: NavigationService,
-    private identityService: IdentityService,
+    private readonly utilService: UtilService,
+    protected readonly navigation: NavigationService,
+    private readonly identityService: IdentityService,
     protected readonly zoekenService: ZoekenService,
-    private signaleringenService: SignaleringenService,
-    private websocketService: WebsocketService,
-    private policyService: PolicyService,
-    private router: Router,
+    private readonly signaleringenService: SignaleringenService,
+    private readonly websocketService: WebsocketService,
+    private readonly policyService: PolicyService,
+    private readonly router: Router,
     private readonly zakenService: ZakenService,
   ) {
     effect(() => {
@@ -111,9 +160,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     this.headerTitle$ = this.utilService.headerTitle$;
 
     this.policyService
-      .readOverigeRechten()
-      .subscribe((rechten) => (this.overigeRechten = rechten));
-    this.policyService
       .readWerklijstRechten()
       .subscribe((rechten) => (this.werklijstRechten = rechten));
     this.setSignaleringen();
@@ -127,7 +173,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  setSignaleringen(): void {
+  protected setSignaleringen() {
     this.subscription$ = this.signaleringenService.latestSignalering$.subscribe(
       (value) => {
         // TODO instead of session storage use userpreferences in a db
@@ -153,18 +199,18 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     );
   }
 
-  resetSearch(): void {
+  protected resetSearch() {
     this.zoekenService.reset$.next();
   }
 
-  isCaseRouteActive() {
+  protected isCaseRouteActive() {
     return (
       this.router.url.startsWith("/zaken/") &&
       !this.router.url.startsWith("/zaken/create")
     );
   }
 
-  isTaskRouteActive() {
+  protected isTaskRouteActive() {
     return this.router.url.startsWith("/taken/");
   }
 }

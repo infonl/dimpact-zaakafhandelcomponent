@@ -13,14 +13,17 @@ data class UserData(
     @field:JsonbProperty("rollen")
     val rollen: Set<String>,
 
+    @field:JsonbProperty("overallRoles")
+    val overallRoles: Set<String>,
+
     /**
-     * New IAM architecture: the single zaaktype description for which the logged-in user is authorised,
-     * _for the set of specified application roles_.
+     * The single zaaktype description for which the logged-in user is authorised
+     * for the set of specified application roles.
      * A value of null means that the policy that is being evaluated is not zaaktype-specific.
-     *
-     * Old IAM architecture: list of zaaktype descriptions for which the logged-in user is authorised, regardless of roles.
-     * A value of null means that the user is authorised for all zaaktypes.
      */
     @field:JsonbProperty("zaaktypen")
-    val zaaktypen: Set<String>? = null
+    val zaaktypen: Set<String>? = null,
+
+    @field:JsonbProperty("brpGemeenteCodes")
+    val brpGemeenteCodes: Set<String>,
 )

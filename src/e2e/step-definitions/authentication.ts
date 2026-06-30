@@ -29,7 +29,7 @@ async function loginToZac(this: CustomWorld, user: string) {
 async function waitForPage(world: CustomWorld) {
   const account_circle = world.page.getByText("account_circle");
   const loginHeader = world.page.getByText("ZAAKAFHANDELCOMPONENT");
-  return account_circle.or(loginHeader).waitFor();
+  return account_circle.or(loginHeader).first().waitFor({ state: "attached" });
 }
 
 async function logout(world: CustomWorld) {

@@ -14,14 +14,14 @@ It was extended and made specific for the needs of ZAC.
 - [Docker Desktop](https://docs.docker.com/desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
-- On Windows: to run .sh scripts use [git bash](https://gitforwindows.org/)
 - On Linux: run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
+- On WSL2: make sure you clone the repository to the WSL filesystem itself
 
 #### Steps to Add host.docker.internal Entry to /etc/hosts File
 When working with Docker, adding host.docker.internal to your /etc/hosts file allows Docker containers to access services running on the host machine. Follow these steps to add this entry:
 
 1. Open the /etc/hosts File:
-   - You need administrative privileges to edit the /etc/hosts file.
+   - You need administrative privileges to edit the /etc/hosts file. For WSL2, you need to edit the windows hosts file at `C:\Windows\System32\drivers\etc\hosts`
    - Open the file in a text editor of your choice. For example, using vim, you would use the following command:
     ```sh
         sudo vim /etc/hosts
@@ -68,6 +68,24 @@ start up ZAC or even build the ZAC Docker Image first beforehand:
 
 ```
 ./start-docker-compose.sh -h
+```
+
+### Using arm64 containers on a Mac
+
+If you want to run arm64 containers, you can set the environment variable `DOCKER_USE_ARM64_CONTAINERS=true`
+before starting the shell script:
+
+```
+DOCKER_USE_ARM64_CONTAINERS=true ./start-docker-compose.sh
+
+```
+
+You can also add this environment variable to your shell for convenience by adding to your
+local `~/.zshrc`:
+
+```
+# ZAC
+export DOCKER_USE_ARM64_CONTAINERS=true
 ```
 
 ### Notes
@@ -151,6 +169,25 @@ For a ZAC admin the following user roles are required:
 
 Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.
 Also, a superuser account for the Open Klant UI on http://localhost:8002 is created automatically with username 'admin' and password 'admin'.
+
+### Open Formulieren
+
+To test the productaanvraag flow end-to-end locally (form submission in Open Formulieren → Objecten API → Open Zaak → Open Notificaties → ZAC), start the stack with the `-f` flag:
+
+```
+./start-docker-compose.sh -f
+```
+
+This automatically also starts the Objecten API and Open Notificaties services (they are required for the flow and are included automatically via the `openformulieren` profile).
+
+The Open Formulieren admin UI is available at http://localhost:8007/admin/ (username: `admin`, password: `admin`).
+Direct access to the Open Formulieren web container is also available at http://localhost:8009/admin/.
+
+The `openformulieren-init` container automatically registers all backend services (Open Zaak APIs, Objecten API, Open Klant) in Open Formulieren on first start.
+After the stack is up, you will still need to configure the following in the Open Formulieren admin UI before you can test the productaanvraag flow:
+- Create an **Objects API group** at http://localhost:8007/admin/registrations_objects_api/objectsapigroupconfig/add/ — select the pre-configured services and fill in the catalogue domain and RSIN from your local Open Zaak instance.
+- Create a **ZGW API group** at http://localhost:8007/admin/zgw_apis/zgwapigroupconfig/add/ — same catalogue values.
+- Create a form with an **Objects API** or **ZGW** registration backend pointing to the group you just configured.
 
 ## Stopping
 

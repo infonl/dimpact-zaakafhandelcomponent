@@ -55,7 +55,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
     val tomorrow = today.plusDays(1)
     val numberOfDays = 2L
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

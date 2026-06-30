@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { ContactmomentenModule } from "../contactmomenten/contactmomenten.module";
+import { KlantContactmomentenTabelComponent } from "../contactmomenten/klant-contactmomenten-tabel/klant-contactmomenten-tabel.component";
 import { SharedModule } from "../shared/shared.module";
 import { BedrijfViewComponent } from "./bedrijf-view/bedrijf-view.component";
 import { BedrijfsgegevensComponent } from "./bedrijfsgegevens/bedrijfsgegevens.component";
@@ -19,14 +19,7 @@ import { KlantZoekComponent } from "./zoek/klanten/klant-zoek.component";
 import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
 
 @NgModule({
-  declarations: [
-    BedrijfZoekComponent,
-    PersoonZoekComponent,
-    KlantZakenTabelComponent,
-    KlantZoekComponent,
-    PersoonViewComponent,
-    BedrijfViewComponent,
-  ],
+  declarations: [],
   exports: [
     BedrijfZoekComponent,
     BedrijfsgegevensComponent,
@@ -34,15 +27,24 @@ import { PersoonZoekComponent } from "./zoek/personen/persoon-zoek.component";
     PersoonZoekComponent,
     PersoonsgegevensComponent,
     KlantZoekComponent,
+    KlantZakenTabelComponent,
+    PersoonViewComponent,
+    BedrijfViewComponent,
   ],
   imports: [
     SharedModule,
     RouterLink,
     KlantenRoutingModule,
-    ContactmomentenModule,
+    KlantContactmomentenTabelComponent,
     BedrijfsgegevensComponent,
     ContactgegevensComponent,
     PersoonsgegevensComponent,
+    BedrijfZoekComponent,
+    PersoonZoekComponent,
+    KlantZoekComponent,
+    KlantZakenTabelComponent,
+    PersoonViewComponent,
+    BedrijfViewComponent,
   ],
 })
 export class KlantenModule {}

@@ -13,8 +13,8 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import nl.info.client.klant.exception.KlantRuntimeResponseExceptionMapper
 import nl.info.client.klant.util.KlantClientHeadersFactory
+import nl.info.client.klanten.model.generated.ExpandBetrokkene
 import nl.info.client.klanten.model.generated.Onderwerpobject
-import nl.info.client.klanten.model.generated.PaginatedDigitaalAdresList
 import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
 import nl.info.client.klanten.model.generated.PaginatedKlantcontactList
 import nl.info.client.klanten.model.generated.PartijIdentificator
@@ -34,14 +34,12 @@ import java.util.UUID
 interface KlantClient {
 
     @GET
-    @Path("/digitaleadressen")
+    @Path("/betrokkenen/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    fun digitaalAdresList(
-        @QueryParam("verstrektDoorBetrokkene__uuid") verstrektDoorBetrokkeneUuid: String? = null,
-        @QueryParam("page") page: Int? = null,
-        @QueryParam("pageSize") pageSize: Int? = null,
-        @QueryParam("soortDigitaalAdres") soortDigitaalAdres: String? = null,
-    ): PaginatedDigitaalAdresList
+    fun getBetrokkeneWithDigitaleAdressen(
+        @PathParam("uuid") uuid: UUID,
+        @QueryParam("expand") expand: String = "digitaleAdressen",
+    ): ExpandBetrokkene
 
     @GET
     @Path("/klantcontacten")

@@ -4,6 +4,14 @@
  */
 
 import {
+  KeyValuePipe,
+  NgClass,
+  NgFor,
+  NgIf,
+  NgSwitch,
+  NgSwitchCase,
+} from "@angular/common";
+import {
   AfterViewInit,
   Component,
   effect,
@@ -15,12 +23,30 @@ import {
 } from "@angular/core";
 
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl } from "@angular/forms";
-import { MatPaginator } from "@angular/material/paginator";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatIconButton } from "@angular/material/button";
+import { MatDividerModule } from "@angular/material/divider";
+import {
+  MatFormField,
+  MatLabel,
+  MatSuffix,
+} from "@angular/material/form-field";
+import { MatIcon } from "@angular/material/icon";
+import { MatInput } from "@angular/material/input";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatProgressBar } from "@angular/material/progress-bar";
+import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
+
+import { TranslatePipe } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
+import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
+import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
@@ -29,41 +55,82 @@ import { getDefaultZoekParameters } from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
+import { DocumentZoekObjectComponent } from "../zoek-object/document-zoek-object/document-zoek-object.component";
+import { TaakZoekObjectComponent } from "../zoek-object/taak-zoek-object/taak-zoek-object.component";
+import { ZaakZoekObjectComponent } from "../zoek-object/zaak-zoek-object/zaak-zoek-object.component";
 import { ZoekenService } from "../zoeken.service";
+import { DateFilterComponent } from "./filters/date-filter/date-filter.component";
+import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
+import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
 
 @Component({
   selector: "zac-zoeken",
   templateUrl: "./zoek.component.html",
   styleUrls: ["./zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    BagZoekComponent,
+    BedrijfZoekComponent,
+    DateFilterComponent,
+    DocumentZoekObjectComponent,
+    KeyValuePipe,
+    NgClass,
+    MatDividerModule,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatLabel,
+    MatOption,
+    MatPaginatorModule,
+    MatProgressBar,
+    MatSelect,
+    MatSuffix,
+    MultiFacetFilterComponent,
+    NgFor,
+    NgIf,
+    NgSwitch,
+    NgSwitchCase,
+    PersoonZoekComponent,
+    ReactiveFormsModule,
+    TaakZoekObjectComponent,
+    TranslatePipe,
+    ZaakBetrokkeneFilterComponent,
+    ZaakZoekObjectComponent,
+  ],
 })
 export class ZoekComponent implements AfterViewInit, OnDestroy {
   private readonly zoekenService = inject(ZoekenService);
   protected readonly utilService = inject(UtilService);
+  private readonly policyService = inject(PolicyService);
+
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
+  );
 
   private readonly paginator = viewChild.required(MatPaginator);
   protected readonly zoekenSideNav = input<MatSidenav>();
 
   private readonly destroy$ = new Subject<void>();
 
-  zoekType: ZoekType = ZoekType.ZAC;
-  ZoekType = ZoekType;
-  ZoekVeld = ZoekVeld;
-  zoekResultaat = new ZoekResultaat<
+  protected zoekType: ZoekType = ZoekType.ZAC;
+  protected readonly ZoekType = ZoekType;
+  protected readonly ZoekVeld = ZoekVeld;
+  protected zoekResultaat = new ZoekResultaat<
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
   >();
-  zoekParameters: GeneratedType<"RestZoekParameters"> =
+  protected zoekParameters: GeneratedType<"RestZoekParameters"> =
     getDefaultZoekParameters();
-  isLoadingResults = true;
-  slow = false;
-  zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
-  trefwoordenControl = new FormControl("");
-  zoek = new EventEmitter<void>();
-  hasSearched = false;
-  hasTaken = false;
-  hasZaken = false;
-  hasDocument = false;
-  huidigZoekVeld: ZoekVeld = ZoekVeld.ALLE;
+  protected isLoadingResults = true;
+  protected slow = false;
+  protected zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);
+  protected trefwoordenControl = new FormControl("");
+  protected zoek = new EventEmitter<void>();
+  protected hasSearched = false;
+  protected hasTaken = false;
+  protected hasZaken = false;
+  protected hasDocument = false;
+  private huidigZoekVeld: ZoekVeld = ZoekVeld.ALLE;
 
   constructor() {
     effect(() => {
@@ -83,7 +150,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
       .subscribe(() => this.reset());
   }
 
-  public ngAfterViewInit() {
+  ngAfterViewInit() {
     this.zoek.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.paginator().pageIndex = 0;
     });
@@ -287,7 +354,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  public ngOnDestroy() {
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }

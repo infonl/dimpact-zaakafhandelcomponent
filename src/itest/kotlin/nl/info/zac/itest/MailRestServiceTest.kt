@@ -15,14 +15,14 @@ import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import okhttp3.Headers
@@ -44,8 +44,8 @@ class MailRestServiceTest : BehaviorSpec({
 
     Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
         )
         val (informatieobjectUuid, _) = documentHelper.uploadDocumentToZaak(
             zaakUuid = zaakUuid,
@@ -53,7 +53,7 @@ class MailRestServiceTest : BehaviorSpec({
             authorName = "fakeAuthorName",
             mediaType = TEXT_MIME_TYPE,
             fileName = TEST_TXT_FILE_NAME,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            testUser = BEHEERDER_1
         )
 
         When("A mail is sent with the 'create document from mail' option enabled") {
@@ -76,7 +76,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "createDocumentFromMail": true
                 }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the response should be 'no-content'") {
@@ -88,7 +88,7 @@ class MailRestServiceTest : BehaviorSpec({
             And("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -115,7 +115,7 @@ class MailRestServiceTest : BehaviorSpec({
             And("the received mail body should not contain unresolved '{ZAAKDATA:' placeholders") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
                 val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
@@ -138,7 +138,7 @@ class MailRestServiceTest : BehaviorSpec({
                             "gekoppeldeZaakDocumenten": false
                         }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -147,7 +147,7 @@ class MailRestServiceTest : BehaviorSpec({
                 JSONArray(responseBody)[0].toString() shouldEqualJsonIgnoringExtraneousFields """
                 {
                   "bestandsnaam" : "subject.pdf",
-                  "auteur" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}",
+                  "auteur" : "${BEHANDELAAR_1.displayName}",
                   "beschrijving" : "",
                   "bestandsomvang" : 1851,
                   "creatiedatum" : "$today",
@@ -179,8 +179,8 @@ class MailRestServiceTest : BehaviorSpec({
         """
     ) {
         val (_, zaakUuid) = zaakHelper.createZaak(
-            zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-            testUser = BEHEERDER_ELK_ZAAKTYPE
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
         )
 
         When("A mail is sent with a '{ZAAKDATA:zaaktypeOmschrijving}' variable in the body") {
@@ -198,13 +198,13 @@ class MailRestServiceTest : BehaviorSpec({
                     "createDocumentFromMail": false
                 }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             ).also { response -> response.code shouldBe HTTP_NO_CONTENT }
 
             Then("the received mail body should contain the resolved zaaktypeOmschrijving value") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 receivedMailsResponse.code shouldBe HTTP_OK
 
@@ -212,7 +212,7 @@ class MailRestServiceTest : BehaviorSpec({
                 receivedMails.length() shouldBeGreaterThan 0
                 val lastMail = receivedMails.getJSONObject(receivedMails.length() - 1)
                 with(lastMail.getString("mimeMessage")) {
-                    shouldContain(ZAAKTYPE_TEST_2_DESCRIPTION)
+                    shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION)
                     shouldNotContain("{ZAAKDATA:")
                 }
             }

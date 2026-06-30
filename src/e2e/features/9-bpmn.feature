@@ -9,16 +9,15 @@ Feature: BPMN
     Given "Bob" is logged in to zac
     When "Bob" wants to create a new "BPMN" zaak
     Then "Bob" sees the created zaak
-    Then "Bob" sees the indication that no acknowledgment has been sent
     Given "Bob" navigates to "zac" with path "/zaken/werkvoorraad"
     Then "Bob" sees the created zaak
 
   Scenario: Bob changes the assigned user and group
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    Then "Bob" sees group "Test groep B" and user "Test User2" in the zaak data
-    Given Employee "Bob" assigns the zaak to group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM "
-    Then "Bob" sees group "Coordinators domein test 1 - new IAM" and user "Coordinator 1 New IAM" in the zaak data
+    Then "Bob" sees group "test-group-a" and user "e2etestuser1" in the zaak data
+    Given Employee "Bob" assigns the zaak to group "Test groep B" and user "E2etest User2"
+    Then "Bob" sees group "test-group-b" and user "e2etestuser2" in the zaak data
 
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
@@ -46,7 +45,7 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the select documents to sign task is started with group "Beheerders elk domein - new IAM" and user "Beheerder 1 New IAM"
+    Then "Bob" sees that the select documents to sign task is started with group "Test groep A" and user "E2etest User1"
 
   Scenario: Bob opens and fills in the sign documents form
     Given "Bob" is logged in to zac
@@ -62,6 +61,8 @@ Feature: BPMN
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the active task
     Then "Bob" sees 2 documents in the to be signed list
+    Then "Bob" sees document "file A" in the to be signed list
+    Then "Bob" sees document "file B" in the to be signed list
     When "Bob" confirms the signing of the documents
     When Employee "Bob" is on the newly created zaak
     And "Bob" sees document "file A" has been signed

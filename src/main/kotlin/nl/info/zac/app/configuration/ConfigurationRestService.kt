@@ -12,10 +12,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.util.JsonbUtil
+import nl.info.zac.app.configuration.model.RestAllowedFileType
 import nl.info.zac.app.configuration.model.RestTaal
+import nl.info.zac.app.configuration.model.toRestAllowedFileType
 import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.configuration.model.toRestTalen
-import nl.info.zac.configuration.BrpConfiguration.Companion.BRP_PROTOCOLLERING_PROVIDER_ICONNECT
+import nl.info.zac.configuration.AllowedFileType
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -33,10 +35,6 @@ class ConfigurationRestService @Inject constructor(
     private val configurationService: ConfigurationService
 ) {
     @GET
-    @Path("feature-flags/pabc-integration")
-    fun featureFlagPabcIntegration(): Boolean = configurationService.featureFlagPabcIntegration()
-
-    @GET
     @Path("talen")
     fun listTalen(): List<RestTaal> = configurationService.listTalen().toRestTalen()
 
@@ -49,8 +47,9 @@ class ConfigurationRestService @Inject constructor(
     fun readMaxFileSizeMB(): Long = configurationService.readMaxFileSizeMB()
 
     @GET
-    @Path("additional-allowed-file-types")
-    fun readAdditionalAllowedFileTypes(): List<String> = configurationService.readAdditionalAllowedFileTypes()
+    @Path("file-types")
+    fun listAllowedFileTypes(): List<RestAllowedFileType> =
+        AllowedFileType.entries.map(AllowedFileType::toRestAllowedFileType)
 
     @GET
     @Path("gemeente/code")
@@ -61,11 +60,10 @@ class ConfigurationRestService @Inject constructor(
     fun readGemeenteNaam(): String = JsonbUtil.JSONB.toJson(configurationService.readGemeenteNaam())
 
     /**
-     * Returns whether the doelbinding setup for BRP protocollering is enabled,
-     * which is the case when the protocollering provider is set to 'iConnect'.
+     * Returns whether doelbinding values must be configured per zaaktype in the admin UI.
      */
     @GET
     @Path("brp/doelbinding-setup-enabled")
     fun readBrpDoelbindingSetupEnabled(): Boolean =
-        BRP_PROTOCOLLERING_PROVIDER_ICONNECT == configurationService.readBrpConfiguration().readBrpProtocolleringProvider()
+        configurationService.readBrpConfiguration().isDoelbindingPerZaaktypeEnabled()
 }

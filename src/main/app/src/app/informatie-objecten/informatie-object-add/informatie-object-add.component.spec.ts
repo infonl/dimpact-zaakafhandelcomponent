@@ -11,10 +11,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import {
-  ComponentRef,
-  provideExperimentalZonelessChangeDetection,
-} from "@angular/core";
+import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -23,6 +20,7 @@ import { MatFormFieldHarness } from "@angular/material/form-field/testing";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideQueryClient,
@@ -110,8 +108,8 @@ describe(InformatieObjectAddComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectAddComponent],
       imports: [
+        InformatieObjectAddComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
@@ -122,16 +120,13 @@ describe(InformatieObjectAddComponent.name, () => {
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideTanStackQuery(testQueryClient),
         provideQueryClient(testQueryClient),
         VertrouwelijkaanduidingToTranslationKeyPipe,
-        {
-          provide: MatDrawer,
-          useValue: mockSideNav,
-        },
       ],
     }).compileComponents();
 
@@ -323,6 +318,36 @@ describe(InformatieObjectAddComponent.name, () => {
           addOtherInfoObject: true,
         }),
       );
+    });
+  });
+
+  describe("Submit when status is disabled by ontvangstdatum", () => {
+    it("should include DEFINITIEF status in FormData even when the status control is disabled", async () => {
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        taal: mockTalen[0],
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+      });
+      component["form"].controls.ontvangstdatum.setValue(moment());
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+      const formData = Object.fromEntries(
+        (req.request.body as FormData).entries(),
+      );
+      expect(formData.status).toBe("DEFINITIEF");
     });
   });
 

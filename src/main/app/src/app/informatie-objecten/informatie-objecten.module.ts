@@ -14,24 +14,15 @@ import { InformatieObjectAddComponent } from "./informatie-object-add/informatie
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended/informatie-object-create-attended.component";
 import { InformatieObjectEditComponent } from "./informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectLinkComponent } from "./informatie-object-link/informatie-object-link.component";
-import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden/informatie-object-verzenden.component";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectenRoutingModule } from "./informatie-objecten-routing.module";
 import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
 
 @NgModule({
-  declarations: [
-    InformatieObjectViewComponent,
-    InformatieObjectEditComponent,
-    InformatieObjectAddComponent,
-    InformatieObjectCreateAttendedComponent,
-    InformatieObjectVerzendenComponent,
-    InformatieObjectLinkComponent,
-  ],
+  declarations: [],
   exports: [
     InformatieObjectAddComponent,
     InformatieObjectCreateAttendedComponent,
-    InformatieObjectVerzendenComponent,
     InformatieObjectLinkComponent,
   ],
   providers: [
@@ -43,6 +34,11 @@ import { RouteReuseStrategyService } from "./route-reuse-strategy.service";
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
     MimetypeToExtensionPipe,
+    InformatieObjectViewComponent,
+    InformatieObjectEditComponent,
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectLinkComponent,
   ],
 })
 export class InformatieObjectenModule {}

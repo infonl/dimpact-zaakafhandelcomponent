@@ -27,7 +27,7 @@ class BrcClientServiceTest : BehaviorSpec({
         zgwClientHeadersFactory = zgwClientHeadersFactory
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -60,6 +60,17 @@ class BrcClientServiceTest : BehaviorSpec({
 
             Then("the update reason should added as a HTTP header and the besluit should be updated") {
                 updatedBesluit shouldBe returnedBesluit
+            }
+        }
+
+        When("patch besluit is called with a reason string") {
+            every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
+            every { brcClient.besluitPartialUpdate(besluitUuid, besluit) } returns returnedBesluit
+
+            val patchedBesluit = brcClientService.patchBesluit(besluitUuid, besluit, updateReason)
+
+            Then("the update reason should be added as a HTTP header and the besluit should be partially updated") {
+                patchedBesluit shouldBe returnedBesluit
             }
         }
     }

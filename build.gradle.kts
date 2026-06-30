@@ -13,6 +13,7 @@ import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 import java.net.HttpURLConnection
 import java.net.URI
+import java.time.Instant
 import java.util.Locale
 
 plugins {
@@ -37,7 +38,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     // Add the Public JBoss Maven repository.
-    // This is a best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
+    // This is the best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
     maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
 }
 
@@ -53,25 +54,23 @@ buildscript {
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
-val branchName by extra {
-    if (project.hasProperty("branchName")) {
-        project.property("branchName").toString()
-    } else {
-        "localdev"
-    }
+val branchName = if (project.hasProperty("branchName")) {
+    project.property("branchName").toString()
+} else {
+    "localdev"
 }
+extra.set("branchName", branchName)
 
-val commitHash by extra {
-    if (project.hasProperty("commitHash")) {
-        project.property("commitHash").toString()
-    } else {
-        "localdev"
-    }
+val commitHash = if (project.hasProperty("commitHash")) {
+    project.property("commitHash").toString()
+} else {
+    "localdev"
 }
+extra.set("commitHash", commitHash)
 
 // create custom configuration for the JaCoCo agent JAR used to generate code coverage of our integration tests
 // see: https://blog.akquinet.de/2018/09/06/test-coverage-for-containerized-java-apps/
-val jacocoAgentJarForItest: Configuration by configurations.creating {
+val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJarForItest") {
     isTransitive = false
 }
 
@@ -80,34 +79,24 @@ val jacocoAgentJarForItest: Configuration by configurations.creating {
 // and update our base Docker image and JDK versions in our GitHubs workflows accordingly
 val javaVersion = 21
 
-val versionNumber by extra {
-    if (project.hasProperty("versionNumber")) {
-        project.property("versionNumber").toString()
-    } else {
-        "dev"
-    }
+val versionNumber = if (project.hasProperty("versionNumber")) {
+    project.property("versionNumber").toString()
+} else {
+    "dev"
 }
+extra.set("versionNumber", versionNumber)
 
 // create custom configuration for extra dependencies that are required in the generated WAR
-val warLib: Configuration by configurations.creating {
+val warLib: Configuration = configurations.create("warLib") {
     extendsFrom(configurations["compileOnly"])
 }
 
-val zacDockerImage by extra {
-    if (project.hasProperty("zacDockerImage")) {
-        project.property("zacDockerImage").toString()
-    } else {
-        "ghcr.io/infonl/zaakafhandelcomponent:dev"
-    }
+val zacDockerImage = if (project.hasProperty("zacDockerImage")) {
+    project.property("zacDockerImage").toString()
+} else {
+    "ghcr.io/infonl/zaakafhandelcomponent:dev"
 }
-
-val featureFlagPabcIntegration by extra {
-    if (project.hasProperty("featureFlagPabcIntegration")) {
-        project.property("featureFlagPabcIntegration").toString()
-    } else {
-        "true"
-    }
-}
+extra.set("zacDockerImage", zacDockerImage)
 
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
@@ -143,7 +132,13 @@ dependencies {
     implementation(libs.itextpdf.html2pdf)
     implementation(libs.flyway.core)
     implementation(libs.flyway.postgresql)
-    implementation(libs.apache.solr)
+    implementation(libs.apache.solr) {
+        // Exclude the Solrj modules that we do not use.
+        // Note that starting from Solrj 10, these modules are not included by default,
+        // so we do not need to exclude them any more.
+        exclude(group = "org.apache.solr", module = "solr-solrj-zookeeper")
+        exclude(group = "org.apache.solr", module = "solr-solrj-streaming")
+    }
     implementation(libs.webdav.servlet)
     implementation(libs.htmlcleaner)
     implementation(libs.caffeine)
@@ -212,12 +207,20 @@ dependencies {
 testing {
     suites {
         // configure the default unit test suite to use JUnit Jupiter
-        val test by getting(JvmTestSuite::class) {
+        getByName<JvmTestSuite>("test") {
             useJUnitJupiter()
+
+            targets.all {
+                testTask.configure {
+                    // run the unit tests in multiple JVM forks so they use the available CPU cores
+                    // instead of a single fork. Process-level isolation keeps tests independent.
+                    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+                }
+            }
         }
 
         // register integration test suite named `itest` to preserve existing task/config names
-        register("itest", JvmTestSuite::class) {
+        register<JvmTestSuite>("itest") {
             useJUnitJupiter()
 
             dependencies {
@@ -242,7 +245,6 @@ testing {
                         // mirror previous behavior
                         useJUnitPlatform()
                         systemProperty("zacDockerImage", zacDockerImage)
-                        systemProperty("featureFlagPabcIntegration", featureFlagPabcIntegration)
                         dependsOn("buildDockerImage")
                         // always execute the integration tests
                         outputs.upToDateWhen { false }
@@ -373,8 +375,7 @@ configure<SpotlessExtension> {
         endWithNewline()
     }
     java {
-        val genPath = srcGenerated.toProjectRelativePath()
-        targetExclude("$genPath/**", "build/**")
+        target("src/main/java/**/*.java")
 
         removeUnusedImports()
         importOrderFile("config/importOrder.txt")
@@ -420,7 +421,12 @@ configure<SpotlessExtension> {
         ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
     }
     format("json") {
-        target("src/**/*.json", "scripts/**/*.json")
+        target(
+            "src/**/*.json",
+            "scripts/bruno/**/*.json",
+            "scripts/docker-compose/imports/**/*.json",
+            "scripts/load-test/**/*.json"
+        )
         targetExclude(
             "$e2ePath/node_modules/**",
             "$e2ePath/reports/**",
@@ -428,9 +434,7 @@ configure<SpotlessExtension> {
             "$appPath/dist/**",
             "$appPath/.angular/**",
             "src/**/package-lock.json",
-            "$appPath/coverage/**",
-            "**/.venv/**",
-            "scripts/docker-compose/volume-data/**"
+            "$appPath/coverage/**"
         )
 
         prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
@@ -493,10 +497,6 @@ tasks {
 
     build {
         dependsOn("generateWildflyBootableJar")
-    }
-
-    test {
-        dependsOn("npmRunTest")
     }
 
     compileJava {
@@ -761,13 +761,22 @@ tasks {
         group = "verification"
         dependsOn("npmInstall")
         dependsOn("generateOpenApiSpec")
-
         npmCommand.set(listOf("run", "lint"))
 
-        inputs.files(fileTree("$appPath/node_modules"))
+        val sentinelFile = layout.buildDirectory.file(".lint-sentinel").get().asFile
+
         inputs.files(fileTree("$appPath/src"))
-        outputs.files(fileTree("$appPath/src"))
-        outputs.cacheIf { true }
+        inputs.files(
+            fileTree(appPath) {
+                include("*.json", "*.js", "*.cjs")
+            }
+        )
+        outputs.file(sentinelFile)
+
+        doLast {
+            sentinelFile.parentFile.mkdirs()
+            sentinelFile.writeText(Instant.now().toString())
+        }
     }
 
     register<NpmTask>("npmRunBuild") {
@@ -803,7 +812,7 @@ tasks {
     register<NpmTask>("npmRunTestCoverage") {
         description = "Generates the frontend test suite code coverage report"
         group = "verification"
-        dependsOn("npmRunTest")
+        dependsOn("npmInstall")
 
         npmCommand.set(listOf("run", "test:report"))
         outputs.dir("$appPath/coverage")
@@ -910,7 +919,16 @@ dependencyCheck {
     )
 
     // Configure output formats - generates HTML, JSON, and SARIF reports
-    formats = listOf("HTML", "SARIF")
+    formats = listOf("HTML", "JSON", "SARIF")
+
+    // The CI workflow runs `dependencyCheckUpdate` as a dedicated, cached step
+    // before scanning, so the analysis tasks must not trigger their own NVD
+    // download. Without this, `dependencyCheckAnalyze` re-downloads from the
+    // (heavily rate-limited) NVD API, wasting its time budget and writing the
+    // data directory while it is being cached. Note: when running the scan
+    // locally, run `./gradlew dependencyCheckUpdate` once first to populate the
+    // database.
+    autoUpdate = false
 
     // Set severity threshold - only report HIGH and CRITICAL vulnerabilities
     failBuildOnCVSS = 7.0f
@@ -960,10 +978,18 @@ dependencyCheck {
     }
 
     // Configure NVD API settings (optional - improves performance)
+    val nvdApiKey = System.getenv("NVD_API_KEY")
+        ?.takeIf(String::isNotBlank)
+        ?: project.findProperty("nvdApiKey")?.toString()?.takeIf(String::isNotBlank)
     nvd {
-        // Read from environment variable (CI/CD) or gradle.properties (local dev)
-        apiKey = System.getenv("NVD_API_KEY") ?: project.findProperty("nvdApiKey")?.toString()
-        delay = 16000 // 16 seconds between API calls (free tier limit)
+        apiKey = nvdApiKey
+        // With an API key NVD allows 50 req/30s so 2s delay is safe;
+        // without a key the free-tier limit requires 16s between calls.
+        delay = if (nvdApiKey != null) 2000 else 16000
+        // Consider cached NVD data valid for 24h so daily CI runs reuse the
+        // restored cache instead of re-validating against the NVD API every run
+        // (the plugin default is 4h).
+        validForHours = 24
     }
 }
 

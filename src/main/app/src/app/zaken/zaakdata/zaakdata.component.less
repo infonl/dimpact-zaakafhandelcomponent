@@ -1,0 +1,26 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+@import "../../../variables";
+
+.readonly-label {
+  color: var(--mat-form-field-filled-disabled-label-text-color);
+}
+
+.copy-icon {
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: pointer;
+
+  &.copy-icon--sm {
+    font-size: 12px !important;
+    height: 12px !important;
+    width: 12px !important;
+  }
+
+  &:hover {
+    color: @primary-background-color;
+  }
+}

@@ -12,7 +12,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringTarget
@@ -20,6 +19,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.configuration.ConfigurationService
@@ -48,7 +48,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         flowableTaskService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

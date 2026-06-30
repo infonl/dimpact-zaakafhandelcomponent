@@ -16,25 +16,26 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_2
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
-import nl.info.zac.itest.config.COORDINATOR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
+import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
+import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.COORDINATOR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_LONG_NAME_TEST
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
-import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFACTION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_BSN
+import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_IDENTIFICATION_TYPE_VESTIGING
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_ROL_TOEVOEGEN_REDEN
 import nl.info.zac.itest.config.ItestConfiguration.BETROKKENE_TYPE_NATUURLIJK_PERSOON
 import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_2
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_15
+import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.FEATURE_FLAG_PABC_INTEGRATION
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
@@ -49,31 +50,35 @@ import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_BS
 import nl.info.zac.itest.config.ItestConfiguration.VERANTWOORDELIJKE_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_REFERENTIEPROCES
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.RAADPLEGER_DOMAIN_TEST_1
+import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
@@ -100,7 +105,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     val temporaryPersonId: UUID = zacClient.getTemporaryPersonId(
         TEST_PERSON_HENDRIKA_JANSE_BSN,
-        BEHANDELAAR_DOMAIN_TEST_1
+        BEHANDELAAR_1
     )
 
     Context("Listing zaaktypes for creating zaken") {
@@ -112,7 +117,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                    testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
 
@@ -126,9 +131,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
-                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
                       },
                       {
                         "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
@@ -136,14 +141,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                       },
                       {
-                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                        "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       },
                       {
                         "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
@@ -159,6 +164,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
                         "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
+                      },
+                      {
+                        "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION"
                       }
                     ]
                     """.trimIndent()
@@ -177,7 +187,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("zaak types for creation are listed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_2
+                    testUser = BEHANDELAAR_2
                 )
                 Then("the response should be a 200 HTTP response") {
                     responseBody = response.bodyAsString
@@ -185,41 +195,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
                 And("the response body should contain only the zaaktypes for which the user is authorized") {
-                    // In the old IAM architecture we always return BPMN zaaktypes in the 'zaaktypes for creation' list
-                    val nonPABCPayload = if (FEATURE_FLAG_PABC_INTEGRATION) {
-                        ""
-                    } else {
-                        """
-                         , {
-                             "doel": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION",
-                             "identificatie": "$ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE",
-                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_1_DESCRIPTION"
-                           },
-                           {
-                             "doel": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION",
-                             "identificatie": "$ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE",
-                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_2_DESCRIPTION"
-                           },
-                           {
-                             "doel": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION",
-                             "identificatie": "$ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE",
-                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_3_DESCRIPTION"
-                           },
-                           {
-                             "doel": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION",
-                             "identificatie": "$ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE",
-                             "omschrijving": "$ZAAKTYPE_BPMN_TEST_4_DESCRIPTION"
-                           }
-                        """.trimIndent()
-                    }
-
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
-                        "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
-                        "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION"
-                      }$nonPABCPayload
+                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
+                      }
                     ]
                     """.trimIndent()
                 }
@@ -238,15 +220,15 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
                 val response = zacClient.createZaak(
-                    zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-                    groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-                    groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+                    groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                    groupName = GROUP_BEHANDELAARS_TEST_1.description,
                     startDate = DATE_TIME_2020_01_01,
                     communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
                     vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
                     description = ZAAK_DESCRIPTION_2,
                     toelichting = ZAAK_EXPLANATION_1,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be a 200 HTTP response") {
@@ -272,8 +254,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "eerdereOpschorting": false,
                       "gerelateerdeZaken": [],
                       "groep": {
-                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                        "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                       },
                       "heeftOntvangstbevestigingVerstuurd": false,
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
@@ -312,28 +294,28 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "registratiedatum": "${LocalDate.now()}",
                       "startdatum": "$DATE_2020_01_01",
                       "toelichting": "$ZAAK_EXPLANATION_1",
-                      "uiterlijkeEinddatumAfdoening": "$DATE_2020_01_15",
+                      "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
                       "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakdata": {
                         "initiator": null,
-                        "zaaktypeUUID": "$ZAAKTYPE_TEST_3_UUID",
-                        "zaaktypeOmschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                        "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_3_UUID",
+                        "zaaktypeOmschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                       },
                       "zaaktype": {
                         "beginGeldigheid": "$DATE_2023_09_21",
-                        "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                        "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                        "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
                         "informatieobjecttypes": [
                           "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                           "$INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID"
                         ],
                         "nuGeldig": true,
-                        "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
                         "opschortingMogelijk": false,
-                        "referentieproces": "$ZAAKTYPE_TEST_3_REFERENTIEPROCES",
+                        "referentieproces": "$ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES",
                         "servicenorm": false,
-                        "uuid": "$ZAAKTYPE_TEST_3_UUID",
+                        "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
                         "vertrouwelijkheidaanduiding": "openbaar",                    
@@ -348,7 +330,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("the get zaak endpoint is called as a behandelaar") {
                 val response = zacClient.retrieveZaak(
                     zaakUUID = zaak2UUID,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then(
@@ -361,7 +343,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         logger.info { "Response: $responseBody" }
                         with(JSONObject(responseBody)) {
                             getString("identificatie") shouldNotBe null
-                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_TEST_3_IDENTIFICATIE
+                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                              {
                               "versturenOntvangstbevestiging" : true,
@@ -393,7 +375,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("the get zaak endpoint is called as a beheerder") {
                 val response = zacClient.retrieveZaak(
                     zaakUUID = zaak2UUID,
-                    testUser = BEHEERDER_ELK_ZAAKTYPE
+                    testUser = BEHEERDER_1
                 )
 
                 Then(
@@ -405,7 +387,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         val responseBody = response.bodyAsString
                         logger.info { "Response: $responseBody" }
                         with(JSONObject(responseBody)) {
-                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_TEST_3_IDENTIFICATIE
+                            getJSONObject("zaaktype").getString("identificatie") shouldBe ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                             getJSONObject("rechten").toString() shouldEqualJsonIgnoringOrderAndExtraneousFields """
                             {
                               "versturenOntvangstbevestiging" : true,
@@ -438,6 +420,17 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     Context("Updating zaken and adding betrokkenen") {
         Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+            zaak2UUID = zacClient.createZaak(
+                zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+                groupId = GROUP_BEHANDELAARS_TEST_1.name,
+                groupName = GROUP_BEHANDELAARS_TEST_1.description,
+                startDate = DATE_TIME_2020_01_01,
+                communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
+                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                description = ZAAK_DESCRIPTION_2,
+                toelichting = ZAAK_EXPLANATION_1,
+                testUser = BEHANDELAAR_1
+            ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
             When(
                 "the add betrokkene to zaak endpoint is called with a natuurlijk persoon without a 'rol toelichting'"
             ) {
@@ -454,7 +447,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be a 200 OK HTTP response") {
                     response.code shouldBe HTTP_OK
@@ -484,7 +477,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "reden": "fakeReason"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be a 200 HTTP response with the changed zaak data") {
@@ -516,7 +509,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "reden": "fakeReason"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be a 400 HTTP response with the validation error message") {
@@ -545,11 +538,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                     {
                         "zaakUUID": "$zaak2UUID",
-                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "reden": "fakeReason"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the zaak should be assigned to the group") {
@@ -561,8 +554,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         shouldContainJsonKeyValue("uuid", zaak2UUID.toString())
                         shouldContainJsonKey("groep")
                         JSONObject(this).getJSONObject("groep").apply {
-                            getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
-                            getString("naam") shouldBe BEHANDELAARS_DOMAIN_TEST_1.description
+                            getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                            getString("naam") shouldBe GROUP_BEHANDELAARS_TEST_1.description
                         }
                     }
                 }
@@ -588,7 +581,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be a 200 OK HTTP response") {
@@ -616,7 +609,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "reden": "fakeReason"
                         }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be a 200 HTTP response with the changed zaak data") {
@@ -651,7 +644,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "reden": "fakeReason"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then(
@@ -667,8 +660,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "communicatiekanaal": "$COMMUNICATIEKANAAL_TEST_2",
                       "gerelateerdeZaken": [],
                       "groep": {
-                        "id": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "naam": "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                        "id": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                       },
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
@@ -711,7 +704,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "reden": "fakeReason"
                         }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be a 200 HTTP response with the changed zaak data without zaakgeometrie") {
                     val responseBody = response.bodyAsString
@@ -731,13 +724,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                         {
                             "betrokkeneIdentificatie": {
                                 "kvkNummer": "$TEST_KVK_NUMMER_1",
-                                "type": "$BETROKKENE_IDENTIFACTION_TYPE_VESTIGING",
+                                "type": "$BETROKKENE_IDENTIFICATION_TYPE_VESTIGING",
                                 "vestigingsnummer": "$vestigingsnummer"
                             },
                             "zaakUUID": "$zaak2UUID"
                         }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be a 200 HTTP response and the initiator should be added") {
                     val responseBody = response.bodyAsString
@@ -753,7 +746,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             When("the get betrokkene endpoint is called for a zaak") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
@@ -766,7 +759,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             getString("roltype") shouldBe ROLTYPE_NAME_MEDEAANVRAGER
                             getString("roltoelichting") shouldBe "fakeToelichting"
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
@@ -776,7 +769,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             // if no toelichting was provided, the default value should be used
                             getString("roltoelichting") shouldBe BETROKKENE_ROL_TOEVOEGEN_REDEN
                             getString("type") shouldBe BETROKKENE_TYPE_NATUURLIJK_PERSOON
-                            getString("identificatie") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
+                            getString("bsn") shouldBe TEST_PERSON_HENDRIKA_JANSE_BSN
                             getString("temporaryPersonId") shouldBe temporaryPersonId.toString()
                             getString("identificatieType") shouldBe "BSN"
                         }
@@ -795,8 +788,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             zaak1UUID = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_3_UUID,
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_3_UUID,
+                testUser = COORDINATOR_1
             ).second
             val uniqueResourceId = UUID.randomUUID()
             val zakenVerdelenWebsocketListener = WebSocketTestListener(
@@ -817,7 +810,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val websocket = itestHttpClient.connectNewWebSocket(
                 url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
                 webSocketListener = zakenVerdelenWebsocketListener,
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
             logger.info { "WebSocket created: '$websocket'" }
 
@@ -831,13 +824,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     requestBodyAsString = """
                     {
                         "uuids": [ "$zaak1UUID", "$zaak2UUID" ],
-                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                        "behandelaarGebruikersnaam": "${BEHANDELAAR_DOMAIN_TEST_1.username}",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
+                        "behandelaarGebruikersnaam": "${BEHANDELAAR_1.username}",
                         "reden": "fakeLijstVerdelenReason",
                         "screenEventResourceId": "$uniqueResourceId"
                     }
                     """.trimIndent(),
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
 
                 Then(
@@ -855,22 +848,22 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                         zacClient.retrieveZaak(
                             zaakUUID = zaak1UUID,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
+                            testUser = RAADPLEGER_1
                         ).let { response ->
                             response.code shouldBe HTTP_OK
                             with(JSONObject(response.bodyAsString)) {
-                                getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
-                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
+                                getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
                             }
                         }
                         zacClient.retrieveZaak(
                             zaakUUID = zaak2UUID,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
+                            testUser = RAADPLEGER_1
                         ).let { response ->
                             response.code shouldBe HTTP_OK
                             with(JSONObject(response.bodyAsString)) {
-                                getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
-                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
+                                getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                                getJSONObject("behandelaar").getString("id") shouldBe BEHANDELAAR_1.username
                             }
                         }
                     }
@@ -880,8 +873,8 @@ class ZaakRestServiceTest : BehaviorSpec({
 
         Given("A zaak exists and a websocket subscription has been created and a logged-in coordinator") {
             val (_, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                testUser = COORDINATOR_1
             )
             val uniqueResourceId = UUID.randomUUID()
             val zakenVerdelenWebsocketListener = WebSocketTestListener(
@@ -902,7 +895,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             itestHttpClient.connectNewWebSocket(
                 url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
                 webSocketListener = zakenVerdelenWebsocketListener,
-                testUser = RAADPLEGER_DOMAIN_TEST_1
+                testUser = RAADPLEGER_1
             )
 
             When(
@@ -913,12 +906,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/zaken/lijst/verdelen",
                     requestBodyAsString = """{
                         "uuids": [ "$zaakUuid" ],
-                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "reden": "fakeLijstVerdelenReason",
                         "screenEventResourceId": "$uniqueResourceId"                 
                     }
                     """.trimIndent(),
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 Then(
                     """a 204 HTTP response and a screen event of type 'zaken verdelen'
@@ -937,11 +930,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                         zacClient.retrieveZaak(
                             zaakUUID = zaakUuid,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
+                            testUser = RAADPLEGER_1
                         ).let { response ->
                             response.code shouldBe HTTP_OK
                             with(JSONObject(response.bodyAsString)) {
-                                getJSONObject("groep").getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
+                                getJSONObject("groep").getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
                             }
                         }
                     }
@@ -958,8 +951,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         """
         ) {
             val (_, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                testUser = BEHANDELAAR_1
             )
 
             When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
@@ -967,11 +960,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                     requestBodyAsString = """{
                         "zaakUUID": "$zaakUuid",
-                        "groepId": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+                        "groepId": "${GROUP_BEHANDELAARS_TEST_1.name}",
                         "reden": "fakeAssignToMeFromListReason"
                     }
                     """.trimIndent(),
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then(
                     "the response should be a 200 HTTP response with the expected zaak data"
@@ -982,8 +975,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(responseBody) {
                         shouldContainJsonKeyValue("uuid", zaakUuid.toString())
                         JSONObject(this).getJSONObject("behandelaar").apply {
-                            getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
-                            getString("naam") shouldBe BEHANDELAAR_DOMAIN_TEST_1.displayName
+                            getString("id") shouldBe BEHANDELAAR_1.username
+                            getString("naam") shouldBe BEHANDELAAR_1.displayName
                         }
                     }
                 }
@@ -991,14 +984,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                     with(
                         zacClient.retrieveZaak(
                             zaakUUID = zaakUuid,
-                            testUser = RAADPLEGER_DOMAIN_TEST_1
+                            testUser = RAADPLEGER_1
                         )
                     ) {
                         code shouldBe HTTP_OK
                         JSONObject(bodyAsString).apply {
                             getJSONObject("behandelaar").apply {
-                                getString("id") shouldBe BEHANDELAAR_DOMAIN_TEST_1.username
-                                getString("naam") shouldBe BEHANDELAAR_DOMAIN_TEST_1.displayName
+                                getString("id") shouldBe BEHANDELAAR_1.username
+                                getString("naam") shouldBe BEHANDELAAR_1.displayName
                             }
                         }
                     }
@@ -1032,7 +1025,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             itestHttpClient.connectNewWebSocket(
                 url = ItestConfiguration.ZAC_WEBSOCKET_BASE_URI,
                 webSocketListener = websocketListener,
-                testUser = COORDINATOR_DOMAIN_TEST_1
+                testUser = COORDINATOR_1
             )
 
             When("the 'lijst vrijgeven' endpoint is called for the zaken") {
@@ -1043,7 +1036,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "reden": "fakeLijstVrijgevenReason",
                         "screenEventResourceId": "$uniqueResourceId"
                     }""",
-                    testUser = COORDINATOR_DOMAIN_TEST_1
+                    testUser = COORDINATOR_1
                 )
                 Then(
                     """the response should be a 204 HTTP response, eventually a screen event of type 'zaken vrijgeven'
@@ -1057,14 +1050,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         with(
                             zacClient.retrieveZaak(
                                 zaakUUID = zaak1UUID,
-                                testUser = RAADPLEGER_DOMAIN_TEST_1
+                                testUser = RAADPLEGER_1
                             )
                         ) {
                             code shouldBe HTTP_OK
                             JSONObject(bodyAsString).apply {
                                 getJSONObject("groep").apply {
-                                    getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
-                                    getString("naam") shouldBe BEHANDELAARS_DOMAIN_TEST_1.description
+                                    getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                                    getString("naam") shouldBe GROUP_BEHANDELAARS_TEST_1.description
                                 }
                                 has("behandelaar") shouldBe false
                             }
@@ -1072,19 +1065,80 @@ class ZaakRestServiceTest : BehaviorSpec({
                         with(
                             zacClient.retrieveZaak(
                                 zaakUUID = zaak2UUID,
-                                testUser = RAADPLEGER_DOMAIN_TEST_1
+                                testUser = RAADPLEGER_1
                             )
                         ) {
                             code shouldBe HTTP_OK
                             JSONObject(bodyAsString).apply {
                                 getJSONObject("groep").apply {
-                                    getString("id") shouldBe BEHANDELAARS_DOMAIN_TEST_1.name
-                                    getString("naam") shouldBe BEHANDELAARS_DOMAIN_TEST_1.description
+                                    getString("id") shouldBe GROUP_BEHANDELAARS_TEST_1.name
+                                    getString("naam") shouldBe GROUP_BEHANDELAARS_TEST_1.description
                                 }
                                 has("behandelaar") shouldBe false
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Context("Listing afzenders for a zaak") {
+        Given(
+            """
+            A CMMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
+            """
+        ) {
+            When("the list afzenders voor zaak endpoint is called by an authorized behandelaar") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
+                    testUser = BEHANDELAAR_1
+                )
+                Then("the response should be a 200 HTTP response with the list of afzenders") {
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            When("the list afzenders voor zaak endpoint is called by a user not authorized for the zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+    }
+
+    Context("Downloading a BPMN process diagram") {
+        Given(
+            """
+            A BPMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
+            """
+        ) {
+            val (_, bpmnZaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_BPMN_TEST_1_UUID,
+                testUser = BEHANDELAAR_1
+            )
+
+            When("the download process diagram endpoint is called by an authorized behandelaar") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
+                    testUser = BEHANDELAAR_1
+                )
+                Then("the response should be a 200 HTTP response with the process diagram") {
+                    response.code shouldBe HTTP_OK
+                }
+            }
+            When("the download process diagram endpoint is called by a user not authorized for the zaaktype") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
+                    testUser = BEHANDELAAR_2
+                )
+                Then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }
@@ -1102,13 +1156,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             val tomorrow = today.plusDays(1)
             val zaakDescription = "itestZaakDescription-${System.currentTimeMillis()}"
             val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
-                zaaktypeUuid = ZAAKTYPE_TEST_2_UUID,
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 zaakDescription = zaakDescription,
                 startDate = yesterday,
-                group = BEHANDELAARS_DOMAIN_TEST_1,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
-                behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
-                behandelaarName = BEHANDELAAR_DOMAIN_TEST_1.displayName
+                group = GROUP_BEHANDELAARS_TEST_1,
+                testUser = BEHANDELAAR_1,
+                behandelaarId = BEHANDELAAR_1.username,
+                behandelaarName = BEHANDELAAR_1.displayName
             )
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
@@ -1120,14 +1174,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "reden": "fakeReason"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
             response.code shouldBe HTTP_OK
 
             When("the 'list zaak warnings' endpoint is called for the zaak") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/waarschuwing",
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
                 Then("the response should be a 200 HTTP response with the expected zaak") {
                     response.code shouldBe HTTP_OK
@@ -1136,12 +1190,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                         [ {
                           "behandelaar" : {
-                            "id" : "${BEHANDELAAR_DOMAIN_TEST_1.username}",
-                            "naam" : "${BEHANDELAAR_DOMAIN_TEST_1.displayName}"
+                            "id" : "${BEHANDELAAR_1.username}",
+                            "naam" : "${BEHANDELAAR_1.displayName}"
                           },
                           "groep" : {
-                            "id" : "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-                            "naam" : "${BEHANDELAARS_DOMAIN_TEST_1.description}"
+                            "id" : "${GROUP_BEHANDELAARS_TEST_1.name}",
+                            "naam" : "${GROUP_BEHANDELAARS_TEST_1.description}"
                           },
                           "identificatie" : "$zaakIdentification",
                           "omschrijving" : "$zaakDescription",
@@ -1173,9 +1227,48 @@ class ZaakRestServiceTest : BehaviorSpec({
                           "startdatum" : "${yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
                           "status" : "Intake",
                           "uiterlijkeEinddatumAfdoening" : "${tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}",
-                          "zaaktype" : "$ZAAKTYPE_TEST_2_DESCRIPTION"
+                          "zaaktype" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION"
                         } ]                                               
                     """
+                }
+            }
+        }
+    }
+
+    Context("Creating a zaak with a group and behandelaar whose names are longer than 24 characters") {
+        Given(
+            """
+            a Keycloak group with a name of 50 characters and a behandelaar user with a username of 33 characters
+            both exist in Keycloak, and an authorised behandelaar is logged in
+            """
+        ) {
+            When("the create zaak endpoint is called with the long-name group and the long-name user as behandelaar") {
+                val response = zacClient.createZaak(
+                    zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+                    groupId = GROUP_BEHANDELAARS_LONG_NAME_TEST.name,
+                    groupName = GROUP_BEHANDELAARS_LONG_NAME_TEST.description,
+                    startDate = DATE_TIME_2020_01_01,
+                    testUser = BEHANDELAAR_1,
+                    behandelaarId = BEHANDELAAR_LONG_NAME_TEST.username,
+                    behandelaarName = BEHANDELAAR_LONG_NAME_TEST.displayName
+                )
+                Then("the zaak is created and the response contains the full long group name and behandelaar name") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                        {
+                          "groep": {
+                            "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
+                            "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
+                          },
+                          "behandelaar": {
+                            "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
+                            "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
+                          },
+                          "isOpen": true
+                        }
+                    """.trimIndent()
                 }
             }
         }

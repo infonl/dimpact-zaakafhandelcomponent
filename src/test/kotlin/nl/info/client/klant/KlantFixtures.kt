@@ -13,16 +13,17 @@ import nl.info.client.klanten.model.generated.CodeSoortObjectIdEnum
 import nl.info.client.klanten.model.generated.DigitaalAdres
 import nl.info.client.klanten.model.generated.DigitaalAdresForeignKey
 import nl.info.client.klanten.model.generated.ExpandBetrokkene
+import nl.info.client.klanten.model.generated.ExpandBetrokkeneAllOfExpand
 import nl.info.client.klanten.model.generated.ExpandPartij
 import nl.info.client.klanten.model.generated.ExpandPartijAllOfExpand
 import nl.info.client.klanten.model.generated.Klantcontact
-import nl.info.client.klanten.model.generated.PaginatedDigitaalAdresList
 import nl.info.client.klanten.model.generated.PaginatedExpandPartijList
 import nl.info.client.klanten.model.generated.PaginatedKlantcontactList
 import nl.info.client.klanten.model.generated.PartijForeignKey
 import nl.info.client.klanten.model.generated.PartijIdentificator
 import nl.info.client.klanten.model.generated.PartijIdentificatorForeignkey
 import nl.info.client.klanten.model.generated.PartijIdentificatorGroepType
+import nl.info.client.klanten.model.generated.RolEnum
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
 import java.net.URI
 import java.util.UUID
@@ -62,12 +63,33 @@ fun createDigitaalAdresForeignKey(
     this.uuid = uuid
 }
 
+@Suppress("LongParameterList")
 fun createExpandBetrokkene(
     uuid: UUID = UUID.randomUUID(),
     uri: URI = URI("https://example.com/fakeUri"),
     digitalAddresses: List<DigitaalAdresForeignKey> = listOf(createDigitaalAdresForeignKey()),
-    fullName: String = "fakeFullName"
-) = ExpandBetrokkene(uuid, uri, digitalAddresses, fullName)
+    fullName: String = "fakeFullName",
+    expand: ExpandBetrokkeneAllOfExpand? = null,
+    wasPartij: PartijForeignKey? = null,
+    rol: RolEnum = RolEnum.KLANT,
+    initiator: Boolean = true
+) = ExpandBetrokkene(uuid, uri, digitalAddresses, fullName).apply {
+    this.expand = expand
+    this.wasPartij = wasPartij
+    this.rol = rol
+    this.initiator = initiator
+}
+
+fun createExpandBetrokkeneAllOfExpand(
+    digitaleAdressen: List<DigitaalAdres>? = listOf(createDigitalAddress())
+) = ExpandBetrokkeneAllOfExpand(digitaleAdressen)
+
+fun createPartijForeignKey(
+    uuid: UUID = UUID.randomUUID(),
+    uri: URI = URI("https://example.com/fakeUri")
+) = PartijForeignKey(uri).apply {
+    this.uuid = uuid
+}
 
 @Suppress("LongParameterList")
 fun createExpandPartij(
@@ -144,13 +166,6 @@ fun createPaginatedKlantcontactList(
 ) = PaginatedKlantcontactList().apply {
     this.results = klantcontacten
     this.count = klantcontacten.size
-}
-
-fun createPaginatedDigitaalAdresList(
-    digitaleAdressen: List<DigitaalAdres> = listOf(createDigitalAddress())
-) = PaginatedDigitaalAdresList().apply {
-    this.results = digitaleAdressen
-    this.count = digitaleAdressen.size
 }
 
 fun createPartijIdentificatorGroepType(

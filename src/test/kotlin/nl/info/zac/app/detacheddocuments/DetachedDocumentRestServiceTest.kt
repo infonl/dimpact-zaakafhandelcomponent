@@ -54,7 +54,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         policyService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

@@ -14,14 +14,14 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
     val validator =
         ValidRestEnkelvoudigInformatieFileUploadFormValidator()
 
-    Given("REST enkelvoudig informatie object") {
+    Given("a REST enkelvoudig informatie object with an allowed extension") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "fakeFileName.txt"
+                formaat = "text/plain"
             }
 
         When("no file content provided") {
-
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             Then("it detects it as invalid") {
@@ -39,12 +39,109 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
         }
 
-        When("file is provided") {
+        When("file content is provided") {
             restEnkelvoudigInformatieobject.file = "fake content".toByteArray()
 
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
             Then("it detects it as valid") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object with file bytes but no bestandsnaam") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = null
+                formaat = "application/pdf"
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is rejected because the allowlist can only be applied with a bestandsnaam") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object with file bytes but a blank bestandsnaam") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "   "
+                formaat = "application/pdf"
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is rejected") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("a metadata-only update without a filename") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is accepted because no upload is happening") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object with a disallowed extension") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "malicious.exe"
+                formaat = "application/x-msdownload"
+                file = "MZ".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is rejected") {
+                result shouldBe false
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object whose extension and media type disagree") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "document.pdf"
+                formaat = "image/png"
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is accepted because only the extension is validated; the media type is OS-dependent") {
+                result shouldBe true
+            }
+        }
+    }
+
+    Given("a REST enkelvoudig informatie object with an allowed extension but no media type") {
+        val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
+            .apply {
+                bestandsnaam = "report.PDF"
+                formaat = null
+                file = "fake content".toByteArray()
+            }
+
+        When("validated") {
+            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
+
+            Then("it is accepted because the extension check is the security gate") {
                 result shouldBe true
             }
         }

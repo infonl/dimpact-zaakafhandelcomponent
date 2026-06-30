@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54326:5432"
     healthcheck:
@@ -50,17 +50,6 @@ services:
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=keycloak
       - KC_IMPORT=/opt/keycloak/data/import/zaakafhandelcomponent-realm.json
-      - ZAC_TESTUSER1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_1_EMAIL_ADDRESS:-testuser1@example.com}
-      - ZAC_TESTUSER2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TEST_USER_2_EMAIL_ADDRESS:-testuser2@example.com}
-      - ZAC_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuserdomaintest1@example.com}
-      - ZAC_TESTUSER_DOMEIN_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_2_EMAIL_ADDRESS:-testuserdomaintest2@example.com}
-      - ZAC_RECORD_MANAGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORD_MANAGER_1_EMAIL_ADDRESS:-recordmanager1@example.com}
-      - ZAC_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_FUNCTIONAL_ADMIN_1_EMAIL_ADDRESS:-functionaladmin1@example.com}
-      - ZAC_TEST_USER_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_TESTUSER_DOMEIN_TEST_1_EMAIL_ADDRESS:-testuser-domein-test-1@example.com}
-      - ZAC_COORDINATOR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_COORDINATOR_1_EMAIL_ADDRESS:-coordinator1@example.com}
-      - ZAC_BEHANDELAAR_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_1_EMAIL_ADDRESS:-behandelaar1@example.com}
-      - ZAC_BEHANDELAAR_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_2_EMAIL_ADDRESS:-behandelaar2@example.com}
-      - ZAC_RAADPLEGER_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_1_EMAIL_ADDRESS:-raadpleger1@example.com}
       - ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_1_EMAIL_ADDRESS:-raadpleger-test-1@example.com}
       - ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_TEST_2_EMAIL_ADDRESS:-raadpleger-test-2@example.com}
       - ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-behandelaar-test-1@example.com}
@@ -71,13 +60,6 @@ services:
       - ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_2_EMAIL_ADDRESS:-recordmanager-test-2@example.com}
       - ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHEERDER_TEST_1_EMAIL_ADDRESS:-beheerder-test-1@example.com}
       - ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-raadpleger-en-behandelaar-test-1@example.com}
-      - ZAC_GROUP_A_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_A_EMAIL_ADDRESS:-test-group-a@example.com}
-      - ZAC_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_FUNCTIONEEL_BEHEERDERS_EMAIL_ADDRESS:-test-group-functioneel-beheerders@example.com}
-      - ZAC_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORD_MANAGERS_EMAIL_ADDRESS:-test-group-record-managers@example.com}
-      - ZAC_GROUP_COORDINATORS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_COORDINATORS_EMAIL_ADDRESS:-test-group-coordinators@example.com}
-      - ZAC_GROUP_BEHANDELAARS_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_EMAIL_ADDRESS:-test-group-behandelaars@example.com}
-      - ZAC_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_DOMEIN_TEST_1_EMAIL_ADDRESS:-test-group-domein-test-1@example.com}
-      - ZAC_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_1_EMAIL_ADDRESS:-test-group-raadplegers@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS:-test-group-raadplegers-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
       - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
@@ -87,6 +69,7 @@ services:
       - ZAC_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_1_EMAIL_ADDRESS:-test-group-recordmanagers-test-1@example.com}
       - ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS:-test-group-recordmanagers-test-2@example.com}
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
+      - ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS:-test-group-behandelaars-long-name-test@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
@@ -95,7 +78,6 @@ services:
 
   openzaak-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54322:5432"
@@ -117,8 +99,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: openzaak/open-zaak:1.27.2@sha256:7f4826298b1bb28aca3f1f6d18fbad52238267eafc5253c68fb067f3afe8908e
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -166,8 +147,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: openzaak/open-zaak:1.26.0@sha256:0145b48997d9833e089e2ee3f88a0cd3150d3d186b2445e0b9b6c17a0dcb7196
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: openzaak/open-zaak:1.27.2@sha256:7f4826298b1bb28aca3f1f6d18fbad52238267eafc5253c68fb067f3afe8908e
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -180,7 +160,7 @@ services:
     depends_on:
       openzaak.local:
         condition: service_healthy
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   # nginx reverse proxy in front of Open Zaak.
   # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
@@ -188,7 +168,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginx:1.30.0@sha256:0c3a604353135ac13f3a991e2a98c9958af7b8c0b7251ce1590e0c5ff5e3692c
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
     ports:
       - "8001:8000"
     volumes:
@@ -198,13 +178,12 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: redis:8.6.4@sha256:27e3d84b97978b567ee4544a1d66ce5fa18fd8b53d710c849e7bdaef30249c03
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   objecten-api.local:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -216,11 +195,14 @@ services:
       - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=objects.conf.docker
       - SECRET_KEY=objectenApiSecretKey
-      - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
+      - TWO_FACTOR_FORCE_OTP_ADMIN=False
       - TWO_FACTOR_PATCH_ADMIN=False
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - EMAIL_HOST=localhost
+      - OTEL_SDK_DISABLED=true
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
@@ -229,11 +211,28 @@ services:
     depends_on:
       objecten-api-database:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
+
+  objecten-api-celery:
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
+    platform: linux/amd64
+    environment: *objects-env
+    command: sh -c "cd /app/src && celery -A objects worker -l info"
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      objecten-api.local:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54323:5432"
@@ -246,11 +245,10 @@ services:
       - POSTGRES_USER=objects
       - POSTGRES_PASSWORD=objects
       - POSTGRES_DB=objects
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   objecten-api-import:
-    image: maykinmedia/objects-api:3.3.1@sha256:d06b4bae0fb3ef6f2f3017e6cf833f29f8d55aa82161d691f452ddb09e4cc14b
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: maykinmedia/objects-api:3.6.1@sha256:57e4c5feadd0690f9ad9aee41f29580c46da0d47c91a5ccab6ff903206301c74
     platform: linux/amd64
     environment: *objects-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -261,10 +259,10 @@ services:
     depends_on:
       objecten-api.local:
         condition: service_healthy
-    profiles: [ "objecten", "itest" ]
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
   solr:
-    image: solr:9.10.1-slim@sha256:f67042f3a0e9e7b6fe0f8fa85e96ea0d0d1cbdd4cda19ccfb462ef3ef5d44ddf
+    image: solr:9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4
     ports:
       - "8983:8983"
     volumes:
@@ -279,7 +277,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.2-static@sha256:f3429de096f6d274bd9927f7a50c334e340a6cf206fad9460ccf17e2f3e807bf
+    image: openpolicyagent/opa:1.18.1-static@sha256:8dca686c960ba92c0ad3d37eddc893adaed28500b26e5506b52b665653c3e83b
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -296,7 +294,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202603230846@sha256:7bf8c2ea61cc39d363711b4b43537680a84f5ba9a795dabc1bd7d497072233ea
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202606230850@sha256:024308250beab8a6327d8f4ce91e630b4bcbd650015a4e86df6db437dc8bb4d7
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -304,7 +302,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54325:5432"
     healthcheck:
@@ -321,8 +319,7 @@ services:
       - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
-    image: maykinmedia/open-klant:2.14.0@sha256:8ac6eafe5738fc2a27316abe7bc3532e5d41f955269a577d10e95c0d7be87a59
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
     platform: linux/amd64
     environment:
       - ALLOWED_HOSTS="*"
@@ -383,7 +380,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.15.2@sha256:4750afa83e85a1b0a4964ea5700e9caa1c1e61b508435e09fd77f038747340e6
+    image: openpolicyagent/opa:1.18.1@sha256:fffa40071c12b8da84518387ed5d7207322d74b04689aa3533e0ebe1e57666d5
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -392,7 +389,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.31.0@sha256:f0d86e8a1dbc7b33a5a65cb251d02bb271a48ffa989da3feb5ed7d954fe4d4b3
+    image: gotenberg/gotenberg:8.34.0@sha256:67097317623a503ba2a6a7e9ae8db6929a1f7e1bbd88077bacf2d325fbdab923
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -402,7 +399,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.150.1@sha256:a516c26968aa1feb5e5fc0562e3338ea13755cb4f373603226bcc4e276374ad0
+    image: otel/opentelemetry-collector-contrib:0.155.0@sha256:4935caa35e9a4cb387e35732e8fb22b2b5759af8d12e7043357f03837f6e8df5
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -418,7 +415,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:2.10.4@sha256:a6616c9d224770c883a67b50e4941e99c5df81b076ef05f516bb7cce5a96cec0
+    image: grafana/tempo:3.0.2@sha256:cda87c212d8c584dc0b89e337e7ed648a5100feb657e5d528480ee4fa03dbbe3
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -432,7 +429,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.11.2@sha256:5550dc63da361dc30f6fe02ac0e4dfc736ededfef3c8d12a634db04a67824d78
+    image: prom/prometheus:v3.12.0@sha256:69f5241418838263316593f7274a304b095c40bcf22e57272865da91bd60a8ac
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -445,7 +442,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
+    image: grafana/grafana:13.1.0@sha256:121a7a9ece6dc10b969f1f96eed64b4f07dfac0d0b8abc070f7cb83bbde86f63
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -467,7 +464,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.8@sha256:d556b8c7df01ba04a0e0f67dacab2c5f75a61207a51774e0654c179b83a671e1
+    image: greenmail/standalone:2.1.9@sha256:3ac5a83dd6727cf95e4d50e18907fb8ee7bbf5f67e8534714dee2fb1b5b2e1d4
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -482,17 +479,16 @@ services:
     profiles: [ "itest" ]
 
   rabbitmq:
-    image: rabbitmq:4.2.5-alpine@sha256:04e883cc733f9c9ce87dbf5343eb4a3f54a8c474a5cd418e79210602824dcb07
+    image: rabbitmq:4.2.7-alpine@sha256:5e6dba3baccbfcaf273ef24139d1b14de9ec5423d9683fc005c72c480aa6eae9
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
       timeout: 10s
       retries: 20
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     ports:
       - "54327:5432"
@@ -509,11 +505,10 @@ services:
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
       - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -553,11 +548,10 @@ services:
     depends_on:
       opennotificaties-init:
         condition: service_completed_successfully
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -572,11 +566,10 @@ services:
       redis:
         condition: service_started
     volumes: *opennotificaties-volumes
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.13.0@sha256:7a7ea7fe45063618e9d5e12a6403dd0128504f9f9f8d4632e66e218ead7efee5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
+    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -589,11 +582,10 @@ services:
     depends_on:
       opennotificaties:
         condition: service_healthy
-    profiles: [ "opennotificaties" ]
+    profiles: [ "opennotificaties", "openformulieren" ]
 
   openarchiefbeheer-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
@@ -613,14 +605,9 @@ services:
 
   openarchiefbeheer-web:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
-      # We should be able to switch off 2FA with:
-      # - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.dev
-      # - DISABLE_2FA=true
-      # However, the above config errors with `ModuleNotFoundError: No module named 'debug_toolbar'`
       - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
@@ -660,7 +647,6 @@ services:
 
   openarchiefbeheer-web-init:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -675,7 +661,6 @@ services:
 
   openarchiefbeheer-celery:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -691,7 +676,6 @@ services:
 
   openarchiefbeheer-celery-beat:
     image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
@@ -701,7 +685,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.30.0@sha256:9b269aa3263e1dcba790fda66aa91b6b02f904adcd8329e5cf256e14a65e2974
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
     ports:
       - "8005:8080"
     volumes:
@@ -712,7 +696,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54329:5432"
     environment:
@@ -729,7 +713,6 @@ services:
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.0@sha256:c40905205d997936538bbe1efdf0c582ec98a8414df9ceb05b0c1b0d1121a39a
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -742,7 +725,6 @@ services:
 
   pabc-api:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.0@sha256:108225d8ba671ace5be159d24ecfdfe06b073494227943a123955418c5b124a0
-    # No image for linux/arm64 is available, so we need to run this image with the linux/amd64 platform on Apple Silicon devices using emulation.
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -766,7 +748,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.9@sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
     ports:
       - "54320:5432"
     healthcheck:
@@ -786,7 +768,6 @@ services:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
     image: ${ZAC_DOCKER_IMAGE:-ghcr.io/infonl/zaakafhandelcomponent:latest}
     environment:
-      - ADDITIONAL_ALLOWED_FILE_TYPES=${ADDITIONAL_ALLOWED_FILE_TYPES:-}
       - AUTH_REALM=zaakafhandelcomponent
       - AUTH_RESOURCE=zaakafhandelcomponent
       - AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
@@ -796,17 +777,27 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-fakeBagApiKey}
       - BRP_API_CLIENT_MP_REST_URL=http://brp-personen-wiremock:8080/haalcentraal/api/brp
       - BRP_ORIGIN_OIN=${BRP_ORIGIN_OIN:-123443210}
-      - BRP_PROTOCOLLERING=${BRP_PROTOCOLLERING:-iConnect}
+      - BRP_ORIGIN_OIN_HEADER=${BRP_ORIGIN_OIN_HEADER:-x-origin-oin}
+      - BRP_PROTOCOLLERING_ENABLED=${BRP_PROTOCOLLERING_ENABLED:-true}
+      - BRP_DOELBINDING_PER_ZAAKTYPE=${BRP_DOELBINDING_PER_ZAAKTYPE:-true}
+      - BRP_DOELBINDING_HEADER=${BRP_DOELBINDING_HEADER:-x-doelbinding}
       - BRP_DOELBINDING_ZOEKMET=${BRP_DOELBINDING_ZOEKMET:-BRPACT-Totaal}
       - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
+      - BRP_VERWERKING_HEADER=${BRP_VERWERKING_HEADER:-x-verwerking}
       - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
+      - BRP_GEBRUIKER_HEADER=${BRP_GEBRUIKER_HEADER:-x-gebruiker}
+      - BRP_TOEPASSING_HEADER=${BRP_TOEPASSING_HEADER:-x-toepassing}
+      - BRP_TOEPASSING=${BRP_TOEPASSING:-ZAC}
+      - BRP_LOG_LEVEL=INFO
+      - BRP_SYSTEM_USER=ZacSystemUser
+      - BRP_API_KEY_HEADER=${BRP_API_KEY_HEADER:-}
+      - BRP_API_KEY=${BRP_API_KEY:-}
       - BRON_ORGANISATIE_RSIN=${BRON_ORGANISATIE_RSIN:-123443210}
       - CONTEXT_URL=http://localhost:8080
       - DB_HOST=zac-database
       - DB_NAME=zac
       - DB_PASSWORD=password
       - DB_USER=zac
-      - FEATURE_FLAG_PABC_INTEGRATION=${FEATURE_FLAG_PABC_INTEGRATION:-true}
       - GEMEENTE_CODE=${GEMEENTE_CODE:-9999}
       - GEMEENTE_MAIL=${GEMEENTE_MAIL:-gemeente-zac-test@example.com}
       - GEMEENTE_NAAM=${GEMEENTE_NAAM:-FakeZacGemeente}
@@ -871,3 +862,280 @@ services:
       openzaak.local:
         condition: service_healthy
     profiles: ["zac"]
+
+  objecttypes-api-database:
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
+    ports:
+      - "54324:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    environment:
+      - POSTGRES_USER=objecttypes
+      - POSTGRES_PASSWORD=objecttypes
+      - POSTGRES_DB=objecttypes
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api:
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
+    platform: linux/amd64
+    ports:
+      - "8011:8000"
+    environment: &objecttypes-env
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - SECRET_KEY=objecttypesApiSecretKey
+      - DJANGO_SETTINGS_MODULE=objecttypes.conf.docker
+      - DB_HOST=objecttypes-api-database
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - DISABLE_2FA=yes
+      - DEBUG=true
+      - OTEL_SDK_DISABLED=true
+      - ALLOWED_HOSTS=*
+    depends_on:
+      objecttypes-api-database:
+        condition: service_healthy
+    profiles: [ "openformulieren" ]
+
+  objecttypes-api-import:
+    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
+    platform: linux/amd64
+    environment: *objecttypes-env
+    command: sh init/init.sh
+    volumes:
+      - ./scripts/docker-compose/imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
+      - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
+    depends_on:
+      - objecttypes-api
+    profiles: [ "openformulieren" ]
+
+  openformulieren-database:
+    image: postgres:17.10@sha256:5f050f770b427fbd477edee6c3968a72e5c6be97e050a7e368b2b74a9494a285
+    ports:
+      - "54330:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    environment:
+      - POSTGRES_USER=openformulieren
+      - POSTGRES_PASSWORD=openformulieren
+      - POSTGRES_DB=openformulieren
+    volumes:
+      - ./scripts/docker-compose/volume-data/openformulieren-database-data:/var/lib/postgresql/data
+    profiles: [ "openformulieren" ]
+
+  openformulieren-init:
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: &openformulieren-env
+      - DJANGO_SETTINGS_MODULE=openforms.conf.docker_local
+      - SECRET_KEY=openFormulierenSecretKey
+      - DB_NAME=openformulieren
+      - DB_USER=openformulieren
+      - DB_PASSWORD=openformulieren
+      - DB_HOST=openformulieren-database
+      - CACHE_DEFAULT=redis:6379/2
+      - CACHE_AXES=redis:6379/2
+      - CACHE_PORTALOCKER=redis:6379/2
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOW_ALL_ORIGINS=true
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8007,http://localhost:8009
+      - USE_X_FORWARDED_HOST=true
+      - EMAIL_HOST=localhost
+      - TZ=Europe/Amsterdam
+      - DISABLE_2FA=true
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - RUN_SETUP_CONFIG=true
+      - DEBUG=true
+      - OTEL_SDK_DISABLED=true
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        /setup_configuration.sh
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+            print('Admin user created')
+        else:
+            print('Admin user already exists')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.haal_centraal.models import HaalCentraalConfig
+            from zgw_consumers.models import Service
+            config = HaalCentraalConfig.get_solo()
+            if not config.brp_personen_service_id:
+                svc = Service.objects.get(slug='brp-personen')
+                config.brp_personen_service = svc
+                config.save()
+                print('BRP service configured')
+            else:
+                print('BRP service already configured')
+        except Exception as e:
+            print(f'BRP config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        try:
+            from openforms.contrib.customer_interactions.models import CustomerInteractionsAPIGroupConfig
+            from zgw_consumers.models import Service
+            IDENTIFIER = 'klantinteracties-api-group'
+            if not CustomerInteractionsAPIGroupConfig.objects.filter(identifier=IDENTIFIER).exists():
+                svc = Service.objects.get(slug='openklant-klantinteracties')
+                CustomerInteractionsAPIGroupConfig.objects.create(
+                    name='Local Klantinteracties API',
+                    identifier=IDENTIFIER,
+                    customer_interactions_service=svc,
+                )
+                print('Klantinteracties API group configured')
+            else:
+                print('Klantinteracties API group already exists')
+        except Exception as e:
+            print(f'Klantinteracties config skipped: {e}')
+        "
+        OTEL_SDK_DISABLED=True src/manage.py shell -c "
+        from openforms.forms.models import Form
+        FORM_SLUG = 'productaanvraag-dimpact-test-formulier-compleet'
+        if not Form.objects.filter(slug=FORM_SLUG).exists():
+            import os, glob, zipfile
+            from openforms.forms.utils import import_form
+            json_files = glob.glob('/forms/*.json')
+            with zipfile.ZipFile('/tmp/forms.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
+                for f in json_files:
+                    zf.write(f, os.path.basename(f))
+            with open('/tmp/forms.zip', 'rb') as zip_file:
+                import_form(zip_file)
+            print('Productaanvraag-Dimpact form imported successfully')
+        form = Form.objects.get(slug=FORM_SLUG)
+        if not form.active:
+            form.active = True
+            form.save(update_fields=['active'])
+            print('Productaanvraag-Dimpact form activated')
+        else:
+            print('Productaanvraag-Dimpact form already active, skipping import')
+        "
+    volumes: &openformulieren-volumes
+      - openformulieren-static:/srv/static
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/setup-configuration:/app/setup_configuration
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+      - ./scripts/docker-compose/imports/openformulieren/forms:/forms:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      objecttypes-api:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-web:
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    ports:
+      - "8009:8000"
+    volumes: *openformulieren-volumes
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      openformulieren-init:
+        condition: service_completed_successfully
+    profiles: [ "openformulieren" ]
+
+  openformulieren-celery:
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    command: /celery_worker.sh
+    healthcheck:
+      test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-celery-beat:
+    image: openformulieren/open-forms:3.5.4@sha256:5e734869b1e1c88fd6706024994b9cbee04708918090e13f8d5e41b343076aa9
+    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
+    # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
+    # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
+    # You will also see a related 404 error on a JS translation bundle file in the browser when trying to open a form.
+    platform: linux/amd64
+    environment: *openformulieren-env
+    command: /celery_beat.sh
+    volumes:
+      - openformulieren-media:/app/media
+      - openformulieren-private-media:/app/private_media
+      - openformulieren-log:/app/log
+      - ./scripts/docker-compose/imports/openformulieren/settings/docker_local.py:/app/src/openforms/conf/docker_local.py:ro
+    depends_on:
+      openformulieren-database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    profiles: [ "openformulieren" ]
+
+  openformulieren-nginx:
+    image: nginxinc/nginx-unprivileged:1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4
+    ports:
+      - "8007:8080"
+    volumes:
+      - ./scripts/docker-compose/imports/openformulieren/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      openformulieren-web:
+        condition: service_healthy
+    profiles: [ "openformulieren" ]
+
+volumes:
+  openformulieren-static:
+  openformulieren-media:
+  openformulieren-private-media:
+  openformulieren-log:

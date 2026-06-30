@@ -1,0 +1,14 @@
+/*
+ * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+package nl.info.zac.besluit
+
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE
+import nl.info.zac.exception.InputValidationFailedException
+
+class BesluitPublicationDisabledException(message: String) : InputValidationFailedException(
+    errorCode = ERROR_CODE_BESLUIT_PUBLICATION_DISABLED_TYPE,
+    message = message
+)

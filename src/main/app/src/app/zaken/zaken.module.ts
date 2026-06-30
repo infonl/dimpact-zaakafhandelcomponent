@@ -1,80 +1,57 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { NgModule } from "@angular/core";
 
 import { BagZoekComponent } from "../bag/bag-zoek/bag-zoek.component";
-import { GebruikersvoorkeurenModule } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.module";
+import { InformatieObjectVerzendenComponent } from "../informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component";
 import { InformatieObjectenModule } from "../informatie-objecten/informatie-objecten.module";
 import { KlantenModule } from "../klanten/klanten.module";
-import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel.component";
-import { MailModule } from "../mail/mail.module";
+import { KlantKoppelComponent } from "../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
+import { MailCreateComponent } from "../mail/mail-create/mail-create.component";
+import { OntvangstbevestigingComponent } from "../mail/ontvangstbevestiging/ontvangstbevestiging.component";
 import { NotitiesComponent } from "../notities/notities.component";
+import { HumanTaskDoComponent } from "../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 import { SharedModule } from "../shared/shared.module";
-import { ZoekenModule } from "../zoeken/zoeken.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
-import { ZaakCreateComponent } from "./zaak-create/zaak-create.component";
+import { BetrokkeneLinkComponent } from "./zaak-betrokkenen/betrokkene-link.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
+
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakLinkComponent } from "./zaak-link/zaak-link.component";
 import { LocatieTonenComponent } from "./zaak-locatie-tonen/zaak-locatie-tonen.component";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
-import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
-import { ZaakOpschortenDialogComponent } from "./zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
+import { ZaakTakenComponent } from "./zaak-taken/zaak-taken.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
-import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog/zaak-verlengen-dialog.component";
-import { BetrokkeneLinkComponent } from "./zaak-view/betrokkene-link.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
-import { ZakenAfgehandeldComponent } from "./zaken-afgehandeld/zaken-afgehandeld.component";
-import { ZakenMijnComponent } from "./zaken-mijn/zaken-mijn.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
-import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog/zaken-verdelen-dialog.component";
-import { ZakenVrijgevenDialogComponent } from "./zaken-vrijgeven-dialog/zaken-vrijgeven-dialog.component";
-import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorraad.component";
 
 @NgModule({
-  declarations: [
-    BesluitCreateComponent,
-    BesluitEditComponent,
-    BesluitViewComponent,
-    ZaakViewComponent,
-    BetrokkeneLinkComponent,
-    ZaakVerkortComponent,
-    ZaakCreateComponent,
-    ZakenWerkvoorraadComponent,
-    ZakenMijnComponent,
-    ZakenAfgehandeldComponent,
-    ZakenVerdelenDialogComponent,
-    ZaakOntkoppelenDialogComponent,
-    ZakenVrijgevenDialogComponent,
-    ZaakOpschortenDialogComponent,
-    ZaakVerlengenDialogComponent,
-    ZaakInitiatorToevoegenComponent,
-    CaseDetailsEditComponent,
-    ZaakLinkComponent,
-    ZaakDocumentenComponent,
-  ],
+  declarations: [ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
     NotitiesComponent,
     SharedModule,
+    BesluitViewComponent,
+    ZaakDocumentenComponent,
     ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
+    InformatieObjectVerzendenComponent,
+    HumanTaskDoComponent,
     PlanItemsModule,
-    MailModule,
-    ZoekenModule,
-    GebruikersvoorkeurenModule,
+    MailCreateComponent,
+    OntvangstbevestigingComponent,
     BagZoekComponent,
     DocumentIconComponent,
     InformatieObjectIndicatiesComponent,
@@ -83,6 +60,14 @@ import { ZakenWerkvoorraadComponent } from "./zaken-werkvoorraad/zaken-werkvoorr
     CaseLocationEditComponent,
     LocatieTonenComponent,
     ZaakProcessFlowComponent,
+    ZaakVerkortComponent,
+    BetrokkeneLinkComponent,
+    ZaakInitiatorToevoegenComponent,
+    ZaakTakenComponent,
+    BesluitCreateComponent,
+    BesluitEditComponent,
+    CaseDetailsEditComponent,
+    ZaakLinkComponent,
   ],
 })
 export class ZakenModule {}

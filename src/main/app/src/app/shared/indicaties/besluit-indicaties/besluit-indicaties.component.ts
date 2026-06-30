@@ -23,7 +23,7 @@ export class BesluitIndicatiesComponent
   extends IndicatiesComponent
   implements OnChanges
 {
-  @Input({ required: true }) besluit!: GeneratedType<"RestDecision">;
+  @Input({ required: true }) besluit!: GeneratedType<"RestBesluit">;
 
   constructor(private readonly translate: TranslateService) {
     super();

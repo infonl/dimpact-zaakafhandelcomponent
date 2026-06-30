@@ -4,8 +4,7 @@
  */
 
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
-import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, Optional, signal, Signal } from "@angular/core";
+import { DOCUMENT, inject, Injectable, signal, Signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Title } from "@angular/platform-browser";
@@ -43,8 +42,9 @@ export class UtilService {
       shareReplay(),
     );
 
+  private readonly document = inject(DOCUMENT);
+
   constructor(
-    @Optional() @Inject(DOCUMENT) private document: HTMLElement,
     private breakpointObserver: BreakpointObserver,
     private translate: TranslateService,
     private titleService: Title,

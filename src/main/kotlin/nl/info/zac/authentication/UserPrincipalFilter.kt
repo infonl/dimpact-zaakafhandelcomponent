@@ -14,20 +14,22 @@ import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.client.pabc.APPLICATION_NAME_ZAC
+import nl.info.client.pabc.ENTITY_TYPE_GEMEENTE
 import nl.info.client.pabc.ENTITY_TYPE_ZAAKTYPE
 import nl.info.client.pabc.PabcClientService
-import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
-import nl.info.zac.identity.model.ZacApplicationRole
+import nl.info.client.pabc.ROLE_NAME_BRP_ZOEKEN
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.wildfly.security.http.oidc.OidcPrincipal
 import org.wildfly.security.http.oidc.OidcSecurityContext
-import java.time.Instant
-import java.time.ZoneOffset
 import java.util.logging.Logger
-import kotlin.jvm.java
+
+private data class ApplicationRoleMappings(
+    val rolesPerZaaktype: Map<String, Set<String>>,
+    val overallRoles: Set<String>,
+    val brpGemeenten: Map<String, String>,
+)
 
 @ApplicationScoped
 @WebFilter(filterName = "UserPrincipalFilter")
@@ -36,11 +38,7 @@ import kotlin.jvm.java
 class UserPrincipalFilter
 @Inject
 constructor(
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
-    private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
-    private val pabcClientService: PabcClientService,
-    @ConfigProperty(name = "FEATURE_FLAG_PABC_INTEGRATION", defaultValue = "false")
-    private val pabcIntegrationEnabled: Boolean
+    private val pabcClientService: PabcClientService
 ) : Filter {
     companion object {
         private val LOG = Logger.getLogger(UserPrincipalFilter::class.java.name)
@@ -85,43 +83,28 @@ constructor(
         httpSession: HttpSession
     ) = createLoggedInUser(oidcPrincipal.oidcSecurityContext).let { loggedInUser ->
         setLoggedInUser(httpSession, loggedInUser)
-        if (!pabcIntegrationEnabled) {
-            LOG.info {
-                "User logged in: '${loggedInUser.id}' with roles: ${loggedInUser.roles}, " +
-                    "groups: ${loggedInUser.groupIds} and zaaktypen: ${
-                        if (loggedInUser.isAuthorisedForAllZaaktypen()) {
-                            "ELK-ZAAKTYPE"
-                        } else {
-                            loggedInUser.geautoriseerdeZaaktypen.toString()
-                        }
-                    }"
-            }
-        } else {
-            LOG.info {
-                "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
-                    "functional roles: '${loggedInUser.roles}' " +
-                    "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}"
-            }
+        LOG.info {
+            "User logged in: '${loggedInUser.id}' with groups: ${loggedInUser.groupIds}, " +
+                "functional roles: '${loggedInUser.roles}' " +
+                "and application roles per zaaktype: ${loggedInUser.applicationRolesPerZaaktype}, " +
+                "overall roles: ${loggedInUser.overallRoles}"
         }
     }
 
     private fun createLoggedInUser(oidcSecurityContext: OidcSecurityContext): LoggedInUser =
         oidcSecurityContext.token.let { accessToken ->
-            val functionalRoles = if (pabcIntegrationEnabled) {
-                // In the new IAM architecture functional roles are realm roles.
-                accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
+            // functional roles are Keycloak realm roles
+            val functionalRoles = accessToken.realmAccessClaim?.roles?.toSet() ?: emptySet()
+            val applicationRoleMappings = if (functionalRoles.isNotEmpty()) {
+                buildApplicationRoleMappingsFromPabc(functionalRoles)
             } else {
-                // In the old IAM architecture the ZAC application roles are used directly.
-                // The concept functional roles does not exist.
-                // ZAC application roles are client roles, and are part of the standard 'roles' claim.
-                accessToken.rolesClaim.toSet()
-            }
-            val applicationRolesPerZaaktype: Map<String, Set<String>> = when {
-                pabcIntegrationEnabled && functionalRoles.isNotEmpty() -> buildApplicationRoleMappingsFromPabc(
-                    functionalRoles
+                ApplicationRoleMappings(
+                    rolesPerZaaktype = emptyMap(),
+                    overallRoles = emptySet(),
+                    brpGemeenten = emptyMap()
                 )
-                else -> emptyMap()
             }
+            val applicationRolesPerZaaktype: Map<String, Set<String>> = applicationRoleMappings.rolesPerZaaktype
 
             LoggedInUser(
                 id = accessToken.preferredUsername,
@@ -133,24 +116,25 @@ constructor(
                 groupIds = accessToken
                     .getStringListClaimValue(GROUP_MEMBERSHIP_CLAIM_NAME)
                     .toSet(),
-                geautoriseerdeZaaktypen = getAuthorisedZaaktypen(functionalRoles),
-                applicationRolesPerZaaktype = applicationRolesPerZaaktype
+                applicationRolesPerZaaktype = applicationRolesPerZaaktype,
+                overallRoles = applicationRoleMappings.overallRoles,
+                brpGemeenten = applicationRoleMappings.brpGemeenten,
             )
         }
 
     /**
-     * Builds a map of zaaktype -> set(application role names) from the PABC.
-     * - Only include results for 'ZAAKTYPE' entity types
-     * - Key uses entityType.name
+     * Builds [ApplicationRoleMappings] from the PABC response for the given functional roles.
+     * - [ApplicationRoleMappings.rolesPerZaaktype]: results with a 'ZAAKTYPE' entity type, keyed by entityType.id.
+     * - [ApplicationRoleMappings.overallRoles]: results without an entity type (apply to all entity types).
      */
     private fun buildApplicationRoleMappingsFromPabc(
         functionalRoles: Set<String>
-    ): Map<String, Set<String>> {
+    ): ApplicationRoleMappings {
         val applicationRolesResponse = pabcClientService.getApplicationRoles(functionalRoles.toList())
         val rolesPerZaaktype: Map<String, Set<String>> =
             applicationRolesResponse.results
                 .filter {
-                    it.entityType?.type.equals(ENTITY_TYPE_ZAAKTYPE, ignoreCase = true) &&
+                    it.entityType?.type.equals(ENTITY_TYPE_ZAAKTYPE) &&
                         !it.entityType?.id.isNullOrBlank()
                 }.associate { result ->
                     val roles = result.applicationRoles
@@ -160,7 +144,7 @@ constructor(
                     result.entityType.id to roles
                 }
 
-        val rolesForAllZaaktypen: Set<String> =
+        val overallRoles: Set<String> =
             applicationRolesResponse.results
                 // an 'application roles response model' without an entity type means that these application roles
                 // apply to all entity types (and hence all zaaktypen)
@@ -169,74 +153,21 @@ constructor(
                 .filter { it.isNotEmpty() }
                 .toSet()
 
-        return if (rolesForAllZaaktypen.isEmpty()) {
-            rolesPerZaaktype
-        } else {
-            val allZaaktypes = getAllConfiguredZaaktypes()
-            allZaaktypes.associateWith { zaaktype -> (rolesPerZaaktype[zaaktype] ?: emptySet()) + rolesForAllZaaktypen }
-        }
-    }
-
-    private fun getAllConfiguredZaaktypes(): Set<String> {
-        val configuredCmmnZaaktypes = zaaktypeCmmnConfigurationService
-            .listZaaktypeCmmnConfiguration()
-            .groupBy { it.zaaktypeOmschrijving }
-            .values
-            .map {
-                    list ->
-                list.maxBy {
-                        cmmnConfiguration ->
-                    cmmnConfiguration.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN)
-                }
+        val brpGemeenten = applicationRolesResponse.results
+            .filter {
+                it.entityType?.type.equals(ENTITY_TYPE_GEMEENTE) &&
+                    !it.entityType.id.isNullOrBlank() &&
+                    it.applicationRoles.any {
+                        it.application.equals(APPLICATION_NAME_ZAC) &&
+                            it.name.equals(ROLE_NAME_BRP_ZOEKEN)
+                    }
             }
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
+            .associate { it.entityType.id to it.entityType.name }
 
-        val configuredBpmnZaaktypes = zaaktypeBpmnConfigurationBeheerService
-            .listConfigurations()
-            .map { it.zaaktypeOmschrijving }
-            .toSet()
-
-        return configuredCmmnZaaktypes + configuredBpmnZaaktypes
+        return ApplicationRoleMappings(
+            rolesPerZaaktype = rolesPerZaaktype,
+            overallRoles = overallRoles,
+            brpGemeenten = brpGemeenten,
+        )
     }
-
-    /**
-     * Returns the active zaaktypen for which the user is authorised, or `null` if the user is
-     * authorised for all zaaktypen.
-     */
-    @Deprecated(
-        "In PABC-based authorization, the concept of being authorized for a zaaktype is meaningless, " +
-            "since a user is always authorized for a zaaktype _for specific application roles_."
-    )
-    private fun getAuthorisedZaaktypen(roles: Set<String>): Set<String>? =
-        if (roles.contains(ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE.value)) {
-            null
-        } else {
-            val zaaktypeCmmnConfigurationDescriptions = zaaktypeCmmnConfigurationService
-                .listZaaktypeCmmnConfiguration()
-                // group by zaaktype omschrijving since this is the unique identifier for a
-                // zaaktype
-                // (not the zaaktype uuid since that changes for every version of a
-                // zaaktype)
-                .groupBy { it.zaaktypeOmschrijving }
-                // get the zaaktypeCmmnConfigurations with the latest creation date (= the active
-                // one)
-                .values
-                .map { list -> list.maxBy { value -> value.creatiedatum ?: Instant.MIN.atZone(ZoneOffset.MIN) } }
-                // filter out the zaaktypeCmmnConfigurations that have a domain that is equal to
-                // one of the user's (domain) roles
-                .filter { it.domein != null && roles.contains(it.domein) }
-                .map { it.zaaktypeOmschrijving }
-                .toSet()
-
-            // Note that for BPMN zaaktypes below, we're not doing ANY filtering/authorisation, as we have no domain
-            // entity. This means that ALL BPMN zaaktypes will be visible to the user.
-            // This function should be removed once we have migrated to the new PABC-based IAM architecture, and the
-            // code below should be replaced with proper authorisation logic for BPMN zaaktypes.
-            val zaaktypeBpmnProcessDefinitionDescriptions = zaaktypeBpmnConfigurationBeheerService
-                .listConfigurations()
-                .map { it.zaaktypeOmschrijving }
-
-            zaaktypeCmmnConfigurationDescriptions + zaaktypeBpmnProcessDefinitionDescriptions
-        }
 }

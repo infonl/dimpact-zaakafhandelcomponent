@@ -9,13 +9,13 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONObject
@@ -42,11 +42,11 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
         lateinit var zaak2UUID: UUID
         lateinit var zaak2Identificatie: String
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -55,11 +55,11 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             }
         }
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_3_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
             startDate = DATE_TIME_2000_01_01,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
             JSONObject(bodyAsString).run {
@@ -78,7 +78,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                         "relatieType": "DEELZAAK"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the parent-child relationship between the two zaken should be established") {
@@ -87,7 +87,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the first zaak and check if the parent-child relationship has been established
-                val response = zacClient.retrieveZaak(zaak1UUID, BEHANDELAAR_DOMAIN_TEST_1)
+                val response = zacClient.retrieveZaak(zaak1UUID, BEHANDELAAR_1)
                 with(response) {
                     code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
@@ -100,7 +100,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                                 "relatieType" : "DEELZAAK",
                                 "startdatum" : "$DATE_2000_01_01",
                                 "statustypeOmschrijving" : "Intake",
-                                "zaaktypeOmschrijving" : "$ZAAKTYPE_TEST_3_DESCRIPTION"
+                                "zaaktypeOmschrijving" : "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION"
                             }
                         """.trimIndent()
                     }
@@ -119,7 +119,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                         "reden": "fakeReason"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the parent-child relationship between the two zaken should be removed") {
@@ -128,7 +128,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the zaak and check if the parent-child relationship has been removed
-                val response = zacClient.retrieveZaak(zaak1UUID, BEHANDELAAR_DOMAIN_TEST_1)
+                val response = zacClient.retrieveZaak(zaak1UUID, BEHANDELAAR_1)
                 with(response) {
                     code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString

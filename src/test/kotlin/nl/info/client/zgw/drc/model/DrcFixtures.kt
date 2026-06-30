@@ -38,6 +38,11 @@ fun createEnkelvoudigInformatieObject(
     title: String = "fakeTitle",
     ondertekening: Ondertekening? = null,
     creatiedatum: LocalDate = LocalDate.now(),
+    identificatie: String? = null,
+    bestandsnaam: String? = null,
+    taal: String? = null,
+    auteur: String? = null,
+    bronorganisatie: String? = null,
 ) = EnkelvoudigInformatieObject(
     url,
     versie,
@@ -56,6 +61,11 @@ fun createEnkelvoudigInformatieObject(
     this.titel = title
     this.ondertekening = ondertekening
     this.creatiedatum = creatiedatum
+    identificatie?.let { this.identificatie = it }
+    bestandsnaam?.let { this.bestandsnaam = it }
+    taal?.let { this.taal = it }
+    auteur?.let { this.auteur = it }
+    bronorganisatie?.let { this.bronorganisatie = it }
 }
 
 fun createEnkelvoudigInformatieObjectCreateLockRequest(

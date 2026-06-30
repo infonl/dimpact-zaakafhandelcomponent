@@ -45,6 +45,12 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.office_converter.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
       {{- with .Values.office_converter.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -4,11 +4,13 @@
  */
 
 import { Injectable } from "@angular/core";
+import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { map, Observable } from "rxjs";
+import { lastValueFrom, map, Observable } from "rxjs";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -112,8 +114,8 @@ export class InformatieObjectenService {
           );
           break;
         case "file":
-          formData.append(
-            "file",
+          appendFileToFormData(
+            formData,
             value as unknown as Blob,
             infoObject.bestandsnaam!,
           );
@@ -140,6 +142,30 @@ export class InformatieObjectenService {
       "/rest/informatieobjecten/informatieobjectenList",
       body,
     );
+  }
+
+  /**
+   * The list endpoint is a `PUT` (search-with-body), so it cannot use {@link ZacQueryClient.GET};
+   * we wrap the existing call in `queryOptions` instead. The input is constrained to the fields
+   * this query supports so the query key provably covers every discriminating field (passing other
+   * filters of the endpoint would otherwise collide on the cache).
+   */
+  listEnkelvoudigInformatieobjectenQuery(
+    body: Pick<
+      GeneratedType<"RestInformatieobjectZoekParameters">,
+      "zaakUUID" | "gekoppeldeZaakDocumenten"
+    >,
+  ) {
+    return queryOptions({
+      queryKey: [
+        "/rest/informatieobjecten/informatieobjectenList",
+        body.zaakUUID,
+        body.gekoppeldeZaakDocumenten,
+      ],
+      queryFn: () =>
+        lastValueFrom(this.listEnkelvoudigInformatieobjecten(body)),
+      staleTime: StaleTimes.Short,
+    });
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {
@@ -169,12 +195,18 @@ export class InformatieObjectenService {
     );
   }
 
-  verzenden(
-    body: PostBody<"/rest/informatieobjecten/informatieobjecten/verzenden">,
-  ) {
-    return this.zacHttpClient.POST(
+  listInformatieobjectenVoorVerzendenQuery(zaakUuid: string) {
+    return this.zacQueryClient.GET(
+      "/rest/informatieobjecten/informatieobjecten/zaak/{zaakUuid}/teVerzenden",
+      {
+        path: { zaakUuid },
+      },
+    );
+  }
+
+  verzenden() {
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobjecten/verzenden",
-      body,
     );
   }
 
@@ -198,13 +230,13 @@ export class InformatieObjectenService {
     );
   }
 
-  unlockInformatieObject(uuid: string, zaakUuid: string) {
+  unlockInformatieObject(uuid: string, zaakUuid?: string) {
     return this.zacHttpClient.POST(
       "/rest/informatieobjecten/informatieobject/{uuid}/unlock",
       undefined as never,
       {
         path: { uuid },
-        query: { zaak: zaakUuid },
+        query: { zaak: zaakUuid ?? null },
       },
     );
   }

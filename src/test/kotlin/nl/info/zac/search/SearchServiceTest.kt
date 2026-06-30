@@ -18,7 +18,7 @@ import io.mockk.slot
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.search.model.DatumRange
 import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
@@ -52,14 +52,12 @@ class SearchServiceTest : BehaviorSpec({
     } returns solrUrl
 
     val solrClient = mockk<Http2SolrClient>()
-    var configurationService = mockk<ConfigurationService>()
     mockkConstructor(Http2SolrClient.Builder::class)
     every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
-    val loggedInUser = mockk<LoggedInUser>()
-    val zoekService = SearchService(loggedInUserInstance, configurationService)
+    val zoekService = SearchService(loggedInUserInstance)
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -77,13 +75,18 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject1 = mockk<ZaakZoekObject>()
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaakType1 to setOf("fakeApplicationRole1"),
+                zaakType2 to setOf("fakeApplicationRole2")
+            )
+        )
+
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
-        every { solrDocumentList.iterator() } returns listOf<SolrDocument>(
+        every { solrDocumentList.iterator() } returns listOf(
             solrDocument1,
             solrDocument2
         ).iterator() as MutableIterator<SolrDocument>
@@ -133,6 +136,7 @@ class SearchServiceTest : BehaviorSpec({
                 with(solrParamsSlot.captured) {
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaakType1" OR zaaktypeOmschrijving:"$zaakType2"""",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
@@ -161,6 +165,7 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A logged-in user authorised for a zaaktype and one object of type TAAK in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
@@ -169,16 +174,19 @@ class SearchServiceTest : BehaviorSpec({
         val documentObjectBinder = mockk<DocumentObjectBinder>()
         val taakZoekObject1 = mockk<TaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaakType1 to setOf("fakeApplicationRole1")
+            )
+        )
+
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
-        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
         every {
             solrDocumentList.iterator()
-        } returns listOf<SolrDocument>(solrDocument1,).iterator() as MutableIterator<SolrDocument>
+        } returns listOf(solrDocument1).iterator() as MutableIterator<SolrDocument>
         every { solrDocument1["type"] } returns "TAAK"
         every { solrClient.binder } returns documentObjectBinder
         every { documentObjectBinder.getBean(TaakZoekObject::class.java, solrDocument1) } returns taakZoekObject1
@@ -241,6 +249,7 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A logged-in user authorised for a zaaktype and one object of type DOCUMENT in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
@@ -249,16 +258,18 @@ class SearchServiceTest : BehaviorSpec({
         val documentObjectBinder = mockk<DocumentObjectBinder>()
         val documentZoekObject1 = mockk<DocumentZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaakType1 to setOf("fakeApplicationRole1")
+            )
+        )
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns false
-        every { loggedInUser.geautoriseerdeZaaktypen } returns setOf(zaakType1)
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 1
         every {
             solrDocumentList.iterator()
-        } returns listOf<SolrDocument>(solrDocument1,).iterator() as MutableIterator<SolrDocument>
+        } returns listOf(solrDocument1).iterator() as MutableIterator<SolrDocument>
         every { solrDocument1["type"] } returns "DOCUMENT"
         every { solrClient.binder } returns documentObjectBinder
         every { documentObjectBinder.getBean(DocumentZoekObject::class.java, solrDocument1) } returns documentZoekObject1
@@ -306,6 +317,7 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A PABC-enabled user with per-zaaktype roles and one object of type TAAK in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
@@ -314,12 +326,13 @@ class SearchServiceTest : BehaviorSpec({
         val documentObjectBinder = mockk<DocumentObjectBinder>()
         val taakZoekObject1 = mockk<TaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
+            )
+        )
 
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns true
-        every { loggedInUser.applicationRolesPerZaaktype } returns mapOf(
-            zaakType1 to setOf("fakeApplicationRole1", "fakeApplicationRole2")
-        )
 
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
@@ -348,7 +361,7 @@ class SearchServiceTest : BehaviorSpec({
                 }
             )
 
-            Then("it should return a zoekresultaat containing a taak zoek object and filter using PABC zaaktypen") {
+            Then("it should return a zoekresultaat containing a taak zoek object and filter using zaaktypen") {
                 with(zoekResultaat) {
                     count shouldBe 1
                     with(items) {
@@ -390,6 +403,7 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
     Given("A users sorts") {
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
@@ -399,9 +413,9 @@ class SearchServiceTest : BehaviorSpec({
         val zaakZoekObject1 = mockk<ZaakZoekObject>()
         val zaakZoekObject2 = mockk<ZaakZoekObject>()
         val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser()
+
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { configurationService.featureFlagPabcIntegration() } returns false
-        every { loggedInUser.isAuthorisedForAllZaaktypen() } returns true
         every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
         every { queryResponse.results } returns solrDocumentList
         every { solrDocumentList.size } returns 2
@@ -448,6 +462,7 @@ class SearchServiceTest : BehaviorSpec({
                 }
             }
         }
+
         When("searching ${SorteerRichting.NONE.value}") {
             zoekService.zoek(
                 createZoekParameters(

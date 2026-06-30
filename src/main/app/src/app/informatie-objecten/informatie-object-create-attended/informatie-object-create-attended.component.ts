@@ -12,17 +12,34 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionModule } from "@angular/material/expansion";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
-import { TranslateService } from "@ngx-translate/core";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { Observable, Subject, takeUntil } from "rxjs";
+import {
+  EMPTY,
+  map,
+  Observable,
+  ReplaySubject,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+} from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { ZacDate } from "../../shared/form/date/date";
+import { ZacInput } from "../../shared/form/input/input";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -34,7 +51,20 @@ import { InformatieObjectenService } from "../informatie-objecten.service";
   selector: "zac-informatie-object-create-attended",
   templateUrl: "./informatie-object-create-attended.component.html",
   styleUrls: ["./informatie-object-create-attended.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatToolbarModule,
+    TranslateModule,
+    ZacAutoComplete,
+    ZacDate,
+    ZacInput,
+  ],
 })
 export class InformatieObjectCreateAttendedComponent
   implements OnInit, OnDestroy
@@ -42,17 +72,17 @@ export class InformatieObjectCreateAttendedComponent
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input() taak?: GeneratedType<"RestTask">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: false }) smartDocumentsGroupPath: string[] = [];
-  @Input({ required: false }) smartDocumentsTemplateName?: string;
-  @Input({ required: false }) smartDocumentsInformatieobjecttypeUuid?: string;
+  @Input({ required: false }) smartDocumentsGroupId?: string;
+  @Input({ required: false }) smartDocumentsTemplateId?: string;
   @Output() document = new EventEmitter<
     GeneratedType<"RestDocumentCreationAttendedData">
   >();
 
   private readonly destroy$ = new Subject<void>();
 
-  private informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
-    [];
+  private readonly informatieObjectTypes$ = new ReplaySubject<
+    GeneratedType<"RestInformatieobjecttype">[]
+  >(1);
 
   protected readonly form = this.formBuilder.group({
     templateGroup:
@@ -96,7 +126,6 @@ export class InformatieObjectCreateAttendedComponent
   constructor(
     private readonly smartDocumentsService: SmartDocumentsService,
     private readonly informatieObjectenService: InformatieObjectenService,
-    public readonly utilService: UtilService,
     private readonly identityService: IdentityService,
     private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
     private readonly translateService: TranslateService,
@@ -118,37 +147,23 @@ export class InformatieObjectCreateAttendedComponent
     this.form.controls.confidentiality.disable();
 
     const templateGroupsFetcher: Observable<typeof this.templateGroups> =
-      this.smartDocumentsGroupPath &&
-      this.smartDocumentsTemplateName &&
-      this.smartDocumentsInformatieobjecttypeUuid
-        ? this.smartDocumentsService.getTemplateGroup(
-            { path: this.smartDocumentsGroupPath },
-            this.smartDocumentsTemplateName,
-            this.smartDocumentsInformatieobjecttypeUuid,
-          )
-        : this.smartDocumentsService.getTemplatesMapping(
-            this.zaak.zaaktype.uuid,
-          );
-
-    templateGroupsFetcher.subscribe((templateGroups) => {
-      this.templateGroups = templateGroups;
-
-      const smartDocumentsTemplateGroup = templateGroups.find(({ name }) =>
-        this.smartDocumentsGroupPath.includes(name),
-      );
-      if (!smartDocumentsTemplateGroup) return;
-
-      this.form.controls.templateGroup.setValue(smartDocumentsTemplateGroup);
-
-      if (templateGroups.length !== 1) return;
-
-      this.form.controls.templateGroup.disable();
-    });
+      this.smartDocumentsService.getTemplatesMapping(this.zaak.zaaktype.uuid);
 
     this.form.controls.templateGroup.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.templates = value?.templates ?? [];
+
+        if (this.smartDocumentsTemplateId !== undefined) {
+          const smartDocumentsTemplate = this.templates.find(
+            ({ id }) => id === this.smartDocumentsTemplateId,
+          );
+          if (smartDocumentsTemplate) {
+            this.form.controls.template.setValue(smartDocumentsTemplate);
+            this.form.controls.template.disable();
+            return;
+          }
+        }
 
         if (!value?.templates) {
           this.form.controls.template.setValue(null);
@@ -165,15 +180,22 @@ export class InformatieObjectCreateAttendedComponent
       });
 
     this.form.controls.template.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        if (!value?.informatieObjectTypeUUID) {
-          this.form.controls.informationObjectType.setValue(null);
-          this.form.controls.confidentiality.setValue(null);
-          return;
-        }
-
-        const infoObjectType = this.informatieObjectTypes.find(
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((value) => {
+          if (!value?.informatieObjectTypeUUID) {
+            this.form.controls.informationObjectType.setValue(null);
+            this.form.controls.confidentiality.setValue(null);
+            return EMPTY;
+          }
+          return this.informatieObjectTypes$.pipe(
+            take(1),
+            map((types) => ({ value, types })),
+          );
+        }),
+      )
+      .subscribe(({ value, types }) => {
+        const infoObjectType = types.find(
           (type) => type.uuid === value.informatieObjectTypeUUID,
         );
 
@@ -190,17 +212,37 @@ export class InformatieObjectCreateAttendedComponent
           ),
         );
       });
+
+    templateGroupsFetcher
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((templateGroups) => {
+        this.templateGroups = templateGroups;
+
+        if (this.smartDocumentsGroupId !== undefined) {
+          const smartDocumentsTemplateGroup = templateGroups.find(
+            ({ id }) => id === this.smartDocumentsGroupId,
+          );
+          if (smartDocumentsTemplateGroup) {
+            this.form.controls.templateGroup.setValue(
+              smartDocumentsTemplateGroup,
+            );
+            this.form.controls.templateGroup.disable();
+            return;
+          }
+        }
+      });
   }
 
   private fetchInformatieobjecttypes() {
     this.informatieObjectenService
       .listInformatieobjecttypes(this.zaak.zaaktype.uuid)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((types) => {
-        this.informatieObjectTypes = types;
+        this.informatieObjectTypes$.next(types);
       });
   }
 
-  onFormSubmit(formData?: typeof this.form) {
+  protected onFormSubmit(formData?: typeof this.form) {
     const values = formData?.getRawValue();
 
     if (!formData?.valid || !values) {
@@ -215,9 +257,6 @@ export class InformatieObjectCreateAttendedComponent
       title: values.title!,
       creationDate: values.creationDate!.toISOString(),
       description: values.description,
-      informatieobjecttypeUuid: this.smartDocumentsInformatieobjecttypeUuid,
-      smartDocumentsTemplateName: this.smartDocumentsTemplateName,
-      smartDocumentsTemplateGroupName: this.smartDocumentsGroupPath.at(-1),
       zaakUuid: this.zaak.uuid,
       taskId: this.taak?.id,
     };

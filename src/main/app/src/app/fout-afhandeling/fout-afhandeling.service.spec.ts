@@ -96,4 +96,32 @@ describe("FoutAfhandelingService", () => {
       `${translatedErrorMessage}: ${exceptionDetail}`,
     );
   });
+
+  it("should translate the violation messages when a Jakarta bean validation error is handled", async () => {
+    const validationError = {
+      statusText: "Bad Request",
+      error: {
+        classViolations: [],
+        parameterViolations: [
+          {
+            constraintType: "PARAMETER",
+            message: "msg.error.document.upload.invalid",
+            path: "createEnkelvoudigInformatieobjectAndUploadFile.arg3",
+            value: "RestEnkelvoudigInformatieobject(...)",
+          },
+        ],
+        propertyViolations: [],
+        returnValueViolations: [],
+      },
+    } as Parameters<FoutAfhandelingService["foutAfhandelen"]>[0];
+
+    const error$ = service.foutAfhandelen(validationError);
+    const errorMessage = await firstValueFrom(error$).catch((r) => r);
+
+    // The violation message and the generic title both pass through TranslateService,
+    // and openFoutDetailedDialog rejects with `${title}: ${details}`.
+    expect(errorMessage).toEqual(
+      `${translatedErrorMessage}: ${translatedErrorMessage}`,
+    );
+  });
 });

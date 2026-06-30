@@ -15,8 +15,8 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZacClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -26,8 +26,8 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import okhttp3.Headers
@@ -74,7 +74,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         "application/json"
                     ),
                     requestBodyAsString = it,
-                    testUser = BEHANDELAAR_DOMAIN_TEST_1
+                    testUser = BEHANDELAAR_1
                 )
 
                 Then("the response should be 'ok'") {
@@ -86,12 +86,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
     Given("A logged-in behandelaar and a newly created zaak assigned to this user") {
         zacClient.createZaak(
-            zaakTypeUUID = ZAAKTYPE_TEST_2_UUID,
-            groupId = BEHANDELAARS_DOMAIN_TEST_1.name,
-            groupName = BEHANDELAARS_DOMAIN_TEST_1.description,
-            behandelaarId = BEHANDELAAR_DOMAIN_TEST_1.username,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            groupId = GROUP_BEHANDELAARS_TEST_1.name,
+            groupName = GROUP_BEHANDELAARS_TEST_1.description,
+            behandelaarId = BEHANDELAAR_1.username,
             startDate = DATE_TIME_2024_01_31,
-            testUser = BEHANDELAAR_DOMAIN_TEST_1
+            testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
             logger.info { "Response: $responseBody" }
@@ -177,7 +177,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 eventually(afterThirtySeconds) {
                     val response = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/signaleringen/latest",
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                        testUser = BEHANDELAAR_1,
                     )
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -198,10 +198,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/signaleringen/zaken/ZAAK_OP_NAAM",
                 requestBodyAsString = """{
                         "page": 0,
-                        "rows": 5
+                        "rows": 5,
+                        "sortField": "SIGNALERING_TIJDSTIP",
+                        "sortOrder": "DESC"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -209,14 +211,14 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
             Then("the returned list should contain one result, being the newly created zaak") {
                 with(responseBody) {
-                    shouldContainJsonKeyValue("totaal", "1.0")
+                    shouldContainJsonKeyValue("totaal", 1)
                     with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                         shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                         shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
                         shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                         shouldContainJsonKeyValue(
                             "zaaktype",
-                            ZAAKTYPE_TEST_2_DESCRIPTION
+                            ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
                         )
                     }
                 }
@@ -229,10 +231,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "page": 2,
-                        "rows": 5
+                        "rows": 5,
+                        "sortField": "SIGNALERING_TIJDSTIP",
+                        "sortOrder": "DESC"
                     }
                 """.trimIndent(),
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -253,7 +257,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 fileName = TEST_TXT_FILE_NAME,
                 fileMediaType = TEXT_MIME_TYPE,
                 vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
-                testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                testUser = BEHANDELAAR_1,
             )
 
             Then("the response should be OK and contain information for the created document") {
@@ -300,7 +304,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
-            When("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
+            And("the list of zaken signaleringen for ZAAK_DOCUMENT_TOEGEVOEGD is requested") {
                 // it may take a while before the notification is processed and the signalering is created
                 lateinit var responseBody: String
                 eventually(10.seconds) {
@@ -309,10 +313,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
                         requestBodyAsString = """
                             {
                                 "page": 0,
-                                "rows": 5
+                                "rows": 5,
+                                "sortField": "SIGNALERING_TIJDSTIP",
+                                "sortOrder": "DESC"
                             }
                         """.trimIndent(),
-                        testUser = BEHANDELAAR_DOMAIN_TEST_1,
+                        testUser = BEHANDELAAR_1,
                     )
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -322,14 +328,14 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
                 Then("a response of 1 is returned for the zaak to which a document was added") {
                     with(responseBody) {
-                        shouldContainJsonKeyValue("totaal", "1.0")
+                        shouldContainJsonKeyValue("totaal", 1)
                         with(JSONObject(responseBody).getJSONArray("resultaten").getJSONObject(0).toString()) {
                             shouldContainJsonKeyValue("identificatie", zaakIdentificatie)
                             shouldContainJsonKeyValue("startdatum", DATE_2024_01_31.toString())
                             shouldContainJsonKeyValue("omschrijving", ZAAK_OMSCHRIJVING)
                             shouldContainJsonKeyValue(
                                 "zaaktype",
-                                ZAAKTYPE_TEST_2_DESCRIPTION
+                                ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
                             )
                         }
                     }

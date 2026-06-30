@@ -6,6 +6,7 @@ package nl.info.zac.app.zaak.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -26,6 +27,7 @@ import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
@@ -37,18 +39,23 @@ import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
-import nl.info.zac.app.zaak.model.createRestDecision
+import nl.info.zac.app.zaak.model.createRESTGerelateerdeZaak
+import nl.info.zac.app.zaak.model.createRestBesluit
 import nl.info.zac.app.zaak.model.createRestGroup
 import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_AFGEROND
 import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_HEROPEND
+import nl.info.zac.configuration.ConfigurationService.Companion.STATUSTYPE_OMSCHRIJVING_INTAKE
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identification.IdentificationService
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie.ONTVANGSTBEVESTIGING_NIET_VERSTUURD
+import java.net.URI
 import java.util.EnumSet
 import java.util.UUID
 
@@ -68,7 +75,7 @@ class RestZaakConverterTest : BehaviorSpec({
     val restGroupConverter = mockk<RestGroupConverter>()
     val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val restUserConverter = mockk<RestUserConverter>()
-    val restDecisionConverter = mockk<RestDecisionConverter>()
+    val restBesluitConverter = mockk<RestBesluitConverter>()
     val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val bpmnService = mockk<BpmnService>()
@@ -83,7 +90,7 @@ class RestZaakConverterTest : BehaviorSpec({
         restGroupConverter = restGroupConverter,
         restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         restUserConverter = restUserConverter,
-        restDecisionConverter = restDecisionConverter,
+        restBesluitConverter = restBesluitConverter,
         restZaaktypeConverter = restZaaktypeConverter,
         zaakVariabelenService = zaakVariabelenService,
         bpmnService = bpmnService,
@@ -91,7 +98,7 @@ class RestZaakConverterTest : BehaviorSpec({
         klantClientService = klantClientService,
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -101,7 +108,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val bsn = "fakeBsn"
@@ -130,7 +137,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
@@ -177,7 +184,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
@@ -197,7 +204,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
@@ -242,7 +249,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val rolOrganistorischeEenheid = createRolOrganisatorischeEenheid()
         val restGroup = createRestGroup()
         val besluit = createBesluit()
-        val restBesluit = createRestDecision()
+        val restBesluit = createRestBesluit()
         val rolMedewerker = createRolMedewerker()
         val restUser = createRestUser()
         val rol = createRolNatuurlijkPersoon()
@@ -262,7 +269,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
         every { restGroupConverter.convertGroupId(rolOrganistorischeEenheid.identificatienummer!!) } returns restGroup
         every { brcClientService.listBesluiten(zaak) } returns listOf(besluit)
-        every { restDecisionConverter.convertToRestDecision(besluit) } returns restBesluit
+        every { restBesluitConverter.convertToRestBesluit(besluit) } returns restBesluit
         every { restUserConverter.convertUserId(rolMedewerker.identificatienummer!!) } returns restUser
         every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
@@ -327,6 +334,41 @@ class RestZaakConverterTest : BehaviorSpec({
                     processDefinitionName shouldBe "fakeProcessName"
                     processDefinitionVersion shouldBe 3
                 }
+            }
+        }
+    }
+
+    Given("A BPMN process-driven zaak where the confirmation of receipt has not been sent") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val processDefinition = createProcessDefinition(
+            key = "fakeProcessKey",
+            name = "fakeProcessName",
+            version = 1
+        )
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns null
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns false
+            every { readZaakdata(zaak.uuid) } returns emptyMap()
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+
+        When("converting the zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            Then("ONTVANGSTBEVESTIGING_NIET_VERSTUURD is not in indicaties because the zaak is process-driven") {
+                restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
             }
         }
     }
@@ -440,6 +482,95 @@ class RestZaakConverterTest : BehaviorSpec({
                         restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
                     }
                 }
+            }
+        }
+    }
+
+    Given("A zaak with an intake-related status type") {
+        val zaak = createZaak()
+        val zaakType = createZaakType()
+        val status = createZaakStatus().apply { statustoelichting = "fake status" }
+        val restZaakType = createRestZaaktype()
+        val zaakRechten = createZaakRechten()
+        val loggedInUser = createLoggedInUser()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns null
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+
+        When("converting a zaak with the 'Intake' status") {
+            val statusType = createStatusType().apply { omschrijving = STATUSTYPE_OMSCHRIJVING_INTAKE }
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+
+            Then("isInIntakeFase should be true") {
+                restZaak.isInIntakeFase shouldBe true
+            }
+        }
+
+        When("converting a zaak with the 'Wacht op aanvullende informatie' status") {
+            val statusType = createStatusType().apply {
+                omschrijving = STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
+            }
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
+
+            Then("isInIntakeFase should be true") {
+                restZaak.isInIntakeFase shouldBe true
+            }
+        }
+    }
+
+    Given("A zaak with gerelateerdeZaken") {
+        val gerelateerdeZaakUuid = UUID.randomUUID()
+        val gerelateerdeZaakItem = GerelateerdeZaak().apply {
+            url = URI("https://example.com/zaak/$gerelateerdeZaakUuid")
+        }
+        val zaak = createZaak().apply {
+            addGerelateerdeZakenItem(gerelateerdeZaakItem)
+        }
+        val zaakType = createZaakType()
+        val loggedInUser = createLoggedInUser()
+        val zaakRechten = createZaakRechten()
+        val restZaakType = createRestZaaktype()
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
+        val restGerelateerdeZaak = createRESTGerelateerdeZaak().apply {
+            relatieType = RelatieType.GERELATEERD
+            identificatie = "fakeIdentificatie"
+        }
+
+        with(zgwApiService) {
+            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+            every { findInitiatorRoleForZaak(zaak) } returns null
+        }
+        with(zaakVariabelenService) {
+            every { findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
+            every { readZaakdata(zaak.uuid) } returns zaakdata
+        }
+        every { brcClientService.listBesluiten(zaak) } returns emptyList()
+        every { restZaaktypeConverter.convert(zaakType) } returns restZaakType
+        every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
+        every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
+        every {
+            restGerelateerdeZaakConverter.convert(gerelateerdeZaakItem, loggedInUser)
+        } returns restGerelateerdeZaak
+
+        When("converting the zaak to a rest zaak") {
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            Then("gerelateerdeZaken includes the converted gerelateerde zaak") {
+                restZaak.gerelateerdeZaken!! shouldHaveSize 1
+                restZaak.gerelateerdeZaken!![0] shouldBe restGerelateerdeZaak
             }
         }
     }

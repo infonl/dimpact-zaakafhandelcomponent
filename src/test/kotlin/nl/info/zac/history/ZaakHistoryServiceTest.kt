@@ -37,7 +37,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         ZaakHistoryPartialUpdateConverter(zrcClientService)
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -621,71 +621,6 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                     attribuutLabel shouldBe "hoofdzaak"
                     oudeWaarde shouldBe zaak1.identificatie
                     nieuweWaarde shouldBe zaak2.identificatie
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe "Test User"
-                    applicatie shouldBe null
-                    toelichting shouldBe "xyz"
-                    actie shouldBe HistoryAction.GEWIJZIGD
-                }
-            }
-        }
-    }
-
-    Given("Audit trail has resource relevanteAndereZaken with action partial_update") {
-        val zaakUUID = UUID.randomUUID()
-        val zaak1 = createZaak(identificatie = "identificatie1")
-        val zaak2 = createZaak(identificatie = "identificatie2")
-        val zaak3 = createZaak(identificatie = "identificatie3")
-        val zaak4 = createZaak(identificatie = "identificatie4")
-
-        every {
-            zrcClientService.readZaak(zaak1.url)
-        } returns zaak1
-        every {
-            zrcClientService.readZaak(zaak2.url)
-        } returns zaak2
-        every {
-            zrcClientService.readZaak(zaak3.url)
-        } returns zaak3
-        every {
-            zrcClientService.readZaak(zaak4.url)
-        } returns zaak4
-
-        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
-            bron = Bron.AUTORISATIES_API,
-            actie = "partial_update",
-            actieWeergave = "Almost updated",
-            resultaat = 201,
-            hoofdObject = URI("https://example.com/somePath"),
-            resource = "zaak",
-            resourceUrl = URI("https://example.com/somePath"),
-            toelichting = "xyz",
-            wijzigingen = Wijzigingen().apply {
-                oud = mapOf(
-                    "relevanteAndereZaken" to listOf(
-                        mapOf("url" to zaak1.url.toString()),
-                        mapOf("url" to zaak2.url.toString()),
-                    )
-                )
-                nieuw = mapOf(
-                    "relevanteAndereZaken" to listOf(
-                        mapOf("url" to zaak3.url.toString()),
-                        mapOf("url" to zaak4.url.toString()),
-                    )
-                )
-            }
-        )
-        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
-
-        When("converted to REST historie regel") {
-            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
-
-            Then("it should return correct data") {
-                historyLines.size shouldBe 1
-                with(historyLines.first()) {
-                    attribuutLabel shouldBe "relevanteAndereZaken"
-                    oudeWaarde shouldBe "${zaak1.identificatie}, ${zaak2.identificatie}"
-                    nieuweWaarde shouldBe "${zaak3.identificatie}, ${zaak4.identificatie}"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe "Test User"
                     applicatie shouldBe null

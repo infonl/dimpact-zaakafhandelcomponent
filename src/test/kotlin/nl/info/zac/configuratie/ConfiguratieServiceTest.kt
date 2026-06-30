@@ -17,29 +17,26 @@ import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
 import nl.info.zac.configuration.ConfigurationService
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 
 class ConfiguratieServiceTest : BehaviorSpec({
     val entityManager = mockk<EntityManager>()
     val ztcClientService = mockk<ZtcClientService>()
     val catalogus = mockk<Catalogus>()
-    val additionalAllowedFileTypes = Optional.of("fakeFileType1,fakeFileType2")
     val zgwApiClientMpRestUrl = "https://example.com:1111"
     val contextUrl = "https://example.com:2222"
     val gemeenteCode = "gemeenteCode"
     val gemeenteNaam = "Gemeente Name"
     val gemeenteMail = "gemeente@example.com"
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
-    Given("A valid configuration with BPMN and PABC feature flags set to true") {
+    Given("A valid configuration with BPMN") {
         val catalogusUri = "https://example.com/catalogus"
         every { catalogus.url } returns URI(catalogusUri)
         every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
-        val pabcIntegration = true
         val brpConfiguration = createBrpConfiguration()
         val bronOrganisatie = "123443210"
         val verantwoordelijkeOrganisatie = "316245124"
@@ -47,13 +44,11 @@ class ConfiguratieServiceTest : BehaviorSpec({
         val configurationService = ConfigurationService(
             entityManager = entityManager,
             ztcClientService = ztcClientService,
-            additionalAllowedFileTypes = additionalAllowedFileTypes,
             zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
             contextUrl = contextUrl,
             gemeenteCode = gemeenteCode,
             gemeenteNaam = gemeenteNaam,
             gemeenteMail = gemeenteMail,
-            pabcIntegration = pabcIntegration,
             bronOrganisatie = bronOrganisatie,
             verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
             catalogusDomein = catalogusDomein,
@@ -85,29 +80,12 @@ class ConfiguratieServiceTest : BehaviorSpec({
                 informatieobjectTonenUrl.toString() shouldBe "$contextUrl/informatie-objecten/$uuid"
             }
         }
-
-        When("additional allowed file types are requested") {
-            val fileTypes = configurationService.readAdditionalAllowedFileTypes()
-
-            Then("Correct list is returned") {
-                fileTypes shouldBe listOf("fakeFileType1", "fakeFileType2")
-            }
-        }
-
-        When("feature flag PABC integration is requested") {
-            val featureFlagPabcIntegration = configurationService.featureFlagPabcIntegration()
-
-            Then("true is returned") {
-                featureFlagPabcIntegration shouldBe true
-            }
-        }
     }
 
     Given("An invalid bron organisatie BSN") {
         val bronOrganisatie = "123456789"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
-        val pabcIntegration = false
         val brpConfiguration = createBrpConfiguration()
 
         When("configuration service is initialized") {
@@ -116,54 +94,17 @@ class ConfiguratieServiceTest : BehaviorSpec({
                     ConfigurationService(
                         entityManager = entityManager,
                         ztcClientService = ztcClientService,
-                        additionalAllowedFileTypes = additionalAllowedFileTypes,
                         zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
                         contextUrl = contextUrl,
                         gemeenteCode = gemeenteCode,
                         gemeenteNaam = gemeenteNaam,
                         gemeenteMail = gemeenteMail,
-                        pabcIntegration = pabcIntegration,
                         bronOrganisatie = bronOrganisatie,
                         verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
                         catalogusDomein = catalogusDomein,
                         brpConfiguration = brpConfiguration
                     ).onStartup(Any())
                 }
-            }
-        }
-    }
-
-    Given("An empty additional file list") {
-        val catalogusUri = "https://example.com/catalogus"
-        every { catalogus.url } returns URI(catalogusUri)
-        every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
-        val bronOrganisatie = "123443210"
-        val verantwoordelijkeOrganisatie = "316245124"
-        val catalogusDomein = "ALG"
-        val pabcIntegration = false
-        val brpConfiguration = createBrpConfiguration()
-        val configurationService = ConfigurationService(
-            entityManager = entityManager,
-            ztcClientService = ztcClientService,
-            additionalAllowedFileTypes = Optional.empty(),
-            zgwApiClientMpRestUrl = zgwApiClientMpRestUrl,
-            contextUrl = contextUrl,
-            gemeenteCode = gemeenteCode,
-            gemeenteNaam = gemeenteNaam,
-            gemeenteMail = gemeenteMail,
-            pabcIntegration = pabcIntegration,
-            bronOrganisatie = bronOrganisatie,
-            verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie,
-            catalogusDomein = catalogusDomein,
-            brpConfiguration = brpConfiguration
-        )
-
-        When("a list of additional allowed file types are requested") {
-            configurationService.onStartup(Any())
-            val fileTypes = configurationService.readAdditionalAllowedFileTypes()
-
-            Then("an empty list is returned") {
-                fileTypes.size shouldBe 0
             }
         }
     }

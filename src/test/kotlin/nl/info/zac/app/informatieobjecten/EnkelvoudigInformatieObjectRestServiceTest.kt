@@ -21,7 +21,6 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.event.EventingService
-import net.atos.zac.webdav.WebdavHelper
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -34,6 +33,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -47,6 +47,8 @@ import nl.info.zac.app.informatieobjecten.exception.DetachedDocumentNotFoundExce
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
+import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
+import nl.info.zac.app.informatieobjecten.model.RestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.RestOndertekening
 import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
@@ -54,7 +56,7 @@ import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieo
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
-import nl.info.zac.app.zaak.converter.RestGerelateerdeZaakConverter
+import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
@@ -71,6 +73,7 @@ import nl.info.zac.policy.output.createDocumentRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.model.DocumentIndicatie
+import nl.info.zac.webdav.WebdavHelper
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
@@ -89,7 +92,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val detachedDocumentService = mockk<DetachedDocumentService>()
     val policyService = mockk<PolicyService>()
-    val restGerelateerdeZaakConverter = mockk<RestGerelateerdeZaakConverter>()
     val zaakHistoryLineConverter = mockk<ZaakHistoryLineConverter>()
     val restInformatieobjectConverter = mockk<RestInformatieobjectConverter>()
     val restInformatieobjecttypeConverter = mockk<RestInformatieobjecttypeConverter>()
@@ -109,7 +111,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         restInformatieobjectConverter = restInformatieobjectConverter,
         restInformatieobjecttypeConverter = restInformatieobjecttypeConverter,
         zaakHistoryLineConverter = zaakHistoryLineConverter,
-        restGerelateerdeZaakConverter = restGerelateerdeZaakConverter,
         loggedInUserInstance = loggedInUserInstance,
         webdavHelper = webdavHelper,
         policyService = policyService,
@@ -470,6 +471,67 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given(
+        """
+            REST informatieobject zoek parameters with an enkelvoudig informatieobject
+            not containing informatie object uuids, and the zaak has a gerelateerde zaak
+            """
+    ) {
+        val zaakUuid = UUID.randomUUID()
+        val gerelateerdeZaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
+        val gerelateerdeZaak = createZaak()
+        val restInformatieobjectZoekParameters = RestInformatieobjectZoekParameters(
+            zaakUUID = zaakUuid,
+            gekoppeldeZaakDocumenten = true,
+            informatieobjectUUIDs = null
+        )
+        val zaak = createZaak().apply {
+            gerelateerdeZaken = mutableListOf(GerelateerdeZaak().url(gerelateerdeZaakUri))
+        }
+        val restEnkelvoudigInformatieobjectVoorZaak = createRestEnkelvoudigInformatieobject()
+        val restGekoppeldeZaakEnkelvoudigInformatieObject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
+        val gerelateerdeZaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForCreatesAndUpdates()
+        )
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(zaakUuid) } returns zaak
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechten()
+        every { zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(zaakInformatieobjecten[0])
+        } returns restEnkelvoudigInformatieobjectVoorZaak
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } returns gerelateerdeZaak
+        every { zrcClientService.listZaakinformatieobjecten(gerelateerdeZaak) } returns gerelateerdeZaakInformatieobjecten
+        every {
+            restInformatieobjectConverter.convertToREST(
+                gerelateerdeZaakInformatieobjecten[0],
+                RelatieType.GERELATEERD,
+                gerelateerdeZaak
+            )
+        } returns restGekoppeldeZaakEnkelvoudigInformatieObject
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("the list of enkelvoudig informatieobject is requested") {
+            val returnedRestEnkelvoudigInformatieobjecten =
+                enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
+                    restInformatieobjectZoekParameters
+                )
+
+            Then("the returned enkelvoudige informatie objecten include the gerelateerde zaak documents") {
+                with(returnedRestEnkelvoudigInformatieobjecten) {
+                    size shouldBe 2
+                    this[0] shouldBe restEnkelvoudigInformatieobjectVoorZaak
+                    this[1] shouldBe restGekoppeldeZaakEnkelvoudigInformatieObject
+                }
+            }
+        }
+    }
+
     Given("An enkelvoudig informatieobject") {
         val informatieobjectUUID = UUID.randomUUID()
         val zaak = createZaak()
@@ -1566,84 +1628,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
                 Then("getIndicaties() reflects the document's indicator flags") {
                     enkelvoudigInformatieobject.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
-                }
-            }
-        }
-    }
-
-    Given("An enkelvoudig informatieobject returned by readEnkelvoudigInformatieobject with various indicator flags") {
-        data class TestCase(
-            val gelockedDoor: RestUser? = null,
-            val ondertekening: RestOndertekening? = null,
-            val indicatieGebruiksrecht: Boolean = false,
-            val isBesluitDocument: Boolean = false,
-            val verzenddatum: LocalDate? = null,
-            val expectedIndicaties: Set<DocumentIndicatie>
-        )
-
-        val uuid = UUID.randomUUID()
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-
-        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-
-        withData(
-            nameFn = { "expected indicaties: ${it.expectedIndicaties}" },
-            listOf(
-                TestCase(
-                    expectedIndicaties = emptySet()
-                ),
-                TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
-                    expectedIndicaties = setOf(DocumentIndicatie.VERGRENDELD)
-                ),
-                TestCase(
-                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
-                    expectedIndicaties = setOf(DocumentIndicatie.ONDERTEKEND)
-                ),
-                TestCase(
-                    indicatieGebruiksrecht = true,
-                    expectedIndicaties = setOf(DocumentIndicatie.GEBRUIKSRECHT)
-                ),
-                TestCase(
-                    isBesluitDocument = true,
-                    expectedIndicaties = setOf(DocumentIndicatie.BESLUIT)
-                ),
-                TestCase(
-                    verzenddatum = LocalDate.of(2026, 1, 1),
-                    expectedIndicaties = setOf(DocumentIndicatie.VERZONDEN)
-                ),
-                TestCase(
-                    gelockedDoor = RestUser(id = "fakeId", naam = "fakeName"),
-                    ondertekening = RestOndertekening(soort = "fakeSoort", datum = LocalDate.of(2026, 1, 1)),
-                    indicatieGebruiksrecht = true,
-                    isBesluitDocument = true,
-                    verzenddatum = LocalDate.of(2026, 1, 1),
-                    expectedIndicaties = setOf(
-                        DocumentIndicatie.VERGRENDELD,
-                        DocumentIndicatie.ONDERTEKEND,
-                        DocumentIndicatie.GEBRUIKSRECHT,
-                        DocumentIndicatie.BESLUIT,
-                        DocumentIndicatie.VERZONDEN
-                    )
-                )
-            )
-        ) { testCase ->
-            val restEio = createRestEnkelvoudigInformatieobject(
-                gelockedDoor = testCase.gelockedDoor,
-                ondertekening = testCase.ondertekening,
-                indicatieGebruiksrecht = testCase.indicatieGebruiksrecht,
-                isBesluitDocument = testCase.isBesluitDocument,
-                verzenddatum = testCase.verzenddatum
-            )
-            every {
-                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
-            } returns restEio
-
-            When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
-                val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
-
-                Then("getIndicaties() reflects the document's indicator flags") {
-                    result.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
                 }
             }
         }

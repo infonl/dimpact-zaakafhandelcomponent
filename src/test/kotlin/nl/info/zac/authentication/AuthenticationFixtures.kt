@@ -5,9 +5,6 @@
 
 package nl.info.zac.authentication
 
-import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
-import nl.info.zac.app.zaak.model.ZAAK_TYPE_2_OMSCHRIJVING
-
 @Suppress("LongParameterList")
 fun createLoggedInUser(
     id: String = "fakeId",
@@ -17,8 +14,9 @@ fun createLoggedInUser(
     email: String = "fake@example.com",
     roles: Set<String> = setOf("fakeRole1", "fakeRole2"),
     groups: Set<String> = setOf("fakeGroup1", "fakeGroup2"),
-    geautoriseerdeZaaktypen: Set<String>? = setOf(ZAAK_TYPE_1_OMSCHRIJVING, ZAAK_TYPE_2_OMSCHRIJVING),
-    applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap()
+    applicationRolesPerZaaktype: Map<String, Set<String>> = emptyMap(),
+    overallRoles: Set<String> = emptySet(),
+    brpGemeenten: Map<String, String> = emptyMap()
 ) = LoggedInUser(
     id,
     firstName,
@@ -27,6 +25,7 @@ fun createLoggedInUser(
     email,
     roles,
     groups,
-    geautoriseerdeZaaktypen,
-    applicationRolesPerZaaktype
+    applicationRolesPerZaaktype,
+    overallRoles,
+    brpGemeenten
 )

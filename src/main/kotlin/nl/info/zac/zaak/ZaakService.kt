@@ -12,7 +12,6 @@ import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
@@ -36,15 +35,12 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
 import nl.info.zac.identity.model.User
 import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
-import nl.info.zac.identity.model.ZacApplicationRole.DOMEIN_ELK_ZAAKTYPE
-import nl.info.zac.identity.model.getFullName
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
@@ -54,8 +50,6 @@ import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Logger
-import kotlin.String
-import kotlin.Suppress
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -69,9 +63,7 @@ class ZaakService @Inject constructor(
     private var zaakVariabelenService: ZaakVariabelenService,
     private val identityService: IdentityService,
     private val indexingService: IndexingService,
-    private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val bpmnService: BpmnService,
-    private val configurationService: ConfigurationService,
     private val pabcClientService: PabcClientService
 ) {
     fun addBetrokkeneToZaak(
@@ -392,9 +384,9 @@ class ZaakService @Inject constructor(
     ) {
         if (bpmnService.isZaakProcessDriven(zaakUuid)) {
             try {
-                zaakVariabelenService.setGroup(zaakUuid, group.description)
+                zaakVariabelenService.setGroup(zaakUuid, group.name)
                 user?.let {
-                    zaakVariabelenService.setUser(zaakUuid, it.getFullName())
+                    zaakVariabelenService.setUser(zaakUuid, it.id)
                 } ?: zaakVariabelenService.removeUser(zaakUuid)
             } catch (exception: CaseOrProcessNotFoundException) {
                 LOG.warning { exception.message }
@@ -440,16 +432,7 @@ class ZaakService @Inject constructor(
         }
 
     /**
-     * New IAM architecture (PABC integration): checks if the group is authorised for the specified zaaktype
-     * and the specified ZAC application role.
-     * Old IAM architecture: checks if the group is authorised for the specified zaaktype, using the domain associated
-     * with the specified zaak, through the zaakafhandelparameters of the zaaktype.
-     *
-     * Domain access is granted to a:
-     * - zaaktype without domain
-     * - zaaktype with domain/role DOMEIN_ELK_ZAAKTYPE
-     * - group with domain/role DOMEIN_ELK_ZAAKTYPE has access to all domains
-     * - group with one (or more) specific domains only access to zaaktype with this certain (or more) domain
+     * Checks if the group is authorised for the specified zaaktype and the specified ZAC application role.
      *
      * @param zaaktypeUuid The zaaktype UUID to check domain access for
      * @return true if the group is authorised for the specified zaaktype, false otherwise
@@ -457,28 +440,12 @@ class ZaakService @Inject constructor(
     private fun Group.isAuthorisedForApplicationRoleAndZaaktype(
         zacApplicationRole: ZacApplicationRole,
         zaaktypeUuid: UUID
-    ) =
-        if (configurationService.featureFlagPabcIntegration()) {
-            val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
-            pabcClientService.getGroupsByApplicationRoleAndZaaktype(
-                applicationRole = zacApplicationRole.value,
-                // we use the zaaktype description as the unique identifier for zaaktypes in ZAC
-                zaaktypeDescription = zaaktype.omschrijving
-            ).map { it.name }.contains(this.name)
-        } else {
-            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid).let { params ->
-                val hasAccess = params.domein == DOMEIN_ELK_ZAAKTYPE.value ||
-                    this.zacClientRoles.contains(DOMEIN_ELK_ZAAKTYPE.value) ||
-                    params.domein?.let {
-                        this.zacClientRoles.contains(it)
-                    } ?: false
-                if (!hasAccess) {
-                    LOG.fine(
-                        "Zaaktype with UUID '$zaaktypeUuid' is skipped and not assigned. Group '${this.description}' " +
-                            "with roles '${this.zacClientRoles}' has no access to domain '${params.domein}'"
-                    )
-                }
-                hasAccess
-            }
-        }
+    ): Boolean {
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUuid)
+        return pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+            applicationRole = zacApplicationRole.value,
+            // we use the zaaktype description as the unique identifier for zaaktypes in ZAC
+            zaaktypeDescription = zaaktype.omschrijving
+        ).map { it.name }.contains(this.name)
+    }
 }

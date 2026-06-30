@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -11,14 +12,27 @@ import {
   input,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatSelectModule } from "@angular/material/select";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { RouterLink } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, merge, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
+import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
+import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { DatumRange } from "../../zoeken/model/datum-range";
@@ -36,7 +50,29 @@ import { KlantenService } from "../klanten.service";
   selector: "zac-klant-zaken-tabel",
   templateUrl: "./klant-zaken-tabel.component.html",
   styleUrls: ["./klant-zaken-tabel.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    RouterLink,
+    TranslateModule,
+    DatumPipe,
+    EmptyPipe,
+    TekstFilterComponent,
+    FacetFilterComponent,
+    DateRangeFilterComponent,
+  ],
 })
 export class KlantZakenTabelComponent implements AfterViewInit {
   protected readonly klant =
@@ -136,11 +172,15 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.zoekParameters.zoeken[
       (this.laatsteBetrokkenheid =
         this.setBetrokkeneFieldToSolrKeyName(betrokkenheid))
-    ] =
-      betrokkene.bsn ??
-      betrokkene.vestigingsnummer ??
-      betrokkene.kvkNummer ??
-      "";
+    ] = this.getBetrokkeneIdentificatie(betrokkene);
+  }
+
+  private getBetrokkeneIdentificatie(betrokkene: BetrokkeneIdentificatie) {
+    if (betrokkene.bsn) return `P-${betrokkene.bsn}`;
+    if (betrokkene.vestigingsnummer && betrokkene.kvkNummer)
+      return `V-${betrokkene.kvkNummer}-${betrokkene.vestigingsnummer}`;
+    if (betrokkene.kvkNummer) return `K-${betrokkene.kvkNummer}`;
+    return "";
   }
 
   ngAfterViewInit() {
@@ -174,18 +214,21 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     return Object.entries(zaak.betrokkenen || {}).reduce<string[]>(
       (acc, [rol, identifiers]) => {
         const identifierList = identifiers as string[];
-        if (betrokkene.bsn && identifierList.includes(betrokkene.bsn)) {
+        if (betrokkene.bsn && identifierList.includes(`P-${betrokkene.bsn}`)) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }
 
         if (
           betrokkene.vestigingsnummer &&
-          identifierList.includes(betrokkene.vestigingsnummer)
+          betrokkene.kvkNummer &&
+          identifierList.includes(
+            `V-${betrokkene.kvkNummer}-${betrokkene.vestigingsnummer}`,
+          )
         ) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         } else if (
           betrokkene.kvkNummer &&
-          identifierList.includes(betrokkene.kvkNummer)
+          identifierList.includes(`K-${betrokkene.kvkNummer}`)
         ) {
           acc.push(this.makeSolrKeyNameReadableBetrokkeneType(rol));
         }

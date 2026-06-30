@@ -27,21 +27,15 @@ object ItestConfiguration {
      */
     const val HTTP_READ_TIMEOUT_SECONDS = 60L
 
-    val FEATURE_FLAG_PABC_INTEGRATION = (System.getProperty("featureFlagPabcIntegration") ?: "true").toBoolean()
-
     const val ACTIE_INTAKE_AFRONDEN = "INTAKE_AFRONDEN"
     const val ACTIE_ZAAK_AFHANDELEN = "ZAAK_AFHANDELEN"
 
-    /**
-     * Fake additional allowed file types just for testing purposes.
-     */
-    const val ADDITIONAL_ALLOWED_FILE_TYPES = "fakeFileExtension1,fakeFileExtension2"
     const val BAG_MOCK_BASE_URI = "http://bag-wiremock.local:8080"
     const val BAG_TEST_ADRES_1_IDENTIFICATION = "0363200003761447"
     const val BETROKKENE_TYPE_NATUURLIJK_PERSOON = "NATUURLIJK_PERSOON"
     const val BETROKKENE_IDENTIFICATION_TYPE_BSN = "BSN"
-    const val BETROKKENE_IDENTIFACTION_TYPE_VESTIGING = "VN"
-    const val BETROKKENE_IDENTIFACTION_TYPE_KVK = "RSIN"
+    const val BETROKKENE_IDENTIFICATION_TYPE_VESTIGING = "VN"
+    const val BETROKKENE_IDENTIFICATION_TYPE_KVK = "RSIN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
     const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
@@ -49,8 +43,6 @@ object ItestConfiguration {
     const val CONFIG_GEMEENTE_NAAM = "FakeZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"
     const val COMMUNICATIEKANAAL_TEST_2 = "fakeCommunicatiekanaal2"
-    const val DOMEIN_TEST_1 = "domein_test_1"
-    const val DOMEIN_TEST_2 = "domein_test_2"
     const val FAKE_AUTHOR_NAME = "fakeAuthorName"
     const val FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE = "AANVULLENDE_INFORMATIE"
     const val HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM = "Aanvullende informatie"
@@ -66,16 +58,18 @@ object ItestConfiguration {
     const val KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
     const val KVK_MOCK_BASE_URI = "http://kvk-wiremock:8080"
     const val OBJECT_PRODUCTAANVRAAG_1_UUID = "9dbed186-89ca-48d7-8c6c-f9995ceb8e27"
+    const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
     const val OBJECT_PRODUCTAANVRAAG_2_UUID = "f1f6f670-fda8-4e98-81a6-6528937f10ee"
     const val OBJECT_PRODUCTAANVRAAG_3_UUID = "5658d286-9a84-4cde-b9af-6771bd599a06"
-    const val OBJECT_PRODUCTAANVRAAG_4_UUID = "a3278b18-0562-48cd-ab9b-ee05f2d433bb"
-    const val OBJECT_PRODUCTAANVRAAG_BPMN_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
+    const val OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK = "testFormulierKenmerkRequestSpecificEmailAddress1"
+    const val OBJECT_PRODUCTAANVRAAG_4_UUID = "ce567a95-8b3b-4a14-8cba-122e450e1c57"
+    const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testFormulierKenmerkRequestSpecificEmailAddress2"
+    const val OBJECT_PRODUCTAANVRAAG_5_UUID = "b1c2d3e4-f5a6-7890-bcde-f12345678901"
+    const val OBJECT_PRODUCTAANVRAAG_5_BRON_KENMERK = "testFormulierKenmerkSavedPreferredAddress"
+    const val OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID = "fb6b2c0e-f745-4725-ae27-2317f0cfbfc4"
+    const val OBJECT_PRODUCTAANVRAAG_BPMN_1_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_VESTIGINGS_ONLY_UUID = "0403f494-7804-4b6a-a2a7-41fdcc8ad5fc"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_UUID = "225da1ce-f528-4a2c-b87d-c8c58fd2aca1"
-    const val OBJECT_PRODUCTAANVRAAG_1_BRON_KENMERK = "f8534f13-0669-4d4d-a364-6b6c4ad3d243"
-    const val OBJECT_PRODUCTAANVRAAG_3_BRON_KENMERK = "testKenmerkAlternativeEmailAddress1"
-    const val OBJECT_PRODUCTAANVRAAG_4_BRON_KENMERK = "testKenmerkAlternativeEmailAddress2"
-    const val OBJECT_PRODUCTAANVRAAG_BPMN_BRON_KENMERK = "c7e9e087-853d-4b16-9750-fddd7c0b9b0d"
     const val OBJECT_PRODUCTAANVRAAG_COMBO_BRON_KENMERK = "kvk-vestiging-combo-12345678-000012345678"
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_1_UUID = "b2f6c1d4-a5e7-4890-bcde-f01234567890"
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_2_UUID = "c3d7e2f5-b6f8-5901-cdef-012345678901"
@@ -104,8 +98,6 @@ object ItestConfiguration {
     const val REFERENCE_TABLE_AFZENDER_NAME = "Afzender"
     const val REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE = "COMMUNICATIEKANAAL"
     const val REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME = "Communicatiekanaal"
-    const val REFERENCE_TABLE_DOMEIN_CODE = "DOMEIN"
-    const val REFERENCE_TABLE_DOMEIN_NAME = "Domein"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE = "SERVER_ERROR_ERROR_PAGINA_TEKST"
     const val REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME = "Server error error pagina tekst"
     const val REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE = "BRP_DOELBINDING_ZOEK_WAARDE"
@@ -119,7 +111,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 44
+    const val ROLTYPE_COUNT = 46
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -128,6 +120,8 @@ object ItestConfiguration {
     const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
+    const val TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG = "1916"
+    const val TEST_GEMEENTE_CODE_VOORSCHOTEN = "0626"
     const val TEST_INFORMATIE_OBJECT_TYPE_1_UUID = "efc332f2-be3b-4bad-9e3c-49a6219c92ad"
 
     /**
@@ -137,6 +131,7 @@ object ItestConfiguration {
     const val TEST_PERSON_HENDRIKA_JANSE_EMAIL = "hendrika.janse@example.com"
     const val TEST_PERSON_HENDRIKA_JANSE_BIRTHDATE = "1965-01-01"
     const val TEST_PERSON_HENDRIKA_JANSE_GENDER = "vrouw"
+    const val TEST_PERSON_HENDRIKA_JANSE_GEMEENTE_CODE = "1999"
     const val TEST_PERSON_HENDRIKA_JANSE_FULLNAME = "Héndrika Janse"
     const val TEST_PERSON_HENDRIKA_JANSE_PHONE_NUMBER = "0612345678"
     const val TEST_PERSON_HENDRIKA_JANSE_PLACE_OF_RESIDENCE =
@@ -149,7 +144,20 @@ object ItestConfiguration {
     const val TEST_VESTIGING_EMAIL = "fake.vestiging@example.com"
     const val TEST_KVK_EMAIL = "fake.kvk@example.com"
     const val TEST_VESTIGING_TELEPHONE_NUMBER = "0201234567"
+    const val TEST_RECHTSPERSOON_TELEPHONE_NUMBER = "0101234567"
     const val TEST_WORD_FILE_NAME = "fakeWordDocument.docx"
+
+    /**
+     * Second test person that exists in both the BRP and the Klanten API databases
+     */
+    const val TEST_PERSON_ANITA_VAN_BUREN_BSN = "999992958"
+    const val TEST_PERSON_ANITA_VAN_BUREN_EMAIL = "anita.van.buren@example.com"
+
+    /**
+     * Third test person that exists in the BRP with a gemeentecode that exists in PABC
+     */
+    const val TEST_PERSON_DIRK_JANSSEN_BSN = "999991206"
+    const val TEST_PERSON_DIRK_JANSSEN_GEMEENTE_CODE = TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG
 
     /**
      * Constants used in the Informatieobjecten tests
@@ -181,6 +189,40 @@ object ItestConfiguration {
     const val TEST_KVK_VESTIGING1_HOOFDACTIVITEIT = "fakesbiOmschrijving1"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT1 = "fakesbiOmschrijving2"
     const val TEST_KVK_VESTIGING1_NEVENACTIVITEIT2 = "fakesbiOmschrijving3"
+    const val TEST_KVK_VESTIGING1_PROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1\u00A017M, 1034WL\u00A0fakePlaats1"
+    const val TEST_KVK_BASISPROFIEL_TOTAAL_WERKZAME_PERSONEN = 42
+    const val TEST_KVK_BASISPROFIEL_STATUTAIRE_NAAM = "fakeStatutaireNaam1"
+    const val TEST_KVK_BASISPROFIEL_RECHTSVORM = "BeslotenVennootschap"
+    const val TEST_KVK_BASISPROFIEL_UITGEBREIDE_RECHTSVORM = "Besloten Vennootschap met beperkte aansprakelijkheid"
+    const val TEST_KVK_BASISPROFIEL_HOOFDACTIVITEIT = "fakeBasisprofielHoofdactiviteit1"
+    const val TEST_KVK_BASISPROFIEL_NEVENACTIVITEIT1 = "fakeBasisprofielNevenactiviteit1"
+    const val TEST_KVK_BASISPROFIEL_WEBSITE = "https://fakebedrijf.nl"
+    const val TEST_KVK_BASISPROFIEL_VOLLEDIG_ADRES = "fakeStraatnaam1\u00A017, 1034WL\u00A0fakePlaats1"
+
+    // Vestiging 2: two bezoekadresses and two correspondentieadresses
+    const val TEST_KVK_VESTIGINGSNUMMER_2 = "000012345679"
+    const val TEST_KVK_NUMMER_2 = "12345679"
+    const val TEST_KVK_NAAM_2 = "testMeerdereAdressen"
+    const val TEST_KVK_VESTIGING2_ADRES = "fakeStraatnaam2a\u00A0100, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_1 = "fakeStraatnaam2a\u00A0100, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_BEZOEKADRES_2 = "fakeStraatnaam2b\u00A0200, 5678CD\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_1 = "Postbus 1000, 1234AB\u00A0fakePlaats2"
+    const val TEST_KVK_VESTIGING2_CORRESPONDENTIEADRES_2 = "Postbus 2000, 5678CD\u00A0fakePlaats2"
+
+    // Vestiging 3: foreign (buitenlands) address
+    const val TEST_KVK_VESTIGINGSNUMMER_3 = "000012345680"
+    const val TEST_KVK_NUMMER_3 = "12345680"
+    const val TEST_KVK_NAAM_3 = "testBuitenlands"
+    const val TEST_KVK_VESTIGING3_ADRES = "fakeStraatnaam3\u00A012, 12345\u00A0fakePlaats3, fakeLand3"
+    const val TEST_KVK_VESTIGING3_PROFIEL_ADRES =
+        "fakeStraatnaam3\u00A012\u00A0fakeToevoeging3, 12345\u00A0fakePlaats3, fakeLand3"
+
+    // Vestiging 4: full Dutch address with huisnummerToevoeging
+    const val TEST_KVK_VESTIGINGSNUMMER_4 = "000012345681"
+    const val TEST_KVK_NUMMER_4 = "12345681"
+    const val TEST_KVK_NAAM_4 = "testVolledigBinnenlands"
+    const val TEST_KVK_VESTIGING4_ADRES = "fakeStraatnaam4\u00A042B, 4321DC\u00A0fakePlaats4"
+    const val TEST_KVK_VESTIGING4_PROFIEL_ADRES = "fakeStraatnaam4\u00A042B\u00A0achter, 4321DC\u00A0fakePlaats4"
 
     const val SMTP_SERVER_PORT = 25
     const val VERANTWOORDELIJKE_ORGANISATIE = "316245124"
@@ -198,7 +240,7 @@ object ItestConfiguration {
      * 'ZAAK-YYYY-SEQUENCE_NUMBER' where the year is taken from the start date of the zaak.
      */
     const val ZAAK_PRODUCTAANVRAAG_1_IDENTIFICATION = "ZAAK-1970-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1970-01-15"
+    const val ZAAK_PRODUCTAANVRAAG_1_UITERLIJKE_EINDDATUM_AFDOENING = "1971-01-01"
     const val ZAAK_PRODUCTAANVRAAG_1_OMSCHRIJVING = "fakeZaakOmschrijving"
     const val ZAAK_PRODUCTAANVRAAG_1_TOELICHTING = "fakeZaakToelichting"
 
@@ -210,14 +252,19 @@ object ItestConfiguration {
     const val ZAAK_PRODUCTAANVRAAG_2_IDENTIFICATION = "ZAAK-1999-0000000001"
 
     const val ZAAK_PRODUCTAANVRAAG_3_IDENTIFICATION = "ZAAK-1973-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email"
-    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting-alternative-email"
-    const val ZAAK_PRODUCTAANVRAAG_3_ALTERNATIVE_EMAIL = "test-alternative-1@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_3_OMSCHRIJVING = "fakeZaakOmschrijving-request-specific-1"
+    const val ZAAK_PRODUCTAANVRAAG_3_TOELICHTING = "fakeZaakToelichting-request-specific-1"
+    const val ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL = "test-request-specific-1@example.com"
 
-    const val ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION = "ZAAK-1974-0000000001"
-    const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-alternative-email-2"
-    const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-alternative-email-2"
-    const val ZAAK_PRODUCTAANVRAAG_4_ALTERNATIVE_EMAIL = "test-alternative-2@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_4_IDENTIFICATION = "ZAAK-1976-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_4_OMSCHRIJVING = "fakeZaakOmschrijving-request-specific-2"
+    const val ZAAK_PRODUCTAANVRAAG_4_TOELICHTING = "fakeZaakToelichting-request-specific-2-email"
+    const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL = "test-request-specific-2@example.com"
+    const val ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_TELEPHONE_NUMBER = "06-11118888"
+
+    const val ZAAK_PRODUCTAANVRAAG_5_IDENTIFICATION = "ZAAK-1977-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_5_OMSCHRIJVING = "fakeZaakOmschrijving-saved-preferred-address"
+    const val ZAAK_PRODUCTAANVRAAG_5_TOELICHTING = "fakeZaakToelichting-saved-preferred-address"
 
     const val ZAAK_PRODUCTAANVRAAG_BPMN_IDENTIFICATION = "ZAAK-1998-0000000001"
     const val ZAAK_PRODUCTAANVRAAG_BPMN_UITERLIJKE_EINDDATUM_AFDOENING = "1998-01-31"
@@ -279,7 +326,7 @@ object ItestConfiguration {
     val DATE_2020_01_01: LocalDate = LocalDate.of(2020, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
-    val DATE_2020_01_15: LocalDate = LocalDate.of(2020, Month.JANUARY, 15)
+    val DATE_2021_01_01: LocalDate = LocalDate.of(2021, Month.JANUARY, 1)
 
     @Suppress("MagicNumber")
     val DATE_2023_09_21: LocalDate = LocalDate.of(2023, Month.SEPTEMBER, 21)
@@ -304,58 +351,69 @@ object ItestConfiguration {
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_31: ZonedDateTime = DATE_2024_01_31.atStartOfDay(TimeZone.getDefault().toZoneId())
 
-    val ZAAKTYPE_TEST_1_UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
-    const val ZAAKTYPE_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
-    const val ZAAKTYPE_TEST_1_DESCRIPTION = "Test zaaktype 1"
+    val ZAAKTYPE_CMMN_TEST_1_UUID: UUID = UUID.fromString("8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a")
+    const val ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE = "zaaktype-test-1"
+    const val ZAAKTYPE_CMMN_TEST_1_DESCRIPTION = "Test zaaktype 1"
 
-    val ZAAKTYPE_TEST_2_UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
-    const val ZAAKTYPE_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
-    const val ZAAKTYPE_TEST_2_DESCRIPTION = "Test zaaktype 2"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
-    const val ZAAKTYPE_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
+    val ZAAKTYPE_CMMN_TEST_2_UUID: UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
+    const val ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
+    const val ZAAKTYPE_CMMN_TEST_2_DESCRIPTION = "Test zaaktype 2"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_GEMACHTIGDE = "4b473a85-5516-441f-8d7d-57512c6b6833"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_MEDEAANVRAGER = "e49a634b-731c-4460-93f4-e919686811aa"
+    const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_PLAATSVERVANGER = "74799b20-0350-457d-8773-a0f1ab16b299"
 
-    val ZAAKTYPE_TEST_3_UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
-    const val ZAAKTYPE_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
-    const val ZAAKTYPE_TEST_3_DESCRIPTION = "Test zaaktype 3"
-    const val ZAAKTYPE_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
+    val ZAAKTYPE_CMMN_TEST_3_UUID: UUID = UUID.fromString("448356ff-dcfb-4504-9501-7fe929077c4f")
+    const val ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
+    const val ZAAKTYPE_CMMN_TEST_3_DESCRIPTION = "Test zaaktype 3"
+    const val ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 
     // BPMN tests constants
-    val ZAAKTYPE_BPMN_TEST_1_UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
+    val ZAAKTYPE_BPMN_TEST_1_UUID: UUID = UUID.fromString("26076928-ce07-4d5d-8638-c2d276f6caca")
     const val ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE = "bpmn-test-zaaktype-1"
     const val ZAAKTYPE_BPMN_TEST_1_DESCRIPTION = "BPMN test zaaktype 1"
     const val ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE = "bpmn-test-1-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "82442c7f-05f2-4e9d-a0ae-c038344809af"
     )
 
-    val ZAAKTYPE_BPMN_TEST_2_UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
+    val ZAAKTYPE_BPMN_TEST_2_UUID: UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
     const val ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE = "bpmn-test-zaaktype-2"
     const val ZAAKTYPE_BPMN_TEST_2_DESCRIPTION = "BPMN test zaaktype 2"
     const val ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE = "bpmn-test-2-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_2_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "4f9da4cd-a910-4f85-98ca-adb33e215f43"
     )
 
-    val ZAAKTYPE_BPMN_TEST_3_UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
+    val ZAAKTYPE_BPMN_TEST_3_UUID: UUID = UUID.fromString("e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c")
     const val ZAAKTYPE_BPMN_TEST_3_IDENTIFICATIE = "bpmn-test-zaaktype-3"
     const val ZAAKTYPE_BPMN_TEST_3_DESCRIPTION = "BPMN test zaaktype 3"
     const val ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE = "bpmn-test-3-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_3_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "c1d2e3f4-5678-9abc-def0-1234567890ab"
     )
 
-    val ZAAKTYPE_BPMN_TEST_4_UUID = UUID.fromString("f5a7b8c9-d0e1-2345-f012-345678901bcd")
+    val ZAAKTYPE_BPMN_TEST_4_UUID: UUID = UUID.fromString("f5a7b8c9-d0e1-2345-f012-345678901bcd")
     const val ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE = "bpmn-test-zaaktype-4"
     const val ZAAKTYPE_BPMN_TEST_4_DESCRIPTION = "BPMN test zaaktype 4"
     const val ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE = "bpmn-test-4-productaanvraagtype"
-    val ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID = UUID.fromString(
+    val ZAAKTYPE_BPMN_TEST_4_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    )
+
+    val ZAAKTYPE_BPMN_TEST_5_UUID: UUID = UUID.fromString("7941c3b9-e4a2-4444-b2cb-c211f035cecd")
+    const val ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE = "bpmn-test-zaaktype-5"
+    const val ZAAKTYPE_BPMN_TEST_5_DESCRIPTION = "BPMN test zaaktype 5"
+    const val ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE = "bpmn-test-5-productaanvraagtype"
+    val ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
+        "7af7b0a9-2dfe-4ac6-9a33-4c0acf49c75a"
+    )
+    val ZAAKTYPE_BPMN_TEST_5_RESULTAATTYPE_AFGEROND_UUID: UUID = UUID.fromString(
+        "88e40d49-0e9d-4e1a-855f-ecc3c8ca66a8"
     )
 
     const val BPMN_TEST_PROCESS_DEFINITION_KEY = "itProcessDefinition"
@@ -372,8 +430,8 @@ object ItestConfiguration {
     const val BPMN_TEST_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_FORM_RESOURCE_PATH = "bpmn/user-management/newZaakDefaults.json"
     const val BPMN_TEST_USER_MANAGEMENT_COPY_USER_GROUP_FORM_RESOURCE_PATH = "bpmn/user-management/copyUserGroup.json"
 
-    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "signDocumentsProcess"
-    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/signDocumentsProcess.bpmn"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY = "sendConfirmationEmailAndSignDocumentsProcess"
+    const val BPMN_DOCUMENT_SIGN_PROCESS_RESOURCE_PATH = "bpmn/document-sign/sendConfirmationEmailAndSignDocumentsProcess.bpmn"
     const val BPMN_DOCUMENT_SIGN_SELECT_FORM_RESOURCE_PATH = "bpmn/document-sign/selectDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SUMMARY_FORM_RESOURCE_PATH = "bpmn/document-sign/signDocumentsForm.json"
     const val BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME = "Select documents to sign"
@@ -388,6 +446,17 @@ object ItestConfiguration {
     const val BPMN_SUSPEND_RESUME_RESUME_TASK_NAME = "Resume parameters"
     const val BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME = "Extend parameters"
 
+    const val BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY = "permissionCheckProcess"
+    const val BPMN_PERMISSION_CHECK_PROCESS_RESOURCE_PATH = "bpmn/permission-check/permissionCheckProcess.bpmn"
+    const val BPMN_PERMISSION_CHECK_PROCESS_CHOOSE_FORM_RESOURCE_PATH = "bpmn/permission-check/chooseTestProcess.json"
+
+    val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UUID =
+        UUID.fromString("9b0c1d2e-f3a4-5678-9b0c-1d2ef3a45678")
+    const val OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK =
+        "d4e5f6a7-b8c9-0123-d4e5-f6a7b8c90123"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION = "ZAAK-2001-0000000001"
+    const val ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING = "2001-01-31"
+
     const val BPMN_TEST_TASK_NAME = "Test"
     const val BPMN_SUMMARY_TASK_NAME = "Summary"
 
@@ -396,7 +465,6 @@ object ItestConfiguration {
     const val BPMN_USER_MANAGEMENT_NEW_ZAAK_DEFAULTS_TASK_NAME = "New zaak defaults"
     const val BPMN_USER_MANAGEMENT_COPY_FUNCTIONS_TASK_NAME = "Copy user and group"
 
-    const val BRP_PROTOCOLLERING_ICONNECT = "iConnect"
     const val BRP_WIREMOCK_API = "http://localhost:18084/__admin"
 
     // Mail template constants

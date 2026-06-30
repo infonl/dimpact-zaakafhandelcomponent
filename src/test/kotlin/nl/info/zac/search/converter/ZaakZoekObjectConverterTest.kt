@@ -54,7 +54,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         flowableTaskService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -130,11 +130,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         size shouldBe rollenZaak.size
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                            listOf(rolAdviseur.identificatienummer!!)
+                            listOf("P-${rolAdviseur.identificatienummer!!}")
                         )
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                            listOf(rolBelanghebbende.identificatienummer!!)
+                            listOf("P-${rolBelanghebbende.identificatienummer!!}")
                         )
                     }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
@@ -144,9 +144,9 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("a reopened zaak with status and decisions") {
+    Given("a reopened zaak with status and besluiten") {
         val zaakType = createZaakType(
-            besluittypen = listOf(URI("decision1"), URI("decision2"))
+            besluittypen = listOf(URI("fakeBesluit1"), URI("fakeBesluit2"))
         )
         val zaak = createZaak(
             zaaktypeUri = zaakType.url,
@@ -210,11 +210,11 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         size shouldBe rollenZaak.size
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolAdviseur.omschrijving}",
-                            listOf(rolAdviseur.identificatienummer!!)
+                            listOf("P-${rolAdviseur.identificatienummer!!}")
                         )
                         this shouldContain Pair(
                             "zaak_betrokkene_${rolBelanghebbende.omschrijving}",
-                            listOf(rolBelanghebbende.identificatienummer!!)
+                            listOf("P-${rolBelanghebbende.identificatienummer!!}")
                         )
                     }
                     getZaakIndicaties() shouldContain ZaakIndicatie.HEROPEND

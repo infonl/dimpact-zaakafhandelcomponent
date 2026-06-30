@@ -9,7 +9,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHEERDER_ELK_ZAAKTYPE
+import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
@@ -26,15 +26,18 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_1_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_2_UUID
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_DESCRIPTION
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_IDENTIFICATIE
-import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -51,7 +54,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         When("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -67,7 +70,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         When("the check for zaak types validity is performed") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/health-check/zaaktypes",
-                testUser = BEHEERDER_ELK_ZAAKTYPE
+                testUser = BEHEERDER_1
             )
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
@@ -78,6 +81,35 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             And("the response body should contain all the performed checks") {
                 responseBody shouldEqualJson """
                     [
+                      {
+                        "aantalBehandelaarroltypen": 1,
+                        "aantalInitiatorroltypen": 1,
+                        "besluittypeAanwezig": false,
+                        "brpInstellingenCorrect": true,
+                        "informatieobjecttypeEmailAanwezig": false,
+                        "resultaattypeAanwezig": true,
+                        "resultaattypesMetVerplichtBesluit": [],
+                        "rolOverigeAanwezig": false,
+                        "statustypeAanvullendeInformatieVereist": false,
+                        "statustypeAfgerondAanwezig": true,
+                        "statustypeAfgerondLaatsteVolgnummer": true,
+                        "statustypeHeropendAanwezig": false,
+                        "statustypeInBehandelingAanwezig": false,
+                        "statustypeIntakeAanwezig": false,
+                        "valide": false,
+                        "zaakafhandelParametersValide": true,
+                        "zaaktype": {
+                          "beginGeldigheid": "$DATE_2025_01_01",
+                          "doel": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_BPMN_TEST_5_IDENTIFICATIE",
+                          "nuGeldig": true,
+                          "omschrijving": "$ZAAKTYPE_BPMN_TEST_5_DESCRIPTION",
+                          "servicenorm": false,
+                          "uuid": "$ZAAKTYPE_BPMN_TEST_5_UUID",
+                          "versiedatum": "$DATE_2025_01_01",
+                          "vertrouwelijkheidaanduiding": "openbaar"
+                        }
+                      },
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
@@ -184,17 +216,17 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2025_07_01",
-                          "doel": "$ZAAKTYPE_TEST_1_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_1_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_1_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_1_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       },
-                      {                     
+                      {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
@@ -222,7 +254,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "versiedatum": "$DATE_2025_01_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
-                      },  
+                      },
                       {
                         "aantalBehandelaarroltypen": 1,
                         "aantalInitiatorroltypen": 1,
@@ -242,12 +274,12 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_10_01",
-                          "doel": "$ZAAKTYPE_TEST_2_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_2_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_2_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_2_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
@@ -271,17 +303,17 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "zaakafhandelParametersValide": true,
                         "zaaktype": {
                           "beginGeldigheid": "$DATE_2023_09_21",
-                          "doel": "$ZAAKTYPE_TEST_3_DESCRIPTION",
-                          "identificatie": "$ZAAKTYPE_TEST_3_IDENTIFICATIE",
+                          "doel": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
+                          "identificatie": "$ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE",
                           "nuGeldig": true,
-                          "omschrijving": "$ZAAKTYPE_TEST_3_DESCRIPTION",
+                          "omschrijving": "$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION",
                           "servicenorm": false,
-                          "uuid": "$ZAAKTYPE_TEST_3_UUID",
+                          "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
                           "vertrouwelijkheidaanduiding": "openbaar"
                         }
                       }
-                    ]    
+                    ]
                 """.trimIndent()
             }
         }

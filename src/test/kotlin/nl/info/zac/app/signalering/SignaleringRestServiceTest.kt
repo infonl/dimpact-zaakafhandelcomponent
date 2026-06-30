@@ -24,6 +24,8 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.search.model.SorteerRichting
+import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.signalering.model.createRestSignaleringInstellingen
 import nl.info.zac.signalering.model.createSignaleringInstellingen
@@ -42,7 +44,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         loggedInUserInstance = loggedInUserInstance
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -52,7 +54,12 @@ class SignaleringRestServiceTest : BehaviorSpec({
         val pageSize = 5
         val numberOfElements = 11
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
-        val restPageParameters = RestSignaleringPageParameters(pageNumber, pageSize)
+        val restPageParameters = RestSignaleringPageParameters(
+            page = pageNumber,
+            rows = pageSize,
+            sortField = SorteerVeld.SIGNALERING_TIJDSTIP,
+            sortOrder = SorteerRichting.DESC
+        )
         val loggedInUser = createLoggedInUser()
 
         every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
@@ -72,11 +79,47 @@ class SignaleringRestServiceTest : BehaviorSpec({
 
         When("listing zaken signaleringen with incorrect page parameters") {
             val exception = shouldThrow<SignaleringException> {
-                signaleringRestService.listZakenSignaleringen(signaleringType, RestSignaleringPageParameters(123, 456))
+                signaleringRestService.listZakenSignaleringen(
+                    signaleringType,
+                    RestSignaleringPageParameters(
+                        page = 123,
+                        rows = 456,
+                        sortField = SorteerVeld.SIGNALERING_TIJDSTIP,
+                        sortOrder = SorteerRichting.DESC
+                    )
+                )
             }
 
             Then("exception is thrown") {
                 exception.message shouldBe "Requested page 123 must be <= 1"
+            }
+        }
+    }
+
+    Given("zaken signaleringen for ZAAK_OP_NAAM with sort parameters") {
+        val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
+        val numberOfElements = 7
+        val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
+        val sortedPageParameters = RestSignaleringPageParameters(
+            page = 0,
+            rows = 5,
+            sortField = SorteerVeld.ZAAK_IDENTIFICATIE,
+            sortOrder = SorteerRichting.ASC
+        )
+        val loggedInUser = createLoggedInUser()
+
+        every { signaleringService.countZakenSignaleringen(signaleringType) } returns numberOfElements.toLong()
+        every {
+            signaleringService.listZakenSignaleringenPage(signaleringType, sortedPageParameters, loggedInUser)
+        } returns restZaakOverzichtList
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("listing zaken signaleringen with the sort parameters") {
+            val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, sortedPageParameters)
+
+            Then("the sort parameters are passed through unchanged and the response is returned") {
+                restResultaat.totaal shouldBe numberOfElements
+                restResultaat.resultaten shouldBe restZaakOverzichtList
             }
         }
     }

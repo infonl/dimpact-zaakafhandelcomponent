@@ -18,6 +18,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
@@ -95,8 +96,8 @@ describe(InformatieObjectEditComponent.name, () => {
   // As a refactor, it would be nice to have a custom method to fill the form (via the UI elements)
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [InformatieObjectEditComponent],
       imports: [
+        InformatieObjectEditComponent,
         FormsModule,
         ReactiveFormsModule,
         MatIconModule,
@@ -109,11 +110,8 @@ describe(InformatieObjectEditComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideQueryClient(testQueryClient),
-        {
-          provide: MatDrawer,
-          useValue: mockSideNav,
-        },
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
     }).compileComponents();
@@ -296,6 +294,32 @@ describe(InformatieObjectEditComponent.name, () => {
           auteur: "Test Author",
           toelichting: "Test Explanation",
         }),
+      );
+    });
+
+    it("should include status in payload when status control is disabled due to ontvangstdatum", async () => {
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        taal: mockTalen[0],
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+      });
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+
+      expect(
+        informatieObjectenService.updateEnkelvoudigInformatieobject,
+      ).toHaveBeenCalledWith(
+        enkelvoudigInformatieObjectVersieGegevens.uuid,
+        "test-zaak-uuid",
+        expect.objectContaining({ status: "IN_BEWERKING" }),
       );
     });
 

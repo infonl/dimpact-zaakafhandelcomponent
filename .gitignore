@@ -59,8 +59,12 @@ fix-permissions.sh
 
 ### Claude ###
 .claude/settings.local.json
+.claude/worktrees/
 
 .kiro
 
 ### Worktrees ###
 .worktrees/
+
+### Bruno ###
+scripts/bruno/collections/zaakafhandelcomponent_backend_api/rest/

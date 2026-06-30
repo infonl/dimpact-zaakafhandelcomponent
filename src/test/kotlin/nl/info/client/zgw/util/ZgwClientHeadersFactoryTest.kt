@@ -26,7 +26,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
         zgwApiSecret
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 
@@ -69,7 +69,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                     incomingHeaders.isEmpty() shouldBe true
                 }
 
-                When("update is called again after the first call") {
+                And("update is called again after the first call") {
                     val incomingHeaders = MultivaluedHashMap<String, String>()
                     val outgoingHeadersSecond = MultivaluedHashMap<String, String>()
                     zgwClientHeadersFactory.update(incomingHeaders, outgoingHeadersSecond)

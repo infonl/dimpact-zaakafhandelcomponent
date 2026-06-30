@@ -15,16 +15,13 @@ import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.util.asMapWithKeyOfString
 import nl.info.zac.util.diff
 import nl.info.zac.util.getTypedValue
-import nl.info.zac.util.stringProperty
 import java.net.URI
 import java.time.ZonedDateTime
 
-private const val KEY_URL = "url"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
 private const val RESOURCE_EINDDATUM = "einddatum"
 private const val RESOURCE_EINDDATUM_GEPLAND = "einddatumGepland"
 private const val RESOURCE_HOOFDZAAK = "hoofdzaak"
-private const val RESOURCE_RELEVANTE_ANDERE_ZAKEN = "relevanteAndereZaken"
 private const val RESOURCE_STARTDATUM = "startdatum"
 private const val RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING = "uiterlijkeEinddatumAfdoening"
 private const val RESOURCE_EXTENSION = "verlenging"
@@ -67,26 +64,18 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
 
     @Suppress("CyclomaticComplexMethod")
     private fun convertValue(resource: String, item: Any): String? =
-        when {
-            resource == RESOURCE_COMMUNICATION_CHANNEL && item is String -> item
-            resource == RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_HOOFDZAAK && item is String ->
-                item
-                    .let(URI::create)
+        when (resource) {
+            RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
+            RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
+            RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
+            RESOURCE_HOOFDZAAK if item is String ->
+                item.let(URI::create)
                     .let(zrcClientService::readZaak).identificatie
-            resource == RESOURCE_RELEVANTE_ANDERE_ZAKEN && item is List<*> ->
-                item
-                    .asSequence()
-                    .mapNotNull { (it as? Map<*, *>)?.asMapWithKeyOfString()?.stringProperty(KEY_URL) }
-                    .map(URI::create)
-                    .map(zrcClientService::readZaak)
-                    .joinToString { it.identificatie }
-            resource == RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_ZAAKGEOMETRIE && item is Map<*, *> ->
+            RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
+            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
+            RESOURCE_ZAAKGEOMETRIE if item is Map<*, *> ->
                 item.asMapWithKeyOfString().getTypedValue(GeoJSONGeometry::class.java)?.toHistoryLineString()
-            resource == RESOURCE_EXTENSION -> null
+            RESOURCE_EXTENSION -> null
             else -> item.toString()
         }
 }

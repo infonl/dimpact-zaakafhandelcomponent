@@ -31,6 +31,7 @@
       <mat-icon>cases</mat-icon>
     </button>
     <button
+      *ngIf="brpRechtenQuery.data()?.zoeken"
       mat-icon-button
       type="button"
       matSuffix

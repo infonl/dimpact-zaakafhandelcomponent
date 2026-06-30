@@ -41,15 +41,12 @@ export class ZaakafhandelParametersResolver {
           this.bpmnService.listProcessDefinitionsQuery(false),
         ),
       ),
-      featureFlagPabcIntegration:
-        this.configuratieService.readFeatureFlagPabcIntegration(),
     }).pipe(
       map(
         ({
           zaakafhandelParameters,
           bpmnProcessConfigurations,
           bpmnProcessDefinitions,
-          featureFlagPabcIntegration,
         }) => {
           const bpmnZaakafhandelParameters = bpmnProcessConfigurations?.find(
             (item) =>
@@ -65,11 +62,13 @@ export class ZaakafhandelParametersResolver {
               zaaktype: zaakafhandelParameters.zaaktype,
               zaakbeeindigParameters:
                 zaakafhandelParameters.zaakbeeindigParameters,
+              smartDocuments:
+                bpmnZaakafhandelParameters?.smartDocuments ??
+                zaakafhandelParameters.smartDocuments,
             },
             bpmnProcessDefinitions,
             isBpmn,
             isSavedZaakafhandelParameters,
-            featureFlagPabcIntegration,
           };
         },
       ),

@@ -41,6 +41,11 @@ class BrcClientService @Inject constructor(
         return brcClient.besluitUpdate(besluit.url.extractUuid(), besluit)
     }
 
+    fun patchBesluit(besluitUuid: UUID, besluit: Besluit, auditExplanation: String?): Besluit {
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+        return brcClient.besluitPartialUpdate(besluitUuid, besluit)
+    }
+
     fun listAuditTrail(besluitUuid: UUID): List<AuditTrailRegel> = brcClient.listAuditTrail(besluitUuid)
 
     fun readBesluit(uuid: UUID): Besluit = brcClient.besluitRead(uuid)

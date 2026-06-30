@@ -3,21 +3,44 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, EventEmitter, Output } from "@angular/core";
+import { NgIf } from "@angular/common";
+import { Component, EventEmitter, inject, Output } from "@angular/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatTabsModule } from "@angular/material/tabs";
+import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { PolicyService } from "../../../policy/policy.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import { BedrijfZoekComponent } from "../bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../personen/persoon-zoek.component";
 
 @Component({
   selector: "zac-klant-zoek",
   templateUrl: "./klant-zoek.component.html",
   styleUrls: ["./klant-zoek.component.less"],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    MatTabsModule,
+    MatIconModule,
+    TranslateModule,
+    PersoonZoekComponent,
+    BedrijfZoekComponent,
+  ],
 })
 export class KlantZoekComponent {
   @Output() klant = new EventEmitter<
     GeneratedType<"RestBedrijf" | "RestPersoon">
   >();
 
-  klantGeselecteerd(klant: GeneratedType<"RestBedrijf" | "RestPersoon">): void {
+  private readonly policyService = inject(PolicyService);
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
+  );
+
+  protected klantGeselecteerd(
+    klant: GeneratedType<"RestBedrijf" | "RestPersoon">,
+  ) {
     this.klant.emit(klant);
   }
 }

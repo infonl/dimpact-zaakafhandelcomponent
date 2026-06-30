@@ -20,6 +20,7 @@ import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isWachtOpAanvullendeInformatie
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -57,7 +58,7 @@ class RestZaakConverter @Inject constructor(
     private val restGroupConverter: RestGroupConverter,
     private val restGerelateerdeZaakConverter: RestGerelateerdeZaakConverter,
     private val restUserConverter: RestUserConverter,
-    private val restDecisionConverter: RestDecisionConverter,
+    private val restBesluitConverter: RestBesluitConverter,
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val zaakVariabelenService: ZaakVariabelenService,
     private val bpmnService: BpmnService,
@@ -90,7 +91,7 @@ class RestZaakConverter @Inject constructor(
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
-            .map { restDecisionConverter.convertToRestDecision(it) }
+            .map { restBesluitConverter.convertToRestBesluit(it) }
         val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
@@ -143,7 +144,7 @@ class RestZaakConverter @Inject constructor(
             isDeelzaak = zaak.isDeelzaak(),
             isOpen = zaak.isOpen(),
             isHeropend = statustype.isHeropend(),
-            isInIntakeFase = statustype.isIntake(),
+            isInIntakeFase = statustype.isIntake() || statustype.isWachtOpAanvullendeInformatie(),
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isProcesGestuurd = bpmnProcessDefinition != null,
             bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
@@ -156,7 +157,7 @@ class RestZaakConverter @Inject constructor(
                 if (statustype.isHeropend()) add(HEROPEND)
                 if (zaak.isOpgeschort()) add(OPSCHORTING)
                 if (zaak.isVerlengd()) add(VERLENGD)
-                if (!hasSentConfirmationOfReceipt) {
+                if (!hasSentConfirmationOfReceipt && bpmnProcessDefinition == null) {
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             },
@@ -179,7 +180,7 @@ class RestZaakConverter @Inject constructor(
             ?.map(zrcClientService::readZaak)
             ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser, RelatieType.DEELZAAK) }
             ?.forEach(gerelateerdeZaken::add)
-        zaak.relevanteAndereZaken
+        zaak.gerelateerdeZaken
             ?.map { restGerelateerdeZaakConverter.convert(it, loggedInUser) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken

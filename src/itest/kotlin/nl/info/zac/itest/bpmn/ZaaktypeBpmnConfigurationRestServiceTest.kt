@@ -8,10 +8,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
-import nl.info.zac.itest.config.BEHANDELAARS_DOMAIN_TEST_1
 import nl.info.zac.itest.config.BEHANDELAAR_1
-import nl.info.zac.itest.config.BEHANDELAAR_DOMAIN_TEST_1
+import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_PROCESS_DEFINITION_KEY
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
@@ -27,6 +27,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_4_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_5_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection
@@ -34,6 +37,9 @@ import java.net.HttpURLConnection
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
+    val smartDocuments = """
+        "smartDocuments": { "enabledGlobally": true, "enabledForZaaktype": false }
+    """.trimIndent()
     val bpmnZaakType1 = """
         {
             "id": 1,
@@ -41,8 +47,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_1_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_1_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
+            $smartDocuments
         }
     """.trimIndent()
     val bpmnZaakType2 = """
@@ -52,8 +59,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_2_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_2_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
+            $smartDocuments
         }
     """.trimIndent()
     val bpmnZaakType3 = """
@@ -63,8 +71,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_3_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_DOCUMENT_SIGN_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_3_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
-            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}",
+            $smartDocuments
         }
     """.trimIndent()
     val bpmnZaakType4 = """
@@ -74,18 +83,28 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_4_DESCRIPTION}",
             "bpmnProcessDefinitionKey": "${BPMN_SUSPEND_RESUME_PROCESS_DEFINITION_KEY}",
             "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_4_PRODUCTAANVRAAG_TYPE}",
-            "groepNaam": "${BEHANDELAARS_DOMAIN_TEST_1.name}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
-
+    val bpmnZaakType5 = """
+        {
+            "id": 5,
+            "zaaktypeUuid": "${ZAAKTYPE_BPMN_TEST_5_UUID}",
+            "zaaktypeOmschrijving": "${ZAAKTYPE_BPMN_TEST_5_DESCRIPTION}",
+            "bpmnProcessDefinitionKey": "${BPMN_PERMISSION_CHECK_PROCESS_DEFINITION_KEY}",
+            "productaanvraagtype": "${ZAAKTYPE_BPMN_TEST_5_PRODUCTAANVRAAG_TYPE}",
+            "groepNaam": "${GROUP_BEHANDELAARS_TEST_1.name}",
+            "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
+        }
+    """.trimIndent()
     Given("A BPMN zaaktype configuration was created in the overall test setup") {
         lateinit var responseBody: String
 
         When("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "${ZAC_API_URI}/zaaktype-bpmn-configuration/${BPMN_TEST_PROCESS_DEFINITION_KEY}",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the response is successful") {
@@ -104,7 +123,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
 
             val response = itestHttpClient.performGetRequest(
                 url = "${ZAC_API_URI}/zaaktype-bpmn-configuration",
-                testUser = BEHANDELAAR_DOMAIN_TEST_1
+                testUser = BEHANDELAAR_1
             )
 
             Then("the response is successful") {
@@ -114,7 +133,8 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
 
             And("the expected zaak type data list is returned") {
-                responseBody shouldEqualJsonIgnoringExtraneousFields "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4]"
+                responseBody shouldEqualJsonIgnoringExtraneousFields
+                    "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4, $bpmnZaakType5]"
             }
         }
     }

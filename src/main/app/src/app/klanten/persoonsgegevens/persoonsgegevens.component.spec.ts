@@ -4,7 +4,9 @@
  */
 
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { TestBed } from "@angular/core/testing";
+import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
@@ -18,11 +20,13 @@ import { randomUUID } from "crypto";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { PolicyService } from "../../policy/policy.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { PersoonsgegevensComponent } from "./persoonsgegevens.component";
 
 const testPerson: GeneratedType<"RestPersoon"> = {
+  bsn: "123456789",
   temporaryPersonId: randomUUID(),
   indicaties: [],
 };
@@ -53,6 +57,8 @@ describe(PersoonsgegevensComponent.name, () => {
       providers: [
         { provide: KlantenService, useValue: klantenServiceMock },
         provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
@@ -115,6 +121,7 @@ describe(PersoonsgegevensComponent.name, () => {
 
   describe("zaakSpecificContactDetails prevails over persoon contact info", () => {
     const personWithContactInfo: GeneratedType<"RestPersoon"> = {
+      bsn: "123456789",
       temporaryPersonId: randomUUID(),
       indicaties: [],
       telefoonnummer: "0201234567",
@@ -202,6 +209,144 @@ describe(PersoonsgegevensComponent.name, () => {
       });
 
       expect(fixture.nativeElement.querySelector(".hint")).toBeTruthy();
+    });
+  });
+
+  describe("allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon", () => {
+    let policyService: PolicyService;
+    let fixture: ComponentFixture<PersoonsgegevensComponent>;
+
+    beforeEach(() => {
+      notifyManager.setScheduler((fn) => fn());
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler(queueMicrotask);
+    });
+
+    const zaakWithWijzigenRechten = fromPartial<GeneratedType<"RestZaak">>({
+      zaaktype: {
+        uuid: "test-zaaktype-uuid",
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaakafhandelParameters">
+        >({
+          betrokkeneKoppelingen: fromPartial<
+            GeneratedType<"RestBetrokkeneKoppelingen">
+          >({ brpKoppelen: true, kvkKoppelen: false }),
+        }),
+      },
+      initiatorIdentificatie: {
+        temporaryPersonId: "f31b38f2-d336-431f-a045-2ce4240c6c7e",
+      },
+      rechten: { toevoegenInitiatorPersoon: true, verwijderenInitiator: false },
+    });
+
+    beforeEach(() => {
+      policyService = TestBed.inject(PolicyService);
+      testQueryClient.setQueryData(
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: true,
+        }),
+      );
+      fixture = TestBed.createComponent(PersoonsgegevensComponent);
+      fixture.componentRef.setInput("zaak", zaakWithWijzigenRechten);
+      fixture.detectChanges();
+    });
+
+    it("should return true for allowedToChangeAndSearchInitiatorPersoon when toevoegenInitiatorPersoon and brpZoeken are true", () => {
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(true);
+    });
+
+    it("should return true for allowedToChangeInitiatorBedrijf when toevoegenInitiatorBedrijf and kvkKoppelen are true and brpZoeken is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
+      );
+      fixture.componentRef.setInput("zaak", {
+        ...zaakWithWijzigenRechten,
+        rechten: {
+          ...zaakWithWijzigenRechten.rechten,
+          toevoegenInitiatorBedrijf: true,
+        },
+        zaaktype: {
+          ...zaakWithWijzigenRechten.zaaktype,
+          zaakafhandelparameters: fromPartial<
+            GeneratedType<"RestZaakafhandelParameters">
+          >({
+            betrokkeneKoppelingen: fromPartial<
+              GeneratedType<"RestBetrokkeneKoppelingen">
+            >({ brpKoppelen: false, kvkKoppelen: true }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.componentInstance["allowedToChangeInitiatorBedrijf"](),
+      ).toBe(true);
+    });
+
+    it("should return false for allowedToChangeAndSearchInitiatorPersoon when toevoegenInitiatorPersoon is false", () => {
+      fixture.componentRef.setInput("zaak", {
+        ...zaakWithWijzigenRechten,
+        rechten: {
+          ...zaakWithWijzigenRechten.rechten,
+          toevoegenInitiatorPersoon: false,
+        },
+      });
+      fixture.detectChanges();
+
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(false);
+    });
+
+    it("should return false for both when brpZoeken is false and kvkKoppelen is false", () => {
+      testQueryClient.setQueryData(
+        policyService.readBrpRechten().queryKey,
+        fromPartial<GeneratedType<"RestBrpRechten">>({
+          zoeken: false,
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(
+        fixture.componentInstance["allowedToChangeInitiatorBedrijf"](),
+      ).toBe(false);
+      expect(
+        fixture.componentInstance["allowedToChangeAndSearchInitiatorPersoon"](),
+      ).toBe(false);
+    });
+
+    describe("wijzigen button", () => {
+      it("should show the button when allowedToChangeAndSearchInitiatorPersoon returns true", () => {
+        expect(
+          fixture.nativeElement.querySelector(
+            '[title="actie.initiator.wijzigen"]',
+          ),
+        ).toBeTruthy();
+      });
+
+      it("should hide the button when both allowedToChangeInitiatorBedrijf and allowedToChangeAndSearchInitiatorPersoon return false", () => {
+        testQueryClient.setQueryData(
+          policyService.readBrpRechten().queryKey,
+          fromPartial<GeneratedType<"RestBrpRechten">>({
+            zoeken: false,
+          }),
+        );
+        fixture.detectChanges();
+
+        expect(
+          fixture.nativeElement.querySelector(
+            '[title="actie.initiator.wijzigen"]',
+          ),
+        ).toBeNull();
+      });
     });
   });
 });

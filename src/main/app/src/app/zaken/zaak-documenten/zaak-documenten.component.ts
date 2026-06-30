@@ -4,31 +4,36 @@
  */
 
 import { SelectionModel } from "@angular/cdk/collections";
+import { NgClass, NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
   ViewChild,
 } from "@angular/core";
-import { FormControl, Validators } from "@angular/forms";
-import { MatCheckboxChange } from "@angular/material/checkbox";
+import { Validators } from "@angular/forms";
+import { MatIconAnchor, MatIconButton } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
-import { Router } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { MatIconModule } from "@angular/material/icon";
+import { MatMenuModule } from "@angular/material/menu";
+import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatSort, MatSortModule } from "@angular/material/sort";
+import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { Router, RouterLink } from "@angular/router";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { map } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
@@ -40,43 +45,121 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
+import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
+import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
+import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
+
+const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
+
+const BASE_COLUMNS = [
+  "downloaden",
+  "titel",
+  "informatieobjectTypeOmschrijving",
+  "bestandsomvang",
+  "status",
+  "vertrouwelijkheidaanduiding",
+  "registratiedatumTijd",
+  "auteur",
+  "indicaties",
+  "url",
+];
+
+const GEKOPPELDE_COLUMNS = [
+  "downloaden",
+  "titel",
+  "zaakIdentificatie",
+  "relatieType",
+  "informatieobjectTypeOmschrijving",
+  "bestandsomvang",
+  "status",
+  "vertrouwelijkheidaanduiding",
+  "registratiedatumTijd",
+  "auteur",
+  "indicaties",
+  "url",
+];
 
 @Component({
   selector: "zac-zaak-documenten",
   templateUrl: "./zaak-documenten.component.html",
   styleUrls: ["./zaak-documenten.component.less"],
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    RouterLink,
+    MatCardModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatSortModule,
+    MatCheckbox,
+    MatIconModule,
+    MatIconAnchor,
+    MatIconButton,
+    MatMenuModule,
+    TranslatePipe,
+    DocumentIconComponent,
+    DocumentViewerComponent,
+    InformatieObjectIndicatiesComponent,
+    EmptyPipe,
+    BestandsomvangPipe,
+    DatumPipe,
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+  ],
 })
-export class ZaakDocumentenComponent
-  implements OnInit, AfterViewInit, OnDestroy, OnChanges
-{
-  readonly indicatiesLayout = IndicatiesLayout;
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Output() documentMoveToCase = new EventEmitter<
-    GeneratedType<"RestEnkelvoudigInformatieobject">
-  >();
+export class ZaakDocumentenComponent implements AfterViewInit {
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly websocketService = inject(WebsocketService);
+  private readonly utilService = inject(UtilService);
+  private readonly zakenService = inject(ZakenService);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
+  private readonly queryClient = inject(QueryClient);
 
-  heeftGerelateerdeZaken = false;
+  readonly indicatiesLayout = IndicatiesLayout;
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly documentMoveToCase =
+    output<GeneratedType<"RestEnkelvoudigInformatieobject">>();
+
+  // Derived from the zaak so reactive consumers (websocket listeners, query key) only re-run
+  // when the case actually changes, not on every new zaak object reference from the parent.
+  private readonly zaakUuid = computed(() => this.zaak().uuid);
+
+  protected readonly heeftGerelateerdeZaken = computed(
+    () => (this.zaak().gerelateerdeZaken?.length ?? 0) > 0,
+  );
+
   selectAll = false;
-  toonGekoppeldeZaakDocumenten = new FormControl(false);
-  documentColumns = [
-    "downloaden",
-    "titel",
-    "informatieobjectTypeOmschrijving",
-    "bestandsomvang",
-    "status",
-    "vertrouwelijkheidaanduiding",
-    "registratiedatumTijd",
-    "auteur",
-    "indicaties",
-    "url",
-  ];
-  isLoadingResults = true;
+  protected readonly toonGekoppeldeZaakDocumenten = signal(true);
+
+  protected readonly documentColumns = computed(() =>
+    this.toonGekoppeldeZaakDocumenten() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
+  );
+
+  private readonly documentenQuery = injectQuery(() =>
+    this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
+      zaakUUID: this.zaakUuid(),
+      gekoppeldeZaakDocumenten: this.toonGekoppeldeZaakDocumenten(),
+    }),
+  );
+
+  protected readonly isLoadingResults = computed(() =>
+    this.documentenQuery.isFetching(),
+  );
+
   @ViewChild("documentenTable", { read: MatSort, static: true })
   docSort!: MatSort;
 
@@ -88,68 +171,63 @@ export class ZaakDocumentenComponent
     GeneratedType<"RestEnkelvoudigInformatieobject">
   >(true, []);
 
-  private websocketListeners: WebsocketListener[] = [];
+  constructor() {
+    // Feed query results into the MatTableDataSource so Material sorting keeps working.
+    // Use `?? []` so the table clears while transitioning to an uncached key (zaak/toggle change)
+    // instead of briefly showing the previous case's documents. An in-place refetch
+    // (websocket invalidation) keeps data() populated for the same key, so this never clears
+    // mid-refetch
+    effect(() => {
+      this.enkelvoudigInformatieObjecten.data = (this.documentenQuery.data() ??
+        []) as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
+    });
 
-  constructor(
-    private informatieObjectenService: InformatieObjectenService,
-    private websocketService: WebsocketService,
-    private utilService: UtilService,
-    private zakenService: ZakenService,
-    private dialog: MatDialog,
-    private translate: TranslateService,
-    private router: Router,
-  ) {}
+    let previousZaak: GeneratedType<"RestZaak"> | undefined;
+    effect(() => {
+      const zaak = this.zaak();
+      if (previousZaak && previousZaak !== zaak) {
+        this.reloadDocumenten();
+      }
+      previousZaak = zaak;
+    });
 
-  ngOnInit(): void {
-    this.init(this.zaak, false);
-  }
-
-  init(zaak: GeneratedType<"RestZaak">, reload: boolean) {
-    this.heeftGerelateerdeZaken = (zaak.gerelateerdeZaken?.length ?? 0) > 0;
-
-    if (reload) {
-      this.websocketService.removeListeners(this.websocketListeners);
-      this.websocketListeners = [];
-    }
-
-    this.websocketListeners.push(
-      this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_INFORMATIEOBJECTEN,
-        zaak.uuid,
-        (event) => this.loadInformatieObjecten(event),
-      ),
-    );
-
-    this.websocketListeners.push(
-      this.websocketService.addListener(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_BESLUITEN,
-        zaak.uuid,
-        () => this.loadInformatieObjecten(),
-      ),
-    );
-
-    this.loadInformatieObjecten();
+    effect((onCleanup) => {
+      const zaakUuid = this.zaakUuid();
+      const websocketListeners = [
+        this.websocketService.addListener(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_INFORMATIEOBJECTEN,
+          zaakUuid,
+          (event) => this.onZaakInformatieobjectenUpdated(event),
+        ),
+        this.websocketService.addListener(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_BESLUITEN,
+          zaakUuid,
+          () => this.reloadDocumenten(),
+        ),
+      ];
+      onCleanup(() =>
+        this.websocketService.removeListeners(websocketListeners),
+      );
+    });
   }
 
   ngAfterViewInit() {
     this.enkelvoudigInformatieObjecten.sort = this.docSort;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.zaak && !changes.zaak.firstChange) {
-      this.init(this.zaak, true);
-      this.heeftGerelateerdeZaken =
-        0 < (this.zaak.gerelateerdeZaken?.length ?? 0);
-    }
+  updateDocumentList() {
+    return this.reloadDocumenten();
   }
 
-  ngOnDestroy() {
-    this.websocketService.removeListeners(this.websocketListeners);
+  private reloadDocumenten() {
+    return this.queryClient.invalidateQueries({
+      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
+    });
   }
 
-  private loadInformatieObjecten(event?: ScreenEvent) {
+  private onZaakInformatieobjectenUpdated(event?: ScreenEvent) {
     if (event?.objectId.detail) {
       this.informatieObjectenService
         .readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
@@ -172,30 +250,11 @@ export class ZaakDocumentenComponent
         });
     }
 
-    this.searchEnkelvoudigeInformatieObjecten();
-  }
-
-  private searchEnkelvoudigeInformatieObjecten() {
-    this.isLoadingResults = true;
-
-    this.informatieObjectenService
-      .listEnkelvoudigInformatieobjecten({
-        zaakUUID: this.zaak.uuid,
-        gekoppeldeZaakDocumenten: !!this.toonGekoppeldeZaakDocumenten.value,
-      })
-      .subscribe((objecten) => {
-        this.enkelvoudigInformatieObjecten.data =
-          objecten as unknown as GekoppeldeZaakEnkelvoudigInformatieobject[];
-        this.isLoadingResults = false;
-      });
+    this.reloadDocumenten();
   }
 
   emitDocumentMove(row: GeneratedType<"RestEnkelvoudigInformatieobject">) {
     this.documentMoveToCase.emit(row);
-  }
-
-  updateDocumentList() {
-    this.loadInformatieObjecten();
   }
 
   documentOntkoppelen(
@@ -214,7 +273,7 @@ export class ZaakDocumentenComponent
           delete informatieobject["loading"];
           this.utilService.setLoading(false);
           return zaakIDs
-            .filter((zaakID) => zaakID !== this.zaak.identificatie)
+            .filter((zaakID) => zaakID !== this.zaak().identificatie)
             .join(", ");
         }),
       )
@@ -242,7 +301,7 @@ export class ZaakDocumentenComponent
           ],
           callback: ({ reden }) =>
             this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak.uuid,
+              zaakUUID: this.zaak().uuid,
               documentUUID: informatieobject.uuid!,
               reden: reden,
             }),
@@ -257,7 +316,7 @@ export class ZaakDocumentenComponent
           .afterClosed()
           .subscribe((result) => {
             if (result) {
-              this.searchEnkelvoudigeInformatieObjecten();
+              this.reloadDocumenten();
               this.utilService.openSnackbar(
                 "msg.document.ontkoppelen.uitgevoerd",
                 { document: informatieobject.titel },
@@ -271,41 +330,10 @@ export class ZaakDocumentenComponent
     return FileFormatUtil.isPreviewAvailable(formaat);
   }
 
-  toggleGekoppeldeZaakDocumenten() {
-    this.documentColumns = this.toonGekoppeldeZaakDocumenten.value
-      ? [
-          "downloaden",
-          "titel",
-          "zaakIdentificatie",
-          "relatieType",
-          "informatieobjectTypeOmschrijving",
-          "bestandsomvang",
-          "status",
-          "vertrouwelijkheidaanduiding",
-          "registratiedatumTijd",
-          "auteur",
-          "indicaties",
-          "url",
-        ]
-      : [
-          "downloaden",
-          "titel",
-          "informatieobjectTypeOmschrijving",
-          "bestandsomvang",
-          "status",
-          "vertrouwelijkheidaanduiding",
-          "registratiedatumTijd",
-          "auteur",
-          "indicaties",
-          "url",
-        ];
-    this.loadInformatieObjecten();
-  }
-
   getZaakUuidVanInformatieObject(
     informatieObject: GekoppeldeZaakEnkelvoudigInformatieobject,
   ) {
-    return informatieObject.zaakUUID ?? this.zaak.uuid;
+    return informatieObject.zaakUUID ?? this.zaak().uuid;
   }
 
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
@@ -325,7 +353,7 @@ export class ZaakDocumentenComponent
       .subscribe((response) => {
         this.utilService.downloadBlobResponse(
           response,
-          this.zaak.identificatie,
+          this.zaak().identificatie,
         );
       });
   }
@@ -376,7 +404,7 @@ export class ZaakDocumentenComponent
     this.informatieObjectenService
       .editEnkelvoudigInformatieObjectInhoud(
         enkelvoudigInformatieobject.uuid!,
-        this.zaak?.uuid,
+        this.zaak().uuid,
       )
       .subscribe((url) => {
         window.open(url);

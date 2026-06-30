@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import report from "multiple-cucumber-html-reporter";
+import { generate } from "multiple-cucumber-html-reporter";
 import { readdir, stat, writeFile } from "fs/promises";
 
-report.generate({
+generate({
   jsonDir: "./reports/",
   reportPath: "./reports/",
   pageTitle: "Dimpact e2e test",

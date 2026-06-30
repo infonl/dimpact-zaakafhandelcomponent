@@ -9,9 +9,11 @@ import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import {
   FIFTEEN_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
   TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
@@ -73,7 +75,7 @@ Given(
     const parsedStatus = zaakStatus.parse(status);
     await this.expect(
       this.page.getByText(`Status ${parsedStatus}`),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
@@ -163,7 +165,10 @@ When(
     await this.page.getByText(userName, { exact: true }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).click();
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
+
     await this.page.getByRole("button", { name: "Opslaan" }).click();
+
+    await this.page.waitForTimeout(TWO_SECONDS_IN_MS);
     await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
       groupName,
     );
@@ -189,19 +194,17 @@ When(
     await this.page.getByLabel("Zaak toevoegen").click();
     await this.page.getByLabel("Zaaktype").click();
     await this.page.getByRole("option", { name: zaakTypeName }).click();
-    if (!bpmnZaakType) {
-      await this.page
-        .locator("div")
-        .filter({ hasText: /^person$/ })
-        .click();
-      await this.page.getByLabel("BSN").click();
-      await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
-      await this.page
-        .getByLabel("emoji_people Persoon")
-        .getByRole("button", { name: "Zoeken" })
-        .click();
-      await this.page.getByRole("button", { name: "Select" }).click();
-    }
+    await this.page
+      .locator("div")
+      .filter({ hasText: /^person$/ })
+      .click();
+    await this.page.getByLabel("BSN").click();
+    await this.page.getByLabel("BSN").fill(TEST_PERSON_HENDRIKA_JANSE_BSN);
+    await this.page
+      .getByLabel("emoji_people Persoon")
+      .getByRole("button", { name: "Zoeken" })
+      .click();
+    await this.page.getByRole("button", { name: "Select" }).click();
     await this.page
       .locator("div")
       .filter({ hasText: /^gps_fixed$/ })
@@ -224,17 +227,21 @@ When(
     const group = this.page.getByRole("combobox", {
       name: "Zaak toekennen aan groep",
     });
-    await group.fill("test gr");
-    await group.focus();
-    await this.page.getByRole("listbox").first().click();
+    await group.fill("Test groep A");
+    await this.page
+      .getByRole("option", { name: "Test groep A", exact: true })
+      .click();
+
     if (bpmnZaakType) {
       const assignToUser = this.page.getByRole("combobox", {
         name: "Zaak toekennen aan medewerker",
       });
-      await assignToUser.fill("test us");
-      await assignToUser.focus();
-      await this.page.getByRole("listbox").first().click();
+      await assignToUser.fill("E2etest User1");
+      await this.page
+        .getByRole("option", { name: "E2etest User1", exact: true })
+        .click();
     }
+
     await this.page.getByLabel("Communicatiekanaal").click();
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar

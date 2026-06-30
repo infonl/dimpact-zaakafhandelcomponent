@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PatchBody, PutBody } from "../shared/http/http-client";
+import { PatchBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
@@ -23,6 +23,12 @@ export class TakenService {
 
   listTakenVoorZaak(zaakUUID: string) {
     return this.zacHttpClient.GET("/rest/taken/zaak/{zaakUUID}", {
+      path: { zaakUUID },
+    });
+  }
+
+  listTakenVoorZaakQuery(zaakUUID: string) {
+    return this.zacQueryClient.GET("/rest/taken/zaak/{zaakUUID}", {
       path: { zaakUUID },
     });
   }
@@ -61,7 +67,7 @@ export class TakenService {
     return this.zacQueryClient.PUT("/rest/taken/lijst/verdelen");
   }
 
-  vrijgevenVanuitLijst(body: PutBody<"/rest/taken/lijst/vrijgeven">) {
-    return this.zacHttpClient.PUT("/rest/taken/lijst/vrijgeven", body);
+  vrijgevenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/taken/lijst/vrijgeven");
   }
 }

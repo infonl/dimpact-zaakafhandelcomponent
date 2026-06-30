@@ -17,7 +17,7 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Root
-import net.atos.zac.admin.model.HumanTaskReferentieTabel
+import nl.info.zac.admin.model.HumanTaskReferentieTabel
 import nl.info.zac.admin.model.createHumanTaskReferentieTabel
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
@@ -35,7 +35,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         referenceTableService = referenceTableService
     )
 
-    beforeEach {
+    afterEach {
         checkUnnecessaryStub()
     }
 

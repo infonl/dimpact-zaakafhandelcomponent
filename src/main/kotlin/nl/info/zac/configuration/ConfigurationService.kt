@@ -19,7 +19,6 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateRSIN
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.URI
-import java.util.Optional
 import java.util.UUID
 import java.util.logging.Logger
 
@@ -29,14 +28,11 @@ import java.util.logging.Logger
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConfigurationService @Inject constructor(
-    private val brpConfiguration: BrpConfiguration,
+    private val brpConfiguration: BrpConfigurationProvider,
 
     private val entityManager: EntityManager,
 
     private val ztcClientService: ZtcClientService,
-
-    @ConfigProperty(name = ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES)
-    private val additionalAllowedFileTypes: Optional<String>,
 
     @ConfigProperty(name = ENV_VAR_BRON_ORGANISATIE_RSIN)
     private val bronOrganisatie: String,
@@ -59,9 +55,6 @@ class ConfigurationService @Inject constructor(
     @ConfigProperty(name = ENV_VAR_GEMEENTE_MAIL)
     private val gemeenteMail: String,
 
-    @ConfigProperty(name = ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION)
-    private val pabcIntegration: Boolean,
-
     @ConfigProperty(name = ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN)
     private val verantwoordelijkeOrganisatie: String,
 
@@ -69,12 +62,10 @@ class ConfigurationService @Inject constructor(
     private val zgwApiClientMpRestUrl: String
 ) {
     companion object {
-        const val ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES = "ADDITIONAL_ALLOWED_FILE_TYPES"
         const val ENV_VAR_BRON_ORGANISATIE_RSIN = "BRON_ORGANISATIE_RSIN"
         const val ENV_VAR_VERANTWOORDELIJKE_ORGANISATIE_RSIN = "VERANTWOORDELIJKE_ORGANISATIE_RSIN"
         const val ENV_VAR_CATALOGUS_DOMEIN = "CATALOGUS_DOMEIN"
         const val ENV_VAR_CONTEXT_URL = "CONTEXT_URL"
-        const val ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION = "FEATURE_FLAG_PABC_INTEGRATION"
         const val ENV_VAR_GEMEENTE_MAIL = "GEMEENTE_MAIL"
         const val ENV_VAR_GEMEENTE_NAAM = "GEMEENTE_NAAM"
         const val ENV_VAR_GEMEENTE_CODE = "GEMEENTE_CODE"
@@ -120,11 +111,9 @@ class ConfigurationService @Inject constructor(
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         LOG.info {
             """ZAC configuration environment variables:
-            |- $ENV_VAR_ADDITIONAL_ALLOWED_FILE_TYPES: '${additionalAllowedFileTypes.orElse("")}'
             |- $ENV_VAR_BRON_ORGANISATIE_RSIN: '$bronOrganisatie'
             |- $ENV_VAR_CATALOGUS_DOMEIN: '$catalogusDomein'
             |- $ENV_VAR_CONTEXT_URL: '$contextUrl'
-            |- $ENV_VAR_FEATURE_FLAG_PABC_INTEGRATION: '$pabcIntegration'
             |- $ENV_VAR_GEMEENTE_CODE: '$gemeenteCode'
             |- $ENV_VAR_GEMEENTE_MAIL: '$gemeenteMail'
             |- $ENV_VAR_GEMEENTE_NAAM: '$gemeenteNaam'
@@ -155,16 +144,7 @@ class ConfigurationService @Inject constructor(
         return talen.firstOrNull()
     }
 
-    fun featureFlagPabcIntegration(): Boolean = pabcIntegration
-
     fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB
-
-    fun readAdditionalAllowedFileTypes(): List<String> =
-        if (additionalAllowedFileTypes.isEmpty) {
-            emptyList()
-        } else {
-            additionalAllowedFileTypes.get().split(",").filter { it.isNotEmpty() }
-        }
 
     fun readDefaultCatalogusURI(): URI = catalogusURI
 
@@ -196,5 +176,5 @@ class ConfigurationService @Inject constructor(
 
     fun readCatalogusDomein(): String = catalogusDomein
 
-    fun readBrpConfiguration(): BrpConfiguration = brpConfiguration
+    fun readBrpConfiguration(): BrpConfigurationProvider = brpConfiguration
 }

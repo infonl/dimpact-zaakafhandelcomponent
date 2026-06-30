@@ -105,8 +105,19 @@ export class KlantenService {
   }
 
   /* istanbul ignore next */
+  readBasisprofiel(kvkNummer: string) {
+    return this.zacHttpClient.GET("/rest/klanten/basisprofiel/{kvkNummer}", {
+      path: { kvkNummer },
+    });
+  }
+
+  /* istanbul ignore next */
   getPersonenParameters() {
     return this.zacHttpClient.GET("/rest/klanten/personen/parameters");
+  }
+
+  listAuthorisedBrpGemeenten() {
+    return this.zacQueryClient.GET("/rest/klanten/personen/gemeenten");
   }
 
   /* istanbul ignore next */

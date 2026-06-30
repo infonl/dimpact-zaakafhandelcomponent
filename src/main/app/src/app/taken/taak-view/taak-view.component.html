@@ -41,11 +41,8 @@
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
       [taak]="taak"
-      [smartDocumentsGroupPath]="smartDocumentsGroupPath"
-      [smartDocumentsTemplateName]="smartDocumentsTemplateName"
-      [smartDocumentsInformatieobjecttypeUuid]="
-        smartDocumentsInformatieobjecttypeUuid
-      "
+      [smartDocumentsGroupId]="smartDocumentsGroupId"
+      [smartDocumentsTemplateId]="smartDocumentsTemplateId"
       (document)="documentCreated()"
     ></zac-informatie-object-create-attended>
     <zac-informatie-object-add
@@ -68,7 +65,7 @@
     <div class="flex-row flex-wrap gap-10">
       <mat-card class="taak-formulier w50 flex">
         <mat-card-content>
-          <zac-form
+          <zac-composed-form
             *ngIf="formFields.length"
             [form]="form"
             [fields]="formFields"
@@ -79,24 +76,18 @@
             (formPartiallySubmitted)="onHardCodedFormSubmit($event, true)"
           />
           <div class="form">
-            <mfb-form
-              *ngIf="formulier"
-              (formPartial)="onHardCodedFormSubmit($event, true)"
-              (formSubmit)="onHardCodedFormSubmit($event, false)"
-              [formFields]="formulier.form"
-              [config]="formConfig"
-            ></mfb-form>
             <zac-formio-wrapper
               *ngIf="formioFormulier"
               [submission]="{ data: taak.taakdata }"
               [form]="formioFormulier"
+              [taakdata]="taak.taakdata"
               [readOnly]="isReadonly()"
               (formSubmit)="onFormioFormSubmit($event)"
               (formChange)="onFormioFormChange($event)"
               (createDocument)="onDocumentCreate($event)"
             ></zac-formio-wrapper>
             <mat-progress-bar
-              *ngIf="!formulier && !formioFormulier && !formFields.length"
+              *ngIf="!formioFormulier && !formFields.length"
               mode="query"
             ></mat-progress-bar>
           </div>
@@ -149,7 +140,13 @@
                     label="groep"
                     [value]="taak?.groep?.naam"
                     class="flex-item"
-                  />
+                  >
+                    @if (taak?.groep?.active === false) {
+                      <em position="content-after"
+                        >&nbsp;({{ "inactief" | translate | lowercase }})</em
+                      >
+                    }
+                  </zac-static-text>
 
                   <zac-static-text
                     label="behandelaar"

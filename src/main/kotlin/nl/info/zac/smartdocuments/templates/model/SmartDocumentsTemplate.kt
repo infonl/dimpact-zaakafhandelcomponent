@@ -15,7 +15,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
+import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.database.flyway.FlywayIntegrator
 import nl.info.zac.util.AllOpen
 import java.time.ZonedDateTime
@@ -54,7 +54,7 @@ class SmartDocumentsTemplate {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zaaktype_configuration_id", nullable = false)
-    lateinit var zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
+    lateinit var zaaktypeConfiguration: ZaaktypeConfiguration
 
     @Column(name = "informatie_object_type_uuid", nullable = false)
     lateinit var informatieObjectTypeUUID: UUID

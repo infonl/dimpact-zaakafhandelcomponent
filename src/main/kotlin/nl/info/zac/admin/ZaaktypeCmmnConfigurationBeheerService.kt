@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.admin.ZaaktypeCmmnConfigurationService
 import net.atos.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -180,7 +179,10 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             // the already existing ZaaktypeCmmnConfiguration with SmartDocuments settings
             previousZaaktypeCmmnConfiguration.zaaktypeUuid.let { previousZaaktypeCmmnConfigurationUuid ->
                 zaaktypeCmmnConfiguration.zaaktypeUuid.let { newZaaktypeCmmnConfigurationUuid ->
-                    mapSmartDocuments(previousZaaktypeCmmnConfigurationUuid, newZaaktypeCmmnConfigurationUuid)
+                    smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
+                        previousZaaktypeCmmnConfigurationUuid,
+                        newZaaktypeCmmnConfigurationUuid
+                    )
                     storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration)
                 }
             }
@@ -232,8 +234,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
             afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
             productaanvraagtype = previousZaaktypeCmmnConfiguration.productaanvraagtype
-            domein = previousZaaktypeCmmnConfiguration.domein
-            smartDocumentsIngeschakeld = previousZaaktypeCmmnConfiguration.smartDocumentsIngeschakeld
+            smartDocumentsEnabled = previousZaaktypeCmmnConfiguration.smartDocumentsEnabled
             uiterlijkeEinddatumAfdoeningWaarschuwing =
                 previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
             creatiedatum = ZonedDateTime.now()
@@ -322,14 +323,6 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
             zaaktypeCmmnConfiguration = newZaaktypeCmmnConfiguration
         }
     }.let(newZaaktypeCmmnConfiguration::setMailtemplateKoppelingen)
-
-    private fun mapSmartDocuments(
-        previousZaakafhandelUUID: UUID,
-        newZaaktypeCmmnConfigurationUUID: UUID
-    ) {
-        val templateMappings = smartDocumentsTemplatesService.getTemplatesMapping(previousZaakafhandelUUID)
-        smartDocumentsTemplatesService.storeTemplatesMapping(templateMappings, newZaaktypeCmmnConfigurationUUID)
-    }
 
     private fun mapZaakAfzenders(
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
