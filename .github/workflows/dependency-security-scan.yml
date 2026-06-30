@@ -19,7 +19,7 @@ permissions:
   packages: read
 
 env:
-  JAVA_VERSION: "21.0.11"
+  JAVA_VERSION: "25.0.3"
   SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
   # Pre-built OWASP Dependency-Check NVD database, published by the
   # "Publish NVD Database Cache" workflow. Consuming it here avoids downloading
