@@ -176,6 +176,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "besluitUuid":"$besluitUuid",
+                        "reden":"fakeBesluitUpdateReason",
                         "resultaattypeUuid":"$resultaatType2Uuid",
                         "toelichting":"$updateReason",
                         "ingangsdatum":"$startDate",
@@ -308,6 +309,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                         "besluitUuid":"$besluitUuid",
+                        "reden":"fakeBesluitUpdateReason",
                         "toelichting":"fakeBesluitUpdateToelichting",
                         "ingangsdatum":"$ingangsdatum",
                         "publicationDate":"$publicationDate",
