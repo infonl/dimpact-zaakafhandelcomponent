@@ -95,8 +95,8 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body);
   }
 
-  verdelenVanuitLijst(body: PutBody<"/rest/zaken/lijst/verdelen">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
+  verdelenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/zaken/lijst/verdelen");
   }
 
   vrijgevenVanuitLijst() {

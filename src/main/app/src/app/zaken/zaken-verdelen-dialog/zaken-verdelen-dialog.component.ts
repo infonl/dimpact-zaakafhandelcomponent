@@ -4,7 +4,8 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, effect, inject, Inject, OnDestroy, signal } from "@angular/core";
+import { Component, effect, inject, Inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -17,8 +18,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
-import { Subject, takeUntil } from "rxjs";
+import { injectMutation, injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { FormHelper } from "../../shared/form/helpers";
@@ -45,10 +45,18 @@ import { ZakenService } from "../zaken.service";
     ZacInput,
   ],
 })
-export class ZakenVerdelenDialogComponent implements OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+export class ZakenVerdelenDialogComponent {
+  private readonly dialogRef = inject(MatDialogRef<ZakenVerdelenDialogComponent>);
+  private readonly zakenService = inject(ZakenService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly identityService = inject(IdentityService);
 
-  protected readonly loading = signal(false);
+  protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
+
+  protected readonly mutation = injectMutation(() => ({
+    ...this.zakenService.verdelenVanuitLijst(),
+    onSuccess: () => this.dialogRef.close(this.form.value),
+  }));
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -62,8 +70,6 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     ]),
   });
 
-  private readonly identityService = inject(IdentityService);
-
   protected readonly groups = injectQuery(() =>
     this.identityService.listBehandelaarGroupsForZaaktypes(
       this.data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
@@ -75,12 +81,7 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
 
   protected users: GeneratedType<"RestUser">[] = [];
 
-  constructor(
-    public readonly dialogRef: MatDialogRef<ZakenVerdelenDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public readonly data: ZaakZoekObject[],
-    private readonly zakenService: ZakenService,
-    private readonly formBuilder: FormBuilder,
-  ) {
+  constructor() {
     this.form.controls.medewerker.disable();
 
     effect(() => {
@@ -98,7 +99,7 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
     });
 
     this.form.controls.groep.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((group) => {
         this.form.controls.medewerker.setValue(null);
         this.form.controls.medewerker.disable();
@@ -116,27 +117,17 @@ export class ZakenVerdelenDialogComponent implements OnDestroy {
   }
 
   protected isDisabled() {
-    return this.form.invalid || this.loading() || !this.data.length;
+    return this.form.invalid || this.mutation.isPending() || !this.data.length;
   }
 
   protected verdeel() {
     this.dialogRef.disableClose = true;
-    this.loading.set(true);
-    this.zakenService
-      .verdelenVanuitLijst({
-        uuids: this.data.map(({ id }) => id),
-        screenEventResourceId: crypto.randomUUID(),
-        groepId: this.form.value.groep!.id,
-        behandelaarGebruikersnaam: this.form.value.medewerker?.id,
-        reden: this.form.value.reden,
-      })
-      .subscribe(() => {
-        this.dialogRef.close(this.form.value);
-      });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.mutation.mutate({
+      uuids: this.data.map(({ id }) => id),
+      screenEventResourceId: crypto.randomUUID(),
+      groepId: this.form.value.groep!.id,
+      behandelaarGebruikersnaam: this.form.value.medewerker?.id,
+      reden: this.form.value.reden,
+    });
   }
 }
