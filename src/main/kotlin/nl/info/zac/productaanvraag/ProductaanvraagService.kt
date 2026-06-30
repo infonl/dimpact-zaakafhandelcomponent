@@ -45,6 +45,8 @@ import nl.info.zac.productaanvraag.util.GeometryTypeEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.IndicatieMachtigingEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.RolOmschrijvingGeneriekEnumJsonAdapter
 import nl.info.zac.productaanvraag.util.toGeoJSONGeometry
+import nl.info.zac.search.IndexingService
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
@@ -75,7 +77,8 @@ class ProductaanvraagService @Inject constructor(
     private val configurationService: ConfigurationService,
     private val klantClientService: KlantClientService,
     private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
-    private val productaanvraagDocumentService: ProductaanvraagDocumentService
+    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
+    private val indexingService: IndexingService
 ) {
 
     companion object {
@@ -358,6 +361,7 @@ class ProductaanvraagService @Inject constructor(
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
             zaakData = zaakDataVariablesMap
         )
+        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, performCommit = true)
     }
 
     private fun startZaakWithCmmnProcess(
@@ -418,6 +422,7 @@ class ProductaanvraagService @Inject constructor(
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
         }
+        indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, performCommit = true)
     }
 
     private fun createZaak(
