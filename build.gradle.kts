@@ -54,6 +54,12 @@ buildscript {
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
+// Sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility).
+// Make sure this Java version is supported by the version of Kotlin and of the WildFly Application Server that we use
+// and try to keep this Java version in sync with the JRE and JDK versions used in the
+// ZAC Docker image and in our GitHub workflows.
+val javaVersion = 25
+
 val branchName = if (project.hasProperty("branchName")) {
     project.property("branchName").toString()
 } else {
@@ -73,11 +79,6 @@ extra.set("commitHash", commitHash)
 val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJarForItest") {
     isTransitive = false
 }
-
-// sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility)
-// make sure the Java version is supported by WildFly
-// and update our base Docker image and JDK versions in our GitHub workflows accordingly
-val javaVersion = 25
 
 val versionNumber = if (project.hasProperty("versionNumber")) {
     project.property("versionNumber").toString()
