@@ -6,14 +6,14 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>edit</mat-icon>
   <span class="flex-grow-1">{{ "actie.zaak.wijzigen" | translate }}</span>
-  <button mat-icon-button (click)="sideNav.close()">
+  <button mat-icon-button (click)="sideNav().close()">
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
 <mat-divider></mat-divider>
 
 <mat-drawer-container>
-  <form [formGroup]="form" (ngSubmit)="onSubmit(form)" class="">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="">
     <fieldset>
       <section class="row">
         <zac-select
@@ -28,14 +28,14 @@
           class="col-12 col-md-4"
           [form]="form"
           key="behandelaar"
-          [options]="users"
+          [options]="users()"
           optionDisplayValue="naam"
         ></zac-select>
         <zac-select
           class="col-12 col-md-4"
           [form]="form"
           key="communicatiekanaal"
-          [options]="communicationChannels"
+          [options]="communicationChannels()"
         ></zac-select>
       </section>
       <section class="row">
@@ -77,11 +77,11 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="!form.valid || form.pristine"
+          [disabled]="!form.valid || form.pristine || isSaveLocked()"
         >
           {{ "actie.opslaan" | translate }}
         </button>
-        <button type="button" mat-raised-button (click)="sideNav.close()">
+        <button type="button" mat-raised-button (click)="sideNav().close()">
           {{ "actie.annuleren" | translate }}
         </button>
       </mat-action-row>

@@ -7,7 +7,6 @@ import { inject, Injectable } from "@angular/core";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
-import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -32,24 +31,10 @@ export class ZakenService {
     return this.zacQueryClient.POST("/rest/zaken/zaak");
   }
 
-  updateZaak(
-    uuid: string,
-    update: {
-      zaak: Omit<
-        Partial<GeneratedType<"RestZaakCreateData">>,
-        "zaakgeometrie" | "behandelaar"
-      >;
-      reden?: string;
-    },
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}",
-      {
-        zaak: update.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
-        reden: update.reden ?? "",
-      },
-      { path: { uuid } },
-    );
+  updateMutation(uuid: string) {
+    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}", {
+      path: { uuid },
+    });
   }
 
   readOpschortingZaak(uuid: string) {
