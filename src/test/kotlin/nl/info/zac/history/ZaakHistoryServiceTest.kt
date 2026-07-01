@@ -586,6 +586,45 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
+    Given("Audit trail has a partial_update where gerelateerdeZaken was linked for the first time") {
+        val zaakUUID = UUID.randomUUID()
+        val gerelateerdeZaak = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie1")
+        every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns gerelateerdeZaak
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen().apply {
+                oud = mapOf("gerelateerdeZaken" to emptyList<Any>())
+                nieuw = mapOf("gerelateerdeZaken" to listOf(mapOf("url" to gerelateerdeZaak.url.toString())))
+            }
+        )
+        every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
+
+        When("converted to REST historie regel") {
+            val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
+
+            Then("it should return null for oudeWaarde and the zaak identificatie for nieuweWaarde") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attribuutLabel shouldBe "gerelateerdeZaken"
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
+                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    applicatie shouldBe null
+                    toelichting shouldBe ""
+                    actie shouldBe HistoryAction.GEWIJZIGD
+                }
+            }
+        }
+    }
+
     Given("Audit trail has resource hoofdzaak with action partial_update") {
         val zaakUUID = UUID.randomUUID()
         val zaak1 = createZaak(identificatie = "identificatie1")
