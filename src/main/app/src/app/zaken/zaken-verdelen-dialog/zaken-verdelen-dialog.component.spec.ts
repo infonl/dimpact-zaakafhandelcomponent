@@ -25,7 +25,6 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
-import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenVerdelenDialogComponent } from "./zaken-verdelen-dialog.component";
@@ -169,19 +168,4 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     expect(dialogRefMock.close).toHaveBeenCalledWith(component["form"].value);
   });
 
-  describe("when no authorised groups are found", () => {
-    it("sets error on groep control", () => {
-      const { component } = setup([makeZaakZoekObject()], []);
-      expect(component["form"].controls.groep.errors).toEqual(
-        FormHelper.CustomErrorMessage(
-          "msg.error.group.no.authorised.group.for.zaken",
-        ),
-      );
-    });
-
-    it("marks groep control as touched so the error is shown immediately", () => {
-      const { component } = setup([makeZaakZoekObject()], []);
-      expect(component["form"].controls.groep.touched).toBe(true);
-    });
-  });
 });

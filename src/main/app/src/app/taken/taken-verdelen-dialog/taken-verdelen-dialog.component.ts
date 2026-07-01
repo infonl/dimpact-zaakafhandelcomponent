@@ -4,10 +4,12 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, effect, inject } from "@angular/core";
+
+import { Component, computed, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatError } from "@angular/material/form-field";
 import {
   MAT_DIALOG_DATA,
   MatDialogContent,
@@ -23,7 +25,6 @@ import {
   injectQuery,
 } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
-import { FormHelper } from "../../shared/form/helpers";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -32,6 +33,7 @@ import { TakenService } from "../taken.service";
 @Component({
   selector: "zac-taken-verdelen-dialog",
   templateUrl: "./taken-verdelen-dialog.component.html",
+  styleUrls: ["./taken-verdelen-dialog.component.less"],
   standalone: true,
   imports: [
     NgIf,
@@ -42,6 +44,7 @@ import { TakenService } from "../taken.service";
     MatDialogContent,
     MatDividerModule,
     MatButtonModule,
+    MatError,
     TranslateModule,
     MaterialFormBuilderModule,
   ],
@@ -80,10 +83,10 @@ export class TakenVerdelenDialogComponent {
     ),
   );
 
-  private readonly noAuthorisedGroupValidator = () =>
-    FormHelper.CustomErrorMessage(
-      "msg.error.group.no.authorised.group.for.taken",
-    );
+  protected readonly noAuthorisedGroups = computed(() => {
+    const groups = this.groups.data();
+    return groups !== undefined && groups.length === 0;
+  });
 
   protected users: GeneratedType<"RestUser">[] = [];
 
@@ -94,20 +97,6 @@ export class TakenVerdelenDialogComponent {
     }
 
     this.form.controls.medewerker.disable();
-
-    effect(() => {
-      const groups = this.groups.data();
-      if (groups === undefined) return;
-
-      const groepControl = this.form.controls.groep;
-      if (groups.length === 0) {
-        groepControl.setValidators(this.noAuthorisedGroupValidator);
-        groepControl.markAsTouched();
-      } else {
-        groepControl.setValidators(Validators.required);
-      }
-      groepControl.updateValueAndValidity();
-    });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())

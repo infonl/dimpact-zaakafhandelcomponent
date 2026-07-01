@@ -20,14 +20,16 @@
 <mat-dialog-content>
   <form [formGroup]="form">
     <fieldset class="p-0">
-      <section class="row">
+  <section class="row">
         <zac-auto-complete
           class="col-12"
           [form]="form"
           key="groep"
           optionDisplayValue="naam"
+          [readonly]="noAuthorisedGroups()"
           [options]="groups.data() ?? []"
         ></zac-auto-complete>
+        <mat-error *ngIf="noAuthorisedGroups()">{{"msg.error.group.no.authorised.group.for.zaken" | translate }}</mat-error>
         <zac-auto-complete
           class="col-12"
           [form]="form"

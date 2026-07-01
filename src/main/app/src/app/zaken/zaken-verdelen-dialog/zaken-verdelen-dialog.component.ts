@@ -4,10 +4,11 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, effect, inject } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatError } from "@angular/material/form-field";
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -24,7 +25,6 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
-import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
@@ -43,6 +43,7 @@ import { ZakenService } from "../zaken.service";
     MatDividerModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatError,
     TranslateModule,
     ZacAutoComplete,
     ZacInput,
@@ -81,29 +82,15 @@ export class ZakenVerdelenDialogComponent {
     ),
   );
 
-  private readonly noAuthorisedGroupValidator = () =>
-    FormHelper.CustomErrorMessage(
-      "msg.error.group.no.authorised.group.for.zaken",
-    );
+  protected readonly noAuthorisedGroups = computed(() => {
+    const groups = this.groups.data();
+    return groups !== undefined && groups.length === 0;
+  });
 
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor() {
     this.form.controls.medewerker.disable();
-
-    effect(() => {
-      const groups = this.groups.data();
-      if (groups === undefined) return;
-
-      const groepControl = this.form.controls.groep;
-      if (groups.length === 0) {
-        groepControl.setValidators(this.noAuthorisedGroupValidator);
-        groepControl.markAsTouched();
-      } else {
-        groepControl.setValidators(Validators.required);
-      }
-      groepControl.updateValueAndValidity();
-    });
 
     this.form.controls.groep.valueChanges
       .pipe(takeUntilDestroyed())

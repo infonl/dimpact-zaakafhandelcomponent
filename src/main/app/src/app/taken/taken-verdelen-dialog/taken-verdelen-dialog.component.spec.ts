@@ -24,7 +24,6 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
-import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
@@ -202,18 +201,17 @@ describe(TakenVerdelenDialogComponent.name, () => {
   });
 
   describe("when no authorised groups are found", () => {
-    it("sets error on groep control", async () => {
+    it("noAuthorisedGroups signal is true", async () => {
       const { component } = await setup(makeDialogData([makeTaak("1")]), []);
-      expect(component["form"].controls.groep.errors).toEqual(
-        FormHelper.CustomErrorMessage(
-          "msg.error.group.no.authorised.group.for.taken",
-        ),
-      );
+      expect(component["noAuthorisedGroups"]()).toBe(true);
     });
 
-    it("marks groep control as touched so the error is shown immediately", async () => {
-      const { component } = await setup(makeDialogData([makeTaak("1")]), []);
-      expect(component["form"].controls.groep.touched).toBe(true);
+    it("shows no authorised groups message", async () => {
+      const { fixture } = await setup(makeDialogData([makeTaak("1")]), []);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain(
+        "msg.error.group.no.authorised.group.for.taken",
+      );
     });
   });
 });
