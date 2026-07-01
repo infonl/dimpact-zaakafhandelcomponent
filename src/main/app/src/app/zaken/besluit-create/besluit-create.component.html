@@ -23,8 +23,8 @@
     <zac-date [form]="form" key="vervaldatum" />
     <zac-textarea [form]="form" key="toelichting" />
   </fieldset>
-  <section *ngIf="form.controls.besluit.value?.publication?.enabled">
-    <mat-divider />
+  @if (form.controls.besluit.value?.publication?.enabled) {
+    <mat-divider class="mx-3" />
     <fieldset>
       <div class="mb-2">
         {{ "besluit.publicatie.indicatie.koptitel" | translate }}
@@ -66,8 +66,10 @@
       </div>
       <zac-date [form]="form" key="uiterlijkereactiedatum" />
     </fieldset>
-  </section>
-  <zac-documents [form]="form" key="documenten" [options]="documents" />
+  }
+  <fieldset>
+    <zac-documents [form]="form" key="documenten" [options]="documents" />
+  </fieldset>
   <fieldset>
     <mat-action-row>
       <button
