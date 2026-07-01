@@ -67,16 +67,19 @@ class ProductaanvraagDocumentService @Inject constructor(
         }
 
     fun pairBijlagenWithZaakIgnoringExceptions(bijlageURIs: List<URI>, zaakUrl: URI) =
-        bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
-            ZaakInformatieobject().apply {
-                informatieobject = bijlage.url
-                zaak = zaakUrl
-                titel = bijlage.titel
-                beschrijving = bijlage.beschrijving
-            }.runCatching {
-                zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+        bijlageURIs.forEach { bijlageURI ->
+            runCatching {
+                val bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI)
+                ZaakInformatieobject().apply {
+                    informatieobject = bijlage.url
+                    zaak = zaakUrl
+                    titel = bijlage.titel
+                    beschrijving = bijlage.beschrijving
+                }.run {
+                    zrcClientService.createZaakInformatieobject(this, ZAAK_INFORMATIEOBJECT_REDEN)
+                }
             }.onFailure {
-                LOG.log(Level.WARNING, "Failed to pair bijlagen '${bijlage.url}' with zaak url '$zaakUrl'", it)
+                LOG.log(Level.WARNING, "Failed to pair bijlage '$bijlageURI' with zaak url '$zaakUrl'", it)
             }
         }
 }
