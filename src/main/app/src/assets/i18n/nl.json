@@ -1115,6 +1115,6 @@
   "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Formulieren verwijderen",
   "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen.",
   " 14 ": ">>--> CONSOLE MELDINGEN <--<<",
-  "console.error.zaak.bijwerken": "Fout bij bijwerken zaak",
-  "console.error.behandelaar.toekennen": "Fout bij toekennen behandelaar"
+  "console.error.case-details-change.editing": "Fout bij bijwerken zaak",
+  "console.error.case-details-change.assignment": "Fout bij toekennen behandelaar"
 }

@@ -128,7 +128,9 @@ export class CaseDetailsEditComponent implements OnInit {
     },
     onError: (error) => {
       console.error(
-        this.translateService.instant("console.error.zaak.bijwerken"),
+        this.translateService.instant(
+          "console.error.case-details-change.editing",
+        ),
         error,
       );
     },
@@ -145,7 +147,9 @@ export class CaseDetailsEditComponent implements OnInit {
     },
     onError: (error) => {
       console.error(
-        this.translateService.instant("console.error.behandelaar.toekennen"),
+        this.translateService.instant(
+          "console.error.case-details-change.assignment",
+        ),
         error,
       );
     },
@@ -173,8 +177,8 @@ export class CaseDetailsEditComponent implements OnInit {
     const zaak = this.zaak();
     const dateChangesAllowed = Boolean(
       !zaak.isProcesGestuurd &&
-        zaak.rechten.wijzigen &&
-        zaak.rechten.wijzigenDoorlooptijd,
+      zaak.rechten.wijzigen &&
+      zaak.rechten.wijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService
@@ -301,9 +305,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      | "startdatum"
-      | "einddatumGepland"
-      | "uiterlijkeEinddatumAfdoening",
+      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();

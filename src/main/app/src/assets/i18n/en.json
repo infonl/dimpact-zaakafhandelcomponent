@@ -1115,6 +1115,6 @@
   "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Delete forms",
   "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "This form is in use and cannot be deleted. However, a new form with the same name can be uploaded to modify the form.",
   " 14 ": ">>--> CONSOLE MESSAGES <--<<",
-  "console.error.zaak.bijwerken": "Error updating zaak",
-  "console.error.behandelaar.toekennen": "Error assigning behandelaar"
+  "console.error.case-details-change.editing": "Error updating zaak",
+  "console.error.case-details-change.assignment": "Error assigning behandelaar"
 }
