@@ -28,7 +28,9 @@
           optionDisplayValue="naam"
           [options]="groups.data() ?? []"
         ></zac-auto-complete>
-        <mat-error *ngIf="noAuthorisedGroups()">{{ "msg.error.group.no.authorised.group.for.taken" | translate }}</mat-error>
+        <mat-error *ngIf="noAuthorisedGroups()">{{
+          "msg.error.group.no.authorised.group.for.taken" | translate
+        }}</mat-error>
         <zac-auto-complete
           class="col-12"
           [form]="form"

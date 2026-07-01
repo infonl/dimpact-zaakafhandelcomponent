@@ -67,7 +67,7 @@ const setup = (
   const identityService = TestBed.inject(IdentityService);
   const httpTestingController = TestBed.inject(HttpTestingController);
   testQueryClient.setQueryData(
-    identityService.listBehandelaarGroupsForZaaktypes(
+    identityService.listBehandelaarGroupsForZaaktypesQuery(
       data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
     ).queryKey,
     groups,
@@ -167,5 +167,4 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     await sleep();
     expect(dialogRefMock.close).toHaveBeenCalledWith(component["form"].value);
   });
-
 });

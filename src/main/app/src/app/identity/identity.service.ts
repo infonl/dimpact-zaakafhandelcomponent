@@ -22,7 +22,7 @@ export class IdentityService {
     return this.zacHttpClient.GET("/rest/identity/groups");
   }
 
-  listBehandelaarGroupsForZaaktypes(zaaktypeDescriptions: string[]) {
+  listBehandelaarGroupsForZaaktypesQuery(zaaktypeDescriptions: string[]) {
     return queryOptions({
       queryKey: ["/rest/identity/behandelaar-groups", zaaktypeDescriptions],
       queryFn: () =>

@@ -80,7 +80,7 @@ async function setup(
     .spyOn(identityService, "listUsersInGroup")
     .mockReturnValue(of([mockUser]));
   testQueryClient.setQueryData(
-    identityService.listBehandelaarGroupsForZaaktypes(
+    identityService.listBehandelaarGroupsForZaaktypesQuery(
       data.taken.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
     ).queryKey,
     groups,
