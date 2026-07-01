@@ -127,7 +127,10 @@ export class CaseDetailsEditComponent implements OnInit {
       void this.sideNav().close();
     },
     onError: (error) => {
-      console.error("Fout bij bijwerken zaak:", error);
+      console.error(
+        this.translateService.instant("console.error.zaak.bijwerken"),
+        error,
+      );
     },
   }));
 
@@ -141,7 +144,10 @@ export class CaseDetailsEditComponent implements OnInit {
       );
     },
     onError: (error) => {
-      console.error("Fout bij toekennen behandelaar:", error);
+      console.error(
+        this.translateService.instant("console.error.behandelaar.toekennen"),
+        error,
+      );
     },
   }));
 
