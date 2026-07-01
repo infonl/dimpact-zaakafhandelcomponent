@@ -137,8 +137,8 @@ class ZaakBesluitRestService @Inject constructor(
             zrcClientService.readZaak(besluit.zaak).let { zaak ->
                 assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).vastleggenBesluit)
 
-                besluitService.updateBesluit(besluit, restBesluitChangeData).let {
-                    restBesluitConverter.convertToRestBesluit(besluit).also {
+                besluitService.updateBesluit(besluit, restBesluitChangeData).let { updatedBesluit ->
+                    restBesluitConverter.convertToRestBesluit(updatedBesluit).also {
                         // This event should result from a ZAAKBESLUIT UPDATED notification on the ZAKEN channel,
                         // but Open Zaak unfortunately does not send such a notification, so we emulate it here.
                         eventingService.send(ScreenEventType.ZAAK_BESLUITEN.updated(zaak))

@@ -5,7 +5,7 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
@@ -54,6 +54,12 @@ buildscript {
 group = "nl.info.common-ground"
 description = "Zaakafhandelcomponent"
 
+// Sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility).
+// Make sure this Java version is supported by the version of Kotlin and of the WildFly Application Server that we use
+// and try to keep this Java version in sync with the JRE and JDK versions used in the
+// ZAC Docker image and in our GitHub workflows.
+val javaVersion = 25
+
 val branchName = if (project.hasProperty("branchName")) {
     project.property("branchName").toString()
 } else {
@@ -73,11 +79,6 @@ extra.set("commitHash", commitHash)
 val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJarForItest") {
     isTransitive = false
 }
-
-// sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility)
-// make sure the Java version is supported by WildFly
-// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
-val javaVersion = 21
 
 val versionNumber = if (project.hasProperty("versionNumber")) {
     project.property("versionNumber").toString()
@@ -157,9 +158,6 @@ dependencies {
     implementation(libs.jacobras.human.readable)
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
-
-    // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins(libs.detekt.formatting)
 
     runtimeOnly(libs.infinispan.jcache)
     runtimeOnly(libs.infinispan.cdi.embedded)
@@ -307,9 +305,9 @@ jsonSchema2Pojo {
 }
 
 kotlin {
-    // set the Java version for all Kotlin and Java compilation tasks
-    // including source and target compatibility
-    // see: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
+    // Set the Java version for all Kotlin and Java compilation tasks,
+    // including source and target compatibility.
+    // See: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
     jvmToolchain(javaVersion)
 }
 
