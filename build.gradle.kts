@@ -5,7 +5,7 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
@@ -76,8 +76,8 @@ val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJa
 
 // sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility)
 // make sure the Java version is supported by WildFly
-// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
-val javaVersion = 21
+// and update our base Docker image and JDK versions in our GitHub workflows accordingly
+val javaVersion = 25
 
 val versionNumber = if (project.hasProperty("versionNumber")) {
     project.property("versionNumber").toString()
@@ -157,9 +157,6 @@ dependencies {
     implementation(libs.jacobras.human.readable)
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
-
-    // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins(libs.detekt.formatting)
 
     runtimeOnly(libs.infinispan.jcache)
     runtimeOnly(libs.infinispan.cdi.embedded)
@@ -307,9 +304,9 @@ jsonSchema2Pojo {
 }
 
 kotlin {
-    // set the Java version for all Kotlin and Java compilation tasks
-    // including source and target compatibility
-    // see: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
+    // Set the Java version for all Kotlin and Java compilation tasks,
+    // including source and target compatibility.
+    // See: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
     jvmToolchain(javaVersion)
 }
 
