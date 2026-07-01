@@ -43,6 +43,7 @@ import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
@@ -50,6 +51,7 @@ import java.net.URI
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
@@ -382,9 +384,11 @@ class ZaakService @Inject constructor(
             .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }
 
         if (medewerkerRoles.size > 1) {
-            LOG.warning {
+            log(
+                LOG,
+                Level.WARNING,
                 "Zaak ${zaak.uuid} has ${medewerkerRoles.size} duplicate MEDEWERKER behandelaar roles; purging all before reassignment"
-            }
+            )
         }
 
         val currentBehandelaarId = (medewerkerRoles.singleOrNull() as? RolMedewerker)

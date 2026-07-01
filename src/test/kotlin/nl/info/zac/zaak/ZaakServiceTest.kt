@@ -15,6 +15,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import net.atos.client.zgw.zrc.model.Rol
@@ -58,8 +60,10 @@ import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.log.log
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import java.net.URI
+import java.util.logging.Level
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -381,6 +385,54 @@ class ZaakServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.name)
                     }
+                }
+            }
+        }
+
+        Given("a zaak has multiple duplicate MEDEWERKER behandelaar roles in OpenZaak") {
+            val zaak = createZaak()
+            val user = createLoggedInUser()
+            val group = createGroup()
+            val duplicateRole1 = createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId1")
+            )
+            val duplicateRole2 = createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId2")
+            )
+            val reason = "fakeReason"
+
+            every { zrcClientService.listRollen(zaak) } returns listOf(duplicateRole1, duplicateRole2)
+            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
+            every { zrcClientService.updateRol(zaak, any(), reason) } just runs
+            every { zgwApiService.findGroepForZaak(zaak) } returns null
+            every { identityService.readUser(user.id) } returns user
+            every { identityService.readGroup(group.name) } returns group
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
+            every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
+            every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
+            every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
+
+            When("assignZaak is called") {
+                mockkStatic("nl.info.zac.log.LogUtilsKt")
+                every { log(any(), any(), any<String>()) } returns Unit
+
+                zaakService.assignZaak(zaak, group.name, user.id, reason)
+
+                Then("a WARNING is logged about the duplicate roles") {
+                    verify(exactly = 1) {
+                        log(any(), Level.WARNING, match { it.contains("duplicate") })
+                    }
+                }
+
+                And("the duplicate roles are purged and a single new role is created") {
+                    verifyOrder {
+                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+                        zrcClientService.createRol(any(), reason)
+                    }
+                    unmockkStatic("nl.info.zac.log.LogUtilsKt")
                 }
             }
         }
