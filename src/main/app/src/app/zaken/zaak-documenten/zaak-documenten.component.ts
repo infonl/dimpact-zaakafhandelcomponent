@@ -14,9 +14,16 @@ import {
   input,
   output,
   signal,
+  TemplateRef,
+  viewChild,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
@@ -43,13 +50,13 @@ import {
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { detailExpand } from "../../shared/animations/animations";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { GenericDialogData } from "../../shared/dialog/generic-dialog/generic-dialog-data";
+import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -87,6 +94,10 @@ const GEKOPPELDE_COLUMNS = [
   "url",
 ];
 
+type OntkoppelDocumentForm = FormGroup<{
+  reden: FormControl<string | null>;
+}>;
+
 @Component({
   selector: "zac-zaak-documenten",
   templateUrl: "./zaak-documenten.component.html",
@@ -107,10 +118,12 @@ const GEKOPPELDE_COLUMNS = [
     MatIconAnchor,
     MatIconButton,
     MatMenuModule,
+    ReactiveFormsModule,
     TranslatePipe,
     DocumentIconComponent,
     DocumentViewerComponent,
     InformatieObjectIndicatiesComponent,
+    ZacTextarea,
     EmptyPipe,
     BestandsomvangPipe,
     DatumPipe,
@@ -162,6 +175,10 @@ export class ZaakDocumentenComponent implements AfterViewInit {
 
   @ViewChild("documentenTable", { read: MatSort, static: true })
   docSort!: MatSort;
+
+  private readonly ontkoppelDialogTemplate = viewChild.required<
+    TemplateRef<{ $implicit: OntkoppelDocumentForm }>
+  >("ontkoppelDialogTemplate");
 
   enkelvoudigInformatieObjecten = new MatTableDataSource<
     GeneratedType<"RestEnkelvoudigInformatieobject">
@@ -278,40 +295,41 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         }),
       )
       .subscribe((zaakIDs) => {
-        let melding: string;
-        if (zaakIDs) {
-          melding = this.translate.instant(
-            "msg.document.ontkoppelen.meerdere.zaken.bevestigen",
-            { zaken: zaakIDs, document: informatieobject.titel },
-          );
-        } else {
-          melding = this.translate.instant(
-            "msg.document.ontkoppelen.bevestigen",
-            { document: informatieobject.titel },
-          );
-        }
-        const dialogData = new DialogData<unknown, { reden: string }>({
-          formFields: [
-            new TextareaFormFieldBuilder()
-              .id("reden")
-              .label("reden")
-              .validators(Validators.required)
-              .maxlength(200)
-              .build(),
-          ],
-          callback: ({ reden }) =>
-            this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak().uuid,
-              documentUUID: informatieobject.uuid!,
-              reden: reden,
-            }),
-          melding,
-          confirmButtonActionKey: "actie.document.ontkoppelen",
-          icon: "link_off",
+        const melding = zaakIDs
+          ? this.translate.instant(
+              "msg.document.ontkoppelen.meerdere.zaken.bevestigen",
+              { zaken: zaakIDs, document: informatieobject.titel },
+            )
+          : this.translate.instant("msg.document.ontkoppelen.bevestigen", {
+              document: informatieobject.titel,
+            });
+
+        const form: OntkoppelDocumentForm = new FormGroup({
+          reden: new FormControl<string | null>(null, [
+            Validators.required,
+            Validators.maxLength(200),
+          ]),
         });
+
         this.dialog
-          .open(DialogComponent, {
-            data: dialogData,
+          .open<
+            GenericDialogComponent,
+            GenericDialogData<OntkoppelDocumentForm>,
+            unknown
+          >(GenericDialogComponent, {
+            data: {
+              form,
+              contentTemplate: this.ontkoppelDialogTemplate(),
+              callback: () =>
+                this.zakenService.ontkoppelInformatieObject({
+                  zaakUUID: this.zaak().uuid,
+                  documentUUID: informatieobject.uuid!,
+                  reden: form.getRawValue().reden ?? "",
+                }),
+              melding,
+              confirmButtonActionKey: "actie.document.ontkoppelen",
+              icon: "link_off",
+            },
           })
           .afterClosed()
           .subscribe((result) => {

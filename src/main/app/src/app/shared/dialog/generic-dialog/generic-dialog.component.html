@@ -1,0 +1,52 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  @if (data.icon) {
+    <mat-icon>{{ data.icon }}</mat-icon>
+  }
+  <span class="flex-grow-1">
+    {{ data.confirmButtonActionKey ?? "actie.ja" | translate }}
+  </span>
+  <button mat-icon-button type="button" (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider />
+
+<form [formGroup]="data.form" (submit)="confirm()" (cancel)="cancel()">
+  <mat-dialog-content>
+    @if (data.melding) {
+      <p [innerHTML]="data.melding"></p>
+    }
+    @if (data.uitleg) {
+      <p class="uitleg" [innerHTML]="data.uitleg"></p>
+    }
+
+    <fieldset class="p-0">
+      <ng-container
+        *ngTemplateOutlet="
+          data.contentTemplate;
+          context: { $implicit: data.form }
+        "
+      ></ng-container>
+    </fieldset>
+
+    @if (errorMessage(); as error) {
+      <div class="dialog-error flex-row align-items-center gap-8" role="alert">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <zac-form-actions
+    [form]="data.form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    [submitLabel]="data.confirmButtonActionKey ?? 'actie.ja'"
+    [cancelLabel]="data.cancelButtonActionKey ?? 'actie.annuleren'"
+  />
+</form>

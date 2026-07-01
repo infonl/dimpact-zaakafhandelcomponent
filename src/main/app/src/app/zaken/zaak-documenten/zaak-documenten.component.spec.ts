@@ -14,7 +14,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { NEVER, of } from "rxjs";
+import { EMPTY, NEVER, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -22,7 +22,10 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { FileFormat } from "../../informatie-objecten/model/file-format";
+import { GenericDialogData } from "../../shared/dialog/generic-dialog/generic-dialog-data";
+import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../zaken.service";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 
 const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
@@ -523,7 +526,7 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("documentOntkoppelen()", () => {
-    it("opens a dialog with the document's details", async () => {
+    it("opens the generic dialog with a reden field for the document", async () => {
       await createComponent();
       jest
         .spyOn(
@@ -531,7 +534,7 @@ describe(ZaakDocumentenComponent.name, () => {
           "listZaakIdentificatiesForInformatieobject",
         )
         .mockReturnValue(of([]));
-      jest
+      const openSpy = jest
         .spyOn(dialog, "open")
         .mockReturnValue(
           fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
@@ -539,7 +542,49 @@ describe(ZaakDocumentenComponent.name, () => {
 
       component.documentOntkoppelen(fakeDocument);
 
-      expect(dialog.open).toHaveBeenCalled();
+      expect(openSpy).toHaveBeenCalledWith(
+        GenericDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            confirmButtonActionKey: "actie.document.ontkoppelen",
+            icon: "link_off",
+          }),
+        }),
+      );
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      expect(dialogData.form.contains("reden")).toBe(true);
+      expect(dialogData.contentTemplate).toBeTruthy();
+    });
+
+    it("ontkoppelt the document with the entered reden when confirmed", async () => {
+      await createComponent();
+      jest
+        .spyOn(
+          informatieObjectenService,
+          "listZaakIdentificatiesForInformatieobject",
+        )
+        .mockReturnValue(of([]));
+      const openSpy = jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+        );
+      const zakenService = TestBed.inject(ZakenService);
+      const ontkoppelSpy = jest
+        .spyOn(zakenService, "ontkoppelInformatieObject")
+        .mockReturnValue(EMPTY);
+
+      component.documentOntkoppelen(fakeDocument);
+
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      dialogData.form.get("reden")?.setValue("Niet meer relevant");
+      dialogData.callback(dialogData.form).subscribe();
+
+      expect(ontkoppelSpy).toHaveBeenCalledWith({
+        zaakUUID: "zaak-uuid-1",
+        documentUUID: "doc-uuid-1",
+        reden: "Niet meer relevant",
+      });
     });
   });
 
