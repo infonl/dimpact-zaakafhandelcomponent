@@ -8,7 +8,7 @@ openapi-generator = "7.23.0"
 opentelemetry = "1.63.0"
 opentelemetry-instrumentation = "2.29.0"
 node-gradle = "7.1.0"
-detekt = "1.23.8"
+detekt = "2.0.0-alpha.5"
 spotless = "8.8.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
@@ -104,7 +104,6 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-metadata-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-metadata-jvm", version.ref = "kotlinx-metadata-jvm" }
 kotlin-csv-jvm = { group = "com.jsoizo", name = "kotlin-csv-jvm", version.ref = "kotlin-csv" }
 jacobras-human-readable = { group = "nl.jacobras", name = "Human-Readable", version.ref = "jacobras-human-readable" }
-detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 
 infinispan-jcache = { group = "org.infinispan", name = "infinispan-jcache", version.ref = "infinispan" }
 infinispan-cdi-embedded = { group = "org.infinispan", name = "infinispan-cdi-embedded", version.ref = "infinispan" }
@@ -173,6 +172,6 @@ jsonschema2pojo = { id = "org.jsonschema2pojo", version.ref = "jsonschema2pojo" 
 openapi = { id = "io.smallrye.openapi", version.ref = "openapi" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
 gradle-node = { id = "com.github.node-gradle.node", version.ref = "node-gradle" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owasp-dependencycheck" }

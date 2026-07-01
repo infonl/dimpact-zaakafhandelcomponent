@@ -5,7 +5,7 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.gradle.node.npm.task.NpmTask
-import io.gitlab.arturbosch.detekt.Detekt
+import dev.detekt.gradle.Detekt
 import io.smallrye.openapi.api.OpenApiConfig.DuplicateOperationIdBehavior
 import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
@@ -157,9 +157,6 @@ dependencies {
     implementation(libs.jacobras.human.readable)
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
-
-    // enable detekt formatting rules. see: https://detekt.dev/docs/rules/formatting/
-    detektPlugins(libs.detekt.formatting)
 
     runtimeOnly(libs.infinispan.jcache)
     runtimeOnly(libs.infinispan.cdi.embedded)
