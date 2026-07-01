@@ -76,8 +76,8 @@ val jacocoAgentJarForItest: Configuration = configurations.create("jacocoAgentJa
 
 // sets the Java version for all Kotlin and Java compilation tasks (source and target compatibility)
 // make sure the Java version is supported by WildFly
-// and update our base Docker image and JDK versions in our GitHubs workflows accordingly
-val javaVersion = 21
+// and update our base Docker image and JDK versions in our GitHub workflows accordingly
+val javaVersion = 25
 
 val versionNumber = if (project.hasProperty("versionNumber")) {
     project.property("versionNumber").toString()
@@ -307,9 +307,9 @@ jsonSchema2Pojo {
 }
 
 kotlin {
-    // set the Java version for all Kotlin and Java compilation tasks
-    // including source and target compatibility
-    // see: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
+    // Set the Java version for all Kotlin and Java compilation tasks,
+    // including source and target compatibility.
+    // See: https://www.baeldung.com/kotlin/gradle-kotlin-bytecode-version
     jvmToolchain(javaVersion)
 }
 
