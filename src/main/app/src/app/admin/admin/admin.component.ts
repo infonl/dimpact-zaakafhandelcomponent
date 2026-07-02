@@ -45,6 +45,13 @@ export abstract class AdminComponent extends ViewComponent {
       ),
     );
     this.menu.push(
+      this.getMenuLink(
+        "title.referentietabellen.v2",
+        "/admin/referentietabellen-v2",
+        "table_view",
+      ),
+    );
+    this.menu.push(
       this.getMenuLink("title.mailtemplates", "/admin/mailtemplates", "mail"),
     );
     this.menu.push(

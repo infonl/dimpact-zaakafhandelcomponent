@@ -1,0 +1,72 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+  <mat-sidenav-content class="p-4">
+    @if (loading) {
+      <div class="loading-shade">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else if (tabellen.length === 0) {
+      <mat-card>
+        <mat-card-content>
+          {{ "msg.geen.gegevens.gevonden" | translate }}
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-accordion multi>
+        @for (tabel of tabellen; track tabel.id) {
+          <mat-expansion-panel (opened)="onPanelOpened(tabel)">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ tabel.code }}</mat-panel-title>
+              <mat-panel-description class="panel-description">
+                <span>{{ tabel.naam }}</span>
+                <span class="panel-meta">
+                  @if (tabel.systeem) {
+                    <mat-icon
+                      class="systeem-icon"
+                      matTooltip="{{ 'systeem' | translate }}"
+                      >lock</mat-icon
+                    >
+                  }
+                  {{ tabel.aantalWaarden }} {{ "rijen" | translate }}
+                </span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            @if (isLoadingWaarden(tabel)) {
+              <div class="loading-shade">
+                <mat-spinner diameter="30"></mat-spinner>
+              </div>
+            } @else {
+              <mat-list>
+                @for (waarde of getWaarden(tabel); track waarde.id) {
+                  <mat-list-item>{{ waarde.naam | empty }}</mat-list-item>
+                } @empty {
+                  <mat-list-item>{{
+                    "msg.geen.gegevens.gevonden" | translate
+                  }}</mat-list-item>
+                }
+              </mat-list>
+            }
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>
