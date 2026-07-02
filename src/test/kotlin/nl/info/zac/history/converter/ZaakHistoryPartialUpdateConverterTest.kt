@@ -383,6 +383,168 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
         }
     }
 
+    Given("Audit trail has a partial_update where multiple gerelateerde zaken were linked") {
+        val gerelateerdeZaak1 = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie1")
+        val gerelateerdeZaak2 = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie2")
+        every { zrcClientService.readZaak(gerelateerdeZaak1.url) } returns gerelateerdeZaak1
+        every { zrcClientService.readZaak(gerelateerdeZaak2.url) } returns gerelateerdeZaak2
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf(
+            "gerelateerdeZaken" to listOf(
+                mapOf("url" to gerelateerdeZaak1.url.toString()),
+                mapOf("url" to gerelateerdeZaak2.url.toString())
+            )
+        )
+
+        When("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                zrcAuditTrailRegel,
+                HistoryAction.GEWIJZIGD,
+                oldValues,
+                newValues
+            )
+
+            Then("it should return the zaak identificaties joined by a comma") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attribuutLabel shouldBe "gerelateerdeZaken"
+                    oudeWaarde shouldBe null
+                    nieuweWaarde shouldBe "${gerelateerdeZaak1.identificatie}, ${gerelateerdeZaak2.identificatie}"
+                }
+            }
+        }
+    }
+
+    Given("Audit trail has a partial_update where gerelateerdeZaken contains a duplicate url") {
+        val gerelateerdeZaak = createZaak(identificatie = "fakeGerelateerdeZaakIdentificatie1")
+        every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns gerelateerdeZaak
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf(
+            "gerelateerdeZaken" to listOf(
+                mapOf("url" to gerelateerdeZaak.url.toString()),
+                mapOf("url" to gerelateerdeZaak.url.toString())
+            )
+        )
+
+        When("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                zrcAuditTrailRegel,
+                HistoryAction.GEWIJZIGD,
+                oldValues,
+                newValues
+            )
+
+            Then("it should return the zaak identificatie only once") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attribuutLabel shouldBe "gerelateerdeZaken"
+                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
+                }
+            }
+        }
+    }
+
+    Given("Audit trail has a partial_update where a gerelateerde zaak can no longer be resolved") {
+        val gerelateerdeZaakUri = URI("https://example.com/zaken/${UUID.randomUUID()}")
+        every { zrcClientService.readZaak(gerelateerdeZaakUri) } throws RuntimeException("fakeException")
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf("gerelateerdeZaken" to listOf(mapOf("url" to gerelateerdeZaakUri.toString())))
+
+        When("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                zrcAuditTrailRegel,
+                HistoryAction.GEWIJZIGD,
+                oldValues,
+                newValues
+            )
+
+            Then("it should fall back to the zaak url") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attribuutLabel shouldBe "gerelateerdeZaken"
+                    nieuweWaarde shouldBe gerelateerdeZaakUri.toString()
+                }
+            }
+        }
+    }
+
+    Given(
+        """
+           Audit trail has a partial_update where gerelateerdeZaken contains an invalid url,
+           a non-map entry and a map without a url
+        """.trimIndent()
+    ) {
+        val zrcAuditTrailRegel = createZRCAuditTrailRegel(
+            bron = Bron.ZAKEN_API,
+            actie = "partial_update",
+            actieWeergave = "Almost updated",
+            resultaat = 200,
+            hoofdObject = URI("https://example.com/somePath"),
+            resource = "zaak",
+            resourceUrl = URI("https://example.com/somePath"),
+            toelichting = "",
+            wijzigingen = Wijzigingen()
+        )
+        val oldValues = mapOf("gerelateerdeZaken" to emptyList<Any>())
+        val newValues = mapOf(
+            "gerelateerdeZaken" to listOf(
+                mapOf("url" to "https://exam ple.com/invalidUrl"),
+                "notAMap",
+                mapOf("noUrlKey" to "fakeValue")
+            )
+        )
+
+        When("converted to REST historie regel") {
+            val historyLines = zaakHistoryPartialUpdateConverter.convertPartialUpdate(
+                zrcAuditTrailRegel,
+                HistoryAction.GEWIJZIGD,
+                oldValues,
+                newValues
+            )
+
+            Then("it should return null for nieuweWaarde") {
+                historyLines.size shouldBe 1
+                with(historyLines.first()) {
+                    attribuutLabel shouldBe "gerelateerdeZaken"
+                    nieuweWaarde shouldBe null
+                }
+            }
+        }
+    }
+
     Given("Audit trail has resource hoofdzaak with action partial_update") {
         val zaak1 = createZaak(identificatie = "identificatie1")
         val zaak2 = createZaak(identificatie = "identificatie2")
