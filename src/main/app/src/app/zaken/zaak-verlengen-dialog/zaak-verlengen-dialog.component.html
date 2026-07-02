@@ -38,7 +38,11 @@
         mat-raised-button
         color="primary"
         type="submit"
-        [disabled]="extendZaakMutation.isPending() || !form.valid"
+        [disabled]="
+          !form.valid ||
+          extendZaakMutation.isPending() ||
+          extendZaakMutation.isSuccess()
+        "
       >
         <mat-icon *ngIf="extendZaakMutation.isPending()">
           <mat-spinner diameter="18"></mat-spinner>
