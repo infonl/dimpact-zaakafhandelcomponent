@@ -1019,7 +1019,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A source zaak without koppelen rights and a target zaak with koppelen rights") {
+    Given("A source zaak without koppelen rights") {
         val sourceZaak = createZaak(
             identificatie = "ZAAK-2000-00001",
             archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
