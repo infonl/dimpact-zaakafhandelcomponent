@@ -41,7 +41,7 @@ const mockGroups: GeneratedType<"RestGroup">[] = [
   { id: "groep-1", naam: "Groep Een" },
 ];
 
-const setup = (
+const setup = async (
   data: ZaakZoekObject[],
   groups: GeneratedType<"RestGroup">[] = mockGroups,
 ) => {
@@ -66,15 +66,15 @@ const setup = (
   });
   const identityService = TestBed.inject(IdentityService);
   const httpTestingController = TestBed.inject(HttpTestingController);
-  testQueryClient.setQueryData(
-    identityService.listBehandelaarGroupsForZaaktypesQuery(
-      data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
-    ).queryKey,
-    groups,
-  );
   jest.spyOn(identityService, "listUsersInGroup").mockReturnValue(of([]));
   const fixture: ComponentFixture<ZakenVerdelenDialogComponent> =
     TestBed.createComponent(ZakenVerdelenDialogComponent);
+  fixture.detectChanges();
+  await sleep();
+  httpTestingController
+    .expectOne("/rest/identity/behandelaar-groups")
+    .flush(groups);
+  await sleep();
   fixture.detectChanges();
   return {
     fixture,
@@ -86,7 +86,7 @@ const setup = (
 
 describe(ZakenVerdelenDialogComponent.name, () => {
   it("shows singular title when one zaak is selected", async () => {
-    const { fixture } = setup([makeZaakZoekObject()]);
+    const { fixture } = await setup([makeZaakZoekObject()]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const toolbar = await loader.getHarness(MatToolbarHarness);
     expect(await (await toolbar.host()).text()).toContain(
@@ -95,7 +95,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("shows plural title when multiple zaken are selected", async () => {
-    const { fixture } = setup([
+    const { fixture } = await setup([
       makeZaakZoekObject({ id: "a" }),
       makeZaakZoekObject({ id: "b" }),
     ]);
@@ -107,7 +107,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("disables verdelen button when form is invalid (no groep selected)", async () => {
-    const { fixture } = setup([makeZaakZoekObject()]);
+    const { fixture } = await setup([makeZaakZoekObject()]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const button = await loader.getHarness(
       MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
@@ -116,7 +116,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("disables verdelen button when data is empty", async () => {
-    const { fixture } = setup([]);
+    const { fixture } = await setup([]);
     const loader = TestbedHarnessEnvironment.loader(fixture);
     const button = await loader.getHarness(
       MatButtonHarness.with({ selector: "#zakenVerdelen_button" }),
@@ -125,7 +125,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("disables verdelen button when loading", async () => {
-    const { component, httpTestingController } = setup([makeZaakZoekObject()]);
+    const { component, httpTestingController } = await setup([makeZaakZoekObject()]);
     component["form"].controls.groep.setValue(mockGroups[0]);
     component["verdeel"]();
     await sleep();
@@ -134,7 +134,7 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("shows spinner when loading", async () => {
-    const { fixture, component, httpTestingController } = setup([
+    const { fixture, component, httpTestingController } = await setup([
       makeZaakZoekObject(),
     ]);
     component["form"].controls.groep.setValue(mockGroups[0]);
@@ -145,14 +145,14 @@ describe(ZakenVerdelenDialogComponent.name, () => {
     httpTestingController.expectOne("/rest/zaken/lijst/verdelen").flush({});
   });
 
-  it("closes dialog with false when cancel is clicked", () => {
-    const { component, dialogRefMock } = setup([makeZaakZoekObject()]);
+  it("closes dialog with false when cancel is clicked", async () => {
+    const { component, dialogRefMock } = await setup([makeZaakZoekObject()]);
     component["close"]();
     expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
 
   it("sends PUT request with correct args and closes dialog on success", async () => {
-    const { component, dialogRefMock, httpTestingController } = setup([
+    const { component, dialogRefMock, httpTestingController } = await setup([
       makeZaakZoekObject({ id: "uuid-1" }),
     ]);
     component["form"].controls.groep.setValue(mockGroups[0]);
