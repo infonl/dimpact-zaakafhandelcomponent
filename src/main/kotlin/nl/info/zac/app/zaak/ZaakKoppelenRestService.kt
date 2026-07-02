@@ -229,7 +229,6 @@ class ZaakKoppelenRestService @Inject constructor(
         relationType: RelatieType,
         loggedInUser: LoggedInUser
     ) =
-        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights(loggedInUser) &&
             targetZaak.hasLinkRights() &&
             sourceZaak.isLinkableTo(targetZaak, relationType) &&
@@ -239,12 +238,14 @@ class ZaakKoppelenRestService @Inject constructor(
         when (relationType) {
             // "The case you are searching for here will become the main case"
             RelatieType.HOOFDZAAK ->
+                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
                 // hoofdzaak to hoofdzaak link not allowed
                 !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
                     !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
             // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
+                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
                 !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&

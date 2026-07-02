@@ -1195,6 +1195,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
 
         When("findLinkableZaken with HOOFDZAAK is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
@@ -1235,9 +1237,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 rows = rows
             )
 
-            Then("the target zaak should not be linkable") {
+            Then("the target zaak should be linkable") {
                 result.resultCount shouldBe 1
-                result.results.first().isKoppelbaar shouldBe false
+                result.results.first().isKoppelbaar shouldBe true
             }
         }
     }
@@ -1263,6 +1265,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
 
         When("findLinkableZaken with HOOFDZAAK is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
@@ -1303,9 +1307,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 rows = rows
             )
 
-            Then("the target zaak should not be linkable") {
+            Then("the target zaak should be linkable") {
                 result.resultCount shouldBe 1
-                result.results.first().isKoppelbaar shouldBe false
+                result.results.first().isKoppelbaar shouldBe true
             }
         }
     }
