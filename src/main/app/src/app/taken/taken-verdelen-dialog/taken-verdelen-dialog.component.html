@@ -29,7 +29,7 @@
           [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
         <mat-error *ngIf="noAuthorisedGroups()">{{
-          "msg.error.group.no.authorised.group.for.taken" | translate
+          "msg.error.dialog.taken-verdelen.no-authorised-groups" | translate
         }}</mat-error>
         <zac-auto-complete
           class="col-12"
