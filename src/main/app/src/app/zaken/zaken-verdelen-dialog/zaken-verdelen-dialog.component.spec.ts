@@ -125,7 +125,9 @@ describe(ZakenVerdelenDialogComponent.name, () => {
   });
 
   it("disables verdelen button when loading", async () => {
-    const { component, httpTestingController } = await setup([makeZaakZoekObject()]);
+    const { component, httpTestingController } = await setup([
+      makeZaakZoekObject(),
+    ]);
     component["form"].controls.groep.setValue(mockGroups[0]);
     component["verdeel"]();
     await sleep();

@@ -28,9 +28,9 @@ import {
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
-import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
 
 const mockGroup: GeneratedType<"RestGroup"> = {
