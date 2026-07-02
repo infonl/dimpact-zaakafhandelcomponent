@@ -26,6 +26,7 @@
           [form]="form"
           key="groep"
           optionDisplayValue="naam"
+          [readonly]="noAuthorisedGroups()"
           [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
         <mat-error *ngIf="noAuthorisedGroups()">{{
