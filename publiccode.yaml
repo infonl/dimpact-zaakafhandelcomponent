@@ -69,9 +69,10 @@ supports:
     - id: https://vng-realisatie.github.io/gemma-zaken/standaard/
     - id: https://www.omg.org/spec/BPMN
     - id: https://www.omg.org/spec/CMMN
+    - id: https://openid.net/specs/openid-connect-core-1_0.html
 
 usedBy:
-    - Dimpact
     - Gemeente Assen
-    - Gemeente Enschede
     - Gemeente Groningen
+    - And other Dimpact municipalities
+
