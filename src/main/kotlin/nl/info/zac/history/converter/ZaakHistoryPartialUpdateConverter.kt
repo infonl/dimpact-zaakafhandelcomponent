@@ -68,13 +68,15 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         when (resource) {
             RESOURCE_GERELATEERDE_ZAKEN if item is List<*> -> item.asSequence()
                 .filterIsInstance<Map<*, *>>()
-                .map { it["url"] }
-                .filterIsInstance<String>()
-                .map(URI::create)
-                .map(zrcClientService::readZaak)
+                .mapNotNull { it["url"] as? String }
+                .mapNotNull { runCatching { URI.create(it) }.getOrNull() }
+                .distinct()
+                .map { uri ->
+                    runCatching { zrcClientService.readZaak(uri).identificatie }.getOrNull() ?: uri.toString()
+                }
                 .toList()
                 .takeIf { it.isNotEmpty() }
-                ?.joinToString(", ") { it.identificatie }
+                ?.joinToString(", ")
             RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
             RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
             RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
