@@ -193,7 +193,10 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults.count
         )
 
-    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
+    private fun ZaakZoekObject.hasLinkRights(relationType: RelatieType) = policyService.readZaakRechtenForZaakZoekObject(this).let {
+        if (relationType == RelatieType.GERELATEERD) it.lezen
+        else it.koppelen
+    }
 
     private fun Zaak.hasLinkRights(loggedInUser: LoggedInUser) = policyService.readZaakRechten(
         this,
@@ -230,7 +233,7 @@ class ZaakKoppelenRestService @Inject constructor(
         loggedInUser: LoggedInUser
     ) =
             sourceZaak.hasLinkRights(loggedInUser) &&
-            targetZaak.hasLinkRights() &&
+            targetZaak.hasLinkRights(relationType) &&
             sourceZaak.isLinkableTo(targetZaak, relationType) &&
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
 
