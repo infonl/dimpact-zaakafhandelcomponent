@@ -1194,8 +1194,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        //every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        //every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK is called") {
@@ -1264,8 +1262,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        //every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        //every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK is called") {
