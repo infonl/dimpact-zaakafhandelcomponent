@@ -54,8 +54,8 @@ localisation:
     - en
 
 maintenance:
-    type: "contract"
-    contractors:
+  type: "contract"
+  contractors:
     - name: "INFO"
       email: "contact@info.nl"
       website: "https://www.info.nl/"
