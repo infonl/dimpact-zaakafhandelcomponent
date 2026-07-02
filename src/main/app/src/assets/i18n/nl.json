@@ -787,6 +787,8 @@
   "msg.error.date.invalid.datum.streef-na-fatale": "Streefdatum na  fatale datum",
   "msg.error.date.invalid.datum.fatale-voor-start": "Fatale datum voor startdatum",
   "msg.error.date.invalid.datum.fatale-voor-streef": "Fatale datum voor streefdatum",
+  "msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum": "De vervaldatum mag niet voor de ingangsdatum liggen",
+  "msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum": "De uiterlijke reactiedatum mag niet voor het einde van de reactietermijn liggen",
   "msg.error.group.invalid.id": "De identificatie van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.group.invalid.name": "De naam van deze groep is te lang. Gelieve deze te wijzigen naar maximaal {{max}} tekens.",
   "msg.error.field.generic": "Dit veld bevat een fout",
@@ -821,7 +823,7 @@
   "msg.error.besluit.publication.disabled": "Publicatie niet ingeschakeld voor dit besluittype.",
   "msg.error.besluit.publication.date.missing": "Ontbrekende publicatiedatum van besluit.",
   "msg.error.besluit.response.date.missing": "Ontbrekende uiterlijke reactiedatum van besluit.",
-  "msg.error.besluit.response.date.invalid": "De uiterlijke reactiedatum voor het besluit mag niet vóór de publicatiedatum liggen.",
+  "msg.error.besluit.response.date.invalid": "De uiterlijke reactiedatum voor het besluit mag niet voor het einde van de reactietermijn liggen.",
   "msg.error.bpmn.task.form.not.found": "BPMN taakformulier kan niet gevonden worden.",
   "msg.error.bpmn.process.definition.not.found": "BPMN procesdefinitie kan niet gevonden worden.",
   "msg.error.case.has.open.subcases": "Deze hoofdzaak heeft open deelzaken en kan niet afgesloten worden.",
@@ -1111,5 +1113,8 @@
   "bpmn.process-definition.definition-row.button.delete.in-use": "Deze procesdefinitie is in gebruik en kan niet worden verwijderd.",
   "bpmn.process-definition.task-forms.button.upload.title": "Formulieren uploaden",
   "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Formulieren verwijderen",
-  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen."
+  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen.",
+  " 14 ": ">>--> CONSOLE MELDINGEN <--<<",
+  "console.error.case-details-change.editing": "Fout bij bijwerken zaak",
+  "console.error.case-details-change.assignment": "Fout bij toekennen behandelaar"
 }

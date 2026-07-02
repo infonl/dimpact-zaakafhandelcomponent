@@ -27,4 +27,8 @@ export class PolicyService {
   readNotitieRechten() {
     return this.zacHttpClient.GET(`/rest/policy/notitieRechten`);
   }
+
+  readBrpRechten() {
+    return this.zacQueryClient.GET(`/rest/policy/brpRechten`);
+  }
 }

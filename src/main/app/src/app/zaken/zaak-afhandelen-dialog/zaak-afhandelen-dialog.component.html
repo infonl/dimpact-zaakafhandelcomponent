@@ -17,7 +17,7 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="formGroup" (submit)="afhandelen()">
+<form [formGroup]="form" (submit)="afhandelen()">
   <mat-dialog-content>
     <p
       *ngIf="data.planItem?.toelichting"
@@ -26,7 +26,7 @@
     ></p>
     <p
       *ngIf="
-        formGroup.controls.resultaattype.value?.besluitVerplicht &&
+        form.controls.resultaattype.value?.besluitVerplicht &&
         !data.zaak.besluiten?.length
       "
       class="readonly error"
@@ -44,17 +44,17 @@
     />
     <zac-select
       *ngIf="!data.zaak.resultaat"
-      [form]="formGroup"
+      [form]="form"
       key="resultaattype"
       label="resultaat"
       [options]="resultaattypesQuery.data() ?? []"
       optionDisplayValue="naam"
     />
-    <zac-input [form]="formGroup" key="toelichting" />
+    <zac-input [form]="form" key="toelichting" />
     <zac-date
-      [form]="formGroup"
+      [form]="form"
       key="brondatumEigenschap"
-      *ngIf="formGroup.controls.resultaattype.value?.datumKenmerkVerplicht"
+      *ngIf="form.controls.resultaattype.value?.datumKenmerkVerplicht"
     >
       <mat-label>{{ "zaak.brondatum" | translate }}</mat-label>
     </zac-date>
@@ -69,16 +69,16 @@
       </mat-checkbox>
     </div>
     <zac-select
-      *ngIf="formGroup.controls.sendMail.value"
-      [form]="formGroup"
+      *ngIf="form.controls.sendMail.value"
+      [form]="form"
       key="verzender"
       [options]="afzendersQuery.data() ?? []"
       optionDisplayValue="mail"
       suffix="suffix"
     />
     <zac-input
-      *ngIf="formGroup.controls.sendMail.value"
-      [form]="formGroup"
+      *ngIf="form.controls.sendMail.value"
+      [form]="form"
       key="ontvanger"
     >
       <button
@@ -93,7 +93,7 @@
       </button>
     </zac-input>
     <mat-expansion-panel
-      *ngIf="formGroup.controls.sendMail.value"
+      *ngIf="form.controls.sendMail.value"
       class="mat-elevation-z0"
     >
       <mat-expansion-panel-header>
@@ -106,7 +106,7 @@
     <button
       *ngIf="
         !(
-          formGroup.controls.resultaattype.value?.besluitVerplicht &&
+          form.controls.resultaattype.value?.besluitVerplicht &&
           !data.zaak.besluiten?.length
         )
       "
@@ -114,9 +114,11 @@
       color="primary"
       type="submit"
       [disabled]="
+        !form.valid ||
         afsluitenMutation.isPending() ||
+        afsluitenMutation.isSuccess() ||
         planItemAfhandelenMutation.isPending() ||
-        formGroup.invalid
+        planItemAfhandelenMutation.isSuccess()
       "
     >
       <mat-icon
@@ -131,7 +133,7 @@
     </button>
     <button
       *ngIf="
-        formGroup.controls.resultaattype.value?.besluitVerplicht &&
+        form.controls.resultaattype.value?.besluitVerplicht &&
         !data.zaak.besluiten?.length
       "
       mat-raised-button

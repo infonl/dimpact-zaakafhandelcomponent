@@ -18,9 +18,9 @@ import jakarta.ws.rs.core.Response
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.zac.app.productaanvraag.converter.toInboxProductaanvraagListParameters
-import nl.info.zac.app.productaanvraag.converter.toRestInboxProductaanvragen
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagResultaat
+import nl.info.zac.app.productaanvraag.model.toRestInboxProductaanvragen
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.productaanvraag.InboxProductaanvraagService

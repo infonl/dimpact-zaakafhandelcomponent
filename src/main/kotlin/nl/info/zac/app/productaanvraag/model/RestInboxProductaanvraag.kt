@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.productaanvraag.model
 
+import nl.info.zac.productaanvraag.model.InboxProductaanvraag
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -20,3 +21,15 @@ data class RestInboxProductaanvraag(
     var ontvangstdatum: LocalDate? = null,
     var initiatorID: String? = null
 )
+
+fun InboxProductaanvraag.toRestInboxProductaanvraag() = RestInboxProductaanvraag(
+    id = this.id ?: 0,
+    productaanvraagObjectUUID = this.productaanvraagObjectUUID,
+    aanvraagdocumentUUID = this.aanvraagdocumentUUID,
+    aantalBijlagen = this.aantalBijlagen,
+    type = this.type,
+    ontvangstdatum = this.ontvangstdatum,
+    initiatorID = this.initiatorID
+)
+
+fun List<InboxProductaanvraag>.toRestInboxProductaanvragen() = map { it.toRestInboxProductaanvraag() }

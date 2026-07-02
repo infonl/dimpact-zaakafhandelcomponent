@@ -7,7 +7,8 @@ General ZAC usage instructions may be found in the [README.md](../../README.md) 
 
 ### Prerequisites
 
-- Java JDK 21 (we use the `Temurin` distribution)
+- Java JDK (we use the `Temurin` distribution). Please check the [Gradle build file](../../build.gradle.kts) for the minimum version of Java that is required.
+- Node.js
 
 ### Gradle build
 
@@ -19,7 +20,7 @@ and packages the built software first into a WAR archive and then finally by inv
 [WildFly application server](https://www.wildfly.org/) bootable fat-JAR. This last step uses [Galleon](https://docs.wildfly.org/galleon/).
 
 All generated artifacts by Gradle are placed into the `build` folder while the final WildFly bootable JAR is placed in the
-`target` folder. The reason why we use Maven for this last step is because there is unfortunately no Gradle alternative for the
+`target` folder. The reason why we use Maven for this last step is because there is, unfortunately, no Gradle alternative for the
 [WildFly Maven Plugin](https://docs.wildfly.org/wildfly-maven-plugin).
 
 If you want to skip running the unit tests, use the following command:

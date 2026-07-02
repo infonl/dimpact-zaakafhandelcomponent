@@ -53,11 +53,11 @@ class RestExceptionMapperTest : BehaviorSpec({
     val restExceptionMapper = RestExceptionMapper()
 
     beforeSpec {
-        mockkStatic(::log)
+        mockkStatic("nl.info.zac.log.LogUtilsKt")
     }
 
     afterSpec {
-        unmockkStatic(::log)
+        unmockkStatic("nl.info.zac.log.LogUtilsKt")
     }
 
     Context("Converting an exception to a JAX-RS response") {

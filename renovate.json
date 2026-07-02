@@ -69,6 +69,18 @@
         "/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
+        "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # trivy version updated by renovate"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "aquasecurity/trivy",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
         "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # helm version updated by renovate"
       ],
       "datasourceTemplate": "github-releases",
@@ -406,6 +418,16 @@
   ],
   "packageRules": [
     {
+      "matchUpdateTypes": [
+        "patch",
+        "lockFileMaintenance"
+      ],
+      "automerge": true,
+      "description": [
+        "Automerge all patch-level updates and weekly lockfile maintenance. The renovate-approve GitHub app provides the required approving review"
+      ]
+    },
+    {
       "groupName": "Angular",
       "matchPackageNames": [
         "/^@angular\\//",
@@ -569,7 +591,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.5.0",
+      "allowedVersions": "< 3.6.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

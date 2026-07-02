@@ -539,6 +539,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             zaak.hoofdzaak?.let {
                 addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it, RelatieType.HOOFDZAAK))
             }
+            zaak.gerelateerdeZaken?.forEach {
+                addAll(listGekoppeldeZaakEnkelvoudigInformatieobjectenVoorZaak(it.url, RelatieType.GERELATEERD))
+            }
         }
 
     private fun updateEnkelvoudigInformatieobject(

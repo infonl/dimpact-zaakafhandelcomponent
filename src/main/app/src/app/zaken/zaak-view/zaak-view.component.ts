@@ -148,10 +148,9 @@ export class ZaakViewComponent
     this.identityService.readLoggedInUser(),
   );
 
-  protected readonly overigeRechtenQuery = injectQuery(() =>
-    this.policyService.readOverigeRechten(),
+  protected readonly brpRechtenQuery = injectQuery(() =>
+    this.policyService.readBrpRechten(),
   );
-
   constructor(
     private zakenService: ZakenService,
     private identityService: IdentityService,
@@ -1349,7 +1348,7 @@ export class ZaakViewComponent
         ?.kvkKoppelen && this.zaak.rechten.toevoegenInitiatorBedrijf;
 
     return Boolean(
-      (brpAllowed && this.overigeRechtenQuery.data()?.brpZoeken) || kvkAllowed,
+      (brpAllowed && this.brpRechtenQuery.data()?.zoeken) || kvkAllowed,
     );
   }
 
@@ -1366,7 +1365,7 @@ export class ZaakViewComponent
       this.zaak.rechten.toevoegenInitiatorPersoon &&
         this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
           ?.brpKoppelen &&
-        this.overigeRechtenQuery.data()?.brpZoeken,
+        this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

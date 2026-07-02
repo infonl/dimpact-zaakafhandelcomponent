@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 <mat-tab-group mat-stretch-tabs="false">
-  <mat-tab *ngIf="overigeRechtenQuery.data()?.brpZoeken">
+  <mat-tab *ngIf="brpRechtenQuery.data()?.zoeken">
     <ng-template mat-tab-label>
       <mat-icon>emoji_people</mat-icon>
       {{ "actie.zoeken.persoon" | translate }}

@@ -60,12 +60,8 @@ import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
-import { DateComponent } from "./form-components/date/date.component";
-import { DividerComponent } from "./form-components/divider/divider.component";
 import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
 import { InputComponent } from "./form-components/input/input.component";
-import { MedewerkerGroepComponent } from "./form-components/medewerker-groep/medewerker-groep.component";
-import { ParagraphComponent } from "./form-components/paragraph/paragraph.component";
 import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
 import { SelectComponent } from "./form-components/select/select.component";
 import { TextareaComponent } from "./form-components/textarea/textarea.component";
@@ -77,28 +73,21 @@ import { FormComponent } from "./form/form/form.component";
   declarations: [
     FormComponent,
     FormFieldComponent,
-    DateComponent,
     InputComponent,
     SelectComponent,
-    MedewerkerGroepComponent,
     TextareaComponent,
     FormFieldDirective,
     ReadonlyComponent,
     DocumentenLijstComponent,
-    ParagraphComponent,
-    DividerComponent,
   ],
   exports: [
     FileDragAndDropDirective,
     FormComponent,
     FormFieldComponent,
-    DateComponent,
     InputComponent,
     SelectComponent,
-    MedewerkerGroepComponent,
     TextareaComponent,
     DocumentenLijstComponent,
-    ParagraphComponent,
     ZacAutoComplete,
     ZacDate,
     ZacSelect,

@@ -1,1 +1,0 @@
-Not a real zip. Fixture only — the ZAC allowlist validator checks the filename extension and declared MIME type, never the bytes, so plain text content is enough to exercise the disallowed-extension code path.

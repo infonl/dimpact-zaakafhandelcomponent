@@ -64,19 +64,18 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
 
     @Suppress("CyclomaticComplexMethod")
     private fun convertValue(resource: String, item: Any): String? =
-        when {
-            resource == RESOURCE_COMMUNICATION_CHANNEL && item is String -> item
-            resource == RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_HOOFDZAAK && item is String ->
-                item
-                    .let(URI::create)
+        when (resource) {
+            RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
+            RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
+            RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
+            RESOURCE_HOOFDZAAK if item is String ->
+                item.let(URI::create)
                     .let(zrcClientService::readZaak).identificatie
-            resource == RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
-            resource == RESOURCE_ZAAKGEOMETRIE && item is Map<*, *> ->
+            RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
+            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
+            RESOURCE_ZAAKGEOMETRIE if item is Map<*, *> ->
                 item.asMapWithKeyOfString().getTypedValue(GeoJSONGeometry::class.java)?.toHistoryLineString()
-            resource == RESOURCE_EXTENSION -> null
+            RESOURCE_EXTENSION -> null
             else -> item.toString()
         }
 }

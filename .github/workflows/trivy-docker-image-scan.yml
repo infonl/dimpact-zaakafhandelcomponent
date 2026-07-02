@@ -20,16 +20,23 @@ jobs:
   trivy:
     runs-on: ubuntu-24.04
     steps:
-      - name: checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Pull Docker Image
-        run: docker pull ${{ env.ZAC_IMAGE_URL }}
+      - name: Pull Docker Image and resolve digest
+        id: image
+        # force a fresh pull of the moving 'latest' tag and resolve it to its
+        # immutable digest so Trivy scans exactly this build and never a stale/cached image
+        run: |
+          docker pull "${ZAC_IMAGE_URL}"
+          IMAGE_REF=$(docker inspect --format='{{index .RepoDigests 0}}' "${ZAC_IMAGE_URL}")
+          echo "Resolved ${ZAC_IMAGE_URL} to ${IMAGE_REF}"
+          echo "ref=${IMAGE_REF}" >> "${GITHUB_OUTPUT}"
 
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: ${{ env.ZAC_IMAGE_URL }}
+          image-ref: ${{ steps.image.outputs.ref }}
+          # pin the Trivy scanner version independently of the action wrapper so that
+          # the scanner itself stays current (e.g. for newer base image OS support)
+          version: v0.72.0 # trivy version updated by renovate
           format: 'sarif'
           output: 'trivy-results.sarif'
           # limit the severities even when using Sarif
@@ -37,8 +44,22 @@ jobs:
           limit-severities-for-sarif: true
           severity: 'CRITICAL,HIGH'
 
+      - name: Print Trivy Scan Results to the Log
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ steps.image.outputs.ref }}
+          version: v0.72.0 # trivy version updated by renovate
+          skip-setup-trivy: 'true'
+          cache: 'false'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          # never fail the workflow on findings; this step only adds human-readable
+          # visibility of what was scanned. Reuses the cached DB and layer analysis
+          # from the previous step, so the extra runtime is minimal
+          exit-code: '0'
+
       - name: Upload Trivy Scan Results to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-docker-image'

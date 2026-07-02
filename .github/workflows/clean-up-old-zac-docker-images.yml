@@ -26,6 +26,17 @@ jobs:
           min-versions-to-keep: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # The NVD database cache image is republished daily under the ':latest' tag,
+      # which orphans the previous digest. Clean up those untagged versions too.
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          owner: infonl
+          package-name: nvd-database-cache
+          package-type: container
+          delete-only-untagged-versions: true
+          min-versions-to-keep: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   # Delete old tagged images but keep the 10 most recent, while always preserving:
   #   - 'latest'
   #   - minor version tags              (e.g. 2.2 or v2.2)

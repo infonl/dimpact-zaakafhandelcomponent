@@ -1,16 +1,14 @@
 # syntax=docker/dockerfile:1.25.0@sha256:0adf442eae370b6087e08edc7c50b552d80ddf261576f4ebd6421006b2461f12
-# check=skip=SecretsUsedInArgOrEnv
 
 #
 # SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-FROM eclipse-temurin:21.0.11_10-jre-ubi10-minimal@sha256:8c55589901ef9e5db02d24b5dd25ad69083d5dc964fd24a06d13f34999024791 AS runtime
+FROM eclipse-temurin:25.0.3_9-jre-ubi10-minimal@sha256:aa381f8933bc763a4a151325c0b8e41c37f08927208613038aeaa441ff48c448 AS runtime
 ARG branchName
 ARG commitHash
 ARG versionNumber
-ARG TRUSTSTORE_PASSWORD=changeit
 ENV BRANCH_NAME=$branchName COMMIT_HASH=$commitHash VERSION_NUMBER=$versionNumber
 
 LABEL name="zaakafhandelcomponent"

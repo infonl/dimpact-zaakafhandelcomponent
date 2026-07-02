@@ -65,3 +65,6 @@ fix-permissions.sh
 
 ### Worktrees ###
 .worktrees/
+
+### Bruno ###
+scripts/bruno/collections/zaakafhandelcomponent_backend_api/rest/
