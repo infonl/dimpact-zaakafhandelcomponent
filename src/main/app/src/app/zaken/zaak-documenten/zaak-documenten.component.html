@@ -9,12 +9,13 @@
       "enkelvoudigInformatieObjecten" | translate
     }}</mat-card-title>
     <mat-slide-toggle
-      *ngIf="heeftGerelateerdeZaken"
-      [formControl]="toonGekoppeldeZaakDocumenten"
+      *ngIf="heeftGerelateerdeZaken()"
+      [checked]="toonGekoppeldeZaakDocumenten()"
+      [disabled]="isLoadingResults()"
+      (change)="toonGekoppeldeZaakDocumenten.set($event.checked)"
       color="primary"
       class="flex-row"
       id="gekoppeldeZaakDocumentenToon_toggle"
-      (change)="toggleGekoppeldeZaakDocumenten()"
       >{{ "toonGekoppeldeZaakDocumenten" | translate }}</mat-slide-toggle
     >
   </mat-card-header>
@@ -233,10 +234,10 @@
             </div>
           </td>
         </ng-container>
-        <tr mat-header-row *matHeaderRowDef="documentColumns"></tr>
+        <tr mat-header-row *matHeaderRowDef="documentColumns()"></tr>
         <tr
           mat-row
-          *matRowDef="let row; columns: documentColumns"
+          *matRowDef="let row; columns: documentColumns()"
           [class.expanded-row]="documentPreviewRow === row"
         ></tr>
         <tr
@@ -245,9 +246,9 @@
           class="collapsed-row document-preview"
         ></tr>
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" [colSpan]="documentColumns.length + 2">
-            <p *ngIf="isLoadingResults">{{ "msg.loading" | translate }}</p>
-            <p *ngIf="!isLoadingResults">
+          <td class="mat-cell" [colSpan]="documentColumns().length + 2">
+            <p *ngIf="isLoadingResults()">{{ "msg.loading" | translate }}</p>
+            <p *ngIf="!isLoadingResults()">
               {{ "msg.geen.gegevens.gevonden" | translate }}
             </p>
           </td>

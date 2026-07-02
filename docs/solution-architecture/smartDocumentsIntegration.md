@@ -10,10 +10,11 @@ The ZAC - SmartDocuments document creation flow is as follows:
 
 1. User starts SmartDocument wizard from ZAC ('create document'). This can be done either from a case (zaak) or from a task.
 2. ZAC sends an HTTPS request to start a document creation wizard to SmartDocuments and sends case- and other information in this request.
+Also sends the redirect URL ('callback URL') to SmartDocuments (this is the URL where SmartDocuments will send the document creation wizard results).
 3. The document creation wizard is started in SmartDocuments. Case or task information and template type are pre-filled.
 4. At the end of the document creation wizard, SmartDocuments:
    1. creates a Word document and stores it on SmartDocuments side for later retrieval
-   2. calls a ZAC callback endpoint with information about the created document
+   2. calls the ZAC callback endpoint using the earlier provided redirect URL with information about the created document
 5. ZAC callback endpoint in turn:
    1. Downloads the Word document from SmartDocuments 
    2. Creates a document ('enkelvoudiginformatieobject') in the ZRC API implementation (also known as 'zaakregister'; in the context of ZAC this is usually OpenZaak).

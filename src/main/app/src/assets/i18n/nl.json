@@ -1115,5 +1115,8 @@
   "bpmn.process-definition.definition-row.button.delete.in-use": "Deze procesdefinitie is in gebruik en kan niet worden verwijderd.",
   "bpmn.process-definition.task-forms.button.upload.title": "Formulieren uploaden",
   "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Formulieren verwijderen",
-  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen."
+  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "Formulier kan alleen worden vervangen.",
+  " 14 ": ">>--> CONSOLE MELDINGEN <--<<",
+  "console.error.case-details-change.editing": "Fout bij bijwerken zaak",
+  "console.error.case-details-change.assignment": "Fout bij toekennen behandelaar"
 }

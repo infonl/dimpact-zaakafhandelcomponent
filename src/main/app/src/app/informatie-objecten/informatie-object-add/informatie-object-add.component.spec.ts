@@ -11,10 +11,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import {
-  ComponentRef,
-  provideExperimentalZonelessChangeDetection,
-} from "@angular/core";
+import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -123,7 +120,7 @@ describe(InformatieObjectAddComponent.name, () => {
         VertrouwelijkaanduidingToTranslationKeyPipe,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

@@ -127,13 +127,15 @@ describe(BesluitCreateComponent.name, () => {
     });
   });
 
+  const countDateFields = () =>
+    fixture.nativeElement.querySelectorAll("zac-date").length;
+
   describe("publication section", () => {
     it("is hidden when selected besluittype has publication disabled", () => {
       component["form"].controls.besluit.setValue(fakeBesluittype);
       fixture.detectChanges();
-      const publicationSection =
-        fixture.nativeElement.querySelector("form > section");
-      expect(publicationSection).toBeNull();
+      // Only ingangsdatum and vervaldatum are rendered.
+      expect(countDateFields()).toBe(2);
     });
 
     it("is shown when selected besluittype has publication enabled", () => {
@@ -144,9 +146,8 @@ describe(BesluitCreateComponent.name, () => {
         fakeBesluittypeWithPublication,
       );
       fixture.detectChanges();
-      const publicationSection =
-        fixture.nativeElement.querySelector("form > section");
-      expect(publicationSection).not.toBeNull();
+      // ingangsdatum, vervaldatum + publicatiedatum, uiterlijkereactiedatum.
+      expect(countDateFields()).toBe(4);
     });
   });
 

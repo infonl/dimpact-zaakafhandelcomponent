@@ -43,13 +43,17 @@ import nl.info.zac.identity.model.ZacApplicationRole
 import nl.info.zac.identity.model.ZacApplicationRole.BEHANDELAAR
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.log.log
 import nl.info.zac.util.AllOpen
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
 import nl.info.zac.zaak.model.Betrokkenen.BETROKKENEN_ENUMSET
 import java.net.URI
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.locks.ReentrantLock
+import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.concurrent.withLock
 
 private val LOG = Logger.getLogger(ZaakService::class.java.name)
 
@@ -66,6 +70,13 @@ class ZaakService @Inject constructor(
     private val bpmnService: BpmnService,
     private val pabcClientService: PabcClientService
 ) {
+    companion object {
+        private val zaakAssignmentLocks = Array(64) { ReentrantLock() }
+
+        private fun lockForZaak(uuid: UUID) =
+            zaakAssignmentLocks[Math.floorMod(uuid.hashCode(), zaakAssignmentLocks.size)]
+    }
+
     fun addBetrokkeneToZaak(
         roleTypeUUID: UUID,
         identificationType: IdentificatieType,
@@ -174,32 +185,35 @@ class ZaakService @Inject constructor(
      * @param reason The reason for the assignment.
      */
     fun assignZaak(zaak: Zaak, groupId: String, userName: String?, reason: String?) {
-        userName?.let {
-            identityService.validateIfUserIsInGroup(it, groupId)
-        }
-
-        var userAssigned = false
-        val user: User? = userName?.takeIf { it.isNotEmpty() }?.let {
-            identityService.readUser(userName).let {
-                userAssigned = assignUser(zaak, it, reason)
-                it
+        // lock for the given zaak so that it is impossible to assign the zaak to multiple users on quick subsequent calls
+        lockForZaak(zaak.uuid).withLock {
+            userName?.let {
+                identityService.validateIfUserIsInGroup(it, groupId)
             }
-        }
 
-        // No user should be assigned - delete the role
-        var userDeleted = false
-        if (user == null) {
-            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
-            userDeleted = true
-        }
+            var userAssigned = false
+            val user: User? = userName?.takeIf { it.isNotEmpty() }?.let {
+                identityService.readUser(userName).let {
+                    userAssigned = assignUser(zaak, it, reason)
+                    it
+                }
+            }
 
-        val group = identityService.readGroup(groupId)
-        val groupAssigned = assignGroup(zaak, group, reason)
+            // No user should be assigned - delete the role
+            var userDeleted = false
+            if (user == null) {
+                zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+                userDeleted = true
+            }
 
-        changeZaakDataAssignment(zaak.uuid, group, user)
+            val group = identityService.readGroup(groupId)
+            val groupAssigned = assignGroup(zaak, group, reason)
 
-        if (userAssigned || userDeleted || groupAssigned) {
-            indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+            changeZaakDataAssignment(zaak.uuid, group, user)
+
+            if (userAssigned || userDeleted || groupAssigned) {
+                indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
+            }
         }
     }
 
@@ -365,17 +379,29 @@ class ZaakService @Inject constructor(
         zaak: Zaak,
         user: User,
         reason: String?,
-    ): Boolean =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(
-            zaak
-        )?.betrokkeneIdentificatie?.identificatie.let { behandelaar ->
-            if (behandelaar != user.id) {
-                zrcClientService.updateRol(zaak, bepaalRolMedewerker(user, zaak), reason)
-                true
-            } else {
-                false
-            }
+    ): Boolean {
+        val medewerkerRoles = zrcClientService.listRollen(zaak)
+            .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }
+
+        if (medewerkerRoles.size > 1) {
+            log(
+                LOG,
+                Level.WARNING,
+                "Zaak ${zaak.uuid} has ${medewerkerRoles.size} duplicate MEDEWERKER behandelaar roles; purging all before reassignment"
+            )
         }
+
+        val currentBehandelaarId = (medewerkerRoles.singleOrNull() as? RolMedewerker)
+            ?.betrokkeneIdentificatie?.identificatie
+
+        return if (medewerkerRoles.size != 1 || currentBehandelaarId != user.id) {
+            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+            zrcClientService.createRol(bepaalRolMedewerker(user, zaak), reason)
+            true
+        } else {
+            false
+        }
+    }
 
     private fun changeZaakDataAssignment(
         zaakUuid: UUID,

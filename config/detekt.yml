@@ -1,9 +1,3 @@
 style:
   MaxLineLength:
     maxLineLength: 140
-
-formatting:
-  MaximumLineLength:
-    maxLineLength: 140
-  NoWildcardImports:
-    active: true

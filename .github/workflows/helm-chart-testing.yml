@@ -4,10 +4,12 @@
 name: Helm chart linting and testing
 
 on:
+  # NOTE: deliberately NOT path-filtered on 'charts/**'. The 'helm-status' job below is a
+  # required status check; a path filter would prevent it from reporting on non-chart PRs,
+  # deadlocking them (and the merge queue) on "Expected — Waiting for status to be reported".
+  # Change detection happens inside the workflow via the 'list-changed' step instead.
   pull_request:
     branches: [main]
-    paths:
-      - 'charts/**'
   merge_group:
   workflow_dispatch:
 
@@ -84,7 +86,7 @@ jobs:
           fetch-depth: 0
 
       - name: authenticate with docker hub
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -135,8 +137,13 @@ jobs:
 
   helm-docs:
     runs-on: ubuntu-24.04
-    needs: helm-lint
-    if: ${{ needs.helm-lint.outputs.changed == 'true' && github.event_name == 'pull_request' }}
+    # Depend on bump-chart so the two jobs never push to the PR branch concurrently.
+    # Skip when bump-chart just pushed a version bump: that push re-triggers a fresh run
+    # in which the chart is already bumped and this job regenerates the docs cleanly.
+    needs: [helm-lint, bump-chart]
+    if: >-
+      ${{ always() && needs.helm-lint.outputs.changed == 'true' &&
+      github.event_name == 'pull_request' && needs.bump-chart.result != 'success' }}
     steps:
       # To allow pushing to PR branch (needed for next step) we need to be on the pr branch
       - name: Checkout PR branch
@@ -145,7 +152,40 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.WORKFLOW_HELM_CHART_BUMP_GITHUB_PAT }}
 
+      - name: Capture HEAD before generating docs
+        id: head-before
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Generate updated helm docs if needed and on PR
         uses: losisin/helm-docs-github-action@3a4528e97c49a5e83de6b78c50c61c8ee5c9f944 # v2.0.0
         with:
           git-push: true
+
+      # If docs were regenerated and pushed, fail this run so the required 'helm-status' check
+      # stays red until the new commit (pushed with a PAT, which re-triggers CI) is validated.
+      # This prevents auto-merge / the merge queue from merging before the docs commit lands.
+      - name: Fail if helm docs were regenerated
+        run: |
+          if [ "$(git rev-parse HEAD)" != "${{ steps.head-before.outputs.sha }}" ]; then
+            echo "::error::Helm docs were out of date and have been regenerated and pushed. Failing so the gate re-evaluates on the new commit."
+            exit 1
+          fi
+
+  # Single aggregated status meant to be the ONLY helm-related required status check on 'main'.
+  # It always runs (on pull_request and merge_group), so it never deadlocks path-filtered PRs,
+  # and it reflects the outcome of the helm jobs so native auto-merge and the merge queue wait
+  # for chart linting/testing/bumping/docs before merging.
+  helm-status:
+    runs-on: ubuntu-24.04
+    needs: [helm-lint, helm-test, helm-docs]
+    if: ${{ always() }}
+    steps:
+      - name: Aggregate helm check results
+        run: |
+          echo "helm-lint=${{ needs.helm-lint.result }} helm-test=${{ needs.helm-test.result }} helm-docs=${{ needs.helm-docs.result }}"
+          for result in "${{ needs.helm-lint.result }}" "${{ needs.helm-test.result }}" "${{ needs.helm-docs.result }}"; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "::error::A required helm job did not succeed (result: $result)."; exit 1 ;;
+            esac
+          done

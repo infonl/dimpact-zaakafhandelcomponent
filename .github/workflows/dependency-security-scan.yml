@@ -19,7 +19,7 @@ permissions:
   packages: read
 
 env:
-  JAVA_VERSION: "21.0.11"
+  JAVA_VERSION: "25.0.3"
   SECURITY_SCAN_RETENTION_DAYS: 30 # Maximum age of security scan reports in days
   # Pre-built OWASP Dependency-Check NVD database, published by the
   # "Publish NVD Database Cache" workflow. Consuming it here avoids downloading
@@ -111,7 +111,7 @@ jobs:
           echo "🔒 [Security Tab](${{ github.server_url }}/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload npm audit SARIF results (main app)
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
         if: always() && hashFiles('src/main/app/npm-audit-main.sarif') != ''
         with:
           sarif_file: src/main/app/npm-audit-main.sarif
@@ -148,7 +148,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -297,7 +297,7 @@ jobs:
           EOF
 
       - name: Upload SARIF results to GitHub Security
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
         if: always() && hashFiles('build/reports/dependency-check-report.sarif') != ''
         with:
           sarif_file: build/reports/dependency-check-report.sarif

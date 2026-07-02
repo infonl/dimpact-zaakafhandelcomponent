@@ -10,7 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
@@ -117,7 +117,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
@@ -274,6 +274,27 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         'button[type="submit"]',
       );
       expect(submitBtn.disabled).toBe(false);
+    });
+
+    it("keeps the submit button disabled after a successful afhandelen", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+      const options = await resultaattypeSelect.getOptions();
+      await options[2]?.click();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      httpTestingController
+        .expectOne("/rest/planitems/doUserEventListenerPlanItem")
+        .flush({});
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      expect(await submitButton.isDisabled()).toBe(true);
     });
   });
 
@@ -465,7 +486,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
         component.data.zaak.besluiten = state.besluiten;
 
-        component.formGroup.patchValue({ resultaattype: state.resultaatType });
+        component.form.patchValue({ resultaattype: state.resultaatType });
 
         fixture.detectChanges();
 
@@ -485,7 +506,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   describe("setInitiatorEmail", () => {
     it("sets ontvanger to initiatorEmailQuery emailadres when no zaakSpecificContactDetails", () => {
       fixture.componentInstance["setInitiatorEmail"]();
-      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "initiator@example.com",
       );
     });
@@ -501,7 +522,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await createTestBed(mockZaakWithContact, mockPlanItem);
 
       fixture.componentInstance["setInitiatorEmail"]();
-      expect(fixture.componentInstance.formGroup.controls.ontvanger.value).toBe(
+      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "contact@example.com",
       );
     });

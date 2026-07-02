@@ -10,7 +10,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
@@ -54,7 +54,7 @@ describe("ZaakVerlengenDialogComponent", () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideNativeDateAdapter(),
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideQueryClient(testQueryClient),
         {
           provide: MatDialogRef,
@@ -116,6 +116,32 @@ describe("ZaakVerlengenDialogComponent", () => {
       await new Promise(requestAnimationFrame);
 
       expect(dialogRefSpy).toHaveBeenCalled();
+    });
+
+    it("keeps the submit button disabled after a successful verlenging", async () => {
+      component["form"].patchValue(
+        { duurDagen: 5, redenVerlenging: "Reden verlenging" },
+        { emitEvent: false },
+      );
+
+      component["verlengen"]();
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne(
+          (request) =>
+            request.method === "PATCH" &&
+            request.url.includes(
+              `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+            ),
+        )
+        .flush({});
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ selector: 'button[type="submit"]' }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
     });
   });
 

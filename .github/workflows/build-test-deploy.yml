@@ -29,7 +29,7 @@ on:
       - 'publiccode.yaml'
 
 env:
-  JAVA_VERSION: "21.0.11"
+  JAVA_VERSION: "25.0.3"
   CONTAINER_REGISTRY_URL: "ghcr.io/infonl"
   APPLICATION_NAME: "zaakafhandelcomponent"
 
@@ -41,10 +41,10 @@ permissions:
   # Required for uploading SARIF reports
   security-events: write
 
-# Only allow a single concurrent run per branch. Cancel in-progress runs on multiple pushes when not on main branch.
+# Only allow a single concurrent run per branch. Cancel any runs that are in progress when not on the main branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !contains(github.ref, 'main')}}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   validate-input:
@@ -410,7 +410,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: authenticate with docker hub
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -431,10 +431,10 @@ jobs:
           path: target
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build Docker image
-        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           tags: ${{ env.ZAC_DOCKER_IMAGE }}
           build-args: |
@@ -511,7 +511,7 @@ jobs:
       RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
     steps:
       - name: Docker Login
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ github.actor }}

@@ -6,7 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -24,6 +27,11 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
@@ -44,6 +52,7 @@ describe(CaseDetailsEditComponent.name, () => {
   let utilService: UtilService;
   let identityService: IdentityService;
   let zakenService: ZakenService;
+  let httpTestingController: HttpTestingController;
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
@@ -83,6 +92,7 @@ describe(CaseDetailsEditComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        provideQueryClient(new QueryClient()),
         {
           provide: DateAdapter,
           useClass: MomentDateAdapter,
@@ -115,6 +125,7 @@ describe(CaseDetailsEditComponent.name, () => {
     utilService = TestBed.inject(UtilService);
     identityService = TestBed.inject(IdentityService);
     zakenService = TestBed.inject(ZakenService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     // Mock service methods
     jest
@@ -138,9 +149,9 @@ describe(CaseDetailsEditComponent.name, () => {
       ...zaakOverrides,
     });
 
-    component.zaak = zaak;
-    component.loggedInUser = mockLoggedInUser;
-    component.sideNav = mockSideNav;
+    fixture.componentRef.setInput("zaak", zaak);
+    fixture.componentRef.setInput("loggedInUser", mockLoggedInUser);
+    fixture.componentRef.setInput("sideNav", mockSideNav);
 
     fixture.detectChanges();
   };
@@ -612,32 +623,40 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("onSubmit()", () => {
-    it("calls updateZaak and closes sideNav on success", async () => {
+    // Make mutation state transitions synchronous so isPending() flips
+    // immediately after mutate().
+    beforeEach(() => notifyManager.setScheduler((fn) => fn()));
+    afterEach(() => notifyManager.setScheduler((fn) => setTimeout(fn, 0)));
+
+    const expectUpdateZaakRequest = () =>
+      httpTestingController.expectOne(
+        (request) =>
+          request.method === "PATCH" &&
+          request.url.includes("/rest/zaken/zaak/zaak-123"),
+      );
+
+    it("sends the zaak update and closes sideNav on success", async () => {
       renderComponent();
-      jest
-        .spyOn(zakenService, "updateZaak")
-        .mockReturnValue(of(undefined) as never);
-      jest
-        .spyOn(zakenService, "toekennen")
-        .mockReturnValue(of(undefined) as never);
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("een reden");
 
-      await component["onSubmit"](component["form"]);
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
 
-      expect(zakenService.updateZaak).toHaveBeenCalledWith(
-        "zaak-123",
+      const request = expectUpdateZaakRequest();
+      expect(request.request.body).toEqual(
         expect.objectContaining({ reden: "een reden" }),
       );
+
+      request.flush({});
+      await new Promise(requestAnimationFrame);
+
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
     it("calls toekennenAanIngelogdeMedewerker when behandelaar equals the logged-in user", async () => {
       // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
       renderComponent();
-      jest
-        .spyOn(zakenService, "updateZaak")
-        .mockReturnValue(of(undefined) as never);
       jest
         .spyOn(zakenService, "toekennenAanIngelogdeMedewerker")
         .mockReturnValue(of(undefined) as never);
@@ -651,17 +670,16 @@ describe(CaseDetailsEditComponent.name, () => {
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
-      await component["onSubmit"](component["form"]);
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
 
       expect(zakenService.toekennenAanIngelogdeMedewerker).toHaveBeenCalled();
+      expectUpdateZaakRequest().flush({});
     });
 
     it("calls toekennen when behandelaar differs from the logged-in user", async () => {
       // zaak has no behandelaar → isSameBehandelaar will be false; keep groep unchanged to avoid subscription
       renderComponent();
-      jest
-        .spyOn(zakenService, "updateZaak")
-        .mockReturnValue(of(undefined) as never);
       jest
         .spyOn(zakenService, "toekennen")
         .mockReturnValue(of(undefined) as never);
@@ -675,27 +693,76 @@ describe(CaseDetailsEditComponent.name, () => {
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
-      await component["onSubmit"](component["form"]);
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
 
       expect(zakenService.toekennen).toHaveBeenCalled();
+      expectUpdateZaakRequest().flush({});
     });
 
     it("skips patchBehandelaar when behandelaar and groep are unchanged", async () => {
       renderComponent();
-      jest
-        .spyOn(zakenService, "updateZaak")
-        .mockReturnValue(of(undefined) as never);
       jest.spyOn(zakenService, "toekennen");
       jest.spyOn(zakenService, "toekennenAanIngelogdeMedewerker");
       component["form"].controls.reden.enable();
       component["form"].controls.reden.setValue("reden");
 
-      await component["onSubmit"](component["form"]);
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
 
       expect(zakenService.toekennen).not.toHaveBeenCalled();
       expect(
         zakenService.toekennenAanIngelogdeMedewerker,
       ).not.toHaveBeenCalled();
+      expectUpdateZaakRequest().flush({});
+    });
+
+    it("does not submit a second time while a submit is already in progress", async () => {
+      renderComponent();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("reden");
+
+      component["onSubmit"](); // patch resolves → updateZaak PATCH goes in flight
+      await new Promise(requestAnimationFrame);
+      component["onSubmit"](); // updateZaak pending → must be ignored
+      await new Promise(requestAnimationFrame);
+
+      // Leaving the PATCH unflushed keeps updateZaakMutation pending.
+      const requests = httpTestingController.match(
+        (request) =>
+          request.method === "PATCH" &&
+          request.url.includes("/rest/zaken/zaak/zaak-123"),
+      );
+      expect(requests).toHaveLength(1);
+
+      requests[0].flush({});
+      await new Promise(requestAnimationFrame);
+    });
+
+    it("keeps the submit button disabled after a successful submit", async () => {
+      const group = fromPartial<GeneratedType<"RestGroup">>({
+        id: "g1",
+        naam: "G1",
+      });
+      jest
+        .spyOn(identityService, "listBehandelaarGroupsForZaaktype")
+        .mockReturnValue(of([group]));
+      renderComponent({ groep: group });
+      await fixture.whenStable();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("een reden");
+      component["form"].markAsDirty();
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+      expectUpdateZaakRequest().flush({});
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.opslaan/ }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
     });
   });
 });

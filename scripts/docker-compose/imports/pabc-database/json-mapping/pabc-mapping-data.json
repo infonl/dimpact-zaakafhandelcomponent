@@ -44,6 +44,10 @@
       "name": "raadpleger_domein_test_1"
     },
     {
+      "id": "28368f91-9b36-4103-bce5-4d13396cae90",
+      "name": "raadpleger_domein_test_2"
+    },
+    {
       "id": "12345678-90ab-cdef-1234-567890abcdef",
       "name": "behandelaar_domein_test_1"
     },
@@ -251,6 +255,13 @@
       "functionalRoleId": "34567890-abcd-ef12-3456-7890abcdef12",
       "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
       "applicationRoleId": "2a7cfd79-bf3c-4f86-8a45-2aedd2b2ba0e",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "467fe5ae-1ab1-4980-a6cc-3bb2ec1fcfb9",
+      "functionalRoleId": "28368f91-9b36-4103-bce5-4d13396cae90",
+      "domainId": "d3e4f5a6-b7c8-9d0e-1f2a-b3c4d5e6f7a8",
+      "applicationRoleId": "003591ad-c6c8-4107-8877-9579c5e27982",
       "isAllEntityTypes": false
     },
     {
