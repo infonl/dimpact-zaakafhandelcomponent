@@ -189,4 +189,19 @@ describe(ZaakdataComponent.name, () => {
       );
     });
   });
+
+  describe("double-submit guard", () => {
+    it("keeps the save button disabled after a successful save", async () => {
+      setupWithForm(makeZaak());
+
+      fixture.componentInstance["formSubmit"]();
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      const [saveButton] = await loader.getAllHarnesses(
+        MatButtonHarness.with({ selector: "mat-action-row button" }),
+      );
+      expect(await saveButton.isDisabled()).toBe(true);
+    });
+  });
 });
