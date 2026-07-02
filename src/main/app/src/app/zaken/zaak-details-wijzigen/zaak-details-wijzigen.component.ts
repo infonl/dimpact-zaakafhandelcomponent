@@ -122,7 +122,7 @@ export class CaseDetailsEditComponent implements OnInit {
   });
 
   protected readonly updateZaakMutation = injectMutation(() => ({
-    ...this.zakenService.updateMutation(this.zaak().uuid),
+    ...this.zakenService.updateMutation(),
     onSuccess: () => {
       void this.sideNav().close();
     },
@@ -381,16 +381,20 @@ export class CaseDetailsEditComponent implements OnInit {
 
     const value = this.form.getRawValue();
     this.updateZaakMutation.mutate({
+      uuid: this.zaak().uuid,
       reden: value.reden ?? "",
       zaak: {
-        ...value,
+        groep: value.groep ?? undefined,
+        behandelaar: value.behandelaar ?? undefined,
+        communicatiekanaal: value.communicatiekanaal ?? undefined,
         vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
         startdatum: value.startdatum?.toISOString(),
         einddatumGepland: value.einddatumGepland?.toISOString(),
         uiterlijkeEinddatumAfdoening:
           value.uiterlijkeEinddatumAfdoening?.toISOString(),
         omschrijving: value.omschrijving ?? "",
-      } as unknown as GeneratedType<"RestZaakCreateData">,
+        toelichting: value.toelichting ?? undefined,
+      },
     });
   }
 
