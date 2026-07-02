@@ -19,10 +19,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
@@ -76,20 +73,24 @@ export class ZakenVerdelenDialogComponent {
     ]),
   });
 
-  protected readonly groups = injectQuery(() =>
-    this.identityService.listBehandelaarGroupsForZaaktypesQuery(
-      this.data.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
-    ),
+  protected readonly groupsQuery = injectMutation(() =>
+    this.identityService.listBehandelaarGroupsForZaaktypesQuery(),
   );
 
   protected readonly noAuthorisedGroups = computed(() => {
-    const groups = this.groups.data();
-    return groups !== undefined && groups.length === 0;
+    const groupsQuery = this.groupsQuery.data();
+    return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor() {
+    this.groupsQuery.mutate({
+      zaaktypeDescriptions: this.data.map(
+        ({ zaaktypeOmschrijving }) => zaaktypeOmschrijving,
+      ),
+    });
+
     this.form.controls.medewerker.disable();
 
     this.form.controls.groep.valueChanges

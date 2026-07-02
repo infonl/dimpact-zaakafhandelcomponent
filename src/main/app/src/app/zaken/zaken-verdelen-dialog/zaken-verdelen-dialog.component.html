@@ -27,7 +27,7 @@
           key="groep"
           optionDisplayValue="naam"
           [readonly]="noAuthorisedGroups()"
-          [options]="groups.data() ?? []"
+          [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
         <mat-error *ngIf="noAuthorisedGroups()">{{
           "msg.error.group.no.authorised.group.for.zaken" | translate

@@ -5,8 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 
-import { queryOptions } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, Observable } from "rxjs";
+import { Observable } from "rxjs";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -22,16 +21,8 @@ export class IdentityService {
     return this.zacHttpClient.GET("/rest/identity/groups");
   }
 
-  listBehandelaarGroupsForZaaktypesQuery(zaaktypeDescriptions: string[]) {
-    return queryOptions({
-      queryKey: ["/rest/identity/behandelaar-groups", zaaktypeDescriptions],
-      queryFn: () =>
-        lastValueFrom(
-          this.zacHttpClient.POST("/rest/identity/behandelaar-groups", {
-            zaaktypeDescriptions,
-          }),
-        ),
-    });
+  listBehandelaarGroupsForZaaktypesQuery() {
+    return this.zacQueryClient.POST("/rest/identity/behandelaar-groups");
   }
 
   listBehandelaarGroupsForZaaktype(

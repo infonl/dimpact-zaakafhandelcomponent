@@ -20,10 +20,7 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -77,15 +74,13 @@ export class TakenVerdelenDialogComponent {
     ]),
   });
 
-  protected readonly groups = injectQuery(() =>
-    this.identityService.listBehandelaarGroupsForZaaktypesQuery(
-      this.data.taken.map(({ zaaktypeOmschrijving }) => zaaktypeOmschrijving),
-    ),
+  protected readonly groupsQuery = injectMutation(() =>
+    this.identityService.listBehandelaarGroupsForZaaktypesQuery(),
   );
 
   protected readonly noAuthorisedGroups = computed(() => {
-    const groups = this.groups.data();
-    return groups !== undefined && groups.length === 0;
+    const groupsQuery = this.groupsQuery.data();
+    return groupsQuery !== undefined && groupsQuery.length === 0;
   });
 
   protected users: GeneratedType<"RestUser">[] = [];
@@ -95,6 +90,12 @@ export class TakenVerdelenDialogComponent {
       this.form.disable();
       return;
     }
+
+    this.groupsQuery.mutate({
+      zaaktypeDescriptions: this.data.taken.map(
+        ({ zaaktypeOmschrijving }) => zaaktypeOmschrijving,
+      ),
+    });
 
     this.form.controls.medewerker.disable();
 
