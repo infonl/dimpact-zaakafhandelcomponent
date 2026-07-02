@@ -18,6 +18,7 @@ import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import {
@@ -29,6 +30,7 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
 
 const mockGroup: GeneratedType<"RestGroup"> = {
@@ -213,9 +215,6 @@ describe(TakenVerdelenDialogComponent.name, () => {
   describe("when no authorised groups are found", () => {
     it("noAuthorisedGroups signal is true", async () => {
       const { component } = await setup(makeDialogData([makeTaak("1")]), []);
-      console.debug("GROEPEN: ", component["groupsQuery"].data())
-      console.debug("AUthorizedGrups: ", component["noAuthorisedGroups"]())
-
       expect(component["noAuthorisedGroups"]()).toBe(true);
     });
 
@@ -225,6 +224,18 @@ describe(TakenVerdelenDialogComponent.name, () => {
       expect(fixture.nativeElement.textContent).toContain(
         "msg.error.dialog.taken-verdelen.no-authorised-groups",
       );
+    });
+
+    it("sets the groep autocomplete to readonly", async () => {
+      const { fixture } = await setup(makeDialogData([makeTaak("1")]), []);
+      fixture.detectChanges();
+
+      const groepAutoComplete = fixture.debugElement
+        .queryAll(By.directive(ZacAutoComplete))
+        .find((el) => el.componentInstance.key() === "groep");
+
+      expect(groepAutoComplete).toBeDefined();
+      expect(groepAutoComplete!.componentInstance.readonly()).toBe(true);
     });
   });
 });
