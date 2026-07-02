@@ -26,7 +26,7 @@ help()
    echo "Additional components:"
    echo "   -m     Start the containers used for handling metrics and traces."
    echo "   -t     Start containers used for integration testing."
-   echo "   -o     Start Objecten (required e.g. for the Dimpact productaanvraag flow)."
+   echo "   -o     Start Objecten and OpenNotificaties (required for the Dimpact productaanvraag flow)."
    echo "   -n     Start OpenNotificaties."
    echo "   -a     Start OpenArchiefbeheer."
    echo "   -f     Start Open Formulieren (also starts Objecten and OpenNotificaties automatically)."
@@ -79,7 +79,9 @@ while getopts ':dhzblmtonafe' OPTION; do
       profiles+=("itest")
       ;;
     o)
-      profiles+=("objecten")
+      profiles+=("objecten" "opennotificaties")
+      # Notifications must be enabled in Open Zaak for the productaanvraag flow to work.
+      export OPENZAAK_NOTIFICATIONS_DISABLED=false
       ;;
     n)
       profiles+=("opennotificaties")
