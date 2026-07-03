@@ -17,7 +17,7 @@
 
     <ng-container matColumnDef="actions" stickyEnd>
       <th mat-header-cell *matHeaderCellDef>
-        <div class="tabel-actions">
+        <div class="tabel-actions flex-row items-center justify-end">
           <button
             mat-icon-button
             [matTooltip]="'actie.toevoegen' | translate"
@@ -29,7 +29,7 @@
         </div>
       </th>
       <td mat-cell *matCellDef="let row">
-        <div class="tabel-actions">
+        <div class="tabel-actions flex-row items-center justify-end">
           <span
             [matTooltip]="
               row.systemValue

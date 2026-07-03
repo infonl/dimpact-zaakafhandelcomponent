@@ -14,7 +14,7 @@
 
   td.mat-column-index,
   th.mat-column-index {
-    width: 36px;
+    width: 48px;
     padding-right: 8px;
   }
 
@@ -25,13 +25,8 @@
     padding: 0;
   }
 
-  .tabel-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    > * + * {
-      margin-left: -8px;
-    }
+  .tabel-actions > * + * {
+    // Pull the icon buttons together (each has ~8px internal padding).
+    margin-left: -8px;
   }
 }

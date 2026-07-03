@@ -58,6 +58,7 @@
               class="create-card-body"
               [formGroup]="form"
               (ngSubmit)="addReferentieTabel()"
+              (cancel)="closeCreateForm()"
             >
               <section class="row">
                 <div class="col-12 col-xl-6">
@@ -75,25 +76,17 @@
                   </mat-form-field>
                 </div>
               </section>
-              <div class="form-buttons">
-                <button
-                  mat-raised-button
-                  color="primary"
-                  type="submit"
-                  [disabled]="form.invalid"
-                >
-                  {{ "actie.toevoegen" | translate }}
-                </button>
-                <button mat-button type="button" (click)="closeCreateForm()">
-                  {{ "actie.annuleren" | translate }}
-                </button>
-              </div>
+              <zac-form-actions
+                [form]="form"
+                [mutation]="createMutation"
+                submitLabel="actie.toevoegen"
+              />
             </form>
           </div>
         }
 
         @if (tabellenQuery.isLoading()) {
-          <div class="loading-shade">
+          <div class="loading-shade flex-row justify-center items-center">
             <mat-spinner diameter="40"></mat-spinner>
           </div>
         } @else if (tabellen().length === 0) {
@@ -102,7 +95,7 @@
           <div class="tabellen-list">
             @for (tabel of tabellen(); track tabel.id) {
               <div class="tabel-group">
-                <div class="tabel-row">
+                <div class="tabel-row flex-row items-center gap-8">
                   <button
                     mat-icon-button
                     class="tabel-toggle"
@@ -117,7 +110,7 @@
                     </mat-icon>
                   </button>
                   <div
-                    class="tabel-titel tabel-toggle flex-1"
+                    class="flex-col flex-1 tabel-toggle"
                     (click)="toggle(tabel)"
                   >
                     <span class="tabel-code">{{ tabel.code }}</span>
@@ -126,7 +119,7 @@
                   <span class="tabel-count tabel-toggle" (click)="toggle(tabel)">
                     {{ "rijen" | translate }} ({{ tabel.aantalWaarden }})
                   </span>
-                  <div class="tabel-actions">
+                  <div class="tabel-actions flex-row items-center">
                     <button
                       mat-icon-button
                       [matTooltip]="'actie.bewerken' | translate"
@@ -156,7 +149,7 @@
                 </div>
                 <div [hidden]="expandedId() !== tabel.id">
                   @if (isLoadingWaarden(tabel)) {
-                    <div class="loading-shade">
+                    <div class="loading-shade flex-row justify-center items-center">
                       <mat-spinner diameter="30"></mat-spinner>
                     </div>
                   } @else if (getLoadedTabel(tabel); as loaded) {

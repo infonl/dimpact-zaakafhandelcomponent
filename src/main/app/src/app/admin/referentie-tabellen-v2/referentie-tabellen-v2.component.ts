@@ -44,6 +44,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -70,6 +71,7 @@ import { ReferentieTabelItemComponent } from "./referentie-tabel-item/referentie
     TranslateModule,
     SideNavComponent,
     ReferentieTabelItemComponent,
+    ZacFormActions,
   ],
 })
 export class ReferentieTabellenV2Component
@@ -110,7 +112,7 @@ export class ReferentieTabellenV2Component
   }));
 
   // Keep the UI callback per-call so it doesn't overwrite the service's cache-refreshing onSuccess.
-  private readonly createMutation = injectMutation(() =>
+  protected readonly createMutation = injectMutation(() =>
     this.service.createReferentieTabelMutation(),
   );
 
