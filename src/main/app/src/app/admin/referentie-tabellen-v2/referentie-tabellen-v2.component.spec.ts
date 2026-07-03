@@ -25,6 +25,7 @@ import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../referentie-tabel.service";
+import { ReferentieTabelCreateDialogComponent } from "./referentie-tabel-create-dialog/referentie-tabel-create-dialog.component";
 import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dialog/referentie-tabel-edit-dialog.component";
 import { ReferentieTabellenV2Component } from "./referentie-tabellen-v2.component";
 
@@ -142,46 +143,13 @@ describe(ReferentieTabellenV2Component.name, () => {
     expect(fixture.nativeElement.textContent).toContain("Waarde A1");
   });
 
-  it("creates a table, shows a snackbar and closes the create form", async () => {
+  it("opens the create dialog", async () => {
     await setup();
-
-    component["openCreateForm"]();
-    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
-    component["addReferentieTabel"]();
-    await sleep();
-
-    const request = httpTestingController.expectOne(
-      (candidate) =>
-        candidate.method === "POST" &&
-        candidate.url === "/rest/referentietabellen",
+    component["openCreateDialog"]();
+    expect(dialogOpen).toHaveBeenCalledWith(
+      ReferentieTabelCreateDialogComponent,
+      expect.objectContaining({ width: "500px" }),
     );
-    expect(request.request.body).toEqual({
-      code: "NEW_CODE",
-      naam: "New name",
-      systeem: false,
-      waarden: [],
-    });
-    request.flush({});
-    await sleep();
-
-    // The service's onSuccess invalidates the list, which refetches; that promise
-    // is awaited before the per-call onSuccess (snackbar + close), so flush it first.
-    httpTestingController
-      .expectOne(
-        (candidate) =>
-          candidate.method === "GET" &&
-          candidate.url === "/rest/referentietabellen",
-      )
-      .flush(tabellen);
-    await sleep();
-
-    expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.referentietabel.toegevoegd",
-      {
-        tabel: "NEW_CODE",
-      },
-    );
-    expect(component["showCreateForm"]()).toBe(false);
   });
 
   it("opens the delete confirmation and shows a snackbar when confirmed", async () => {

@@ -29,61 +29,12 @@
             <button
               mat-raised-button
               color="primary"
-              [disabled]="showCreateForm()"
-              (click)="openCreateForm()"
+              (click)="openCreateDialog()"
             >
               {{ "referentietabel.toevoegen" | translate }}
             </button>
           </div>
         </div>
-
-        @if (showCreateForm()) {
-          <div class="create-card">
-            <mat-toolbar role="heading" class="gap-16">
-              <mat-icon>table_view</mat-icon>
-              <span class="flex-grow-1">{{
-                "referentietabel.toevoegen.titel" | translate
-              }}</span>
-              <button
-                mat-icon-button
-                type="button"
-                (click)="closeCreateForm()"
-                [attr.aria-label]="'actie.annuleren' | translate"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-toolbar>
-            <mat-divider></mat-divider>
-            <form
-              class="create-card-body"
-              [formGroup]="form"
-              (ngSubmit)="addReferentieTabel()"
-              (cancel)="closeCreateForm()"
-            >
-              <section class="row">
-                <div class="col-12 col-xl-6">
-                  <mat-form-field class="full-width">
-                    <mat-label>{{ "tabel" | translate }}</mat-label>
-                    <input matInput formControlName="code" required />
-                    <mat-error>{{ "validators.required" | translate }}</mat-error>
-                  </mat-form-field>
-                </div>
-                <div class="col-12 col-xl-6">
-                  <mat-form-field class="full-width">
-                    <mat-label>{{ "naam" | translate }}</mat-label>
-                    <input matInput formControlName="naam" required />
-                    <mat-error>{{ "validators.required" | translate }}</mat-error>
-                  </mat-form-field>
-                </div>
-              </section>
-              <zac-form-actions
-                [form]="form"
-                [mutation]="createMutation"
-                submitLabel="actie.toevoegen"
-              />
-            </form>
-          </div>
-        }
 
         @if (tabellenQuery.isLoading()) {
           <div class="loading-shade flex-row justify-center items-center">

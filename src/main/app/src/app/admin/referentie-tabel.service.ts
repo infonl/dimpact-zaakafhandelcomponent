@@ -17,7 +17,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class ReferentieTabelService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly queryClient = inject(QueryClient);
+  private readonly queryClient = inject(QueryClient, { optional: true });
 
   listReferentieTabellen() {
     return this.zacHttpClient.GET("/rest/referentietabellen");
@@ -33,16 +33,16 @@ export class ReferentieTabelService {
     });
   }
 
-  invalidateReferentieTabellen() {
-    return this.queryClient.invalidateQueries({
+  private invalidateReferentieTabellen() {
+    return this.queryClient?.invalidateQueries({
       queryKey: this.listReferentieTabellenQuery().queryKey,
     });
   }
 
-  invalidateReferentieTabel(id: number) {
+  private invalidateReferentieTabel(id: number) {
     return Promise.all([
       this.invalidateReferentieTabellen(),
-      this.queryClient.invalidateQueries({
+      this.queryClient?.invalidateQueries({
         queryKey: this.readReferentieTabelQuery(id).queryKey,
       }),
     ]);
@@ -55,7 +55,7 @@ export class ReferentieTabelService {
   createReferentieTabelMutation() {
     return {
       ...this.zacQueryClient.POST("/rest/referentietabellen"),
-      onSuccess: () => this.invalidateReferentieTabellen(),
+      onSuccess: () => void this.invalidateReferentieTabellen(),
     };
   }
 
