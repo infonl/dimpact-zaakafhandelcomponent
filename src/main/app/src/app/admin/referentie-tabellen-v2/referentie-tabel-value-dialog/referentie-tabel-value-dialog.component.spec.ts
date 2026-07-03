@@ -128,7 +128,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
     await sleep();
 
     expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.referentietabel.waarde.toegevoegd",
+      "msg.referentietabel.waarde-toegevoegd",
       { waarde: "Waarde A3" },
     );
     expect(dialogRef.close).toHaveBeenCalledWith(true);
@@ -159,7 +159,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
     await sleep();
 
     expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.referentietabel.waarde.gewijzigd",
+      "msg.referentietabel.waarde-gewijzigd",
       { waarde: "Waarde A1 gewijzigd" },
     );
     expect(dialogRef.close).toHaveBeenCalledWith(true);

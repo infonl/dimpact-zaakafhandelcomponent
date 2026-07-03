@@ -133,11 +133,11 @@ describe(ReferentieTabelItemComponent.name, () => {
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe(
-      "msg.referentietabel.waarde.verwijderen.bevestigen",
+      "msg.referentietabel.waarde-verwijderen-bevestigen",
     );
     expect(dialogData._melding.args).toEqual({ waarde: "Waarde A1" });
     expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.referentietabel.waarde.verwijderd",
+      "msg.referentietabel.waarde-verwijderd",
       { waarde: "Waarde A1" },
     );
   });

@@ -89,8 +89,8 @@ export class ReferentieTabelValueDialogComponent {
     onSuccess: () => {
       this.utilService.openSnackbar(
         this.isEdit
-          ? "msg.referentietabel.waarde.gewijzigd"
-          : "msg.referentietabel.waarde.toegevoegd",
+          ? "msg.referentietabel.waarde-gewijzigd"
+          : "msg.referentietabel.waarde-toegevoegd",
         { waarde: this.form.getRawValue().naam },
       );
       this.dialogRef.close(true);

@@ -68,7 +68,7 @@ export class ReferentieTabelItemComponent {
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.referentietabel.waarde.verwijderen.bevestigen",
+            key: "msg.referentietabel.waarde-verwijderen-bevestigen",
             args: { waarde: waarde.naam },
           },
           this.service.updateReferentieTabelWithRefresh(tabel.id!, {
@@ -82,7 +82,7 @@ export class ReferentieTabelItemComponent {
       .subscribe((confirmed) => {
         if (confirmed) {
           this.utilService.openSnackbar(
-            "msg.referentietabel.waarde.verwijderd",
+            "msg.referentietabel.waarde-verwijderd",
             { waarde: waarde.naam },
           );
         }
