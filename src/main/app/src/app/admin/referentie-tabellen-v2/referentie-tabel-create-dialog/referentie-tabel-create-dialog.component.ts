@@ -43,7 +43,7 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
 })
 export class ReferentieTabelCreateDialogComponent {
   private readonly dialogRef =
-    inject<MatDialogRef<ReferentieTabelCreateDialogComponent, boolean>>(
+    inject<MatDialogRef<ReferentieTabelCreateDialogComponent, number>>(
       MatDialogRef,
     );
   private readonly service = inject(ReferentieTabelService);
@@ -80,17 +80,17 @@ export class ReferentieTabelCreateDialogComponent {
     this.mutation.mutate(
       { code, naam, systeem: false, waarden: [] },
       {
-        onSuccess: () => {
+        onSuccess: (created) => {
           this.utilService.openSnackbar("msg.referentietabel.toegevoegd", {
             tabel: code,
           });
-          this.dialogRef.close(true);
+          this.dialogRef.close(created.id ?? undefined);
         },
       },
     );
   }
 
   protected close() {
-    this.dialogRef.close(false);
+    this.dialogRef.close();
   }
 }

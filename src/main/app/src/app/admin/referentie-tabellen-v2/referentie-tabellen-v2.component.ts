@@ -6,10 +6,12 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   OnInit,
   signal,
   ViewChild,
+  viewChildren,
 } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -37,6 +39,7 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ReferentieTabelCreateDialogComponent } from "./referentie-tabel-create-dialog/referentie-tabel-create-dialog.component";
 import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dialog/referentie-tabel-edit-dialog.component";
 import { ReferentieTabelItemComponent } from "./referentie-tabel-item/referentie-tabel-item.component";
+import { ReferentieTabelRowDirective } from "./referentie-tabel-row.directive";
 
 @Component({
   templateUrl: "./referentie-tabellen-v2.component.html",
@@ -52,6 +55,7 @@ import { ReferentieTabelItemComponent } from "./referentie-tabel-item/referentie
     TranslateModule,
     SideNavComponent,
     ReferentieTabelItemComponent,
+    ReferentieTabelRowDirective,
   ],
 })
 export class ReferentieTabellenV2Component
@@ -63,6 +67,9 @@ export class ReferentieTabellenV2Component
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   protected readonly expandedId = signal<number | null>(null);
+
+  private readonly scrollToId = signal<number | null>(null);
+  private readonly rows = viewChildren(ReferentieTabelRowDirective);
 
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
@@ -81,6 +88,24 @@ export class ReferentieTabellenV2Component
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
+
+    // Scroll a freshly created table into view once its row has rendered (the
+    // list refetch that adds it is async, so this waits for the row to appear).
+    effect(() => {
+      const id = this.scrollToId();
+      if (id == null) {
+        return;
+      }
+      const row = this.rows().find((candidate) => candidate.tabelId() === id);
+      if (!row) {
+        return;
+      }
+      row.element.nativeElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+      this.scrollToId.set(null);
+    });
   }
 
   ngOnInit() {
@@ -105,7 +130,15 @@ export class ReferentieTabellenV2Component
   }
 
   protected openCreateDialog() {
-    this.dialog.open(ReferentieTabelCreateDialogComponent, { width: "500px" });
+    this.dialog
+      .open(ReferentieTabelCreateDialogComponent, { width: "500px" })
+      .afterClosed()
+      .subscribe((createdId?: number) => {
+        if (createdId != null) {
+          this.expandedId.set(createdId);
+          this.scrollToId.set(createdId);
+        }
+      });
   }
 
   protected editReferentieTabel(tabel: GeneratedType<"RestReferenceTable">) {

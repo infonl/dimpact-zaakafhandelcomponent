@@ -87,6 +87,9 @@ describe(ReferentieTabellenV2Component.name, () => {
   }
 
   beforeEach(async () => {
+    // jsdom has no scrollIntoView implementation.
+    Element.prototype.scrollIntoView = jest.fn();
+
     await TestBed.configureTestingModule({
       imports: [
         ReferentieTabellenV2Component,
@@ -150,6 +153,19 @@ describe(ReferentieTabellenV2Component.name, () => {
       ReferentieTabelCreateDialogComponent,
       expect.objectContaining({ width: "500px" }),
     );
+  });
+
+  it("expands and scrolls to the table returned by the create dialog", async () => {
+    await setup({ seedDetail: true });
+    dialogOpen.mockReturnValue(
+      fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(1) }),
+    );
+
+    component["openCreateDialog"]();
+    await flushRendering();
+
+    expect(component["expandedId"]()).toBe(1);
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
 
   it("opens the delete confirmation and shows a snackbar when confirmed", async () => {

@@ -41,11 +41,11 @@
             <mat-spinner diameter="40"></mat-spinner>
           </div>
         } @else if (tabellen().length === 0) {
-          <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+          <p class="no-data">{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         } @else {
           <div class="tabellen-list">
             @for (tabel of tabellen(); track tabel.id) {
-              <div class="tabel-group">
+              <div class="tabel-group" [referentieTabelRow]="tabel.id">
                 <div class="tabel-row flex-row items-center gap-8">
                   <button
                     mat-icon-button

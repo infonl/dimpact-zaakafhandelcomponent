@@ -24,7 +24,7 @@ import { ReferentieTabelCreateDialogComponent } from "./referentie-tabel-create-
 
 async function setup() {
   const dialogRef = fromPartial<
-    MatDialogRef<ReferentieTabelCreateDialogComponent, boolean>
+    MatDialogRef<ReferentieTabelCreateDialogComponent, number>
   >({ close: jest.fn(), disableClose: false });
 
   await TestBed.configureTestingModule({
@@ -62,10 +62,10 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
     );
   });
 
-  it("closes with false on cancel", async () => {
+  it("closes without a result on cancel", async () => {
     const { component, dialogRef } = await setup();
     component["close"]();
-    expect(dialogRef.close).toHaveBeenCalledWith(false);
+    expect(dialogRef.close).toHaveBeenCalledWith();
   });
 
   it("does not submit an empty (invalid) form", async () => {
@@ -91,7 +91,7 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
       systeem: false,
       waarden: [],
     });
-    request.flush({});
+    request.flush({ id: 7, code: "NEW_CODE", naam: "New name" });
     await sleep();
 
     expect(openSnackbar).toHaveBeenCalledWith(
@@ -100,6 +100,6 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
         tabel: "NEW_CODE",
       },
     );
-    expect(dialogRef.close).toHaveBeenCalledWith(true);
+    expect(dialogRef.close).toHaveBeenCalledWith(7);
   });
 });
