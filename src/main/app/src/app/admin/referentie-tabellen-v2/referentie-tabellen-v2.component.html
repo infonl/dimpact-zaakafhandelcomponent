@@ -29,7 +29,7 @@
             <button
               mat-raised-button
               color="primary"
-              [disabled]="showCreateForm"
+              [disabled]="showCreateForm()"
               (click)="openCreateForm()"
             >
               {{ "referentietabel.toevoegen" | translate }}
@@ -37,7 +37,7 @@
           </div>
         </div>
 
-        @if (showCreateForm) {
+        @if (showCreateForm()) {
           <div class="create-card">
             <mat-toolbar role="heading" class="gap-16">
               <mat-icon>table_view</mat-icon>

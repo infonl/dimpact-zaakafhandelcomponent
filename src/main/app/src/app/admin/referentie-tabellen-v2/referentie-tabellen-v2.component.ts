@@ -85,7 +85,7 @@ export class ReferentieTabellenV2Component
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
-  protected showCreateForm = false;
+  protected readonly showCreateForm = signal(false);
   protected readonly expandedId = signal<number | null>(null);
 
   protected readonly form = new FormGroup({
@@ -165,11 +165,11 @@ export class ReferentieTabellenV2Component
   }
 
   protected openCreateForm() {
-    this.showCreateForm = true;
+    this.showCreateForm.set(true);
   }
 
   protected closeCreateForm() {
-    this.showCreateForm = false;
+    this.showCreateForm.set(false);
     this.form.reset();
   }
 
