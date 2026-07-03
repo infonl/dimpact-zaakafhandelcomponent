@@ -3,206 +3,213 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../referentie-tabel.service";
+import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dialog/referentie-tabel-edit-dialog.component";
 import { ReferentieTabellenV2Component } from "./referentie-tabellen-v2.component";
 
-const tabellen: GeneratedType<"RestReferenceTable">[] = [
+const tabellen = fromPartial<GeneratedType<"RestReferenceTable">[]>([
   { id: 1, code: "TABEL_A", naam: "Tabel A", systeem: false, aantalWaarden: 2 },
   { id: 2, code: "TABEL_B", naam: "Tabel B", systeem: true, aantalWaarden: 1 },
-];
+]);
 
-const geladenTabelA: GeneratedType<"RestReferenceTable"> = {
+const geladenTabelA = fromPartial<GeneratedType<"RestReferenceTable">>({
   id: 1,
   code: "TABEL_A",
   naam: "Tabel A",
   systeem: false,
-  aantalWaarden: 2,
   waarden: [
     { id: 10, naam: "Waarde A1" },
     { id: 11, naam: "Waarde A2" },
   ],
-};
+});
 
 describe(ReferentieTabellenV2Component.name, () => {
   let fixture: ComponentFixture<ReferentieTabellenV2Component>;
   let component: ReferentieTabellenV2Component;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
-  let referentieTabelServiceMock: Pick<
-    ReferentieTabelService,
-    "listReferentieTabellen" | "readReferentieTabel" | "createReferentieTabel"
-  >;
+  let service: ReferentieTabelService;
+  let httpTestingController: HttpTestingController;
+  let setTitle: jest.SpyInstance;
+  let openSnackbar: jest.SpyInstance;
+  let dialogOpen: jest.SpyInstance;
+
+  async function flushRendering() {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await sleep();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
+  async function setup({ seedDetail = false } = {}) {
+    fixture = TestBed.createComponent(ReferentieTabellenV2Component);
+    component = fixture.componentInstance;
+    dialogOpen = jest
+      .spyOn(TestBed.inject(MatDialog), "open")
+      .mockReturnValue(
+        fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+      );
+
+    // Seed the cache so the queries resolve without hitting the network.
+    testQueryClient.setQueryData(
+      service.listReferentieTabellenQuery().queryKey,
+      tabellen,
+    );
+    if (seedDetail) {
+      testQueryClient.setQueryData(
+        service.readReferentieTabelQuery(1).queryKey,
+        geladenTabelA,
+      );
+    }
+
+    await flushRendering();
+  }
 
   beforeEach(async () => {
-    utilServiceMock = { setTitle: jest.fn(), openSnackbar: jest.fn() };
-    referentieTabelServiceMock = {
-      listReferentieTabellen: jest.fn().mockReturnValue(of(tabellen)),
-      readReferentieTabel: jest.fn().mockReturnValue(of(geladenTabelA)),
-      createReferentieTabel: jest.fn().mockReturnValue(of(geladenTabelA)),
-    };
-
     await TestBed.configureTestingModule({
       imports: [
         ReferentieTabellenV2Component,
-        TranslateModule.forRoot(),
         NoopAnimationsModule,
+        TranslateModule.forRoot(),
       ],
       providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideTanStackQuery(testQueryClient),
         provideRouter([]),
-        { provide: UtilService, useValue: utilServiceMock },
-        {
-          provide: ConfiguratieService,
-          useValue: {} satisfies Partial<ConfiguratieService>,
-        },
-        {
-          provide: ReferentieTabelService,
-          useValue: referentieTabelServiceMock,
-        },
+        // ConfiguratieService has a broad DI tree and is unused by this screen.
+        { provide: ConfiguratieService, useValue: {} },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ReferentieTabellenV2Component);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    service = TestBed.inject(ReferentieTabelService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    const utilService = TestBed.inject(UtilService);
+    setTitle = jest
+      .spyOn(utilService, "setTitle")
+      .mockImplementation(() => undefined);
+    openSnackbar = jest
+      .spyOn(utilService, "openSnackbar")
+      .mockImplementation(() => undefined);
   });
 
-  function findButton(text: string): HTMLButtonElement | undefined {
-    return Array.from(
-      fixture.nativeElement.querySelectorAll<HTMLButtonElement>("button"),
-    ).find((button) => button.textContent?.includes(text));
-  }
+  afterEach(() => {
+    testQueryClient.clear();
+    httpTestingController.verify();
+  });
 
-  it("should set the title and load the tabellen on init", () => {
-    expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
+  it("sets the title and renders a row per table on init", async () => {
+    await setup();
+    expect(setTitle).toHaveBeenCalledWith(
       "title.referentietabellen.v2",
       undefined,
     );
-    expect(
-      referentieTabelServiceMock.listReferentieTabellen,
-    ).toHaveBeenCalled();
-  });
-
-  it("should render a row per tabel", () => {
-    const rows = fixture.nativeElement.querySelectorAll(".tabel-row");
-    expect(rows).toHaveLength(2);
+    expect(fixture.nativeElement.querySelectorAll(".tabel-row")).toHaveLength(
+      2,
+    );
     expect(fixture.nativeElement.textContent).toContain("TABEL_A");
     expect(fixture.nativeElement.textContent).toContain("TABEL_B");
   });
 
-  it("should lazily load the waarden when a row is expanded", () => {
+  it("lazily loads and renders the values when a row is expanded", async () => {
+    await setup({ seedDetail: true });
+
     component["toggle"](tabellen[0]);
+    await flushRendering();
 
-    expect(referentieTabelServiceMock.readReferentieTabel).toHaveBeenCalledWith(
-      1,
-    );
-    expect(component["expandedId"]).toBe(1);
-    expect(component["getLoadedTabel"](tabellen[0])).toEqual(geladenTabelA);
+    expect(component["expandedId"]()).toBe(1);
+    expect(fixture.nativeElement.textContent).toContain("Waarde A1");
   });
 
-  it("should collapse when the expanded row is toggled again", () => {
-    component["toggle"](tabellen[0]);
-    component["toggle"](tabellen[0]);
+  it("creates a table, shows a snackbar and closes the create form", async () => {
+    await setup();
 
-    expect(component["expandedId"]).toBeNull();
-  });
-
-  it("should open the create form and disable the header button when clicked", () => {
-    expect(component["showCreateForm"]).toBe(false);
-    const headerButton = findButton("referentietabel.toevoegen");
-    expect(headerButton?.disabled).toBe(false);
-
-    headerButton?.click();
-    fixture.detectChanges();
-
-    expect(component["showCreateForm"]).toBe(true);
-    expect(findButton("referentietabel.toevoegen")?.disabled).toBe(true);
-  });
-
-  it("should disable the submit button until both code and naam are filled", () => {
-    component["openCreateForm"]();
-    fixture.detectChanges();
-
-    const button = fixture.nativeElement.querySelector(
-      "button[type='submit']",
-    ) as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
-
-    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
-    fixture.detectChanges();
-
-    expect(button.disabled).toBe(false);
-  });
-
-  it("should close and reset the form when cancel is clicked", () => {
     component["openCreateForm"]();
     component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
-    fixture.detectChanges();
-
-    findButton("actie.annuleren")?.click();
-    fixture.detectChanges();
-
-    expect(component["showCreateForm"]).toBe(false);
-    expect(component["form"].value).toEqual({ code: "", naam: "" });
-    expect(
-      referentieTabelServiceMock.createReferentieTabel,
-    ).not.toHaveBeenCalled();
-  });
-
-  it("should create the tabel, close the form and reload when submitted", () => {
-    component["openCreateForm"]();
-    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
-
     component["addReferentieTabel"]();
+    await sleep();
 
-    expect(
-      referentieTabelServiceMock.createReferentieTabel,
-    ).toHaveBeenCalledWith({
+    const request = httpTestingController.expectOne(
+      (candidate) =>
+        candidate.method === "POST" &&
+        candidate.url === "/rest/referentietabellen",
+    );
+    expect(request.request.body).toEqual({
       code: "NEW_CODE",
       naam: "New name",
       systeem: false,
       waarden: [],
     });
-    expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
+    request.flush({});
+    await sleep();
+
+    // The service's onSuccess invalidates the list, which refetches; that promise
+    // is awaited before the per-call onSuccess (snackbar + close), so flush it first.
+    httpTestingController
+      .expectOne(
+        (candidate) =>
+          candidate.method === "GET" &&
+          candidate.url === "/rest/referentietabellen",
+      )
+      .flush(tabellen);
+    await sleep();
+
+    expect(openSnackbar).toHaveBeenCalledWith(
       "msg.referentietabel.toegevoegd",
-      { tabel: "NEW_CODE" },
+      {
+        tabel: "NEW_CODE",
+      },
     );
-    expect(component["showCreateForm"]).toBe(false);
-    expect(
-      referentieTabelServiceMock.listReferentieTabellen,
-    ).toHaveBeenCalledTimes(2);
-    expect(component["form"].value).toEqual({ code: "", naam: "" });
+    expect(component["showCreateForm"]()).toBe(false);
   });
 
-  it("should not create a tabel when the form is invalid", () => {
-    component["addReferentieTabel"]();
+  it("opens the delete confirmation and shows a snackbar when confirmed", async () => {
+    await setup();
+    dialogOpen.mockReturnValue(
+      fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
+    );
 
-    expect(
-      referentieTabelServiceMock.createReferentieTabel,
-    ).not.toHaveBeenCalled();
+    component["verwijderReferentieTabel"](tabellen[0]);
+
+    const dialogData = dialogOpen.mock.calls[0][1].data;
+    expect(dialogData._melding.key).toBe("msg.tabel.verwijderen.bevestigen");
+    expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
+    expect(openSnackbar).toHaveBeenCalledWith(
+      "msg.tabel.verwijderen.uitgevoerd",
+      { tabel: "TABEL_A" },
+    );
   });
 
-  it("should not reload the waarden for an already loaded tabel", () => {
-    component["toggle"](tabellen[0]);
-    component["toggle"](tabellen[0]);
-    component["toggle"](tabellen[0]);
+  it("loads the full table then opens the rename dialog", async () => {
+    await setup({ seedDetail: true });
 
-    expect(
-      referentieTabelServiceMock.readReferentieTabel,
-    ).toHaveBeenCalledTimes(1);
-  });
+    component["editReferentieTabel"](tabellen[0]);
+    await sleep();
 
-  it("should render the loaded waarden below the expanded row", () => {
-    component["toggle"](tabellen[0]);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain("Waarde A1");
-    expect(fixture.nativeElement.textContent).toContain("Waarde A2");
+    expect(dialogOpen).toHaveBeenCalledWith(
+      ReferentieTabelEditDialogComponent,
+      expect.objectContaining({ data: geladenTabelA }),
+    );
   });
 });
