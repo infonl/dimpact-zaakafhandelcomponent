@@ -26,8 +26,12 @@
           [form]="form"
           key="groep"
           optionDisplayValue="naam"
-          [options]="groups"
+          [readonly]="noAuthorisedGroups()"
+          [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
+        <mat-error *ngIf="noAuthorisedGroups()">{{
+          "msg.error.dialog.taken-verdelen.no-authorised-groups" | translate
+        }}</mat-error>
         <zac-auto-complete
           class="col-12"
           [form]="form"

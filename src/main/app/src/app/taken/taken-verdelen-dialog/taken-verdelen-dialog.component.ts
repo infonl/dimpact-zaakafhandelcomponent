@@ -4,7 +4,8 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, inject } from "@angular/core";
+
+import { Component, computed, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -15,6 +16,7 @@ import {
   MatDialogTitle,
 } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
@@ -28,6 +30,7 @@ import { TakenService } from "../taken.service";
 @Component({
   selector: "zac-taken-verdelen-dialog",
   templateUrl: "./taken-verdelen-dialog.component.html",
+  styleUrls: ["./taken-verdelen-dialog.component.less"],
   standalone: true,
   imports: [
     NgIf,
@@ -38,6 +41,7 @@ import { TakenService } from "../taken.service";
     MatDialogContent,
     MatDividerModule,
     MatButtonModule,
+    MatError,
     TranslateModule,
     MaterialFormBuilderModule,
   ],
@@ -70,7 +74,15 @@ export class TakenVerdelenDialogComponent {
     ]),
   });
 
-  protected groups = this.identityService.listGroups();
+  protected readonly groupsQuery = injectMutation(() =>
+    this.identityService.listBehandelaarGroupsForZaaktypesQuery(),
+  );
+
+  protected readonly noAuthorisedGroups = computed(() => {
+    const groupsQuery = this.groupsQuery.data();
+    return groupsQuery !== undefined && groupsQuery.length === 0;
+  });
+
   protected users: GeneratedType<"RestUser">[] = [];
 
   constructor() {
@@ -78,6 +90,12 @@ export class TakenVerdelenDialogComponent {
       this.form.disable();
       return;
     }
+
+    this.groupsQuery.mutate({
+      zaaktypeDescriptions: this.data.taken.map(
+        ({ zaaktypeOmschrijving }) => zaaktypeOmschrijving,
+      ),
+    });
 
     this.form.controls.medewerker.disable();
 
