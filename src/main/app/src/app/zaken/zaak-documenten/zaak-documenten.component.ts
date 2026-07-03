@@ -50,8 +50,7 @@ import {
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { detailExpand } from "../../shared/animations/animations";
-import { GenericDialogData } from "../../shared/dialog/generic-dialog/generic-dialog-data";
-import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
+import { openGenericDialog } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
@@ -311,26 +310,19 @@ export class ZaakDocumentenComponent implements AfterViewInit {
           ]),
         });
 
-        this.dialog
-          .open<
-            GenericDialogComponent,
-            GenericDialogData<OntkoppelDocumentForm>,
-            unknown
-          >(GenericDialogComponent, {
-            data: {
-              form,
-              contentTemplate: this.ontkoppelDialogTemplate(),
-              callback: () =>
-                this.zakenService.ontkoppelInformatieObject({
-                  zaakUUID: this.zaak().uuid,
-                  documentUUID: informatieobject.uuid!,
-                  reden: form.getRawValue().reden ?? "",
-                }),
-              melding,
-              confirmButtonActionKey: "actie.document.ontkoppelen",
-              icon: "link_off",
-            },
-          })
+        openGenericDialog(this.dialog, {
+          form,
+          contentTemplate: this.ontkoppelDialogTemplate(),
+          callback: () =>
+            this.zakenService.ontkoppelInformatieObject({
+              zaakUUID: this.zaak().uuid,
+              documentUUID: informatieobject.uuid!,
+              reden: form.getRawValue().reden ?? "",
+            }),
+          melding,
+          confirmButtonActionKey: "actie.document.ontkoppelen",
+          icon: "link_off",
+        })
           .afterClosed()
           .subscribe((result) => {
             if (result) {

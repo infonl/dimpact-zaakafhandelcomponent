@@ -38,6 +38,8 @@ import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoo
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
+import { GenericDialogData } from "../../shared/dialog/generic-dialog/generic-dialog-data";
+import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -582,6 +584,156 @@ describe(ZaakViewComponent.name, () => {
         "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
+    });
+  });
+
+  describe("openZaakHeropenenDialog", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("opens the generic dialog and heropent the zaak with the entered reden on confirm", () => {
+      const openSpy = jest.spyOn(TestBed.inject(MatDialog), "open");
+      const heropenenSpy = jest
+        .spyOn(zakenService, "heropenen")
+        .mockReturnValue(EMPTY);
+
+      fixture.componentInstance["openZaakHeropenenDialog"]();
+
+      expect(openSpy).toHaveBeenCalledWith(
+        GenericDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            confirmButtonActionKey: "actie.zaak.heropenen",
+            icon: "restart_alt",
+          }),
+        }),
+      );
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      dialogData.form.get("reden")?.setValue("Nieuwe informatie");
+      dialogData.callback(dialogData.form).subscribe();
+
+      expect(heropenenSpy).toHaveBeenCalledWith("1234", {
+        reden: "Nieuwe informatie",
+      });
+    });
+  });
+
+  describe("openZaakAfbrekenDialog", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("opens the generic dialog and afbreekt the zaak with the selected reden on confirm", () => {
+      const openSpy = jest.spyOn(TestBed.inject(MatDialog), "open");
+      const afbrekenSpy = jest
+        .spyOn(zakenService, "afbreken")
+        .mockReturnValue(EMPTY);
+
+      fixture.componentInstance["openZaakAfbrekenDialog"]();
+
+      expect(openSpy).toHaveBeenCalledWith(
+        GenericDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            confirmButtonActionKey: "actie.zaak.afbreken",
+            icon: "thumb_down_alt",
+          }),
+        }),
+      );
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      dialogData.form.get("reden")?.setValue(
+        fromPartial<GeneratedType<"RestZaakbeeindigReden">>({
+          id: "reden-1",
+          naam: "Afgehandeld",
+        }),
+      );
+      dialogData.callback(dialogData.form).subscribe();
+
+      expect(afbrekenSpy).toHaveBeenCalledWith("1234", {
+        zaakbeeindigRedenId: "reden-1",
+      });
+    });
+  });
+
+  describe("openZaakHervattenDialog", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      fixture.componentInstance.zaakOpschorting = fromPartial<
+        GeneratedType<"RESTZaakOpschorting">
+      >({ vanafDatumTijd: "2026-01-01T00:00:00Z", duurDagen: 10 });
+    });
+
+    it("opens the generic dialog and hervat the zaak with the entered reden on confirm", () => {
+      const openSpy = jest.spyOn(TestBed.inject(MatDialog), "open");
+      const resumeSpy = jest
+        .spyOn(zakenService, "resumeZaak")
+        .mockReturnValue(EMPTY);
+
+      fixture.componentInstance["openZaakHervattenDialog"]();
+
+      expect(openSpy).toHaveBeenCalledWith(
+        GenericDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            confirmButtonActionKey: "actie.zaak.hervatten",
+            icon: "play_circle",
+          }),
+        }),
+      );
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      dialogData.form.get("reden")?.setValue("Weer aan het werk");
+      dialogData.callback(dialogData.form).subscribe();
+
+      expect(resumeSpy).toHaveBeenCalledWith("1234", {
+        reason: "Weer aan het werk",
+      });
+    });
+  });
+
+  describe("initiatorGeselecteerd (change existing initiator)", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("opens the generic dialog and updates the initiator with the entered reden on confirm", () => {
+      const openSpy = jest.spyOn(TestBed.inject(MatDialog), "open");
+      const updateInitiatorSpy = jest
+        .spyOn(zakenService, "updateInitiator")
+        .mockReturnValue(EMPTY);
+
+      fixture.componentInstance["initiatorGeselecteerd"](
+        fromPartial<GeneratedType<"RestPersoon">>({
+          naam: "Jan Jansen",
+          identificatieType: "BSN",
+          bsn: "123456789",
+          temporaryPersonId: "temp-person-1",
+        }),
+      );
+
+      expect(openSpy).toHaveBeenCalledWith(
+        GenericDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            confirmButtonActionKey: "actie.initiator.wijzigen",
+            icon: "link",
+          }),
+        }),
+      );
+      const dialogData = openSpy.mock.calls[0][1]?.data as GenericDialogData;
+      dialogData.form.get("reden")?.setValue("Verkeerde initiator gekoppeld");
+      dialogData.callback(dialogData.form).subscribe();
+
+      expect(updateInitiatorSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          zaakUUID: "1234",
+          toelichting: "Verkeerde initiator gekoppeld",
+        }),
+      );
     });
   });
 

@@ -16,6 +16,9 @@ import { NotitiesComponent } from "../notities/notities.component";
 import { HumanTaskDoComponent } from "../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsModule } from "../plan-items/plan-items.module";
 import { DocumentIconComponent } from "../shared/document-icon/document-icon.component";
+import { ZacInput } from "../shared/form/input/input";
+import { ZacSelect } from "../shared/form/select/select";
+import { ZacTextarea } from "../shared/form/textarea/textarea";
 import { InformatieObjectIndicatiesComponent } from "../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MimetypeToExtensionPipe } from "../shared/pipes/mimetypeToExtension.pipe";
 import { SharedModule } from "../shared/shared.module";
@@ -68,6 +71,9 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     BesluitEditComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
+    ZacInput,
+    ZacSelect,
+    ZacTextarea,
   ],
 })
 export class ZakenModule {}

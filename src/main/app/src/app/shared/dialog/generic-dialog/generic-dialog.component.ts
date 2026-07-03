@@ -6,10 +6,11 @@
 import { NgTemplateOutlet } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, inject, signal } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from "@angular/material/dialog";
@@ -82,4 +83,19 @@ export class GenericDialogComponent {
       message || "dialoog.error.body.technisch",
     );
   }
+}
+
+/**
+ * Opens {@link GenericDialogComponent} with the given data. Infers the form and result types from
+ * `data`, so callers don't repeat the dialog component or its generics on every `dialog.open`.
+ */
+export function openGenericDialog<Form extends FormGroup, Result = unknown>(
+  dialog: MatDialog,
+  data: GenericDialogData<Form, Result>,
+) {
+  return dialog.open<
+    GenericDialogComponent,
+    GenericDialogData<Form, Result>,
+    Result
+  >(GenericDialogComponent, { data });
 }

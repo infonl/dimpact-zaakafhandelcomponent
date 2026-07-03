@@ -9,10 +9,12 @@ import {
   Component,
   inject,
   OnDestroy,
+  TemplateRef,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, Validators } from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { MatSort } from "@angular/material/sort";
@@ -21,7 +23,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { forkJoin } from "rxjs";
+import { defer, forkJoin } from "rxjs";
 import { tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
@@ -42,10 +44,10 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { DialogData } from "../../shared/dialog/dialog-data";
 import { DialogComponent } from "../../shared/dialog/dialog.component";
+import { openGenericDialog } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
 import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
@@ -63,6 +65,11 @@ import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verl
 import { ZakenService } from "../zaken.service";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
+
+type RedenForm = FormGroup<{ reden: FormControl<string | null> }>;
+type AfbrekenForm = FormGroup<{
+  reden: FormControl<GeneratedType<"RestZaakbeeindigReden"> | null>;
+}>;
 
 @Component({
   templateUrl: "./zaak-view.component.html",
@@ -139,6 +146,26 @@ export class ZaakViewComponent
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
 
   @ViewChild("historieSort") historieSort!: MatSort;
+
+  private readonly heropenenDialogTemplate = viewChild.required<
+    TemplateRef<{ $implicit: RedenForm }>
+  >("heropenenDialogTemplate");
+  private readonly afbrekenDialogTemplate = viewChild.required<
+    TemplateRef<{ $implicit: AfbrekenForm }>
+  >("afbrekenDialogTemplate");
+  private readonly hervattenDialogTemplate = viewChild.required<
+    TemplateRef<{ $implicit: RedenForm }>
+  >("hervattenDialogTemplate");
+  private readonly initiatorWijzigenDialogTemplate = viewChild.required<
+    TemplateRef<{ $implicit: RedenForm }>
+  >("initiatorWijzigenDialogTemplate");
+
+  // Loaded lazily on subscribe so the current zaaktype is used each time the afbreken dialog opens.
+  protected readonly afbrekenRedenen = defer(() =>
+    this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
+      this.zaak.zaaktype.uuid,
+    ),
+  );
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
   @ViewChild("zaakTakenComponent")
@@ -689,35 +716,27 @@ export class ZaakViewComponent
       return;
     }
 
-    const dialogData = new DialogData<
-      unknown,
-      { reden: GeneratedType<"RestZaakbeeindigReden"> }
-    >({
-      formFields: [
-        new SelectFormFieldBuilder()
-          .id("reden")
-          .label("actie.zaak.afbreken.reden")
-          .optionLabel("naam")
-          .options(
-            this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
-              this.zaak.zaaktype.uuid,
-            ),
-          )
-          .validators(Validators.required)
-          .build(),
-      ],
-      callback: ({ reden }) =>
+    const form: AfbrekenForm = new FormGroup({
+      reden: new FormControl<GeneratedType<"RestZaakbeeindigReden"> | null>(
+        null,
+        Validators.required,
+      ),
+    });
+
+    openGenericDialog(this.dialog, {
+      form,
+      contentTemplate: this.afbrekenDialogTemplate(),
+      callback: () =>
         this.zakenService
-          .afbreken(this.zaak.uuid, { zaakbeeindigRedenId: reden.id! })
+          .afbreken(this.zaak.uuid, {
+            zaakbeeindigRedenId: form.getRawValue().reden?.id ?? "",
+          })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
       confirmButtonActionKey: "actie.zaak.afbreken",
       icon: "thumb_down_alt",
-    });
-
-    this.dialog
-      .open(DialogComponent, { data: dialogData })
+    })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
@@ -730,27 +749,27 @@ export class ZaakViewComponent
   }
 
   private openZaakHeropenenDialog() {
-    const dialogData = new DialogData<unknown, { reden: string }>({
-      formFields: [
-        new InputFormFieldBuilder()
-          .id("reden")
-          .label("actie.zaak.heropenen.reden")
-          .validators(Validators.required)
-          .maxlength(100)
-          .build(),
-      ],
-      callback: ({ reden }) =>
+    const form: RedenForm = new FormGroup({
+      reden: new FormControl<string | null>(null, [
+        Validators.required,
+        Validators.maxLength(100),
+      ]),
+    });
+
+    openGenericDialog(this.dialog, {
+      form,
+      contentTemplate: this.heropenenDialogTemplate(),
+      callback: () =>
         this.zakenService
-          .heropenen(this.zaak.uuid, { reden })
+          .heropenen(this.zaak.uuid, {
+            reden: form.getRawValue().reden ?? "",
+          })
           .pipe(
             tap(() => this.websocketService.suspendListener(this.zaakListener)),
           ),
       confirmButtonActionKey: "actie.zaak.heropenen",
       icon: "restart_alt",
-    });
-
-    this.dialog
-      .open(DialogComponent, { data: dialogData })
+    })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
@@ -817,21 +836,19 @@ export class ZaakViewComponent
       "days",
     );
 
-    const dialogData = new DialogData<
-      unknown,
-      { redenOpschortingField: string }
-    >({
-      formFields: [
-        new InputFormFieldBuilder()
-          .id("redenOpschortingField")
-          .label("reden")
-          .validators(Validators.required)
-          .maxlength(200)
-          .build(),
-      ],
-      callback: ({ redenOpschortingField }) =>
+    const form: RedenForm = new FormGroup({
+      reden: new FormControl<string | null>(null, [
+        Validators.required,
+        Validators.maxLength(200),
+      ]),
+    });
+
+    openGenericDialog(this.dialog, {
+      form,
+      contentTemplate: this.hervattenDialogTemplate(),
+      callback: () =>
         this.zakenService.resumeZaak(this.zaak.uuid, {
-          reason: redenOpschortingField,
+          reason: form.getRawValue().reden ?? "",
         }),
       melding: this.translate.instant("msg.zaak.hervatten", {
         duur: werkelijkeOpschortDuur,
@@ -839,10 +856,7 @@ export class ZaakViewComponent
       }),
       confirmButtonActionKey: "actie.zaak.hervatten",
       icon: "play_circle",
-    });
-
-    this.dialog
-      .open(DialogComponent, { data: dialogData })
+    })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
@@ -932,29 +946,25 @@ export class ZaakViewComponent
 
     if (this.zaak.initiatorIdentificatie) {
       // We already have an initiator, we need a reason to change it
-      this.dialog
-        .open(DialogComponent, {
-          data: new DialogData<unknown, { reden: string }>({
-            formFields: [
-              new TextareaFormFieldBuilder()
-                .id("reden")
-                .label("reden")
-                .validators(Validators.required)
-                .build(),
-            ],
-            callback: ({ reden }) =>
-              this.zakenService.updateInitiator({
-                zaakUUID: this.zaak.uuid,
-                betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-                toelichting: reden,
-              }),
-            melding: this.translate.instant("msg.initiator.bevestigen", {
-              naam: initiator.naam,
-            }),
-            icon: "link",
-            confirmButtonActionKey: "actie.initiator.wijzigen",
+      const form: RedenForm = new FormGroup({
+        reden: new FormControl<string | null>(null, Validators.required),
+      });
+
+      openGenericDialog(this.dialog, {
+        form,
+        contentTemplate: this.initiatorWijzigenDialogTemplate(),
+        callback: () =>
+          this.zakenService.updateInitiator({
+            zaakUUID: this.zaak.uuid,
+            betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
+            toelichting: form.getRawValue().reden ?? "",
           }),
-        })
+        melding: this.translate.instant("msg.initiator.bevestigen", {
+          naam: initiator.naam,
+        }),
+        icon: "link",
+        confirmButtonActionKey: "actie.initiator.wijzigen",
+      })
         .afterClosed()
         .subscribe((zaak) =>
           this.handleNewInitiator("msg.initiator.gewijzigd", zaak),
@@ -1355,17 +1365,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen &&
+      this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

@@ -841,3 +841,25 @@
   [zaakUuid]="zaak.uuid"
   [notitieRechten]="notitieRechten"
 ></zac-notities>
+
+<ng-template #heropenenDialogTemplate let-form>
+  <zac-input [form]="form" key="reden" label="actie.zaak.heropenen.reden" />
+</ng-template>
+
+<ng-template #afbrekenDialogTemplate let-form>
+  <zac-select
+    [form]="form"
+    [options]="afbrekenRedenen"
+    key="reden"
+    label="actie.zaak.afbreken.reden"
+    optionDisplayValue="naam"
+  />
+</ng-template>
+
+<ng-template #hervattenDialogTemplate let-form>
+  <zac-input [form]="form" key="reden" label="reden" />
+</ng-template>
+
+<ng-template #initiatorWijzigenDialogTemplate let-form>
+  <zac-textarea [form]="form" key="reden" label="reden" />
+</ng-template>
