@@ -4,7 +4,9 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
+import { tap } from "rxjs/operators";
 import { PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -15,6 +17,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class ReferentieTabelService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
 
   listReferentieTabellen() {
     return this.zacHttpClient.GET("/rest/referentietabellen");
@@ -30,12 +33,30 @@ export class ReferentieTabelService {
     });
   }
 
+  invalidateReferentieTabellen() {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.listReferentieTabellenQuery().queryKey,
+    });
+  }
+
+  invalidateReferentieTabel(id: number) {
+    return Promise.all([
+      this.invalidateReferentieTabellen(),
+      this.queryClient.invalidateQueries({
+        queryKey: this.readReferentieTabelQuery(id).queryKey,
+      }),
+    ]);
+  }
+
   createReferentieTabel(body: PostBody<"/rest/referentietabellen">) {
     return this.zacHttpClient.POST("/rest/referentietabellen", body);
   }
 
   createReferentieTabelMutation() {
-    return this.zacQueryClient.POST("/rest/referentietabellen");
+    return {
+      ...this.zacQueryClient.POST("/rest/referentietabellen"),
+      onSuccess: () => this.invalidateReferentieTabellen(),
+    };
   }
 
   readReferentieTabel(id: number) {
@@ -65,17 +86,28 @@ export class ReferentieTabelService {
     });
   }
 
-  // Promise-returning variants for use as TanStack `injectMutation` mutationFns
-  // (the runtime `{id}` path param rules out a service-level mutationOptions factory).
+  // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
+  updateReferentieTabelWithRefresh(
+    id: number,
+    body: PutBody<"/rest/referentietabellen/{id}">,
+  ) {
+    return this.updateReferentieTabel(id, body).pipe(
+      tap(() => void this.invalidateReferentieTabel(id)),
+    );
+  }
+
+  // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
+  deleteReferentieTabelWithRefresh(id: number) {
+    return this.deleteReferentieTabel(id).pipe(
+      tap(() => void this.invalidateReferentieTabellen()),
+    );
+  }
+
   updateReferentieTabelAsync(
     id: number,
     body: PutBody<"/rest/referentietabellen/{id}">,
   ) {
-    return lastValueFrom(this.updateReferentieTabel(id, body));
-  }
-
-  deleteReferentieTabelAsync(id: number) {
-    return lastValueFrom(this.deleteReferentieTabel(id));
+    return lastValueFrom(this.updateReferentieTabelWithRefresh(id, body));
   }
 
   listAfzenders() {

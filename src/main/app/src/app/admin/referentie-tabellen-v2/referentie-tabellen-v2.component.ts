@@ -51,11 +51,6 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dialog/referentie-tabel-edit-dialog.component";
 import { ReferentieTabelItemComponent } from "./referentie-tabel-item/referentie-tabel-item.component";
 
-/**
- * Experimental accordion-based reference table administration, offered next to
- * the existing screens so the two can be compared side by side. Each table is a
- * collapsible row; its values are lazily loaded when the row is expanded.
- */
 @Component({
   templateUrl: "./referentie-tabellen-v2.component.html",
   styleUrls: ["./referentie-tabellen-v2.component.less"],
@@ -107,37 +102,17 @@ export class ReferentieTabellenV2Component
     this.service.listReferentieTabellenQuery(),
   );
 
-  protected readonly tabellen = computed(
-    () => this.tabellenQuery.data() ?? [],
-  );
+  protected readonly tabellen = computed(() => this.tabellenQuery.data() ?? []);
 
   protected readonly tabelDetailQuery = injectQuery(() => ({
     ...this.service.readReferentieTabelQuery(this.expandedId()!),
     enabled: this.expandedId() != null,
   }));
 
-  private readonly createMutation = injectMutation(() => ({
-    ...this.service.createReferentieTabelMutation(),
-    onSuccess: () => this.invalidateTabellen(),
-  }));
-
-  private readonly updateMutation = injectMutation(() => ({
-    mutationFn: (variables: {
-      id: number;
-      body: GeneratedType<"RestReferenceTableUpdate">;
-    }) => this.service.updateReferentieTabelAsync(variables.id, variables.body),
-    onSuccess: (_data, variables) => {
-      this.invalidateTabellen();
-      void this.queryClient.invalidateQueries({
-        queryKey: this.service.readReferentieTabelQuery(variables.id).queryKey,
-      });
-    },
-  }));
-
-  private readonly deleteMutation = injectMutation(() => ({
-    mutationFn: (id: number) => this.service.deleteReferentieTabelAsync(id),
-    onSuccess: () => this.invalidateTabellen(),
-  }));
+  // Keep the UI callback per-call so it doesn't overwrite the service's cache-refreshing onSuccess.
+  private readonly createMutation = injectMutation(() =>
+    this.service.createReferentieTabelMutation(),
+  );
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
@@ -195,68 +170,44 @@ export class ReferentieTabellenV2Component
     if (tabel.id == null) {
       return;
     }
-    // Fetch the full table (with its values) so the name update does not wipe them.
+    // Load the full table first: the update PUT replaces the entire value list.
     void this.queryClient
       .fetchQuery(this.service.readReferentieTabelQuery(tabel.id))
       .then((loaded) => {
-        this.dialog
-          .open(ReferentieTabelEditDialogComponent, {
-            data: loaded,
-            width: "500px",
-          })
-          .afterClosed()
-          .subscribe((naam?: string) => {
-            if (!naam || loaded.id == null) {
-              return;
-            }
-            this.updateMutation.mutate(
-              {
-                id: loaded.id,
-                body: { code: loaded.code, naam, waarden: loaded.waarden ?? [] },
-              },
-              {
-                onSuccess: () =>
-                  this.utilService.openSnackbar("msg.referentietabel.gewijzigd", {
-                    tabel: loaded.code,
-                  }),
-              },
-            );
-          });
+        this.dialog.open(ReferentieTabelEditDialogComponent, {
+          data: loaded,
+          width: "500px",
+        });
       });
   }
 
-  protected verwijderReferentieTabel(tabel: GeneratedType<"RestReferenceTable">) {
+  protected verwijderReferentieTabel(
+    tabel: GeneratedType<"RestReferenceTable">,
+  ) {
     if (tabel.id == null) {
       return;
     }
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData({
-          key: "msg.tabel.verwijderen.bevestigen",
-          args: { tabel: tabel.code },
-        }),
+        data: new ConfirmDialogData(
+          {
+            key: "msg.tabel.verwijderen.bevestigen",
+            args: { tabel: tabel.code },
+          },
+          this.service.deleteReferentieTabelWithRefresh(tabel.id),
+        ),
       })
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) {
           return;
         }
-        this.deleteMutation.mutate(tabel.id!, {
-          onSuccess: () => {
-            this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
-              tabel: tabel.code,
-            });
-            if (this.expandedId() === tabel.id) {
-              this.expandedId.set(null);
-            }
-          },
+        this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
+          tabel: tabel.code,
         });
+        if (this.expandedId() === tabel.id) {
+          this.expandedId.set(null);
+        }
       });
-  }
-
-  private invalidateTabellen() {
-    void this.queryClient.invalidateQueries({
-      queryKey: this.service.listReferentieTabellenQuery().queryKey,
-    });
   }
 }

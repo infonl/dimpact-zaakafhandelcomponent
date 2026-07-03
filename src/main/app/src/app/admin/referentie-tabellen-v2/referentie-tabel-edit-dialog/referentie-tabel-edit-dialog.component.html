@@ -10,7 +10,7 @@
   }}</span>
   <button
     mat-icon-button
-    (click)="dialogRef.close()"
+    (click)="close()"
     [attr.aria-label]="'actie.annuleren' | translate"
   >
     <mat-icon>close</mat-icon>
@@ -18,7 +18,7 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (ngSubmit)="save()">
+<form [formGroup]="form" (submit)="submit()" (cancel)="close()">
   <mat-dialog-content>
     <mat-form-field class="full-width">
       <mat-label>{{ "tabel" | translate }}</mat-label>
@@ -30,17 +30,10 @@
       <mat-error>{{ "validators.required" | translate }}</mat-error>
     </mat-form-field>
   </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="dialogRef.close()">
-      {{ "actie.annuleren" | translate }}
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit"
-      [disabled]="form.invalid"
-    >
-      {{ "actie.opslaan" | translate }}
-    </button>
-  </mat-dialog-actions>
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    submitLabel="actie.opslaan"
+  />
 </form>

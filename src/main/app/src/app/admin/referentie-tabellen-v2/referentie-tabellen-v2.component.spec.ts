@@ -37,9 +37,7 @@ describe(ReferentieTabellenV2Component.name, () => {
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
   let referentieTabelServiceMock: Pick<
     ReferentieTabelService,
-    | "listReferentieTabellen"
-    | "readReferentieTabel"
-    | "createReferentieTabel"
+    "listReferentieTabellen" | "readReferentieTabel" | "createReferentieTabel"
   >;
 
   beforeEach(async () => {
@@ -101,9 +99,9 @@ describe(ReferentieTabellenV2Component.name, () => {
   it("should lazily load the waarden when a row is expanded", () => {
     component["toggle"](tabellen[0]);
 
-    expect(
-      referentieTabelServiceMock.readReferentieTabel,
-    ).toHaveBeenCalledWith(1);
+    expect(referentieTabelServiceMock.readReferentieTabel).toHaveBeenCalledWith(
+      1,
+    );
     expect(component["expandedId"]).toBe(1);
     expect(component["getLoadedTabel"](tabellen[0])).toEqual(geladenTabelA);
   });
@@ -176,7 +174,6 @@ describe(ReferentieTabellenV2Component.name, () => {
       { tabel: "NEW_CODE" },
     );
     expect(component["showCreateForm"]).toBe(false);
-    // once on init, once after creating
     expect(
       referentieTabelServiceMock.listReferentieTabellen,
     ).toHaveBeenCalledTimes(2);

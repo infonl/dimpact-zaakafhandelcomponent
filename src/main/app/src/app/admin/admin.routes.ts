@@ -14,8 +14,8 @@ import { ParametersEditShellComponent } from "./parameters-edit-shell/parameters
 import { ParametersComponent } from "./parameters/parameters.component";
 import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
 import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
-import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ReferentieTabellenV2Component } from "./referentie-tabellen-v2/referentie-tabellen-v2.component";
+import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
 
 export const ADMIN_ROUTES: Routes = [
