@@ -1,0 +1,38 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+.referentie-tabel-item {
+  padding: 10px 60px;
+  border-top: 1px solid #d8d8d8;
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  td.mat-column-index,
+  th.mat-column-index {
+    width: 36px;
+    padding-right: 8px;
+  }
+
+  td.mat-column-actions,
+  th.mat-column-actions {
+    width: 96px;
+    text-align: right;
+    padding: 0;
+  }
+
+  // Same grouping/spacing as the reference-table row actions.
+  .tabel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    > * + * {
+      margin-left: -8px;
+    }
+  }
+}

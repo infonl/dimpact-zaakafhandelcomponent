@@ -17,56 +17,160 @@
   >
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
-  <mat-sidenav-content class="p-4">
-    @if (loading) {
-      <div class="loading-shade">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
-    } @else if (tabellen.length === 0) {
-      <mat-card>
-        <mat-card-content>
-          {{ "msg.geen.gegevens.gevonden" | translate }}
-        </mat-card-content>
-      </mat-card>
-    } @else {
-      <mat-accordion multi>
-        @for (tabel of tabellen; track tabel.id) {
-          <mat-expansion-panel (opened)="onPanelOpened(tabel)">
-            <mat-expansion-panel-header>
-              <mat-panel-title>{{ tabel.code }}</mat-panel-title>
-              <mat-panel-description class="panel-description">
-                <span>{{ tabel.naam }}</span>
-                <span class="panel-meta">
-                  @if (tabel.systeem) {
-                    <mat-icon
-                      class="systeem-icon"
-                      matTooltip="{{ 'systeem' | translate }}"
-                      >lock</mat-icon
-                    >
-                  }
-                  {{ tabel.aantalWaarden }} {{ "rijen" | translate }}
-                </span>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
 
-            @if (isLoadingWaarden(tabel)) {
-              <div class="loading-shade">
-                <mat-spinner diameter="30"></mat-spinner>
+  <mat-sidenav-content class="flex-col gap-20">
+    <mat-card>
+      <mat-card-content class="table-container">
+        <div class="flex-row items-center">
+          <section class="flex-1">
+            <h2>{{ "title.referentietabellen.v2" | translate }}</h2>
+          </section>
+          <div class="actions-header">
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="showCreateForm"
+              (click)="openCreateForm()"
+            >
+              {{ "referentietabel.toevoegen" | translate }}
+            </button>
+          </div>
+        </div>
+
+        @if (showCreateForm) {
+          <div class="create-card">
+            <mat-toolbar role="heading" class="gap-16">
+              <mat-icon>table_view</mat-icon>
+              <span class="flex-grow-1">{{
+                "referentietabel.toevoegen.titel" | translate
+              }}</span>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="closeCreateForm()"
+                [attr.aria-label]="'actie.annuleren' | translate"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-toolbar>
+            <mat-divider></mat-divider>
+            <form
+              class="create-card-body"
+              [formGroup]="form"
+              (ngSubmit)="addReferentieTabel()"
+            >
+              <section class="row">
+                <div class="col-12 col-xl-6">
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ "tabel" | translate }}</mat-label>
+                    <input matInput formControlName="code" required />
+                    <mat-error>{{ "validators.required" | translate }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-12 col-xl-6">
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ "naam" | translate }}</mat-label>
+                    <input matInput formControlName="naam" required />
+                    <mat-error>{{ "validators.required" | translate }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </section>
+              <div class="form-buttons">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="form.invalid"
+                >
+                  {{ "actie.toevoegen" | translate }}
+                </button>
+                <button mat-button type="button" (click)="closeCreateForm()">
+                  {{ "actie.annuleren" | translate }}
+                </button>
               </div>
-            } @else {
-              <mat-list>
-                @for (waarde of getWaarden(tabel); track waarde.id) {
-                  <mat-list-item>{{ waarde.naam | empty }}</mat-list-item>
-                } @empty {
-                  <mat-list-item>{{
-                    "msg.geen.gegevens.gevonden" | translate
-                  }}</mat-list-item>
-                }
-              </mat-list>
-            }
-          </mat-expansion-panel>
+            </form>
+          </div>
         }
-      </mat-accordion>
-    }
+
+        @if (loading) {
+          <div class="loading-shade">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
+        } @else if (tabellen.length === 0) {
+          <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+        } @else {
+          <div class="tabellen-list">
+            @for (tabel of tabellen; track tabel.id) {
+              <div class="tabel-group">
+                <div class="tabel-row">
+                  <button
+                    mat-icon-button
+                    class="tabel-toggle"
+                    (click)="toggle(tabel)"
+                  >
+                    <mat-icon class="mat-icon-rtl-mirror">
+                      {{
+                        expandedId === tabel.id ? "expand_more" : "chevron_right"
+                      }}
+                    </mat-icon>
+                  </button>
+                  <div
+                    class="tabel-titel tabel-toggle flex-1"
+                    (click)="toggle(tabel)"
+                  >
+                    <span class="tabel-code">{{ tabel.code }}</span>
+                    <span class="tabel-naam">{{ tabel.naam }}</span>
+                  </div>
+                  <span class="tabel-count tabel-toggle" (click)="toggle(tabel)">
+                    {{ "rijen" | translate }} ({{ tabel.aantalWaarden }})
+                  </span>
+                  <div class="tabel-actions">
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'actie.bewerken' | translate"
+                      [attr.aria-label]="'actie.bewerken' | translate"
+                      (click)="editReferentieTabel(tabel)"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <span
+                      [matTooltip]="
+                        tabel.systeem
+                          ? ('referentietabel.systeem.niet-verwijderbaar'
+                            | translate)
+                          : ('actie.verwijderen' | translate)
+                      "
+                    >
+                      <button
+                        mat-icon-button
+                        [disabled]="tabel.systeem"
+                        [attr.aria-label]="'actie.verwijderen' | translate"
+                        (click)="verwijderReferentieTabel(tabel)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+                <div [hidden]="expandedId !== tabel.id">
+                  @if (isLoadingWaarden(tabel)) {
+                    <div class="loading-shade">
+                      <mat-spinner diameter="30"></mat-spinner>
+                    </div>
+                  } @else if (getLoadedTabel(tabel); as loaded) {
+                    <zac-referentie-tabel-item
+                      [tabel]="loaded"
+                      (addWaarde)="addReferentieTabelWaarde(loaded)"
+                      (editWaarde)="editReferentieTabelWaarde(loaded, $event)"
+                      (deleteWaarde)="deleteReferentieTabelWaarde(loaded, $event)"
+                    ></zac-referentie-tabel-item>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
   </mat-sidenav-content>
 </mat-sidenav-container>

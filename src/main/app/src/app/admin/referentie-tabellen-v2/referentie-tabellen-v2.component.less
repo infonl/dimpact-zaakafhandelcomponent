@@ -3,29 +3,82 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+.actions-header {
+  padding: 16px 0;
+}
+
+.create-card {
+  margin-bottom: 16px;
+  border: 1px solid #d8d8d8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.create-card-body {
+  display: block;
+  padding: 24px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tabel-group {
+  .tabel-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 8px;
+    border-top: 1px solid #d8d8d8;
+
+    &:hover {
+      background: var(--mat-expansion-header-hover-state-layer-color);
+    }
+  }
+
+  // Only the chevron / title / count expand the row; the action buttons don't.
+  .tabel-toggle {
+    cursor: pointer;
+  }
+
+  &:last-child .tabel-row {
+    border-bottom: 1px solid #d8d8d8;
+  }
+}
+
+.tabel-titel {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabel-code {
+  font-weight: 500;
+}
+
+.tabel-naam {
+  color: gray;
+  font-size: 0.9em;
+}
+
+.tabel-count {
+  white-space: nowrap;
+}
+
+.tabel-actions {
+  display: flex;
+  align-items: center;
+
+  // Pull the icon buttons together (each has ~8px internal padding).
+  > * + * {
+    margin-left: -8px;
+  }
+}
+
 .loading-shade {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 24px;
-}
-
-.panel-description {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-
-.panel-meta {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.systeem-icon {
-  font-size: 18px;
-  height: 18px;
-  width: 18px;
 }

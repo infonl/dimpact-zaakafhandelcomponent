@@ -1,0 +1,40 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>{{ data.icoon }}</mat-icon>
+  <span class="flex-grow-1">{{ data.titel | translate }}</span>
+  <button
+    mat-icon-button
+    (click)="dialogRef.close()"
+    [attr.aria-label]="'actie.annuleren' | translate"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <mat-form-field class="full-width">
+      <mat-label>{{ "waarde" | translate }}</mat-label>
+      <input matInput formControlName="naam" required cdkFocusInitial />
+      <mat-error>{{ "validators.required" | translate }}</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="dialogRef.close()">
+      {{ "actie.annuleren" | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="form.invalid"
+    >
+      {{ "actie.opslaan" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

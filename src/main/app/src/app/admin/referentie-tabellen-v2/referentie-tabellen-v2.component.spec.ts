@@ -37,7 +37,9 @@ describe(ReferentieTabellenV2Component.name, () => {
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
   let referentieTabelServiceMock: Pick<
     ReferentieTabelService,
-    "listReferentieTabellen" | "readReferentieTabel"
+    | "listReferentieTabellen"
+    | "readReferentieTabel"
+    | "createReferentieTabel"
   >;
 
   beforeEach(async () => {
@@ -45,6 +47,7 @@ describe(ReferentieTabellenV2Component.name, () => {
     referentieTabelServiceMock = {
       listReferentieTabellen: jest.fn().mockReturnValue(of(tabellen)),
       readReferentieTabel: jest.fn().mockReturnValue(of(geladenTabelA)),
+      createReferentieTabel: jest.fn().mockReturnValue(of(geladenTabelA)),
     };
 
     await TestBed.configureTestingModule({
@@ -72,6 +75,12 @@ describe(ReferentieTabellenV2Component.name, () => {
     fixture.detectChanges();
   });
 
+  function findButton(text: string): HTMLButtonElement | undefined {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll<HTMLButtonElement>("button"),
+    ).find((button) => button.textContent?.includes(text));
+  }
+
   it("should set the title and load the tabellen on init", () => {
     expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
       "title.referentietabellen.v2",
@@ -82,36 +91,118 @@ describe(ReferentieTabellenV2Component.name, () => {
     ).toHaveBeenCalled();
   });
 
-  it("should render an expansion panel per tabel", () => {
-    const panels =
-      fixture.nativeElement.querySelectorAll("mat-expansion-panel");
-    expect(panels).toHaveLength(2);
+  it("should render a row per tabel", () => {
+    const rows = fixture.nativeElement.querySelectorAll(".tabel-row");
+    expect(rows).toHaveLength(2);
     expect(fixture.nativeElement.textContent).toContain("TABEL_A");
     expect(fixture.nativeElement.textContent).toContain("TABEL_B");
   });
 
-  it("should lazily load the waarden when a panel is opened", () => {
-    component["onPanelOpened"](tabellen[0]);
+  it("should lazily load the waarden when a row is expanded", () => {
+    component["toggle"](tabellen[0]);
 
     expect(
       referentieTabelServiceMock.readReferentieTabel,
     ).toHaveBeenCalledWith(1);
-    expect(component["getWaarden"](tabellen[0])).toEqual(
-      geladenTabelA.waarden,
+    expect(component["expandedId"]).toBe(1);
+    expect(component["getLoadedTabel"](tabellen[0])).toEqual(geladenTabelA);
+  });
+
+  it("should collapse when the expanded row is toggled again", () => {
+    component["toggle"](tabellen[0]);
+    component["toggle"](tabellen[0]);
+
+    expect(component["expandedId"]).toBeNull();
+  });
+
+  it("should open the create form and disable the header button when clicked", () => {
+    expect(component["showCreateForm"]).toBe(false);
+    const headerButton = findButton("referentietabel.toevoegen");
+    expect(headerButton?.disabled).toBe(false);
+
+    headerButton?.click();
+    fixture.detectChanges();
+
+    expect(component["showCreateForm"]).toBe(true);
+    expect(findButton("referentietabel.toevoegen")?.disabled).toBe(true);
+  });
+
+  it("should disable the submit button until both code and naam are filled", () => {
+    component["openCreateForm"]();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    ) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+
+    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
+    fixture.detectChanges();
+
+    expect(button.disabled).toBe(false);
+  });
+
+  it("should close and reset the form when cancel is clicked", () => {
+    component["openCreateForm"]();
+    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
+    fixture.detectChanges();
+
+    findButton("actie.annuleren")?.click();
+    fixture.detectChanges();
+
+    expect(component["showCreateForm"]).toBe(false);
+    expect(component["form"].value).toEqual({ code: "", naam: "" });
+    expect(
+      referentieTabelServiceMock.createReferentieTabel,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("should create the tabel, close the form and reload when submitted", () => {
+    component["openCreateForm"]();
+    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
+
+    component["addReferentieTabel"]();
+
+    expect(
+      referentieTabelServiceMock.createReferentieTabel,
+    ).toHaveBeenCalledWith({
+      code: "NEW_CODE",
+      naam: "New name",
+      systeem: false,
+      waarden: [],
+    });
+    expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
+      "msg.referentietabel.toegevoegd",
+      { tabel: "NEW_CODE" },
     );
+    expect(component["showCreateForm"]).toBe(false);
+    // once on init, once after creating
+    expect(
+      referentieTabelServiceMock.listReferentieTabellen,
+    ).toHaveBeenCalledTimes(2);
+    expect(component["form"].value).toEqual({ code: "", naam: "" });
+  });
+
+  it("should not create a tabel when the form is invalid", () => {
+    component["addReferentieTabel"]();
+
+    expect(
+      referentieTabelServiceMock.createReferentieTabel,
+    ).not.toHaveBeenCalled();
   });
 
   it("should not reload the waarden for an already loaded tabel", () => {
-    component["onPanelOpened"](tabellen[0]);
-    component["onPanelOpened"](tabellen[0]);
+    component["toggle"](tabellen[0]);
+    component["toggle"](tabellen[0]);
+    component["toggle"](tabellen[0]);
 
     expect(
       referentieTabelServiceMock.readReferentieTabel,
     ).toHaveBeenCalledTimes(1);
   });
 
-  it("should render the loaded waarden inside the panel", () => {
-    component["onPanelOpened"](tabellen[0]);
+  it("should render the loaded waarden below the expanded row", () => {
+    component["toggle"](tabellen[0]);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("Waarde A1");
