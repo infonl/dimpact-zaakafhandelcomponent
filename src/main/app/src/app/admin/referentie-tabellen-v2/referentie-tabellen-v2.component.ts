@@ -131,7 +131,10 @@ export class ReferentieTabellenV2Component
 
   protected openCreateDialog() {
     this.dialog
-      .open(ReferentieTabelCreateDialogComponent, { width: "500px" })
+      .open(ReferentieTabelCreateDialogComponent, {
+        width: "500px",
+        autoFocus: "first-tabbable",
+      })
       .afterClosed()
       .subscribe((createdId?: number) => {
         if (createdId != null) {
@@ -152,6 +155,7 @@ export class ReferentieTabellenV2Component
         this.dialog.open(ReferentieTabelEditDialogComponent, {
           data: loaded,
           width: "500px",
+          autoFocus: "first-tabbable",
         });
       });
   }

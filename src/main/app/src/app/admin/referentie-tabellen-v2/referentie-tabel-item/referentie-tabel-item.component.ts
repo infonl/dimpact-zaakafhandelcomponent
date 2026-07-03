@@ -47,6 +47,7 @@ export class ReferentieTabelItemComponent {
     this.dialog.open(ReferentieTabelValueDialogComponent, {
       data: { tabel: this.tabel() },
       width: "500px",
+      autoFocus: "first-tabbable",
     });
   }
 
@@ -54,6 +55,7 @@ export class ReferentieTabelItemComponent {
     this.dialog.open(ReferentieTabelValueDialogComponent, {
       data: { tabel: this.tabel(), waarde },
       width: "500px",
+      autoFocus: "first-tabbable",
     });
   }
 
