@@ -92,15 +92,15 @@
           </div>
         }
 
-        @if (loading) {
+        @if (tabellenQuery.isLoading()) {
           <div class="loading-shade">
             <mat-spinner diameter="40"></mat-spinner>
           </div>
-        } @else if (tabellen.length === 0) {
+        } @else if (tabellen().length === 0) {
           <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
         } @else {
           <div class="tabellen-list">
-            @for (tabel of tabellen; track tabel.id) {
+            @for (tabel of tabellen(); track tabel.id) {
               <div class="tabel-group">
                 <div class="tabel-row">
                   <button
@@ -110,7 +110,9 @@
                   >
                     <mat-icon class="mat-icon-rtl-mirror">
                       {{
-                        expandedId === tabel.id ? "expand_more" : "chevron_right"
+                        expandedId() === tabel.id
+                          ? "expand_more"
+                          : "chevron_right"
                       }}
                     </mat-icon>
                   </button>
@@ -152,7 +154,7 @@
                     </span>
                   </div>
                 </div>
-                <div [hidden]="expandedId !== tabel.id">
+                <div [hidden]="expandedId() !== tabel.id">
                   @if (isLoadingWaarden(tabel)) {
                     <div class="loading-shade">
                       <mat-spinner diameter="30"></mat-spinner>
@@ -160,9 +162,6 @@
                   } @else if (getLoadedTabel(tabel); as loaded) {
                     <zac-referentie-tabel-item
                       [tabel]="loaded"
-                      (addWaarde)="addReferentieTabelWaarde(loaded)"
-                      (editWaarde)="editReferentieTabelWaarde(loaded, $event)"
-                      (deleteWaarde)="deleteReferentieTabelWaarde(loaded, $event)"
                     ></zac-referentie-tabel-item>
                   }
                 </div>

@@ -3,7 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, inject, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -18,14 +25,19 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatToolbarModule } from "@angular/material/toolbar";
 import {
   MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
 } from "@angular/material/sidenav";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  injectMutation,
+  injectQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import {
@@ -38,7 +50,6 @@ import { AdminComponent } from "../admin/admin.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dialog/referentie-tabel-edit-dialog.component";
 import { ReferentieTabelItemComponent } from "./referentie-tabel-item/referentie-tabel-item.component";
-import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";
 
 /**
  * Experimental accordion-based reference table administration, offered next to
@@ -74,11 +85,8 @@ export class ReferentieTabellenV2Component
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
-  protected tabellen: GeneratedType<"RestReferenceTable">[] = [];
-  protected loading = false;
   protected showCreateForm = false;
-  protected expandedId: number | null = null;
-  protected loadingTabelId: number | null = null;
+  protected readonly expandedId = signal<number | null>(null);
 
   protected readonly form = new FormGroup({
     code: new FormControl("", {
@@ -91,13 +99,45 @@ export class ReferentieTabellenV2Component
     }),
   });
 
-  private readonly loadedTabellen = new Map<
-    number,
-    GeneratedType<"RestReferenceTable">
-  >();
-
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
+  private readonly queryClient = inject(QueryClient);
+
+  protected readonly tabellenQuery = injectQuery(() =>
+    this.service.listReferentieTabellenQuery(),
+  );
+
+  protected readonly tabellen = computed(
+    () => this.tabellenQuery.data() ?? [],
+  );
+
+  protected readonly tabelDetailQuery = injectQuery(() => ({
+    ...this.service.readReferentieTabelQuery(this.expandedId()!),
+    enabled: this.expandedId() != null,
+  }));
+
+  private readonly createMutation = injectMutation(() => ({
+    ...this.service.createReferentieTabelMutation(),
+    onSuccess: () => this.invalidateTabellen(),
+  }));
+
+  private readonly updateMutation = injectMutation(() => ({
+    mutationFn: (variables: {
+      id: number;
+      body: GeneratedType<"RestReferenceTableUpdate">;
+    }) => this.service.updateReferentieTabelAsync(variables.id, variables.body),
+    onSuccess: (_data, variables) => {
+      this.invalidateTabellen();
+      void this.queryClient.invalidateQueries({
+        queryKey: this.service.readReferentieTabelQuery(variables.id).queryKey,
+      });
+    },
+  }));
+
+  private readonly deleteMutation = injectMutation(() => ({
+    mutationFn: (id: number) => this.service.deleteReferentieTabelAsync(id),
+    onSuccess: () => this.invalidateTabellen(),
+  }));
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
@@ -105,15 +145,23 @@ export class ReferentieTabellenV2Component
 
   ngOnInit() {
     this.setupMenu("title.referentietabellen.v2");
-    this.laadReferentieTabellen();
   }
 
-  protected laadReferentieTabellen() {
-    this.loading = true;
-    this.service.listReferentieTabellen().subscribe((tabellen) => {
-      this.tabellen = tabellen;
-      this.loading = false;
-    });
+  protected toggle(tabel: GeneratedType<"RestReferenceTable">) {
+    if (tabel.id == null) {
+      return;
+    }
+    this.expandedId.set(this.expandedId() === tabel.id ? null : tabel.id);
+  }
+
+  protected isLoadingWaarden(tabel: GeneratedType<"RestReferenceTable">) {
+    return this.expandedId() === tabel.id && this.tabelDetailQuery.isLoading();
+  }
+
+  protected getLoadedTabel(tabel: GeneratedType<"RestReferenceTable">) {
+    return this.expandedId() === tabel.id
+      ? (this.tabelDetailQuery.data() ?? null)
+      : null;
   }
 
   protected openCreateForm() {
@@ -130,14 +178,50 @@ export class ReferentieTabellenV2Component
       return;
     }
     const { code, naam } = this.form.getRawValue();
-    this.service
-      .createReferentieTabel({ code, naam, systeem: false, waarden: [] })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.referentietabel.toegevoegd", {
-          tabel: code,
-        });
-        this.closeCreateForm();
-        this.laadReferentieTabellen();
+    this.createMutation.mutate(
+      { code, naam, systeem: false, waarden: [] },
+      {
+        onSuccess: () => {
+          this.utilService.openSnackbar("msg.referentietabel.toegevoegd", {
+            tabel: code,
+          });
+          this.closeCreateForm();
+        },
+      },
+    );
+  }
+
+  protected editReferentieTabel(tabel: GeneratedType<"RestReferenceTable">) {
+    if (tabel.id == null) {
+      return;
+    }
+    // Fetch the full table (with its values) so the name update does not wipe them.
+    void this.queryClient
+      .fetchQuery(this.service.readReferentieTabelQuery(tabel.id))
+      .then((loaded) => {
+        this.dialog
+          .open(ReferentieTabelEditDialogComponent, {
+            data: loaded,
+            width: "500px",
+          })
+          .afterClosed()
+          .subscribe((naam?: string) => {
+            if (!naam || loaded.id == null) {
+              return;
+            }
+            this.updateMutation.mutate(
+              {
+                id: loaded.id,
+                body: { code: loaded.code, naam, waarden: loaded.waarden ?? [] },
+              },
+              {
+                onSuccess: () =>
+                  this.utilService.openSnackbar("msg.referentietabel.gewijzigd", {
+                    tabel: loaded.code,
+                  }),
+              },
+            );
+          });
       });
   }
 
@@ -147,218 +231,32 @@ export class ReferentieTabellenV2Component
     }
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.tabel.verwijderen.bevestigen",
-            args: { tabel: tabel.code },
-          },
-          this.service.deleteReferentieTabel(tabel.id),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.tabel.verwijderen.bevestigen",
+          args: { tabel: tabel.code },
+        }),
       })
       .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
-            tabel: tabel.code,
-          });
-          this.laadReferentieTabellen();
-        }
-      });
-  }
-
-  protected toggle(tabel: GeneratedType<"RestReferenceTable">) {
-    if (tabel.id == null) {
-      return;
-    }
-    if (this.expandedId === tabel.id) {
-      this.expandedId = null;
-      return;
-    }
-    this.expandedId = tabel.id;
-    this.loadTabel(tabel.id);
-  }
-
-  protected editReferentieTabel(tabel: GeneratedType<"RestReferenceTable">) {
-    if (tabel.id == null) {
-      return;
-    }
-    // Load the full table (with its values) so the name update does not wipe them.
-    this.service.readReferentieTabel(tabel.id).subscribe((geladenTabel) => {
-      this.dialog
-        .open(ReferentieTabelEditDialogComponent, {
-          data: geladenTabel,
-          width: "500px",
-        })
-        .afterClosed()
-        .subscribe((naam?: string) => {
-          if (naam) {
-            this.saveReferentieTabelNaam(geladenTabel, naam);
-          }
-        });
-    });
-  }
-
-  private saveReferentieTabelNaam(
-    tabel: GeneratedType<"RestReferenceTable">,
-    naam: string,
-  ) {
-    if (tabel.id == null) {
-      return;
-    }
-    this.service
-      .updateReferentieTabel(tabel.id, {
-        code: tabel.code,
-        naam,
-        waarden: tabel.waarden ?? [],
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar("msg.referentietabel.gewijzigd", {
-          tabel: tabel.code,
-        });
-        this.loadedTabellen.delete(tabel.id!);
-        this.laadReferentieTabellen();
-      });
-  }
-
-  protected addReferentieTabelWaarde(
-    tabel: GeneratedType<"RestReferenceTable">,
-  ) {
-    this.dialog
-      .open(ReferentieTabelValueDialogComponent, {
-        data: {
-          naam: "",
-          titel: "referentietabel.waarde.toevoegen.titel",
-          icoon: "add_circle",
-        },
-        width: "500px",
-      })
-      .afterClosed()
-      .subscribe((naam?: string) => {
-        if (!naam) {
+      .subscribe((confirmed) => {
+        if (!confirmed) {
           return;
         }
-        const waarden = [...(tabel.waarden ?? []), { naam }];
-        this.persistWaarden(
-          tabel,
-          waarden,
-          "msg.referentietabel.waarde.toegevoegd",
-          { waarde: naam },
-        );
-      });
-  }
-
-  protected editReferentieTabelWaarde(
-    tabel: GeneratedType<"RestReferenceTable">,
-    waarde: GeneratedType<"RestReferenceTableValue">,
-  ) {
-    if (tabel.id == null) {
-      return;
-    }
-    this.dialog
-      .open(ReferentieTabelValueDialogComponent, {
-        data: {
-          naam: waarde.naam,
-          titel: "referentietabel.waarde.wijzigen.titel",
-          icoon: "edit",
-        },
-        width: "500px",
-      })
-      .afterClosed()
-      .subscribe((naam?: string) => {
-        if (!naam) {
-          return;
-        }
-        const waarden = (tabel.waarden ?? []).map((current) =>
-          current.id === waarde.id ? { ...current, naam } : current,
-        );
-        this.persistWaarden(
-          tabel,
-          waarden,
-          "msg.referentietabel.waarde.gewijzigd",
-          { waarde: naam },
-        );
-      });
-  }
-
-  protected deleteReferentieTabelWaarde(
-    tabel: GeneratedType<"RestReferenceTable">,
-    waarde: GeneratedType<"RestReferenceTableValue">,
-  ) {
-    if (tabel.id == null) {
-      return;
-    }
-    const waarden = (tabel.waarden ?? []).filter(
-      (current) => current.id !== waarde.id,
-    );
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.referentietabel.waarde.verwijderen.bevestigen",
-            args: { waarde: waarde.naam },
+        this.deleteMutation.mutate(tabel.id!, {
+          onSuccess: () => {
+            this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
+              tabel: tabel.code,
+            });
+            if (this.expandedId() === tabel.id) {
+              this.expandedId.set(null);
+            }
           },
-          this.service.updateReferentieTabel(tabel.id, {
-            code: tabel.code,
-            naam: tabel.naam,
-            waarden,
-          }),
-        ),
-      })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result) {
-          this.utilService.openSnackbar("msg.referentietabel.waarde.verwijderd", {
-            waarde: waarde.naam,
-          });
-          this.refreshTabel(tabel.id!);
-        }
+        });
       });
   }
 
-  private persistWaarden(
-    tabel: GeneratedType<"RestReferenceTable">,
-    waarden: GeneratedType<"RestReferenceTableValue">[],
-    snackbarKey: string,
-    snackbarArgs: Record<string, string>,
-  ) {
-    if (tabel.id == null) {
-      return;
-    }
-    this.service
-      .updateReferentieTabel(tabel.id, {
-        code: tabel.code,
-        naam: tabel.naam,
-        waarden,
-      })
-      .subscribe(() => {
-        this.utilService.openSnackbar(snackbarKey, snackbarArgs);
-        this.refreshTabel(tabel.id!);
-      });
-  }
-
-  private refreshTabel(id: number) {
-    this.service.readReferentieTabel(id).subscribe((geladenTabel) => {
-      this.loadedTabellen.set(id, geladenTabel);
+  private invalidateTabellen() {
+    void this.queryClient.invalidateQueries({
+      queryKey: this.service.listReferentieTabellenQuery().queryKey,
     });
-    this.laadReferentieTabellen();
-  }
-
-  private loadTabel(id: number) {
-    if (this.loadedTabellen.has(id)) {
-      return;
-    }
-    this.loadingTabelId = id;
-    this.service.readReferentieTabel(id).subscribe((geladenTabel) => {
-      this.loadedTabellen.set(id, geladenTabel);
-      this.loadingTabelId = null;
-    });
-  }
-
-  protected isLoadingWaarden(tabel: GeneratedType<"RestReferenceTable">) {
-    return tabel.id != null && this.loadingTabelId === tabel.id;
-  }
-
-  protected getLoadedTabel(tabel: GeneratedType<"RestReferenceTable">) {
-    return (tabel.id != null && this.loadedTabellen.get(tabel.id)) || null;
   }
 }

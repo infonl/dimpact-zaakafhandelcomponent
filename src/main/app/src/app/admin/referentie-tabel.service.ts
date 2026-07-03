@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { inject, Injectable } from "@angular/core";
+import { lastValueFrom } from "rxjs";
 import { PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -19,8 +20,22 @@ export class ReferentieTabelService {
     return this.zacHttpClient.GET("/rest/referentietabellen");
   }
 
+  listReferentieTabellenQuery() {
+    return this.zacQueryClient.GET("/rest/referentietabellen");
+  }
+
+  readReferentieTabelQuery(id: number) {
+    return this.zacQueryClient.GET("/rest/referentietabellen/{id}", {
+      path: { id },
+    });
+  }
+
   createReferentieTabel(body: PostBody<"/rest/referentietabellen">) {
     return this.zacHttpClient.POST("/rest/referentietabellen", body);
+  }
+
+  createReferentieTabelMutation() {
+    return this.zacQueryClient.POST("/rest/referentietabellen");
   }
 
   readReferentieTabel(id: number) {
@@ -48,6 +63,19 @@ export class ReferentieTabelService {
     return this.zacHttpClient.DELETE("/rest/referentietabellen/{id}", {
       path: { id },
     });
+  }
+
+  // Promise-returning variants for use as TanStack `injectMutation` mutationFns
+  // (the runtime `{id}` path param rules out a service-level mutationOptions factory).
+  updateReferentieTabelAsync(
+    id: number,
+    body: PutBody<"/rest/referentietabellen/{id}">,
+  ) {
+    return lastValueFrom(this.updateReferentieTabel(id, body));
+  }
+
+  deleteReferentieTabelAsync(id: number) {
+    return lastValueFrom(this.deleteReferentieTabel(id));
   }
 
   listAfzenders() {
