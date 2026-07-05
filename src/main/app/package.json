@@ -59,7 +59,7 @@
     "@babel/core": "7.29.7",
     "http-proxy-middleware": "4.1.1",
     "serialize-javascript": "7.0.7",
-    "webpack-dev-server": "5.2.5"
+    "webpack-dev-server": "5.2.6"
   },
   "devDependencies": {
     "@angular-builders/jest": "20.0.0",
