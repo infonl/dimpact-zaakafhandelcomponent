@@ -19,11 +19,12 @@
       <th mat-header-cell *matHeaderCellDef>
         <div class="tabel-actions flex-row items-center justify-end">
           <button
-            mat-icon-button
+            mat-raised-button
+            color="primary"
             [matTooltip]="'actie.toevoegen' | translate"
             (click)="addWaarde()"
           >
-            <mat-icon>add_circle</mat-icon>
+            {{ "referentietabel.waarde-toevoegen" | translate }}
           </button>
         </div>
       </th>
@@ -32,7 +33,8 @@
           <span
             [matTooltip]="
               row.systemValue
-                ? ('referentietabel.systeem.waarde.beschermd' | translate)
+                ? ('referentietabel.tooltip.systeemwaarde-onaanpasbaar'
+                  | translate)
                 : ('actie.bewerken' | translate)
             "
           >
@@ -47,7 +49,8 @@
           <span
             [matTooltip]="
               row.systemValue
-                ? ('referentietabel.systeem.waarde.beschermd' | translate)
+                ? ('referentietabel.tooltip.systeemwaarde-onaanpasbaar'
+                  | translate)
                 : ('actie.verwijderen' | translate)
             "
           >

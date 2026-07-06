@@ -60,8 +60,8 @@ export class ReferentieTabelValueDialogComponent {
 
   protected readonly isEdit = this.data.waarde != null;
   protected readonly titel = this.isEdit
-    ? "referentietabel.waarde.wijzigen.titel"
-    : "referentietabel.waarde.toevoegen.titel";
+    ? "referentietabel.waarde-titel-wijzigen"
+    : "referentietabel.waarde-toevoegen";
   protected readonly icoon = this.isEdit ? "edit" : "add_circle";
 
   protected readonly form = new FormGroup({

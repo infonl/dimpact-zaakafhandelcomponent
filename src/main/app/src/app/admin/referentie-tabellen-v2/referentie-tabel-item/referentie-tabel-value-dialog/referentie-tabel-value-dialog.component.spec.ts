@@ -74,7 +74,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
   it("shows the add title and icon when no value is passed", async () => {
     const { fixture } = await setup({ tabel });
     expect(fixture.nativeElement.textContent).toContain(
-      "referentietabel.waarde.toevoegen.titel",
+      "referentietabel.waarde-toevoegen",
     );
     expect(fixture.nativeElement.textContent).toContain("add_circle");
   });
@@ -85,7 +85,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
       waarde: tabel.waarden![0],
     });
     expect(fixture.nativeElement.textContent).toContain(
-      "referentietabel.waarde.wijzigen.titel",
+      "referentietabel.waarde-titel-wijzigen",
     );
     expect(component["form"].getRawValue().naam).toBe("Waarde A1");
   });
