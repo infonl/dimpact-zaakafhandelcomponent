@@ -81,10 +81,13 @@ export class ReferentieTabellenV2Component
 
   protected readonly tabellen = computed(() => this.tabellenQuery.data() ?? []);
 
-  protected readonly tabelDetailQuery = injectQuery(() => ({
-    ...this.service.readReferentieTabelQuery(this.expandedId()!),
-    enabled: this.expandedId() != null,
-  }));
+  protected readonly tabelDetailQuery = injectQuery(() => {
+    const expandedId = this.expandedId();
+    return {
+      ...this.service.readReferentieTabelQuery(expandedId ?? -1),
+      enabled: expandedId != null,
+    };
+  });
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
