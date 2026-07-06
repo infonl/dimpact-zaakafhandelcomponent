@@ -21,11 +21,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import { UtilService } from "../../../core/service/util.service";
-import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
-import { ZacInput } from "../../../shared/form/input/input";
-import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ReferentieTabelService } from "../../referentie-tabel.service";
+import { UtilService } from "../../../../core/service/util.service";
+import { ZacFormActions } from "../../../../shared/form/form-actions/form-actions.component";
+import { ZacInput } from "../../../../shared/form/input/input";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { ReferentieTabelService } from "../../../referentie-tabel.service";
 
 export interface ReferentieTabelValueDialogData {
   tabel: GeneratedType<"RestReferenceTable">;
@@ -109,11 +109,13 @@ export class ReferentieTabelValueDialogComponent {
   private buildBody(): GeneratedType<"RestReferenceTableUpdate"> {
     const { tabel, waarde } = this.data;
     const naam = this.form.getRawValue().naam;
+    const existing: GeneratedType<"RestReferenceTableValue">[] =
+      tabel.waarden ?? [];
     const waarden = waarde
-      ? (tabel.waarden ?? []).map((current) =>
+      ? existing.map((current) =>
           current.id === waarde.id ? { ...current, naam } : current,
         )
-      : [...(tabel.waarden ?? []), { naam }];
+      : [...existing, { naam }];
     return { code: tabel.code, naam: tabel.naam, waarden };
   }
 }

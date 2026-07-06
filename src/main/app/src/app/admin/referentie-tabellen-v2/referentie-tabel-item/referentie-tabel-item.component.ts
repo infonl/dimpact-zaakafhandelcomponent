@@ -18,7 +18,7 @@ import {
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
-import { ReferentieTabelValueDialogComponent } from "../referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";
+import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";
 
 @Component({
   standalone: true,
@@ -61,9 +61,9 @@ export class ReferentieTabelItemComponent {
 
   protected deleteWaarde(waarde: GeneratedType<"RestReferenceTableValue">) {
     const tabel = this.tabel();
-    const waarden = (tabel.waarden ?? []).filter(
-      (current) => current.id !== waarde.id,
-    );
+    const existing: GeneratedType<"RestReferenceTableValue">[] =
+      tabel.waarden ?? [];
+    const waarden = existing.filter((current) => current.id !== waarde.id);
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(

@@ -18,9 +18,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
-import { sleep, testQueryClient } from "../../../../../setupJest";
-import { UtilService } from "../../../core/service/util.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
+import { sleep, testQueryClient } from "../../../../../../setupJest";
+import { UtilService } from "../../../../core/service/util.service";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import {
   ReferentieTabelValueDialogComponent,
   ReferentieTabelValueDialogData,
