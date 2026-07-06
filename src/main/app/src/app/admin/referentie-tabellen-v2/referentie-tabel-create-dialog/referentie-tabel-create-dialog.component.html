@@ -20,22 +20,8 @@
 
 <form [formGroup]="form" (submit)="submit()" (cancel)="close()">
   <mat-dialog-content>
-    <mat-form-field class="full-width">
-      <mat-label>{{ "tabel" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="code"
-        class="code-input"
-        required
-        cdkFocusInitial
-      />
-      <mat-error>{{ "validators.required" | translate }}</mat-error>
-    </mat-form-field>
-    <mat-form-field class="full-width">
-      <mat-label>{{ "naam" | translate }}</mat-label>
-      <input matInput formControlName="naam" required />
-      <mat-error>{{ "validators.required" | translate }}</mat-error>
-    </mat-form-field>
+    <zac-input class="code-input" [form]="form" key="code" label="tabel" />
+    <zac-input [form]="form" key="naam" />
   </mat-dialog-content>
   <zac-form-actions
     [form]="form"

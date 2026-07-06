@@ -133,7 +133,7 @@ export class ReferentieTabellenV2Component
     this.dialog
       .open(ReferentieTabelCreateDialogComponent, {
         width: "500px",
-        autoFocus: "first-tabbable",
+        autoFocus: "input:not([disabled])",
       })
       .afterClosed()
       .subscribe((createdId?: number) => {
@@ -155,7 +155,7 @@ export class ReferentieTabellenV2Component
         this.dialog.open(ReferentieTabelEditDialogComponent, {
           data: loaded,
           width: "500px",
-          autoFocus: "first-tabbable",
+          autoFocus: "input:not([disabled])",
         });
       });
   }

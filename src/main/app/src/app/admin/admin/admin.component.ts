@@ -44,13 +44,16 @@ export abstract class AdminComponent extends ViewComponent {
         "schema",
       ),
     );
-    this.menu.push(
-      this.getMenuLink(
-        "title.referentietabellen.v2",
-        "/admin/referentietabellen-v2",
-        "table_view",
-      ),
-    );
+    // Temporary preview gate: revealed by setting the "ref-table-v2" cookie to "1".
+    if (document.cookie.split("; ").includes("ref-table-v2=1")) {
+      this.menu.push(
+        this.getMenuLink(
+          "title.referentietabellen.v2",
+          "/admin/referentietabellen-v2",
+          "table_view",
+        ),
+      );
+    }
     this.menu.push(
       this.getMenuLink("title.mailtemplates", "/admin/mailtemplates", "mail"),
     );

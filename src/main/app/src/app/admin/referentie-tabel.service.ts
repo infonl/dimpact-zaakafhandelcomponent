@@ -99,7 +99,7 @@ export class ReferentieTabelService {
   // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
   deleteReferentieTabelWithRefresh(id: number) {
     return this.deleteReferentieTabel(id).pipe(
-      tap(() => void this.invalidateReferentieTabellen()),
+      tap(() => void this.invalidateReferentieTabel(id)),
     );
   }
 

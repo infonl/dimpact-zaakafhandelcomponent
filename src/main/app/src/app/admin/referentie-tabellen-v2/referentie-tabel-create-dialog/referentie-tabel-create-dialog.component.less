@@ -4,6 +4,7 @@
  */
 
 // The code is stored uppercase, so show it uppercase while typing.
-input.code-input {
+// The class sits on the zac-input host; pierce its view to reach the input.
+.code-input ::ng-deep input {
   text-transform: uppercase;
 }

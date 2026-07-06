@@ -17,14 +17,13 @@ import {
   MatDialogRef,
 } from "@angular/material/dialog";
 import { MatDividerModule } from "@angular/material/divider";
-import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
+import { ZacInput } from "../../../shared/form/input/input";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
 
@@ -37,12 +36,11 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
     MatButtonModule,
     MatDialogModule,
     MatDividerModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatToolbarModule,
     TranslateModule,
     ZacFormActions,
+    ZacInput,
   ],
 })
 export class ReferentieTabelEditDialogComponent {
@@ -63,7 +61,7 @@ export class ReferentieTabelEditDialogComponent {
     ),
     naam: new FormControl(this.data.naam, {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.maxLength(256)],
     }),
   });
 
