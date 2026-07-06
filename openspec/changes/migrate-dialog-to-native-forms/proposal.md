@@ -35,7 +35,7 @@ The codebase already has the target pattern: dedicated dialog components (`ZaakO
 
 ## Impact
 
-- New: `src/main/app/src/app/shared/dialog/generic-dialog/` (`zac-generic-dialog` component + spec), `src/main/app/src/app/shared/dialog/reden-dialog/` (`RedenDialogComponent` + spec), `src/main/app/src/app/zaken/zaak-afbreken-dialog/` (dedicated select dialog + spec).
+- New: `src/main/app/src/app/shared/dialog/generic-dialog/` (`zac-generic-dialog` component + spec), `src/main/app/src/app/shared/dialog/reden-dialog/` (`RedenDialogComponent` + spec), `src/main/app/src/app/zaken/zaak-afbreken-dialog/` (dedicated select dialog + spec), plus two thin injectable facades that hold the dialog config so trigger components stay clean: `zaken/zaak-dialog.service.ts` (`ZaakDialogService`) and `informatie-objecten/document-dialog.service.ts` (`DocumentDialogService`), each with a spec.
 - Modified: `shared/form/form-actions/form-actions.component.{ts,html,spec.ts}` (optional `mutation` + new `loading` input); `zaken/zaak-view/zaak-view.component.ts` (7 call sites); `zaken/zaak-documenten/zaak-documenten.component.ts` (1); `informatie-objecten/informatie-object-view/informatie-object-view.component.ts` (1, with the no-zaak branch falling back to the existing `ConfirmDialogComponent`).
 - Deleted: `shared/dialog/dialog.component.{ts,html,less,spec.ts}`, `shared/dialog/dialog-data.ts`.
 - No API contract changes, no database migrations, no new dependencies.

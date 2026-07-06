@@ -23,7 +23,13 @@
 - [x] 4.2 Create `zaak-afbreken-dialog.component.html` — `<form>` wrapping `<zac-generic-dialog titleKey="actie.zaak.afbreken" icon="thumb_down_alt" (cancelled)="close()">` around a `zac-select` (`optionDisplayValue="naam"`) + `<zac-form-actions submitLabel="actie.zaak.afbreken" [loading] wrapper="dialog" />`.
 - [x] 4.3 Create `zaak-afbreken-dialog.component.spec.ts` (no `NO_ERRORS_SCHEMA`, no `any`): renders select; submit disabled until a reden is selected+dirty; callback invoked with the selected `RestZaakbeeindigReden`, closes with result; `close()`→`false`.
 
-## 5. Migrate call sites — zaak-view (7)
+## 4b. Domain dialog services (keep trigger components clean)
+
+- [x] 4b.1 Create `zaken/zaak-dialog.service.ts` (`ZaakDialogService`, `providedIn: root`) with `afbreken`, `heropenen`, `hervatten`, `wijzigInitiator`, `ontkoppelInitiator`, `ontkoppelBetrokkene`, `verwijderBagObject` — each holding fixed config, taking dynamic args + the business callback, resolving message keys via injected `TranslateService`, returning the `MatDialogRef`.
+- [x] 4b.2 Create `informatie-objecten/document-dialog.service.ts` (`DocumentDialogService`) with `ontkoppelDocument` and `verwijderDocument` (the latter encapsulating the has-zaak → reden vs no-zaak → `ConfirmDialogComponent` branch).
+- [x] 4b.3 Add specs for both services (assert each opens the right component with the expected data; cover the `verwijderDocument` branch).
+
+## 5. Migrate call sites — zaak-view (7) via `ZaakDialogService`
 
 - [x] 5.1 `openZaakAfbrekenDialog` → `open<ZaakAfbrekenDialogComponent, ZaakAfbrekenDialogData>` with options + callback; keep existing `afterClosed()` handling.
 - [x] 5.2 `openZaakHeropenenDialog` → `RedenDialogComponent` (input, maxlength 100, label `actie.zaak.heropenen.reden`, confirm `actie.zaak.heropenen`, icon `restart_alt`).
@@ -32,12 +38,12 @@
 - [x] 5.5 `deleteInitiator` → `RedenDialogComponent` (textarea, melding, confirm `actie.initiator.ontkoppelen`, icon `link_off`).
 - [x] 5.6 `deleteBetrokkene` → `RedenDialogComponent` (textarea, melding, confirm `actie.betrokkene.ontkoppelen`, icon `link_off`).
 - [x] 5.7 `bagObjectVerwijderen` → `RedenDialogComponent` (input, maxlength 80, uitleg, confirm `actie.bagObject.ontkoppelen`, icon `link_off`).
-- [x] 5.8 Update imports (add `RedenDialogComponent`/`RedenDialogData`, `ZaakAfbrekenDialogComponent`/`ZaakAfbrekenDialogData`; remove `DialogComponent`, `DialogData`, the three `*FormFieldBuilder`s, and the now-unused `Validators`).
+- [x] 5.8 Inject `ZaakDialogService`; remove `DialogComponent`, `DialogData`, the direct `RedenDialogComponent`/`ZaakAfbrekenDialogComponent` imports, the three `*FormFieldBuilder`s, and the now-unused `Validators`.
 
 ## 6. Migrate call sites — zaak-documenten & informatie-object-view (2)
 
-- [x] 6.1 `zaak-documenten` ontkoppelInformatieObject → `RedenDialogComponent` (textarea, maxlength 200, melding, confirm `actie.document.ontkoppelen`, icon `link_off`); drop `Textarea*Builder`/`DialogComponent`/`DialogData`/`Validators` imports.
-- [x] 6.2 `informatie-object-view` verwijderen → `RedenDialogComponent` when `this.zaak` (input, maxlength 100), else fall back to the existing `ConfirmDialogComponent` (no field); drop `Input*Builder`/`DialogComponent`/`DialogData`/`Validators` imports.
+- [x] 6.1 `zaak-documenten` ontkoppelInformatieObject → `DocumentDialogService.ontkoppelDocument(melding, callback)`; drop `Textarea*Builder`/`DialogComponent`/`DialogData`/`Validators`/`MatDialog` imports.
+- [x] 6.2 `informatie-object-view` verwijderen → `DocumentDialogService.verwijderDocument({ hasZaak, documentTitel, delete })` (service hides the reden-vs-confirm branch); drop `Input*Builder`/`DialogComponent`/`DialogData`/`Validators`/direct `RedenDialogComponent` imports.
 
 ## 7. Delete the ATOS-backed shared dialog
 
