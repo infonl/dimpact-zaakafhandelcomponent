@@ -130,7 +130,11 @@ class ZaakKoppelenRestService @Inject constructor(
             restZaakUnlinkData.gekoppeldeZaakIdentificatie
         )
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).wijzigen)
-        assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).wijzigen)
+
+        if(restZaakUnlinkData.relatieType == RelatieType.GERELATEERD)
+            assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).lezen)
+        else
+            assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).wijzigen)
 
         when (restZaakUnlinkData.relatieType) {
             RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(

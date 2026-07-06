@@ -44,12 +44,13 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             val zaak = createZaak(uuid = fakeZaakUuid)
             val zaakType = createZaakType()
             val loggedInUser = createLoggedInUser()
+            val zaakRechten = createZaakRechten()
             every { zrcClientService.readZaak(gerelateerdeZaak.url) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
 
             When("convert is called with the GerelateerdeZaak and loggedInUser") {
-                val result = converter.convert(gerelateerdeZaak, loggedInUser)
+                val result = converter.convert(zaakRechten, gerelateerdeZaak, loggedInUser)
 
                 Then("the result has relatieType GERELATEERD") {
                     result.relatieType shouldBe RelatieType.GERELATEERD

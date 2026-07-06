@@ -429,17 +429,18 @@
                       >
                         <mat-icon>visibility</mat-icon>
                       </a>
-                      <button
-                        *ngIf="row.rechten.wijzigen"
-                        mat-icon-button
-                        (click)="startZaakOntkoppelenDialog(row)"
-                        [id]="
-                          'zaakOntkoppelen_' + row.identificatie + '_button'
-                        "
-                        title="{{ 'actie.zaak.ontkoppelen' | translate }}"
-                      >
-                        <mat-icon>link_off</mat-icon>
-                      </button>
+                      @if (row.rechten.ontkoppelen) {
+                        <button
+                          mat-icon-button
+                          (click)="startZaakOntkoppelenDialog(row)"
+                          [id]="
+                            'zaakOntkoppelen_' + row.identificatie + '_button'
+                          "
+                          title="{{ 'actie.zaak.ontkoppelen' | translate }}"
+                        >
+                          <mat-icon>link_off</mat-icon>
+                        </button>
+                      }
                     </td>
                   </ng-container>
                   <tr
