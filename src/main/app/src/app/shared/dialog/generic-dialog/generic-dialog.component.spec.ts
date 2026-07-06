@@ -24,8 +24,8 @@ import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { NEVER, Observable, of, throwError } from "rxjs";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { ZacTextarea } from "../../form/textarea/textarea";
-import { GenericDialogComponent } from "./generic-dialog.component";
 import { GenericDialogData } from "./generic-dialog-data";
+import { GenericDialogComponent } from "./generic-dialog.component";
 
 type OntkoppelForm = FormGroup<{ reden: FormControl<string | null> }>;
 
