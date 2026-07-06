@@ -89,7 +89,7 @@ export class ReferentieTabellenComponent
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
-            key: "msg.tabel.verwijderen.bevestigen",
+            key: "msg.tabel.verwijderen-bevestigen",
             args: { tabel: referentieTabel.code },
           },
           this.service.deleteReferentieTabel(referentieTabel.id!),

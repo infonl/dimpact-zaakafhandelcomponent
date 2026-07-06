@@ -177,7 +177,7 @@ describe(ReferentieTabellenV2Component.name, () => {
     component["verwijderReferentieTabel"](tabellen[0]);
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
-    expect(dialogData._melding.key).toBe("msg.tabel.verwijderen.bevestigen");
+    expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
     expect(openSnackbar).toHaveBeenCalledWith(
       "msg.tabel.verwijderen.uitgevoerd",
