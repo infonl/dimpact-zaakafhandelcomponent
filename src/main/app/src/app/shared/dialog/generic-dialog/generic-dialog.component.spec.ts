@@ -29,7 +29,6 @@ import { GenericDialogComponent } from "./generic-dialog.component";
 
 type OntkoppelForm = FormGroup<{ reden: FormControl<string | null> }>;
 
-/** Provides a real `TemplateRef` with a projected `zac-textarea`, like a consumer would. */
 @Component({
   standalone: true,
   imports: [ReactiveFormsModule, ZacTextarea],
@@ -57,7 +56,6 @@ const setup = (
   });
   const callback = jest.fn(overrides.callback ?? (() => of(true)));
 
-  // Filled once the host fixture exists; the factory only runs when the dialog is created.
   const templateHolder: {
     current?: TemplateRef<{ $implicit: OntkoppelForm }>;
   } = {};
@@ -96,7 +94,6 @@ const setup = (
     TestBed.createComponent(GenericDialogComponent);
   fixture.detectChanges();
 
-  /** Simulates a user entering a reason: sets the value and marks the form dirty like real input does. */
   const fillReden = (value: string) => {
     form.controls.reden.setValue(value);
     form.controls.reden.markAsDirty();
@@ -237,7 +234,6 @@ describe(GenericDialogComponent.name, () => {
       fillReden("Reden");
 
       component["confirm"]();
-      // Wait for the failed mutation to settle so its pending state clears before retrying.
       await sleep(100);
       expect(component["errorMessage"]()).not.toBeNull();
 

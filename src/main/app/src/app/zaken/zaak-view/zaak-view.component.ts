@@ -160,7 +160,6 @@ export class ZaakViewComponent
     TemplateRef<{ $implicit: RedenForm }>
   >("initiatorWijzigenDialogTemplate");
 
-  // Loaded lazily on subscribe so the current zaaktype is used each time the afbreken dialog opens.
   protected readonly afbrekenRedenen = defer(() =>
     this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
       this.zaak.zaaktype.uuid,
@@ -1365,17 +1364,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen &&
+      this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

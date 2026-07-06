@@ -23,11 +23,6 @@ import { lastValueFrom } from "rxjs";
 import { ZacFormActions } from "../../form/form-actions/form-actions.component";
 import { GenericDialogData } from "./generic-dialog-data";
 
-/**
- * Reusable confirmation dialog that renders caller-supplied `zac-*` fields (projected through
- * {@link GenericDialogData.contentTemplate}) and keeps the window open on error so the action
- * can be retried. Open it with `MatDialog.open(GenericDialogComponent, { data })`.
- */
 @Component({
   selector: "zac-generic-dialog",
   templateUrl: "./generic-dialog.component.html",
@@ -93,10 +88,6 @@ export class GenericDialogComponent {
   }
 }
 
-/**
- * Opens {@link GenericDialogComponent} with the given data. Infers the form and result types from
- * `data`, so callers don't repeat the dialog component or its generics on every `dialog.open`.
- */
 export function openGenericDialog<Form extends FormGroup, Result = unknown>(
   dialog: MatDialog,
   data: GenericDialogData<Form, Result>,
