@@ -168,27 +168,28 @@ class RestZaakConverter @Inject constructor(
     private fun toRestGerelateerdeZaken(
         startZaakRechten: ZaakRechten,
         zaak: Zaak,
-        loggedInUser: LoggedInUser): List<RestGerelateerdeZaak> {
-            val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
-            zaak.hoofdzaak?.let {
-                gerelateerdeZaken.add(
-                    restGerelateerdeZaakConverter.convert(
-                        startZaakRechten = startZaakRechten,
-                        gerelateerdeZaak = zrcClientService.readZaak(it),
-                        relatieType = RelatieType.HOOFDZAAK,
-                        loggedInUser = loggedInUser
-                    )
+        loggedInUser: LoggedInUser
+    ): List<RestGerelateerdeZaak> {
+        val gerelateerdeZaken = mutableListOf<RestGerelateerdeZaak>()
+        zaak.hoofdzaak?.let {
+            gerelateerdeZaken.add(
+                restGerelateerdeZaakConverter.convert(
+                    startZaakRechten = startZaakRechten,
+                    gerelateerdeZaak = zrcClientService.readZaak(it),
+                    relatieType = RelatieType.HOOFDZAAK,
+                    loggedInUser = loggedInUser
                 )
+            )
+        }
+        zaak.deelzaken
+            ?.map(zrcClientService::readZaak)
+            ?.map {
+                restGerelateerdeZaakConverter.convert(startZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
             }
-            zaak.deelzaken
-                ?.map(zrcClientService::readZaak)
-                ?.map {
-                    restGerelateerdeZaakConverter.convert(startZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
-                }
-                ?.forEach(gerelateerdeZaken::add)
-            zaak.gerelateerdeZaken
-                ?.map { restGerelateerdeZaakConverter.convert(startZaakRechten, it, loggedInUser) }
-                ?.forEach(gerelateerdeZaken::add)
-            return gerelateerdeZaken
+            ?.forEach(gerelateerdeZaken::add)
+        zaak.gerelateerdeZaken
+            ?.map { restGerelateerdeZaakConverter.convert(startZaakRechten, it, loggedInUser) }
+            ?.forEach(gerelateerdeZaken::add)
+        return gerelateerdeZaken
     }
 }
