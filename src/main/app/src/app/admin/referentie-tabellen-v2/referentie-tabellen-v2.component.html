@@ -67,7 +67,10 @@
                     <span class="tabel-code">{{ tabel.code }}</span>
                     <span class="tabel-naam">{{ tabel.naam }}</span>
                   </div>
-                  <span class="tabel-count tabel-toggle" (click)="toggle(tabel)">
+                  <span
+                    class="tabel-count tabel-toggle"
+                    (click)="toggle(tabel)"
+                  >
                     {{ "rijen" | translate }} ({{ tabel.aantalWaarden }})
                   </span>
                   <div class="tabel-actions flex-row items-center">
@@ -98,7 +101,9 @@
                 </div>
                 <div [hidden]="expandedId() !== tabel.id">
                   @if (isLoadingWaarden(tabel)) {
-                    <div class="loading-shade flex-row justify-center items-center">
+                    <div
+                      class="loading-shade flex-row justify-center items-center"
+                    >
                       <mat-spinner diameter="30"></mat-spinner>
                     </div>
                   } @else if (getLoadedTabel(tabel); as loaded) {
