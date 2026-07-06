@@ -22,8 +22,8 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";
 import { ReferentieTabelItemComponent } from "./referentie-tabel-item.component";
+import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";
 
 const tabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   id: 1,
