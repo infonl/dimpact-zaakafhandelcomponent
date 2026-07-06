@@ -4,11 +4,14 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { mutationOptions } from "@tanstack/angular-query-experimental";
+import {
+  mutationOptions,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 /** Fields the "zaakgegevens bewerken" form may update; all optional (partial PATCH). */
@@ -185,9 +188,11 @@ export class ZakenService {
     });
   }
 
-  listHistorieVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/historie", {
-      path: { uuid },
+  listHistorieVoorZaakQuery(uuid: string) {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/historie", {
+        path: { uuid },
+      }),
     });
   }
 

@@ -7,15 +7,16 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  effect,
   inject,
   input,
-  OnInit,
   ViewChild,
 } from "@angular/core";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { LocationPipe } from "../../shared/pipes/location.pipe";
@@ -42,10 +43,15 @@ import { ZakenService } from "../zaken.service";
     ReadMoreComponent,
   ],
 })
-export class ZaakHistorieComponent implements OnInit, AfterViewInit {
+export class ZaakHistorieComponent implements AfterViewInit {
   private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
+
+  protected readonly historieQuery = injectQuery(() =>
+    this.zakenService.listHistorieVoorZaakQuery(this.zaak().uuid),
+  );
 
   protected readonly historie =
     new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
@@ -61,8 +67,10 @@ export class ZaakHistorieComponent implements OnInit, AfterViewInit {
 
   @ViewChild("historieSort") private historieSort!: MatSort;
 
-  ngOnInit() {
-    this.loadHistorie();
+  constructor() {
+    effect(() => {
+      this.historie.data = this.historieQuery.data() ?? [];
+    });
   }
 
   ngAfterViewInit() {
@@ -81,10 +89,9 @@ export class ZaakHistorieComponent implements OnInit, AfterViewInit {
   }
 
   loadHistorie() {
-    this.zakenService
-      .listHistorieVoorZaak(this.zaak().uuid)
-      .subscribe((historie) => {
-        this.historie.data = historie;
-      });
+    this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak().uuid)
+        .queryKey,
+    });
   }
 }

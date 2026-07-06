@@ -146,7 +146,6 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listHistorieVoorZaak").mockReturnValue(of([]));
     jest.spyOn(zakenService, "listBetrokkenenVoorZaak").mockReturnValue(of([]));
     jest
       .spyOn(zakenService, "readOpschortingZaak")
