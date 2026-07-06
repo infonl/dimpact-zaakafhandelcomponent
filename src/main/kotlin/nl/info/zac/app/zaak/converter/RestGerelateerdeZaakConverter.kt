@@ -31,12 +31,7 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             return RestGerelateerdeZaak(
                 identificatie = gerelateerdeZaak.identificatie,
                 relatieType = relatieType,
-                rechten = zaakrechten.toRestZaakRechten().apply {
-                    this.ontkoppelen =  if (relatieType == RelatieType.GERELATEERD)
-                                            startZaakRechten.koppelen && zaakrechten.lezen
-                                        else
-                                            startZaakRechten.koppelen && zaakrechten.koppelen
-                },
+                rechten = zaakrechten.toRestZaakRechten(),
                 zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
                 startdatum = takeIf { zaakrechten.lezen }?.let { gerelateerdeZaak.startdatum },
                 statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
@@ -45,7 +40,9 @@ class RestGerelateerdeZaakConverter @Inject constructor(
                             ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
                         }
                     }
-                }
+                },
+                ontkoppelen = if (relatieType == RelatieType.GERELATEERD) startZaakRechten.koppelen && zaakrechten.lezen
+                    else startZaakRechten.koppelen && zaakrechten.koppelen
             )
     }
 

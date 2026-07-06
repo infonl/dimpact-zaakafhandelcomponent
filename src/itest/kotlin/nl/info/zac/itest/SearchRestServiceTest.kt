@@ -195,8 +195,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "verwijderenInitiator" : false,
                               "wijzigen" : false,
                               "wijzigenDoorlooptijd" : false,
-                              "wijzigenLocatie" : false,
-                              "ontkoppelen": false
+                              "wijzigenLocatie" : false
                             },
                             "registratiedatum" : "${LocalDate.now()}",
                             "startdatum" : "$DATE_2024_01_01",

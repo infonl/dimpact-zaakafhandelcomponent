@@ -25,8 +25,7 @@ data class RestZaakRechten(
     val verwijderenInitiator: Boolean,
     val creerenDocument: Boolean,
     val versturenEmail: Boolean,
-    val wijzigenLocatie: Boolean,
-    var ontkoppelen: Boolean
+    val wijzigenLocatie: Boolean
 )
 
 fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
@@ -48,6 +47,5 @@ fun ZaakRechten.toRestZaakRechten() = RestZaakRechten(
     verwijderenInitiator = this.verwijderenInitiator,
     creerenDocument = this.creerenDocument,
     versturenEmail = this.versturenEmail,
-    wijzigenLocatie = this.wijzigenLocatie,
-    ontkoppelen = false
+    wijzigenLocatie = this.wijzigenLocatie
 )
