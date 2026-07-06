@@ -51,7 +51,10 @@ describe(DocumentDialogService.name, () => {
         delete: deleteFn,
       });
 
-      expect(open).toHaveBeenCalledWith(RedenDialogComponent, expect.anything());
+      expect(open).toHaveBeenCalledWith(
+        RedenDialogComponent,
+        expect.anything(),
+      );
       const data = open.mock.calls.at(-1)![1].data;
       expect(data.titleKey).toBe("actie.document.verwijderen");
       expect(data.maxlength).toBe(100);

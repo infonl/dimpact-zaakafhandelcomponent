@@ -44,7 +44,8 @@ export class RedenDialogComponent {
 
   protected loading = false;
   protected readonly label = this.data.label ?? "reden";
-  protected readonly submitLabel = this.data.confirmButtonActionKey ?? "actie.ja";
+  protected readonly submitLabel =
+    this.data.confirmButtonActionKey ?? "actie.ja";
   protected readonly cancelLabel =
     this.data.cancelButtonActionKey ?? "actie.annuleren";
 

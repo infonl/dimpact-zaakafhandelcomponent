@@ -117,7 +117,10 @@ export class ZaakDialogService {
     });
   }
 
-  verwijderBagObject(omschrijving: string | undefined, callback: RedenCallback) {
+  verwijderBagObject(
+    omschrijving: string | undefined,
+    callback: RedenCallback,
+  ) {
     return this.openReden({
       titleKey: "actie.bagObject.ontkoppelen",
       icon: "link_off",

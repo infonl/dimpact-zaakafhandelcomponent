@@ -93,7 +93,9 @@ describe(RedenDialogComponent.name, () => {
   });
 
   it("closes with false when the callback errors", () => {
-    const callback = jest.fn().mockReturnValue(throwError(() => new Error("x")));
+    const callback = jest
+      .fn()
+      .mockReturnValue(throwError(() => new Error("x")));
     const { component, dialogRefMock } = setup({ callback });
 
     component["form"].controls.reden.setValue("reden");

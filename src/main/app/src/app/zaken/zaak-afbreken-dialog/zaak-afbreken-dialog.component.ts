@@ -38,10 +38,11 @@ export class ZaakAfbrekenDialogComponent {
   protected loading = false;
 
   protected readonly form = this.formBuilder.group({
-    reden: this.formBuilder.control<GeneratedType<"RestZaakbeeindigReden"> | null>(
-      null,
-      [Validators.required],
-    ),
+    reden:
+      this.formBuilder.control<GeneratedType<"RestZaakbeeindigReden"> | null>(
+        null,
+        [Validators.required],
+      ),
   });
 
   protected submit() {

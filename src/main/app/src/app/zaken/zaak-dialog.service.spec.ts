@@ -21,10 +21,7 @@ const setup = () => {
 
   TestBed.configureTestingModule({
     imports: [TranslateModule.forRoot()],
-    providers: [
-      ZaakDialogService,
-      { provide: MatDialog, useValue: { open } },
-    ],
+    providers: [ZaakDialogService, { provide: MatDialog, useValue: { open } }],
   });
 
   return { service: TestBed.inject(ZaakDialogService), open };
