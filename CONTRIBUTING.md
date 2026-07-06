@@ -12,7 +12,7 @@ Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent
 
 ## Code of conduct
 
-We are committed to maintaining a welcoming, inclusive, and respectful environment. 
+We are committed to maintaining a welcoming, inclusive, and respectful environment.
 Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a positive experience for everyone.
 
 ## Problems, suggestions and questions
