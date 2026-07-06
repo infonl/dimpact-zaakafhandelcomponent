@@ -54,15 +54,13 @@ class ZaakHistoryService @Inject constructor(
      * the code is currently dependent on the specific implementation of the audit trail ZGW ZRC API endpoints
      * by [OpenZaak](https://open-zaak.readthedocs.io/).
      */
-    fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> {
-        val auditTrail = zrcClientService.listAuditTrail(zaakUUID)
-        return auditTrail
+    fun getZaakHistory(zaakUUID: UUID): List<HistoryLine> =
+        zrcClientService.listAuditTrail(zaakUUID)
             .flatMap(::convertZaakHistoryLine)
             // we filter out certain audit trail lines because they add no value
             // and are confusing for the end-user
             .filter { it.attribuutLabel != RESOURCE_EXTENSION && it.attribuutLabel != RESOURCE_SUSPENSION }
             .sortedByDescending { it.datumTijd }
-    }
 
     private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()

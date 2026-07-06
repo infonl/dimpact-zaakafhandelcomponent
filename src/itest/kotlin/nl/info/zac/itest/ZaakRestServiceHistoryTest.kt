@@ -19,6 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
@@ -27,6 +28,67 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
+
+    Given("A zaak exists and another zaak is linked to it as a gerelateerde zaak") {
+        lateinit var zaakUuid: UUID
+        lateinit var gerelateerdeZaakIdentificatie: String
+        lateinit var gerelateerdeZaakUuid: UUID
+
+        zacClient.createZaak(
+            description = ZAAK_DESCRIPTION_1,
+            groupId = GROUP_RAADPLEGERS_TEST_1.name,
+            groupName = GROUP_RAADPLEGERS_TEST_1.description,
+            startDate = DATE_TIME_2024_01_01,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHANDELAAR_1
+        ).run {
+            JSONObject(bodyAsString).run {
+                zaakUuid = getString("uuid").run(UUID::fromString)
+            }
+        }
+        zacClient.createZaak(
+            description = ZAAK_DESCRIPTION_1,
+            groupId = GROUP_RAADPLEGERS_TEST_1.name,
+            groupName = GROUP_RAADPLEGERS_TEST_1.description,
+            startDate = DATE_TIME_2024_01_01,
+            zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHANDELAAR_1
+        ).run {
+            JSONObject(bodyAsString).run {
+                gerelateerdeZaakUuid = getString("uuid").run(UUID::fromString)
+                gerelateerdeZaakIdentificatie = getString("identificatie")
+            }
+        }
+        itestHttpClient.performPatchRequest(
+            url = "$ZAC_API_URI/zaken/zaak/koppel",
+            requestBodyAsString = """
+                {
+                    "zaakUuid": "$zaakUuid",
+                    "teKoppelenZaakUuid": "$gerelateerdeZaakUuid",
+                    "relatieType": "GERELATEERD"
+                }
+            """.trimIndent(),
+            testUser = BEHANDELAAR_1
+        )
+
+        When("zaak history is requested") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
+                testUser = BEHANDELAAR_1
+            )
+
+            Then("the gerelateerdeZaken history entry shows the zaak identificatie and no old value") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                val gerelateerdeZakenEntry = JSONArray(responseBody)
+                    .run { (0 until length()).map(::getJSONObject) }
+                    .first { it.getString("attribuutLabel") == "gerelateerdeZaken" }
+                gerelateerdeZakenEntry.isNull("oudeWaarde") shouldBe true
+                gerelateerdeZakenEntry.getString("nieuweWaarde") shouldBe gerelateerdeZaakIdentificatie
+            }
+        }
+    }
 
     Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
         lateinit var zaakUuid: UUID
