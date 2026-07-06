@@ -54,7 +54,7 @@ export class ZaakHistorieComponent implements AfterViewInit {
   );
 
   protected readonly historie =
-    new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
+    new MatTableDataSource<GeneratedType<"HistoryLine">>();
   protected readonly historieColumns = [
     "datum",
     "gebruiker",
@@ -79,7 +79,7 @@ export class ZaakHistorieComponent implements AfterViewInit {
         case "datum":
           return String(item.datumTijd);
         case "gebruiker":
-          return (item as unknown as { door: string }).door;
+          return item.door ?? "";
         default:
           return String(item[property as keyof typeof item]);
       }
