@@ -11,7 +11,7 @@ import {
 import { lastValueFrom } from "rxjs";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 /** Fields the "zaakgegevens bewerken" form may update; all optional (partial PATCH). */
