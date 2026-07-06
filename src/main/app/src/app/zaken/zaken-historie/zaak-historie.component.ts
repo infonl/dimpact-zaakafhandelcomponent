@@ -80,11 +80,7 @@ export class ZaakHistorieComponent implements OnInit, AfterViewInit {
     this.historie.sort = this.historieSort;
   }
 
-  reload() {
-    this.loadHistorie();
-  }
-
-  private loadHistorie() {
+  loadHistorie() {
     this.zakenService
       .listHistorieVoorZaak(this.zaak().uuid)
       .subscribe((historie) => {

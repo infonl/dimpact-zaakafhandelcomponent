@@ -462,10 +462,12 @@
                 <mat-icon>history</mat-icon>
                 {{ "historie" | translate }}
               </ng-template>
-              <zac-zaak-historie
-                #zaakHistorieComponent
-                [zaak]="zaak"
-              ></zac-zaak-historie>
+              <ng-template matTabContent>
+                <zac-zaak-historie
+                  #zaakHistorieComponent
+                  [zaak]="zaak"
+                ></zac-zaak-historie>
+              </ng-template>
             </mat-tab>
 
             <mat-tab *ngIf="showBetrokkeneKoppelingen()">

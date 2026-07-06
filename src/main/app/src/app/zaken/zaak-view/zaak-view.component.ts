@@ -193,7 +193,7 @@ export class ZaakViewComponent
 
   private init(zaak: GeneratedType<"RestZaak">) {
     this.zaak = zaak;
-    this.zaakHistorieComponent?.reload();
+    this.zaakHistorieComponent?.loadHistorie();
     this.loadBetrokkenen();
     this.loadBagObjecten();
     this.setupMenu();
@@ -956,7 +956,7 @@ export class ZaakViewComponent
     this.utilService.openSnackbar(notification, {
       naam: naam.join(" - "),
     });
-    this.zaakHistorieComponent.reload();
+    this.zaakHistorieComponent?.loadHistorie();
   }
 
   protected deleteInitiator() {
@@ -987,7 +987,7 @@ export class ZaakViewComponent
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.zaakHistorieComponent.reload();
+            this.zaakHistorieComponent?.loadHistorie();
           });
         }
       });
@@ -1010,7 +1010,7 @@ export class ZaakViewComponent
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
-        this.zaakHistorieComponent.reload();
+        this.zaakHistorieComponent?.loadHistorie();
         this.loadBetrokkenen();
       });
   }
@@ -1056,7 +1056,7 @@ export class ZaakViewComponent
           );
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.zaakHistorieComponent.reload();
+            this.zaakHistorieComponent?.loadHistorie();
             this.loadBetrokkenen();
           });
         }
@@ -1072,7 +1072,7 @@ export class ZaakViewComponent
       })
       .subscribe(() => {
         this.utilService.openSnackbar("msg.bagObject.gekoppeld");
-        this.zaakHistorieComponent.reload();
+        this.zaakHistorieComponent?.loadHistorie();
         this.loadBagObjecten();
       });
   }
@@ -1169,7 +1169,7 @@ export class ZaakViewComponent
 
   protected updateDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
-    this.zaakHistorieComponent.reload();
+    this.zaakHistorieComponent?.loadHistorie();
   }
 
   protected async betrokkeneGegevensOphalen(
@@ -1255,7 +1255,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.zaakHistorieComponent.reload();
+          this.zaakHistorieComponent?.loadHistorie();
           this.loadBagObjecten();
           this.utilService.openSnackbar(
             "msg.bagObject.ontkoppelen.uitgevoerd",
