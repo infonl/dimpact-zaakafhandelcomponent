@@ -54,6 +54,9 @@ describe(ReferentieTabellenV2Component.name, () => {
   let openSnackbar: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
 
+  // jsdom has no scrollIntoView; stub it per test and restore to avoid leaking.
+  const originalScrollIntoView = Element.prototype.scrollIntoView;
+
   async function flushRendering() {
     fixture.detectChanges();
     await fixture.whenStable();
@@ -87,7 +90,6 @@ describe(ReferentieTabellenV2Component.name, () => {
   }
 
   beforeEach(async () => {
-    // jsdom has no scrollIntoView implementation.
     Element.prototype.scrollIntoView = jest.fn();
 
     await TestBed.configureTestingModule({
@@ -119,6 +121,7 @@ describe(ReferentieTabellenV2Component.name, () => {
   });
 
   afterEach(() => {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
     testQueryClient.clear();
     httpTestingController.verify();
   });
