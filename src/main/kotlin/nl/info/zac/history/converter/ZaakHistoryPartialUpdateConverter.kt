@@ -18,6 +18,7 @@ import nl.info.zac.util.getTypedValue
 import java.net.URI
 import java.time.ZonedDateTime
 
+private const val RESOURCE_GERELATEERDE_ZAKEN = "gerelateerdeZaken"
 private const val RESOURCE_COMMUNICATION_CHANNEL = "communicatiekanaal"
 private const val RESOURCE_EINDDATUM = "einddatum"
 private const val RESOURCE_EINDDATUM_GEPLAND = "einddatumGepland"
@@ -65,6 +66,17 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
     @Suppress("CyclomaticComplexMethod")
     private fun convertValue(resource: String, item: Any): String? =
         when (resource) {
+            RESOURCE_GERELATEERDE_ZAKEN if item is List<*> -> item.asSequence()
+                .filterIsInstance<Map<*, *>>()
+                .mapNotNull { it["url"] as? String }
+                .mapNotNull { runCatching { URI.create(it) }.getOrNull() }
+                .distinct()
+                .map { uri ->
+                    runCatching { zrcClientService.readZaak(uri).identificatie }.getOrNull() ?: uri.toString()
+                }
+                .toList()
+                .takeIf { it.isNotEmpty() }
+                ?.joinToString(", ")
             RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
             RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
             RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)

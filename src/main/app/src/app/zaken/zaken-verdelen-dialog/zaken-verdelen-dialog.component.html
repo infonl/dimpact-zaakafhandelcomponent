@@ -26,8 +26,12 @@
           [form]="form"
           key="groep"
           optionDisplayValue="naam"
-          [options]="groups"
+          [readonly]="noAuthorisedGroups()"
+          [options]="groupsQuery.data() ?? []"
         ></zac-auto-complete>
+        <mat-error *ngIf="noAuthorisedGroups()">{{
+          "msg.error.dialog.zaken-verdelen.no-authorised-groups" | translate
+        }}</mat-error>
         <zac-auto-complete
           class="col-12"
           [form]="form"
@@ -52,12 +56,17 @@
     (click)="verdeel()"
     id="zakenVerdelen_button"
   >
-    <mat-icon *ngIf="loading">
+    <mat-icon *ngIf="mutation.isPending()">
       <mat-spinner diameter="18"></mat-spinner>
     </mat-icon>
     {{ "actie.verdelen" | translate }}
   </button>
-  <button [disabled]="loading" autofocus mat-raised-button (click)="close()">
+  <button
+    [disabled]="mutation.isPending()"
+    autofocus
+    mat-raised-button
+    (click)="close()"
+  >
     {{ "actie.annuleren" | translate }}
   </button>
 </mat-dialog-actions>

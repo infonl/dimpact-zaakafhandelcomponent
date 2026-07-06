@@ -74,7 +74,7 @@ export class ZaakAfhandelenDialogComponent {
 
   private sendMailDefault: boolean;
 
-  formGroup = this.formBuilder.group({
+  form = this.formBuilder.group({
     resultaattype:
       this.formBuilder.control<GeneratedType<"RestResultaattype"> | null>(null),
     toelichting: this.formBuilder.control<string>(""),
@@ -147,7 +147,7 @@ export class ZaakAfhandelenDialogComponent {
   constructor() {
     effect(() => {
       const afzenders = this.afzendersQuery.data();
-      this.formGroup.controls.verzender.setValue(
+      this.form.controls.verzender.setValue(
         afzenders?.find((afzender) => afzender.defaultMail) ?? null,
       );
     });
@@ -158,61 +158,59 @@ export class ZaakAfhandelenDialogComponent {
       zaakafhandelparameters?.afrondenMail === "BESCHIKBAAR_AAN";
 
     if (!this.data.zaak.resultaat) {
-      this.formGroup.controls.resultaattype.addValidators(Validators.required);
+      this.form.controls.resultaattype.addValidators(Validators.required);
     }
     if (this.sendMailDefault && this.data.planItem) {
-      this.formGroup.controls.sendMail.setValue(true);
-      this.formGroup.controls.verzender.addValidators(Validators.required);
-      this.formGroup.controls.ontvanger.addValidators([
+      this.form.controls.sendMail.setValue(true);
+      this.form.controls.verzender.addValidators(Validators.required);
+      this.form.controls.ontvanger.addValidators([
         Validators.required,
         CustomValidators.email,
       ]);
     }
 
-    this.formGroup.controls.sendMail.valueChanges
+    this.form.controls.sendMail.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (value) {
-          this.formGroup.controls.verzender.setValidators([
-            Validators.required,
-          ]);
-          this.formGroup.controls.ontvanger.setValidators([
+          this.form.controls.verzender.setValidators([Validators.required]);
+          this.form.controls.ontvanger.setValidators([
             Validators.required,
             CustomValidators.email,
           ]);
         } else {
-          this.formGroup.controls.verzender.clearValidators();
-          this.formGroup.controls.ontvanger.clearValidators();
+          this.form.controls.verzender.clearValidators();
+          this.form.controls.ontvanger.clearValidators();
         }
-        this.formGroup.controls.verzender.updateValueAndValidity();
-        this.formGroup.controls.ontvanger.updateValueAndValidity();
+        this.form.controls.verzender.updateValueAndValidity();
+        this.form.controls.ontvanger.updateValueAndValidity();
       });
 
-    this.formGroup.controls.resultaattype.valueChanges
+    this.form.controls.resultaattype.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         if (value?.besluitVerplicht && !this.data.zaak.besluiten?.length) {
-          this.formGroup.controls.toelichting.disable();
-          this.formGroup.controls.sendMail.disable();
-          this.formGroup.controls.verzender.disable();
-          this.formGroup.controls.ontvanger.disable();
+          this.form.controls.toelichting.disable();
+          this.form.controls.sendMail.disable();
+          this.form.controls.verzender.disable();
+          this.form.controls.ontvanger.disable();
         } else {
-          this.formGroup.controls.toelichting.enable();
-          this.formGroup.controls.sendMail.enable();
-          this.formGroup.controls.verzender.enable();
-          this.formGroup.controls.ontvanger.enable();
+          this.form.controls.toelichting.enable();
+          this.form.controls.sendMail.enable();
+          this.form.controls.verzender.enable();
+          this.form.controls.ontvanger.enable();
         }
 
         if (value?.datumKenmerkVerplicht) {
-          this.formGroup.controls.brondatumEigenschap.addValidators([
+          this.form.controls.brondatumEigenschap.addValidators([
             Validators.required,
           ]);
         } else {
-          this.formGroup.controls.brondatumEigenschap.removeValidators([
+          this.form.controls.brondatumEigenschap.removeValidators([
             Validators.required,
           ]);
         }
-        this.formGroup.controls.brondatumEigenschap.updateValueAndValidity();
+        this.form.controls.brondatumEigenschap.updateValueAndValidity();
       });
   }
 
@@ -231,7 +229,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   private afsluiten() {
-    const { value } = this.formGroup;
+    const { value } = this.form;
     this.afsluitenMutation.mutate({
       reden: value.toelichting,
       resultaattypeUuid: value.resultaattype!.id,
@@ -240,7 +238,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   private planItemAfhandelen(planItem: GeneratedType<"RESTPlanItem">) {
-    const { value } = this.formGroup;
+    const { value } = this.form;
     const mailtemplate = this.mailtemplateQuery.data();
 
     const restMailGegevens =
@@ -271,7 +269,7 @@ export class ZaakAfhandelenDialogComponent {
     const email =
       this.data.zaak.zaakSpecificContactDetails?.emailAddress ??
       this.initiatorEmailQuery.data()?.emailadres;
-    this.formGroup.controls.ontvanger.setValue(email ?? null);
+    this.form.controls.ontvanger.setValue(email ?? null);
   }
 
   protected openBesluitVastleggen() {

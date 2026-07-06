@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.273](https://img.shields.io/badge/Version-1.0.273-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
+![Version: 1.0.276](https://img.shields.io/badge/Version-1.0.276-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -178,7 +178,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.2@sha256:fdf54c2136c873e3df2457d8f00ebcc070e17845233e1cf3220dfcb0a8b93eb4"` |  |
+| nginx.image.tag | string | `"1.31.2@sha256:c12c691fa94543c14c6bd304ef063ecd4dbbb01ddec13e31f0f4f09154301744"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -233,7 +233,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.18.1-static@sha256:8dca686c960ba92c0ad3d37eddc893adaed28500b26e5506b52b665653c3e83b"` |  |
+| opa.image.tag | string | `"1.18.2-static@sha256:57f7d06808fff6de3ea1d698e6430990973ca1370be0e54975f0083d615521da"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -324,7 +324,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:f5a742b9476c5608f318432fe142c2e8fe125a846c0ff0081681051e3b2d8eb4"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:c45d9d93d74d6a5e996120ab7120cdfc531debbc59bd3d6a6736fe240cee9be0"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

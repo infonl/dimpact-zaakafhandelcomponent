@@ -21,6 +21,10 @@ export class IdentityService {
     return this.zacHttpClient.GET("/rest/identity/groups");
   }
 
+  listBehandelaarGroupsForZaaktypesQuery() {
+    return this.zacQueryClient.POST("/rest/identity/behandelaar-groups");
+  }
+
   listBehandelaarGroupsForZaaktype(
     zaaktypeDescription: string,
   ): Observable<GeneratedType<"RestGroup">[]> {

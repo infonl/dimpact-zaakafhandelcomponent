@@ -113,6 +113,24 @@ describe(ZoekopdrachtSaveDialogComponent.name, () => {
       );
       expect(button).toBeTruthy();
     });
+
+    it("stays disabled after a successful save", async () => {
+      const { component, loader, httpTestingController } = await setup();
+      component["form"].patchValue({ naam: "nieuwe naam" });
+      component["form"].markAsDirty();
+
+      component["opslaan"]();
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/zoekopdracht")
+        .flush({});
+      await sleep();
+
+      const button = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie.toevoegen/i }),
+      );
+      expect(await button.isDisabled()).toBe(true);
+    });
   });
 
   describe("opslaan() — new zoekopdracht", () => {

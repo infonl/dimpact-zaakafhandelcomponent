@@ -155,7 +155,11 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="!form.valid || createZaakMutation.isPending()"
+          [disabled]="
+            !form.valid ||
+            createZaakMutation.isPending() ||
+            createZaakMutation.isSuccess()
+          "
         >
           {{ "actie.aanmaken" | translate }}
         </button>

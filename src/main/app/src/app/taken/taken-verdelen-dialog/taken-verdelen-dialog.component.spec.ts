@@ -13,17 +13,22 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideZonelessChangeDetection } from "@angular/core";
+import { provideZoneChangeDetection } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatToolbarHarness } from "@angular/material/toolbar/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import {
+  mutationOptions,
+  provideTanStackQuery,
+} from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
+import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenVerdelenDialogComponent } from "./taken-verdelen-dialog.component";
@@ -42,6 +47,7 @@ const makeTaak = (id: string): TaakZoekObject =>
   ({
     id,
     zaakUuid: `zaak-${id}`,
+    zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
   }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
 
 const makeDialogData = (
@@ -49,11 +55,15 @@ const makeDialogData = (
   screenEventResourceId = "screen-event-1",
 ) => ({ taken, screenEventResourceId });
 
-async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
+async function setup(
+  data = makeDialogData([makeTaak("1"), makeTaak("2")]),
+  groups: GeneratedType<"RestGroup">[] = [mockGroup],
+) {
   const dialogRef = {
     close: jest.fn(),
   } as unknown as MatDialogRef<TakenVerdelenDialogComponent>;
 
+  TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [
       TakenVerdelenDialogComponent,
@@ -61,7 +71,7 @@ async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
       TranslateModule.forRoot(),
     ],
     providers: [
-      provideZonelessChangeDetection(),
+      provideZoneChangeDetection(),
       provideHttpClient(withInterceptorsFromDi()),
       provideHttpClientTesting(),
       provideTanStackQuery(testQueryClient),
@@ -71,10 +81,17 @@ async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
   }).compileComponents();
 
   const identityService = TestBed.inject(IdentityService);
-  jest.spyOn(identityService, "listGroups").mockReturnValue(of([mockGroup]));
   jest
     .spyOn(identityService, "listUsersInGroup")
     .mockReturnValue(of([mockUser]));
+  jest
+    .spyOn(identityService, "listBehandelaarGroupsForZaaktypesQuery")
+    .mockReturnValue(
+      mutationOptions({
+        mutationKey: ["/rest/identity/behandelaar-groups"],
+        mutationFn: async () => groups,
+      }),
+    );
 
   const fixture = TestBed.createComponent(TakenVerdelenDialogComponent);
   const component = fixture.componentInstance;
@@ -82,6 +99,13 @@ async function setup(data = makeDialogData([makeTaak("1"), makeTaak("2")])) {
   const httpTestingController = TestBed.inject(HttpTestingController);
 
   fixture.detectChanges();
+  TestBed.flushEffects();
+
+  if (data.taken.length > 0) {
+    await sleep(); // mutation microtask fires → dispatch success → flush setTimeout scheduled
+    await sleep(); // flush setTimeout fires → resultFromSubscriberSignal updated
+    fixture.detectChanges();
+  }
 
   return { fixture, component, loader, httpTestingController, dialogRef };
 }
@@ -122,8 +146,8 @@ describe(TakenVerdelenDialogComponent.name, () => {
       const button = await loader.getHarness(
         MatButtonHarness.with({ text: /actie.verdelen/i }),
       );
-      await button.click();
-      await new Promise(requestAnimationFrame);
+      const clickPromise = button.click();
+      await sleep();
 
       const req = httpTestingController.expectOne("/rest/taken/lijst/verdelen");
       expect(req.request.method).toBe("PUT");
@@ -138,6 +162,7 @@ describe(TakenVerdelenDialogComponent.name, () => {
         screenEventResourceId: "screen-event-1",
       });
       req.flush({});
+      await clickPromise;
     });
 
     it("should close the dialog with form data after successful mutation", async () => {
@@ -150,11 +175,8 @@ describe(TakenVerdelenDialogComponent.name, () => {
       component["form"].patchValue(formData);
       component["form"].markAsDirty();
 
-      const button = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie.verdelen/i }),
-      );
-      await button.click();
-      await new Promise(requestAnimationFrame);
+      component["verdeel"]();
+      await sleep();
 
       httpTestingController.expectOne("/rest/taken/lijst/verdelen").flush({});
       await sleep();
@@ -187,6 +209,33 @@ describe(TakenVerdelenDialogComponent.name, () => {
 
     it("should disable form when taken list is empty", () => {
       expect(component["form"].disabled).toBe(true);
+    });
+  });
+
+  describe("when no authorised groups are found", () => {
+    it("noAuthorisedGroups signal is true", async () => {
+      const { component } = await setup(makeDialogData([makeTaak("1")]), []);
+      expect(component["noAuthorisedGroups"]()).toBe(true);
+    });
+
+    it("shows no authorised groups message", async () => {
+      const { fixture } = await setup(makeDialogData([makeTaak("1")]), []);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain(
+        "msg.error.dialog.taken-verdelen.no-authorised-groups",
+      );
+    });
+
+    it("sets the groep autocomplete to readonly", async () => {
+      const { fixture } = await setup(makeDialogData([makeTaak("1")]), []);
+      fixture.detectChanges();
+
+      const groepAutoComplete = fixture.debugElement
+        .queryAll(By.directive(ZacAutoComplete))
+        .find((el) => el.componentInstance.key() === "groep");
+
+      expect(groepAutoComplete).toBeDefined();
+      expect(groepAutoComplete!.componentInstance.readonly()).toBe(true);
     });
   });
 });

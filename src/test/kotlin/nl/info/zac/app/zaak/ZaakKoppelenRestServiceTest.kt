@@ -102,10 +102,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -141,6 +142,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
             } returns listOf(zaakTypeURI)
@@ -183,6 +185,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
             } returns listOf(URI(zaakZoekObjectTypeUuid))
@@ -1015,6 +1018,307 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     policyService.readZaakRechten(deelzaak, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
+            }
+        }
+    }
+
+    Given("A source zaak without koppelen rights") {
+        val sourceZaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            zaaktypeUri = zaakTypeURI
+        )
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("findLinkableZaken with GERELATEERD is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.GERELATEERD,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+    }
+
+    Given("A source zaak with koppelen rights and a target zaak without koppelen rights") {
+        val sourceZaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            zaaktypeUri = zaakTypeURI
+        )
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("findLinkableZaken with GERELATEERD is called") {
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.GERELATEERD,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+    }
+
+    Given("Two open not linked zaken") {
+        val sourceZaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            zaaktypeUri = zaakTypeURI
+        )
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = null
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { loggedInUserInstance.get() } returns loggedInUser
+
+        When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns listOf(zaakTypeURI)
+
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.HOOFDZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe true
+            }
+        }
+
+        When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every {
+                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
+            } returns listOf(URI(zaakZoekObjectTypeUuid))
+
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.DEELZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe true
+            }
+        }
+
+        When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.GERELATEERD,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe true
+            }
+        }
+    }
+
+    Given("An open not linked source zaak and a closed not linked target zaak") {
+        val sourceZaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            zaaktypeUri = zaakTypeURI
+        )
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+
+        When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.HOOFDZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+
+        When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.DEELZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+
+        When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.GERELATEERD,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe true
+            }
+        }
+    }
+
+    Given("A closed not linked source zaak and an open not linked target zaak") {
+        val sourceZaak = createZaak(
+            identificatie = "ZAAK-2000-00001",
+            archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            zaaktypeUri = zaakTypeURI
+        )
+        val zaakZoekObject = createZaakZoekObject(
+            type = ZAAK,
+            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
+            identificatie = zoekZaakIdentifier,
+            omschrijving = OMSCHRIJVING,
+            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
+            zaaktypeUuid = zaakZoekObjectTypeUuid,
+            archiefNominatie = null
+        )
+        val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+        val loggedInUser = createLoggedInUser()
+
+        every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+        every { searchService.zoek(any()) } returns zoekResultaat
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+
+        When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.HOOFDZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+
+        When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.DEELZAAK,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should not be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe false
+            }
+        }
+
+        When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            val result = zaakKoppelenRestService.findLinkableZaken(
+                zaakUuid = sourceZaak.uuid,
+                zoekZaakIdentifier = zoekZaakIdentifier,
+                relationType = RelatieType.GERELATEERD,
+                page = page,
+                rows = rows
+            )
+
+            Then("the target zaak should be linkable") {
+                result.resultCount shouldBe 1
+                result.results.first().isKoppelbaar shouldBe true
             }
         }
     }

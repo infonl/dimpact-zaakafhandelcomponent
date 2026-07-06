@@ -812,6 +812,8 @@
   "msg.error.user.not.in.group": "The selected user is not part of the selected group.",
   "msg.error.user.not.in.keycloak": "The entered user not found.",
   "msg.error.group.not.in.keycloak": "The entered group not found.",
+  "msg.error.dialog.zaken-verdelen.no-authorised-groups": "No group can be found that is authorised for all selected cases.",
+  "msg.error.dialog.taken-verdelen.no-authorised-groups": "No group can be found that is authorised for all selected tasks.",
   "msg.error.server.generic": "Unfortunately a technical error has occurred.",
   "msg.error.server.forbidden": "You do not have permission to perform this action.",
   "msg.error.bag.client.exception": "Unfortunately a technical error has occurred. No BAG objects could be retrieved.",
@@ -909,7 +911,7 @@
   "msg.tabel.verwijderen.bevestigen": "Delete reference table '<i>{{tabel}}</i>'?",
   "msg.tabel.verwijderen.uitgevoerd": "Reference table \"{{tabel}}\" has been deleted",
   "msg.verdeeld.zaak": "The case is being assigned...",
-  "msg.verdeeld.zaken": "{{aantal}} cases are being assigned...",
+  "msg.verdeeld.zaken": "{{aantal}} Cases are being assigned...",
   "msg.vrijgeven.zaak": "Release the selected case?",
   "msg.vrijgeven.zaken": "Release the selected cases?",
   "msg.vrijgegeven.zaken": "{{aantal}} cases are being released...",
@@ -917,7 +919,7 @@
   "msg.verdelen.taak": "Allocate task",
   "msg.verdeeld.taak": "The task is being assigned...",
   "msg.verdelen.taken": "Allocate {{aantal}} tasks",
-  "msg.verdeeld.taken": "{{aantal}} tasks are being assigned...",
+  "msg.verdeeld.taken": "{{aantal}} Tasks are being assigned...",
   "msg.vrijgeven.taak": "Release task?",
   "msg.vrijgeven.taken": "Release {{aantal}} tasks?",
   "msg.vrijgegeven.taken": "{{aantal}} tasks are being released...",
@@ -1127,5 +1129,8 @@
   "bpmn.process-definition.definition-row.button.delete.in-use": "This process definition is in use and cannot be deleted.",
   "bpmn.process-definition.task-forms.button.upload.title": "Upload forms",
   "bpmn.process-definition.task-forms.orphaned.button.delete.title": "Delete forms",
-  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "This form is in use and cannot be deleted. However, a new form with the same name can be uploaded to modify the form."
+  "bpmn.process-definition.task-forms.row.button.delete.tooltip.in-use": "This form is in use and cannot be deleted. However, a new form with the same name can be uploaded to modify the form.",
+  " 14 ": ">>--> CONSOLE MESSAGES <--<<",
+  "console.error.case-details-change.editing": "Error updating zaak",
+  "console.error.case-details-change.assignment": "Error assigning behandelaar"
 }

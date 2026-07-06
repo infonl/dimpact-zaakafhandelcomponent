@@ -4,10 +4,28 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { mutationOptions } from "@tanstack/angular-query-experimental";
+import { lastValueFrom } from "rxjs";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+
+/** Fields the "zaakgegevens bewerken" form may update; all optional (partial PATCH). */
+type ZaakDetailsUpdate = Partial<
+  Pick<
+    GeneratedType<"RestZaakCreateData">,
+    | "groep"
+    | "behandelaar"
+    | "communicatiekanaal"
+    | "startdatum"
+    | "einddatumGepland"
+    | "uiterlijkeEinddatumAfdoening"
+    | "vertrouwelijkheidaanduiding"
+    | "omschrijving"
+    | "toelichting"
+  >
+>;
 
 @Injectable({
   providedIn: "root",
@@ -32,24 +50,27 @@ export class ZakenService {
     return this.zacQueryClient.POST("/rest/zaken/zaak");
   }
 
-  updateZaak(
-    uuid: string,
-    update: {
-      zaak: Omit<
-        Partial<GeneratedType<"RestZaakCreateData">>,
-        "zaakgeometrie" | "behandelaar"
-      >;
-      reden?: string;
-    },
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/zaak/{uuid}",
-      {
-        zaak: update.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
-        reden: update.reden ?? "",
-      },
-      { path: { uuid } },
-    );
+  updateMutation() {
+    return mutationOptions({
+      mutationKey: ["/rest/zaken/zaak/{uuid}"],
+      mutationFn: (variables: {
+        uuid: string;
+        zaak: ZaakDetailsUpdate;
+        reden: string;
+      }) =>
+        lastValueFrom(
+          this.zacHttpClient.PATCH(
+            "/rest/zaken/zaak/{uuid}",
+            // Endpoint accepts a partial zaak; the generated body type requires
+            // the full RestZaakCreateData, so assert the partial here (one spot).
+            {
+              zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
+              reden: variables.reden,
+            },
+            { path: { uuid: variables.uuid } },
+          ),
+        ),
+    });
   }
 
   readOpschortingZaak(uuid: string) {
@@ -95,8 +116,8 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/toekennen", body);
   }
 
-  verdelenVanuitLijst(body: PutBody<"/rest/zaken/lijst/verdelen">) {
-    return this.zacHttpClient.PUT("/rest/zaken/lijst/verdelen", body);
+  verdelenVanuitLijst() {
+    return this.zacQueryClient.PUT("/rest/zaken/lijst/verdelen");
   }
 
   vrijgevenVanuitLijst() {
