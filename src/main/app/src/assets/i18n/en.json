@@ -28,7 +28,7 @@
   "referentietabel.waarde.toevoegen.titel": "Add value",
   "referentietabel.systeem.waarde.beschermd": "System values cannot be modified",
   "msg.referentietabel.gewijzigd": "Reference table '{{tabel}}' changed",
-  "msg.referentietabel.waarde-verwijderen-bevestigen": "Delete value '<i>{{waarde}}</i>'?",
+  "msg.referentietabel.waarde-verwijderen-bevestigen": "Delete value '{{waarde}}'?",
   "msg.referentietabel.waarde-verwijderd": "Value '{{waarde}}' deleted",
   "msg.referentietabel.waarde-gewijzigd": "Value changed to '{{waarde}}'",
   "msg.referentietabel.waarde-toegevoegd": "Value '{{waarde}}' added",
