@@ -21,7 +21,6 @@
           <button
             mat-icon-button
             [matTooltip]="'actie.toevoegen' | translate"
-            [attr.aria-label]="'actie.toevoegen' | translate"
             (click)="addWaarde()"
           >
             <mat-icon>add_circle</mat-icon>
@@ -40,7 +39,6 @@
             <button
               mat-icon-button
               [disabled]="row.systemValue"
-              [attr.aria-label]="'actie.bewerken' | translate"
               (click)="editWaarde(row)"
             >
               <mat-icon>edit</mat-icon>
@@ -56,7 +54,6 @@
             <button
               mat-icon-button
               [disabled]="row.systemValue"
-              [attr.aria-label]="'actie.verwijderen' | translate"
               (click)="deleteWaarde(row)"
             >
               <mat-icon>delete</mat-icon>

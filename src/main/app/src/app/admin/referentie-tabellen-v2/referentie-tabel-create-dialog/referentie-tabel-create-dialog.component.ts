@@ -58,8 +58,6 @@ export class ReferentieTabelCreateDialogComponent {
     }),
   });
 
-  // The service's mutation already refreshes the list on success; the per-call
-  // onSuccess below only handles the UI (snackbar + closing the dialog).
   protected readonly mutation = injectMutation(() => ({
     ...this.service.createReferentieTabelMutation(),
     onMutate: () => {

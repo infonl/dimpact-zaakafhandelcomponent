@@ -74,7 +74,6 @@ describe(ReferentieTabellenV2Component.name, () => {
         fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
       );
 
-    // Seed the cache so the queries resolve without hitting the network.
     testQueryClient.setQueryData(
       service.listReferentieTabellenQuery().queryKey,
       tabellen,
@@ -104,7 +103,6 @@ describe(ReferentieTabellenV2Component.name, () => {
         provideHttpClientTesting(),
         provideTanStackQuery(testQueryClient),
         provideRouter([]),
-        // ConfiguratieService has a broad DI tree and is unused by this screen.
         { provide: ConfiguratieService, useValue: {} },
       ],
     }).compileComponents();

@@ -29,7 +29,6 @@ import { ReferentieTabelService } from "../../../referentie-tabel.service";
 
 export interface ReferentieTabelValueDialogData {
   tabel: GeneratedType<"RestReferenceTable">;
-  // Present = edit, absent = add.
   waarde?: GeneratedType<"RestReferenceTableValue">;
 }
 

@@ -74,7 +74,6 @@
                     <button
                       mat-icon-button
                       [matTooltip]="'actie.bewerken' | translate"
-                      [attr.aria-label]="'actie.bewerken' | translate"
                       (click)="editReferentieTabel(tabel)"
                     >
                       <mat-icon>edit</mat-icon>
@@ -90,7 +89,6 @@
                       <button
                         mat-icon-button
                         [disabled]="tabel.systeem"
-                        [attr.aria-label]="'actie.verwijderen' | translate"
                         (click)="verwijderReferentieTabel(tabel)"
                       >
                         <mat-icon>delete</mat-icon>

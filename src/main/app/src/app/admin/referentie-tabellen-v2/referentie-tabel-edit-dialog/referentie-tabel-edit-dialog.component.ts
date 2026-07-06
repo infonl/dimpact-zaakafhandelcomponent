@@ -54,7 +54,6 @@ export class ReferentieTabelEditDialogComponent {
   private readonly utilService = inject(UtilService);
 
   protected readonly form = new FormGroup({
-    // Shown disabled: the code is the table's identifier and cannot be changed.
     code: new FormControl(
       { value: this.data.code, disabled: true },
       { nonNullable: true },
