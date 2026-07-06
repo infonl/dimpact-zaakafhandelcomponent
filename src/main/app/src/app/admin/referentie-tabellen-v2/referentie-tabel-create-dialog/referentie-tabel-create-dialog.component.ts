@@ -26,6 +26,7 @@ import { ReferentieTabelService } from "../../referentie-tabel.service";
   standalone: true,
   selector: "zac-referentie-tabel-create-dialog",
   templateUrl: "./referentie-tabel-create-dialog.component.html",
+  styleUrl: "./referentie-tabel-create-dialog.component.less",
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
