@@ -104,10 +104,7 @@ describe(ZaakHistorieComponent.name, () => {
   describe("sortingDataAccessor", () => {
     it("returns the datumTijd as a string for the datum property", () => {
       const regel = makeHistorieRegel({ datumTijd: "2026-05-01T12:00:00Z" });
-      const result = component["historie"].sortingDataAccessor(
-        regel,
-        "datum",
-      );
+      const result = component["historie"].sortingDataAccessor(regel, "datum");
       expect(result).toBe("2026-05-01T12:00:00Z");
     });
 

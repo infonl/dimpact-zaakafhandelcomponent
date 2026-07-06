@@ -53,8 +53,9 @@ export class ZaakHistorieComponent implements AfterViewInit {
     this.zakenService.listHistorieVoorZaakQuery(this.zaak().uuid),
   );
 
-  protected readonly historie =
-    new MatTableDataSource<GeneratedType<"HistoryLine">>();
+  protected readonly historie = new MatTableDataSource<
+    GeneratedType<"HistoryLine">
+  >();
   protected readonly historieColumns = [
     "datum",
     "gebruiker",
