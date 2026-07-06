@@ -4,7 +4,7 @@ We, the maintainers of this project, value your input, enjoy feedback and welcom
 We welcome contributions from everyone in the open source community.
 
 We are unfortunately not set up to review external pull requests. 
-Please create an issue in this GitHub repository, if you have a suggestion to extend or improve this project. 
+Please create an issue in this GitHub repository, if you have a non-trivial suggestion to extend or improve this project. 
 If there is enough interest, we may change this process in future.
 
 If you want to contribute, we ask you to follow these guidelines.
