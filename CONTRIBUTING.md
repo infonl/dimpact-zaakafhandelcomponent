@@ -17,8 +17,8 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a pos
 
 ## Problems, suggestions and questions
 
-You do not need to change any of our code or documentation to be a contributor. 
-Many contributors add to software by reporting problems, suggesting changes or asking simple and difficult questions. 
+You do not need to change any of our code or documentation to be a contributor.
+Many contributors add to software by reporting problems, suggesting changes or asking simple and difficult questions.
 To suggest a change or report a problem you can create a [GitHub issue](https://help.github.com/articles/creating-an-issue/) for this project.
 To ask questions, you can [create a new discussion](https://docs.github.com/en/discussions/collaborating-with-your-community-using-discussions/participating-in-a-discussion) in this project.
 
