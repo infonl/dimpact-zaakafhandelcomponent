@@ -45,7 +45,12 @@ export abstract class AdminComponent extends ViewComponent {
       ),
     );
     // Temporary preview gate: revealed by setting the "ref-table-v2" cookie to "1".
-    if (document.cookie.split(";").map((c) => c.trim()).includes("ref-table-v2=1")) {
+    if (
+      document.cookie
+        .split(";")
+        .map((c) => c.trim())
+        .includes("ref-table-v2=1")
+    ) {
       this.menu.push(
         this.getMenuLink(
           "title.referentietabellen.v2",
