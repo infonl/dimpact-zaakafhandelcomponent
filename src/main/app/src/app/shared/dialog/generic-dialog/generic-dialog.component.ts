@@ -66,7 +66,15 @@ export class GenericDialogComponent {
   }));
 
   protected confirm() {
-    if (this.data.form.invalid) return;
+    const { form } = this.data;
+    if (
+      form.disabled ||
+      !form.valid ||
+      !form.dirty ||
+      this.mutation.isPending()
+    ) {
+      return;
+    }
     this.mutation.mutate();
   }
 

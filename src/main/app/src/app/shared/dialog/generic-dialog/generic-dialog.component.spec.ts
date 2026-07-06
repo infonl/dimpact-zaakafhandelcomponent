@@ -96,12 +96,19 @@ const setup = (
     TestBed.createComponent(GenericDialogComponent);
   fixture.detectChanges();
 
+  /** Simulates a user entering a reason: sets the value and marks the form dirty like real input does. */
+  const fillReden = (value: string) => {
+    form.controls.reden.setValue(value);
+    form.controls.reden.markAsDirty();
+  };
+
   return {
     fixture,
     component: fixture.componentInstance,
     dialogRefMock,
     form,
     callback,
+    fillReden,
   };
 };
 
@@ -133,10 +140,10 @@ describe(GenericDialogComponent.name, () => {
 
   describe("confirm()", () => {
     it("calls the callback with the form and closes with the result on success", async () => {
-      const { component, form, callback, dialogRefMock } = setup({
+      const { component, form, callback, dialogRefMock, fillReden } = setup({
         callback: () => of("ontkoppeld"),
       });
-      form.controls.reden.setValue("Document is niet meer relevant");
+      fillReden("Document is niet meer relevant");
 
       component["confirm"]();
       await sleep();
@@ -156,15 +163,45 @@ describe(GenericDialogComponent.name, () => {
     });
 
     it("disables closing the dialog while the callback is running", async () => {
-      const { component, form, dialogRefMock } = setup({
+      const { component, fixture, dialogRefMock, fillReden } = setup({
         callback: () => NEVER,
       });
+      fillReden("Reden");
+
+      component["confirm"]();
+      await sleep();
+      fixture.detectChanges();
+
+      expect(dialogRefMock.disableClose).toBe(true);
+      const closeButton = fixture.nativeElement.querySelector(
+        "mat-toolbar button[mat-icon-button]",
+      );
+      expect(closeButton.disabled).toBe(true);
+    });
+
+    it("does not start a second action while one is already running", async () => {
+      const { component, callback, fillReden } = setup({
+        callback: () => NEVER,
+      });
+      fillReden("Reden");
+
+      component["confirm"]();
+      await sleep();
+      component["confirm"]();
+      await sleep();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not call the callback while the form is pristine", async () => {
+      const { component, form, callback } = setup();
       form.controls.reden.setValue("Reden");
+      form.markAsPristine();
 
       component["confirm"]();
       await sleep();
 
-      expect(dialogRefMock.disableClose).toBe(true);
+      expect(callback).not.toHaveBeenCalled();
     });
 
     it("keeps the dialog open, shows the error inline and re-enables closing on failure", async () => {
@@ -173,10 +210,10 @@ describe(GenericDialogComponent.name, () => {
         statusText: "Internal Server Error",
         error: { message: "Ontkoppelen is mislukt" },
       });
-      const { component, fixture, form, dialogRefMock } = setup({
+      const { component, fixture, dialogRefMock, fillReden } = setup({
         callback: () => throwError(() => httpErrorResponse),
       });
-      form.controls.reden.setValue("Reden");
+      fillReden("Reden");
 
       component["confirm"]();
       await sleep();
@@ -193,14 +230,15 @@ describe(GenericDialogComponent.name, () => {
     it("clears a previous error when the action is retried", async () => {
       const httpErrorResponse = new HttpErrorResponse({ status: 500 });
       let attempt = 0;
-      const { component, form, dialogRefMock } = setup({
+      const { component, dialogRefMock, fillReden } = setup({
         callback: () =>
           ++attempt === 1 ? throwError(() => httpErrorResponse) : of(true),
       });
-      form.controls.reden.setValue("Reden");
+      fillReden("Reden");
 
       component["confirm"]();
-      await sleep();
+      // Wait for the failed mutation to settle so its pending state clears before retrying.
+      await sleep(100);
       expect(component["errorMessage"]()).not.toBeNull();
 
       component["confirm"]();

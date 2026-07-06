@@ -10,7 +10,12 @@
   <span class="flex-grow-1">
     {{ data.confirmButtonActionKey ?? "actie.ja" | translate }}
   </span>
-  <button mat-icon-button type="button" (click)="cancel()">
+  <button
+    mat-icon-button
+    type="button"
+    [disabled]="mutation.isPending()"
+    (click)="cancel()"
+  >
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
