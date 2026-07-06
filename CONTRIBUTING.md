@@ -8,6 +8,11 @@ Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent
 
 Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) when contributing.
 
+## Language
+
+Please use English for all communication, contributions and reported issues.
+The preferred language for Dutch domain-specific terminology (typically within the context of 'zaakgericht werken'), however, is Dutch.
+
 ## Coding conventions
 
 We use the following code and API conventions:
