@@ -23,6 +23,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { FileFormat } from "../../informatie-objecten/model/file-format";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { DocumentOntkoppelenDialogComponent } from "./document-ontkoppelen-dialog/document-ontkoppelen-dialog.component";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 
 const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
@@ -523,15 +524,9 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("documentOntkoppelen()", () => {
-    it("opens a dialog with the document's details", async () => {
+    it("opens the document ontkoppelen dialog for the document", async () => {
       await createComponent();
-      jest
-        .spyOn(
-          informatieObjectenService,
-          "listZaakIdentificatiesForInformatieobject",
-        )
-        .mockReturnValue(of([]));
-      jest
+      const openSpy = jest
         .spyOn(dialog, "open")
         .mockReturnValue(
           fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
@@ -539,7 +534,53 @@ describe(ZaakDocumentenComponent.name, () => {
 
       component.documentOntkoppelen(fakeDocument);
 
-      expect(dialog.open).toHaveBeenCalled();
+      expect(openSpy).toHaveBeenCalledWith(
+        DocumentOntkoppelenDialogComponent,
+        expect.objectContaining({
+          data: {
+            zaakUuid: "zaak-uuid-1",
+            zaakIdentificatie: "ZAAK-2024-001",
+            document: fakeDocument,
+          },
+        }),
+      );
+    });
+
+    it("reloads the documents and shows a snackbar when the dialog confirms", async () => {
+      await createComponent();
+      jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
+        );
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+      const openSnackbarSpy = jest.spyOn(utilService, "openSnackbar");
+
+      component.documentOntkoppelen(fakeDocument);
+
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+        }),
+      );
+      expect(openSnackbarSpy).toHaveBeenCalledWith(
+        "msg.document.ontkoppelen.uitgevoerd",
+        { document: "Test document" },
+      );
+    });
+
+    it("does not reload or notify when the dialog is cancelled", async () => {
+      await createComponent();
+      jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+        );
+      const openSnackbarSpy = jest.spyOn(utilService, "openSnackbar");
+
+      component.documentOntkoppelen(fakeDocument);
+
+      expect(openSnackbarSpy).not.toHaveBeenCalled();
     });
   });
 

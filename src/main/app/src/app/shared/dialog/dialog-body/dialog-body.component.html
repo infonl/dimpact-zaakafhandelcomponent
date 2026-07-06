@@ -1,0 +1,50 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  @if (icon()) {
+    <mat-icon>{{ icon() }}</mat-icon>
+  }
+  <span class="flex-grow-1">{{ confirmLabel() | translate }}</span>
+  <button
+    mat-icon-button
+    type="button"
+    [disabled]="mutation.isPending()"
+    (click)="cancel()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider />
+
+<form [formGroup]="form()" (submit)="confirm()" (cancel)="cancel()">
+  <mat-dialog-content>
+    @if (melding()) {
+      <p [innerHTML]="melding()"></p>
+    }
+    @if (uitleg()) {
+      <p class="uitleg" [innerHTML]="uitleg()"></p>
+    }
+
+    <fieldset class="p-0">
+      <ng-content />
+    </fieldset>
+
+    @if (errorMessage(); as error) {
+      <div class="dialog-error flex-row align-items-center gap-8" role="alert">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <zac-form-actions
+    [form]="form()"
+    [mutation]="mutation"
+    wrapper="dialog"
+    [submitLabel]="confirmLabel()"
+    [cancelLabel]="cancelLabel()"
+  />
+</form>

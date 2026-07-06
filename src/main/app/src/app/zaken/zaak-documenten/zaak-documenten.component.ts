@@ -16,7 +16,6 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
@@ -29,7 +28,6 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router, RouterLink } from "@angular/router";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { map } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -43,19 +41,16 @@ import {
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
 import { detailExpand } from "../../shared/animations/animations";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../zaken.service";
+import { DocumentOntkoppelenDialogComponent } from "./document-ontkoppelen-dialog/document-ontkoppelen-dialog.component";
 
 const LIST_QUERY_KEY = "/rest/informatieobjecten/informatieobjectenList";
 
@@ -123,7 +118,6 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   );
   private readonly websocketService = inject(WebsocketService);
   private readonly utilService = inject(UtilService);
-  private readonly zakenService = inject(ZakenService);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
@@ -258,71 +252,26 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   }
 
   documentOntkoppelen(
-    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-      loading?: boolean;
-    },
+    informatieobject: GeneratedType<"RestEnkelvoudigInformatieobject">,
   ) {
     if (!informatieobject.uuid) return;
 
-    informatieobject["loading"] = true;
-    this.utilService.setLoading(true);
-    this.informatieObjectenService
-      .listZaakIdentificatiesForInformatieobject(informatieobject.uuid)
-      .pipe(
-        map((zaakIDs) => {
-          delete informatieobject["loading"];
-          this.utilService.setLoading(false);
-          return zaakIDs
-            .filter((zaakID) => zaakID !== this.zaak().identificatie)
-            .join(", ");
-        }),
-      )
-      .subscribe((zaakIDs) => {
-        let melding: string;
-        if (zaakIDs) {
-          melding = this.translate.instant(
-            "msg.document.ontkoppelen.meerdere.zaken.bevestigen",
-            { zaken: zaakIDs, document: informatieobject.titel },
-          );
-        } else {
-          melding = this.translate.instant(
-            "msg.document.ontkoppelen.bevestigen",
-            { document: informatieobject.titel },
-          );
-        }
-        const dialogData = new DialogData<unknown, { reden: string }>({
-          formFields: [
-            new TextareaFormFieldBuilder()
-              .id("reden")
-              .label("reden")
-              .validators(Validators.required)
-              .maxlength(200)
-              .build(),
-          ],
-          callback: ({ reden }) =>
-            this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak().uuid,
-              documentUUID: informatieobject.uuid!,
-              reden: reden,
-            }),
-          melding,
-          confirmButtonActionKey: "actie.document.ontkoppelen",
-          icon: "link_off",
-        });
-        this.dialog
-          .open(DialogComponent, {
-            data: dialogData,
-          })
-          .afterClosed()
-          .subscribe((result) => {
-            if (result) {
-              this.reloadDocumenten();
-              this.utilService.openSnackbar(
-                "msg.document.ontkoppelen.uitgevoerd",
-                { document: informatieobject.titel },
-              );
-            }
+    this.dialog
+      .open(DocumentOntkoppelenDialogComponent, {
+        data: {
+          zaakUuid: this.zaak().uuid,
+          zaakIdentificatie: this.zaak().identificatie,
+          document: informatieobject,
+        },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.reloadDocumenten();
+          this.utilService.openSnackbar("msg.document.ontkoppelen.uitgevoerd", {
+            document: informatieobject.titel,
           });
+        }
       });
   }
 
