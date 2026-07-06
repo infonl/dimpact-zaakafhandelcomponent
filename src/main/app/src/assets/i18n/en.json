@@ -908,7 +908,7 @@
   "msg.taak.opgeslagen": "The task has been saved",
   "msg.taak.toegekend": "The task has been assigned to {{behandelaar}}",
   "msg.taak.vrijgegeven": "The task has been released",
-  "msg.tabel.verwijderen.bevestigen": "Delete reference table '<i>{{tabel}}</i>'?",
+  "msg.tabel.verwijderen.bevestigen": "Delete reference table '{{tabel}}'?",
   "msg.tabel.verwijderen.uitgevoerd": "Reference table \"{{tabel}}\" has been deleted",
   "msg.verdeeld.zaak": "The case is being assigned...",
   "msg.verdeeld.zaken": "{{aantal}} Cases are being assigned...",
