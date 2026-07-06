@@ -25,28 +25,33 @@ class RestGerelateerdeZaakConverter @Inject constructor(
         startZaakRechten: ZaakRechten,
         gerelateerdeZaak: Zaak,
         loggedInUser: LoggedInUser,
-        relatieType: RelatieType?): RestGerelateerdeZaak {
-            val zaaktype = ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype)
-            val zaakrechten = policyService.readZaakRechten(gerelateerdeZaak, zaaktype, loggedInUser)
-            return RestGerelateerdeZaak(
-                identificatie = gerelateerdeZaak.identificatie,
-                relatieType = relatieType,
-                rechten = zaakrechten.toRestZaakRechten(),
-                zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
-                startdatum = takeIf { zaakrechten.lezen }?.let { gerelateerdeZaak.startdatum },
-                statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
-                    gerelateerdeZaak.status?.let {
-                        zrcClientService.readStatus(it).let { zaakstatus ->
-                            ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
-                        }
+        relatieType: RelatieType?
+    ): RestGerelateerdeZaak {
+        val zaaktype = ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype)
+        val zaakrechten = policyService.readZaakRechten(gerelateerdeZaak, zaaktype, loggedInUser)
+        return RestGerelateerdeZaak(
+            identificatie = gerelateerdeZaak.identificatie,
+            relatieType = relatieType,
+            rechten = zaakrechten.toRestZaakRechten(),
+            zaaktypeOmschrijving = takeIf { zaakrechten.lezen }?.let { zaaktype.omschrijving },
+            startdatum = takeIf { zaakrechten.lezen }?.let { gerelateerdeZaak.startdatum },
+            statustypeOmschrijving = takeIf { zaakrechten.lezen }?.let {
+                gerelateerdeZaak.status?.let {
+                    zrcClientService.readStatus(it).let { zaakstatus ->
+                        ztcClientService.readStatustype(zaakstatus.statustype).omschrijving
                     }
-                },
-                ontkoppelen = if (relatieType == RelatieType.GERELATEERD) startZaakRechten.koppelen && zaakrechten.lezen
-                    else startZaakRechten.koppelen && zaakrechten.koppelen
-            )
+                }
+            },
+            ontkoppelen = if (relatieType == RelatieType.GERELATEERD) startZaakRechten.koppelen && zaakrechten.lezen
+                else startZaakRechten.koppelen && zaakrechten.koppelen
+        )
     }
 
-    fun convert(startZaakRechten: ZaakRechten, gerelateerdeZaak: GerelateerdeZaak, loggedInUser: LoggedInUser): RestGerelateerdeZaak {
+    fun convert(
+        startZaakRechten: ZaakRechten,
+        gerelateerdeZaak: GerelateerdeZaak,
+        loggedInUser: LoggedInUser
+    ): RestGerelateerdeZaak {
         val zaak = zrcClientService.readZaak(gerelateerdeZaak.url)
         return convert(
             startZaakRechten = startZaakRechten,
