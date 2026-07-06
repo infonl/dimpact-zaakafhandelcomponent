@@ -8,7 +8,7 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatCheckboxChange } from "@angular/material/checkbox";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDialogRef } from "@angular/material/dialog";
 import { MatSlideToggleHarness } from "@angular/material/slide-toggle/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -20,7 +20,9 @@ import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { RedenDialogComponent } from "../../shared/dialog/reden-dialog/reden-dialog.component";
 import { FileFormat } from "../../informatie-objecten/model/file-format";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
@@ -57,7 +59,6 @@ describe(ZaakDocumentenComponent.name, () => {
   let informatieObjectenService: InformatieObjectenService;
   let websocketService: WebsocketService;
   let utilService: UtilService;
-  let dialog: MatDialog;
 
   const createComponent = async (
     zaak: GeneratedType<"RestZaak"> = fakeZaak,
@@ -69,7 +70,6 @@ describe(ZaakDocumentenComponent.name, () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    dialog = fixture.debugElement.injector.get(MatDialog);
   };
 
   beforeEach(async () => {
@@ -523,7 +523,7 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("documentOntkoppelen()", () => {
-    it("opens a dialog with the document's details", async () => {
+    it("opens the ontkoppel dialog for the document", async () => {
       await createComponent();
       jest
         .spyOn(
@@ -531,15 +531,18 @@ describe(ZaakDocumentenComponent.name, () => {
           "listZaakIdentificatiesForInformatieobject",
         )
         .mockReturnValue(of([]));
-      jest
-        .spyOn(dialog, "open")
+      const documentDialogService = TestBed.inject(DocumentDialogService);
+      const ontkoppelSpy = jest
+        .spyOn(documentDialogService, "ontkoppelDocument")
         .mockReturnValue(
-          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+          fromPartial<MatDialogRef<RedenDialogComponent>>({
+            afterClosed: () => of(false),
+          }),
         );
 
       component.documentOntkoppelen(fakeDocument);
 
-      expect(dialog.open).toHaveBeenCalled();
+      expect(ontkoppelSpy).toHaveBeenCalled();
     });
   });
 
