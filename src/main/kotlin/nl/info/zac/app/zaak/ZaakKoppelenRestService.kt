@@ -193,7 +193,10 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults.count
         )
 
-    private fun ZaakZoekObject.hasLinkRights() = policyService.readZaakRechtenForZaakZoekObject(this).koppelen
+    private fun ZaakZoekObject.hasLinkRights(relationType: RelatieType) = policyService.readZaakRechtenForZaakZoekObject(this).let {
+        if (relationType == RelatieType.GERELATEERD) it.lezen
+        else it.koppelen
+    }
 
     private fun Zaak.hasLinkRights(loggedInUser: LoggedInUser) = policyService.readZaakRechten(
         this,
@@ -229,9 +232,8 @@ class ZaakKoppelenRestService @Inject constructor(
         relationType: RelatieType,
         loggedInUser: LoggedInUser
     ) =
-        (areBothOpen(sourceZaak, targetZaak) || areBothClosed(sourceZaak, targetZaak)) &&
             sourceZaak.hasLinkRights(loggedInUser) &&
-            targetZaak.hasLinkRights() &&
+            targetZaak.hasLinkRights(relationType) &&
             sourceZaak.isLinkableTo(targetZaak, relationType) &&
             targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
 
@@ -239,12 +241,14 @@ class ZaakKoppelenRestService @Inject constructor(
         when (relationType) {
             // "The case you are searching for here will become the main case"
             RelatieType.HOOFDZAAK ->
+                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
                 // hoofdzaak to hoofdzaak link not allowed
                 !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
                     // a zaak cannot have two hoofdzaken
                     !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
             // "The case you are searching for here will become the subcase"
             RelatieType.DEELZAAK ->
+                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
                 // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
                 // "deelzaken van deelzaken zijn NIET toegestaan"
                 !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&

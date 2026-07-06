@@ -102,10 +102,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -141,6 +142,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
             } returns listOf(zaakTypeURI)
@@ -183,6 +185,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
             } returns listOf(URI(zaakZoekObjectTypeUuid))
@@ -1079,7 +1082,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns false
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
@@ -1118,10 +1121,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
             } returns listOf(zaakTypeURI)
@@ -1141,6 +1144,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             every {
                 ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
             } returns listOf(URI(zaakZoekObjectTypeUuid))
@@ -1160,6 +1164,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1195,8 +1200,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
 
         When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1212,6 +1219,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1227,6 +1235,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1235,9 +1244,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 rows = rows
             )
 
-            Then("the target zaak should not be linkable") {
+            Then("the target zaak should be linkable") {
                 result.resultCount shouldBe 1
-                result.results.first().isKoppelbaar shouldBe false
+                result.results.first().isKoppelbaar shouldBe true
             }
         }
     }
@@ -1263,8 +1272,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
         every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
 
         When("findLinkableZaken with HOOFDZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1280,6 +1291,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1295,6 +1307,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1303,9 +1316,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 rows = rows
             )
 
-            Then("the target zaak should not be linkable") {
+            Then("the target zaak should be linkable") {
                 result.resultCount shouldBe 1
-                result.results.first().isKoppelbaar shouldBe false
+                result.results.first().isKoppelbaar shouldBe true
             }
         }
     }
