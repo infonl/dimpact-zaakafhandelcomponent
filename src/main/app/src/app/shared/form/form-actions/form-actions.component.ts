@@ -61,9 +61,20 @@ export class ZacFormActions {
 
   protected readonly form =
     input.required<Pick<FormGroup, "valid" | "disabled" | "dirty">>();
-  protected readonly mutation = input.required<{
+
+  /**
+   * Optional TanStack mutation driving the pending state. When omitted, the
+   * `loading` input is used instead, so callback-based dialogs can reuse this
+   * component without adopting TanStack mutations.
+   */
+  protected readonly mutation = input<{
     isPending: Signal<boolean>;
   }>();
+  protected readonly loading = input(false);
+
+  protected isPending() {
+    return this.mutation()?.isPending() ?? this.loading();
+  }
 
   protected readonly onCancel = (event: MouseEvent) => {
     const cancelEvent = new CustomEvent("cancel", {

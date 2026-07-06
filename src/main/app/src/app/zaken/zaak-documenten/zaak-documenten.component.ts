@@ -16,11 +16,9 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckbox, MatCheckboxChange } from "@angular/material/checkbox";
-import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
@@ -42,14 +40,12 @@ import {
 } from "../../informatie-objecten/model/file-format";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
+import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { detailExpand } from "../../shared/animations/animations";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -124,7 +120,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   private readonly websocketService = inject(WebsocketService);
   private readonly utilService = inject(UtilService);
   private readonly zakenService = inject(ZakenService);
-  private readonly dialog = inject(MatDialog);
+  private readonly documentDialogService = inject(DocumentDialogService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly queryClient = inject(QueryClient);
@@ -290,29 +286,14 @@ export class ZaakDocumentenComponent implements AfterViewInit {
             { document: informatieobject.titel },
           );
         }
-        const dialogData = new DialogData<unknown, { reden: string }>({
-          formFields: [
-            new TextareaFormFieldBuilder()
-              .id("reden")
-              .label("reden")
-              .validators(Validators.required)
-              .maxlength(200)
-              .build(),
-          ],
-          callback: ({ reden }) =>
+        this.documentDialogService
+          .ontkoppelDocument(melding, (reden) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak().uuid,
               documentUUID: informatieobject.uuid!,
               reden: reden,
             }),
-          melding,
-          confirmButtonActionKey: "actie.document.ontkoppelen",
-          icon: "link_off",
-        });
-        this.dialog
-          .open(DialogComponent, {
-            data: dialogData,
-          })
+          )
           .afterClosed()
           .subscribe((result) => {
             if (result) {
