@@ -135,4 +135,20 @@ describe(ZaakHistorieComponent.name, () => {
       expect(result).toBe("fakeToelichting");
     });
   });
+
+  describe("loadHistorie", () => {
+    it("invalidates the historie query for the current zaak", () => {
+      const invalidateSpy = jest.spyOn(
+        component["queryClient"],
+        "invalidateQueries",
+      );
+
+      component.loadHistorie();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(fakeZaak.uuid)
+          .queryKey,
+      });
+    });
+  });
 });

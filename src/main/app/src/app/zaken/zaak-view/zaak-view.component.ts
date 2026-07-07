@@ -59,6 +59,7 @@ import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkopp
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
+import { ZaakHistorieComponent } from "../zaken-historie/zaak-historie.component";
 import { ZakenService } from "../zaken.service";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
@@ -131,6 +132,8 @@ export class ZaakViewComponent
   zaakDocumentenComponent!: ZaakDocumentenComponent;
   @ViewChild("zaakTakenComponent")
   private zaakTakenComponent!: ZaakTakenComponent;
+  @ViewChild("zaakHistorieComponent")
+  private zaakHistorieComponent!: ZaakHistorieComponent;
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -190,10 +193,7 @@ export class ZaakViewComponent
 
   private init(zaak: GeneratedType<"RestZaak">) {
     this.zaak = zaak;
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
-    });
+    this.zaakHistorieComponent?.loadHistorie();
     this.loadBetrokkenen();
     this.loadBagObjecten();
     this.setupMenu();
@@ -956,10 +956,7 @@ export class ZaakViewComponent
     this.utilService.openSnackbar(notification, {
       naam: naam.join(" - "),
     });
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
-    });
+    this.zaakHistorieComponent?.loadHistorie();
   }
 
   protected deleteInitiator() {
@@ -990,11 +987,7 @@ export class ZaakViewComponent
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.queryClient.invalidateQueries({
-              queryKey: this.zakenService.listHistorieVoorZaakQuery(
-                this.zaak.uuid,
-              ).queryKey,
-            });
+            this.zaakHistorieComponent?.loadHistorie();
           });
         }
       });
@@ -1017,10 +1010,7 @@ export class ZaakViewComponent
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
-        this.queryClient.invalidateQueries({
-          queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-            .queryKey,
-        });
+        this.zaakHistorieComponent?.loadHistorie();
         this.loadBetrokkenen();
       });
   }
@@ -1066,11 +1056,7 @@ export class ZaakViewComponent
           );
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.queryClient.invalidateQueries({
-              queryKey: this.zakenService.listHistorieVoorZaakQuery(
-                this.zaak.uuid,
-              ).queryKey,
-            });
+            this.zaakHistorieComponent?.loadHistorie();
             this.loadBetrokkenen();
           });
         }
@@ -1086,10 +1072,7 @@ export class ZaakViewComponent
       })
       .subscribe(() => {
         this.utilService.openSnackbar("msg.bagObject.gekoppeld");
-        this.queryClient.invalidateQueries({
-          queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-            .queryKey,
-        });
+        this.zaakHistorieComponent?.loadHistorie();
         this.loadBagObjecten();
       });
   }
@@ -1186,10 +1169,7 @@ export class ZaakViewComponent
 
   protected updateDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
-    });
+    this.zaakHistorieComponent?.loadHistorie();
   }
 
   protected async betrokkeneGegevensOphalen(
@@ -1275,11 +1255,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.queryClient.invalidateQueries({
-            queryKey: this.zakenService.listHistorieVoorZaakQuery(
-              this.zaak.uuid,
-            ).queryKey,
-          });
+          this.zaakHistorieComponent?.loadHistorie();
           this.loadBagObjecten();
           this.utilService.openSnackbar(
             "msg.bagObject.ontkoppelen.uitgevoerd",

@@ -463,7 +463,10 @@
                 {{ "historie" | translate }}
               </ng-template>
               <ng-template matTabContent>
-                <zac-zaak-historie [zaak]="zaak"></zac-zaak-historie>
+                <zac-zaak-historie
+                  #zaakHistorieComponent
+                  [zaak]="zaak"
+                ></zac-zaak-historie>
               </ng-template>
             </mat-tab>
 

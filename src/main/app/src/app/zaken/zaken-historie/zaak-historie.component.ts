@@ -8,7 +8,7 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { LocationPipe } from "../../shared/pipes/location.pipe";
@@ -36,6 +36,7 @@ import { ZakenService } from "../zaken.service";
 })
 export class ZaakHistorieComponent {
   private readonly zakenService = inject(ZakenService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
 
@@ -76,6 +77,13 @@ export class ZaakHistorieComponent {
       };
 
       this.historie.sort = this.historieSort();
+    });
+  }
+
+  loadHistorie() {
+    this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak().uuid)
+        .queryKey,
     });
   }
 }
