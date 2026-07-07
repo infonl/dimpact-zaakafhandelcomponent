@@ -34,9 +34,9 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: "bpmn-procesdefinities",
     loadComponent: () =>
-      import("./bpmn-process-definitions/bpmn-process-definitions.component").then(
-        (module) => module.BpmnProcessDefinitionsComponent,
-      ),
+      import(
+        "./bpmn-process-definitions/bpmn-process-definitions.component"
+      ).then((module) => module.BpmnProcessDefinitionsComponent),
   },
   {
     path: "referentietabellen",
