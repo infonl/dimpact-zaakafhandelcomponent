@@ -182,7 +182,14 @@ signaleringen:
   failedJobsHistoryLimit: 3
   restartPolicy: Never
   imagePullSecrets: []
-  resources: {}
+   # -- resource requests and limits for the curl-based signaleren CronJob containers
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -190,6 +197,9 @@ signaleringen:
   affinity: {}
    # -- container security context for the curl-based signaleren CronJob containers
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
