@@ -22,7 +22,7 @@ class RestGerelateerdeZaakConverter @Inject constructor(
     private val policyService: PolicyService
 ) {
     fun convert(
-        startZaakRechten: ZaakRechten,
+        fromZaakRechten: ZaakRechten,
         gerelateerdeZaak: Zaak,
         loggedInUser: LoggedInUser,
         relatieType: RelatieType?
@@ -42,19 +42,19 @@ class RestGerelateerdeZaakConverter @Inject constructor(
                     }
                 }
             },
-            ontkoppelen = if (relatieType == RelatieType.GERELATEERD) startZaakRechten.koppelen && zaakrechten.lezen
-                else startZaakRechten.koppelen && zaakrechten.koppelen
+            ontkoppelen = if (relatieType == RelatieType.GERELATEERD) fromZaakRechten.koppelen && zaakrechten.lezen
+                else fromZaakRechten.koppelen && zaakrechten.koppelen
         )
     }
 
     fun convert(
-        startZaakRechten: ZaakRechten,
+        fromZaakRechten: ZaakRechten,
         gerelateerdeZaak: GerelateerdeZaak,
         loggedInUser: LoggedInUser
     ): RestGerelateerdeZaak {
         val zaak = zrcClientService.readZaak(gerelateerdeZaak.url)
         return convert(
-            startZaakRechten = startZaakRechten,
+            fromZaakRechten = fromZaakRechten,
             gerelateerdeZaak = zaak,
             loggedInUser = loggedInUser,
             relatieType = RelatieType.GERELATEERD
