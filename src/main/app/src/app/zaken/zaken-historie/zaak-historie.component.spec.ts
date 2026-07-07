@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HarnessLoader } from "@angular/cdk/testing";
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -45,6 +48,7 @@ const makeHistorieRegel = (
 describe(ZaakHistorieComponent.name, () => {
   let fixture: ComponentFixture<ZaakHistorieComponent>;
   let component: ZaakHistorieComponent;
+  let loader: HarnessLoader;
   let zakenService: ZakenService;
 
   const fakeZaak = makeZaak({ uuid: "fake-zaak-uuid" });
@@ -74,6 +78,7 @@ describe(ZaakHistorieComponent.name, () => {
     fixture.componentRef.setInput("zaak", fakeZaak);
     fixture.detectChanges();
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   afterEach(() => {
@@ -91,13 +96,17 @@ describe(ZaakHistorieComponent.name, () => {
   });
 
   describe("table rendering", () => {
-    it("renders the historie table when data is available", () => {
-      const table = fixture.nativeElement.querySelector("table");
-      expect(table).not.toBeNull();
+    it("renders the historie table when data is available", async () => {
+      const table = await loader.getHarness(MatTableHarness);
+      const rows = await table.getRows();
+      expect(rows.length).toBe(1);
     });
 
-    it("renders the fetched historie data in the table", () => {
-      expect(fixture.nativeElement.textContent).toContain("fakeToelichting");
+    it("renders the fetched historie data in the table", async () => {
+      const table = await loader.getHarness(MatTableHarness);
+      const rows = await table.getRows();
+      const cellText = await rows[0].getCellTextByColumnName();
+      expect(cellText["toelichting"]).toBe("fakeToelichting");
     });
   });
 
