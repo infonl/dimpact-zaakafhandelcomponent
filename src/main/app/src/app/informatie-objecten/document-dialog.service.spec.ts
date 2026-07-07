@@ -30,7 +30,7 @@ describe(DocumentDialogService.name, () => {
     const { service, open } = setup();
     const callback = jest.fn();
 
-    service.ontkoppelDocument("een melding", callback);
+    service.openOntkoppelDocument("een melding", callback);
 
     expect(open).toHaveBeenCalledWith(RedenDialogComponent, expect.anything());
     const data = open.mock.calls.at(-1)![1].data;
@@ -45,7 +45,7 @@ describe(DocumentDialogService.name, () => {
       const { service, open } = setup();
       const deleteFn = jest.fn().mockReturnValue(of(undefined));
 
-      service.verwijderDocument({
+      service.openVerwijderDocument({
         hasZaak: true,
         documentTitel: "doc.pdf",
         delete: deleteFn,
@@ -68,7 +68,7 @@ describe(DocumentDialogService.name, () => {
       const deleteObservable = of(undefined);
       const deleteFn = jest.fn().mockReturnValue(deleteObservable);
 
-      service.verwijderDocument({
+      service.openVerwijderDocument({
         hasZaak: false,
         documentTitel: "doc.pdf",
         delete: deleteFn,

@@ -88,21 +88,17 @@ describe(ZaakAfbrekenDialogComponent.name, () => {
     expect(dialogRefMock.close).toHaveBeenCalledWith("afgebroken");
   });
 
-  it("keeps the dialog open and shows an inline error when the callback errors", () => {
+  it("closes with false when the callback errors", () => {
     const callback = jest
       .fn()
       .mockReturnValue(throwError(() => new Error("x")));
-    const { fixture, component, dialogRefMock } = setup({ callback });
+    const { component, dialogRefMock } = setup({ callback });
 
     component["form"].controls.reden.setValue(reden);
     component["form"].controls.reden.markAsDirty();
     component["submit"]();
-    fixture.detectChanges();
 
-    expect(dialogRefMock.close).not.toHaveBeenCalled();
-    expect(component["loading"]).toBe(false);
-    expect(dialogRefMock.disableClose).toBe(false);
-    expect(fixture.debugElement.query(By.css(".dialog-error"))).toBeTruthy();
+    expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
 
   it("close() dismisses the dialog with false", () => {

@@ -27,11 +27,4 @@
     <p class="uitleg" [innerHTML]="uitleg()"></p>
   }
   <ng-content />
-
-  @if (error(); as error) {
-    <div class="dialog-error flex-row align-items-center gap-8" role="alert">
-      <mat-icon color="warn">error</mat-icon>
-      <span>{{ error }}</span>
-    </div>
-  }
 </div>

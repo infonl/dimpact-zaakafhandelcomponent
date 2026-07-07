@@ -36,7 +36,7 @@ describe(ZaakDialogService.name, () => {
     const { service, open } = setup();
     const callback = jest.fn();
 
-    service.heropenen(callback);
+    service.openHeropenen(callback);
 
     expect(open).toHaveBeenCalledWith(RedenDialogComponent, expect.anything());
     const data = openedRedenData(open);
@@ -48,7 +48,7 @@ describe(ZaakDialogService.name, () => {
   it("hervatten opens a textarea-less reden dialog with a translated melding", () => {
     const { service, open } = setup();
 
-    service.hervatten({ duur: 3, verwachteDuur: 5 }, jest.fn());
+    service.openHervatten({ duur: 3, verwachteDuur: 5 }, jest.fn());
 
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.zaak.hervatten");
@@ -59,7 +59,7 @@ describe(ZaakDialogService.name, () => {
   it("wijzigInitiator opens a multiline reden dialog", () => {
     const { service, open } = setup();
 
-    service.wijzigInitiator("Jan Jansen", jest.fn());
+    service.openWijzigInitiator("Jan Jansen", jest.fn());
 
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.initiator.wijzigen");
@@ -69,7 +69,7 @@ describe(ZaakDialogService.name, () => {
   it("ontkoppelInitiator opens a multiline reden dialog", () => {
     const { service, open } = setup();
 
-    service.ontkoppelInitiator(jest.fn());
+    service.openOntkoppelInitiator(jest.fn());
 
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.initiator.ontkoppelen");
@@ -79,7 +79,7 @@ describe(ZaakDialogService.name, () => {
   it("ontkoppelBetrokkene opens a multiline reden dialog", () => {
     const { service, open } = setup();
 
-    service.ontkoppelBetrokkene("Initiator Jan", jest.fn());
+    service.openOntkoppelBetrokkene("Initiator Jan", jest.fn());
 
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.betrokkene.ontkoppelen");
@@ -89,7 +89,7 @@ describe(ZaakDialogService.name, () => {
   it("verwijderBagObject opens a reden dialog with uitleg and maxlength 80", () => {
     const { service, open } = setup();
 
-    service.verwijderBagObject("Straat 1", jest.fn());
+    service.openVerwijderBagObject("Straat 1", jest.fn());
 
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.bagObject.ontkoppelen");
@@ -104,7 +104,7 @@ describe(ZaakDialogService.name, () => {
     ]);
     const callback = jest.fn();
 
-    service.afbreken(options, callback);
+    service.openAfbreken(options, callback);
 
     expect(open).toHaveBeenCalledWith(
       ZaakAfbrekenDialogComponent,

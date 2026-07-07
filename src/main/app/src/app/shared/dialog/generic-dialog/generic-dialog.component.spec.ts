@@ -18,7 +18,6 @@ import { GenericDialogComponent } from "./generic-dialog.component";
       [titleKey]="titleKey"
       [icon]="icon"
       [melding]="melding"
-      [error]="error"
       [loading]="loading"
       (cancelled)="cancelled = cancelled + 1"
     >
@@ -30,7 +29,6 @@ class HostComponent {
   titleKey = "actie.zaak.opschorten";
   icon = "pause";
   melding?: string;
-  error: string | null = null;
   loading = false;
   cancelled = 0;
 }
@@ -70,18 +68,6 @@ describe(GenericDialogComponent.name, () => {
       .nativeElement as HTMLButtonElement;
     closeButton.click();
     expect(host.cancelled).toBe(1);
-  });
-
-  it("renders an inline error when the error input is set", () => {
-    const { fixture, host } = setup();
-    expect(fixture.debugElement.query(By.css(".dialog-error"))).toBeNull();
-
-    host.error = "er ging iets mis";
-    fixture.detectChanges();
-
-    const error = fixture.debugElement.query(By.css(".dialog-error"))
-      .nativeElement as HTMLElement;
-    expect(error.textContent).toContain("er ging iets mis");
   });
 
   it("disables the close (X) button while loading", () => {

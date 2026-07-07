@@ -36,7 +36,7 @@ export class ZaakDialogService {
     );
   }
 
-  afbreken(
+  openAfbreken(
     options: Observable<GeneratedType<"RestZaakbeeindigReden">[]>,
     callback: (
       reden: GeneratedType<"RestZaakbeeindigReden">,
@@ -48,7 +48,7 @@ export class ZaakDialogService {
     >(ZaakAfbrekenDialogComponent, { data: { options, callback } });
   }
 
-  heropenen(callback: RedenCallback) {
+  openHeropenen(callback: RedenCallback) {
     return this.openReden({
       titleKey: "actie.zaak.heropenen",
       icon: "restart_alt",
@@ -59,7 +59,7 @@ export class ZaakDialogService {
     });
   }
 
-  hervatten(
+  openHervatten(
     meldingArgs: { duur: number; verwachteDuur?: number | null },
     callback: RedenCallback,
   ) {
@@ -74,7 +74,10 @@ export class ZaakDialogService {
     });
   }
 
-  wijzigInitiator(naam: string | null | undefined, callback: RedenCallback) {
+  openWijzigInitiator(
+    naam: string | null | undefined,
+    callback: RedenCallback,
+  ) {
     return this.openReden({
       titleKey: "actie.initiator.wijzigen",
       icon: "link",
@@ -88,7 +91,7 @@ export class ZaakDialogService {
     });
   }
 
-  ontkoppelInitiator(callback: RedenCallback) {
+  openOntkoppelInitiator(callback: RedenCallback) {
     return this.openReden({
       titleKey: "actie.initiator.ontkoppelen",
       icon: "link_off",
@@ -102,7 +105,7 @@ export class ZaakDialogService {
     });
   }
 
-  ontkoppelBetrokkene(betrokkene: string, callback: RedenCallback) {
+  openOntkoppelBetrokkene(betrokkene: string, callback: RedenCallback) {
     return this.openReden({
       titleKey: "actie.betrokkene.ontkoppelen",
       icon: "link_off",
@@ -117,7 +120,7 @@ export class ZaakDialogService {
     });
   }
 
-  verwijderBagObject(
+  openVerwijderBagObject(
     omschrijving: string | null | undefined,
     callback: RedenCallback,
   ) {

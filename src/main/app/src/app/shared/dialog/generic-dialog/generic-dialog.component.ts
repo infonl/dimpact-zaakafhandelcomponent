@@ -20,7 +20,6 @@ import { TranslateModule } from "@ngx-translate/core";
 @Component({
   selector: "zac-generic-dialog",
   templateUrl: "./generic-dialog.component.html",
-  styleUrls: ["./generic-dialog.component.less"],
   standalone: true,
   imports: [
     MatToolbar,
@@ -36,7 +35,6 @@ export class GenericDialogComponent {
   readonly icon = input<string>();
   readonly melding = input<string>();
   readonly uitleg = input<string>();
-  readonly error = input<string | null>();
   readonly loading = input(false);
 
   readonly cancelled = output<void>();

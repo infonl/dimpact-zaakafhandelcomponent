@@ -6,9 +6,7 @@
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { TranslateService } from "@ngx-translate/core";
 import { Observable } from "rxjs";
-import { toDialogErrorMessage } from "../../shared/dialog/generic-dialog/dialog-error.util";
 import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
@@ -36,10 +34,8 @@ export class ZaakAfbrekenDialogComponent {
     inject<MatDialogRef<ZaakAfbrekenDialogComponent>>(MatDialogRef);
   protected readonly data = inject<ZaakAfbrekenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly translateService = inject(TranslateService);
 
   protected loading = false;
-  protected errorMessage: string | null = null;
 
   protected readonly form = this.formBuilder.group({
     reden:
@@ -53,16 +49,11 @@ export class ZaakAfbrekenDialogComponent {
     const reden = this.form.controls.reden.value;
     if (!this.form.valid || !this.form.dirty || this.loading || !reden) return;
 
-    this.errorMessage = null;
     this.dialogRef.disableClose = true;
     this.loading = true;
     this.data.callback(reden).subscribe({
       next: (result) => this.dialogRef.close(result ?? true),
-      error: (error) => {
-        this.loading = false;
-        this.dialogRef.disableClose = false;
-        this.errorMessage = toDialogErrorMessage(this.translateService, error);
-      },
+      error: () => this.dialogRef.close(false),
     });
   }
 

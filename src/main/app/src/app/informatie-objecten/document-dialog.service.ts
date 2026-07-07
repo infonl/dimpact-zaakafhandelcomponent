@@ -26,7 +26,7 @@ export class DocumentDialogService {
   private readonly dialog = inject(MatDialog);
   private readonly translateService = inject(TranslateService);
 
-  ontkoppelDocument(
+  openOntkoppelDocument(
     melding: string,
     callback: (reden: string) => Observable<unknown>,
   ) {
@@ -51,7 +51,7 @@ export class DocumentDialogService {
    * Verwijderen with a reason when the document belongs to a zaak, otherwise a
    * plain confirm (ontkoppelde documenten have no reden field).
    */
-  verwijderDocument(params: {
+  openVerwijderDocument(params: {
     hasZaak: boolean;
     documentTitel?: string | null;
     delete: (reden?: string) => Observable<unknown>;

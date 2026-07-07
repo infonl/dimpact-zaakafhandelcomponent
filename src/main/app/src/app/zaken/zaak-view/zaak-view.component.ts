@@ -687,7 +687,7 @@ export class ZaakViewComponent
     }
 
     this.zaakDialogService
-      .afbreken(
+      .openAfbreken(
         this.zaakafhandelParametersService.listZaakbeeindigRedenenForZaaktype(
           this.zaak.zaaktype.uuid,
         ),
@@ -713,7 +713,7 @@ export class ZaakViewComponent
 
   private openZaakHeropenenDialog() {
     this.zaakDialogService
-      .heropenen((reden) =>
+      .openHeropenen((reden) =>
         this.zakenService
           .heropenen(this.zaak.uuid, { reden })
           .pipe(
@@ -787,7 +787,7 @@ export class ZaakViewComponent
     );
 
     this.zaakDialogService
-      .hervatten(
+      .openHervatten(
         {
           duur: werkelijkeOpschortDuur,
           verwachteDuur: this.zaakOpschorting.duurDagen,
@@ -887,7 +887,7 @@ export class ZaakViewComponent
     if (this.zaak.initiatorIdentificatie) {
       // We already have an initiator, we need a reason to change it
       this.zaakDialogService
-        .wijzigInitiator(initiator.naam, (reden) =>
+        .openWijzigInitiator(initiator.naam, (reden) =>
           this.zakenService.updateInitiator({
             zaakUUID: this.zaak.uuid,
             betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
@@ -931,7 +931,7 @@ export class ZaakViewComponent
   protected deleteInitiator() {
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.zaakDialogService
-      .ontkoppelInitiator((reden) =>
+      .openOntkoppelInitiator((reden) =>
         this.zakenService.deleteInitiator(this.zaak.uuid, reden),
       )
       .afterClosed()
@@ -979,7 +979,7 @@ export class ZaakViewComponent
         betrokkene.bsn ??
         betrokkene.naam);
     this.zaakDialogService
-      .ontkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
+      .openOntkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
         this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
       )
       .afterClosed()
@@ -1160,7 +1160,7 @@ export class ZaakViewComponent
   ) {
     const bagObject = bagObjectGegevens.zaakobject;
     this.zaakDialogService
-      .verwijderBagObject(bagObject?.omschrijving, (reden) =>
+      .openVerwijderBagObject(bagObject?.omschrijving, (reden) =>
         this.bagService
           .delete({
             redenWijzigen: reden,

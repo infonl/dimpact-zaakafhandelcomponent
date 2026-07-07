@@ -533,7 +533,7 @@ describe(ZaakDocumentenComponent.name, () => {
         .mockReturnValue(of([]));
       const documentDialogService = TestBed.inject(DocumentDialogService);
       const ontkoppelSpy = jest
-        .spyOn(documentDialogService, "ontkoppelDocument")
+        .spyOn(documentDialogService, "openOntkoppelDocument")
         .mockReturnValue(
           fromPartial<MatDialogRef<RedenDialogComponent>>({
             afterClosed: () => of(false),

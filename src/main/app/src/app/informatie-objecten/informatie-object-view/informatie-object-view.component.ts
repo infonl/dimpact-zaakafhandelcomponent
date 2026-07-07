@@ -415,7 +415,7 @@ export class InformatieObjectViewComponent
 
   private openDocumentVerwijderenDialog() {
     this.documentDialogService
-      .verwijderDocument({
+      .openVerwijderDocument({
         hasZaak: Boolean(this.zaak),
         documentTitel: this.infoObject?.titel,
         delete: (reden) => this.deleteEnkelvoudigInformatieObject$(reden),

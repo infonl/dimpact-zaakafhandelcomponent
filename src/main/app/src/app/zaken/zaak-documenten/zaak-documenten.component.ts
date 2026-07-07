@@ -287,7 +287,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
           );
         }
         this.documentDialogService
-          .ontkoppelDocument(melding, (reden) =>
+          .openOntkoppelDocument(melding, (reden) =>
             this.zakenService.ontkoppelInformatieObject({
               zaakUUID: this.zaak().uuid,
               documentUUID: informatieobject.uuid!,
