@@ -93,5 +93,14 @@
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="historieColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: historieColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="historieColumns.length">
+        @if (historieQuery.isPending()) {
+          <p>{{ "msg.loading" | translate }}</p>
+        } @else {
+          <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+        }
+      </td>
+    </tr>
   </table>
 </div>

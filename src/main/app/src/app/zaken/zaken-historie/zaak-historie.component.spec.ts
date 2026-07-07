@@ -15,6 +15,7 @@ import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
 import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -52,6 +53,14 @@ describe(ZaakHistorieComponent.name, () => {
   let zakenService: ZakenService;
 
   const fakeZaak = makeZaak({ uuid: "fake-zaak-uuid" });
+
+  beforeEach(() => {
+    notifyManager.setScheduler((fn) => fn());
+  });
+
+  afterEach(() => {
+    notifyManager.setScheduler(queueMicrotask);
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -108,6 +117,21 @@ describe(ZaakHistorieComponent.name, () => {
       const cellText = await rows[0].getCellTextByColumnName();
       expect(cellText["toelichting"]).toBe("fakeToelichting");
     });
+
+    it("shows the no-data message when there is no historie", async () => {
+      testQueryClient.setQueryData(
+        zakenService.listHistorieVoorZaakQuery(fakeZaak.uuid).queryKey,
+        [],
+      );
+      fixture.detectChanges();
+
+      const table = await loader.getHarness(MatTableHarness);
+      expect((await table.getRows()).length).toBe(0);
+      // No-data row is excluded from MatTableHarness, so read text directly
+      expect(fixture.nativeElement.textContent).toContain(
+        "msg.geen.gegevens.gevonden",
+      );
+    });
   });
 
   describe("sortingDataAccessor", () => {
@@ -133,22 +157,6 @@ describe(ZaakHistorieComponent.name, () => {
         "toelichting",
       );
       expect(result).toBe("fakeToelichting");
-    });
-  });
-
-  describe("loadHistorie", () => {
-    it("invalidates the historie query for the current zaak", () => {
-      const invalidateSpy = jest.spyOn(
-        component["queryClient"],
-        "invalidateQueries",
-      );
-
-      component.loadHistorie();
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.listHistorieVoorZaakQuery(fakeZaak.uuid)
-          .queryKey,
-      });
     });
   });
 });

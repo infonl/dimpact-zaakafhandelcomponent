@@ -261,6 +261,18 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("zaak historie invalidation", () => {
+    it("invalidates the historie query when the zaak is (re)initialised", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      mockActivatedRoute.data.next({ zaak });
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+  });
+
   describe("actie.zaak.hervatten", () => {
     const hervattenZaak = {
       ...zaak,
