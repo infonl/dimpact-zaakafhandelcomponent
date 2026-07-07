@@ -6,14 +6,14 @@ package nl.info.zac.zaak.model
 
 import java.util.UUID
 
-fun createZaakKoppelenData(
+fun createZaakLinkData(
     isOpen: Boolean = true,
     isHoofdzaak: Boolean = false,
     isDeelzaak: Boolean = false,
     zaaktypeUUID: UUID = UUID.randomUUID(),
     lezen: Boolean = true,
     koppelen: Boolean = true
-) = ZaakKoppelenData(
+) = ZaakLinkData(
     isOpen = isOpen,
     isHoofdzaak = isHoofdzaak,
     isDeelzaak = isDeelzaak,

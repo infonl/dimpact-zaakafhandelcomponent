@@ -5,27 +5,27 @@
 
 package nl.info.zac.zaak
 
-import nl.info.zac.zaak.model.ZaakKoppelenData
+import nl.info.zac.zaak.model.ZaakLinkData
 import java.util.UUID
 
-private fun allowGerelateerd(from: ZaakKoppelenData, to: ZaakKoppelenData) =
+private fun allowGerelateerd(from: ZaakLinkData, to: ZaakLinkData) =
     from.koppelen && to.lezen
 
-private fun allowHoofdAndDeelzaak(hoofdzaak: ZaakKoppelenData, deelzaak: ZaakKoppelenData) =
+private fun allowHoofdAndDeelzaak(hoofdzaak: ZaakLinkData, deelzaak: ZaakLinkData) =
     hoofdzaak.koppelen && deelzaak.koppelen && hoofdzaak.isOpen == deelzaak.isOpen
 
 // a hoofdzaak CANNOT be a deelzaak, no tree-like hierarchy is allowed
-private fun canBeHoofdzaak(zaak: ZaakKoppelenData): Boolean = !zaak.isDeelzaak
+private fun canBeHoofdzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak
 
 // a deelzaak CANNOT be a deelzaak to multiple hoofdzaken, and CANNOT be a hoofdzaak itself
-private fun canBeNewDeelzaak(zaak: ZaakKoppelenData): Boolean = !zaak.isDeelzaak && !zaak.isHoofdzaak
+private fun canBeNewDeelzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak && !zaak.isHoofdzaak
 
-fun canBeRelated(from: ZaakKoppelenData, to: ZaakKoppelenData): Boolean =
+fun canBeRelated(from: ZaakLinkData, to: ZaakLinkData): Boolean =
     allowGerelateerd(from, to)
 
 fun canBeHoofdAndDeelzaak(
-    hoofdzaak: ZaakKoppelenData,
-    deelzaak: ZaakKoppelenData,
+    hoofdzaak: ZaakLinkData,
+    deelzaak: ZaakLinkData,
     allowedDeelzaaktypes: Set<UUID>
 ): Boolean =
     allowHoofdAndDeelzaak(hoofdzaak, deelzaak) &&
@@ -33,8 +33,8 @@ fun canBeHoofdAndDeelzaak(
     canBeNewDeelzaak(deelzaak) &&
     allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID)
 
-fun hoofdAndDeelzaakCanBeOntkoppeld(hoofdzaak: ZaakKoppelenData, deelzaak: ZaakKoppelenData) =
+fun hoofdAndDeelzaakCanBeOntkoppeld(hoofdzaak: ZaakLinkData, deelzaak: ZaakLinkData) =
     allowHoofdAndDeelzaak(hoofdzaak, deelzaak)
 
-fun relatedZakenCanBeOntkoppeld(from: ZaakKoppelenData, to: ZaakKoppelenData) =
+fun relatedZakenCanBeOntkoppeld(from: ZaakLinkData, to: ZaakLinkData) =
     allowGerelateerd(from, to)

@@ -13,7 +13,7 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.policy.output.ZaakRechten
 import java.util.UUID
 
-data class ZaakKoppelenData(
+data class ZaakLinkData(
     val isOpen: Boolean,
     val isHoofdzaak: Boolean,
     val isDeelzaak: Boolean,
@@ -22,7 +22,7 @@ data class ZaakKoppelenData(
     val koppelen: Boolean
 )
 
-fun Zaak.toZaakKoppelenData(rechten: ZaakRechten) = ZaakKoppelenData(
+fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
     isOpen = this.isOpen(),
     isHoofdzaak = this.isHoofdzaak(),
     isDeelzaak = this.isDeelzaak(),

@@ -16,7 +16,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
 import nl.info.zac.zaak.hoofdAndDeelzaakCanBeOntkoppeld
-import nl.info.zac.zaak.model.toZaakKoppelenData
+import nl.info.zac.zaak.model.toZaakLinkData
 import nl.info.zac.zaak.relatedZakenCanBeOntkoppeld
 
 class RestGerelateerdeZaakConverter @Inject constructor(
@@ -48,16 +48,16 @@ class RestGerelateerdeZaakConverter @Inject constructor(
             },
             ontkoppelen = when (relatieType) {
                 RelatieType.GERELATEERD -> relatedZakenCanBeOntkoppeld(
-                    fromZaak.toZaakKoppelenData(fromZaakRechten),
-                    gerelateerdeZaak.toZaakKoppelenData(zaakrechten)
+                    fromZaak.toZaakLinkData(fromZaakRechten),
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
                 )
                 RelatieType.HOOFDZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
-                    gerelateerdeZaak.toZaakKoppelenData(zaakrechten),
-                    fromZaak.toZaakKoppelenData(fromZaakRechten)
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten),
+                    fromZaak.toZaakLinkData(fromZaakRechten)
                 )
                 RelatieType.DEELZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
-                    fromZaak.toZaakKoppelenData(fromZaakRechten),
-                    gerelateerdeZaak.toZaakKoppelenData(zaakrechten)
+                    fromZaak.toZaakLinkData(fromZaakRechten),
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
                 )
                 else -> false
             }
