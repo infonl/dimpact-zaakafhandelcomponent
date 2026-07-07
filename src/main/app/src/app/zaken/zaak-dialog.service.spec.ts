@@ -66,6 +66,16 @@ describe(ZaakDialogService.name, () => {
     expect(data.multiline).toBe(true);
   });
 
+  it("ontkoppelInitiator opens a multiline reden dialog", () => {
+    const { service, open } = setup();
+
+    service.ontkoppelInitiator(jest.fn());
+
+    const data = openedRedenData(open);
+    expect(data.titleKey).toBe("actie.initiator.ontkoppelen");
+    expect(data.multiline).toBe(true);
+  });
+
   it("ontkoppelBetrokkene opens a multiline reden dialog", () => {
     const { service, open } = setup();
 

@@ -141,4 +141,29 @@ describe(RedenDialogComponent.name, () => {
     component["close"]();
     expect(dialogRefMock.close).toHaveBeenCalledWith(false);
   });
+
+  it("close() does nothing while loading", () => {
+    const { component, dialogRefMock } = setup();
+    component["loading"] = true;
+
+    component["close"]();
+
+    expect(dialogRefMock.close).not.toHaveBeenCalled();
+  });
+
+  it("applies the provided label, button labels and maxlength", () => {
+    const { component } = setup({
+      label: "actie.zaak.heropenen.reden",
+      confirmButtonActionKey: "actie.zaak.heropenen",
+      cancelButtonActionKey: "actie.annuleren.anders",
+      maxlength: 100,
+    });
+
+    expect(component["label"]).toBe("actie.zaak.heropenen.reden");
+    expect(component["submitLabel"]).toBe("actie.zaak.heropenen");
+    expect(component["cancelLabel"]).toBe("actie.annuleren.anders");
+
+    component["form"].controls.reden.setValue("x".repeat(101));
+    expect(component["form"].controls.reden.hasError("maxlength")).toBe(true);
+  });
 });
