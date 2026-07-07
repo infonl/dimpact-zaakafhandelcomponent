@@ -22,7 +22,7 @@ data class ZaakKoppelenData(
     val koppelen: Boolean
 )
 
-fun Zaak.toKoppelData(rechten: ZaakRechten) = ZaakKoppelenData(
+fun Zaak.toZaakKoppelenData(rechten: ZaakRechten) = ZaakKoppelenData(
     isOpen = this.isOpen(),
     isHoofdzaak = this.isHoofdzaak(),
     isDeelzaak = this.isDeelzaak(),
