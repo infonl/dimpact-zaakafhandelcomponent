@@ -1,0 +1,29 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<form [formGroup]="form" (ngSubmit)="submit()" (cancel)="close()">
+  <zac-generic-dialog
+    titleKey="actie.zaak.afbreken"
+    icon="thumb_down_alt"
+    [error]="errorMessage"
+    [loading]="loading"
+    (cancelled)="close()"
+  >
+    <zac-select
+      [form]="form"
+      key="reden"
+      label="actie.zaak.afbreken.reden"
+      [options]="data.options"
+      optionDisplayValue="naam"
+    />
+  </zac-generic-dialog>
+
+  <zac-form-actions
+    [form]="form"
+    [loading]="loading"
+    wrapper="dialog"
+    submitLabel="actie.zaak.afbreken"
+  />
+</form>
