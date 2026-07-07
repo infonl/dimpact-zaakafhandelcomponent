@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -31,7 +30,6 @@ import { ZakenService } from "../zaken.service";
   styleUrls: ["./zaak-historie.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatSortModule,
     MatTableModule,
     MatTooltipModule,

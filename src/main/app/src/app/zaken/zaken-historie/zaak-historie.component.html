@@ -50,16 +50,18 @@
         {{ "waarde.oud" | translate }}
       </th>
       <td mat-cell *matCellDef="let regel">
-        <read-more
-          *ngIf="regel.attribuutLabel !== 'zaakgeometrie'"
-          [text]="regel.oudeWaarde | empty"
-          [maxLength]="20"
-        ></read-more>
-        <read-more
-          *ngIf="regel.attribuutLabel === 'zaakgeometrie'"
-          [text]="regel.oudeWaarde | location | empty"
-          [maxLength]="20"
-        ></read-more>
+        @if (regel.attribuutLabel !== 'zaakgeometrie') {
+          <read-more
+            [text]="regel.oudeWaarde | empty"
+            [maxLength]="20"
+          ></read-more>
+        }
+        @if (regel.attribuutLabel === 'zaakgeometrie') {
+          <read-more
+            [text]="regel.oudeWaarde | location | empty"
+            [maxLength]="20"
+          ></read-more>
+        }
       </td>
     </ng-container>
     <ng-container matColumnDef="nieuweWaarde">
@@ -67,16 +69,20 @@
         {{ "waarde.nieuw" | translate }}
       </th>
       <td mat-cell *matCellDef="let regel">
-        <read-more
-          *ngIf="regel.attribuutLabel !== 'zaakgeometrie'"
-          [text]="regel.nieuweWaarde | empty | mimetypeToExtension"
-          [maxLength]="20"
-        ></read-more>
-        <read-more
-          *ngIf="regel.attribuutLabel === 'zaakgeometrie'"
-          [text]="regel.nieuweWaarde | location | empty | mimetypeToExtension"
-          [maxLength]="20"
-        ></read-more>
+        @if (regel.attribuutLabel !== 'zaakgeometrie') {
+          <read-more
+            [text]="regel.nieuweWaarde | empty | mimetypeToExtension"
+            [maxLength]="20"
+          ></read-more>
+        }
+        @if (regel.attribuutLabel === 'zaakgeometrie') {
+          <read-more
+            [text]="
+              regel.nieuweWaarde | location | empty | mimetypeToExtension
+            "
+            [maxLength]="20"
+          ></read-more>
+        }
       </td>
     </ng-container>
     <ng-container matColumnDef="toelichting">
