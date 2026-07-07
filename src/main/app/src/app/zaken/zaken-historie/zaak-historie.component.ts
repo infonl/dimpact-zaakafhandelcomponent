@@ -3,14 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  inject,
-  input,
-  ViewChild,
-} from "@angular/core";
+import { Component, effect, inject, input, viewChild } from "@angular/core";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -41,7 +34,7 @@ import { ZakenService } from "../zaken.service";
     ReadMoreComponent,
   ],
 })
-export class ZaakHistorieComponent implements AfterViewInit {
+export class ZaakHistorieComponent {
   private readonly zakenService = inject(ZakenService);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
@@ -63,26 +56,26 @@ export class ZaakHistorieComponent implements AfterViewInit {
     "toelichting",
   ] as const;
 
-  @ViewChild("historieSort") private historieSort!: MatSort;
+  private readonly historieSort = viewChild.required<MatSort>("historieSort");
 
   constructor() {
     effect(() => {
       this.historie.data = this.historieQuery.data() ?? [];
     });
-  }
 
-  ngAfterViewInit() {
-    this.historie.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "datum":
-          return String(item.datumTijd);
-        case "gebruiker":
-          return item.door ?? "";
-        default:
-          return String(item[property as keyof typeof item]);
-      }
-    };
+    effect(() => {
+      this.historie.sortingDataAccessor = (item, property) => {
+        switch (property) {
+          case "datum":
+            return String(item.datumTijd);
+          case "gebruiker":
+            return item.door ?? "";
+          default:
+            return String(item[property as keyof typeof item]);
+        }
+      };
 
-    this.historie.sort = this.historieSort;
+      this.historie.sort = this.historieSort();
+    });
   }
 }
