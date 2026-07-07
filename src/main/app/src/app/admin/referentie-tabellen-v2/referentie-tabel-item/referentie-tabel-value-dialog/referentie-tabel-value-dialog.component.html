@@ -1,0 +1,25 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>{{ icoon }}</mat-icon>
+  <span class="flex-grow-1">{{ titel | translate }}</span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (submit)="submit()" (cancel)="close()">
+  <mat-dialog-content>
+    <zac-input [form]="form" key="naam" label="waarde" />
+  </mat-dialog-content>
+  <zac-form-actions
+    [form]="form"
+    [mutation]="mutation"
+    wrapper="dialog"
+    submitLabel="actie.opslaan"
+  />
+</form>

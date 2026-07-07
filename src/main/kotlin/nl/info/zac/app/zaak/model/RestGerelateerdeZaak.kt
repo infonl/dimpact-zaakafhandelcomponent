@@ -23,4 +23,6 @@ data class RestGerelateerdeZaak(
     var startdatum: LocalDate? = null,
 
     var rechten: RestZaakRechten? = null,
+
+    var ontkoppelen: Boolean = false,
 )

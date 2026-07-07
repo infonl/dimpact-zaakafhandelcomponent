@@ -1,12 +1,29 @@
 # Contribution guidelines
 
-We welcome contributions from the open source community.
+We, the maintainers of this project, value your input, enjoy feedback and welcome improvements to this open source project.
+We welcome contributions from everyone in the open source community.
+
+We are unfortunately not set up to review external pull requests.
+Please create an issue in this GitHub repository, if you have a non-trivial suggestion to extend or improve this project.
+If there is enough interest, we may change this process in future.
+
 If you want to contribute, we ask you to follow these guidelines.
 Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions) if you have questions or wish to contribute.
 
 ## Code of conduct
 
-Please follow our [Code of Conduct](./CODE_OF_CONDUCT.md) when contributing.
+We are committed to maintaining a welcoming, inclusive, and respectful environment.
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a positive experience for everyone.
+
+## Problems, suggestions and questions
+
+You do not need to change any of our code or documentation to be a contributor.
+Many contributors add to software by reporting problems, suggesting changes or asking simple and difficult questions.
+To suggest a change or report a problem you can create a [GitHub issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue) for this project.
+To ask questions, you can [create a new discussion](https://docs.github.com/en/discussions/collaborating-with-your-community-using-discussions/participating-in-a-discussion) in this project.
+
+Please share your proposals for new code or documentation in an issue first, so that we can discuss them.
+We are especially interested in ways this project could be extended or adapted to support broader use.
 
 ## Language
 
