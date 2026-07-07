@@ -166,7 +166,7 @@ class RestZaakConverter @Inject constructor(
     }
 
     private fun toRestGerelateerdeZaken(
-        startZaakRechten: ZaakRechten,
+        fromZaakRechten: ZaakRechten,
         zaak: Zaak,
         loggedInUser: LoggedInUser
     ): List<RestGerelateerdeZaak> {
