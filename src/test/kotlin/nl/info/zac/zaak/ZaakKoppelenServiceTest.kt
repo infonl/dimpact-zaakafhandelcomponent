@@ -7,25 +7,10 @@ package nl.info.zac.zaak
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.zaak.model.ZaakKoppelenData
+import nl.info.zac.zaak.model.createZaakKoppelenData
 import java.util.UUID
 
 class ZaakKoppelenServiceTest : BehaviorSpec({
-
-    fun createZaakKoppelenData(
-        isOpen: Boolean = true,
-        isHoofdzaak: Boolean = false,
-        isDeelzaak: Boolean = false,
-        zaaktypeUUID: UUID = UUID.randomUUID(),
-        lezen: Boolean = true,
-        koppelen: Boolean = true
-    ) = ZaakKoppelenData(
-        isOpen = isOpen,
-        isHoofdzaak = isHoofdzaak,
-        isDeelzaak = isDeelzaak,
-        zaaktypeUUID = zaaktypeUUID,
-        lezen = lezen,
-        koppelen = koppelen
-    )
 
     Context("canBeRelated") {
         Given("a source zaak with koppelen rights and a target zaak with lezen rights") {
