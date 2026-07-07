@@ -25,10 +25,7 @@
     color="primary"
     class="flex-row gap-8"
     [disabled]="
-      form().disabled ||
-      !form().valid ||
-      !form().dirty ||
-      isPending()
+      form().disabled || !form().valid || !form().dirty || isPending()
     "
   >
     @if (isPending()) {

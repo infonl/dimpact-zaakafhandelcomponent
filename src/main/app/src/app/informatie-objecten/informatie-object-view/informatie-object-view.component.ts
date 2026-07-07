@@ -41,7 +41,6 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { DocumentDialogService } from "../document-dialog.service";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
@@ -60,6 +59,7 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
+import { DocumentDialogService } from "../document-dialog.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";

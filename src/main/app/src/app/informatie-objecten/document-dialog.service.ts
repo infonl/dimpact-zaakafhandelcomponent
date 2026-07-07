@@ -53,7 +53,7 @@ export class DocumentDialogService {
    */
   verwijderDocument(params: {
     hasZaak: boolean;
-    documentTitel?: string;
+    documentTitel?: string | null;
     delete: (reden?: string) => Observable<unknown>;
   }) {
     if (params.hasZaak) {

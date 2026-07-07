@@ -49,8 +49,8 @@ import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
-import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
 import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-opschorten-dialog.component";
@@ -1246,17 +1246,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen &&
-      this.brpRechtenQuery.data()?.zoeken,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen &&
+        this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

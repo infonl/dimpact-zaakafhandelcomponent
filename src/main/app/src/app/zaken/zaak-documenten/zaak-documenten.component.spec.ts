@@ -22,8 +22,8 @@ import { WebsocketListener } from "../../core/websocket/model/websocket-listener
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { RedenDialogComponent } from "../../shared/dialog/reden-dialog/reden-dialog.component";
 import { FileFormat } from "../../informatie-objecten/model/file-format";
+import { RedenDialogComponent } from "../../shared/dialog/reden-dialog/reden-dialog.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 

@@ -118,7 +118,7 @@ export class ZaakDialogService {
   }
 
   verwijderBagObject(
-    omschrijving: string | undefined,
+    omschrijving: string | null | undefined,
     callback: RedenCallback,
   ) {
     return this.openReden({

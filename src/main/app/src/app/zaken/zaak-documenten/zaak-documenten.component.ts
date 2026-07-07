@@ -33,6 +33,7 @@ import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import {
   FileFormat,
@@ -40,7 +41,6 @@ import {
 } from "../../informatie-objecten/model/file-format";
 import { FileIcon } from "../../informatie-objecten/model/file-icon";
 import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-objecten/model/gekoppelde.zaak.enkelvoudig.informatieobject";
-import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { detailExpand } from "../../shared/animations/animations";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
