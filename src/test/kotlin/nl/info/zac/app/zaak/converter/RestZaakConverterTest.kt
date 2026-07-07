@@ -562,7 +562,7 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
         every {
-            restGerelateerdeZaakConverter.convert(gerelateerdeZaakItem, loggedInUser)
+            restGerelateerdeZaakConverter.convert(zaak, zaakRechten, gerelateerdeZaakItem, loggedInUser)
         } returns restGerelateerdeZaak
 
         When("converting the zaak to a rest zaak") {

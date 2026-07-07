@@ -4,10 +4,12 @@
  */
 package nl.info.zac.app.zaak
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -31,6 +33,7 @@ import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
@@ -1496,6 +1499,150 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "the patched zaak is a GerelateerdeZakenZaakPatch with gerelateerdeZaken set to an empty list"
                 ) {
                     patchZaakSlot.captured.gerelateerdeZaken shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("A zaak without koppelen right on the source zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A gerelateerde zaak without lezen right on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(lezen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A hoofdzaak without koppelen right on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.HOOFDZAAK,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A gerelateerde zaak with lezen but without koppelen on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = gekoppeldeZaak.url })
+            }
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(lezen = true, koppelen = false)
+            every { zrcClientService.patchZaak(any(), any(), "fakeReden") } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+
+                Then("unlinking succeeds without PolicyException") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
                 }
             }
         }
