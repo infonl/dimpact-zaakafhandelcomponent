@@ -160,7 +160,8 @@ export class ReferentieTabellenComponent
           width: "500px",
           autoFocus: "input:not([disabled])",
         });
-      });
+      })
+      .catch(() => undefined);
   }
 
   protected verwijderReferentieTabel(
