@@ -7,7 +7,7 @@ import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { tap } from "rxjs/operators";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
@@ -48,21 +48,11 @@ export class ReferentieTabelService {
     ]);
   }
 
-  createReferentieTabel(body: PostBody<"/rest/referentietabellen">) {
-    return this.zacHttpClient.POST("/rest/referentietabellen", body);
-  }
-
   createReferentieTabelMutation() {
     return {
       ...this.zacQueryClient.POST("/rest/referentietabellen"),
       onSuccess: () => void this.invalidateReferentieTabellen(),
     };
-  }
-
-  readReferentieTabel(id: number) {
-    return this.zacHttpClient.GET("/rest/referentietabellen/{id}", {
-      path: { id },
-    });
   }
 
   readReferentieTabelByCode(code: string) {

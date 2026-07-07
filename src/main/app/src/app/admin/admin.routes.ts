@@ -4,49 +4,74 @@
  */
 
 import { Routes } from "@angular/router";
-import { BpmnProcessDefinitionsComponent } from "./bpmn-process-definitions/bpmn-process-definitions.component";
-import { GroepSignaleringenComponent } from "./groep-signaleringen/groep-signaleringen.component";
-import { InrichtingscheckComponent } from "./inrichtingscheck/inrichtingscheck.component";
 import { MailtemplateResolver } from "./mailtemplate-resolver.service";
-import { MailtemplateComponent } from "./mailtemplate/mailtemplate.component";
-import { MailtemplatesComponent } from "./mailtemplates/mailtemplates.component";
-import { ParametersEditShellComponent } from "./parameters-edit-shell/parameters-edit-shell.component";
-import { ParametersComponent } from "./parameters/parameters.component";
-import { ReferentieTabelResolver } from "./referentie-tabel-resolver.service";
-import { ReferentieTabelComponent } from "./referentie-tabel/referentie-tabel.component";
-import { ReferentieTabellenV2Component } from "./referentie-tabellen-v2/referentie-tabellen-v2.component";
-import { ReferentieTabellenComponent } from "./referentie-tabellen/referentie-tabellen.component";
 import { ZaakafhandelParametersResolver } from "./zaakafhandel-parameters-resolver.service";
 
 export const ADMIN_ROUTES: Routes = [
   { path: "", redirectTo: "check", pathMatch: "full" },
-  { path: "groepen", component: GroepSignaleringenComponent },
-  { path: "parameters", component: ParametersComponent },
+  {
+    path: "groepen",
+    loadComponent: () =>
+      import("./groep-signaleringen/groep-signaleringen.component").then(
+        (module) => module.GroepSignaleringenComponent,
+      ),
+  },
+  {
+    path: "parameters",
+    loadComponent: () =>
+      import("./parameters/parameters.component").then(
+        (module) => module.ParametersComponent,
+      ),
+  },
   {
     path: "parameters/:uuid",
-    component: ParametersEditShellComponent,
+    loadComponent: () =>
+      import("./parameters-edit-shell/parameters-edit-shell.component").then(
+        (module) => module.ParametersEditShellComponent,
+      ),
     resolve: { parameters: ZaakafhandelParametersResolver },
   },
   {
     path: "bpmn-procesdefinities",
-    component: BpmnProcessDefinitionsComponent,
-  },
-  { path: "referentietabellen", component: ReferentieTabellenComponent },
-  {
-    path: "referentietabellen/:id",
-    component: ReferentieTabelComponent,
-    resolve: { tabel: ReferentieTabelResolver },
+    loadComponent: () =>
+      import("./bpmn-process-definitions/bpmn-process-definitions.component").then(
+        (module) => module.BpmnProcessDefinitionsComponent,
+      ),
   },
   {
-    path: "referentietabellen-v2",
-    component: ReferentieTabellenV2Component,
+    path: "referentietabellen",
+    loadComponent: () =>
+      import("./referentie-tabellen/referentie-tabellen.component").then(
+        (module) => module.ReferentieTabellenComponent,
+      ),
   },
-  { path: "check", component: InrichtingscheckComponent },
-  { path: "mailtemplates", component: MailtemplatesComponent },
+  {
+    path: "check",
+    loadComponent: () =>
+      import("./inrichtingscheck/inrichtingscheck.component").then(
+        (module) => module.InrichtingscheckComponent,
+      ),
+  },
+  {
+    path: "mailtemplates",
+    loadComponent: () =>
+      import("./mailtemplates/mailtemplates.component").then(
+        (module) => module.MailtemplatesComponent,
+      ),
+  },
   {
     path: "mailtemplate/:id",
-    component: MailtemplateComponent,
+    loadComponent: () =>
+      import("./mailtemplate/mailtemplate.component").then(
+        (module) => module.MailtemplateComponent,
+      ),
     resolve: { template: MailtemplateResolver },
   },
-  { path: "mailtemplate", component: MailtemplateComponent },
+  {
+    path: "mailtemplate",
+    loadComponent: () =>
+      import("./mailtemplate/mailtemplate.component").then(
+        (module) => module.MailtemplateComponent,
+      ),
+  },
 ];
