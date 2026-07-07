@@ -8,6 +8,7 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
@@ -22,6 +23,7 @@ class RestGerelateerdeZaakConverter @Inject constructor(
     private val policyService: PolicyService
 ) {
     fun convert(
+        fromZaak: Zaak,
         fromZaakRechten: ZaakRechten,
         gerelateerdeZaak: Zaak,
         loggedInUser: LoggedInUser,
@@ -43,17 +45,19 @@ class RestGerelateerdeZaakConverter @Inject constructor(
                 }
             },
             ontkoppelen = if (relatieType == RelatieType.GERELATEERD) fromZaakRechten.koppelen && zaakrechten.lezen
-                else fromZaakRechten.koppelen && zaakrechten.koppelen
+                else fromZaakRechten.koppelen && zaakrechten.koppelen && fromZaak.isOpen() == gerelateerdeZaak.isOpen()
         )
     }
 
     fun convert(
+        fromZaak: Zaak,
         fromZaakRechten: ZaakRechten,
         gerelateerdeZaak: GerelateerdeZaak,
         loggedInUser: LoggedInUser
     ): RestGerelateerdeZaak {
         val zaak = zrcClientService.readZaak(gerelateerdeZaak.url)
         return convert(
+            fromZaak = fromZaak,
             fromZaakRechten = fromZaakRechten,
             gerelateerdeZaak = zaak,
             loggedInUser = loggedInUser,

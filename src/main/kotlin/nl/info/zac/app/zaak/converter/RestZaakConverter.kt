@@ -174,6 +174,7 @@ class RestZaakConverter @Inject constructor(
         zaak.hoofdzaak?.let {
             gerelateerdeZaken.add(
                 restGerelateerdeZaakConverter.convert(
+                    fromZaak = zaak,
                     fromZaakRechten = fromZaakRechten,
                     gerelateerdeZaak = zrcClientService.readZaak(it),
                     relatieType = RelatieType.HOOFDZAAK,
@@ -184,11 +185,11 @@ class RestZaakConverter @Inject constructor(
         zaak.deelzaken
             ?.map(zrcClientService::readZaak)
             ?.map {
-                restGerelateerdeZaakConverter.convert(fromZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
+                restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser, RelatieType.DEELZAAK)
             }
             ?.forEach(gerelateerdeZaken::add)
         zaak.gerelateerdeZaken
-            ?.map { restGerelateerdeZaakConverter.convert(fromZaakRechten, it, loggedInUser) }
+            ?.map { restGerelateerdeZaakConverter.convert(zaak, fromZaakRechten, it, loggedInUser) }
             ?.forEach(gerelateerdeZaken::add)
         return gerelateerdeZaken
     }
