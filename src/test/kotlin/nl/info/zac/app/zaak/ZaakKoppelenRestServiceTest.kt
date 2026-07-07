@@ -1487,6 +1487,76 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
+        Given("Two open zaken with zaak link data using a 'deelzaak' relatie") {
+            val zaak = createZaak()
+            val teKoppelenZaak = createZaak()
+            val zaakType = createZaakType().apply { deelzaaktypen = listOf(teKoppelenZaak.zaaktype) }
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.DEELZAAK
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+            } returns createZaakRechten()
+            every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the zaken are linked") {
+                zaakKoppelenRestService.linkZaak(restZaakLinkData)
+
+                Then("the two zaken are successfully linked as hoofd- and deelzaak") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe teKoppelenZaak.uuid
+                    with(patchZaakSlot.captured) {
+                        hoofdzaak shouldBe zaak.url
+                    }
+                }
+            }
+        }
+
+        Given("Zaak link data using an unsupported relatie type") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val teKoppelenZaak = createZaak()
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.VERVOLG
+            )
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the zaken are linked") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    zaakKoppelenRestService.linkZaak(restZaakLinkData)
+                }
+
+                Then("an IllegalArgumentException is thrown") {
+                    illegalArgumentException.message shouldBe
+                        "RelatieType VERVOLG cannot be used for linking zaken"
+                }
+            }
+        }
+
         Given("Two open zaken with zaak link data using a 'gerelateerd' relatie and a reason") {
             val zaak = createZaak()
             val zaakType = createZaakType()
@@ -1685,6 +1755,79 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
                 Then("a PolicyException is thrown") {
                     policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A deelzaak linked to a hoofdzaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.DEELZAAK,
+                reason = "fakeReden"
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
+            } returns zaak
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called with DEELZAAK relatie type") {
+                zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+
+                Then("the deelzaak is successfully unlinked from the hoofdzaak") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe gekoppeldeZaak.uuid
+                }
+            }
+        }
+
+        Given("Zaak unlink data using an unsupported relatie type") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.VERVOLG,
+                reason = "fakeReden"
+            )
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+
+            When("unlinkZaak is called") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("an IllegalArgumentException is thrown") {
+                    illegalArgumentException.message shouldBe
+                        "RelatieType VERVOLG cannot be used for unlinking zaken"
                 }
             }
         }
