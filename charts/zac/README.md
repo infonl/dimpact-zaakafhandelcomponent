@@ -48,6 +48,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 |-----|------|---------|-------------|
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
+| auth.enablePkce | bool | `false` | Whether to enable PKCE (Proof Key for Code Exchange) for the OpenID Connect authorization code flow. |
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |

@@ -6,5 +6,6 @@
     "secret": "${env.AUTH_SECRET}"
   },
   "ssl-required": "${env.AUTH_SSL_REQUIRED}",
-  "principal-attribute": "preferred_username"
+  "principal-attribute": "preferred_username",
+  "enable-pkce": ${env.AUTH_ENABLE_PKCE:false}
 }

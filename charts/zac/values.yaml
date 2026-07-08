@@ -44,6 +44,8 @@ auth:
    # Valid values are: "all" - to always require HTTPS, "external" - to only require HTTPS for external requests,
    # "none" - if HTTPS is not required. This should be set to "all" in production environments.
   sslRequired: ""
+   # -- Whether to enable PKCE (Proof Key for Code Exchange) for the OpenID Connect authorization code flow.
+  enablePkce: false
 
 # Configuration of the ZAC admin client in Keycloak
 keycloak:
