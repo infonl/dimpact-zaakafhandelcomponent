@@ -6,6 +6,7 @@ package nl.info.zac.productaanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -18,6 +19,8 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import java.net.URI
 
 class ProductaanvraagDocumentServiceTest : BehaviorSpec({
+    afterEach { checkUnnecessaryStub() }
+
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
 
@@ -63,6 +66,37 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                         beschrijving shouldBe "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
                         informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
                         titel shouldBe enkelvoudigInformatieobjecten[1].titel
+                    }
+                }
+            }
+        }
+    }
+
+    Context("Pair bijlagen with zaak ignoring exceptions") {
+        Given("a list of bijlage URIs where one URI causes an exception during readEnkelvoudigInformatieobject") {
+            val failingBijlageURI = URI("fakeFailingURI")
+            val successBijlageURI = URI("fakeSuccessURI")
+            val bijlageURIs = listOf(failingBijlageURI, successBijlageURI)
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val zaakUrl = URI("fakeZaakUrl")
+
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(failingBijlageURI)
+            } throws RuntimeException("fakeException")
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(successBijlageURI)
+            } returns enkelvoudigInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(any(), any())
+            } returns zaakInformatieobject
+
+            When("the bijlagen are paired with the zaak") {
+                productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
+
+                Then("the method should not throw and only the successful bijlage should be linked") {
+                    verify(exactly = 1) {
+                        zrcClientService.createZaakInformatieobject(any(), any())
                     }
                 }
             }
