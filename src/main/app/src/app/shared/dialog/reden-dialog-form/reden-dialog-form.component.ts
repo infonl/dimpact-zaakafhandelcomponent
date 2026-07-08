@@ -26,7 +26,7 @@ export type RedenDialogData = {
 };
 
 @Component({
-  templateUrl: "./reden-dialog.component.html",
+  templateUrl: "./reden-dialog-form.component.html",
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -36,9 +36,9 @@ export type RedenDialogData = {
     ZacTextarea,
   ],
 })
-export class RedenDialogComponent {
+export class RedenDialogFormComponent {
   private readonly dialogRef =
-    inject<MatDialogRef<RedenDialogComponent>>(MatDialogRef);
+    inject<MatDialogRef<RedenDialogFormComponent>>(MatDialogRef);
   protected readonly data = inject<RedenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
 

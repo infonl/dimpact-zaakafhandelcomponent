@@ -12,9 +12,9 @@ import { of, throwError } from "rxjs";
 import { ZacInput } from "../../form/input/input";
 import { ZacTextarea } from "../../form/textarea/textarea";
 import {
-  RedenDialogComponent,
   RedenDialogData,
-} from "./reden-dialog.component";
+  RedenDialogFormComponent,
+} from "./reden-dialog-form.component";
 
 const setup = (data: Partial<RedenDialogData> = {}) => {
   const dialogRefMock = { close: jest.fn(), disableClose: false };
@@ -26,7 +26,7 @@ const setup = (data: Partial<RedenDialogData> = {}) => {
 
   TestBed.configureTestingModule({
     imports: [
-      RedenDialogComponent,
+      RedenDialogFormComponent,
       NoopAnimationsModule,
       TranslateModule.forRoot(),
     ],
@@ -36,20 +36,20 @@ const setup = (data: Partial<RedenDialogData> = {}) => {
     ],
   });
 
-  const fixture: ComponentFixture<RedenDialogComponent> =
-    TestBed.createComponent(RedenDialogComponent);
+  const fixture: ComponentFixture<RedenDialogFormComponent> =
+    TestBed.createComponent(RedenDialogFormComponent);
   fixture.detectChanges();
 
   return { fixture, component: fixture.componentInstance, dialogRefMock };
 };
 
-const submitButton = (fixture: ComponentFixture<RedenDialogComponent>) =>
+const submitButton = (fixture: ComponentFixture<RedenDialogFormComponent>) =>
   fixture.debugElement.query(By.css('button[type="submit"]'))
     .nativeElement as HTMLButtonElement;
 
 // Enters a valid, dirty reden so the submit guard lets the callback run.
 const enterReden = (
-  component: RedenDialogComponent,
+  component: RedenDialogFormComponent,
   reden = "een geldige reden",
 ) => {
   const control = component["form"].controls.reden;
@@ -57,7 +57,7 @@ const enterReden = (
   control.markAsDirty();
 };
 
-describe(RedenDialogComponent.name, () => {
+describe(RedenDialogFormComponent.name, () => {
   it("renders a single-line input by default", () => {
     const { fixture } = setup({ multiline: false });
     expect(fixture.debugElement.query(By.directive(ZacInput))).toBeTruthy();

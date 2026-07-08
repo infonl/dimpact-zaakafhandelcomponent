@@ -8,14 +8,14 @@ import { MatDialog } from "@angular/material/dialog";
 import { TranslateService } from "@ngx-translate/core";
 import { Observable } from "rxjs";
 import {
-  RedenDialogComponent,
   RedenDialogData,
-} from "../shared/dialog/reden-dialog/reden-dialog.component";
+  RedenDialogFormComponent,
+} from "../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../shared/utils/generated-types";
 import {
-  ZaakAfbrekenDialogComponent,
   ZaakAfbrekenDialogData,
-} from "./zaak-afbreken-dialog/zaak-afbreken-dialog.component";
+  ZaakAfbrekenDialogFormComponent,
+} from "./zaak-afbreken-dialog-form/zaak-afbreken-dialog-form.component";
 
 type RedenCallback = (reden: string) => Observable<unknown>;
 
@@ -30,8 +30,8 @@ export class ZaakDialogService {
   private readonly translateService = inject(TranslateService);
 
   private openReden(data: RedenDialogData) {
-    return this.dialog.open<RedenDialogComponent, RedenDialogData>(
-      RedenDialogComponent,
+    return this.dialog.open<RedenDialogFormComponent, RedenDialogData>(
+      RedenDialogFormComponent,
       { data },
     );
   }
@@ -43,9 +43,9 @@ export class ZaakDialogService {
     ) => Observable<unknown>,
   ) {
     return this.dialog.open<
-      ZaakAfbrekenDialogComponent,
+      ZaakAfbrekenDialogFormComponent,
       ZaakAfbrekenDialogData
-    >(ZaakAfbrekenDialogComponent, { data: { options, callback } });
+    >(ZaakAfbrekenDialogFormComponent, { data: { options, callback } });
   }
 
   openHeropenen(callback: RedenCallback) {

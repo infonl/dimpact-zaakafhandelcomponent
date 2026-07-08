@@ -13,9 +13,9 @@ import { fromPartial } from "src/test-helpers";
 import { ZacSelect } from "../../shared/form/select/select";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import {
-  ZaakAfbrekenDialogComponent,
   ZaakAfbrekenDialogData,
-} from "./zaak-afbreken-dialog.component";
+  ZaakAfbrekenDialogFormComponent,
+} from "./zaak-afbreken-dialog-form.component";
 
 const reden = fromPartial<GeneratedType<"RestZaakbeeindigReden">>({
   id: "42",
@@ -34,7 +34,7 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
 
   TestBed.configureTestingModule({
     imports: [
-      ZaakAfbrekenDialogComponent,
+      ZaakAfbrekenDialogFormComponent,
       NoopAnimationsModule,
       TranslateModule.forRoot(),
     ],
@@ -44,8 +44,8 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
     ],
   });
 
-  const fixture: ComponentFixture<ZaakAfbrekenDialogComponent> =
-    TestBed.createComponent(ZaakAfbrekenDialogComponent);
+  const fixture: ComponentFixture<ZaakAfbrekenDialogFormComponent> =
+    TestBed.createComponent(ZaakAfbrekenDialogFormComponent);
   fixture.detectChanges();
 
   return {
@@ -56,11 +56,11 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
   };
 };
 
-const submitButton = (fixture: ComponentFixture<ZaakAfbrekenDialogComponent>) =>
+const submitButton = (fixture: ComponentFixture<ZaakAfbrekenDialogFormComponent>) =>
   fixture.debugElement.query(By.css('button[type="submit"]'))
     .nativeElement as HTMLButtonElement;
 
-describe(ZaakAfbrekenDialogComponent.name, () => {
+describe(ZaakAfbrekenDialogFormComponent.name, () => {
   it("renders a select for the reden", () => {
     const { fixture } = setup();
     expect(fixture.debugElement.query(By.directive(ZacSelect))).toBeTruthy();

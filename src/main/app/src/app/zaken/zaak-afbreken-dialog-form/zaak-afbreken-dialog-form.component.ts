@@ -20,7 +20,7 @@ export type ZaakAfbrekenDialogData = {
 };
 
 @Component({
-  templateUrl: "./zaak-afbreken-dialog.component.html",
+  templateUrl: "./zaak-afbreken-dialog-form.component.html",
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -29,9 +29,9 @@ export type ZaakAfbrekenDialogData = {
     ZacSelect,
   ],
 })
-export class ZaakAfbrekenDialogComponent {
+export class ZaakAfbrekenDialogFormComponent {
   private readonly dialogRef =
-    inject<MatDialogRef<ZaakAfbrekenDialogComponent>>(MatDialogRef);
+    inject<MatDialogRef<ZaakAfbrekenDialogFormComponent>>(MatDialogRef);
   protected readonly data = inject<ZaakAfbrekenDialogData>(MAT_DIALOG_DATA);
   private readonly formBuilder = inject(FormBuilder);
 

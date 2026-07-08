@@ -9,11 +9,11 @@ import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import {
-  RedenDialogComponent,
   RedenDialogData,
-} from "../shared/dialog/reden-dialog/reden-dialog.component";
+  RedenDialogFormComponent,
+} from "../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { ZaakAfbrekenDialogComponent } from "./zaak-afbreken-dialog/zaak-afbreken-dialog.component";
+import { ZaakAfbrekenDialogFormComponent } from "./zaak-afbreken-dialog-form/zaak-afbreken-dialog-form.component";
 import { ZaakDialogService } from "./zaak-dialog.service";
 
 const setup = () => {
@@ -38,7 +38,10 @@ describe(ZaakDialogService.name, () => {
 
     service.openHeropenen(callback);
 
-    expect(open).toHaveBeenCalledWith(RedenDialogComponent, expect.anything());
+    expect(open).toHaveBeenCalledWith(
+      RedenDialogFormComponent,
+      expect.anything(),
+    );
     const data = openedRedenData(open);
     expect(data.titleKey).toBe("actie.zaak.heropenen");
     expect(data.maxlength).toBe(100);
@@ -107,7 +110,7 @@ describe(ZaakDialogService.name, () => {
     service.openAfbreken(options, callback);
 
     expect(open).toHaveBeenCalledWith(
-      ZaakAfbrekenDialogComponent,
+      ZaakAfbrekenDialogFormComponent,
       expect.anything(),
     );
     const data = open.mock.calls.at(-1)![1].data;

@@ -23,7 +23,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { FileFormat } from "../../informatie-objecten/model/file-format";
-import { RedenDialogComponent } from "../../shared/dialog/reden-dialog/reden-dialog.component";
+import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDocumentenComponent } from "./zaak-documenten.component";
 
@@ -535,7 +535,7 @@ describe(ZaakDocumentenComponent.name, () => {
       const ontkoppelSpy = jest
         .spyOn(documentDialogService, "openOntkoppelDocument")
         .mockReturnValue(
-          fromPartial<MatDialogRef<RedenDialogComponent>>({
+          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
             afterClosed: () => of(false),
           }),
         );

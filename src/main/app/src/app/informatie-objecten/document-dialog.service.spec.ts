@@ -8,7 +8,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
 import { ConfirmDialogComponent } from "../shared/confirm-dialog/confirm-dialog.component";
-import { RedenDialogComponent } from "../shared/dialog/reden-dialog/reden-dialog.component";
+import { RedenDialogFormComponent } from "../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { DocumentDialogService } from "./document-dialog.service";
 
 const setup = () => {
@@ -32,7 +32,10 @@ describe(DocumentDialogService.name, () => {
 
     service.openOntkoppelDocument("een melding", callback);
 
-    expect(open).toHaveBeenCalledWith(RedenDialogComponent, expect.anything());
+    expect(open).toHaveBeenCalledWith(
+      RedenDialogFormComponent,
+      expect.anything(),
+    );
     const data = open.mock.calls.at(-1)![1].data;
     expect(data.titleKey).toBe("actie.document.ontkoppelen");
     expect(data.multiline).toBe(true);
@@ -52,7 +55,7 @@ describe(DocumentDialogService.name, () => {
       });
 
       expect(open).toHaveBeenCalledWith(
-        RedenDialogComponent,
+        RedenDialogFormComponent,
         expect.anything(),
       );
       const data = open.mock.calls.at(-1)![1].data;

@@ -12,9 +12,9 @@ import {
   ConfirmDialogData,
 } from "../shared/confirm-dialog/confirm-dialog.component";
 import {
-  RedenDialogComponent,
   RedenDialogData,
-} from "../shared/dialog/reden-dialog/reden-dialog.component";
+  RedenDialogFormComponent,
+} from "../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 
 /**
  * Opens the document confirmation dialogs. Presentation config and message keys
@@ -30,8 +30,8 @@ export class DocumentDialogService {
     melding: string,
     callback: (reden: string) => Observable<unknown>,
   ) {
-    return this.dialog.open<RedenDialogComponent, RedenDialogData>(
-      RedenDialogComponent,
+    return this.dialog.open<RedenDialogFormComponent, RedenDialogData>(
+      RedenDialogFormComponent,
       {
         data: {
           titleKey: "actie.document.ontkoppelen",
@@ -57,8 +57,8 @@ export class DocumentDialogService {
     delete: (reden?: string) => Observable<unknown>;
   }) {
     if (params.hasZaak) {
-      return this.dialog.open<RedenDialogComponent, RedenDialogData>(
-        RedenDialogComponent,
+      return this.dialog.open<RedenDialogFormComponent, RedenDialogData>(
+        RedenDialogFormComponent,
         {
           data: {
             titleKey: "actie.document.verwijderen",
