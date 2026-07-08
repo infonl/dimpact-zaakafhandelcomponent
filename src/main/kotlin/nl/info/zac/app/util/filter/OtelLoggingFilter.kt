@@ -5,6 +5,7 @@
 package nl.info.zac.app.util.filter
 
 import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.api.baggage.BaggageBuilder
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.context.Context
 import io.opentelemetry.context.Scope
@@ -86,17 +87,16 @@ class OtelLoggingFilter : ContainerRequestFilter, ContainerResponseFilter {
 
         // Build baggage with request context
         val baggage = Baggage.current().toBuilder().run {
-            getTraceId()?.also { traceId -> put(OTEL_TRACE_ID, traceId) }
-            extractOperationFromPath(requestContext.uriInfo.path)?.also { operation -> put(REQUEST_OPERATION, operation) }
-            requestContext.getUserPrincipal()?.name?.also { userName -> put(REQUEST_USER_ID, userName) }
+            putOrRemove(OTEL_TRACE_ID, getTraceId())
+            putOrRemove(REQUEST_OPERATION, extractOperationFromPath(requestContext.uriInfo.path))
+            putOrRemove(REQUEST_USER_ID, requestContext.getUserPrincipal()?.name)
             put(REQUEST_CORRELATION_ID, requestContext.getOrNewCorrelationId())
             put(HTTP_REQUEST_METHOD, requestContext.method)
             put(HTTP_REQUEST_PATH, requestContext.uriInfo.path)
         }.build()
 
         // Make the context current and store the scope for cleanup
-        val ctx = Context.current().with(baggage)
-        val scope = ctx.makeCurrent()
+        val scope = Context.current().with(baggage).makeCurrent()
         requestContext.setProperty(CONTEXT_OTEL_SCOPE, scope)
 
         LOG.fine("Request started: ${requestContext.method} ${requestContext.uriInfo.path}")
@@ -123,8 +123,7 @@ class OtelLoggingFilter : ContainerRequestFilter, ContainerResponseFilter {
             }
 
             // Update context with response metadata
-            val ctx = Context.current().with(baggage)
-            ctx.makeCurrent().use {
+            Context.current().with(baggage).makeCurrent().use {
                 LOG.fine("Request completed: status=$status, duration=${duration ?: "??"} ms")
             }
         } finally {
@@ -158,14 +157,21 @@ class OtelLoggingFilter : ContainerRequestFilter, ContainerResponseFilter {
             .takeIf { it.isValid }
             ?.traceId
 
+    private fun BaggageBuilder.putOrRemove(key: String, value: String?) {
+        if (value == null) remove(key)
+        else put(key, value)
+    }
+
     // Helper extension functions for ContainerRequestContext
     private fun ContainerRequestContext.getUserPrincipal(): Principal? = securityContext?.userPrincipal
     private fun ContainerRequestContext.setRequestStartTime() {
         setProperty(CONTEXT_REQUEST_START_TIME, System.currentTimeMillis())
     }
-    private fun ContainerRequestContext.getRequestDuration() = if(hasProperty(CONTEXT_REQUEST_START_TIME)) {
+    private fun ContainerRequestContext.getRequestDuration() = if (hasProperty(CONTEXT_REQUEST_START_TIME)) {
         System.currentTimeMillis() - (getProperty(CONTEXT_REQUEST_START_TIME) as Long)
-    } else null
+    } else {
+        null
+    }
     private fun ContainerRequestContext.getOrNewCorrelationId(): String =
         this.headers[X_CORRELATION_ID]?.firstOrNull() ?: getTraceId() ?: UUID.randomUUID().toString()
 }

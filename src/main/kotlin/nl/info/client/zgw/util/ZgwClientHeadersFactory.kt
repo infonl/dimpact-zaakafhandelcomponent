@@ -70,6 +70,6 @@ class ZgwClientHeadersFactory @Inject constructor(
     private fun addXNlxRequestIdHeader(
         outgoingHeaders: MultivaluedMap<String, String>
     ) = Baggage.current().getEntryValue(REQUEST_CORRELATION_ID)?.run {
-            outgoingHeaders.add(X_NLX_REQUEST_ID, this)
+        outgoingHeaders.add(X_NLX_REQUEST_ID, this)
     }
 }
