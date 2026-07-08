@@ -56,7 +56,9 @@ const setup = (data: Partial<ZaakAfbrekenDialogData> = {}) => {
   };
 };
 
-const submitButton = (fixture: ComponentFixture<ZaakAfbrekenDialogFormComponent>) =>
+const submitButton = (
+  fixture: ComponentFixture<ZaakAfbrekenDialogFormComponent>,
+) =>
   fixture.debugElement.query(By.css('button[type="submit"]'))
     .nativeElement as HTMLButtonElement;
 
