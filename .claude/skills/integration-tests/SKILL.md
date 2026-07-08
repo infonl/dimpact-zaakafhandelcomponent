@@ -3,7 +3,7 @@ name: add-integration-tests
 description: Add Integration Tests (Kotlin / Kotest)
 ---
 
-> If you discover an improvement to this spec file while writing a test, ask the user: "I noticed a pattern / gotcha that could be added to the spec file — want me to add it?"
+> If you discover an improvement to this spec file while writing a test — a new pattern/gotcha, or a change to test configuration or test data (e.g. a new/changed zaaktype, test user, test group, or `ItestConfiguration` constant) that makes a table or snippet in this file outdated — ask the user: "I noticed a pattern / gotcha / configuration change that could be added to the spec file — want me to update it?"
 
 ---
 
@@ -163,19 +163,21 @@ class MyNewTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
 
-    Given("...") {
-        When("...") {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/my/endpoint",
-                testUser = BEHANDELAAR_1
-            )
-            logger.info { "Response: ${response.bodyAsString}" }
+    Context("My feature") {
+        Given("...") {
+            When("...") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/my/endpoint",
+                    testUser = BEHANDELAAR_1
+                )
+                logger.info { "Response: ${response.bodyAsString}" }
 
-            Then("the response should be 200") {
-                response.code shouldBe HTTP_OK
-            }
-            And("the response body should contain the expected value") {
-                response.bodyAsString.shouldContainJsonKeyValue("key", "value")
+                Then("the response should be 200") {
+                    response.code shouldBe HTTP_OK
+                }
+                And("the response body should contain the expected value") {
+                    response.bodyAsString.shouldContainJsonKeyValue("key", "value")
+                }
             }
         }
     }
