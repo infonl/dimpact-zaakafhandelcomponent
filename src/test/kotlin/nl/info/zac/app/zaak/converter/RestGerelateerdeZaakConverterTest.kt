@@ -266,5 +266,27 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 }
             }
         }
+
+        Given("an unsupported relatieType") {
+            val fromZaak = createZaak()
+            val gerelateerdeZaak = createZaak()
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            val fromZaakRechten = createZaakRechten(koppelen = true)
+            every { ztcClientService.readZaaktype(gerelateerdeZaak.zaaktype) } returns zaakType
+            every {
+                policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+
+            When("convert is called with relatieType VERVOLG") {
+                val result = converter.convert(
+                    fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.VERVOLG
+                )
+
+                Then("ontkoppelen is false") {
+                    result.ontkoppelen shouldBe false
+                }
+            }
+        }
     }
 })

@@ -24,10 +24,8 @@ import nl.info.client.zgw.zrc.model.GerelateerdeZakenZaakPatch
 import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isDeelzaak
-import nl.info.client.zgw.zrc.util.isHoofdzaak
-import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
 import nl.info.zac.app.zaak.model.RelatieType
@@ -50,7 +48,13 @@ import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.zaak.model.ZaakLinkData
 import nl.info.zac.zaak.ZaakService
+import nl.info.zac.zaak.canBeHoofdAndDeelzaak
+import nl.info.zac.zaak.canBeRelated
+import nl.info.zac.zaak.hoofdAndDeelzaakCanBeOntkoppeld
+import nl.info.zac.zaak.model.toZaakLinkData
+import nl.info.zac.zaak.relatedZakenCanBeOntkoppeld
 import java.net.URI
 import java.util.UUID
 
@@ -81,7 +85,6 @@ class ZaakKoppelenRestService @Inject constructor(
         @QueryParam("page") @DefaultValue("0") page: Int,
         @QueryParam("rows") @DefaultValue("10") rows: Int
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
-        val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
         val searchResults = searchService.zoek(
             zoekParameters = buildZoekParameters(zaak, zoekZaakIdentifier, page, rows)
@@ -90,32 +93,46 @@ class ZaakKoppelenRestService @Inject constructor(
             searchResults = searchResults,
             zaak = zaak,
             relationType = relationType,
-            loggedInUser = loggedInUser
+            user = loggedInUserInstance.get()
         )
     }
 
     @PATCH
     @Path("/zaak/koppel")
     fun linkZaak(restZaakLinkData: RestZaakLinkData) {
+        val user = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid)
         val (zaakToLinkTo, zaakToLinkToZaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(
             restZaakLinkData.teKoppelenZaakUuid
         )
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).koppelen)
-        if (restZaakLinkData.relatieType == RelatieType.GERELATEERD) {
-            assertPolicy(
-                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).lezen
-            )
-        } else {
-            assertPolicy(
-                policyService.readZaakRechten(zaakToLinkTo, zaakToLinkToZaakType, loggedInUserInstance.get()).koppelen
-            )
-        }
-
         when (restZaakLinkData.relatieType) {
-            RelatieType.HOOFDZAAK -> koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
-            RelatieType.DEELZAAK -> koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
-            RelatieType.GERELATEERD -> koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
+            RelatieType.GERELATEERD -> assertPolicy(
+                canBeRelated(
+                    zaak.toZaakLinkData(user, zaakType),
+                    zaakToLinkTo.toZaakLinkData(user, zaakToLinkToZaakType)
+                )
+            ).also {
+                koppelGerelateerdeZaken(zaak, zaakToLinkTo, restZaakLinkData.reden)
+            }
+            RelatieType.HOOFDZAAK -> assertPolicy(
+                canBeHoofdAndDeelzaak(
+                    zaakToLinkTo.toZaakLinkData(user, zaakToLinkToZaakType),
+                    zaak.toZaakLinkData(user, zaakType),
+                    zaakToLinkToZaakType.getDeelzaaktypenSet()
+                )
+            ).also {
+                koppelHoofdEnDeelzaak(zaakToLinkTo, zaak)
+            }
+            RelatieType.DEELZAAK -> assertPolicy(
+                canBeHoofdAndDeelzaak(
+                    zaak.toZaakLinkData(user, zaakType),
+                    zaakToLinkTo.toZaakLinkData(user, zaakToLinkToZaakType),
+                    zaakType.getDeelzaaktypenSet()
+
+                )
+            ).also {
+                koppelHoofdEnDeelzaak(zaak, zaakToLinkTo)
+            }
             else -> throw IllegalArgumentException(
                 "RelatieType ${restZaakLinkData.relatieType} cannot be used for linking zaken"
             )
@@ -129,40 +146,68 @@ class ZaakKoppelenRestService @Inject constructor(
         val (linkedZaak, linkedZaakType) = zaakService.readZaakAndZaakTypeByZaakID(
             restZaakUnlinkData.gekoppeldeZaakIdentificatie
         )
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).koppelen)
-
-        if(restZaakUnlinkData.relatieType == RelatieType.GERELATEERD)
-            assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).lezen)
-        else
-            assertPolicy(policyService.readZaakRechten(linkedZaak, linkedZaakType, loggedInUserInstance.get()).koppelen)
 
         when (restZaakUnlinkData.relatieType) {
-            RelatieType.HOOFDZAAK -> ontkoppelHoofdEnDeelzaak(
-                hoofdZaak = linkedZaak,
-                deelZaak = zaak,
-                explanation = restZaakUnlinkData.reden
-            )
-            RelatieType.DEELZAAK -> ontkoppelHoofdEnDeelzaak(
-                hoofdZaak = zaak,
-                deelZaak = linkedZaak,
-                explanation = restZaakUnlinkData.reden
-            )
-            RelatieType.GERELATEERD -> ontkoppelGerelateerdeZaken(
-                zaak = zaak,
-                andereZaak = linkedZaak,
-                explanation = restZaakUnlinkData.reden
-            )
+            RelatieType.HOOFDZAAK -> assertPolicy(
+                hoofdAndDeelzaakCanBeOntkoppeld(
+                    linkedZaak.toZaakLinkData(loggedInUserInstance.get(), linkedZaakType),
+                    zaak.toZaakLinkData(loggedInUserInstance.get(), zaakType)
+                )
+            ).also {
+                ontkoppelHoofdEnDeelzaak(
+                    hoofdZaak = linkedZaak,
+                    deelZaak = zaak,
+                    explanation = restZaakUnlinkData.reden
+                )
+            }
+            RelatieType.DEELZAAK -> assertPolicy(
+                hoofdAndDeelzaakCanBeOntkoppeld(
+                    zaak.toZaakLinkData(loggedInUserInstance.get(), zaakType),
+                    linkedZaak.toZaakLinkData(loggedInUserInstance.get(), linkedZaakType)
+                )
+            ).also {
+                ontkoppelHoofdEnDeelzaak(
+                    hoofdZaak = zaak,
+                    deelZaak = linkedZaak,
+                    explanation = restZaakUnlinkData.reden
+                )
+            }
+            RelatieType.GERELATEERD -> assertPolicy(
+                relatedZakenCanBeOntkoppeld(
+                    zaak.toZaakLinkData(loggedInUserInstance.get(), zaakType),
+                    linkedZaak.toZaakLinkData(loggedInUserInstance.get(), linkedZaakType)
+                )
+            ).also {
+                ontkoppelGerelateerdeZaken(
+                    zaak = zaak,
+                    andereZaak = linkedZaak,
+                    explanation = restZaakUnlinkData.reden
+                )
+            }
             else -> throw IllegalArgumentException(
                 "RelatieType ${restZaakUnlinkData.relatieType} cannot be used for unlinking zaken"
             )
         }
     }
 
-    private fun areBothClosed(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        !sourceZaak.isOpen() && targetZaak.archiefNominatie != null
+    private fun ZaakType.getDeelzaaktypenSet() = this.deelzaaktypen
+        .map{ it.extractUuid() }
+        .toSet()
 
-    private fun areBothOpen(sourceZaak: Zaak, targetZaak: ZaakZoekObject) =
-        sourceZaak.isOpen() && targetZaak.archiefNominatie == null
+    private fun ZaakZoekObject.toZaakLinkData() =
+        policyService.readZaakRechtenForZaakZoekObject(this).let{ rechten ->
+            ZaakLinkData(
+                isOpen = this.archiefNominatie == null,
+                isHoofdzaak = this.isIndicatie(HOOFDZAAK),
+                isDeelzaak =  this.isIndicatie(DEELZAAK),
+                zaaktypeUUID = UUID.fromString(this.zaaktypeUuid),
+                lezen = rechten.lezen,
+                koppelen = rechten.koppelen
+            )
+        }
+
+    private fun Zaak.toZaakLinkData(user: LoggedInUser, zaaktype: ZaakType) =
+        policyService.readZaakRechten(this, zaaktype, user).let{ rechten -> this.toZaakLinkData(rechten) }
 
     private fun buildZoekParameters(
         zaak: Zaak,
@@ -180,86 +225,44 @@ class ZaakKoppelenRestService @Inject constructor(
         searchResults: ZoekResultaat<out ZoekObject>,
         zaak: Zaak,
         relationType: RelatieType,
-        loggedInUser: LoggedInUser
-    ): RestZoekResultaat<RestZaakKoppelenZoekObject> =
-        RestZoekResultaat(
+        user: LoggedInUser
+    ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
+        val zaaktype = zaakService.readZaakTypeByZaak(zaak)
+        val koppelData = zaak.toZaakLinkData(user, zaaktype)
+        return RestZoekResultaat(
             searchResults.items.map {
                 val zaakZoekObject = it as ZaakZoekObject
                 zaakZoekObject.toRestZaakKoppelenZoekObject(
-                    isLinkable(
-                        sourceZaak = zaak,
-                        targetZaak = zaakZoekObject,
-                        relationType = relationType,
-                        loggedInUser = loggedInUser
-                    )
+                    isLinkableTo(koppelData, zaaktype, zaakZoekObject, relationType),
                 )
             },
             searchResults.count
         )
-
-    private fun ZaakZoekObject.hasLinkRights(relationType: RelatieType) = policyService.readZaakRechtenForZaakZoekObject(this).let {
-        if (relationType == RelatieType.GERELATEERD) it.lezen
-        else it.koppelen
     }
 
-    private fun Zaak.hasLinkRights(loggedInUser: LoggedInUser) = policyService.readZaakRechten(
-        this,
-        loggedInUser
-    ).koppelen
 
-    private fun ZaakZoekObject.hasMatchingZaaktypeWith(sourceZaak: Zaak, relationType: RelatieType): Boolean =
-        when (relationType) {
-            // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK ->
-                // source zaak's zaaktype is allowed in target zaak as deelzaak
-                sourceZaak.zaaktype.extractUuid().toString().let { uuid ->
-                    ztcClientService.readZaaktype(UUID.fromString(this.zaaktypeUuid)).deelzaaktypen.any {
-                        it.toString().contains(uuid)
-                    }
-                }
-            // "The case you are searching for here will become the subcase"
-            RelatieType.DEELZAAK ->
-                // target zaak's zaaktype is allowed in source zaak as deelzaak
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen.any {
-                    it.toString().contains(this.zaaktypeUuid)
-                }
-            RelatieType.GERELATEERD ->
-                true
-            else -> throw IllegalArgumentException(
-                "RelatieType $relationType cannot be used for matching zaaktype"
-            )
-        }
 
-    private fun isLinkable(
-        sourceZaak: Zaak,
+
+    private fun isLinkableTo(
+        sourceZaak: ZaakLinkData,
+        sourceZaaktype: ZaakType,
         targetZaak: ZaakZoekObject,
-        relationType: RelatieType,
-        loggedInUser: LoggedInUser
-    ) =
-            sourceZaak.hasLinkRights(loggedInUser) &&
-            targetZaak.hasLinkRights(relationType) &&
-            sourceZaak.isLinkableTo(targetZaak, relationType) &&
-            targetZaak.hasMatchingZaaktypeWith(sourceZaak, relationType)
-
-    private fun Zaak.isLinkableTo(targetZaak: ZaakZoekObject, relationType: RelatieType): Boolean =
+        relationType: RelatieType): Boolean =
         when (relationType) {
             // "The case you are searching for here will become the main case"
-            RelatieType.HOOFDZAAK ->
-                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
-                // hoofdzaak to hoofdzaak link not allowed
-                !this.isHoofdzaak() && !targetZaak.isIndicatie(HOOFDZAAK) &&
-                    // a zaak cannot have two hoofdzaken
-                    !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK)
-            // "The case you are searching for here will become the subcase"
-            RelatieType.DEELZAAK ->
-                (areBothOpen(this, targetZaak) || areBothClosed(this, targetZaak)) &&
-                // As per https://vng-realisatie.github.io/gemma-zaken/standaard/zaken
-                // "deelzaken van deelzaken zijn NIET toegestaan"
-                !this.isDeelzaak() && !targetZaak.isIndicatie(DEELZAAK) &&
-                    // a hoofdzaak cannot be both a hoofdzaak and a deelzaak
-                    !targetZaak.isIndicatie(HOOFDZAAK)
-            RelatieType.GERELATEERD ->
-                true
+            RelatieType.HOOFDZAAK -> canBeHoofdAndDeelzaak(
+                hoofdzaak = targetZaak.toZaakLinkData(),
+                deelzaak = sourceZaak,
+                allowedDeelzaaktypes = ztcClientService
+                    .readZaaktype(UUID.fromString(targetZaak.zaaktypeUuid))
+                    .getDeelzaaktypenSet()
+            )
+            RelatieType.DEELZAAK -> canBeHoofdAndDeelzaak(
+                hoofdzaak = sourceZaak,
+                deelzaak = targetZaak.toZaakLinkData(),
+                allowedDeelzaaktypes = sourceZaaktype.getDeelzaaktypenSet()
+                )
+            RelatieType.GERELATEERD -> canBeRelated(sourceZaak, targetZaak.toZaakLinkData())
             else -> throw IllegalArgumentException(
                 "RelatieType $relationType cannot be used for linking zaken"
             )

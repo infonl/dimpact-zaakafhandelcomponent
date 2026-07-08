@@ -4,7 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { mutationOptions } from "@tanstack/angular-query-experimental";
+import {
+  mutationOptions,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
@@ -185,9 +188,11 @@ export class ZakenService {
     });
   }
 
-  listHistorieVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/historie", {
-      path: { uuid },
+  listHistorieVoorZaakQuery(uuid: string) {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/historie", {
+        path: { uuid },
+      }),
     });
   }
 

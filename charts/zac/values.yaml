@@ -182,7 +182,14 @@ signaleringen:
   failedJobsHistoryLimit: 3
   restartPolicy: Never
   imagePullSecrets: []
-  resources: {}
+   # -- resource requests and limits for the curl-based signaleren CronJob containers
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -190,6 +197,9 @@ signaleringen:
   affinity: {}
    # -- container security context for the curl-based signaleren CronJob containers
   securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
@@ -652,7 +662,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.155.0@sha256:4935caa35e9a4cb387e35732e8fb22b2b5759af8d12e7043357f03837f6e8df5"
+    tag: "0.156.0@sha256:125bdbeb7590cc1952c5b3430ecf14063568980c2c93d5b38676cc0446ed8108"
   presets:
     clusterMetrics:
       enabled: false

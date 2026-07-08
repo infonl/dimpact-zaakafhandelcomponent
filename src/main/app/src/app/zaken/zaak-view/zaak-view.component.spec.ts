@@ -146,7 +146,6 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listHistorieVoorZaak").mockReturnValue(of([]));
     jest.spyOn(zakenService, "listBetrokkenenVoorZaak").mockReturnValue(of([]));
     jest
       .spyOn(zakenService, "readOpschortingZaak")
@@ -258,6 +257,18 @@ describe(ZaakViewComponent.name, () => {
           MatNavListItemHarness.with({ title: "actie.zaak.opschorten" }),
         );
         expect(button).toBeNull();
+      });
+    });
+  });
+
+  describe("zaak historie invalidation", () => {
+    it("invalidates the historie query when the zaak is (re)initialised", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      mockActivatedRoute.data.next({ zaak });
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
       });
     });
   });
