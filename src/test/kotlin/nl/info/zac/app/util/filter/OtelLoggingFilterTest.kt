@@ -13,6 +13,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.opentelemetry.api.baggage.Baggage
+import io.opentelemetry.context.Context
 import jakarta.ws.rs.container.ContainerRequestContext
 import jakarta.ws.rs.container.ContainerResponseContext
 import jakarta.ws.rs.core.MultivaluedHashMap
@@ -25,6 +26,9 @@ class OtelLoggingFilterTest : BehaviorSpec({
 
     beforeEach {
         checkUnnecessaryStub()
+        // Overwrite any leaked OTel thread-local context from the previous test so that each test
+        // starts with a clean (root) context and the filter builds Baggage from scratch.
+        Context.root().makeCurrent()
     }
 
     Given("a request without X-Correlation-ID header") {
@@ -35,7 +39,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
         }
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
 
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -45,24 +48,26 @@ class OtelLoggingFilterTest : BehaviorSpec({
 
         When("the request filter is applied") {
             filter.filter(requestContext)
+            // Capture Baggage immediately after the filter call so that Then blocks do not rely
+            // on thread-local context that may not survive a coroutine suspension.
+            val baggage = Baggage.current()
 
             Then("a correlation ID should be generated and added to Baggage") {
-                val baggage = Baggage.current()
                 baggage.getEntryValue(OtelLoggingFilter.REQUEST_CORRELATION_ID).shouldNotBeNull()
                 baggage.getEntryValue(OtelLoggingFilter.REQUEST_CORRELATION_ID) shouldMatch
                     "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
 
             Then("HTTP method should be added to Baggage") {
-                Baggage.current().getEntryValue(OtelLoggingFilter.HTTP_REQUEST_METHOD) shouldBe "GET"
+                baggage.getEntryValue(OtelLoggingFilter.HTTP_REQUEST_METHOD) shouldBe "GET"
             }
 
             Then("HTTP path should be added to Baggage") {
-                Baggage.current().getEntryValue(OtelLoggingFilter.HTTP_REQUEST_PATH) shouldBe "zaken/123"
+                baggage.getEntryValue(OtelLoggingFilter.HTTP_REQUEST_PATH) shouldBe "zaken/123"
             }
 
             Then("operation should be extracted and added to Baggage") {
-                Baggage.current().getEntryValue(OtelLoggingFilter.REQUEST_OPERATION) shouldBe "zaken"
+                baggage.getEntryValue(OtelLoggingFilter.REQUEST_OPERATION) shouldBe "zaken"
             }
         }
     }
@@ -78,7 +83,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
             every { path } returns "taken/456/complete"
         }
 
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -88,9 +92,10 @@ class OtelLoggingFilterTest : BehaviorSpec({
 
         When("the request filter is applied") {
             filter.filter(requestContext)
+            val baggage = Baggage.current()
 
             Then("the provided correlation ID should be used") {
-                Baggage.current().getEntryValue(OtelLoggingFilter.REQUEST_CORRELATION_ID) shouldBe testCorrelationId
+                baggage.getEntryValue(OtelLoggingFilter.REQUEST_CORRELATION_ID) shouldBe testCorrelationId
             }
         }
     }
@@ -111,7 +116,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
         }
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
 
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -121,9 +125,10 @@ class OtelLoggingFilterTest : BehaviorSpec({
 
         When("the request filter is applied") {
             filter.filter(requestContext)
+            val baggage = Baggage.current()
 
             Then("the user ID should be added to Baggage") {
-                Baggage.current().getEntryValue(OtelLoggingFilter.REQUEST_USER_ID) shouldBe testUserId
+                baggage.getEntryValue(OtelLoggingFilter.REQUEST_USER_ID) shouldBe testUserId
             }
         }
     }
@@ -137,7 +142,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
 
         val properties = mutableMapOf<String, Any>()
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -151,20 +155,20 @@ class OtelLoggingFilterTest : BehaviorSpec({
         every { requestContext.getProperty(any()) } answers {
             properties[firstArg()]
         }
+        every { requestContext.hasProperty(any()) } answers { properties.containsKey(firstArg()) }
 
-        // Mock response context
         val responseContext = mockk<ContainerResponseContext>()
         every { responseContext.status } returns 200
 
         When("the filters are applied in sequence") {
             filter.filter(requestContext)
-            // Small delay to ensure measurable duration
             Thread.sleep(10)
             filter.filter(requestContext, responseContext)
+            // After the response filter closes the OTel scope, Baggage is restored to root (empty)
+            val baggage = Baggage.current()
 
-            Then("request start time should have been set") {
-                // Context scope should be closed after response filter
-                properties[OtelLoggingFilter.CONTEXT_OTEL_SCOPE] shouldBe null
+            Then("the OTel scope should have been closed after the response filter") {
+                baggage.getEntryValue(OtelLoggingFilter.HTTP_REQUEST_METHOD) shouldBe null
             }
         }
     }
@@ -178,7 +182,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
 
         val properties = mutableMapOf<String, Any>()
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -188,9 +191,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
             val key = firstArg<String>()
             val value = secondArg<Any>()
             properties[key] = value
-        }
-        every { requestContext.getProperty(any()) } answers {
-            properties[firstArg()]
         }
 
         When("the request filter is applied") {
@@ -210,7 +210,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
         val headers: MultivaluedMap<String, String> = MultivaluedHashMap()
         val uriInfo = mockk<UriInfo>()
 
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
         every { requestContext.headers } returns headers
         every { requestContext.uriInfo } returns uriInfo
@@ -221,36 +220,36 @@ class OtelLoggingFilterTest : BehaviorSpec({
         every { uriInfo.path } returns "zaken/123"
         When("path is 'zaken/123'") {
             filter.filter(requestContext)
-
+            val baggage = Baggage.current()
             Then("operation should be 'zaken'") {
-                Baggage.current().getEntryValue("operation") shouldBe "zaken"
+                baggage.getEntryValue("operation") shouldBe "zaken"
             }
         }
 
         every { uriInfo.path } returns "taken/456/complete"
         When("path is 'taken/456/complete'") {
             filter.filter(requestContext)
-
+            val baggage = Baggage.current()
             Then("operation should be 'taken'") {
-                Baggage.current().getEntryValue("operation") shouldBe "taken"
+                baggage.getEntryValue("operation") shouldBe "taken"
             }
         }
 
         every { uriInfo.path } returns "documenten"
         When("path is 'documenten'") {
             filter.filter(requestContext)
-
+            val baggage = Baggage.current()
             Then("operation should be 'documenten'") {
-                Baggage.current().getEntryValue("operation") shouldBe "documenten"
+                baggage.getEntryValue("operation") shouldBe "documenten"
             }
         }
 
         every { uriInfo.path } returns ""
         When("path is empty") {
             filter.filter(requestContext)
-
+            val baggage = Baggage.current()
             Then("operation should not be set") {
-                Baggage.current().getEntryValue("operation") shouldBe null
+                baggage.getEntryValue("operation") shouldBe null
             }
         }
     }
@@ -258,12 +257,10 @@ class OtelLoggingFilterTest : BehaviorSpec({
     Given("response filter with missing start time") {
         val filter = OtelLoggingFilter()
 
-        // Mock request context
         val requestContext = mockk<ContainerRequestContext>()
-        every { requestContext.getProperty(OtelLoggingFilter.CONTEXT_REQUEST_START_TIME) } returns null
+        every { requestContext.hasProperty(OtelLoggingFilter.CONTEXT_REQUEST_START_TIME) } returns false
         every { requestContext.getProperty(OtelLoggingFilter.CONTEXT_OTEL_SCOPE) } returns null
 
-        // Mock response context
         val responseContext = mockk<ContainerResponseContext>()
         every { responseContext.status } returns 404
 
@@ -271,7 +268,6 @@ class OtelLoggingFilterTest : BehaviorSpec({
             filter.filter(requestContext, responseContext)
 
             Then("filter should handle missing start time gracefully") {
-                // The filter should not throw an exception
                 true shouldBe true
             }
         }
