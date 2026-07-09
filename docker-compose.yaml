@@ -608,7 +608,7 @@ services:
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
-      - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker_no2fa
+      - DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker
       - SECRET_KEY=${SECRET_KEY:-oabSecretKey}
       - DB_NAME=openarchiefbeheer
       - DB_USER=openarchiefbeheer
@@ -630,8 +630,11 @@ services:
       - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - FRONTEND_URL=http://localhost:8005
       - REQUESTS_READ_TIMEOUT=5000
+    # Only this service serves the admin login form, so only here do we need to
+    # override DJANGO_SETTINGS_MODULE to disable enforced two-factor authentication.
+    command: [ "sh", "-c", "DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker_no2fa exec /start.sh" ]
     volumes:
-      - &oab_no2fa_volume ./scripts/docker-compose/imports/openarchiefbeheer-web/docker_no2fa.py:/app/src/openarchiefbeheer/conf/docker_no2fa.py:ro
+      - ./scripts/docker-compose/imports/openarchiefbeheer-web/docker_no2fa.py:/app/src/openarchiefbeheer/conf/docker_no2fa.py:ro
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
@@ -651,7 +654,6 @@ services:
     environment: *web_env
     command: /setup_configuration.sh
     volumes:
-      - *oab_no2fa_volume
       - ./scripts/docker-compose/imports/openarchiefbeheer-web:/app/setup_configuration
     depends_on:
       openarchiefbeheer-web:
@@ -665,8 +667,6 @@ services:
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
-    volumes:
-      - *oab_no2fa_volume
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
       interval: 5s
@@ -682,8 +682,6 @@ services:
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
-    volumes:
-      - *oab_no2fa_volume
     depends_on:
       - openarchiefbeheer-database
       - redis
