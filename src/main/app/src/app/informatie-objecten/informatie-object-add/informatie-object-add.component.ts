@@ -90,13 +90,9 @@ export class InformatieObjectAddComponent {
       this.document.emit(data);
       this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
       if (this.form.controls.addOtherInfoObject.value) {
-        type FormKeys = keyof typeof this.form.controls;
-        const clearFields = ["titel", "bestand"];
-        const oldValues = Object.fromEntries(
-          Object.entries(this.form.controls)
-            .filter(([key]) => !clearFields.includes(key as FormKeys))
-            .map(([key, { value }]) => [key, value]),
-        );
+        const oldValues = this.form.getRawValue()
+        oldValues.titel = null
+        oldValues.bestand = null
         this.form.reset(oldValues);
         return;
       }
