@@ -8,7 +8,6 @@ import { Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
-import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -35,7 +34,6 @@ import { ZakenService } from "../zaken.service";
   imports: [
     MatButtonModule,
     MatIconModule,
-    MatSortModule,
     MatTableModule,
     MatTooltipModule,
     TranslateModule,
@@ -54,7 +52,7 @@ export class ZaakBetrokkeneListComponent {
   private readonly datumPipe = new DatumPipe("nl");
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  readonly zaakRollenListener = input<WebsocketListener>();
+  readonly zaakRollenListener = input.required<WebsocketListener>();
 
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak().uuid),

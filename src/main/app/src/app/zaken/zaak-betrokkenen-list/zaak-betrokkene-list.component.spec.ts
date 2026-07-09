@@ -24,7 +24,9 @@ import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { DialogData } from "../../shared/dialog/dialog-data";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZakenService } from "../zaken.service";
 import { ZaakBetrokkeneListComponent } from "./zaak-betrokkene-list.component";
 
@@ -64,6 +66,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let websocketService: WebsocketService;
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
+  let dialogOpenSpy: jest.Mock;
 
   const fakeZaak = makeZaak();
 
@@ -81,6 +84,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     dialogRef = fromPartial<MatDialogRef<unknown>>({
       afterClosed: jest.fn().mockReturnValue(of(undefined)),
     });
+    dialogOpenSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -94,7 +98,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
         provideQueryClient(testQueryClient),
         {
           provide: MatDialog,
-          useValue: { open: jest.fn().mockReturnValue(dialogRef) },
+          useValue: { open: dialogOpenSpy },
         },
       ],
     }).compileComponents();
@@ -175,6 +179,60 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
       expect(betrokkene.gegevens).toBe("-");
     });
+
+    it.each(["NIET_NATUURLIJK_PERSOON", "VESTIGING"] as const)(
+      "fetches and formats the naam and adres for a %s",
+      async (type) => {
+        const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
+          gegevens?: string | null;
+        } = makeBetrokkene({
+          type,
+          identificatieType: "VN",
+          vestigingsnummer: "11112222",
+          kvkNummer: "87654321",
+        });
+        testQueryClient.setQueryData(
+          klantenService.readBedrijf(new BetrokkeneIdentificatie(betrokkene))
+            .queryKey,
+          fromPartial<GeneratedType<"RestBedrijf">>({
+            naam: "fakeBedrijfNaam",
+            adres: fromPartial<GeneratedType<"RestBedrijfAdres">>({
+              volledigAdres: "fakeStraat 1, 1234AB fakePlaats",
+            }),
+          }),
+        );
+
+        await component["betrokkeneGegevensOphalen"](betrokkene);
+
+        expect(betrokkene.gegevens).toContain("fakeBedrijfNaam");
+        expect(betrokkene.gegevens).toContain(
+          "fakeStraat 1, 1234AB fakePlaats",
+        );
+      },
+    );
+
+    it("does not append an adres when the bedrijf has none", async () => {
+      const betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
+        gegevens?: string | null;
+      } = makeBetrokkene({
+        type: "NIET_NATUURLIJK_PERSOON",
+        identificatieType: "VN",
+        vestigingsnummer: "11112222",
+        kvkNummer: "87654321",
+      });
+      testQueryClient.setQueryData(
+        klantenService.readBedrijf(new BetrokkeneIdentificatie(betrokkene))
+          .queryKey,
+        fromPartial<GeneratedType<"RestBedrijf">>({
+          naam: "fakeBedrijfNaam",
+          adres: null,
+        }),
+      );
+
+      await component["betrokkeneGegevensOphalen"](betrokkene);
+
+      expect(betrokkene.gegevens).toBe("fakeBedrijfNaam");
+    });
   });
 
   describe("deleteBetrokkene", () => {
@@ -183,6 +241,23 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
       expect(websocketService.suspendListener).toHaveBeenCalledWith(
         component.zaakRollenListener(),
+      );
+    });
+
+    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", () => {
+      const betrokkene = makeBetrokkene({ rolid: "fake-rol-id" });
+
+      component["deleteBetrokkene"](betrokkene);
+
+      const dialogData = dialogOpenSpy.mock.calls[0][1].data as DialogData<
+        unknown,
+        { reden: string }
+      >;
+      dialogData.options.callback?.({ reden: "fake-reden" });
+
+      expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith(
+        "fake-rol-id",
+        "fake-reden",
       );
     });
 
