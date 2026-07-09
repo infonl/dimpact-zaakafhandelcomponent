@@ -30,6 +30,7 @@ import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
 @Suppress("MagicNumber")
@@ -262,6 +263,46 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     length() shouldBe 1
                     shouldContainInOrder(listOf("fakeServerErrorErrorPageText"))
                 }
+            }
+        }
+
+        When("a new reference table is added with a code and naam exceeding the maximum length") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/referentietabellen",
+                requestBodyAsString = """
+                    {
+                    "code": "${"a".repeat(257)}",
+                    "naam": "${"a".repeat(257)}",
+                    "waarden":[]
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1,
+            )
+
+            Then("the response should be 'bad request'") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+            }
+        }
+
+        When("a new reference table is added with a value name exceeding the maximum length") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/referentietabellen",
+                requestBodyAsString = """
+                    {
+                    "code": "fakeReferenceTableCode2",
+                    "naam": "fakeReferenceTableName2",
+                    "waarden":[{"naam":"${"a".repeat(1001)}"}]
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1,
+            )
+
+            Then("the response should be 'bad request'") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
             }
         }
 

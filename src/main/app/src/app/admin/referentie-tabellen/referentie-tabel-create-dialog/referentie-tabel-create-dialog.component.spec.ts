@@ -74,6 +74,26 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
     httpTestingController.expectNone("/rest/referentietabellen");
   });
 
+  it("accepts a code and name of 256 characters but does not submit longer ones", async () => {
+    const { component, httpTestingController } = await setup();
+
+    component["form"].setValue({
+      code: "a".repeat(256),
+      naam: "a".repeat(256),
+    });
+    expect(component["form"].valid).toBe(true);
+
+    component["form"].setValue({
+      code: "a".repeat(257),
+      naam: "a".repeat(257),
+    });
+    expect(component["form"].controls.code.invalid).toBe(true);
+    expect(component["form"].controls.naam.invalid).toBe(true);
+
+    component["submit"]();
+    httpTestingController.expectNone("/rest/referentietabellen");
+  });
+
   it("creates the table, closes with true and shows a snackbar", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup();

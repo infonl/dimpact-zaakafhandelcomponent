@@ -58,6 +58,51 @@ class RestReferenceTableTest : BehaviorSpec({
             }
         }
 
+        Given("a reference table with a code and naam of exactly the maximum length") {
+            val restReferenceTable = createRestReferenceTable(
+                code = "a".repeat(RestReferenceTable.CODE_MAX_LENGTH),
+                naam = "a".repeat(RestReferenceTable.NAAM_MAX_LENGTH)
+            )
+
+            When("validating the reference table") {
+                val violations = validator.validate(restReferenceTable)
+
+                Then("there should be no constraint violations") {
+                    violations.isEmpty() shouldBe true
+                }
+            }
+        }
+
+        Given("a reference table with a code exceeding the maximum length") {
+            val restReferenceTable = createRestReferenceTable(
+                code = "a".repeat(RestReferenceTable.CODE_MAX_LENGTH + 1)
+            )
+
+            When("validating the reference table") {
+                val violations = validator.validate(restReferenceTable)
+
+                Then("there should be one constraint violation on code") {
+                    violations shouldHaveSize 1
+                    violations.first().propertyPath.toString() shouldBe "code"
+                }
+            }
+        }
+
+        Given("a reference table with a naam exceeding the maximum length") {
+            val restReferenceTable = createRestReferenceTable(
+                naam = "a".repeat(RestReferenceTable.NAAM_MAX_LENGTH + 1)
+            )
+
+            When("validating the reference table") {
+                val violations = validator.validate(restReferenceTable)
+
+                Then("there should be one constraint violation on naam") {
+                    violations shouldHaveSize 1
+                    violations.first().propertyPath.toString() shouldBe "naam"
+                }
+            }
+        }
+
         Given("a reference table with a nested value that has a naam exceeding the maximum length") {
             val restReferenceTable = createRestReferenceTable(
                 waarden = listOf(
@@ -102,6 +147,36 @@ class RestReferenceTableTest : BehaviorSpec({
                 Then("there should be one constraint violation on the nested value's naam") {
                     violations shouldHaveSize 1
                     violations.first().propertyPath.toString() shouldBe "waarden[0].naam"
+                }
+            }
+        }
+
+        Given("a reference table update with a naam exceeding the maximum length") {
+            val restReferenceTableUpdate = createRestReferenceTableUpdate(
+                naam = "a".repeat(RestReferenceTable.NAAM_MAX_LENGTH + 1)
+            )
+
+            When("validating the reference table update") {
+                val violations = validator.validate(restReferenceTableUpdate)
+
+                Then("there should be one constraint violation on naam") {
+                    violations shouldHaveSize 1
+                    violations.first().propertyPath.toString() shouldBe "naam"
+                }
+            }
+        }
+
+        Given("a reference table update with a code exceeding the maximum length") {
+            val restReferenceTableUpdate = createRestReferenceTableUpdate(
+                code = "a".repeat(RestReferenceTable.CODE_MAX_LENGTH + 1)
+            )
+
+            When("validating the reference table update") {
+                val violations = validator.validate(restReferenceTableUpdate)
+
+                Then("there should be one constraint violation on code") {
+                    violations shouldHaveSize 1
+                    violations.first().propertyPath.toString() shouldBe "code"
                 }
             }
         }

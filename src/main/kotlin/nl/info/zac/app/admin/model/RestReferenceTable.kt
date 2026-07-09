@@ -6,6 +6,7 @@ package nl.info.zac.app.admin.model
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -19,9 +20,11 @@ class RestReferenceTable(
     var id: Long? = null,
 
     @field:NotBlank
+    @field:Size(max = CODE_MAX_LENGTH)
     var code: String,
 
     @field:NotBlank
+    @field:Size(max = NAAM_MAX_LENGTH)
     var naam: String,
 
     var systeem: Boolean = false,
@@ -30,7 +33,12 @@ class RestReferenceTable(
 
     @field:Valid
     var waarden: List<RestReferenceTableValue> = emptyList()
-)
+) {
+    companion object {
+        const val CODE_MAX_LENGTH = 256
+        const val NAAM_MAX_LENGTH = 256
+    }
+}
 
 fun RestReferenceTable.toReferenceTable(): ReferenceTable {
     return ReferenceTable().apply {
