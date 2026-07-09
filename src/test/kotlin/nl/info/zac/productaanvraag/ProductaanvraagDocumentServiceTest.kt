@@ -94,7 +94,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
             When("the bijlagen are paired with the zaak") {
                 productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
 
-                Then("the method should not throw and only the successful bijlage should be linked") {
+                Then("the method should not throw an exception and only the successful bijlage should be linked") {
                     verify(exactly = 1) {
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
