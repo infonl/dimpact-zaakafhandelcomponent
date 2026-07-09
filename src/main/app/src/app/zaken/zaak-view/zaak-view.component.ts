@@ -33,7 +33,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
-import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -41,7 +40,6 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -80,14 +78,6 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  betrokkenen = new MatTableDataSource<GeneratedType<"RestZaakBetrokkene">>();
-  betrokkenenColumns = [
-    "roltype",
-    "betrokkenegegevens",
-    "betrokkeneidentificatie",
-    "roltoelichting",
-    "actions",
-  ] as const;
   bagObjectenDataSource = new MatTableDataSource<
     GeneratedType<"RESTBAGObjectGegevens">
   >();
@@ -115,9 +105,8 @@ export class ZaakViewComponent
   viewInitialized = false;
 
   private zaakListener!: WebsocketListener;
-  private zaakRollenListener!: WebsocketListener;
+  protected zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
-  private datumPipe = new DatumPipe("nl");
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
@@ -135,11 +124,15 @@ export class ZaakViewComponent
   protected readonly brpRechtenQuery = injectQuery(() =>
     this.policyService.readBrpRechten(),
   );
+
+  protected readonly betrokkenenQuery = injectQuery(() =>
+    this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid),
+  );
+
   constructor(
     private zakenService: ZakenService,
     private identityService: IdentityService,
     private planItemsService: PlanItemsService,
-    private klantenService: KlantenService,
     private zaakafhandelParametersService: ZaakafhandelParametersService,
     private route: ActivatedRoute,
     private utilService: UtilService,
@@ -188,7 +181,6 @@ export class ZaakViewComponent
   private init(zaak: GeneratedType<"RestZaak">) {
     this.zaak = zaak;
     this.invalidateZaakHistorie();
-    this.loadBetrokkenen();
     this.loadBagObjecten();
     this.setupMenu();
     this.loadOpschorting();
@@ -806,14 +798,6 @@ export class ZaakViewComponent
     });
   }
 
-  private loadBetrokkenen() {
-    this.zakenService
-      .listBetrokkenenVoorZaak(this.zaak.uuid)
-      .subscribe((betrokkenen) => {
-        this.betrokkenen.data = betrokkenen;
-      });
-  }
-
   private loadBagObjecten() {
     this.bagService.list(this.zaak.uuid).subscribe((bagObjecten) => {
       this.gekoppeldeBagObjecten = bagObjecten
@@ -939,38 +923,15 @@ export class ZaakViewComponent
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
         this.invalidateZaakHistorie();
-        this.loadBetrokkenen();
+        this.invalidateBetrokkenen();
       });
   }
 
-  protected deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
-    this.websocketService.suspendListener(this.zaakRollenListener);
-    const betrokkeneIdentificatie: string =
-      betrokkene.roltype +
-      " " +
-      (betrokkene.vestigingsnummer ??
-        betrokkene.kvkNummer ??
-        betrokkene.bsn ??
-        betrokkene.naam);
-    this.zaakDialogService
-      .openOntkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
-        this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        this.activeSideAction = null;
-        if (result) {
-          this.utilService.openSnackbar(
-            "msg.betrokkene.ontkoppelen.uitgevoerd",
-            { betrokkene: betrokkeneIdentificatie },
-          );
-          this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zaak = zaak;
-            this.invalidateZaakHistorie();
-            this.loadBetrokkenen();
-          });
-        }
-      });
+  private invalidateBetrokkenen() {
+    this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid)
+        .queryKey,
+    });
   }
 
   protected adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">) {
@@ -1080,53 +1041,6 @@ export class ZaakViewComponent
   protected updateDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
     this.invalidateZaakHistorie();
-  }
-
-  protected async betrokkeneGegevensOphalen(
-    betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
-      gegevens?: string | null;
-    },
-  ) {
-    betrokkene["gegevens"] = "LOADING";
-    switch (betrokkene.type) {
-      case "NATUURLIJK_PERSOON": {
-        const persoon = await this.queryClient.ensureQueryData(
-          this.klantenService.readPersoon(
-            betrokkene.temporaryPersonId!,
-            this.zaak.zaaktype.uuid,
-          ),
-        );
-        betrokkene["gegevens"] = persoon.naam;
-        if (persoon.geboortedatum) {
-          betrokkene["gegevens"] += `, ${this.datumPipe.transform(
-            persoon.geboortedatum,
-          )}`;
-        }
-        if (persoon.verblijfplaats)
-          betrokkene["gegevens"] += `,\n${persoon.verblijfplaats}`;
-        break;
-      }
-      case "NIET_NATUURLIJK_PERSOON":
-      case "VESTIGING": {
-        const betrokkeneIdentificatie = new BetrokkeneIdentificatie(betrokkene);
-
-        const bedrijf = await this.queryClient.ensureQueryData(
-          this.klantenService.readBedrijf(betrokkeneIdentificatie),
-        );
-
-        if (!bedrijf) return;
-
-        betrokkene["gegevens"] = bedrijf.naam;
-        if (bedrijf.adres?.volledigAdres)
-          betrokkene["gegevens"] += `,\n${bedrijf.adres.volledigAdres}`;
-        break;
-      }
-      case "ORGANISATORISCHE_EENHEID":
-      case "MEDEWERKER": {
-        betrokkene["gegevens"] = "-";
-        break;
-      }
-    }
   }
 
   protected bagObjectVerwijderen(
@@ -1242,7 +1156,10 @@ export class ZaakViewComponent
       !!this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
         ?.kvkKoppelen;
 
-    return Boolean(brpAllowed || kvkAllowed) && !!this.betrokkenen.data.length;
+    return (
+      Boolean(brpAllowed || kvkAllowed) &&
+      !!this.betrokkenenQuery.data()?.length
+    );
   }
 
   protected isAfterDate(datum: Date | moment.Moment | string) {
