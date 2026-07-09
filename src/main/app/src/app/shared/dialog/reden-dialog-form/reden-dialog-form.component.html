@@ -1,0 +1,29 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<form [formGroup]="form" (ngSubmit)="submit()" (cancel)="close()">
+  <zac-generic-dialog
+    [titleKey]="data.titleKey"
+    [icon]="data.icon"
+    [melding]="data.melding"
+    [uitleg]="data.uitleg"
+    [loading]="loading"
+    (cancelled)="close()"
+  >
+    @if (data.multiline) {
+      <zac-textarea [form]="form" key="reden" [label]="label" />
+    } @else {
+      <zac-input [form]="form" key="reden" [label]="label" />
+    }
+  </zac-generic-dialog>
+
+  <zac-form-actions
+    [form]="form"
+    [loading]="loading"
+    wrapper="dialog"
+    [submitLabel]="submitLabel"
+    [cancelLabel]="cancelLabel"
+  />
+</form>
