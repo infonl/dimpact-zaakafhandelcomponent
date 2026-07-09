@@ -196,9 +196,11 @@ export class ZakenService {
     });
   }
 
-  listBetrokkenenVoorZaak(uuid: string) {
-    return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}/betrokkene", {
-      path: { uuid },
+  listBetrokkenenVoorZaakQuery(uuid: string) {
+    return queryOptions({
+      ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/betrokkene", {
+        path: { uuid },
+      }),
     });
   }
 
