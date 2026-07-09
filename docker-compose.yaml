@@ -99,7 +99,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.27.3@sha256:b2732761c15b9b35d9a59420e01de0bd099266be96819e65be9f4e01fca11a63
+    image: openzaak/open-zaak:1.29.1@sha256:e872cbfd6df6521736f521797f96726dcdb622c83340c621c7fce9c530f6bcdf
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -147,7 +147,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: openzaak/open-zaak:1.27.3@sha256:b2732761c15b9b35d9a59420e01de0bd099266be96819e65be9f4e01fca11a63
+    image: openzaak/open-zaak:1.29.1@sha256:e872cbfd6df6521736f521797f96726dcdb622c83340c621c7fce9c530f6bcdf
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
