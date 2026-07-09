@@ -102,6 +102,19 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
     httpTestingController.expectNone("/rest/referentietabellen/1");
   });
 
+  it("accepts a value of 1000 characters but does not submit a longer one", async () => {
+    const { component, httpTestingController } = await setup({ tabel });
+
+    component["form"].setValue({ naam: "a".repeat(1000) });
+    expect(component["form"].valid).toBe(true);
+
+    component["form"].setValue({ naam: "a".repeat(1001) });
+    expect(component["form"].invalid).toBe(true);
+
+    component["submit"]();
+    httpTestingController.expectNone("/rest/referentietabellen/1");
+  });
+
   it("appends the new value, closes with true and shows a snackbar when adding", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup({ tabel });

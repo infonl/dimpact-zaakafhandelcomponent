@@ -59,7 +59,7 @@ class ReferenceTableRestService @Inject constructor(
     }
 
     @POST
-    fun createReferenceTable(restReferenceTable: RestReferenceTable): RestReferenceTable {
+    fun createReferenceTable(@Valid restReferenceTable: RestReferenceTable): RestReferenceTable {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableAdminService.createReferenceTable(
             restReferenceTable.toReferenceTable()
