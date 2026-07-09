@@ -3,9 +3,9 @@
 We, the maintainers of this project, value your input, enjoy feedback and welcome improvements to this open source project.
 We welcome contributions from everyone in the open source community.
 
-We are unfortunately not set up to review external pull requests.
-Please create an issue in this GitHub repository, if you have a non-trivial suggestion to extend or improve this project.
-If there is enough interest, we may change this process in future.
+We are unfortunately not set up currently to review external pull requests, except for trivial changes.
+Please create an issue in this GitHub repository if you have a suggestion to extend or improve this project.
+We'd love to change this in the future if there's enough interest, so please start using it and join us!
 
 If you want to contribute, we ask you to follow these guidelines.
 Please reach out to [us](https://github.com/infonl/dimpact-zaakafhandelcomponent/discussions) if you have questions or wish to contribute.
@@ -19,7 +19,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a pos
 
 You do not need to change any of our code or documentation to be a contributor.
 Many contributors add to software by reporting problems, suggesting changes or asking simple and difficult questions.
-To suggest a change or report a problem you can create a [GitHub issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue) for this project.
+To suggest a change or report a problem, you can create a [GitHub issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue) for this project.
 To ask questions, you can [create a new discussion](https://docs.github.com/en/discussions/collaborating-with-your-community-using-discussions/participating-in-a-discussion) in this project.
 
 Please share your proposals for new code or documentation in an issue first, so that we can discuss them.
@@ -117,7 +117,7 @@ When test code needs access to a private or protected member, use a properly typ
 ## Conventional Commits
 
 We use [Conventional Commits](https://www.conventionalcommits.org) for our commit messages.
-Specifically we use the following format for our commit messages:
+Specifically, we use the following format for our commit messages:
 
 ```
 <type>[optional scope]: <description>
@@ -127,12 +127,12 @@ Specifically we use the following format for our commit messages:
 [footer]
 ```
 
-When you create a Pull Request (PR) please follow the following instructions to comply to our Conventional Commits guidelines:
+When you create a Pull Request (PR), please follow the following instructions to comply with our Conventional Commits guidelines:
 1. Make sure the PR title complies to: `<type>[optional scope]: <description>`. E.g. `feat: add new feature`.
 2. In the PR body fill in the body consisting of one line of text. E.g. `Added new exciting feature.`
-3. In the footer reference the JIRA issue (typically a subtask) number from the
-    [PodiumD Zaak JIRA project](https://dimpact.atlassian.net/jira/software/c/projects/PZ/) as follows:
-    `Solves PZ-XXX`, where `XXX` is the JIRA issue number.
+3. In the footer reference either the GitHub issue number (for community contributions) or the JIRA issue number (for work done by our INFO/ICATT team).
+   1. For community contributions, use: `Solves #XXX`, where `XXX` is the GitHub issue number.
+   2. For work done by our INFO/ICATT team, use: `Solves PZ-XXX`, where `XXX` is the JIRA issue number in the Dimpact PodiumD Zaak JIRA project.
 
 For example:
 
@@ -140,7 +140,3 @@ For example:
 
 We use the [Conventional Commits GitHub Action](https://github.com/agenthunt/conventional-commit-checker-action) to check
 if a new PR complies to our Conventional Commits guidelines described above.
-
-This plugin unfortunately only checks on PR creation time and not when you merge your PR.
-So when merging a PR in GitHub using Squash and Merge please copy the PR body into the
-GitHub Squash and Merge description text area.
