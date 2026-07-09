@@ -40,9 +40,6 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
-import { SelectFormFieldBuilder } from "../../shared/material-form-builder/form-components/select/select-form-field-builder";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
