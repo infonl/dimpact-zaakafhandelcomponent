@@ -50,11 +50,11 @@ export class ReferentieTabelCreateDialogComponent {
   protected readonly form = new FormGroup({
     code: new FormControl("", {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(256)],
+      validators: [Validators.required, Validators.maxLength(2256)],
     }),
     naam: new FormControl("", {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(256)],
+      validators: [Validators.required, Validators.maxLength(2256)],
     }),
   });
 

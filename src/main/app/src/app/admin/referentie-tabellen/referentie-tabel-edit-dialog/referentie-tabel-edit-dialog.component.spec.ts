@@ -86,6 +86,19 @@ describe(ReferentieTabelEditDialogComponent.name, () => {
     httpTestingController.expectNone("/rest/referentietabellen/1");
   });
 
+  it("accepts a name of 256 characters but does not submit a longer one", async () => {
+    const { component, httpTestingController } = await setup();
+
+    component["form"].controls.naam.setValue("a".repeat(256));
+    expect(component["form"].valid).toBe(true);
+
+    component["form"].controls.naam.setValue("a".repeat(257));
+    expect(component["form"].controls.naam.invalid).toBe(true);
+
+    component["submit"]();
+    httpTestingController.expectNone("/rest/referentietabellen/1");
+  });
+
   it("updates the name (keeping code and values), closes with true and shows a snackbar", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup();
