@@ -19,15 +19,14 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import java.net.URI
 
 class ProductaanvraagDocumentServiceTest : BehaviorSpec({
-    afterEach { checkUnnecessaryStub() }
-
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
-
     val productaanvraagDocumentService = ProductaanvraagDocumentService(
         zrcClientService = zrcClientService,
         drcClientService = drcClientService
     )
+
+    afterEach { checkUnnecessaryStub() }
 
     Context("Pair bijlagen with zaak") {
         Given("a list of bijlage URIs and a zaak URI") {
@@ -95,9 +94,11 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
 
                 Then("the method should not throw an exception and only the successful bijlage should be linked") {
+                    val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
                     verify(exactly = 1) {
-                        zrcClientService.createZaakInformatieobject(any(), any())
+                        zrcClientService.createZaakInformatieobject(capture(createdZaakInformatieobjectSlot), any())
                     }
+                    createdZaakInformatieobjectSlot.captured.informatieobject shouldBe enkelvoudigInformatieobject.url
                 }
             }
         }
