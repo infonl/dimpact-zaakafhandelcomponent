@@ -14,7 +14,7 @@ ZAC is a proven solution, currently funded by [Dimpact](https://www.dimpact.nl/)
 It is in use by various municipalities in the Netherlands.
 
 ZAC aligns with the [digital vision of the Dutch government (the NDS)](https://www.digitaleoverheid.nl/nederlandse-digitaliseringsstrategie-nds/).
-It can, for example, be hosted on any, EU or otherwise, Kubernetes cluster and is fully compliant with the [Common Ground](https://commonground.nl/) principles.
+It can, for example, be hosted on any (EU or otherwise) Kubernetes cluster and is fully compliant with the [Common Ground](https://commonground.nl/) principles.
 
 ## History
 
