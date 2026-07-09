@@ -90,12 +90,14 @@ export class InformatieObjectAddComponent {
       this.document.emit(data);
       this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
       if (this.form.controls.addOtherInfoObject.value) {
-        this.form.reset({
-          taal: this.defaultTaalQuery.data(),
-          auteur: this.loggedInUserQuery.data()?.naam ?? null,
-          creatiedatum: moment(),
-          addOtherInfoObject: true,
-        });
+        type FormKeys = keyof typeof this.form.controls;
+        const clearFields = ["titel", "bestand"];
+        const oldValues = Object.fromEntries(
+          Object.entries(this.form.controls)
+            .filter(([key]) => !clearFields.includes(key as FormKeys))
+            .map(([key, { value }]) => [key, value]),
+        );
+        this.form.reset(oldValues);
         return;
       }
       this.resetAndClose();
