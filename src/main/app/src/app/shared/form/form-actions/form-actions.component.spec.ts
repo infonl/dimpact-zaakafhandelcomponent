@@ -150,4 +150,35 @@ describe(ZacFormActions.name, () => {
       });
     });
   });
+
+  describe("without a mutation, using the loading input", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("mutation", undefined);
+      form.markAsDirty();
+    });
+
+    it("enables the submit button when loading is false", async () => {
+      fixture.componentRef.setInput("loading", false);
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(false);
+    });
+
+    it("disables the submit and cancel buttons when loading is true", async () => {
+      fixture.componentRef.setInput("loading", true);
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.annuleren" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
+      expect(await cancelButton.isDisabled()).toBe(true);
+    });
+  });
 });
