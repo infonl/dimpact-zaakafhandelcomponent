@@ -4,10 +4,12 @@
  */
 package nl.info.zac.app.zaak
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -31,6 +33,7 @@ import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
@@ -53,7 +56,8 @@ private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
     val zoekZaakIdentifier = "ZAAK-2000-00002"
-    val zaakTypeURI = URI(UUID.randomUUID().toString())
+    val zaakTypeUuid = UUID.randomUUID()
+    val zaakTypeURI = URI(zaakTypeUuid.toString())
     val zaakZoekObjectTypeUuid = UUID.randomUUID().toString()
     val page = 0
     val rows = 10
@@ -98,14 +102,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObjectTypeUuid))
+        }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
@@ -135,14 +143,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
         }
 
         When("findLinkableZaken with HOOFDZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             every {
                 ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
             } returns listOf(zaakTypeURI)
@@ -175,7 +184,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
                 verify(exactly = 1) {
@@ -185,10 +195,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
-            every {
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
-            } returns listOf(URI(zaakZoekObjectTypeUuid))
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
@@ -218,11 +225,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
-                }
-                verify(exactly = 1) {
-                    ztcClientService.readZaaktype(sourceZaak.zaaktype)
                 }
             }
         }
@@ -246,14 +251,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -282,7 +293,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -317,7 +329,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -342,14 +355,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -378,7 +397,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -413,7 +433,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(sourceZaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(sourceZaak)
+                    policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -440,14 +461,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(hoofdzaak) } returns zaakType
+        every { policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = hoofdzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -476,7 +503,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -511,7 +539,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -538,14 +567,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(hoofdzaak) } returns zaakType
+        every { policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = hoofdzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -574,7 +609,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -609,7 +645,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -635,14 +672,22 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObjectTypeUuid))
+        }
 
         every { zrcClientService.readZaak(hoofdzaak.uuid) } returns hoofdzaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(hoofdzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(hoofdzaak) } returns zaakType
+        every { policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = hoofdzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -671,17 +716,14 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
         }
 
         When("findLinkableZaken with DEELZAAK link is called") {
-            every {
-                ztcClientService.readZaaktype(hoofdzaak.zaaktype).deelzaaktypen
-            } returns listOf(URI(zaakZoekObjectTypeUuid))
-
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = hoofdzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -710,11 +752,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(hoofdzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(hoofdzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(hoofdzaak)
+                    policyService.readZaakRechten(hoofdzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
-                }
-                verify(exactly = 1) {
-                    ztcClientService.readZaaktype(hoofdzaak.zaaktype)
                 }
             }
         }
@@ -740,14 +780,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(deelzaak) } returns zaakType
+        every { policyService.readZaakRechten(deelzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = deelzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -776,7 +822,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -811,7 +858,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -838,14 +886,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(deelzaak) } returns zaakType
+        every { policyService.readZaakRechten(deelzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = deelzaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -874,7 +928,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -909,7 +964,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -938,14 +994,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val zoekParametersSlot = slot<ZoekParameters>()
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(deelzaak.uuid) } returns deelzaak
         every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
-        every { policyService.readZaakRechten(deelzaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(deelzaak) } returns zaakType
+        every { policyService.readZaakRechten(deelzaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK link is called") {
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = deelzaak.uuid,
                 zoekZaakIdentifier = zaakSearchText,
@@ -980,7 +1042,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -1015,7 +1078,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zrcClientService.readZaak(deelzaak.uuid)
                     searchService.zoek(any())
-                    policyService.readZaakRechten(deelzaak, loggedInUser)
+                    zaakService.readZaakTypeByZaak(deelzaak)
+                    policyService.readZaakRechten(deelzaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
             }
@@ -1039,10 +1103,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType()
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns false
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten(koppelen = false)
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
@@ -1078,11 +1145,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType()
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
-        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns false
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+        every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten(lezen = false)
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with GERELATEERD is called") {
@@ -1117,14 +1186,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply {
+            deelzaaktypen = listOf(URI(zaakZoekObjectTypeUuid))
+        }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
         When("findLinkableZaken with HOOFDZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             every {
                 ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
             } returns listOf(zaakTypeURI)
@@ -1144,11 +1217,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
-            every {
-                ztcClientService.readZaaktype(sourceZaak.zaaktype).deelzaaktypen
-            } returns listOf(URI(zaakZoekObjectTypeUuid))
-
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1164,7 +1233,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1196,14 +1265,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
 
         When("findLinkableZaken with HOOFDZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1219,7 +1294,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1235,7 +1310,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1268,14 +1343,20 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
+        val zaakType = createZaakType().apply { deelzaaktypen = emptyList() }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
         every { searchService.zoek(any()) } returns zoekResultaat
+        every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
-        every { policyService.readZaakRechten(sourceZaak, loggedInUser).koppelen } returns true
+        every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
 
         When("findLinkableZaken with HOOFDZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every {
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
+            } returns emptyList()
+
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1291,7 +1372,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with DEELZAAK is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).koppelen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1307,7 +1388,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         When("findLinkableZaken with GERELATEERD is called") {
-            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject).lezen } returns true
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
                 zaakUuid = sourceZaak.uuid,
                 zoekZaakIdentifier = zoekZaakIdentifier,
@@ -1328,7 +1409,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val teKoppelenZaak = createZaak()
-            val teKoppelenZaakType = createZaakType()
+            val teKoppelenZaakType = createZaakType().apply { deelzaaktypen = listOf(zaak.zaaktype) }
             val restZaakLinkData = createRestZaakLinkData(
                 zaakUuid = zaak.uuid,
                 teKoppelenZaakUuid = teKoppelenZaak.uuid,
@@ -1367,7 +1448,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val teKoppelenZaak = createZaak()
-            val teKoppelenZaakType = createZaakType()
+            val teKoppelenZaakType = createZaakType().apply { deelzaaktypen = listOf(zaak.zaaktype) }
             val restZaakLinkData = createRestZaakLinkData(
                 zaakUuid = zaak.uuid,
                 teKoppelenZaakUuid = teKoppelenZaak.uuid,
@@ -1402,6 +1483,76 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     with(patchZaakSlot.captured) {
                         hoofdzaak shouldBe teKoppelenZaak.url
                     }
+                }
+            }
+        }
+
+        Given("Two open zaken with zaak link data using a 'deelzaak' relatie") {
+            val zaak = createZaak()
+            val teKoppelenZaak = createZaak()
+            val zaakType = createZaakType().apply { deelzaaktypen = listOf(teKoppelenZaak.zaaktype) }
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.DEELZAAK
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every {
+                policyService.readZaakRechten(teKoppelenZaak, teKoppelenZaakType, loggedInUser)
+            } returns createZaakRechten()
+            every { zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot)) } returns zaak
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the zaken are linked") {
+                zaakKoppelenRestService.linkZaak(restZaakLinkData)
+
+                Then("the two zaken are successfully linked as hoofd- and deelzaak") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe teKoppelenZaak.uuid
+                    with(patchZaakSlot.captured) {
+                        hoofdzaak shouldBe zaak.url
+                    }
+                }
+            }
+        }
+
+        Given("Zaak link data using an unsupported relatie type") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val teKoppelenZaak = createZaak()
+            val teKoppelenZaakType = createZaakType()
+            val restZaakLinkData = createRestZaakLinkData(
+                zaakUuid = zaak.uuid,
+                teKoppelenZaakUuid = teKoppelenZaak.uuid,
+                relatieType = RelatieType.VERVOLG
+            )
+            val loggedInUser = createLoggedInUser()
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.zaakUuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakUUID(restZaakLinkData.teKoppelenZaakUuid)
+            } returns Pair(teKoppelenZaak, teKoppelenZaakType)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("the zaken are linked") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    zaakKoppelenRestService.linkZaak(restZaakLinkData)
+                }
+
+                Then("an IllegalArgumentException is thrown") {
+                    illegalArgumentException.message shouldBe
+                        "RelatieType VERVOLG cannot be used for linking zaken"
                 }
             }
         }
@@ -1496,6 +1647,226 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     "the patched zaak is a GerelateerdeZakenZaakPatch with gerelateerdeZaken set to an empty list"
                 ) {
                     patchZaakSlot.captured.gerelateerdeZaken shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("A zaak without koppelen right on the source zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = false)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A gerelateerde zaak without lezen right on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(lezen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A hoofdzaak without koppelen right on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.HOOFDZAAK,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = false)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                val policyException = shouldThrow<PolicyException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("a PolicyException is thrown") {
+                    policyException shouldNotBe null
+                }
+            }
+        }
+
+        Given("A deelzaak linked to a hoofdzaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.DEELZAAK,
+                reason = "fakeReden"
+            )
+            val patchZaakUUIDSlot = slot<UUID>()
+            val patchZaakSlot = slot<Zaak>()
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                zrcClientService.patchZaak(capture(patchZaakUUIDSlot), capture(patchZaakSlot), "fakeReden")
+            } returns zaak
+            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called with DEELZAAK relatie type") {
+                zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+
+                Then("the deelzaak is successfully unlinked from the hoofdzaak") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
+                    patchZaakUUIDSlot.captured shouldBe gekoppeldeZaak.uuid
+                }
+            }
+        }
+
+        Given("Zaak unlink data using an unsupported relatie type") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.VERVOLG,
+                reason = "fakeReden"
+            )
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+
+            When("unlinkZaak is called") {
+                val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                    zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+                }
+
+                Then("an IllegalArgumentException is thrown") {
+                    illegalArgumentException.message shouldBe
+                        "RelatieType VERVOLG cannot be used for unlinking zaken"
+                }
+            }
+        }
+
+        Given("A gerelateerde zaak with lezen but without koppelen on the linked zaak") {
+            val gekoppeldeZaak = createZaak()
+            val gekoppeldeZaakType = createZaakType()
+            val zaak = createZaak().apply {
+                addGerelateerdeZakenItem(GerelateerdeZaak().apply { url = gekoppeldeZaak.url })
+            }
+            val zaakType = createZaakType()
+            val restZaakUnlinkData = createRestZaakUnlinkData(
+                zaakUuid = zaak.uuid,
+                gekoppeldeZaakIdentificatie = gekoppeldeZaak.identificatie,
+                relationType = RelatieType.GERELATEERD,
+                reason = "fakeReden"
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every {
+                zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
+            } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechten(koppelen = true)
+            every {
+                policyService.readZaakRechten(gekoppeldeZaak, gekoppeldeZaakType, loggedInUser)
+            } returns createZaakRechten(lezen = true, koppelen = false)
+            every { zrcClientService.patchZaak(any(), any(), "fakeReden") } returns zaak
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            When("unlinkZaak is called") {
+                zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
+
+                Then("unlinking succeeds without PolicyException") {
+                    verify(exactly = 1) {
+                        zrcClientService.patchZaak(any(), any(), any())
+                    }
                 }
             }
         }

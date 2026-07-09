@@ -15,7 +15,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -81,16 +80,6 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  historie = new MatTableDataSource<GeneratedType<"RestTaskHistoryLine">>();
-  historieColumns = [
-    "datum",
-    "gebruiker",
-    "wijziging",
-    "actie",
-    "oudeWaarde",
-    "nieuweWaarde",
-    "toelichting",
-  ] as const;
   betrokkenen = new MatTableDataSource<GeneratedType<"RestZaakBetrokkene">>();
   betrokkenenColumns = [
     "roltype",
@@ -134,7 +123,6 @@ export class ZaakViewComponent
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
 
-  @ViewChild("historieSort") historieSort!: MatSort;
   @ViewChild("zaakDocumentenComponent")
   zaakDocumentenComponent!: ZaakDocumentenComponent;
   @ViewChild("zaakTakenComponent")
@@ -199,7 +187,7 @@ export class ZaakViewComponent
 
   private init(zaak: GeneratedType<"RestZaak">) {
     this.zaak = zaak;
-    this.loadHistorie();
+    this.invalidateZaakHistorie();
     this.loadBetrokkenen();
     this.loadBagObjecten();
     this.setupMenu();
@@ -211,19 +199,6 @@ export class ZaakViewComponent
   ngAfterViewInit() {
     this.viewInitialized = true;
     super.ngAfterViewInit();
-
-    this.historie.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case "datum":
-          return String(item.datumTijd);
-        case "gebruiker":
-          return (item as unknown as { door: string }).door;
-        default:
-          return String(item[property as keyof typeof item]);
-      }
-    };
-
-    this.historie.sort = this.historieSort;
   }
 
   ngOnDestroy() {
@@ -824,12 +799,11 @@ export class ZaakViewComponent
     });
   }
 
-  private loadHistorie() {
-    this.zakenService
-      .listHistorieVoorZaak(this.zaak.uuid)
-      .subscribe((historie) => {
-        this.historie.data = historie;
-      });
+  private invalidateZaakHistorie() {
+    this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
+        .queryKey,
+    });
   }
 
   private loadBetrokkenen() {
@@ -925,7 +899,7 @@ export class ZaakViewComponent
     this.utilService.openSnackbar(notification, {
       naam: naam.join(" - "),
     });
-    this.loadHistorie();
+    this.invalidateZaakHistorie();
   }
 
   protected deleteInitiator() {
@@ -941,7 +915,7 @@ export class ZaakViewComponent
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.loadHistorie();
+            this.invalidateZaakHistorie();
           });
         }
       });
@@ -964,7 +938,7 @@ export class ZaakViewComponent
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
-        this.loadHistorie();
+        this.invalidateZaakHistorie();
         this.loadBetrokkenen();
       });
   }
@@ -992,7 +966,7 @@ export class ZaakViewComponent
           );
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
             this.zaak = zaak;
-            this.loadHistorie();
+            this.invalidateZaakHistorie();
             this.loadBetrokkenen();
           });
         }
@@ -1008,7 +982,7 @@ export class ZaakViewComponent
       })
       .subscribe(() => {
         this.utilService.openSnackbar("msg.bagObject.gekoppeld");
-        this.loadHistorie();
+        this.invalidateZaakHistorie();
         this.loadBagObjecten();
       });
   }
@@ -1105,7 +1079,7 @@ export class ZaakViewComponent
 
   protected updateDocumentList() {
     this.zaakDocumentenComponent.updateDocumentList();
-    this.loadHistorie();
+    this.invalidateZaakHistorie();
   }
 
   protected async betrokkeneGegevensOphalen(
@@ -1176,7 +1150,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.loadHistorie();
+          this.invalidateZaakHistorie();
           this.loadBagObjecten();
           this.utilService.openSnackbar(
             "msg.bagObject.ontkoppelen.uitgevoerd",
