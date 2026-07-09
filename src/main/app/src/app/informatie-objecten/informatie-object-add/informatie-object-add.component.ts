@@ -90,9 +90,9 @@ export class InformatieObjectAddComponent {
       this.document.emit(data);
       this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
       if (this.form.controls.addOtherInfoObject.value) {
-        const oldValues = this.form.getRawValue()
-        oldValues.titel = null
-        oldValues.bestand = null
+        const oldValues = this.form.getRawValue();
+        oldValues.titel = null;
+        oldValues.bestand = null;
         this.form.reset(oldValues);
         return;
       }
