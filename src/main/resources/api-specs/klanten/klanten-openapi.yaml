@@ -1,0 +1,5207 @@
+openapi: 3.0.3
+info:
+  title: klantinteracties
+  version: 0.0.3 (1)
+  description: |2
+
+    Description WIP.
+  contact:
+    email: standaarden.ondersteuning@vng.nl
+    url: https://zaakgerichtwerken.vng.cloud
+  license:
+    name: EUPL 1.2
+    url: https://opensource.org/licenses/EUPL-1.2
+paths:
+  /actoren:
+    get:
+      operationId: actorenList
+      description: Alle actoren opvragen.
+      summary: Alle actoren opvragen.
+      parameters:
+      - in: query
+        name: actoridentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: actoridentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: actoridentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: actoridentificatorObjectId
+        schema:
+          type: string
+      - in: query
+        name: indicatieActief
+        schema:
+          type: boolean
+      - in: query
+        name: naam
+        schema:
+          type: string
+        description: Zoek klantcontacten met specifieke tekst in inhoud.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: soortActor
+        schema:
+          type: string
+          enum:
+          - geautomatiseerde_actor
+          - medewerker
+          - organisatorische_eenheid
+        description: |+
+          Geeft aan van welke specifieke soort actor sprake is.
+
+      tags:
+      - actoren
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedActorList'
+          description: ''
+    post:
+      operationId: actorenCreate
+      description: Maak een actor aan.
+      summary: Maak een actor aan.
+      tags:
+      - actoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+          description: ''
+  /actoren/{uuid}:
+    get:
+      operationId: actorenRetrieve
+      description: Een specifiek actor opvragen.
+      summary: Een specifiek actor opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor.
+        required: true
+      tags:
+      - actoren
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+          description: ''
+    put:
+      operationId: actorenUpdate
+      description: Werk een actor in zijn geheel bij.
+      summary: Werk een actor in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor.
+        required: true
+      tags:
+      - actoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+          description: ''
+    patch:
+      operationId: actorenPartialUpdate
+      description: Werk een actor deels bij.
+      summary: Werk een actor deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor.
+        required: true
+      tags:
+      - actoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedActor'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+          description: ''
+    delete:
+      operationId: actorenDestroy
+      description: Verwijder een actor.
+      summary: Verwijder een actor.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor.
+        required: true
+      tags:
+      - actoren
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /actorklantcontacten:
+    get:
+      operationId: actorklantcontactenList
+      description: Alle actor klantcontacten opvragen.
+      summary: Alle actor klantcontacten opvragen.
+      parameters:
+      - in: query
+        name: actor__url
+        schema:
+          type: string
+        description: Zoek actor klantcontract object op basis van het actor url
+      - in: query
+        name: actor__uuid
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: klantcontact__url
+        schema:
+          type: string
+        description: Zoek actor klantcontract object op basis van het klantcontact
+          url
+      - in: query
+        name: klantcontact__uuid
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      tags:
+      - actor klantcontacten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedActorKlantcontactList'
+          description: ''
+    post:
+      operationId: actorklantcontactenCreate
+      description: Maak een actor klantcontact aan.
+      summary: Maak een actor klantcontact aan.
+      tags:
+      - actor klantcontacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActorKlantcontact'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorKlantcontact'
+          description: ''
+  /actorklantcontacten/{uuid}:
+    get:
+      operationId: actorklantcontactenRetrieve
+      description: Een specifiek actor klantcontact opvragen.
+      summary: Een specifiek actor klantcontact opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        required: true
+      tags:
+      - actor klantcontacten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorKlantcontact'
+          description: ''
+    put:
+      operationId: actorklantcontactenUpdate
+      description: Werk een actor klantcontact in zijn geheel bij.
+      summary: Werk een actor klantcontact in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        required: true
+      tags:
+      - actor klantcontacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActorKlantcontact'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorKlantcontact'
+          description: ''
+    patch:
+      operationId: actorklantcontactenPartialUpdate
+      description: Werk een actor klantcontact deels bij.
+      summary: Werk een actor klantcontact deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        required: true
+      tags:
+      - actor klantcontacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedActorKlantcontact'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorKlantcontact'
+          description: ''
+    delete:
+      operationId: actorklantcontactenDestroy
+      description: Verwijder een actor klantcontact.
+      summary: Verwijder een aactor klantcontactctor.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        required: true
+      tags:
+      - actor klantcontacten
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /betrokkenen:
+    get:
+      operationId: betrokkenenList
+      description: Alle betrokkenen opvragen.
+      summary: Alle betrokkenen opvragen.
+      parameters:
+      - in: query
+        name: contactnaamAchternaam
+        schema:
+          type: string
+      - in: query
+        name: contactnaamVoorletters
+        schema:
+          type: string
+      - in: query
+        name: contactnaamVoornaam
+        schema:
+          type: string
+      - in: query
+        name: contactnaamVoorvoegselAchternaam
+        schema:
+          type: string
+      - in: query
+        name: hadKlantcontact__nummer
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het klantcontact nummer
+      - in: query
+        name: hadKlantcontact__url
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het klantcontact url
+      - in: query
+        name: hadKlantcontact__uuid
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het klantcontact uuid
+      - in: query
+        name: organisatienaam
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: verstrektedigitaalAdres__adres
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het digitaaladres adres
+      - in: query
+        name: verstrektedigitaalAdres__url
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het digitaaladres url
+      - in: query
+        name: verstrektedigitaalAdres__uuid
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het digitaaladres uuid
+      - in: query
+        name: wasPartij__nummer
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het partij nummer
+      - in: query
+        name: wasPartij__url
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het partij url
+      - in: query
+        name: wasPartij__uuid
+        schema:
+          type: string
+        description: Zoek betrokkene object op basis van het partij uuid
+      tags:
+      - betrokkenen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBetrokkeneList'
+          description: ''
+    post:
+      operationId: betrokkenenCreate
+      description: Maak een betrokkene aan.
+      summary: Maak een betrokkene aan.
+      tags:
+      - betrokkenen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Betrokkene'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Betrokkene'
+          description: ''
+  /betrokkenen/{uuid}:
+    get:
+      operationId: betrokkenenRetrieve
+      description: Een specifiek betrokkene opvragen.
+      summary: Een specifiek betrokkene opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - betrokkenen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Betrokkene'
+          description: ''
+    put:
+      operationId: betrokkenenUpdate
+      description: Werk een betrokkene in zijn geheel bij.
+      summary: Werk een betrokkene in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - betrokkenen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Betrokkene'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Betrokkene'
+          description: ''
+    patch:
+      operationId: betrokkenenPartialUpdate
+      description: Werk een betrokkene deels bij.
+      summary: Werk een betrokkene deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - betrokkenen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBetrokkene'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Betrokkene'
+          description: ''
+    delete:
+      operationId: betrokkenenDestroy
+      description: Verwijder een betrokkene.
+      summary: Verwijder een betrokkene.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - betrokkenen
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /bijlagen:
+    get:
+      operationId: bijlagenList
+      description: Alle bijlagen opvragen.
+      summary: Alle bijlagen opvragen.
+      parameters:
+      - in: query
+        name: bijlageidentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: bijlageidentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: bijlageidentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: bijlageidentificatorObjectId
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      tags:
+      - bijlagen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBijlageList'
+          description: ''
+    post:
+      operationId: bijlagenCreate
+      description: Maak een bijlage aan.
+      summary: Maak een bijlage aan.
+      tags:
+      - bijlagen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bijlage'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bijlage'
+          description: ''
+  /bijlagen/{uuid}:
+    get:
+      operationId: bijlagenRetrieve
+      description: Een specifiek bijlage opvragen.
+      summary: Een specifiek bijlage opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        required: true
+      tags:
+      - bijlagen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bijlage'
+          description: ''
+    put:
+      operationId: bijlagenUpdate
+      description: Werk een bijlage in zijn geheel bij.
+      summary: Werk een bijlage in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        required: true
+      tags:
+      - bijlagen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bijlage'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bijlage'
+          description: ''
+    patch:
+      operationId: bijlagenPartialUpdate
+      description: Werk een bijlage deels bij.
+      summary: Werk een bijlage deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        required: true
+      tags:
+      - bijlagen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBijlage'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bijlage'
+          description: ''
+    delete:
+      operationId: bijlagenDestroy
+      description: Verwijder een bijlage.
+      summary: Verwijder een bijlage.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        required: true
+      tags:
+      - bijlagen
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /categorie-relaties:
+    get:
+      operationId: categorieRelatiesList
+      description: 'Alle categorie relaties opvragen, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Alle categorie relaties opvragen.
+      parameters:
+      - in: query
+        name: beginDatum
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: categorie__naam
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van de categorie naam.
+      - in: query
+        name: categorie__url
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van de categorie url.
+      - in: query
+        name: categorie__uuid
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van de categorie uuid.
+      - in: query
+        name: eindDatum
+        schema:
+          type: string
+          format: date
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: partij__nummer
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van het partij nummer.
+      - in: query
+        name: partij__url
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van de partij url.
+      - in: query
+        name: partij__uuid
+        schema:
+          type: string
+        description: Zoek categorie relatie object op basis van de partij uuid.
+      tags:
+      - categorie relaties
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategorieRelatieList'
+          description: ''
+    post:
+      operationId: categorieRelatiesCreate
+      description: 'Maak een categorie relatie aan, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Maak een categorie relatie aan.
+      tags:
+      - categorie relaties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieRelatie'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieRelatie'
+          description: ''
+  /categorie-relaties/{uuid}:
+    get:
+      operationId: categorieRelatiesRetrieve
+      description: 'Een specifiek categorie relatie opvragen, Let op: Dit endpoint
+        is EXPERIMENTEEL.'
+      summary: Een specifiek categorie relatie opvragen..
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        required: true
+      tags:
+      - categorie relaties
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieRelatie'
+          description: ''
+    put:
+      operationId: categorieRelatiesUpdate
+      description: 'Werk een categorie relatie deels bij, Let op: Dit endpoint is
+        EXPERIMENTEEL.'
+      summary: Werk een categorie relatie in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        required: true
+      tags:
+      - categorie relaties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategorieRelatie'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieRelatie'
+          description: ''
+    patch:
+      operationId: categorieRelatiesPartialUpdate
+      description: 'Werk een categorie relatie deels bij, Let op: Dit endpoint is
+        EXPERIMENTEEL.'
+      summary: Werk een categorie relatie deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        required: true
+      tags:
+      - categorie relaties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategorieRelatie'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorieRelatie'
+          description: ''
+    delete:
+      operationId: categorieRelatiesDestroy
+      description: 'Verwijder een categorie relatie, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Verwijder een categorie relatie.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        required: true
+      tags:
+      - categorie relaties
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /categorieen:
+    get:
+      operationId: categorieenList
+      description: 'Alle categorieën opvragen, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Alle categorieën opvragen.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      tags:
+      - categorieën
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategorieList'
+          description: ''
+    post:
+      operationId: categorieenCreate
+      description: 'Maak een categorie aan, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Maak een categorie aan.
+      tags:
+      - categorieën
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categorie'
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+          description: ''
+  /categorieen/{uuid}:
+    get:
+      operationId: categorieenRetrieve
+      description: 'Een specifiek categorie opvragen, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Een specifiek categorie opvragen..
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie.
+        required: true
+      tags:
+      - categorieën
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+          description: ''
+    put:
+      operationId: categorieenUpdate
+      description: 'Werk een categorie deels bij, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Werk een categorie in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie.
+        required: true
+      tags:
+      - categorieën
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categorie'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+          description: ''
+    patch:
+      operationId: categorieenPartialUpdate
+      description: 'Werk een categorie deels bij, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Werk een categorie deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie.
+        required: true
+      tags:
+      - categorieën
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategorie'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categorie'
+          description: ''
+    delete:
+      operationId: categorieenDestroy
+      description: 'Verwijder een categorie, Let op: Dit endpoint is EXPERIMENTEEL.'
+      summary: Verwijder een categorie.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie.
+        required: true
+      tags:
+      - categorieën
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /digitaleadressen:
+    get:
+      operationId: digitaleadressenList
+      description: Alle digitale adressen opvragen.
+      summary: Alle digitale adressen opvragen.
+      parameters:
+      - in: query
+        name: adres
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van adres dat exact
+          gelijk moet zijn aan deze waarde.
+      - in: query
+        name: adres__icontains
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van adres die de
+          opgegeven waarden bevat.
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - verstrektDoorBetrokkene
+            - verstrektDoorBetrokkene.hadKlantcontact
+            - verstrektDoorBetrokkene.hadKlantcontact.leiddeTotInterneTaken
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van omschijving
+          die de opgegeven waarden bevat.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: soortDigitaalAdres
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van het soort digitaal
+          adres dat exact gelijk moet zijn aan deze waarde.
+      - in: query
+        name: verstrektDoorBetrokkene__rol
+        schema:
+          type: string
+          enum:
+          - klant
+          - vertegenwoordiger
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          rol.
+      - in: query
+        name: verstrektDoorBetrokkene__url
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          url.
+      - in: query
+        name: verstrektDoorBetrokkene__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek digitaal adres(sen) object(en) op basis van de betrokkene
+          uuid.
+      - in: query
+        name: verstrektDoorPartij__soortPartij
+        schema:
+          type: string
+          enum:
+          - contactpersoon
+          - organisatie
+          - persoon
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij soort.
+      - in: query
+        name: verstrektDoorPartij__url
+        schema:
+          type: string
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij url.
+      - in: query
+        name: verstrektDoorPartij__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek digitaal adres(sen) object(en) op basis van de partij uuid.
+      tags:
+      - digitale adressen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpandDigitaalAdresList'
+          description: ''
+    post:
+      operationId: digitaleadressenCreate
+      description: Maak een digitaal adres aan.
+      summary: Maak een digitaal adres aan.
+      tags:
+      - digitale adressen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigitaalAdres'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigitaalAdres'
+          description: ''
+  /digitaleadressen/{uuid}:
+    get:
+      operationId: digitaleadressenRetrieve
+      description: Een specifiek digitaal adres opvragen.
+      summary: Een specifiek digitaal adres opvragen.
+      parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - verstrektDoorBetrokkene
+            - verstrektDoorBetrokkene.hadKlantcontact
+            - verstrektDoorBetrokkene.hadKlantcontact.leiddeTotInterneTaken
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        required: true
+      tags:
+      - digitale adressen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandDigitaalAdres'
+          description: ''
+    put:
+      operationId: digitaleadressenUpdate
+      description: Werk een digitaal adres in zijn geheel bij.
+      summary: Werk een digitaal adres in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        required: true
+      tags:
+      - digitale adressen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DigitaalAdres'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigitaalAdres'
+          description: ''
+    patch:
+      operationId: digitaleadressenPartialUpdate
+      description: Werk een digitaal adres deels bij.
+      summary: Werk een digitaal adres deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        required: true
+      tags:
+      - digitale adressen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDigitaalAdres'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DigitaalAdres'
+          description: ''
+    delete:
+      operationId: digitaleadressenDestroy
+      description: Verwijder een digitaal adres.
+      summary: Verwijder een digitaal adres.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        required: true
+      tags:
+      - digitale adressen
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /internetaken:
+    get:
+      operationId: internetakenList
+      description: Alle interne taken opvragen.
+      summary: Alle interne taken opvragen.
+      parameters:
+      - in: query
+        name: aanleidinggevendKlantcontact__url
+        schema:
+          type: string
+        description: Zoek internetaak object op basis van het aanleidingevende klantcontact
+          url.
+      - in: query
+        name: aanleidinggevendKlantcontact__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek internetaak object op basis van het aanleidingevende klantcontact
+          uuid.
+      - in: query
+        name: actoren__naam
+        schema:
+          type: string
+      - in: query
+        name: klantcontact__nummer
+        schema:
+          type: string
+      - in: query
+        name: klantcontact__uuid
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: nummer
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - te_verwerken
+          - verwerkt
+        description: |+
+          Aanduiding van de vordering bij afhandeling van de interne taak.
+
+      - in: query
+        name: toegewezenAanActor__url
+        schema:
+          type: string
+        description: Zoek internetaak object op basis van het toegewezen actor url.
+      - in: query
+        name: toegewezenAanActor__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek internetaak object op basis van het toegewezen actor uuid.
+      - in: query
+        name: toegewezenOp
+        schema:
+          type: string
+          format: date-time
+      tags:
+      - interne taken
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInterneTaakList'
+          description: ''
+    post:
+      operationId: internetakenCreate
+      description: Maak een interne taak aan.
+      summary: Maak een interne taak aan.
+      tags:
+      - interne taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterneTaak'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterneTaak'
+          description: ''
+  /internetaken/{uuid}:
+    get:
+      operationId: internetakenRetrieve
+      description: Een specifiek interne taak opvragen.
+      summary: Een specifiek interne taak opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - interne taken
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterneTaak'
+          description: ''
+    put:
+      operationId: internetakenUpdate
+      description: Werk een interne taak in zijn geheel bij.
+      summary: Werk een interne taak in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - interne taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterneTaak'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterneTaak'
+          description: ''
+    patch:
+      operationId: internetakenPartialUpdate
+      description: Werk een interne taak deels bij.
+      summary: Werk een interne taak deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - interne taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInterneTaak'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterneTaak'
+          description: ''
+    delete:
+      operationId: internetakenDestroy
+      description: Verwijder een interne taak.
+      summary: Verwijder een interne taak.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - interne taken
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /klantcontacten:
+    get:
+      operationId: klantcontactenList
+      description: Alle klanten contacten opvragen.
+      summary: Alle klanten contacten opvragen.
+      parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gingOverOnderwerpobjecten
+            - hadBetrokkenen
+            - hadBetrokkenen.digitaleAdressen
+            - hadBetrokkenen.wasPartij
+            - leiddeTotInterneTaken
+            - omvatteBijlagen
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: query
+        name: hadBetrokkene__url
+        schema:
+          type: string
+        description: Zoek klantcontact object op basis van het betrokkene url.
+      - in: query
+        name: hadBetrokkene__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek klantcontact object op basis van het betrokkene uuid.
+      - in: query
+        name: indicatieContactGelukt
+        schema:
+          type: boolean
+      - in: query
+        name: inhoud
+        schema:
+          type: string
+        description: Zoek klantcontacten met specifieke tekst in inhoud.
+      - in: query
+        name: kanaal
+        schema:
+          type: string
+      - in: query
+        name: nummer
+        schema:
+          type: string
+      - in: query
+        name: onderwerp
+        schema:
+          type: string
+        description: Zoek klantcontacten met specifieke tekst in onderwerp.
+      - in: query
+        name: onderwerpobject__onderwerpobjectidentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobject__onderwerpobjectidentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobject__onderwerpobjectidentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobject__onderwerpobjectidentificatorObjectId
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobject__url
+        schema:
+          type: string
+        description: Zoek klantcontact object op basis van het onderwerpobject url.
+      - in: query
+        name: onderwerpobject__uuid
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: plaatsgevondenOp
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: vertrouwelijk
+        schema:
+          type: boolean
+      - in: query
+        name: wasOnderwerpobject__onderwerpobjectidentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: wasOnderwerpobject__onderwerpobjectidentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: wasOnderwerpobject__onderwerpobjectidentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: wasOnderwerpobject__onderwerpobjectidentificatorObjectId
+        schema:
+          type: string
+      - in: query
+        name: wasOnderwerpobject__url
+        schema:
+          type: string
+        description: Zoek was klantcontact object op basis van het onderwerpobject
+          url.
+      - in: query
+        name: wasOnderwerpobject__uuid
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - klanten contacten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpandKlantcontactList'
+          description: ''
+    post:
+      operationId: klantcontactenCreate
+      description: Maak een klant contact aan.
+      summary: Maak een klant contact aan.
+      tags:
+      - klanten contacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Klantcontact'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Klantcontact'
+          description: ''
+  /klantcontacten/{uuid}:
+    get:
+      operationId: klantcontactenRetrieve
+      description: Een specifiek klant contact opvragen.
+      summary: Een specifiek klant contact opvragen.
+      parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - gingOverOnderwerpobjecten
+            - hadBetrokkenen
+            - hadBetrokkenen.digitaleAdressen
+            - hadBetrokkenen.wasPartij
+            - leiddeTotInterneTaken
+            - omvatteBijlagen
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - klanten contacten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandKlantcontact'
+          description: ''
+    put:
+      operationId: klantcontactenUpdate
+      description: Werk een klant contact in zijn geheel bij.
+      summary: Werk een klant contact in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - klanten contacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Klantcontact'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Klantcontact'
+          description: ''
+    patch:
+      operationId: klantcontactenPartialUpdate
+      description: Werk een klant contact deels bij.
+      summary: Werk een klant contact deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - klanten contacten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKlantcontact'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Klantcontact'
+          description: ''
+    delete:
+      operationId: klantcontactenDestroy
+      description: Verwijder een klant contact.
+      summary: Verwijder een klant contact.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        required: true
+      tags:
+      - klanten contacten
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /onderwerpobjecten:
+    get:
+      operationId: onderwerpobjectenList
+      description: Alle onderwerpobject opvragen.
+      summary: Alle onderwerpobject opvragen.
+      parameters:
+      - in: query
+        name: onderwerpobjectidentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobjectidentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobjectidentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: onderwerpobjectidentificatorObjectId
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      tags:
+      - onderwerpobjecten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOnderwerpobjectList'
+          description: ''
+    post:
+      operationId: onderwerpobjectenCreate
+      description: Maak een onderwerpobject aan.
+      summary: Maak een onderwerpobject aan.
+      tags:
+      - onderwerpobjecten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Onderwerpobject'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Onderwerpobject'
+          description: ''
+  /onderwerpobjecten/{uuid}:
+    get:
+      operationId: onderwerpobjectenRetrieve
+      description: Een specifiek onderwerpobject opvragen.
+      summary: Een specifiek onderwerpobject opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        required: true
+      tags:
+      - onderwerpobjecten
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Onderwerpobject'
+          description: ''
+    put:
+      operationId: onderwerpobjectenUpdate
+      description: Werk een onderwerpobject in zijn geheel bij.
+      summary: Werk een onderwerpobject in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        required: true
+      tags:
+      - onderwerpobjecten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Onderwerpobject'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Onderwerpobject'
+          description: ''
+    patch:
+      operationId: onderwerpobjectenPartialUpdate
+      description: Werk een onderwerpobject deels bij.
+      summary: Werk een onderwerpobject deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        required: true
+      tags:
+      - onderwerpobjecten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOnderwerpobject'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Onderwerpobject'
+          description: ''
+    delete:
+      operationId: onderwerpobjectenDestroy
+      description: Verwijder een onderwerpobject.
+      summary: Verwijder een onderwerpobject.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        required: true
+      tags:
+      - onderwerpobjecten
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /partij-identificatoren:
+    get:
+      operationId: partijIdentificatorenList
+      description: Alle partij-identificatoren opvragen.
+      summary: Alle partij-identificatoren opvragen.
+      parameters:
+      - in: query
+        name: anderePartijIdentificator
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: partijIdentificatorCodeObjecttype
+        schema:
+          type: string
+      - in: query
+        name: partijIdentificatorCodeRegister
+        schema:
+          type: string
+      - in: query
+        name: partijIdentificatorCodeSoortObjectId
+        schema:
+          type: string
+      - in: query
+        name: partijIdentificatorObjectId
+        schema:
+          type: string
+      tags:
+      - partij-identificatoren
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPartijIdentificatorList'
+          description: ''
+    post:
+      operationId: partijIdentificatorenCreate
+      description: Maak een partij-identificator aan.
+      summary: Maak een partij-identificator aan.
+      tags:
+      - partij-identificatoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartijIdentificator'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartijIdentificator'
+          description: ''
+  /partij-identificatoren/{uuid}:
+    get:
+      operationId: partijIdentificatorenRetrieve
+      description: Een specifiek partij-identificator opvragen.
+      summary: Een specifiek partij-identificator opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        required: true
+      tags:
+      - partij-identificatoren
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartijIdentificator'
+          description: ''
+    put:
+      operationId: partijIdentificatorenUpdate
+      description: Werk een partij-identificator in zijn geheel bij.
+      summary: Werk een partij-identificator in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        required: true
+      tags:
+      - partij-identificatoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartijIdentificator'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartijIdentificator'
+          description: ''
+    patch:
+      operationId: partijIdentificatorenPartialUpdate
+      description: Werk een partij-identificator deels bij.
+      summary: Werk een partij-identificator deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        required: true
+      tags:
+      - partij-identificatoren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPartijIdentificator'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartijIdentificator'
+          description: ''
+    delete:
+      operationId: partijIdentificatorenDestroy
+      description: Verwijder een partij-identificator.
+      summary: Verwijder een partij-identificator.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        required: true
+      tags:
+      - partij-identificatoren
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /partijen:
+    get:
+      operationId: partijenList
+      description: Alle partijen opvragen.
+      summary: Alle partijen opvragen.
+      parameters:
+      - in: query
+        name: bezoekadresAdresregel1
+        schema:
+          type: string
+      - in: query
+        name: bezoekadresAdresregel2
+        schema:
+          type: string
+      - in: query
+        name: bezoekadresAdresregel3
+        schema:
+          type: string
+      - in: query
+        name: bezoekadresLand
+        schema:
+          type: string
+      - in: query
+        name: bezoekadresNummeraanduidingId
+        schema:
+          type: string
+      - in: query
+        name: categorierelatie__categorie__naam
+        schema:
+          type: string
+        description: Zoek partij object op basis van categorie namen.
+      - in: query
+        name: correspondentieadresAdresregel1
+        schema:
+          type: string
+      - in: query
+        name: correspondentieadresAdresregel2
+        schema:
+          type: string
+      - in: query
+        name: correspondentieadresAdresregel3
+        schema:
+          type: string
+      - in: query
+        name: correspondentieadresLand
+        schema:
+          type: string
+      - in: query
+        name: correspondentieadresNummeraanduidingId
+        schema:
+          type: string
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - betrokkenen
+            - betrokkenen.hadKlantcontact
+            - categorieRelaties
+            - digitaleAdressen
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: query
+        name: indicatieActief
+        schema:
+          type: boolean
+      - in: query
+        name: indicatieGeheimhouding
+        schema:
+          type: boolean
+      - in: query
+        name: nummer
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: partijIdentificator__codeObjecttype
+        schema:
+          type: string
+        description: Zoek partij object op basis van het partij identificator objecttype.
+      - in: query
+        name: partijIdentificator__codeRegister
+        schema:
+          type: string
+        description: Zoek partij object op basis van het partij identificator register.
+      - in: query
+        name: partijIdentificator__codeSoortObjectId
+        schema:
+          type: string
+        description: Zoek partij object op basis van het partij identificator soort
+          object ID.
+      - in: query
+        name: partijIdentificator__objectId
+        schema:
+          type: string
+        description: Zoek partij object op basis van het partij identificator object
+          ID.
+      - in: query
+        name: soortPartij
+        schema:
+          type: string
+          enum:
+          - contactpersoon
+          - organisatie
+          - persoon
+        description: |+
+          Geeft aan van welke specifieke soort partij sprake is.
+
+      - in: query
+        name: vertegenwoordigdePartij__url
+        schema:
+          type: string
+        description: Zoek partij object op basis van het vertegenwoordigde partij
+          url.
+      - in: query
+        name: vertegenwoordigdePartij__uuid
+        schema:
+          type: string
+          format: uuid
+        description: Zoek partij object op basis van het vertegenwoordigde partij
+          uuid.
+      tags:
+      - partijen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpandPartijList'
+          description: ''
+    post:
+      operationId: partijenCreate
+      description: Maak een partij aan.
+      summary: Maak een partij aan.
+      tags:
+      - partijen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Partij'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partij'
+          description: ''
+  /partijen/{uuid}:
+    get:
+      operationId: partijenRetrieve
+      description: Een specifiek partij opvragen.
+      summary: Een specifiek partij opvragen.
+      parameters:
+      - in: query
+        name: expand
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - betrokkenen
+            - betrokkenen.hadKlantcontact
+            - categorieRelaties
+            - digitaleAdressen
+        description: |+
+          Sluit de gespecifieerde gerelateerde resources in in het antwoord.
+
+        explode: false
+        style: form
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        required: true
+      tags:
+      - partijen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpandPartij'
+          description: ''
+    put:
+      operationId: partijenUpdate
+      description: Werk een partij in zijn geheel bij.
+      summary: Werk een partij in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        required: true
+      tags:
+      - partijen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Partij'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partij'
+          description: ''
+    patch:
+      operationId: partijenPartialUpdate
+      description: Werk een partij deels bij.
+      summary: Werk een partij deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        required: true
+      tags:
+      - partijen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPartij'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partij'
+          description: ''
+    delete:
+      operationId: partijenDestroy
+      description: Verwijder een partij.
+      summary: Verwijder een partij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        required: true
+      tags:
+      - partijen
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /rekeningnummers:
+    get:
+      operationId: rekeningnummersList
+      description: Alle rekeningnummers opvragen.
+      summary: Alle rekeningnummers opvragen.
+      parameters:
+      - in: query
+        name: bic
+        schema:
+          type: string
+      - in: query
+        name: iban
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - rekeningnummers
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRekeningnummerList'
+          description: ''
+    post:
+      operationId: rekeningnummersCreate
+      description: Maak een rekeningnummer aan.
+      summary: Maak een rekeningnummer aan.
+      tags:
+      - rekeningnummers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rekeningnummer'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rekeningnummer'
+          description: ''
+  /rekeningnummers/{uuid}:
+    get:
+      operationId: rekeningnummersRetrieve
+      description: Een specifiek rekeningnummer opvragen.
+      summary: Een specifiek rekeningnummer opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - rekeningnummers
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rekeningnummer'
+          description: ''
+    put:
+      operationId: rekeningnummersUpdate
+      description: Werk een rekeningnummer in zijn geheel bij.
+      summary: Werk een rekeningnummer in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - rekeningnummers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rekeningnummer'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rekeningnummer'
+          description: ''
+    patch:
+      operationId: rekeningnummersPartialUpdate
+      description: Werk een rekeningnummer deels bij.
+      summary: Werk een rekeningnummer deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - rekeningnummers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRekeningnummer'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rekeningnummer'
+          description: ''
+    delete:
+      operationId: rekeningnummersDestroy
+      description: Verwijder een rekeningnummer.
+      summary: Verwijder een rekeningnummer.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        required: true
+      tags:
+      - rekeningnummers
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /vertegenwoordigingen:
+    get:
+      operationId: vertegenwoordigingenList
+      description: Alle vertegenwoordigingen opvragen.
+      summary: Alle vertegenwoordigingen opvragen.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
+      - in: query
+        name: vertegenwoordigdePartij__url
+        schema:
+          type: string
+        description: Zoek Vertegenwoordigden object op basis van het vertegenwoordigde
+          partij url.
+      - in: query
+        name: vertegenwoordigdePartij__uuid
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: vertegenwoordigendePartij__url
+        schema:
+          type: string
+        description: Zoek Vertegenwoordigden object op basis van het vertegenwoordigende
+          partij url.
+      - in: query
+        name: vertegenwoordigendePartij__uuid
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - vertegenwoordigingen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVertegenwoordigdenList'
+          description: ''
+    post:
+      operationId: vertegenwoordigingenCreate
+      description: Maak een vertegenwoordiging aan.
+      summary: Maak een vertegenwoordiging aan.
+      tags:
+      - vertegenwoordigingen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vertegenwoordigden'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertegenwoordigden'
+          description: ''
+  /vertegenwoordigingen/{uuid}:
+    get:
+      operationId: vertegenwoordigingenRetrieve
+      description: Een specifiek vertegenwoordiging opvragen.
+      summary: Een specifiek vertegenwoordiging opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        required: true
+      tags:
+      - vertegenwoordigingen
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertegenwoordigden'
+          description: ''
+    put:
+      operationId: vertegenwoordigingenUpdate
+      description: Werk een vertegenwoordiging in zijn geheel bij.
+      summary: Werk een vertegenwoordiging in zijn geheel bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        required: true
+      tags:
+      - vertegenwoordigingen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vertegenwoordigden'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertegenwoordigden'
+          description: ''
+    patch:
+      operationId: vertegenwoordigingenPartialUpdate
+      description: Werk een vertegenwoordiging deels bij.
+      summary: Werk een vertegenwoordiging deels bij.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        required: true
+      tags:
+      - vertegenwoordigingen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVertegenwoordigden'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertegenwoordigden'
+          description: ''
+    delete:
+      operationId: vertegenwoordigingenDestroy
+      description: Verwijder een vertegenwoordiging.
+      summary: Verwijder een vertegenwoordiging.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        required: true
+      tags:
+      - vertegenwoordigingen
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Actor:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de actor.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze actor binnen deze API.
+        naam:
+          type: string
+          description: Naam van de actor.
+          maxLength: 200
+        soortActor:
+          allOf:
+          - $ref: '#/components/schemas/SoortActorEnum'
+          description: Geeft aan van welke specifieke soort actor sprake is.
+        indicatieActief:
+          type: boolean
+          description: Geeft aan of aan de actor nog betrokken mag worden bij nieuwe
+            klantcontacten. Voor niet-actieve is dit niet toegestaan.
+        actoridentificator:
+          allOf:
+          - $ref: '#/components/schemas/Actoridentificator'
+          nullable: true
+          description: Gegevens die een actorwerpobject in een extern register uniek
+            identificeren.
+      required:
+      - naam
+      - soortActor
+      - url
+      - uuid
+    ActorForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de actor.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze actor binnen deze API.
+      required:
+      - url
+      - uuid
+    ActorKlantcontact:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze actor klantcontact binnen deze API.
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/ActorForeignKey'
+          description: De gekoppelde 'Actor'.
+        klantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: De gekoppelde 'Klantcontact'.
+      required:
+      - actor
+      - klantcontact
+      - url
+      - uuid
+    Actoridentificator:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        objectId:
+          type: string
+          description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''123456788''.'
+          maxLength: 200
+        codeObjecttype:
+          type: string
+          description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
+            PERSOON''.'
+          maxLength: 200
+        codeRegister:
+          type: string
+          description: 'Binnen het landschap van registers unieke omschrijving van
+            het register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+          maxLength: 200
+        codeSoortObjectId:
+          type: string
+          description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''Burgerservicenummer''.'
+          maxLength: 200
+    Betrokkene:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze betrokkene binnen deze API.
+        wasPartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Betrokkene bij klantcontact die een partij was.
+        hadKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: Het klantcontact waar deze persoon of organisatie bij betrokken
+            was.
+        digitaleAdressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          readOnly: true
+          description: Digitale adressen van de betrokkene bij klantcontact.
+        bezoekadres:
+          allOf:
+          - $ref: '#/components/schemas/Bezoekadres'
+          nullable: true
+          description: Adres waarop de betrokkene bij klantcontact in naar aanleiding
+            van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken
+            van voor de verstrekker eventueel in een basisregistratie bekende adressen.
+        correspondentieadres:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneCorrespondentieadres'
+          nullable: true
+          description: Adres waarop de betrokkene bij klantcontact naar aanleiding
+            van dat contact te versturen post wil ontvangen. Dit mag afwijken van
+            voor de verstrekker eventueel in een basisregistratie bekende adressen.
+        contactnaam:
+          allOf:
+          - $ref: '#/components/schemas/Contactnaam'
+          nullable: true
+          description: Naam die de betrokkene bij klantcontact tijdens vervolghandelingen
+            naar aanleiding van dat contact wil gebruiken. Deze mag afwijken van eventueel
+            in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
+        volledigeNaam:
+          type: string
+          readOnly: true
+          description: De voledige naam van de betrokkene.
+        rol:
+          allOf:
+          - $ref: '#/components/schemas/RolEnum'
+          description: Rol die de betrokkene bij klantcontact tijdens dat contact
+            vervulde.
+        organisatienaam:
+          type: string
+          description: Naam van de organisatie waarmee de betrokkene bij klantcontact
+            een relatie had.
+          maxLength: 200
+        initiator:
+          type: boolean
+      required:
+      - digitaleAdressen
+      - hadKlantcontact
+      - initiator
+      - rol
+      - url
+      - uuid
+      - volledigeNaam
+      - wasPartij
+    BetrokkeneCorrespondentieadres:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        nummeraanduidingId:
+          type: string
+          description: Identificatie van het adres bij de Basisregistratie Adressen
+            en Gebouwen.
+          maxLength: 255
+        adresregel1:
+          type: string
+          description: Eerste deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel2:
+          type: string
+          description: Tweede deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel3:
+          type: string
+          description: Derde deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        land:
+          type: string
+          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
+            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
+          maxLength: 4
+          minLength: 4
+    BetrokkeneForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze betrokkene binnen deze API.
+      required:
+      - url
+      - uuid
+    Bezoekadres:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        nummeraanduidingId:
+          type: string
+          description: Identificatie van het adres bij de Basisregistratie Adressen
+            en Gebouwen.
+          maxLength: 255
+        adresregel1:
+          type: string
+          description: Eerste deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel2:
+          type: string
+          description: Tweede deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel3:
+          type: string
+          description: Derde deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        land:
+          type: string
+          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
+            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
+          maxLength: 4
+          minLength: 4
+    Bijlage:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        wasBijlageVanKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+        bijlageidentificator:
+          allOf:
+          - $ref: '#/components/schemas/BijlageIdentificator'
+          nullable: true
+          description: Gegevens die een inhoudsobject in een extern register uniek
+            identificeren.
+      required:
+      - url
+      - uuid
+      - wasBijlageVanKlantcontact
+    BijlageForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze bijlage binnen deze API.
+      required:
+      - url
+      - uuid
+    BijlageIdentificator:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        objectId:
+          type: string
+          description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''123456788''.'
+          maxLength: 200
+        codeObjecttype:
+          type: string
+          description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
+            PERSOON''.'
+          maxLength: 200
+        codeRegister:
+          type: string
+          description: 'Binnen het landschap van registers unieke omschrijving van
+            het register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+          maxLength: 200
+        codeSoortObjectId:
+          type: string
+          description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''Burgerservicenummer''.'
+          maxLength: 200
+    Categorie:
+      type: object
+      description: 'Let op: Dit endpoint is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de Categorie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        naam:
+          type: string
+          description: Naam van de categorie.
+          maxLength: 80
+      required:
+      - url
+      - uuid
+    CategorieForeignKey:
+      type: object
+      description: 'Let op: Dit attribuut is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        naam:
+          type: string
+          readOnly: true
+          description: Naam van de categorie.
+      required:
+      - naam
+      - url
+      - uuid
+    CategorieRelatie:
+      type: object
+      description: 'Let op: Dit endpoint is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        partij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignkeyBase'
+          nullable: true
+          description: De partij waar de categorie relatie aan gelinkt is.
+        categorie:
+          allOf:
+          - $ref: '#/components/schemas/CategorieForeignKey'
+          nullable: true
+          description: 'De categorie waar de categorie relatie aan gelinkt is: Let
+            op: Dit attribuut is EXPERIMENTEEL.'
+        beginDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+        eindDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+      required:
+      - beginDatum
+      - categorie
+      - partij
+      - url
+      - uuid
+    CategorieRelatieForeignKey:
+      type: object
+      description: 'Let op: Dit attribuut is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        categorieNaam:
+          type: string
+          readOnly: true
+          description: De naam van de gelinkte categorie.
+        beginDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+        eindDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+      required:
+      - categorieNaam
+      - url
+      - uuid
+    Contactnaam:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        voorletters:
+          type: string
+          description: Een afkorting van de voornamen. Meestal de beginletter, maar
+            in sommige gevallen de beginletter gecombineerd met de tweede letter van
+            een voornaam.
+          maxLength: 10
+        voornaam:
+          type: string
+          description: De voornaam die de persoon wil gebruiken tijdens communicatie
+            met de gemeente.
+          maxLength: 200
+        voorvoegselAchternaam:
+          type: string
+          description: Een eventueel voorvoegsel dat hoort bij de achternaam die de
+            persoon wil gebruiken tijdens communicatie met de gemeente.
+          maxLength: 10
+        achternaam:
+          type: string
+          description: Een achternaam die de persoon wil gebruiken tijdens communicatie
+            met de gemeente.
+          maxLength: 200
+    DigitaalAdres:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit digitaal adres binnen deze API.
+        verstrektDoorBetrokkene:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneForeignKey'
+          nullable: true
+          description: Digitaal adres dat een betrokkene bij klantcontact verstrekte
+            voor gebruik bij opvolging van een klantcontact.
+        verstrektDoorPartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Digitaal adres dat een partij verstrekte voor gebruik bij toekomstig
+            contact met de gemeente.
+        adres:
+          type: string
+          description: Digitaal adres waarmee een persoon of organisatie bereikt kan
+            worden.
+          maxLength: 80
+        soortDigitaalAdres:
+          type: string
+          description: Typering van het digitale adres die aangeeft via welk(e) kanaal
+            of kanalen met dit adres contact kan worden opgenomen.
+          maxLength: 255
+        omschrijving:
+          type: string
+          description: Omschrijving van het digitaal adres.
+          maxLength: 40
+      required:
+      - adres
+      - omschrijving
+      - soortDigitaalAdres
+      - url
+      - uuid
+      - verstrektDoorBetrokkene
+      - verstrektDoorPartij
+    DigitaalAdresForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit digitaal adres binnen deze API.
+      required:
+      - url
+      - uuid
+    ExpandDigitaalAdres:
+      allOf:
+      - $ref: '#/components/schemas/DigitaalAdres'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              verstrekt_door_betrokkene:
+                allOf:
+                - $ref: '#/components/schemas/Betrokkene'
+                nullable: true
+                description: Digitaal adres dat een betrokkene bij klantcontact verstrekte
+                  voor gebruik bij opvolging van een klantcontact.
+    ExpandKlantcontact:
+      allOf:
+      - $ref: '#/components/schemas/Klantcontact'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              had_betrokkenen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Betrokkene'
+                readOnly: true
+                description: Persoon of organisatie die betrokken was bij een klantcontact.
+              leidde_tot_interne_taken:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InterneTaak'
+                readOnly: true
+                description: Klantcontact dat leidde tot een interne taak.
+              ging_over_onderwerpobjecten:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Onderwerpobject'
+                readOnly: true
+                description: Onderwerpobject dat tijdens een klantcontact aan de orde
+                  was.
+              omvatte_bijlagen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bijlage'
+                readOnly: true
+                description: Bijlage die (een deel van) de inhoud van het klantcontact
+                  beschrijft.
+    ExpandPartij:
+      allOf:
+      - $ref: '#/components/schemas/Partij'
+      - type: object
+        properties:
+          _expand:
+            type: object
+            description: Display details of the linked resources requested in the
+              `expand` parameter
+            properties:
+              digitale_adressen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DigitaalAdres'
+                nullable: true
+                description: Digitaal adresen dat een partij verstrekte voor gebruik
+                  bij toekomstig contact met de gemeente.
+              betrokkenen:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Betrokkene'
+                readOnly: true
+                description: Betrokkene bij klantcontact die een partij was.
+              categorie_relaties:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategorieRelatie'
+                readOnly: true
+                description: 'De Categorie relaties van een partij: Let op: Dit attribuut
+                  is EXPERIMENTEEL.'
+    InterneTaak:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de interne taak.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze interne taak binnen deze API.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
+          maxLength: 10
+        gevraagdeHandeling:
+          type: string
+          description: Handeling die moet worden uitgevoerd om de taak af te ronden.
+          maxLength: 200
+        aanleidinggevendKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: Klantcontact dat leidde tot een interne taak.
+        toegewezenAanActor:
+          allOf:
+          - $ref: '#/components/schemas/ActorForeignKey'
+          description: Eerste actor die een interne taak toegewezen kreeg.
+          deprecated: true
+        toegewezenAanActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorForeignKey'
+          description: Actoren die een interne taak toegewezen kreeg.
+        toelichting:
+          type: string
+          description: Toelichting die, aanvullend bij de inhoud van het klantcontact
+            dat aanleiding gaf tot de taak en de gevraagde handeling, bijdraagt aan
+            het kunnen afhandelen van de taak.
+          maxLength: 1000
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: Aanduiding van de vordering bij afhandeling van de interne
+            taak.
+        toegewezenOp:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Datum en tijdstip waarop de interne taak aan een actor werd
+            toegewezen.
+        afgehandeldOp:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Datum en tijdstip wanneer de interne taak was afgehandeld:
+            EXPERIMENTEEL.'
+      required:
+      - aanleidinggevendKlantcontact
+      - gevraagdeHandeling
+      - status
+      - toegewezenOp
+      - url
+      - uuid
+    InterneTaakForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze interne taak binnen deze API.
+      required:
+      - url
+      - uuid
+    Klantcontact:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        gingOverOnderwerpobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/OnderwerpobjectForeignKey'
+          readOnly: true
+          description: Onderwerpobject dat tijdens een klantcontact aan de orde was.
+        hadBetrokkenActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          readOnly: true
+          description: Actor die bij een klantcontact betrokken was.
+        omvatteBijlagen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BijlageForeignKey'
+          readOnly: true
+          description: Bijlage die (een deel van) de inhoud van het klantcontact beschrijft.
+        hadBetrokkenen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
+          readOnly: true
+          description: Persoon of organisatie die betrokken was bij een klantcontact.
+        leiddeTotInterneTaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterneTaakForeignKey'
+          readOnly: true
+          description: Klantcontact dat leidde tot een interne taak.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+          maxLength: 10
+        kanaal:
+          type: string
+          description: Communicatiekanaal dat bij het klantcontact werd gebruikt.
+          maxLength: 50
+        onderwerp:
+          type: string
+          description: Datgene waarover het klantcontact ging.
+          maxLength: 200
+        inhoud:
+          type: string
+          description: Informatie die tijdens het klantcontact werd overgebracht of
+            uitgewisseld, voor zover die voor betrokkenen of actoren relevant is.
+          maxLength: 1000
+        indicatieContactGelukt:
+          type: boolean
+          nullable: true
+          description: Geeft, indien bekend, aan of de poging contact tussen de gemeente
+            en inwoner(s) of organisatie(s) tot stand te brengen succesvol was.
+        taal:
+          type: string
+          description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
+            contact heeft met de gemeente. Voorbeeld: nld. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+        vertrouwelijk:
+          type: boolean
+          description: Geeft aan of onderwerp, inhoud en kenmerken van het klantcontact
+            vertrouwelijk moeten worden behandeld.
+        plaatsgevondenOp:
+          type: string
+          format: date-time
+          description: Datum en tijdstip waarop het klantontact plaatsvond. Als het
+            klantcontact een gesprek betrof, is dit het moment waarop het gesprek
+            begon. Als het klantcontact verzending of ontvangst van informatie betrof,
+            is dit bij benadering het moment waarop informatie door gemeente verzonden
+            of ontvangen werd.
+      required:
+      - gingOverOnderwerpobjecten
+      - hadBetrokkenActoren
+      - hadBetrokkenen
+      - kanaal
+      - leiddeTotInterneTaken
+      - omvatteBijlagen
+      - onderwerp
+      - taal
+      - url
+      - uuid
+      - vertrouwelijk
+    KlantcontactForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+      required:
+      - url
+      - uuid
+    Onderwerpobject:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        klantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+        wasKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Onderwerpobject'' was ''Klantcontact'''
+        onderwerpobjectidentificator:
+          allOf:
+          - $ref: '#/components/schemas/Onderwerpobjectidentificator'
+          nullable: true
+          description: Gegevens die een onderwerpobject in een extern register uniek
+            identificeren.
+      required:
+      - klantcontact
+      - url
+      - uuid
+      - wasKlantcontact
+    OnderwerpobjectForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit onderwerp object binnen deze API.
+      required:
+      - url
+      - uuid
+    Onderwerpobjectidentificator:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        objectId:
+          type: string
+          description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''123456788''.'
+          maxLength: 200
+        codeObjecttype:
+          type: string
+          description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
+            PERSOON''.'
+          maxLength: 200
+        codeRegister:
+          type: string
+          description: 'Binnen het landschap van registers unieke omschrijving van
+            het register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+          maxLength: 200
+        codeSoortObjectId:
+          type: string
+          description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''Burgerservicenummer''.'
+          maxLength: 200
+    PaginatedActorKlantcontactList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorKlantcontact'
+    PaginatedActorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+    PaginatedBetrokkeneList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Betrokkene'
+    PaginatedBijlageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bijlage'
+    PaginatedCategorieList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Categorie'
+    PaginatedCategorieRelatieList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorieRelatie'
+    PaginatedDigitaalAdresList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitaalAdres'
+    PaginatedExpandDigitaalAdresList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandDigitaalAdres'
+    PaginatedExpandKlantcontactList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandKlantcontact'
+    PaginatedExpandPartijList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpandPartij'
+    PaginatedInterneTaakList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterneTaak'
+    PaginatedKlantcontactList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Klantcontact'
+    PaginatedOnderwerpobjectList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Onderwerpobject'
+    PaginatedPartijIdentificatorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartijIdentificator'
+    PaginatedPartijList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Partij'
+    PaginatedRekeningnummerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rekeningnummer'
+    PaginatedVertegenwoordigdenList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vertegenwoordigden'
+    Partij:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de partij.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij binnen deze API.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om de specifieke partij aan te duiden.
+          maxLength: 10
+        interneNotitie:
+          type: string
+          description: Mededelingen, aantekeningen of bijzonderheden over de partij,
+            bedoeld voor intern gebruik.
+          maxLength: 1000
+        betrokkenen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
+          readOnly: true
+          description: Betrokkene bij klantcontact die een partij was.
+        categorieRelaties:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorieRelatieForeignKey'
+          readOnly: true
+          description: 'De Categorie relaties van een partij: Let op: Dit attribuut
+            is EXPERIMENTEEL.'
+        digitaleAdressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          nullable: true
+          description: Digitaal adresen dat een partij verstrekte voor gebruik bij
+            toekomstig contact met de gemeente.
+        voorkeursDigitaalAdres:
+          allOf:
+          - $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          nullable: true
+          description: Digitaal adres waarop een partij bij voorkeur door de gemeente
+            benaderd wordt.
+        vertegenwoordigden:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartijForeignKey'
+          readOnly: true
+          description: Partijen die een andere partijen vertegenwoordigden.
+        rekeningnummers:
+          type: array
+          items:
+            $ref: '#/components/schemas/RekeningnummerForeignKey'
+          nullable: true
+          description: Rekeningnummers van een partij
+        voorkeursRekeningnummer:
+          allOf:
+          - $ref: '#/components/schemas/RekeningnummerForeignKey'
+          nullable: true
+          description: Rekeningsnummer die een partij bij voorkeur gebruikt.
+        partijIdentificatoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartijIdentificatorForeignkey'
+          readOnly: true
+          description: Partij-identificatoren die hoorde bij deze partij.
+        soortPartij:
+          allOf:
+          - $ref: '#/components/schemas/SoortPartijEnum'
+          description: Geeft aan van welke specifieke soort partij sprake is.
+        indicatieGeheimhouding:
+          type: boolean
+          nullable: true
+          description: Geeft aan of de verstrekker van partijgegevens heeft aangegeven
+            dat deze gegevens als geheim beschouwd moeten worden. Als dit niet aangegeven
+            is dan wordt dit ingevuld als `null`.
+        voorkeurstaal:
+          type: string
+          description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
+            contact heeft met de gemeente. Voorbeeld: nld. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+        indicatieActief:
+          type: boolean
+          description: Geeft aan of de contactgegevens van de partij nog gebruikt
+            morgen worden om contact op te nemen. Gegevens van niet-actieve partijen
+            mogen hiervoor niet worden gebruikt.
+        bezoekadres:
+          allOf:
+          - $ref: '#/components/schemas/PartijBezoekadres'
+          nullable: true
+          description: Adres waarop de partij door gemeente bezocht wil worden. Dit
+            mag afwijken van voor de verstrekker eventueel in een basisregistratie
+            bekende adressen.
+        correspondentieadres:
+          allOf:
+          - $ref: '#/components/schemas/PartijCorrespondentieadres'
+          nullable: true
+          description: Adres waarop de partij post van de gemeente wil ontvangen.
+            Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie
+            bekende adressen.
+      required:
+      - betrokkenen
+      - categorieRelaties
+      - digitaleAdressen
+      - indicatieActief
+      - partijIdentificatoren
+      - rekeningnummers
+      - soortPartij
+      - url
+      - uuid
+      - vertegenwoordigden
+      - voorkeursDigitaalAdres
+      - voorkeursRekeningnummer
+    PartijBezoekadres:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        nummeraanduidingId:
+          type: string
+          description: Identificatie van het adres bij de Basisregistratie Adressen
+            en Gebouwen.
+          maxLength: 255
+        adresregel1:
+          type: string
+          description: Eerste deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel2:
+          type: string
+          description: Tweede deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel3:
+          type: string
+          description: Derde deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        land:
+          type: string
+          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
+            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
+          maxLength: 4
+          minLength: 4
+    PartijCorrespondentieadres:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        nummeraanduidingId:
+          type: string
+          description: Identificatie van het adres bij de Basisregistratie Adressen
+            en Gebouwen.
+          maxLength: 255
+        adresregel1:
+          type: string
+          description: Eerste deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel2:
+          type: string
+          description: Tweede deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        adresregel3:
+          type: string
+          description: Derde deel van het adres dat niet voorkomt in de Basisregistratie
+            Adressen en Gebouwen.
+          maxLength: 80
+        land:
+          type: string
+          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
+            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
+          maxLength: 4
+          minLength: 4
+    PartijForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij binnen deze API.
+      required:
+      - url
+      - uuid
+    PartijForeignkeyBase:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij binnen deze API.
+      required:
+      - url
+      - uuid
+    PartijIdentificator:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij indentificator binnen deze API.
+        identificeerdePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Partij-identificator die hoorde bij een partij.
+        anderePartijIdentificator:
+          type: string
+          title: Andere partij indetificator
+          description: 'Vrij tekstveld om de verwijzing naar een niet-voorgedefinieerd
+            objecttype, soort objectID of Register vast te leggen. '
+          maxLength: 200
+        partijIdentificator:
+          allOf:
+          - $ref: '#/components/schemas/PartijIdentificatorGroepType'
+          nullable: true
+          description: Gegevens die een partij in een basisregistratie of ander extern
+            register uniek identificeren.
+      required:
+      - identificeerdePartij
+      - partijIdentificator
+      - url
+      - uuid
+    PartijIdentificatorForeignkey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij indentificator binnen deze API.
+      required:
+      - url
+      - uuid
+    PartijIdentificatorGroepType:
+      type: object
+      description: |-
+        Generate a serializer out of a GegevensGroepType.
+
+        Usage::
+
+        >>> class VerlengingSerializer(GegevensGroepSerializer):
+        ...     class Meta:
+        ...         model = Zaak
+        ...         gegevensgroep = 'verlenging'
+        >>>
+
+        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
+      properties:
+        codeObjecttype:
+          type: string
+          title: Objecttype
+          description: 'Type van het object, bijvoorbeeld: ''INGESCHREVEN NATUURLIJK
+            PERSOON''.'
+          maxLength: 200
+        codeSoortObjectId:
+          type: string
+          title: Soort object ID
+          description: 'Naam van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''Burgerservicenummer''.'
+          maxLength: 200
+        objectId:
+          type: string
+          description: 'Waarde van de eigenschap die het object identificeert, bijvoorbeeld:
+            ''123456788''.'
+          maxLength: 200
+        codeRegister:
+          type: string
+          title: Register
+          description: 'Binnen het landschap van registers unieke omschrijving van
+            het register waarin het object is geregistreerd, bijvoorbeeld: ''BRP''.'
+          maxLength: 200
+    PatchedActor:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de actor.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze actor binnen deze API.
+        naam:
+          type: string
+          description: Naam van de actor.
+          maxLength: 200
+        soortActor:
+          allOf:
+          - $ref: '#/components/schemas/SoortActorEnum'
+          description: Geeft aan van welke specifieke soort actor sprake is.
+        indicatieActief:
+          type: boolean
+          description: Geeft aan of aan de actor nog betrokken mag worden bij nieuwe
+            klantcontacten. Voor niet-actieve is dit niet toegestaan.
+        actoridentificator:
+          allOf:
+          - $ref: '#/components/schemas/Actoridentificator'
+          nullable: true
+          description: Gegevens die een actorwerpobject in een extern register uniek
+            identificeren.
+    PatchedActorKlantcontact:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de actor klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze actor klantcontact binnen deze API.
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/ActorForeignKey'
+          description: De gekoppelde 'Actor'.
+        klantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: De gekoppelde 'Klantcontact'.
+    PatchedBetrokkene:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze betrokkene binnen deze API.
+        wasPartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Betrokkene bij klantcontact die een partij was.
+        hadKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: Het klantcontact waar deze persoon of organisatie bij betrokken
+            was.
+        digitaleAdressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          readOnly: true
+          description: Digitale adressen van de betrokkene bij klantcontact.
+        bezoekadres:
+          allOf:
+          - $ref: '#/components/schemas/Bezoekadres'
+          nullable: true
+          description: Adres waarop de betrokkene bij klantcontact in naar aanleiding
+            van dat contact af te leggen bezoeken wil ontvangen. Dit mag afwijken
+            van voor de verstrekker eventueel in een basisregistratie bekende adressen.
+        correspondentieadres:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneCorrespondentieadres'
+          nullable: true
+          description: Adres waarop de betrokkene bij klantcontact naar aanleiding
+            van dat contact te versturen post wil ontvangen. Dit mag afwijken van
+            voor de verstrekker eventueel in een basisregistratie bekende adressen.
+        contactnaam:
+          allOf:
+          - $ref: '#/components/schemas/Contactnaam'
+          nullable: true
+          description: Naam die de betrokkene bij klantcontact tijdens vervolghandelingen
+            naar aanleiding van dat contact wil gebruiken. Deze mag afwijken van eventueel
+            in de Basisregistratie Personen (BRP) bekende naam van de betrokkene.
+        volledigeNaam:
+          type: string
+          readOnly: true
+          description: De voledige naam van de betrokkene.
+        rol:
+          allOf:
+          - $ref: '#/components/schemas/RolEnum'
+          description: Rol die de betrokkene bij klantcontact tijdens dat contact
+            vervulde.
+        organisatienaam:
+          type: string
+          description: Naam van de organisatie waarmee de betrokkene bij klantcontact
+            een relatie had.
+          maxLength: 200
+        initiator:
+          type: boolean
+    PatchedBijlage:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het inhoudsdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        wasBijlageVanKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+        bijlageidentificator:
+          allOf:
+          - $ref: '#/components/schemas/BijlageIdentificator'
+          nullable: true
+          description: Gegevens die een inhoudsobject in een extern register uniek
+            identificeren.
+    PatchedCategorie:
+      type: object
+      description: 'Let op: Dit endpoint is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de Categorie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        naam:
+          type: string
+          description: Naam van de categorie.
+          maxLength: 80
+    PatchedCategorieRelatie:
+      type: object
+      description: 'Let op: Dit endpoint is EXPERIMENTEEL.'
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de Categorie Relatie.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze categorie binnen deze API.
+        partij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignkeyBase'
+          nullable: true
+          description: De partij waar de categorie relatie aan gelinkt is.
+        categorie:
+          allOf:
+          - $ref: '#/components/schemas/CategorieForeignKey'
+          nullable: true
+          description: 'De categorie waar de categorie relatie aan gelinkt is: Let
+            op: Dit attribuut is EXPERIMENTEEL.'
+        beginDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+        eindDatum:
+          type: string
+          format: date
+          nullable: true
+          description: 'Aanduiding van datum volgens de NEN-ISO 8601:2019-standaard.
+            Een datum wordt genoteerd van het meest naar het minst significante onderdeel.
+            Een voorbeeld: 2022-02-21'
+    PatchedDigitaalAdres:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het digitaal adres.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit digitaal adres binnen deze API.
+        verstrektDoorBetrokkene:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneForeignKey'
+          nullable: true
+          description: Digitaal adres dat een betrokkene bij klantcontact verstrekte
+            voor gebruik bij opvolging van een klantcontact.
+        verstrektDoorPartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Digitaal adres dat een partij verstrekte voor gebruik bij toekomstig
+            contact met de gemeente.
+        adres:
+          type: string
+          description: Digitaal adres waarmee een persoon of organisatie bereikt kan
+            worden.
+          maxLength: 80
+        soortDigitaalAdres:
+          type: string
+          description: Typering van het digitale adres die aangeeft via welk(e) kanaal
+            of kanalen met dit adres contact kan worden opgenomen.
+          maxLength: 255
+        omschrijving:
+          type: string
+          description: Omschrijving van het digitaal adres.
+          maxLength: 40
+    PatchedInterneTaak:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de interne taak.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze interne taak binnen deze API.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om de specifieke interne taak aan te duiden.
+          maxLength: 10
+        gevraagdeHandeling:
+          type: string
+          description: Handeling die moet worden uitgevoerd om de taak af te ronden.
+          maxLength: 200
+        aanleidinggevendKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          description: Klantcontact dat leidde tot een interne taak.
+        toegewezenAanActor:
+          allOf:
+          - $ref: '#/components/schemas/ActorForeignKey'
+          description: Eerste actor die een interne taak toegewezen kreeg.
+          deprecated: true
+        toegewezenAanActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorForeignKey'
+          description: Actoren die een interne taak toegewezen kreeg.
+        toelichting:
+          type: string
+          description: Toelichting die, aanvullend bij de inhoud van het klantcontact
+            dat aanleiding gaf tot de taak en de gevraagde handeling, bijdraagt aan
+            het kunnen afhandelen van de taak.
+          maxLength: 1000
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: Aanduiding van de vordering bij afhandeling van de interne
+            taak.
+        toegewezenOp:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Datum en tijdstip waarop de interne taak aan een actor werd
+            toegewezen.
+        afgehandeldOp:
+          type: string
+          format: date-time
+          nullable: true
+          description: 'Datum en tijdstip wanneer de interne taak was afgehandeld:
+            EXPERIMENTEEL.'
+    PatchedKlantcontact:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de betrokkene bij
+            klantcontact.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        gingOverOnderwerpobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/OnderwerpobjectForeignKey'
+          readOnly: true
+          description: Onderwerpobject dat tijdens een klantcontact aan de orde was.
+        hadBetrokkenActoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          readOnly: true
+          description: Actor die bij een klantcontact betrokken was.
+        omvatteBijlagen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BijlageForeignKey'
+          readOnly: true
+          description: Bijlage die (een deel van) de inhoud van het klantcontact beschrijft.
+        hadBetrokkenen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
+          readOnly: true
+          description: Persoon of organisatie die betrokken was bij een klantcontact.
+        leiddeTotInterneTaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterneTaakForeignKey'
+          readOnly: true
+          description: Klantcontact dat leidde tot een interne taak.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om het specifieke klantcontact aan te duiden.
+          maxLength: 10
+        kanaal:
+          type: string
+          description: Communicatiekanaal dat bij het klantcontact werd gebruikt.
+          maxLength: 50
+        onderwerp:
+          type: string
+          description: Datgene waarover het klantcontact ging.
+          maxLength: 200
+        inhoud:
+          type: string
+          description: Informatie die tijdens het klantcontact werd overgebracht of
+            uitgewisseld, voor zover die voor betrokkenen of actoren relevant is.
+          maxLength: 1000
+        indicatieContactGelukt:
+          type: boolean
+          nullable: true
+          description: Geeft, indien bekend, aan of de poging contact tussen de gemeente
+            en inwoner(s) of organisatie(s) tot stand te brengen succesvol was.
+        taal:
+          type: string
+          description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
+            contact heeft met de gemeente. Voorbeeld: nld. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+        vertrouwelijk:
+          type: boolean
+          description: Geeft aan of onderwerp, inhoud en kenmerken van het klantcontact
+            vertrouwelijk moeten worden behandeld.
+        plaatsgevondenOp:
+          type: string
+          format: date-time
+          description: Datum en tijdstip waarop het klantontact plaatsvond. Als het
+            klantcontact een gesprek betrof, is dit het moment waarop het gesprek
+            begon. Als het klantcontact verzending of ontvangst van informatie betrof,
+            is dit bij benadering het moment waarop informatie door gemeente verzonden
+            of ontvangen werd.
+    PatchedOnderwerpobject:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van het onderwerpdeel.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van dit klantcontact binnen deze API.
+        klantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Klantcontact'' ging over ''Onderwerpobject'''
+        wasKlantcontact:
+          allOf:
+          - $ref: '#/components/schemas/KlantcontactForeignKey'
+          nullable: true
+          description: '''Onderwerpobject'' was ''Klantcontact'''
+        onderwerpobjectidentificator:
+          allOf:
+          - $ref: '#/components/schemas/Onderwerpobjectidentificator'
+          nullable: true
+          description: Gegevens die een onderwerpobject in een extern register uniek
+            identificeren.
+    PatchedPartij:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de partij.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij binnen deze API.
+        nummer:
+          type: string
+          description: Uniek identificerend nummer dat tijdens communicatie tussen
+            mensen kan worden gebruikt om de specifieke partij aan te duiden.
+          maxLength: 10
+        interneNotitie:
+          type: string
+          description: Mededelingen, aantekeningen of bijzonderheden over de partij,
+            bedoeld voor intern gebruik.
+          maxLength: 1000
+        betrokkenen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BetrokkeneForeignKey'
+          readOnly: true
+          description: Betrokkene bij klantcontact die een partij was.
+        categorieRelaties:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategorieRelatieForeignKey'
+          readOnly: true
+          description: 'De Categorie relaties van een partij: Let op: Dit attribuut
+            is EXPERIMENTEEL.'
+        digitaleAdressen:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          nullable: true
+          description: Digitaal adresen dat een partij verstrekte voor gebruik bij
+            toekomstig contact met de gemeente.
+        voorkeursDigitaalAdres:
+          allOf:
+          - $ref: '#/components/schemas/DigitaalAdresForeignKey'
+          nullable: true
+          description: Digitaal adres waarop een partij bij voorkeur door de gemeente
+            benaderd wordt.
+        vertegenwoordigden:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartijForeignKey'
+          readOnly: true
+          description: Partijen die een andere partijen vertegenwoordigden.
+        rekeningnummers:
+          type: array
+          items:
+            $ref: '#/components/schemas/RekeningnummerForeignKey'
+          nullable: true
+          description: Rekeningnummers van een partij
+        voorkeursRekeningnummer:
+          allOf:
+          - $ref: '#/components/schemas/RekeningnummerForeignKey'
+          nullable: true
+          description: Rekeningsnummer die een partij bij voorkeur gebruikt.
+        partijIdentificatoren:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartijIdentificatorForeignkey'
+          readOnly: true
+          description: Partij-identificatoren die hoorde bij deze partij.
+        soortPartij:
+          allOf:
+          - $ref: '#/components/schemas/SoortPartijEnum'
+          description: Geeft aan van welke specifieke soort partij sprake is.
+        indicatieGeheimhouding:
+          type: boolean
+          nullable: true
+          description: Geeft aan of de verstrekker van partijgegevens heeft aangegeven
+            dat deze gegevens als geheim beschouwd moeten worden. Als dit niet aangegeven
+            is dan wordt dit ingevuld als `null`.
+        voorkeurstaal:
+          type: string
+          description: 'Taal, in ISO 639-2/B formaat, waarin de partij bij voorkeur
+            contact heeft met de gemeente. Voorbeeld: nld. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+        indicatieActief:
+          type: boolean
+          description: Geeft aan of de contactgegevens van de partij nog gebruikt
+            morgen worden om contact op te nemen. Gegevens van niet-actieve partijen
+            mogen hiervoor niet worden gebruikt.
+        bezoekadres:
+          allOf:
+          - $ref: '#/components/schemas/PartijBezoekadres'
+          nullable: true
+          description: Adres waarop de partij door gemeente bezocht wil worden. Dit
+            mag afwijken van voor de verstrekker eventueel in een basisregistratie
+            bekende adressen.
+        correspondentieadres:
+          allOf:
+          - $ref: '#/components/schemas/PartijCorrespondentieadres'
+          nullable: true
+          description: Adres waarop de partij post van de gemeente wil ontvangen.
+            Dit mag afwijken van voor de verstrekker eventueel in een basisregistratie
+            bekende adressen.
+    PatchedPartijIdentificator:
+      type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de partij-identificator.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze partij indentificator binnen deze API.
+        identificeerdePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Partij-identificator die hoorde bij een partij.
+        anderePartijIdentificator:
+          type: string
+          title: Andere partij indetificator
+          description: 'Vrij tekstveld om de verwijzing naar een niet-voorgedefinieerd
+            objecttype, soort objectID of Register vast te leggen. '
+          maxLength: 200
+        partijIdentificator:
+          allOf:
+          - $ref: '#/components/schemas/PartijIdentificatorGroepType'
+          nullable: true
+          description: Gegevens die een partij in een basisregistratie of ander extern
+            register uniek identificeren.
+    PatchedRekeningnummer:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de interne taak.
+        partij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Rekeningnummer van een partij
+        iban:
+          type: string
+          description: Het internationaal bankrekeningnummer, zoals dat door een bankinstelling
+            als identificator aan een overeenkomst tussen de bank en een of meer subjecten
+            wordt toegekend, op basis waarvan het SUBJECT in de regel internationaal
+            financieel communiceert.
+          pattern: ^[A-Za-z]{2}[0-9]{2}[A-Za-z0-9]{1,30}$
+          maxLength: 34
+        bic:
+          type: string
+          description: De unieke code van de bankinstelling waar het SUBJECT het bankrekeningnummer
+            heeft waarmee het subject in de regel internationaal financieel communiceert.
+          pattern: ^[\S]+$
+          maxLength: 11
+          minLength: 8
+    PatchedVertegenwoordigden:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze vertegenwoordigden binnen deze API.
+        vertegenwoordigendePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          description: '''Partij'' die een andere ''Partij'' vertegenwoordigde.'
+        vertegenwoordigdePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          description: '''Partij'' vertegenwoordigd wordt door een andere ''Partij''.'
+    Rekeningnummer:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de interne taak.
+        partij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          nullable: true
+          description: Rekeningnummer van een partij
+        iban:
+          type: string
+          description: Het internationaal bankrekeningnummer, zoals dat door een bankinstelling
+            als identificator aan een overeenkomst tussen de bank en een of meer subjecten
+            wordt toegekend, op basis waarvan het SUBJECT in de regel internationaal
+            financieel communiceert.
+          pattern: ^[A-Za-z]{2}[0-9]{2}[A-Za-z0-9]{1,30}$
+          maxLength: 34
+        bic:
+          type: string
+          description: De unieke code van de bankinstelling waar het SUBJECT het bankrekeningnummer
+            heeft waarmee het subject in de regel internationaal financieel communiceert.
+          pattern: ^[\S]+$
+          maxLength: 11
+          minLength: 8
+      required:
+      - iban
+      - partij
+      - uuid
+    RekeningnummerForeignKey:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke (technische) identificatiecode van de interne taak.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze rekeningnummer binnen deze API.
+      required:
+      - url
+      - uuid
+    RolEnum:
+      enum:
+      - vertegenwoordiger
+      - klant
+      type: string
+    SoortActorEnum:
+      enum:
+      - medewerker
+      - geautomatiseerde_actor
+      - organisatorische_eenheid
+      type: string
+    SoortPartijEnum:
+      enum:
+      - persoon
+      - organisatie
+      - contactpersoon
+      type: string
+    StatusEnum:
+      enum:
+      - te_verwerken
+      - verwerkt
+      type: string
+    Vertegenwoordigden:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke (technische) identificatiecode van de vertegenwoordigden.
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: De unieke URL van deze vertegenwoordigden binnen deze API.
+        vertegenwoordigendePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          description: '''Partij'' die een andere ''Partij'' vertegenwoordigde.'
+        vertegenwoordigdePartij:
+          allOf:
+          - $ref: '#/components/schemas/PartijForeignKey'
+          description: '''Partij'' vertegenwoordigd wordt door een andere ''Partij''.'
+      required:
+      - url
+      - uuid
+      - vertegenwoordigdePartij
+      - vertegenwoordigendePartij
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
+servers:
+- url: /klantinteracties/api/v1
+tags:
+- name: actoren
+- name: actor klantcontacten
+- name: betrokkenen
+- name: bijlagen
+- name: categorie relaties
+- name: categorieën
+- name: digitale adressen
+- name: interne taken
+- name: klanten contacten
+- name: onderwerpobjecten
+- name: partij-identificatoren
+- name: partijen
+- name: rekeningnummers
+- name: vertegenwoordigingen

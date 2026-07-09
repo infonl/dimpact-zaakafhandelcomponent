@@ -1,0 +1,33 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+@import "/variables";
+
+.mat-mdc-card {
+  background-color: @body-background-color;
+  padding: 10px;
+
+  .mat-mdc-card-title {
+    font-size: 14px;
+  }
+}
+
+.zaak-betrokkene-filter {
+  font-size: 12px;
+
+  mat-icon.active {
+    color: @primary-background-color;
+  }
+
+  mat-form-field::ng-deep {
+    .mat-mdc-form-field-flex {
+      padding-top: 0;
+    }
+
+    .mat-mdc-form-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+}

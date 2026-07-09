@@ -1,0 +1,54 @@
+#
+# SPDX-FileCopyrightText: 2024 Lifely
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+### BUILD ###
+target
+build
+.gradle
+.kotlin
+src/generated
+.openapi-generator
+wildfly-*
+.env*
+src/e2e/ExportData/*
+src/main/app/.nvmrc
+/bin
+
+### Python virtual environment ###
+scripts/python/.venv
+scripts/python/.venv/*
+
+### Python cache ###
+**/__pycache__/
+
+### INTELLIJ ###
+*.iml
+.idea
+
+### DIRENV ###
+.envrc
+
+### SDKMAN ###
+.sdkmanrc
+
+### JENV ###
+.java-version
+
+### Docker Compose data ###
+scripts/docker-compose/volume-data*
+
+### just linux things
+*.swp
+
+### GitHub ACT secrets file
+scripts/github/.secrets
+
+### Docker Compose ###
+docker-compose.override.yml
+check-for-running-containers.sh
+fix-permissions.sh
+
+### Docker ###
+.DS_store

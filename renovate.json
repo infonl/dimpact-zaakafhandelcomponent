@@ -1,0 +1,228 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":separateMultipleMajorReleases",
+    ":separateMultipleMinorReleases",
+    ":separatePatchReleases",
+    ":pinDependencies",
+    ":maintainLockFilesWeekly",
+    ":automergeDigest",
+    "docker:pinDigests",
+    "docker:enableMajor"
+  ],
+  "reviewers": [
+    "team:dimpact",
+    "hsiliev"
+  ],
+  "prConcurrentLimit": 5,
+  "registryAliases": {
+    "opentelemetry": "https://open-telemetry.github.io/opentelemetry-helm-charts",
+    "bitnami": "https://charts.bitnami.com/bitnami",
+    "solr": "https://solr.apache.org/charts"
+  },
+  "helm-values": {
+    "fileMatch": "(^|/)ci/.+values\\.ya?ml$"
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^publiccode\\.yaml$"],
+      "matchStrings": [
+        "softwareVersion: \"(?<currentValue>[^\"]+)\"\\nreleaseDate: \"(?<releaseDate>[^\"]+)\""
+      ],
+      "depNameTemplate": "infonl/dimpact-zaakafhandelcomponent",
+      "datasourceTemplate": "github-releases",
+      "autoReplaceStringTemplate": "softwareVersion: \"{{{newValue}}}\"\nreleaseDate: \"{{{releaseTimestamp}}}\""
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["workflows/.+\\.ya?ml$"],
+      "matchStrings": [
+        "\\sJAVA_VERSION: \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "java-version",
+      "depNameTemplate": "java-jre",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)[+]"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "schedule": [
+        "every weekend on the 1st through 7th day of the month"
+      ]
+    },
+    {
+      "groupName": "Dependencies provided by WildFly",
+      "matchPackageNames": [
+        "jakarta.platform:jakarta.jakartaee-api",
+        "org.eclipse.microprofile.config:microprofile-config-api",
+        "org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api",
+        "org.eclipse.microprofile.health:microprofile-health-api",
+        "org.eclipse.microprofile.rest.client:microprofile-rest-client-api",
+        "org.jboss.resteasy:resteasy-multipart-provider",
+        "org.wildfly.security:wildfly-elytron-http-oidc",
+        "org.hibernate.validator:hibernate-validator"
+      ],
+      "matchManagers": [
+        "gradle"
+      ],
+      "enabled": false,
+      "description": ["Updates for dependencies that are provided by WildFly"]
+    },
+    {
+      "matchPackageNames": [
+        "quay.io/keycloak/keycloak"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 25.0.6",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "org.keycloak:keycloak-admin-client"
+      ],
+      "matchDatasources": [
+        "maven"
+      ],
+      "allowedVersions": "<= 25.0.6",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/maykinmedia/objects-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "< 3.1.0",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/maykinmedia/objecttypes-api"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 2.2.2",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/maykinmedia/open-klant"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 2.3.0",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/openzaak/open-zaak"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 1.18.0",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/openzaak/open-notificaties"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 1.8.0",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/redis"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "allowedVersions": "<= 7.4.1",
+      "description": ["Pinned by the next Dimpact PodiumD release"]
+    },
+    {
+      "matchPackageNames": [
+        "opentelemetry-collector"
+      ],
+      "matchDatasources": [
+        "helm"
+      ],
+      "allowedVersions": "<= 0.104.0",
+      "description": ["Pinned - next version(s) have breaking changes - https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/33896 - story created"]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/infonl/zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "enabled": false,
+      "description": ["The version of the ZAC Docker image in our Docker Compose file is set to 'latest' and is only used for local development"]
+    },
+    {
+      "matchPackageNames": [
+        "infonl/dimpact-zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "automerge": true,
+      "schedule": ["* 0-8 1,15 * *"],
+      "description": ["automerge the updates to publiccode.yaml on the 1st and 15th day of the month before 08:00"]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/infonl/zaakafhandelcomponent"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor",
+        "major"
+      ],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "com.diffplug.spotless"
+      ],
+      "allowedVersions": "< 7",
+      "description": ["Pinned - version 7 causes Connection refused and node/npm discovery issues"]
+    },
+    {
+      "matchPackageNames": [
+        "docker.io/eclipse-temurin"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "versioning": "loose",
+      "allowedVersions": "/jre-ubi9-minimal$/"
+    }
+  ]
+}

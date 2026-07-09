@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zaakafhandelcomponent.fullname" . }}
+  labels:
+    {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "zaakafhandelcomponent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "zaakafhandelcomponent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zaakafhandelcomponent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: admin
+              containerPort: 9990
+            {{- if .Values.remoteDebug }}
+            - name: debug
+              containerPort: 8787
+            {{- end }}
+          startupProbe:
+            httpGet:
+              port: admin
+              path: /health/live
+            initialDelaySeconds: 30
+            failureThreshold: 10
+            periodSeconds: 10
+          {{- if not .Values.remoteDebug }}
+          livenessProbe:
+            httpGet:
+              port: admin
+              path: /health/live
+            failureThreshold: 3
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              port: admin
+              path: /health/ready
+            initialDelaySeconds: 60
+            failureThreshold: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          {{- end}}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "zaakafhandelcomponent.fullname" . }}
+            - secretRef:
+                name: {{ include "zaakafhandelcomponent.fullname" . }}
+          {{- if .Values.remoteDebug }}
+          command:
+            - java
+            - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
+            - -jar
+            - zaakafhandelcomponent.jar
+          {{- end }}
+      {{- if .Values.opa.enabled }}
+      {{- if not .Values.opa.sidecar }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+      - name: check-opa-ready
+        image: {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}
+        {{- if .Values.opa.url }}
+        command: ['sh','-c','until curl {{ .Values.opa.url }};do echo waiting for opa;sleep 5;done;']
+        {{- else }}
+        command: ['sh','-c','until curl http://{{ include "zaakafhandelcomponent.opa.fullname" . }}:{{ .Values.opa.service.port }};do echo waiting for opa;sleep 5;done;']
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if .Values.opa.enabled }}
+{{- if .Values.opa.sidecar }}
+        - name: "{{ .Values.opa.name }}"
+          image: "{{ .Values.opa.image.repository }}:{{ .Values.opa.image.tag }}"
+          imagePullPolicy: {{ .Values.opa.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.opa.resources | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8181
+          args:
+            - run
+            - --server
+            - --addr=0.0.0.0:8181
+            - --ignore=.*  # exclude hidden dirs created by Kubernetes
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?bundle=true  # Include bundle activation in readiness
+              scheme: HTTP
+              port: 8181
+            initialDelaySeconds: 5
+      {{- with .Values.opa.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opa.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.opa.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

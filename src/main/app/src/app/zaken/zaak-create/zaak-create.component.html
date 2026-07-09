@@ -1,0 +1,38 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Atos
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<mat-sidenav-container autosize>
+  <mat-sidenav
+    #actionsSideNav
+    mode="over"
+    position="end"
+    [ngSwitch]="activeSideAction"
+  >
+    <zac-klant-koppel
+      *ngSwitchCase="'actie.initiator.toevoegen'"
+      (klantGegevens)="initiatorGeselecteerd($event.klant)"
+      [sideNav]="actionsSidenav"
+      [initiator]="true"
+      [allowBedrijf]="true"
+      [allowPersoon]="true"
+    ></zac-klant-koppel>
+    <zac-bag-zoek
+      *ngSwitchCase="'actie.bagObject.toevoegen'"
+      [gekoppeldeBagObjecten]="bagObjecten"
+      [sideNav]="actionsSidenav"
+      (bagObject)="bagGeselecteerd($event)"
+    ></zac-bag-zoek>
+  </mat-sidenav>
+  <div class="content" class="zaak-create-form">
+    <div class="form">
+      <mfb-form
+        #mfbForm
+        *ngIf="createZaakFields"
+        (formSubmit)="onFormSubmit($event)"
+        [formFields]="createZaakFields"
+        [config]="formConfig"
+      ></mfb-form>
+    </div>
+  </div>
+</mat-sidenav-container>
