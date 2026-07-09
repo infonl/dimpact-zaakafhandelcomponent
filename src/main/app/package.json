@@ -57,7 +57,7 @@
     "chokidar": "5.0.0",
     "tar": "^7.5.8",
     "@babel/core": "7.29.7",
-    "http-proxy-middleware": "4.1.1",
+    "http-proxy-middleware": "4.2.0",
     "serialize-javascript": "7.0.7",
     "webpack-dev-server": "6.0.0"
   },

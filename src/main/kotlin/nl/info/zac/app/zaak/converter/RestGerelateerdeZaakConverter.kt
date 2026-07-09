@@ -8,7 +8,6 @@ import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
-import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
@@ -16,6 +15,9 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
+import nl.info.zac.zaak.hoofdAndDeelzaakCanBeOntkoppeld
+import nl.info.zac.zaak.model.toZaakLinkData
+import nl.info.zac.zaak.relatedZakenCanBeOntkoppeld
 
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
@@ -44,8 +46,21 @@ class RestGerelateerdeZaakConverter @Inject constructor(
                     }
                 }
             },
-            ontkoppelen = if (relatieType == RelatieType.GERELATEERD) fromZaakRechten.koppelen && zaakrechten.lezen
-                else fromZaakRechten.koppelen && zaakrechten.koppelen && fromZaak.isOpen() == gerelateerdeZaak.isOpen()
+            ontkoppelen = when (relatieType) {
+                RelatieType.GERELATEERD -> relatedZakenCanBeOntkoppeld(
+                    fromZaak.toZaakLinkData(fromZaakRechten),
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
+                )
+                RelatieType.HOOFDZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten),
+                    fromZaak.toZaakLinkData(fromZaakRechten)
+                )
+                RelatieType.DEELZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
+                    fromZaak.toZaakLinkData(fromZaakRechten),
+                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
+                )
+                else -> false
+            }
         )
     }
 

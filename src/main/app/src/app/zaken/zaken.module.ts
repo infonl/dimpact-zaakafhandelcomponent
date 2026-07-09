@@ -34,6 +34,7 @@ import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.
 import { ZaakTakenComponent } from "./zaak-taken/zaak-taken.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
 import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
+import { ZaakHistorieComponent } from "./zaken-historie/zaak-historie.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
 
 @NgModule({
@@ -68,6 +69,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     BesluitEditComponent,
     CaseDetailsEditComponent,
     ZaakLinkComponent,
+    ZaakHistorieComponent,
   ],
 })
 export class ZakenModule {}
