@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, effect, inject, input } from "@angular/core";
+import { Component, computed, inject, input } from "@angular/core";
 import { Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
+import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -58,9 +58,9 @@ export class ZaakBetrokkeneListComponent {
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak().uuid),
   );
 
-  protected readonly betrokkenen = new MatTableDataSource<
-    GeneratedType<"RestZaakBetrokkene">
-  >();
+  protected readonly betrokkenen = computed(
+    () => this.betrokkenenQuery.data() ?? [],
+  );
 
   protected readonly betrokkenenColumns = [
     "roltype",
@@ -69,12 +69,6 @@ export class ZaakBetrokkeneListComponent {
     "roltoelichting",
     "actions",
   ] as const;
-
-  constructor() {
-    effect(() => {
-      this.betrokkenen.data = this.betrokkenenQuery.data() ?? [];
-    });
-  }
 
   protected async betrokkeneGegevensOphalen(
     betrokkene: GeneratedType<"RestZaakBetrokkene"> & {
