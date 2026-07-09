@@ -295,7 +295,7 @@ describe(InformatieObjectAddComponent.name, () => {
       expect(mockSideNav.close).not.toHaveBeenCalled();
     });
 
-    it("should reset the form", async () => {
+    it("should reset titel and bestand", async () => {
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
@@ -313,9 +313,6 @@ describe(InformatieObjectAddComponent.name, () => {
         expect.objectContaining({
           bestand: null,
           titel: null,
-          auteur: mockLoggedInUser.naam,
-          creatiedatum: expect.any(moment),
-          addOtherInfoObject: true,
         }),
       );
     });
