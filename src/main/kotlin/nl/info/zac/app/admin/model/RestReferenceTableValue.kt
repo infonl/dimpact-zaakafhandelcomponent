@@ -5,6 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import nl.info.zac.admin.model.ReferenceTable
 import nl.info.zac.admin.model.ReferenceTableValue
 import nl.info.zac.util.AllOpen
@@ -19,10 +20,15 @@ class RestReferenceTableValue(
     var id: Long? = null,
 
     @field:NotBlank
+    @field:Size(max = NAAM_MAX_LENGTH)
     var naam: String,
 
     var isSystemValue: Boolean = false
-)
+) {
+    companion object {
+        const val NAAM_MAX_LENGTH = 1000
+    }
+}
 
 fun RestReferenceTableValue.toReferenceTableValue(
     referenceTable: ReferenceTable
