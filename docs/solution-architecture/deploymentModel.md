@@ -103,11 +103,11 @@ ZAC is cloud-agnostic and can be deployed on any Kubernetes cluster, regardless 
 
 ZAC currently cannot scale horizontally. This means that there can only be one instance of ZAC running on any given environment.
 
-Should the need arise for horizontal scalability for ZAC in the future, some things that will need to be tackled to achieve this:
-- Integration with the `Open Notificaties` component. 
-Care must be taken that a specific notification event for ZAC is only handled once within a ZAC cluster.
-- Session management. ZAC uses HTTP sessions to keep track of logged-in users. 
-Either sticky sessions will need to be used at the load balancer level, or session data will need to be stored in a shared session store (e.g. Redis).
+Should the need arise for horizontal scalability for ZAC in the future, some things that will need to be tackled to achieve this include:
+- Integration with the `Open Notificaties` component.
+  Care must be taken that a specific notification event for ZAC is only handled once within a ZAC cluster.
+- Session management. ZAC uses HTTP sessions to keep track of logged-in users.
+  Either sticky sessions will need to be used at the load balancer level, or session data will need to be stored in a shared session store (e.g. Redis).
 - Locking.
 ZAC uses in-memory locks to prevent race conditions when updating certain data from ZAC in the ZGW register (like Open Zaak).
 This applies, for example, when a zaak is assigned an employee (a zaak can only be assigned to one employee at a time).
