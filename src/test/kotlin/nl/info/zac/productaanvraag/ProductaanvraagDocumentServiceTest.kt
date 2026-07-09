@@ -6,6 +6,7 @@ package nl.info.zac.productaanvraag
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -20,11 +21,12 @@ import java.net.URI
 class ProductaanvraagDocumentServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val drcClientService = mockk<DrcClientService>()
-
     val productaanvraagDocumentService = ProductaanvraagDocumentService(
         zrcClientService = zrcClientService,
         drcClientService = drcClientService
     )
+
+    afterEach { checkUnnecessaryStub() }
 
     Context("Pair bijlagen with zaak") {
         Given("a list of bijlage URIs and a zaak URI") {
@@ -64,6 +66,39 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                         informatieobject shouldBe enkelvoudigInformatieobjecten[1].url
                         titel shouldBe enkelvoudigInformatieobjecten[1].titel
                     }
+                }
+            }
+        }
+    }
+
+    Context("Pair bijlagen with zaak ignoring exceptions") {
+        Given("a list of bijlage URIs where one URI causes an exception during readEnkelvoudigInformatieobject") {
+            val failingBijlageURI = URI("fakeFailingURI")
+            val successBijlageURI = URI("fakeSuccessURI")
+            val bijlageURIs = listOf(failingBijlageURI, successBijlageURI)
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val zaakUrl = URI("fakeZaakUrl")
+
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(failingBijlageURI)
+            } throws RuntimeException("fakeException")
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(successBijlageURI)
+            } returns enkelvoudigInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(any(), any())
+            } returns zaakInformatieobject
+
+            When("the bijlagen are paired with the zaak") {
+                productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
+
+                Then("the method should not throw an exception and only the successful bijlage should be linked") {
+                    val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
+                    verify(exactly = 1) {
+                        zrcClientService.createZaakInformatieobject(capture(createdZaakInformatieobjectSlot), any())
+                    }
+                    createdZaakInformatieobjectSlot.captured.informatieobject shouldBe enkelvoudigInformatieobject.url
                 }
             }
         }
