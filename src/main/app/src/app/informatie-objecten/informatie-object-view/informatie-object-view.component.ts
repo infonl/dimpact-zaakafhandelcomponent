@@ -11,7 +11,6 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog } from "@angular/material/dialog";
@@ -42,13 +41,10 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
-import { InputFormFieldBuilder } from "../../shared/material-form-builder/form-components/input/input-form-field-builder";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -63,6 +59,7 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
+import { DocumentDialogService } from "../document-dialog.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
@@ -143,6 +140,7 @@ export class InformatieObjectViewComponent
     private translate: TranslateService,
     private dialog: MatDialog,
     private zakenService: ZakenService,
+    private documentDialogService: DocumentDialogService,
   ) {
     super();
   }
@@ -416,28 +414,12 @@ export class InformatieObjectViewComponent
   }
 
   private openDocumentVerwijderenDialog() {
-    const dialogData = new DialogData<unknown, { reden: string }>({
-      formFields: this.zaak
-        ? [
-            new InputFormFieldBuilder()
-              .id("reden")
-              .label("actie.document.verwijderen.reden")
-              .validators(Validators.required)
-              .maxlength(100)
-              .build(),
-          ]
-        : [],
-      callback: (results) =>
-        this.deleteEnkelvoudigInformatieObject$(results.reden),
-      melding: this.translate.instant("msg.document.verwijderen.bevestigen", {
-        document: this.infoObject?.titel,
-      }),
-      confirmButtonActionKey: "actie.document.verwijderen",
-      icon: "delete",
-    });
-
-    this.dialog
-      .open(DialogComponent, { data: dialogData })
+    this.documentDialogService
+      .openVerwijderDocument({
+        hasZaak: Boolean(this.zaak),
+        documentTitel: this.infoObject?.titel,
+        delete: (reden) => this.deleteEnkelvoudigInformatieObject$(reden),
+      })
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
