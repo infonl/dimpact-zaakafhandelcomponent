@@ -28,7 +28,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   openzaak.local:
-    user: "${UID}:${GID}"
+    # Running this container as the local user causes permission denied when accessing the volume '/app/private-media/'
     # Linux workaround for host.docker.internal support
     # see: https://stackoverflow.com/a/67158212
     extra_hosts:
