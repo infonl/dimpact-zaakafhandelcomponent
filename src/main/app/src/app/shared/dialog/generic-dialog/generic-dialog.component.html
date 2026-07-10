@@ -1,0 +1,30 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  @if (icon()) {
+    <mat-icon>{{ icon() }}</mat-icon>
+  }
+  <span class="flex-grow-1">{{ titleKey() ?? "" | translate }}</span>
+  <button
+    mat-icon-button
+    type="button"
+    [disabled]="loading()"
+    (click)="cancelled.emit()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider />
+
+<div mat-dialog-content>
+  @if (melding()) {
+    <p [innerHTML]="melding()"></p>
+  }
+  @if (uitleg()) {
+    <p class="uitleg" [innerHTML]="uitleg()"></p>
+  }
+  <ng-content />
+</div>

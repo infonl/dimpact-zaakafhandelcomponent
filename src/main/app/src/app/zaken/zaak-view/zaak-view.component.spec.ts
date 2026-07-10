@@ -46,6 +46,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
+import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
@@ -109,6 +110,7 @@ describe(ZaakViewComponent.name, () => {
       declarations: [ZaakViewComponent],
       imports: [
         ZaakDocumentenComponent,
+        ZaakBetrokkeneListComponent,
         ZaakInitiatorToevoegenComponent,
         BedrijfsgegevensComponent,
         ContactgegevensComponent,
@@ -146,7 +148,6 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listBetrokkenenVoorZaak").mockReturnValue(of([]));
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(

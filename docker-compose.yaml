@@ -99,7 +99,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.27.3@sha256:b2732761c15b9b35d9a59420e01de0bd099266be96819e65be9f4e01fca11a63
+    image: openzaak/open-zaak:1.29.1@sha256:e872cbfd6df6521736f521797f96726dcdb622c83340c621c7fce9c530f6bcdf
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -147,7 +147,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: openzaak/open-zaak:1.27.3@sha256:b2732761c15b9b35d9a59420e01de0bd099266be96819e65be9f4e01fca11a63
+    image: openzaak/open-zaak:1.29.1@sha256:e872cbfd6df6521736f521797f96726dcdb622c83340c621c7fce9c530f6bcdf
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -604,7 +604,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
     platform: linux/amd64
     environment: &web_env
       - ALLOWED_HOSTS="*"
@@ -622,8 +622,6 @@ services:
       - CSRF_COOKIE_SECURE=False
       - SESSION_COOKIE_SAMESITE=Lax
       - SESSION_COOKIE_SECURE=False
-      - TWO_FACTOR_FORCE_OTP_ADMIN=False
-      - TWO_FACTOR_PATCH_ADMIN=False
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - CELERY_LOGLEVEL=DEBUG
@@ -632,6 +630,11 @@ services:
       - OAB_ZAAK_URL_TEMPLATE=https://localhost:8080/zaken/{identificatie}
       - FRONTEND_URL=http://localhost:8005
       - REQUESTS_READ_TIMEOUT=5000
+    # Only this service serves the admin login form, so only here do we need to
+    # override DJANGO_SETTINGS_MODULE to disable enforced two-factor authentication.
+    command: [ "sh", "-c", "DJANGO_SETTINGS_MODULE=openarchiefbeheer.conf.docker_no2fa exec /start.sh" ]
+    volumes:
+      - ./scripts/docker-compose/imports/openarchiefbeheer-web/docker_no2fa.py:/app/src/openarchiefbeheer/conf/docker_no2fa.py:ro
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
@@ -646,7 +649,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web-init:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
     platform: linux/amd64
     environment: *web_env
     command: /setup_configuration.sh
@@ -660,7 +663,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
     platform: linux/amd64
     command: /celery_worker.sh
     environment: *web_env
@@ -675,7 +678,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-celery-beat:
-    image: maykinmedia/open-archiefbeheer:1.1.1@sha256:c51ab7924595956873ade8f76e15023d7f5b625e27e94f7d9a8ee97ebecdf6f7
+    image: maykinmedia/open-archiefbeheer:2.0.0@sha256:e5217d748869c62d26393311c3cfdcaacf69d8dde80ca3bc172ff41f3885f0ff
     platform: linux/amd64
     command: /celery_beat.sh
     environment: *web_env
