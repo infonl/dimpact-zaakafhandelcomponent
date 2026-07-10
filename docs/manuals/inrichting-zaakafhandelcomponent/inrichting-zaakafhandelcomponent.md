@@ -66,7 +66,7 @@ Versiegeschiedenis:
 - [IAM architectuur](#iam-architectuur)
 - [Keycloak](#keycloak)
 - [PABC](#pabc)
-- [Migratie van de oude naar de nieuwe IAM-architectuur](migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
+- [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
 
 [*Groepen*](#groepen)
 - [Beheer van groepen](#beheer-van-groepen)
