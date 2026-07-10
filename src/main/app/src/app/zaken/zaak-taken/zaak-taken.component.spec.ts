@@ -7,15 +7,17 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -73,6 +75,7 @@ describe(ZaakTakenComponent.name, () => {
   let websocketService: WebsocketService;
   let utilService: UtilService;
   let identityService: IdentityService;
+  let httpTestingController: HttpTestingController;
 
   const fakeZaak = makeZaak({ uuid: "fake-zaak-uuid" });
 
@@ -101,6 +104,7 @@ describe(ZaakTakenComponent.name, () => {
     websocketService = TestBed.inject(WebsocketService);
     utilService = TestBed.inject(UtilService);
     identityService = TestBed.inject(IdentityService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(websocketService, "addListener")
@@ -140,10 +144,13 @@ describe(ZaakTakenComponent.name, () => {
     });
 
     it("calls listTakenVoorZaakQuery with the zaak uuid", () => {
-      const spy = jest.spyOn(takenService, "listTakenVoorZaakQuery");
+      const listTakenVoorZaakQuerySpy = jest.spyOn(
+        takenService,
+        "listTakenVoorZaakQuery",
+      );
       fixture.componentRef.setInput("zaak", makeZaak({ uuid: "new-uuid" }));
       fixture.detectChanges();
-      expect(spy).toHaveBeenCalledWith("new-uuid");
+      expect(listTakenVoorZaakQuerySpy).toHaveBeenCalledWith("new-uuid");
     });
 
     it("restores toonAfgerondeTaken from session storage on init", () => {
@@ -424,21 +431,9 @@ describe(ZaakTakenComponent.name, () => {
   });
 
   describe("assignTaakToMe", () => {
-    const settle = async () => {
-      for (let i = 0; i < 2; i++) {
-        await new Promise((resolve) => setTimeout(resolve));
-        fixture.detectChanges();
-      }
-    };
+    const TOEKENNEN_URL = "/rest/taken/toekennen/mij";
 
     it("assigns via the mutation and opens the snackbar on success", async () => {
-      const returnedTaak = makeTaak({
-        behandelaar: { id: "logged-in-user-id", naam: "Logged In User" },
-        status: "TOEGEKEND",
-      });
-      const serviceSpy = jest
-        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
-        .mockReturnValue(of(returnedTaak));
       const snackbarSpy = jest
         .spyOn(utilService, "openSnackbar")
         .mockReturnValue(undefined as never);
@@ -452,24 +447,30 @@ describe(ZaakTakenComponent.name, () => {
       jest.spyOn(mouseEvent, "stopPropagation");
 
       component["assignTaakToMe"](taak, mouseEvent);
-      await settle();
+      await sleep();
 
-      expect(mouseEvent.stopPropagation).toHaveBeenCalled();
-      expect(serviceSpy).toHaveBeenCalledWith({
+      const request = httpTestingController.expectOne(TOEKENNEN_URL);
+      expect(request.request.body).toEqual({
         taakId: taak.id,
         zaakUuid: taak.zaakUuid,
         groepId: taak.groep!.id,
       });
+
+      const returnedTaak = makeTaak({
+        behandelaar: { id: "logged-in-user-id", naam: "Logged In User" },
+        status: "TOEGEKEND",
+      });
+      request.flush(returnedTaak);
+      await sleep(100);
+
+      expect(mouseEvent.stopPropagation).toHaveBeenCalled();
       expect(taak.behandelaar).toEqual(returnedTaak.behandelaar);
       expect(snackbarSpy).toHaveBeenCalledWith("msg.taak.toegekend", {
         behandelaar: returnedTaak.behandelaar?.naam,
       });
     });
 
-    it("suspends the websocket listener when assigning task to me", () => {
-      jest
-        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
-        .mockReturnValue(of(makeTaak()));
+    it("suspends the websocket listener when assigning task to me", async () => {
       jest
         .spyOn(utilService, "openSnackbar")
         .mockReturnValue(undefined as never);
@@ -477,41 +478,42 @@ describe(ZaakTakenComponent.name, () => {
       component["assignTaakToMe"](makeTaak(), new MouseEvent("click"));
 
       expect(websocketService.suspendListener).toHaveBeenCalled();
+
+      await sleep();
+      httpTestingController.expectOne(TOEKENNEN_URL).flush(makeTaak());
+      await sleep(100);
     });
 
     it("ignores a second click while the first assignment is still in flight", async () => {
-      const inFlight = new Subject<GeneratedType<"RestTask">>();
-      const serviceSpy = jest
-        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
-        .mockReturnValue(inFlight.asObservable());
-
-      const taak = makeTaak();
-      component["assignTaakToMe"](taak, new MouseEvent("click"));
-      await settle();
-      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
-
-      component["assignTaakToMe"](taak, new MouseEvent("click"));
-
-      expect(serviceSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it("re-enables the assignment once the request settles", async () => {
-      const inFlight = new Subject<GeneratedType<"RestTask">>();
-      jest
-        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
-        .mockReturnValue(inFlight.asObservable());
       jest
         .spyOn(utilService, "openSnackbar")
         .mockReturnValue(undefined as never);
 
       const taak = makeTaak();
       component["assignTaakToMe"](taak, new MouseEvent("click"));
-      await settle();
+      await sleep();
       expect(component["isAssigningTaakToMe"](taak)).toBe(true);
 
-      inFlight.next(makeTaak());
-      inFlight.complete();
-      await settle();
+      component["assignTaakToMe"](taak, new MouseEvent("click"));
+
+      const requests = httpTestingController.match(TOEKENNEN_URL);
+      expect(requests).toHaveLength(1);
+      requests[0].flush(makeTaak());
+      await sleep(100);
+    });
+
+    it("re-enables the assignment once the request settles", async () => {
+      jest
+        .spyOn(utilService, "openSnackbar")
+        .mockReturnValue(undefined as never);
+
+      const taak = makeTaak();
+      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      await sleep();
+      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
+
+      httpTestingController.expectOne(TOEKENNEN_URL).flush(makeTaak());
+      await sleep(100);
 
       expect(component["isAssigningTaakToMe"](taak)).toBe(false);
     });
